@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import {
   DocumentItemComponent,
   JosanzThemeService,
+  ListSearchFieldComponent,
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
   type JosanzStatusPillKey,
@@ -33,6 +34,21 @@ interface JosanzEventEquipment {
   imageUrl: string;
 }
 
+interface JosanzBudgetCatalogItem {
+  id: string;
+  name: string;
+  warehouse: string;
+  status: string;
+  pillKey: JosanzStatusPillKey;
+}
+
+interface JosanzEventEmail {
+  id: string;
+  time: string;
+  subject: string;
+  preview: string;
+}
+
 @Component({
   selector: 'josanz-event-detail',
   standalone: true,
@@ -42,6 +58,7 @@ interface JosanzEventEquipment {
     MainDetailLayoutComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
+    ListSearchFieldComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
@@ -52,6 +69,11 @@ export class JosanzEventDetailComponent implements OnInit {
   activeTab = signal('Resumen');
   showStaffComposer = signal(false);
   staffDraft = '';
+  budgetSearch = '';
+  showBudgetPicker = signal(false);
+  highlightedBudgetId = signal('mic-03');
+  showEmailComposer = signal(false);
+  emailForm = { date: '-', subject: '-', body: '-' };
 
   ngOnInit(): void {
     this.theme.setAtmosphere('neutral');
@@ -61,11 +83,32 @@ export class JosanzEventDetailComponent implements OnInit {
     'Resumen',
     'Cliente',
     'Staff',
+    'Presupuesto',
     'Equipo',
     'Albaranes',
     'Facturas',
     'Informes / reportes',
     'Emails',
+  ];
+
+  readonly budgetTotal = '€ 340.00';
+
+  readonly budgetCatalog: JosanzBudgetCatalogItem[] = [
+    { id: 'mic-01', name: 'Micrófono 01', warehouse: 'Almacén X', status: 'Mantenimiento', pillKey: 'en-proceso' },
+    { id: 'mic-02', name: 'Micrófono 02', warehouse: 'Almacén X', status: 'En uso', pillKey: 'en-produccion' },
+    { id: 'mic-03', name: 'Micrófono 03', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
+    { id: 'mic-04', name: 'Micrófono 04', warehouse: 'Almacén X', status: 'Averiado', pillKey: 'cancelado' },
+    { id: 'mic-05', name: 'Micrófono 05', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
+    { id: 'mic-06', name: 'Micrófono 06', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
+  ];
+
+  readonly emails: JosanzEventEmail[] = [
+    {
+      id: '1',
+      time: '00:00',
+      subject: 'Asunto ejemplo',
+      preview: 'Nota breve lorem ipsum dolor sit amet, consectetur',
+    },
   ];
 
   readonly heroImage =
@@ -153,6 +196,9 @@ export class JosanzEventDetailComponent implements OnInit {
 
   setTab(tab: string): void {
     this.activeTab.set(tab);
+    if (tab === 'Presupuesto') {
+      this.showBudgetPicker.set(true);
+    }
   }
 
   onBack(): void {
@@ -169,5 +215,40 @@ export class JosanzEventDetailComponent implements OnInit {
 
   toggleStaffComposer(): void {
     this.showStaffComposer.update((v) => !v);
+  }
+
+  filteredBudgetCatalog(): JosanzBudgetCatalogItem[] {
+    const q = this.budgetSearch.trim().toLowerCase();
+    if (!q) {
+      return this.budgetCatalog;
+    }
+    return this.budgetCatalog.filter(
+      (item) =>
+        item.name.toLowerCase().includes(q) ||
+        item.warehouse.toLowerCase().includes(q) ||
+        item.status.toLowerCase().includes(q),
+    );
+  }
+
+  onBudgetSearch(value: string): void {
+    this.budgetSearch = value;
+    this.showBudgetPicker.set(true);
+  }
+
+  openBudgetPicker(): void {
+    this.showBudgetPicker.set(true);
+  }
+
+  closeBudgetPicker(): void {
+    this.showBudgetPicker.set(false);
+  }
+
+  selectBudgetItem(id: string): void {
+    this.highlightedBudgetId.set(id);
+    this.showBudgetPicker.set(false);
+  }
+
+  toggleEmailComposer(): void {
+    this.showEmailComposer.update((v) => !v);
   }
 }

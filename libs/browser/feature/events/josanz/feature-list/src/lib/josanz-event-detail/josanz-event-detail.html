@@ -155,11 +155,113 @@
     </div>
   }
 
-  @if (activeTab() === 'Albaranes' || activeTab() === 'Facturas' || activeTab() === 'Emails') {
+  @if (activeTab() === 'Presupuesto') {
+    <div class="josanz-event-section-header">
+      <h3>Presupuesto (aceptado va a Albaranes)</h3>
+      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+    </div>
+
+    <section class="josanz-event-budget-panel">
+      <div class="josanz-event-budget-panel__search-wrap">
+        <josanz-list-search-field
+          placeholder="Mic"
+          [value]="budgetSearch"
+          ariaLabel="Buscar material en presupuesto"
+          (valueChange)="onBudgetSearch($event)"
+        ></josanz-list-search-field>
+        @if (showBudgetPicker() && filteredBudgetCatalog().length) {
+          <div class="josanz-event-budget-panel__dropdown" role="listbox">
+            @for (item of filteredBudgetCatalog(); track item.id) {
+              <button
+                type="button"
+                class="josanz-event-budget-line w-full text-left border-0"
+                [class.josanz-event-budget-line--active]="highlightedBudgetId() === item.id"
+                (click)="selectBudgetItem(item.id)"
+              >
+                <span>
+                  <span class="josanz-event-budget-line__name">{{ item.name }}</span>
+                  <span class="josanz-event-budget-line__warehouse"> · {{ item.warehouse }}</span>
+                </span>
+                <span></span>
+                <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(item.pillKey)">{{ item.status }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+      <p class="m-0 text-[13px]" style="color: var(--josanz-text-muted)">
+        Material AV → principal + auxiliar · Cableado se rellena en la app / aparece en producción
+      </p>
+      <footer class="josanz-event-budget-footer">
+        <button type="button" class="josanz-event-budget-footer__link">Añadir datos de facturación</button>
+        <span class="josanz-event-budget-footer__total">{{ budgetTotal }}</span>
+      </footer>
+    </section>
+  }
+
+  @if (activeTab() === 'Albaranes' || activeTab() === 'Facturas') {
     <section class="josanz-event-section">
       <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
         Contenido de {{ activeTab() }} — prototipo sin backend.
       </p>
+    </section>
+  }
+
+  @if (activeTab() === 'Emails') {
+    <section class="josanz-event-section">
+      @for (email of emails; track email.id) {
+        <div class="josanz-event-email-row">
+          <div class="josanz-event-email-row__meta">
+            <span class="josanz-event-email-row__time">{{ email.time }}</span>
+            <span class="josanz-event-email-row__subject">{{ email.subject }}</span>
+            <p class="josanz-event-email-row__preview">{{ email.preview }}</p>
+          </div>
+          <div class="josanz-event-note-row__actions">
+            <button type="button" class="josanz-event-icon-btn" aria-label="Editar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+            </button>
+            <button type="button" class="josanz-event-icon-btn josanz-event-icon-btn--danger" aria-label="Eliminar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              </svg>
+            </button>
+            <button type="button" class="josanz-event-icon-btn" aria-label="Expandir" (click)="toggleEmailComposer()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (showEmailComposer()) {
+        <div class="josanz-event-email-form">
+          <div class="josanz-event-field">
+            <label for="email-date">Fecha</label>
+            <input id="email-date" type="text" [(ngModel)]="emailForm.date" />
+          </div>
+          <div class="josanz-event-field">
+            <label for="email-subject">Asunto</label>
+            <input id="email-subject" type="text" [(ngModel)]="emailForm.subject" />
+          </div>
+          <div class="josanz-event-field">
+            <label for="email-body">Email completo</label>
+            <textarea id="email-body" [(ngModel)]="emailForm.body"></textarea>
+          </div>
+          <div class="josanz-event-new-note-actions">
+            <button type="button" class="text-[13px] font-semibold" style="color: var(--josanz-text-muted)" (click)="toggleEmailComposer()">
+              Cancelar
+            </button>
+            <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+          </div>
+        </div>
+      } @else {
+        <div class="josanz-event-section__footer">
+          <josanz-secondary-button label="Añadir +" (btnClick)="toggleEmailComposer()"></josanz-secondary-button>
+        </div>
+      }
     </section>
   }
 
