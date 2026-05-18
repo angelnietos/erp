@@ -99,7 +99,6 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
 
   ngOnInit(): void {
     this.theme.setAtmosphere('neutral');
-    this.theme.setListViewSelection('tarjetas-lista');
 
     if (this.route.snapshot.queryParamMap.get('created') === '1') {
       this.showSuccessToast = true;

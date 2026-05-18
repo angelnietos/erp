@@ -57,7 +57,7 @@ export class JosanzCatalogListComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.theme.setListViewSelection('tarjetas-lista');
+    this.theme.setAtmosphere('neutral');
   }
 
   get filterOptions(): string[] {
