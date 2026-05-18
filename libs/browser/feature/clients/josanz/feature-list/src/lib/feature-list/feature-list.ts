@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   ButtonComponent,
-  JosanzThemeService,
   MainListLayoutComponent,
   ModalComponent,
   BaseListComponent,
@@ -28,7 +27,6 @@ import {
 export class JosanzClientsListComponent extends BaseListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  private readonly theme = inject(JosanzThemeService);
 
   activeTypology = 'Todos';
   showSuccessToast = false;
@@ -98,8 +96,6 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
   }
 
   ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
-
     if (this.route.snapshot.queryParamMap.get('created') === '1') {
       this.showSuccessToast = true;
       this.showSuccessModal = true;

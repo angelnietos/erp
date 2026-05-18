@@ -1,10 +1,9 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  JosanzThemeService,
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
   type JosanzStatusPillKey,
@@ -60,9 +59,8 @@ interface JosanzEventEmail {
   ],
   templateUrl: './josanz-event-detail.html',
 })
-export class JosanzEventDetailComponent implements OnInit {
+export class JosanzEventDetailComponent {
   private readonly router = inject(Router);
-  private readonly theme = inject(JosanzThemeService);
 
   activeTab = signal('Resumen');
   showStaffComposer = signal(false);
@@ -74,10 +72,6 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
   showEmailComposer = signal(false);
   emailForm = { date: '-', subject: '-', body: '-' };
-
-  ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
-  }
 
   readonly tabs = [
     'Resumen',

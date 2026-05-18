@@ -1,10 +1,9 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   FilterTabsComponent,
-  JosanzThemeService,
   MainListLayoutComponent,
   SecondaryButtonComponent,
   type JosanzAdaptiveListItem,
@@ -39,9 +38,8 @@ export interface JosanzCatalogListConfig {
   ],
   templateUrl: './josanz-catalog-list.html',
 })
-export class JosanzCatalogListComponent implements OnInit {
+export class JosanzCatalogListComponent {
   private readonly router = inject(Router);
-  private readonly theme = inject(JosanzThemeService);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
@@ -55,10 +53,6 @@ export class JosanzCatalogListComponent implements OnInit {
     { label: 'En presupuesto', count: 3 },
     { label: 'Confirmado', count: 12 },
   ];
-
-  ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
-  }
 
   get filterOptions(): string[] {
     return this.config.filterOptions ?? JOSANZ_CATALOG_WAREHOUSE_TABS;

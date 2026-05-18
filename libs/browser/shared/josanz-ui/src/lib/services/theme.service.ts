@@ -83,7 +83,13 @@ export class JosanzThemeService {
   }
 
   setAtmosphere(name: JosanzAtmosphereName) {
-    this.currentTheme.update((t) => ({ ...t, atmosphere: this.atmospheres[name] }));
+    const atmosphere = this.atmospheres[name];
+    this.currentTheme.update((t) => ({
+      ...t,
+      atmosphere,
+      // En atmósferas de color, alinear el primario con el acento para un look cohesionado.
+      primaryColor: name === 'neutral' ? t.primaryColor : atmosphere.accent,
+    }));
     this.persistPreferences();
     this.applyToDOM();
   }

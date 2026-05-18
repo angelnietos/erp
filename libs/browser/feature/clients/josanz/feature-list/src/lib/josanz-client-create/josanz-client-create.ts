@@ -1,10 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   ButtonComponent,
-  JosanzThemeService,
   SecondaryButtonComponent,
   UserAvatarComponent,
   josanzNonEmptyTrim,
@@ -24,10 +23,9 @@ import {
   templateUrl: './josanz-client-create.html',
   styleUrl: './josanz-client-create.css',
 })
-export class JosanzClientCreateComponent implements OnInit {
+export class JosanzClientCreateComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
-  private readonly theme = inject(JosanzThemeService);
 
   readonly clientTypes: { value: string; label: string; pillKey: JosanzStatusPillKey }[] = [
     { value: 'tipo-1', label: 'Tipo cliente', pillKey: 'cliente-tipo-pink' },
@@ -45,10 +43,6 @@ export class JosanzClientCreateComponent implements OnInit {
       telefono: ['699432567', josanzNonEmptyTrim],
       tipo: ['tipo-1'],
     });
-  }
-
-  ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
   }
 
   selectedTypePillKey(): JosanzStatusPillKey {

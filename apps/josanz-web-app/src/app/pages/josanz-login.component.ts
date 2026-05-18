@@ -32,7 +32,7 @@ export class JosanzLoginComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
+    /* Login Figma: solo forma redondeada; atmósfera la elige el usuario en Ajustes. */
     this.theme.setTheme('luxe-rounded');
   }
 

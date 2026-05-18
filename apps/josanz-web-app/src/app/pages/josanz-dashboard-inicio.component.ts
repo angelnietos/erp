@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   FilterTabsComponent,
@@ -33,7 +33,7 @@ interface JosanzHomeScheduleCell {
   imports: [RouterLink, FilterTabsComponent],
   templateUrl: './josanz-dashboard-inicio.component.html',
 })
-export class JosanzDashboardInicioComponent implements OnInit {
+export class JosanzDashboardInicioComponent {
   readonly theme = inject(JosanzThemeService);
   readonly shell = JOSANZ_FIGMA_SHELL;
   readonly dash = JOSANZ_FIGMA_DASHBOARD;
@@ -82,10 +82,6 @@ export class JosanzDashboardInicioComponent implements OnInit {
     { day: 'Miércoles', techId: 't4' },
     { day: 'Miércoles', techId: 't5' },
   ];
-
-  ngOnInit(): void {
-    this.theme.setAtmosphere('neutral');
-  }
 
   cellFor(day: string, techId: string): JosanzHomeScheduleCell | undefined {
     return this.scheduleCells.find((c) => c.day === day && c.techId === techId);

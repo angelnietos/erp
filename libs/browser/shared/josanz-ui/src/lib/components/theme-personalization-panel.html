@@ -79,13 +79,11 @@
           <button
             type="button"
             (click)="themeService.setListGridColumns(opt.value)"
-            class="pagination-variant-selector !flex-col !items-center !py-4"
+            class="grid-col-selector"
             [class.active]="themeService.listGridColumns() === opt.value"
           >
-            <span class="text-[22px] font-black leading-none" [style.color]="'var(--josanz-primary)'">
-              {{ opt.value }}×
-            </span>
-            <span class="pagination-variant-selector__title !text-center">{{ opt.label }}</span>
+            <span class="grid-col-selector__value">{{ opt.value }}×</span>
+            <span class="grid-col-selector__label">{{ opt.label }}</span>
           </button>
         }
       </div>
@@ -146,7 +144,7 @@
             [class.active]="themeService.currentTheme().atmosphere.name === atm.name"
             [class.atmosphere-card--light]="cfg.isDark === false"
             [style.background]="cfg.background"
-            [style.color]="cfg.text"
+            [style.--atm-text]="cfg.text"
             [style.--atm-accent]="cfg.accent"
             [style.--atm-border]="cfg.border"
             [style.--atm-surface]="cfg.surface"
