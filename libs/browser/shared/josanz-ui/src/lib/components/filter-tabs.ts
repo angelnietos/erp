@@ -2,8 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
-
 /** `figma`: chips DDECFF. `underline`: tipología Eventos (subrayado). `brand`: color de marca. */
 export type JosanzFilterTabsVariant = 'figma' | 'underline' | 'brand';
 
@@ -119,10 +117,11 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     if (this.active === option) {
       if (this.useFigmaChips()) {
         return {
-          color: JOSANZ_FIGMA_SHELL.pillActiveText,
-          WebkitTextFillColor: JOSANZ_FIGMA_SHELL.pillActiveText,
-          backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
-          borderColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
+          color: 'var(--josanz-pill-active-text)',
+          WebkitTextFillColor: 'var(--josanz-pill-active-text)',
+          backgroundColor: 'var(--josanz-pill-active-bg)',
+          borderColor: 'var(--josanz-pill-active-border)',
+          boxShadow: '0 2px 10px -2px var(--josanz-focus-ring)',
         };
       }
       const on = 'var(--josanz-on-primary)';

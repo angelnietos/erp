@@ -21,7 +21,7 @@
   font-weight: 800;
   color: var(--josanz-text-heading, #222);
   padding-bottom: 0.35rem;
-  border-bottom: 3px solid #2563eb;
+  border-bottom: 3px solid var(--josanz-interactive, var(--josanz-primary));
   display: inline-block;
 }
 
@@ -189,7 +189,7 @@
   height: 2rem;
   margin: 0 auto;
   border-radius: 9999px;
-  background: #2563eb;
+  background: var(--josanz-interactive, var(--josanz-primary));
   color: #fff;
   display: flex;
   align-items: center;

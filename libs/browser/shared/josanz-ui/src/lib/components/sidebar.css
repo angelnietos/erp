@@ -12,7 +12,7 @@
 }
 
 .active-link .nav-icon-container {
-  color: var(--josanz-text);
+  color: var(--josanz-nav-hover);
 }
 
 .active-link .active-indicator {

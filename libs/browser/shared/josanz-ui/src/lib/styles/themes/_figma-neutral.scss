@@ -54,5 +54,5 @@
 }
 
 [data-josanz-atmosphere='neutral'] .josanz-main-list__header .h-\[3px\] {
-  background: linear-gradient(90deg, #080808, transparent) !important;
+  background: linear-gradient(90deg, var(--josanz-interactive, #080808), transparent) !important;
 }

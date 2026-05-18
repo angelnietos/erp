@@ -6,7 +6,17 @@
   --josanz-border: #334155;
   --josanz-primary: #818cf8;
   --josanz-primary-hover: #6366f1;
-  --josanz-accent: #60a5fa;
+  --josanz-pill-active-bg: color-mix(in srgb, #818cf8 26%, #1e293b);
+  --josanz-pill-active-text: #818cf8;
+  --josanz-pill-active-border: rgba(129, 140, 248, 0.4);
+  --josanz-nav-active-indicator: #818cf8;
+  --josanz-nav-hover: #818cf8;
+  --josanz-interactive: #818cf8;
+  --josanz-focus-ring: rgba(129, 140, 248, 0.25);
+  --josanz-card-hover-glow: rgba(129, 140, 248, 0.2);
+  --josanz-primary-soft: #1e293b;
+  --josanz-accent: #818cf8;
+  --btn-color: #818cf8;
   --josanz-danger: #f87171;
   --josanz-danger-hover: #ef4444;
   --josanz-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);

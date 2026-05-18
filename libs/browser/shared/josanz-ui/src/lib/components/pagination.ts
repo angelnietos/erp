@@ -11,7 +11,6 @@ import { CommonModule } from '@angular/common';
 import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 export type { JosanzPaginationVariant } from '../services/theme.service';
 
@@ -182,9 +181,9 @@ export class PaginationComponent {
         };
       }
       return {
-        backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
-        borderColor: JOSANZ_FIGMA_SHELL.hairlineBorder,
-        color: JOSANZ_FIGMA_SHELL.pillActiveText,
+        backgroundColor: 'var(--josanz-pill-active-bg)',
+        borderColor: 'var(--josanz-pill-active-border)',
+        color: 'var(--josanz-pill-active-text)',
       };
     }
     return {

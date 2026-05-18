@@ -17,8 +17,13 @@
     box-shadow 0.15s ease;
 
   &:focus-within {
-    border-color: var(--josanz-primary);
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--josanz-primary) 40%, transparent);
+    border-color: var(--josanz-interactive, var(--josanz-primary));
+    box-shadow: 0 0 0 2px var(--josanz-focus-ring);
+  }
+
+  &:focus-within &__icon {
+    color: var(--josanz-interactive, var(--josanz-primary));
+    opacity: 1;
   }
 
   &__icon {

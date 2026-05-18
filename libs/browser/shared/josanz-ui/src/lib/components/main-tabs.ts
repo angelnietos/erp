@@ -2,8 +2,6 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { type JosanzControlShape } from '../josanz-control-styles';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
-
 export type JosanzMainTabsVariant = 'figma' | 'brand';
 
 @Component({
@@ -48,15 +46,16 @@ export class MainTabsComponent implements OnInit, OnChanges {
     const on = this.active === option;
     if (this.useFigmaTabs()) {
       return {
-        backgroundColor: 'var(--josanz-surface)',
-        borderColor: on ? JOSANZ_FIGMA_SHELL.pillActiveText : 'var(--josanz-border)',
-        color: on ? JOSANZ_FIGMA_SHELL.pillActiveText : 'var(--josanz-text-muted)',
+        backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
+        borderColor: on ? 'var(--josanz-pill-active-text)' : 'var(--josanz-border)',
+        color: on ? 'var(--josanz-pill-active-text)' : 'var(--josanz-text-muted)',
+        boxShadow: on ? '0 0 0 1px var(--josanz-pill-active-border)' : 'none',
       };
     }
     return {
-      backgroundColor: 'var(--josanz-surface)',
-      borderColor: on ? 'var(--josanz-accent)' : 'var(--josanz-border)',
-      color: on ? 'var(--josanz-accent)' : 'var(--josanz-text-muted)',
+      backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
+      borderColor: on ? 'var(--josanz-interactive)' : 'var(--josanz-border)',
+      color: on ? 'var(--josanz-interactive)' : 'var(--josanz-text-muted)',
     };
   }
 

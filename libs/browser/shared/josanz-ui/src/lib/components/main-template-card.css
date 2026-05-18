@@ -9,7 +9,8 @@
   box-shadow:
     0 10px 24px rgba(189, 189, 189, 0.35),
     0 12px 28px rgba(0, 0, 0, 0.1),
-    0 0 0 1px color-mix(in srgb, var(--josanz-primary) 20%, transparent) !important;
+    0 0 0 1px color-mix(in srgb, var(--josanz-primary) 35%, transparent),
+    4px 0 16px -4px var(--josanz-card-hover-glow) !important;
 }
 
 .josanz-list-card:active {

@@ -452,8 +452,8 @@
   font-family: inherit;
 
   &:focus {
-    outline: 2px solid #ddecff;
-    border-color: var(--josanz-text, #080808);
+    outline: 2px solid var(--josanz-focus-ring);
+    border-color: var(--josanz-interactive, var(--josanz-primary));
   }
 }
 
@@ -491,7 +491,7 @@
   }
 
   &--active {
-    background: #ddecff;
+    background: var(--josanz-pill-active-bg);
   }
 
   &__name {

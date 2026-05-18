@@ -509,6 +509,58 @@ export function josanzReadableOnSolid(background: string): string {
   return L > 0.72 ? '#0F172A' : '#FFFFFF';
 }
 
+/**
+ * Tokens derivados del color de marca, mezclados con la atmósfera activa
+ * (chips, navegación, focos, hovers de tarjetas, etc.).
+ */
+export function applyJosanzBrandCssVariables(
+  root: HTMLElement,
+  primaryColor: string,
+  atmosphere: JosanzAtmosphereConfig,
+  isDark: boolean,
+): void {
+  const surface = atmosphere.surface;
+  const softStrength = isDark ? 26 : atmosphere.name === 'neutral' ? 12 : 18;
+  const softBg = `color-mix(in srgb, ${primaryColor} ${softStrength}%, ${surface})`;
+  const brandRgb = parseCssColorToRgb(primaryColor);
+  const brandLum = brandRgb ? relativeLuminanceFromRgb(brandRgb) : 0;
+  /** En lienzo oscuro, marcas muy oscuras pierden contraste: aclaramos el texto activo. */
+  const pillText =
+    isDark && brandLum < 0.22
+      ? `color-mix(in srgb, ${primaryColor} 55%, white)`
+      : primaryColor;
+
+  root.style.setProperty(
+    '--josanz-primary-hover',
+    isDark
+      ? `color-mix(in srgb, ${primaryColor} 78%, white)`
+      : `color-mix(in srgb, ${primaryColor} 80%, black)`,
+  );
+  root.style.setProperty('--josanz-pill-active-bg', softBg);
+  root.style.setProperty('--josanz-pill-active-text', pillText);
+  root.style.setProperty(
+    '--josanz-pill-active-border',
+    `color-mix(in srgb, ${primaryColor} 42%, transparent)`,
+  );
+  root.style.setProperty('--josanz-nav-active-indicator', primaryColor);
+  root.style.setProperty('--josanz-nav-hover', primaryColor);
+  root.style.setProperty('--josanz-interactive', primaryColor);
+  root.style.setProperty('--josanz-accent', primaryColor);
+  root.style.setProperty('--btn-color', primaryColor);
+  root.style.setProperty(
+    '--josanz-focus-ring',
+    `color-mix(in srgb, ${primaryColor} 22%, transparent)`,
+  );
+  root.style.setProperty(
+    '--josanz-card-hover-glow',
+    `color-mix(in srgb, ${primaryColor} 28%, transparent)`,
+  );
+  root.style.setProperty(
+    '--josanz-primary-soft',
+    `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 10}%, ${surface})`,
+  );
+}
+
 /** Infiera si la atmósfera es oscura a partir del fondo (sólido o gradiente). */
 export function josanzAtmosphereIsDark(atmosphere: JosanzAtmosphereConfig): boolean {
   if (atmosphere.isDark !== undefined) {
@@ -541,10 +593,6 @@ export function applyJosanzThemeCssVariables(params: {
   root.style.setProperty('--josanz-text-muted', atmosphere.textMuted);
   root.style.setProperty('--josanz-border', atmosphere.border);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
-  root.style.setProperty(
-    '--josanz-accent',
-    atmosphere.name === 'neutral' ? JOSANZ_FIGMA_BRAND_PRIMARY : atmosphere.accent,
-  );
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
   root.style.setProperty(
     '--josanz-card-shadow',
@@ -565,6 +613,7 @@ export function applyJosanzThemeCssVariables(params: {
   document.body.style.color = atmosphere.text;
 
   applyJosanzStructuralCssVariables(root);
+  applyJosanzBrandCssVariables(root, primaryColor, atmosphere, isDark);
 
   if (atmosphere.fieldFill) {
     root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
