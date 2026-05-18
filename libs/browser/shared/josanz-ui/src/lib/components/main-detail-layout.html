@@ -1,5 +1,9 @@
-@if (layoutVariant === 'figma-event') {
-  <div class="josanz-detail-figma" [style.backgroundColor]="'var(--josanz-bg)'">
+<div
+  class="josanz-detail-root flex flex-col min-h-0 h-full"
+  [class.josanz-detail-root--figma]="layoutVariant === 'figma-event'"
+  [style.backgroundColor]="'var(--josanz-bg)'"
+>
+  @if (layoutVariant === 'figma-event') {
     <header class="josanz-detail-figma__top">
       <div class="josanz-detail-figma__title-row">
         <button type="button" class="josanz-detail-figma__back" (click)="back.emit()" aria-label="Volver">
@@ -46,14 +50,8 @@
         ></josanz-button>
       </div>
     </div>
-
-    <div class="josanz-detail-figma__content josanz-scroll-quiet">
-      <ng-content></ng-content>
-    </div>
-  </div>
-} @else {
-  <div class="flex flex-col h-full min-h-screen relative" [style.backgroundColor]="'var(--josanz-bg)'">
-    <div class="pb-6 flex flex-col gap-5">
+  } @else {
+    <div class="pb-6 flex flex-col gap-5 shrink-0">
       <div class="flex items-center gap-4">
         <button
           type="button"
@@ -89,44 +87,45 @@
         </div>
       </div>
     </div>
+  }
 
+  <div
+    class="josanz-detail-root__content flex-1 min-h-0 overflow-y-auto josanz-scroll-quiet"
+    [class.josanz-detail-figma__content]="layoutVariant === 'figma-event'"
+    [ngClass]="layoutVariant === 'figma-event' ? '' : (showFooterActions ? 'pb-40 md:pb-32' : 'pb-8 md:pb-12')"
+  >
+    <div [class.mx-auto]="layoutVariant !== 'figma-event'" [class.w-full]="layoutVariant !== 'figma-event'" [class.max-w-\[1200px\]]="layoutVariant !== 'figma-event'">
+      <ng-content></ng-content>
+    </div>
+  </div>
+
+  @if (showFooterActions && layoutVariant !== 'figma-event') {
     <div
-      class="flex-1 overflow-y-auto josanz-scroll-quiet"
-      [ngClass]="showFooterActions ? 'pb-40 md:pb-32' : 'pb-8 md:pb-12'"
+      class="fixed bottom-0 left-0 md:left-[var(--josanz-sidebar-width)] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-[var(--josanz-shell-pad-x)] md:px-[var(--josanz-shell-pad-x-md)] py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
+      [style.backgroundColor]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
+      [style.borderColor]="'var(--josanz-border)'"
+      [style.boxShadow]="'var(--josanz-footer-elev)'"
     >
-      <div class="mx-auto w-full max-w-[1200px]">
-        <ng-content></ng-content>
+      <div class="w-full md:w-auto order-2 md:order-1">
+        <josanz-button
+          [label]="cancelLabel"
+          variant="ghost"
+          size="lg"
+          [showIcon]="false"
+          [fullWidth]="true"
+          (btnClick)="cancel.emit()"
+        ></josanz-button>
+      </div>
+      <div class="w-full md:w-auto order-1 md:order-2">
+        <josanz-button
+          [label]="saveLabel"
+          size="lg"
+          [showIcon]="false"
+          [fullWidth]="true"
+          [disabled]="saveDisabled"
+          (btnClick)="save.emit()"
+        ></josanz-button>
       </div>
     </div>
-
-    @if (showFooterActions) {
-      <div
-        class="fixed bottom-0 left-0 md:left-[var(--josanz-sidebar-width)] right-0 h-auto md:h-[100px] flex flex-col md:flex-row items-center justify-end px-[var(--josanz-shell-pad-x)] md:px-[var(--josanz-shell-pad-x-md)] py-6 md:py-0 gap-3 md:gap-6 z-50 border-t backdrop-blur-md transition-all duration-300"
-        [style.backgroundColor]="themeService.currentTheme().atmosphere.glass ? 'var(--josanz-glass)' : 'var(--josanz-surface)'"
-        [style.borderColor]="'var(--josanz-border)'"
-        [style.boxShadow]="'var(--josanz-footer-elev)'"
-      >
-        <div class="w-full md:w-auto order-2 md:order-1">
-          <josanz-button
-            [label]="cancelLabel"
-            variant="ghost"
-            size="lg"
-            [showIcon]="false"
-            [fullWidth]="true"
-            (btnClick)="cancel.emit()"
-          ></josanz-button>
-        </div>
-        <div class="w-full md:w-auto order-1 md:order-2">
-          <josanz-button
-            [label]="saveLabel"
-            size="lg"
-            [showIcon]="false"
-            [fullWidth]="true"
-            [disabled]="saveDisabled"
-            (btnClick)="save.emit()"
-          ></josanz-button>
-        </div>
-      </div>
-    }
-  </div>
-}
+  }
+</div>
