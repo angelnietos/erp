@@ -80,10 +80,10 @@ export const JOSANZ_CATALOG_EVENT_STATUS_ROWS: JosanzCatalogListRow[] = [
 export const JOSANZ_CATALOG_WAREHOUSE_TABS = ['Todos', 'Almacén 01', 'Almacén 02', 'Almacén 03'];
 
 export const JOSANZ_CATALOG_STATUS_FILTERS = [
-  'Todos (180)',
-  'Borrador (2)',
-  'En presupuesto (4)',
-  'Confirmado (49)',
-  'En producción (37)',
-  'Cerrado (25)',
+  'Todos (80)',
+  'Borrador',
+  'En presupuesto',
+  'Confirmado',
+  'En producción (21)',
+  'Cerrado (4)',
 ];

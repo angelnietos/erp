@@ -4,8 +4,8 @@ import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
-/** `figma`: chips del export (DDECFF activo). `brand`: tinte con color de marca. */
-export type JosanzFilterTabsVariant = 'figma' | 'brand';
+/** `figma`: chips DDECFF. `underline`: tipología Eventos (subrayado). `brand`: color de marca. */
+export type JosanzFilterTabsVariant = 'figma' | 'underline' | 'brand';
 
 @Component({
   selector: 'josanz-filter-tabs',
@@ -60,7 +60,14 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     this.selectionChange.emit(option);
   }
 
+  useUnderlineTabs(): boolean {
+    return this.variant === 'underline';
+  }
+
   private useFigmaChips(): boolean {
+    if (this.variant === 'underline') {
+      return false;
+    }
     if (this.variant === 'figma') {
       return true;
     }
@@ -70,7 +77,21 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     return this.themeService.currentTheme().atmosphere.name === 'neutral';
   }
 
+  containerClass(): string {
+    if (this.useUnderlineTabs()) {
+      return 'flex min-w-0 items-end gap-8 overflow-x-auto no-scrollbar w-full border-b border-solid border-[var(--josanz-border)]';
+    }
+    return 'flex min-w-0 items-center gap-3 overflow-x-auto no-scrollbar pb-1 -mb-1 w-full';
+  }
+
   buttonClass(option: string): string {
+    if (this.useUnderlineTabs()) {
+      const active = this.active === option;
+      return [
+        'relative px-0 pb-3 pt-1 text-[14px] font-semibold bg-transparent border-0 cursor-pointer outline-none whitespace-nowrap transition-colors',
+        active ? 'text-[var(--josanz-text)]' : 'text-[var(--josanz-text-muted)] hover:text-[var(--josanz-text)]',
+      ].join(' ');
+    }
     const figma = this.useFigmaChips();
     const shapeClass = figma
       ? 'rounded-lg'
@@ -87,7 +108,14 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     return `${base} hover:brightness-[0.99] active:scale-[0.98]`;
   }
 
+  showUnderline(option: string): boolean {
+    return this.useUnderlineTabs() && this.active === option;
+  }
+
   pillStyles(option: string): Record<string, string> {
+    if (this.useUnderlineTabs()) {
+      return {};
+    }
     if (this.active === option) {
       if (this.useFigmaChips()) {
         return {

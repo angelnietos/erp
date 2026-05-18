@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import type { JosanzListViewSelection } from '../list-view/list-view-preferences';
 import { listViewStackClasses } from '../list-view/list-view-preferences';
-import { FilterTabsComponent } from './filter-tabs';
+import { FilterTabsComponent, type JosanzFilterTabsVariant } from './filter-tabs';
 import { ButtonComponent } from './button';
 import { SecondaryButtonComponent } from './secondary-button';
 import { UserAvatarComponent } from './user-avatar';
@@ -34,6 +34,9 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() primaryBtnLabel = 'Acción';
   @Input() secondaryBtnLabel = '';
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
+  /** Layout Eventos / catálogo Figma: tabs subrayados, buscar en toolbar, filas flotantes. */
+  @Input() figmaCatalogLayout = false;
+  @Input() typologyTabsVariant: JosanzFilterTabsVariant = 'figma';
   @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
   @Input() showSearch = true;

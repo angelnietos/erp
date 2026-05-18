@@ -14,7 +14,6 @@ export class JosanzEventsFeatureListComponent {
     primaryBtnLabel: 'Añadir Evento +',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
-    summaryLine: '180 eventos · 8 activos esta semana',
     filterOptions: ['Todos', 'Externo', 'Hotel', 'Espacio'],
   };
 }

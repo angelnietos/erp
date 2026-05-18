@@ -1,9 +1,10 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   FilterTabsComponent,
+  JosanzThemeService,
   MainListLayoutComponent,
   SecondaryButtonComponent,
   type JosanzAdaptiveListItem,
@@ -38,15 +39,26 @@ export interface JosanzCatalogListConfig {
   ],
   templateUrl: './josanz-catalog-list.html',
 })
-export class JosanzCatalogListComponent {
+export class JosanzCatalogListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly theme = inject(JosanzThemeService);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
   searchQuery = '';
-  activeStatusFilter = 'Todos (180)';
+  activeStatusFilter = 'Todos (80)';
 
-  readonly rowLabels = ['Nombre', 'Fecha', 'Cliente', 'Operador'];
+  readonly rowLabels = ['Nombre evento', 'Fecha', 'Cliente', 'Operador'];
+
+  readonly summaryStats = [
+    { label: 'Borrador', count: 1 },
+    { label: 'En presupuesto', count: 3 },
+    { label: 'Confirmado', count: 12 },
+  ];
+
+  ngOnInit(): void {
+    this.theme.setListViewSelection('tarjetas-lista');
+  }
 
   get filterOptions(): string[] {
     return this.config.filterOptions ?? JOSANZ_CATALOG_WAREHOUSE_TABS;
@@ -81,10 +93,6 @@ export class JosanzCatalogListComponent {
         r.client.toLowerCase().includes(q) ||
         r.operator.toLowerCase().includes(q),
     );
-  }
-
-  get summaryText(): string {
-    return this.config.summaryLine ?? '180 registros · 8 activos esta semana';
   }
 
   onAdd(): void {

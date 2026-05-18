@@ -3,6 +3,10 @@
   [primaryBtnLabel]="config.primaryBtnLabel"
   [secondaryBtnLabel]="config.secondaryBtnLabel ?? ''"
   [filterOptions]="filterOptions"
+  [figmaCatalogLayout]="true"
+  [typologyTabsVariant]="'underline'"
+  [showViewSelector]="false"
+  [searchPlaceholder]="'Buscar'"
   [paginationTotal]="10"
   [paginationPage]="1"
   [searchValue]="searchQuery"
@@ -12,10 +16,22 @@
   (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
 >
-  <div extra-filters class="josanz-list-filters-extra">
-    <p class="josanz-list-filters-panel__summary">{{ summaryText }}</p>
-    <div class="josanz-list-filters-panel__chips">
-      <josanz-secondary-button label="Fecha" class="shrink-0"></josanz-secondary-button>
+  <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
+    <div class="josanz-catalog-summary" role="group" aria-label="Resumen por estado">
+      <span class="josanz-catalog-summary__item josanz-catalog-summary__item--active">Total</span>
+      @for (stat of summaryStats; track stat.label) {
+        <span class="josanz-catalog-summary__item">
+          {{ stat.label }}
+          <strong>{{ stat.count }}</strong>
+        </span>
+      }
+    </div>
+
+    <div class="josanz-catalog-filters-row">
+      <josanz-secondary-button label="De X a X" class="shrink-0"></josanz-secondary-button>
+      <josanz-secondary-button label="Proveedores" class="shrink-0"></josanz-secondary-button>
+      <josanz-secondary-button label="Staff" class="shrink-0"></josanz-secondary-button>
+      <span class="josanz-catalog-filters-row__divider" aria-hidden="true"></span>
       <josanz-filter-tabs
         class="min-w-0 flex-1"
         [options]="statusFilterOptions"
@@ -27,14 +43,18 @@
 
   <div class="josanz-list-thead">
     <div
-      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
+      class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0"
     >
       <div class="josanz-list-template-row__title truncate">ID</div>
       <div class="josanz-list-template-row__fields">
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Nombre evento</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">
+          Nombre evento
+        </div>
         <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Fecha</div>
         <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Cliente</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">
+          Operador
+        </div>
       </div>
       <div class="josanz-list-template-row__status">
         <span class="truncate">{{ config.statusColumnLabel }}</span>
