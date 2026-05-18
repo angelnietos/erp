@@ -27,10 +27,19 @@ export type JosanzAtmosphereName =
   | 'sunset'
   | 'midnight'
   | 'ocean'
-  | 'forest';
+  | 'forest'
+  | 'lavender'
+  | 'rosewood'
+  | 'cafe'
+  | 'aurora'
+  | 'sakura'
+  | 'terracotta'
+  | 'stargazer'
+  | 'emerald';
 
 export interface JosanzAtmosphereConfig {
   name: JosanzAtmosphereName;
+  /** Color sólido o `linear-gradient` para el lienzo. */
   background: string;
   surface: string;
   text: string;
@@ -42,7 +51,42 @@ export interface JosanzAtmosphereConfig {
   cardShadow?: string;
   /** Efecto de cristal/blur opcional para paneles. */
   glass?: string;
+  /** Fuerza modo claro/oscuro de tokens estructurales; si no se define, se infiere del fondo. */
+  isDark?: boolean;
+  fieldFill?: string;
+  surfaceMuted?: string;
+  strokeField?: string;
 }
+
+export interface JosanzAtmosphereCatalogEntry {
+  name: JosanzAtmosphereName;
+  label: string;
+  description: string;
+}
+
+/** Orden y metadatos para el panel de personalización. */
+export const JOSANZ_ATMOSPHERE_CATALOG: readonly JosanzAtmosphereCatalogEntry[] = [
+  { name: 'neutral', label: 'Neutral White', description: 'Referencia Figma: lienzo claro y tarjetas blancas.' },
+  { name: 'lavender', label: 'Lavanda Suave', description: 'Morado empolvado, calmado y luminoso.' },
+  { name: 'sakura', label: 'Sakura', description: 'Rosa cerezo y crema, delicado y acogedor.' },
+  { name: 'cafe', label: 'Café Cálido', description: 'Marrón tostado y vainilla, como una cafetería.' },
+  { name: 'terracotta', label: 'Terracota', description: 'Arcilla y ámbar, cálido mediterráneo.' },
+  { name: 'nintendo', label: 'Nintendo Red', description: 'Crema cálida con acentos rojos alegres.' },
+  { name: 'emerald', label: 'Esmeralda', description: 'Verde bosque refinado, fresco y elegante.' },
+  { name: 'ocean', label: 'Océano Sereno', description: 'Azul profundo con espuma clara, relajante.' },
+  { name: 'forest', label: 'Bosque Musgo', description: 'Verdes apagados y sombra suave.' },
+  { name: 'sunset', label: 'Atardecer', description: 'Ámbar, coral y noche temprana.' },
+  { name: 'aurora', label: 'Aurora', description: 'Verde azulado y violeta, como luces del norte.' },
+  { name: 'ubisoft', label: 'Azul Profundo', description: 'Azul nocturno cinematográfico, suave.' },
+  { name: 'rayman', label: 'Magia Violeta', description: 'Índigo y oro, fantasía acogedora.' },
+  { name: 'easports', label: 'Arena Digital', description: 'Pizarra y cian eléctrico, deportivo premium.' },
+  { name: 'midnight', label: 'Medianoche', description: 'Gris azulado GitHub, foco nocturno.' },
+  { name: 'stargazer', label: 'Cielo Estrellado', description: 'Índigo cosmos con destellos suaves.' },
+  { name: 'rosewood', label: 'Palo Rosa', description: 'Burdeos y rosa antiguo, íntimo.' },
+  { name: 'rockstar', label: 'Oro Urbano', description: 'Carbón cálido y dorado tenue.' },
+  { name: 'industrial', label: 'Grafito', description: 'Zinc cálido, estudio minimalista.' },
+  { name: 'cyberpunk', label: 'Neón Lounge', description: 'Oscuro con neones suaves, no agresivo.' },
+] as const;
 
 export interface JosanzThemeConfig {
   name: JosanzThemeName;
@@ -63,132 +107,311 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
     shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
     cardShadow: JOSANZ_FIGMA_SHELL.cardShadow,
     accent: '#635BFF',
+    isDark: false,
   },
-  ubisoft: {
-    name: 'ubisoft',
-    background: '#040711',
-    surface: '#0B1024',
-    text: '#F1F5F9',
-    textMuted: '#94A3B8',
-    border: '#1E293B',
-    shadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
-    cardShadow: '0 10px 40px rgba(0, 112, 255, 0.2)',
-    accent: '#00A3FF',
-    glass: 'rgba(11, 16, 36, 0.85)',
+  lavender: {
+    name: 'lavender',
+    background: 'linear-gradient(160deg, #F5F0FF 0%, #EDE4FF 48%, #E8DEFF 100%)',
+    surface: '#FFFFFF',
+    text: '#2E1065',
+    textMuted: '#7C6A9E',
+    border: '#DDD0F5',
+    shadow: '0 8px 24px rgba(124, 58, 237, 0.08)',
+    cardShadow: '0 12px 32px rgba(139, 92, 246, 0.12)',
+    accent: '#8B5CF6',
+    glass: 'rgba(255, 255, 255, 0.72)',
+    isDark: false,
+    fieldFill: '#F8F5FF',
+    surfaceMuted: '#F3EDFF',
+    strokeField: '#D4C4F5',
   },
-  rayman: {
-    name: 'rayman',
-    background: '#1E1B4B',
-    surface: '#312E81',
-    text: '#FFFFFF',
-    textMuted: '#A5B4FC',
-    border: '#4338CA',
-    shadow: '0 20px 40px rgba(0, 0, 0, 0.5)',
-    cardShadow: '0 0 30px rgba(250, 204, 21, 0.25)',
-    accent: '#FACC15',
-    glass: 'rgba(49, 46, 129, 0.8)',
+  sakura: {
+    name: 'sakura',
+    background: 'linear-gradient(165deg, #FFF5F7 0%, #FFE8EE 55%, #FFDCE6 100%)',
+    surface: '#FFFBFC',
+    text: '#4A1D32',
+    textMuted: '#9D6B82',
+    border: '#F5C4D4',
+    shadow: '0 8px 22px rgba(236, 72, 153, 0.1)',
+    cardShadow: '0 14px 36px rgba(244, 114, 182, 0.14)',
+    accent: '#EC4899',
+    glass: 'rgba(255, 251, 252, 0.78)',
+    isDark: false,
+    fieldFill: '#FFF0F4',
+    surfaceMuted: '#FFE8F0',
+    strokeField: '#F0B8CC',
+  },
+  cafe: {
+    name: 'cafe',
+    background: 'linear-gradient(155deg, #FAF6F1 0%, #F3EBE0 50%, #EBE0D2 100%)',
+    surface: '#FFFCF8',
+    text: '#3D2E24',
+    textMuted: '#8B7355',
+    border: '#E0D0BE',
+    shadow: '0 10px 28px rgba(120, 84, 48, 0.1)',
+    cardShadow: '0 12px 30px rgba(146, 98, 57, 0.12)',
+    accent: '#B45309',
+    glass: 'rgba(255, 252, 248, 0.8)',
+    isDark: false,
+    fieldFill: '#F5EDE3',
+    surfaceMuted: '#EFE5D8',
+    strokeField: '#D9C9B5',
+  },
+  terracotta: {
+    name: 'terracotta',
+    background: 'linear-gradient(150deg, #FFF7F0 0%, #FFEDE0 45%, #FFE2CF 100%)',
+    surface: '#FFFFFF',
+    text: '#431407',
+    textMuted: '#9A5B3C',
+    border: '#F5C9A8',
+    shadow: '0 10px 26px rgba(234, 88, 12, 0.1)',
+    cardShadow: '0 14px 34px rgba(249, 115, 22, 0.15)',
+    accent: '#EA580C',
+    glass: 'rgba(255, 255, 255, 0.75)',
+    isDark: false,
+    fieldFill: '#FFF3E8',
+    surfaceMuted: '#FFEDD5',
+    strokeField: '#FDBA74',
   },
   nintendo: {
     name: 'nintendo',
-    background: '#FDFDFD',
+    background: 'linear-gradient(180deg, #FFF9F5 0%, #FFF0EB 100%)',
     surface: '#FFFFFF',
-    text: '#1A1A1A',
-    textMuted: '#71717A',
-    border: '#E60012',
-    shadow: '0 10px 30px rgba(230, 0, 18, 0.12)',
-    cardShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
-    accent: '#E60012',
-    glass: 'rgba(255, 255, 255, 0.95)',
+    text: '#2D1515',
+    textMuted: '#8B5E5E',
+    border: '#F0B4B4',
+    shadow: '0 8px 24px rgba(220, 38, 38, 0.08)',
+    cardShadow: '0 12px 28px rgba(220, 38, 38, 0.12)',
+    accent: '#DC2626',
+    glass: 'rgba(255, 255, 255, 0.88)',
+    isDark: false,
+    fieldFill: '#FFF5F5',
+    surfaceMuted: '#FFEBEB',
+    strokeField: '#FECACA',
   },
-  rockstar: {
-    name: 'rockstar',
-    background: '#050505',
-    surface: '#121212',
-    text: '#FDE047',
-    textMuted: '#A1A1AA',
-    border: '#262626',
-    shadow: '0 30px 60px rgba(0, 0, 0, 0.9)',
-    cardShadow: '0 0 25px rgba(253, 224, 71, 0.1)',
-    accent: '#FDE047',
-    glass: 'rgba(18, 18, 18, 0.96)',
+  emerald: {
+    name: 'emerald',
+    background: 'linear-gradient(155deg, #ECFDF5 0%, #D1FAE5 55%, #BBF7D0 100%)',
+    surface: '#FFFFFF',
+    text: '#064E3B',
+    textMuted: '#3F7A66',
+    border: '#A7F3D0',
+    shadow: '0 8px 24px rgba(16, 185, 129, 0.1)',
+    cardShadow: '0 12px 32px rgba(5, 150, 105, 0.14)',
+    accent: '#059669',
+    glass: 'rgba(255, 255, 255, 0.76)',
+    isDark: false,
+    fieldFill: '#F0FDF4',
+    surfaceMuted: '#DCFCE7',
+    strokeField: '#86EFAC',
+  },
+  ubisoft: {
+    name: 'ubisoft',
+    background: 'linear-gradient(165deg, #0B1224 0%, #101B38 45%, #152347 100%)',
+    surface: '#1A2744',
+    text: '#E8EEF9',
+    textMuted: '#94A8C9',
+    border: '#2A3F66',
+    shadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
+    cardShadow: '0 12px 40px rgba(37, 99, 235, 0.22)',
+    accent: '#3B82F6',
+    glass: 'rgba(26, 39, 68, 0.82)',
+    isDark: true,
+    fieldFill: '#121C33',
+    surfaceMuted: '#152038',
+    strokeField: '#334A72',
+  },
+  rayman: {
+    name: 'rayman',
+    background: 'linear-gradient(145deg, #1E1B4B 0%, #312E81 42%, #4338CA 100%)',
+    surface: '#3D3894',
+    text: '#F8FAFF',
+    textMuted: '#C7D2FE',
+    border: '#5B56C9',
+    shadow: '0 18px 42px rgba(30, 27, 75, 0.55)',
+    cardShadow: '0 10px 36px rgba(250, 204, 21, 0.18)',
+    accent: '#FBBF24',
+    glass: 'rgba(61, 56, 148, 0.78)',
+    isDark: true,
+    fieldFill: '#2A2670',
+    surfaceMuted: '#332F7A',
+    strokeField: '#6B65D4',
   },
   easports: {
     name: 'easports',
-    background: '#020617',
-    surface: '#0F172A',
-    text: '#F8FAFC',
-    textMuted: '#64748B',
-    border: '#1E293B',
-    shadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-    cardShadow: '0 0 40px rgba(56, 189, 248, 0.3)',
+    background: 'linear-gradient(160deg, #0C1222 0%, #111B32 50%, #0F172A 100%)',
+    surface: '#1A2438',
+    text: '#F1F5F9',
+    textMuted: '#8BA3C7',
+    border: '#2D3F5C',
+    shadow: '0 22px 50px rgba(0, 0, 0, 0.5)',
+    cardShadow: '0 8px 36px rgba(56, 189, 248, 0.2)',
     accent: '#38BDF8',
-    glass: 'rgba(15, 23, 42, 0.88)',
+    glass: 'rgba(26, 36, 56, 0.85)',
+    isDark: true,
+    fieldFill: '#0F1729',
+    surfaceMuted: '#152238',
+    strokeField: '#3B5278',
   },
   cyberpunk: {
     name: 'cyberpunk',
-    background: '#010101',
-    surface: '#050505',
-    text: '#00FF9F',
-    textMuted: '#FF00A0',
-    border: '#00FF9F',
-    shadow: '0 0 50px rgba(0, 255, 159, 0.2)',
-    cardShadow: '0 0 30px rgba(255, 0, 160, 0.4)',
-    accent: '#FF00A0',
-    glass: 'rgba(5, 5, 5, 0.92)',
+    background: 'linear-gradient(155deg, #120818 0%, #1A0F24 50%, #0F1419 100%)',
+    surface: '#1E1528',
+    text: '#E2FDF4',
+    textMuted: '#C4A8E8',
+    border: '#3D2E52',
+    shadow: '0 20px 44px rgba(0, 0, 0, 0.55)',
+    cardShadow: '0 8px 32px rgba(167, 139, 250, 0.2)',
+    accent: '#A78BFA',
+    glass: 'rgba(30, 21, 40, 0.88)',
+    isDark: true,
+    fieldFill: '#160F20',
+    surfaceMuted: '#221830',
+    strokeField: '#4A3860',
   },
   midnight: {
     name: 'midnight',
-    background: '#02040A',
-    surface: '#0D1117',
+    background: 'linear-gradient(180deg, #0D1117 0%, #161B22 100%)',
+    surface: '#21262D',
     text: '#F0F6FC',
-    textMuted: '#8B949E',
-    border: '#30363D',
-    shadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+    textMuted: '#9BA7B5',
+    border: '#373E47',
+    shadow: '0 16px 40px rgba(0, 0, 0, 0.45)',
+    cardShadow: '0 8px 28px rgba(88, 166, 255, 0.12)',
     accent: '#58A6FF',
-    glass: 'rgba(13, 17, 23, 0.9)',
+    glass: 'rgba(33, 38, 45, 0.9)',
+    isDark: true,
+    fieldFill: '#0D1117',
+    surfaceMuted: '#1A2028',
+    strokeField: '#444C56',
+  },
+  stargazer: {
+    name: 'stargazer',
+    background: 'linear-gradient(165deg, #0B1026 0%, #151B3D 40%, #1A1040 100%)',
+    surface: '#222B52',
+    text: '#E8ECFF',
+    textMuted: '#A5B4E8',
+    border: '#35406E',
+    shadow: '0 22px 50px rgba(8, 12, 40, 0.6)',
+    cardShadow: '0 10px 36px rgba(129, 140, 248, 0.2)',
+    accent: '#818CF8',
+    glass: 'rgba(34, 43, 82, 0.84)',
+    isDark: true,
+    fieldFill: '#121830',
+    surfaceMuted: '#1A2248',
+    strokeField: '#3F4D7A',
+  },
+  rosewood: {
+    name: 'rosewood',
+    background: 'linear-gradient(150deg, #2A1218 0%, #3D1824 50%, #2E1420 100%)',
+    surface: '#4A2430',
+    text: '#FCE7F3',
+    textMuted: '#E8B4C8',
+    border: '#6B3A4A',
+    shadow: '0 20px 44px rgba(0, 0, 0, 0.5)',
+    cardShadow: '0 10px 34px rgba(244, 114, 182, 0.18)',
+    accent: '#F472B6',
+    glass: 'rgba(74, 36, 48, 0.86)',
+    isDark: true,
+    fieldFill: '#32141C',
+    surfaceMuted: '#3E1C28',
+    strokeField: '#7A4458',
+  },
+  rockstar: {
+    name: 'rockstar',
+    background: 'linear-gradient(160deg, #141210 0%, #1C1916 50%, #12100E 100%)',
+    surface: '#262220',
+    text: '#F5E6C8',
+    textMuted: '#B8A898',
+    border: '#3D3832',
+    shadow: '0 24px 50px rgba(0, 0, 0, 0.55)',
+    cardShadow: '0 8px 30px rgba(217, 180, 90, 0.12)',
+    accent: '#D9B45A',
+    glass: 'rgba(38, 34, 32, 0.92)',
+    isDark: true,
+    fieldFill: '#1A1816',
+    surfaceMuted: '#201E1C',
+    strokeField: '#4A4540',
   },
   industrial: {
     name: 'industrial',
-    background: '#09090B',
-    surface: '#18181B',
+    background: 'linear-gradient(180deg, #18181B 0%, #27272A 100%)',
+    surface: '#323238',
     text: '#FAFAFA',
-    textMuted: '#71717A',
-    border: '#27272A',
-    shadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
-    accent: '#F4F4F5',
+    textMuted: '#A8A8B0',
+    border: '#45454D',
+    shadow: '0 14px 36px rgba(0, 0, 0, 0.4)',
+    cardShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
+    accent: '#D4D4D8',
+    glass: 'rgba(50, 50, 56, 0.88)',
+    isDark: true,
+    fieldFill: '#1F1F23',
+    surfaceMuted: '#2A2A30',
+    strokeField: '#52525B',
   },
   sunset: {
     name: 'sunset',
-    background: '#1C1917',
-    surface: '#292524',
+    background: 'linear-gradient(155deg, #2A1810 0%, #3D2218 40%, #1F1518 100%)',
+    surface: '#3D2A24',
     text: '#FFEDD5',
-    textMuted: '#D97706',
-    border: '#44403C',
-    shadow: '0 15px 40px rgba(120, 53, 15, 0.3)',
-    accent: '#F97316',
-    glass: 'rgba(41, 37, 36, 0.85)',
+    textMuted: '#F0B88A',
+    border: '#5C4038',
+    shadow: '0 18px 42px rgba(60, 30, 10, 0.45)',
+    cardShadow: '0 10px 32px rgba(249, 115, 22, 0.2)',
+    accent: '#FB923C',
+    glass: 'rgba(61, 42, 36, 0.85)',
+    isDark: true,
+    fieldFill: '#2A1C16',
+    surfaceMuted: '#342420',
+    strokeField: '#6B4E44',
   },
   ocean: {
     name: 'ocean',
-    background: '#082F49',
-    surface: '#0C4A6E',
+    background: 'linear-gradient(165deg, #0C2D48 0%, #0F3D5C 45%, #0A2540 100%)',
+    surface: '#134A6E',
     text: '#F0F9FF',
-    textMuted: '#7DD3FC',
-    border: '#075985',
-    shadow: '0 15px 35px rgba(8, 47, 73, 0.6)',
-    accent: '#38BDF8',
-    glass: 'rgba(12, 74, 110, 0.8)',
+    textMuted: '#93C5FD',
+    border: '#1E5A82',
+    shadow: '0 18px 42px rgba(6, 40, 70, 0.5)',
+    cardShadow: '0 10px 34px rgba(56, 189, 248, 0.18)',
+    accent: '#7DD3FC',
+    glass: 'rgba(19, 74, 110, 0.82)',
+    isDark: true,
+    fieldFill: '#0A2238',
+    surfaceMuted: '#0F3250',
+    strokeField: '#256892',
   },
   forest: {
     name: 'forest',
-    background: '#064E3B',
-    surface: '#065F46',
+    background: 'linear-gradient(160deg, #0F2E22 0%, #164A36 48%, #0D281F 100%)',
+    surface: '#1A5C45',
     text: '#ECFDF5',
-    textMuted: '#6EE7B7',
-    border: '#047857',
-    shadow: '0 15px 35px rgba(6, 78, 59, 0.6)',
-    accent: '#10B981',
-    glass: 'rgba(6, 95, 70, 0.8)',
+    textMuted: '#9FD4BC',
+    border: '#267A5C',
+    shadow: '0 18px 40px rgba(6, 50, 35, 0.45)',
+    cardShadow: '0 10px 32px rgba(52, 211, 153, 0.16)',
+    accent: '#6EE7B7',
+    glass: 'rgba(26, 92, 69, 0.8)',
+    isDark: true,
+    fieldFill: '#0F2920',
+    surfaceMuted: '#143828',
+    strokeField: '#2F6B52',
+  },
+  aurora: {
+    name: 'aurora',
+    background: 'linear-gradient(145deg, #0B1F2E 0%, #142840 35%, #1A1045 70%, #0F2838 100%)',
+    surface: '#1E3A52',
+    text: '#E6FFFA',
+    textMuted: '#99E8D9',
+    border: '#2D5A72',
+    shadow: '0 22px 48px rgba(8, 30, 45, 0.55)',
+    cardShadow: '0 12px 38px rgba(45, 212, 191, 0.2)',
+    accent: '#5EEAD4',
+    glass: 'rgba(30, 58, 82, 0.84)',
+    isDark: true,
+    fieldFill: '#0F2430',
+    surfaceMuted: '#163040',
+    strokeField: '#3A6880',
   },
 };
 
@@ -280,6 +503,19 @@ export function josanzReadableOnSolid(background: string): string {
   return L > 0.72 ? '#0F172A' : '#FFFFFF';
 }
 
+/** Infiera si la atmósfera es oscura a partir del fondo (sólido o gradiente). */
+export function josanzAtmosphereIsDark(atmosphere: JosanzAtmosphereConfig): boolean {
+  if (atmosphere.isDark !== undefined) {
+    return atmosphere.isDark;
+  }
+  const sample = atmosphere.background.match(/#[\da-f]{3,8}/i)?.[0] ?? atmosphere.background;
+  const rgb = parseCssColorToRgb(sample);
+  if (!rgb) {
+    return false;
+  }
+  return relativeLuminanceFromRgb(rgb) < 0.38;
+}
+
 /** Aplica tokens de atmósfera y marca a `:root` y `body` (app + Storybook). */
 export function applyJosanzThemeCssVariables(params: {
   atmosphere: JosanzAtmosphereConfig;
@@ -288,6 +524,8 @@ export function applyJosanzThemeCssVariables(params: {
 }): void {
   const { atmosphere, primaryColor, themeName } = params;
   const root = document.documentElement;
+  const isDark = josanzAtmosphereIsDark(atmosphere);
+
   root.style.setProperty('--josanz-primary', primaryColor);
   root.style.setProperty('--josanz-on-primary', josanzReadableOnSolid(primaryColor));
   root.style.setProperty('--josanz-on-danger', josanzReadableOnSolid('#EF4444'));
@@ -305,9 +543,36 @@ export function applyJosanzThemeCssVariables(params: {
   );
   root.setAttribute('data-josanz-atmosphere', atmosphere.name);
   root.setAttribute('data-josanz-theme', themeName);
-  document.body.style.backgroundColor = atmosphere.background;
+  root.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  root.setAttribute('data-theme-is-light', isDark ? 'false' : 'true');
+
+  if (atmosphere.background.includes('gradient')) {
+    document.body.style.background = atmosphere.background;
+    document.body.style.backgroundColor = '';
+  } else {
+    document.body.style.backgroundColor = atmosphere.background;
+    document.body.style.background = '';
+  }
   document.body.style.color = atmosphere.text;
+
   applyJosanzStructuralCssVariables(root);
+
+  if (atmosphere.fieldFill) {
+    root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
+  }
+  if (atmosphere.surfaceMuted) {
+    root.style.setProperty('--josanz-surface-muted', atmosphere.surfaceMuted);
+    root.style.setProperty('--josanz-header-filter-bg', atmosphere.surfaceMuted);
+  }
+  if (atmosphere.strokeField) {
+    root.style.setProperty('--josanz-stroke-field', atmosphere.strokeField);
+    root.style.setProperty('--josanz-stroke-widget', atmosphere.strokeField);
+  }
+  if (isDark) {
+    root.style.setProperty('--josanz-text-heading', atmosphere.text);
+    root.style.setProperty('--josanz-label-muted', atmosphere.textMuted);
+    root.style.setProperty('--josanz-row-line', atmosphere.border);
+  }
 }
 
 function applyJosanzStatusPillCssVariables(root: HTMLElement, isDark: boolean): void {

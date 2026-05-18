@@ -132,28 +132,43 @@
   <div class="flex-1 space-y-8 md:space-y-10 lg:space-y-12 min-w-0">
     <section>
       <h3 class="premium-label">Atmósferas Visuales</h3>
-      <p class="premium-desc">Cambia radicalmente el entorno de trabajo.</p>
+      <p class="premium-desc">Entornos con gradientes suaves; Neutral White conserva el look Figma.</p>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-6 md:mt-8">
+      <div class="atmosphere-grid mt-6 md:mt-8">
         @for (atm of allAtmospheres; track atm.name) {
+          @let cfg = atmosphereConfig(atm.name);
           <button
             type="button"
             (click)="themeService.setAtmosphere(atm.name)"
             class="atmosphere-card group"
             [class.active]="themeService.currentTheme().atmosphere.name === atm.name"
-            [style.backgroundColor]="themeService.atmosphereBackground(atm.name)"
+            [class.atmosphere-card--light]="cfg.isDark === false"
+            [style.background]="cfg.background"
+            [style.color]="cfg.text"
+            [style.--atm-accent]="cfg.accent"
+            [style.--atm-border]="cfg.border"
+            [style.--atm-surface]="cfg.surface"
+            [style.--atm-muted]="cfg.textMuted"
           >
-            <div class="atmosphere-preview">
-              <div class="preview-line w-1/2" aria-hidden="true"></div>
-              <div class="preview-line w-3/4 opacity-50" aria-hidden="true"></div>
-              <div class="preview-dot" [style.backgroundColor]="'var(--josanz-accent)'" aria-hidden="true"></div>
+            <div
+              class="atmosphere-preview"
+              [style.backgroundColor]="cfg.surface"
+              [style.borderColor]="cfg.border"
+              [style.boxShadow]="cfg.cardShadow ?? cfg.shadow"
+            >
+              <div class="atmosphere-preview__bar" [style.backgroundColor]="cfg.textMuted" aria-hidden="true"></div>
+              <div class="atmosphere-preview__row" aria-hidden="true">
+                <span class="atmosphere-preview__chip" [style.backgroundColor]="cfg.accent"></span>
+                <span class="atmosphere-preview__line" [style.backgroundColor]="cfg.border"></span>
+              </div>
             </div>
-            <div class="mt-auto flex items-center justify-between w-full">
-              <span class="font-bold text-[14px]">{{ atm.label }}</span>
-              @if (themeService.currentTheme().atmosphere.name === atm.name) {
-                <div class="w-2 h-2 rounded-full bg-[var(--josanz-accent)] glow-accent" aria-hidden="true"></div>
-              }
+            <div class="atmosphere-card__footer">
+              <span class="atmosphere-card__label">{{ atm.label }}</span>
+              <span class="atmosphere-card__desc">{{ atm.description }}</span>
             </div>
+            @if (themeService.currentTheme().atmosphere.name === atm.name) {
+              <span class="atmosphere-card__badge" aria-hidden="true">Activa</span>
+            }
           </button>
         }
       </div>

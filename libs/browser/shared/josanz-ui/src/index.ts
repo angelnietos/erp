@@ -37,6 +37,7 @@ export * from './lib/components/document-list';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
 export * from './lib/theme/josanz-theme-tokens';
+export type { JosanzAtmosphereCatalogEntry } from './lib/theme/josanz-theme-tokens';
 export {
   JOSANZ_FIGMA_APP,
   JOSANZ_FIGMA_DASHBOARD,
