@@ -2,6 +2,10 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
+
+/** `figma`: chips del export (DDECFF activo). `brand`: tinte con color de marca. */
+export type JosanzFilterTabsVariant = 'figma' | 'brand';
 
 @Component({
   selector: 'josanz-filter-tabs',
@@ -17,12 +21,13 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   @Input() selected = 'Todas';
   @Output() selectionChange = new EventEmitter<string>();
 
-  /** Esquinas de cada pestaña (misma semántica que `josanz-button`). */
+  /** Por defecto chips Figma (neutro y listados de producto). */
+  @Input() variant: JosanzFilterTabsVariant = 'figma';
+
   @Input() shape: JosanzControlShape = 'rounded';
-  /** Color de texto y tinte de fondo de la pestaña activa. */
+
   @Input() customColor?: string;
 
-  /** Estado visual; se sincroniza con `selected` para no pisarse al pulsar. */
   active = 'Todas';
 
   ngOnInit(): void {
@@ -55,29 +60,50 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     this.selectionChange.emit(option);
   }
 
-  buttonClass(option: string): string {
-    const activeShape = this.themeService.currentTheme().defaultShape;
-    const shapeClass = {
-      rounded: 'rounded-xl',
-      pill: 'rounded-full',
-      square: 'rounded-none',
-    }[activeShape] ?? 'rounded-xl';
-
-    const base = `px-5 h-[34px] ${shapeClass} flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap`;
-    if (this.active === option) {
-      return `${base} border-none scale-[1.02]`;
+  private useFigmaChips(): boolean {
+    if (this.variant === 'figma') {
+      return true;
     }
-    return `${base} border border-solid hover:scale-[1.02] active:scale-95`;
+    if (this.variant === 'brand') {
+      return false;
+    }
+    return this.themeService.currentTheme().atmosphere.name === 'neutral';
+  }
+
+  buttonClass(option: string): string {
+    const figma = this.useFigmaChips();
+    const shapeClass = figma
+      ? 'rounded-lg'
+      : {
+          rounded: 'rounded-xl',
+          pill: 'rounded-full',
+          square: 'rounded-none',
+        }[this.shape ?? this.themeService.currentTheme().defaultShape] ?? 'rounded-lg';
+
+    const base = `px-5 h-[34px] ${shapeClass} flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap border border-solid`;
+    if (this.active === option) {
+      return figma ? `${base} border-transparent` : `${base} border-none scale-[1.02]`;
+    }
+    return `${base} hover:brightness-[0.99] active:scale-[0.98]`;
   }
 
   pillStyles(option: string): Record<string, string> {
     if (this.active === option) {
+      if (this.useFigmaChips()) {
+        return {
+          color: JOSANZ_FIGMA_SHELL.pillActiveText,
+          WebkitTextFillColor: JOSANZ_FIGMA_SHELL.pillActiveText,
+          backgroundColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
+          borderColor: JOSANZ_FIGMA_SHELL.pillActiveBg,
+        };
+      }
       const on = 'var(--josanz-on-primary)';
       return {
         color: on,
         WebkitTextFillColor: on,
-        backgroundColor: 'var(--josanz-primary)',
-        boxShadow: '0 4px 16px -2px color-mix(in srgb, var(--josanz-primary) 60%, transparent)'
+        backgroundColor: this.customColor ?? 'var(--josanz-primary)',
+        borderColor: 'transparent',
+        boxShadow: '0 4px 14px -2px color-mix(in srgb, var(--josanz-primary) 45%, transparent)',
       };
     }
     return {

@@ -170,6 +170,18 @@ export class JosanzThemeService {
       this.currentTheme.update((t) => ({ ...t, primaryColor: stored.primaryColor! }));
     }
 
+    const atmosphereName =
+      stored.atmosphereName && this.atmospheres[stored.atmosphereName]
+        ? stored.atmosphereName
+        : this.currentTheme().atmosphere.name;
+    const storedPrimary = (stored.primaryColor ?? '').toUpperCase();
+    if (
+      atmosphereName === 'neutral' &&
+      (!stored.primaryColor || storedPrimary === '#635BFF' || storedPrimary === '#0F1E2F')
+    ) {
+      this.currentTheme.update((t) => ({ ...t, primaryColor: JOSANZ_DEFAULT_PRIMARY }));
+    }
+
     if (stored.paginationVariant === 'figma' || stored.paginationVariant === 'numbered') {
       this.paginationVariant.set(stored.paginationVariant);
     }

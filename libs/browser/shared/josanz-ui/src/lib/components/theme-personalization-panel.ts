@@ -23,12 +23,14 @@ export class ThemePersonalizationPanelComponent {
   readonly themeService = inject(JosanzThemeService);
 
   readonly brandingColors = [
+    '#080808',
+    '#0F1E2F',
+    '#222222',
     '#635BFF',
     '#22C55E',
     '#F59E0B',
     '#EF4444',
     '#EC4899',
-    '#222222',
     '#38BDF8',
     '#8B5CF6',
   ];

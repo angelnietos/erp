@@ -14,6 +14,9 @@ export const JOSANZ_FIGMA_SHELL = {
   tableHeaderTracking: '0.2em',
 } as const;
 
+/** CTA de listados y botones primarios (`Buttons.svg`, frames Base). */
+export const JOSANZ_FIGMA_BRAND_PRIMARY = '#080808';
+
 /** Frame `Login.svg` (1280×832): login web claro, formulario a la derecha. */
 export const JOSANZ_FIGMA_LOGIN = {
   canvasBg: '#FFFEFE',

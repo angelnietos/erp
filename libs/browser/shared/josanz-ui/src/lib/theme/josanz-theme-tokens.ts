@@ -1,6 +1,7 @@
 import type { JosanzControlShape } from '../josanz-control-styles';
 import {
   JOSANZ_FIGMA_APP,
+  JOSANZ_FIGMA_BRAND_PRIMARY,
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_LOGIN,
   JOSANZ_FIGMA_SEMANTIC,
@@ -10,8 +11,10 @@ import {
   type JosanzStatusPillKey,
 } from './josanz-figma-tokens';
 
-/** Primario por defecto alineado con el frame Login de Figma (`Login.svg`). */
-export const JOSANZ_DEFAULT_PRIMARY = JOSANZ_FIGMA_LOGIN.primaryCta;
+export { JOSANZ_FIGMA_BRAND_PRIMARY } from './josanz-figma-tokens';
+
+/** Primario por defecto del ERP en neutro (listados). Login mantiene `#0F1E2F` en su pantalla. */
+export const JOSANZ_DEFAULT_PRIMARY = JOSANZ_FIGMA_BRAND_PRIMARY;
 
 export type JosanzThemeName = 'luxe-rounded' | 'luxe-sharp' | 'luxe-pill';
 
@@ -101,13 +104,16 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
     name: 'neutral',
     background: JOSANZ_FIGMA_SHELL.canvasBg,
     surface: '#FFFFFF',
-    text: '#0F172A',
-    textMuted: '#64748B',
+    text: JOSANZ_FIGMA_LOGIN.heading,
+    textMuted: JOSANZ_FIGMA_LOGIN.muted,
     border: JOSANZ_FIGMA_SHELL.hairlineBorder,
-    shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+    shadow: '0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
     cardShadow: JOSANZ_FIGMA_SHELL.cardShadow,
-    accent: '#635BFF',
+    accent: JOSANZ_FIGMA_BRAND_PRIMARY,
     isDark: false,
+    fieldFill: JOSANZ_FIGMA_LOGIN.fieldIdleFill,
+    surfaceMuted: JOSANZ_FIGMA_DASHBOARD.surfaceMuted,
+    strokeField: JOSANZ_FIGMA_LOGIN.fieldStroke,
   },
   lavender: {
     name: 'lavender',
@@ -572,7 +578,29 @@ export function applyJosanzThemeCssVariables(params: {
     root.style.setProperty('--josanz-text-heading', atmosphere.text);
     root.style.setProperty('--josanz-label-muted', atmosphere.textMuted);
     root.style.setProperty('--josanz-row-line', atmosphere.border);
+  } else if (atmosphere.name === 'neutral') {
+    applyJosanzFigmaNeutralStructuralOverrides(root);
   }
+}
+
+/** Tokens estructurales fijos del frame Figma (modo neutro). */
+function applyJosanzFigmaNeutralStructuralOverrides(root: HTMLElement): void {
+  root.style.setProperty('--josanz-stroke-widget', JOSANZ_FIGMA_DASHBOARD.widgetStroke);
+  root.style.setProperty('--josanz-stroke-field', JOSANZ_FIGMA_LOGIN.fieldStroke);
+  root.style.setProperty('--josanz-row-line', JOSANZ_FIGMA_DASHBOARD.rowLine);
+  root.style.setProperty('--josanz-surface-muted', JOSANZ_FIGMA_DASHBOARD.surfaceMuted);
+  root.style.setProperty('--josanz-header-filter-bg', JOSANZ_FIGMA_DASHBOARD.headerFilterBg);
+  root.style.setProperty('--josanz-field-fill', JOSANZ_FIGMA_LOGIN.fieldIdleFill);
+  root.style.setProperty('--josanz-text-heading', JOSANZ_FIGMA_LOGIN.heading);
+  root.style.setProperty('--josanz-label-muted', JOSANZ_FIGMA_LOGIN.muted);
+  root.style.setProperty('--josanz-kpi-positive', JOSANZ_FIGMA_DASHBOARD.kpiPositive);
+  root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(178, 178, 178, 0.28)');
+  root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0, 0, 0, 0.08)');
+  root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0, 0, 0, 0.08)');
+  root.style.setProperty('--josanz-radius-control', `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`);
+  root.style.setProperty('--josanz-radius-widget', `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`);
+  root.style.setProperty('--josanz-radius-card', '12px');
+  root.style.setProperty('--josanz-secondary-fill', JOSANZ_FIGMA_APP.secondaryFill);
 }
 
 function applyJosanzStatusPillCssVariables(root: HTMLElement, isDark: boolean): void {
