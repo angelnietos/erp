@@ -1,61 +1,109 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  FilterTabsComponent,
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_SHELL,
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
 
+interface JosanzHomeTech {
+  id: string;
+  initials: string;
+}
+
+interface JosanzHomeEventCard {
+  title: string;
+  tags: { label: string; bg: string; text: string }[];
+  client: string;
+  description: string;
+}
+
+interface JosanzHomeScheduleCell {
+  day: string;
+  techId: string;
+  event?: JosanzHomeEventCard;
+}
+
 /**
- * Panel de inicio alineado con `Dashboard.svg` (1440×1364): KPIs, tarjetas 8px / #E0E0E0,
- * rejilla 733+515 y accesos a módulos.
+ * Inicio Figma: filtros Eventos/Técnicos, rejilla semanal y tarjetas «Dato».
  */
 @Component({
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, FilterTabsComponent],
   templateUrl: './josanz-dashboard-inicio.component.html',
 })
-export class JosanzDashboardInicioComponent {
+export class JosanzDashboardInicioComponent implements OnInit {
   readonly theme = inject(JosanzThemeService);
   readonly shell = JOSANZ_FIGMA_SHELL;
   readonly dash = JOSANZ_FIGMA_DASHBOARD;
 
-  period: 'mes' | 'trim' | 'año' = 'mes';
+  viewMode: 'Eventos' | 'Técnicos' | 'Proveedores' = 'Técnicos';
+  period: 'Día' | 'Semana' | 'Mes' | 'Lista' = 'Semana';
 
-  readonly chartBars = [36, 52, 44, 68, 56, 78, 62, 48, 72, 58, 82, 64];
+  readonly viewOptions = ['Eventos', 'Técnicos', 'Proveedores'];
+  readonly periodOptions = ['Día', 'Semana', 'Mes', 'Lista'];
 
-  readonly kpis = [
-    { label: 'Facturación (mes)', value: '128.420 €', delta: '+12,4 % vs. mes anterior', up: true },
-    { label: 'Presupuestos activos', value: '37', delta: '5 pendientes de respuesta', up: false },
-    { label: 'Albaranes semana', value: '24', delta: '+3 respecto a la semana pasada', up: true },
-  ] as const;
+  readonly technicians: JosanzHomeTech[] = [
+    { id: 't1', initials: 'JL' },
+    { id: 't2', initials: 'MP' },
+    { id: 't3', initials: 'AR' },
+    { id: 't4', initials: 'CS' },
+    { id: 't5', initials: 'DV' },
+  ];
 
-  readonly tasks = [
-    { abbr: 'PR', title: 'Revisar presupuesto ACME', meta: 'Comercial · prioridad alta' },
-    { abbr: 'AL', title: 'Confirmar entrega material', meta: 'Logística · hoy 17:00' },
-    { abbr: 'ST', title: 'Ajuste inventario almacén norte', meta: 'Stock · bloqueante' },
-    { abbr: 'CL', title: 'Actualizar datos fiscales', meta: 'Clientes · vence mañana' },
-    { abbr: 'US', title: 'Alta usuario temporal', meta: 'Usuarios · soporte' },
-  ] as const;
+  readonly days = ['Lunes', 'Martes', 'Miércoles'];
 
-  readonly movements = [
-    { concept: 'Factura F-240118', amount: '2.180 €' },
-    { concept: 'Abono cliente BETA', amount: '−420 €' },
-    { concept: 'Presupuesto P-889', amount: '—' },
-    { concept: 'Albarán A-5521', amount: '890 €' },
-  ] as const;
+  readonly sampleEvent: JosanzHomeEventCard = {
+    title: 'Evento X',
+    tags: [
+      { label: 'Pagado', bg: '#DCFCE7', text: '#166534' },
+      { label: 'Otra etiqueta', bg: '#EDE9FE', text: '#5B21B6' },
+      { label: 'Tag', bg: '#FCE7F3', text: '#9D174D' },
+    ],
+    client: 'Cliente',
+    description: 'Información relevante del evento para ver en un momento…',
+  };
 
-  readonly agenda = [
-    { time: '09:30', title: 'Revisión pipeline comercial', place: 'Sala 1 · online' },
-    { time: '11:00', title: 'Entrega audiovisual', place: 'Cliente · remoto' },
-    { time: '16:15', title: 'Cierre de mes contable', place: 'Administración' },
-  ] as const;
+  readonly scheduleCells: JosanzHomeScheduleCell[] = [
+    { day: 'Lunes', techId: 't1', event: this.sampleEvent },
+    { day: 'Lunes', techId: 't2' },
+    { day: 'Lunes', techId: 't3' },
+    { day: 'Lunes', techId: 't4' },
+    { day: 'Lunes', techId: 't5' },
+    { day: 'Martes', techId: 't1' },
+    { day: 'Martes', techId: 't2', event: this.sampleEvent },
+    { day: 'Martes', techId: 't3' },
+    { day: 'Martes', techId: 't4' },
+    { day: 'Martes', techId: 't5' },
+    { day: 'Miércoles', techId: 't1' },
+    { day: 'Miércoles', techId: 't2' },
+    { day: 'Miércoles', techId: 't3' },
+    { day: 'Miércoles', techId: 't4' },
+    { day: 'Miércoles', techId: 't5' },
+  ];
 
-  readonly links = [
-    { path: '/clients', label: 'Clientes', hint: 'Cartera y datos fiscales' },
-    { path: '/users', label: 'Usuarios', hint: 'Accesos del sistema' },
-    { path: '/delivery-notes', label: 'Albaranes', hint: 'Entregas y logística' },
-    { path: '/budgets', label: 'Presupuestos', hint: 'Ofertas y propuestas' },
-    { path: '/stock', label: 'Stock', hint: 'Productos y almacenes' },
-  ] as const;
+  ngOnInit(): void {
+    this.theme.setAtmosphere('neutral');
+  }
+
+  cellFor(day: string, techId: string): JosanzHomeScheduleCell | undefined {
+    return this.scheduleCells.find((c) => c.day === day && c.techId === techId);
+  }
+
+  onViewChange(value: string): void {
+    if (value === 'Eventos' || value === 'Técnicos' || value === 'Proveedores') {
+      this.viewMode = value;
+    }
+  }
+
+  onPeriodChange(value: string): void {
+    if (value === 'Día' || value === 'Semana' || value === 'Mes' || value === 'Lista') {
+      this.period = value;
+    }
+  }
+
+  isPeriodActive(value: string): boolean {
+    return this.period === value;
+  }
 }

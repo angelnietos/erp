@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import {
   DocumentItemComponent,
   JosanzThemeService,
-  ListSearchFieldComponent,
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
   type JosanzStatusPillKey,
@@ -58,7 +57,6 @@ interface JosanzEventEmail {
     MainDetailLayoutComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
-    ListSearchFieldComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
@@ -72,6 +70,8 @@ export class JosanzEventDetailComponent implements OnInit {
   budgetSearch = '';
   showBudgetPicker = signal(false);
   highlightedBudgetId = signal('mic-03');
+  budgetLines: JosanzBudgetCatalogItem[] = [];
+  readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
   showEmailComposer = signal(false);
   emailForm = { date: '-', subject: '-', body: '-' };
 
@@ -168,7 +168,7 @@ export class JosanzEventDetailComponent implements OnInit {
       warehouse: 'Almacén X',
       status: 'Correcto',
       pillKey: 'confirmado',
-      imageUrl: 'https://images.unsplash.com/photo-1598488035139-b5b7090db90f?auto=format&fit=crop&q=80&w=120&h=120',
+      imageUrl: '',
     },
     {
       id: '2',
@@ -176,7 +176,7 @@ export class JosanzEventDetailComponent implements OnInit {
       warehouse: 'Almacén X',
       status: 'En uso',
       pillKey: 'en-produccion',
-      imageUrl: 'https://images.unsplash.com/photo-1598488035139-b5b7090db90f?auto=format&fit=crop&q=80&w=120&h=120',
+      imageUrl: '',
     },
   ];
 
@@ -196,9 +196,13 @@ export class JosanzEventDetailComponent implements OnInit {
 
   setTab(tab: string): void {
     this.activeTab.set(tab);
-    if (tab === 'Presupuesto') {
-      this.showBudgetPicker.set(true);
-    }
+    this.showBudgetPicker.set(false);
+  }
+
+  onEquipmentImageError(id: string): void {
+    const next = new Set(this.equipmentImageFailed());
+    next.add(id);
+    this.equipmentImageFailed.set(next);
   }
 
   onBack(): void {
@@ -220,7 +224,7 @@ export class JosanzEventDetailComponent implements OnInit {
   filteredBudgetCatalog(): JosanzBudgetCatalogItem[] {
     const q = this.budgetSearch.trim().toLowerCase();
     if (!q) {
-      return this.budgetCatalog;
+      return [];
     }
     return this.budgetCatalog.filter(
       (item) =>
@@ -232,7 +236,11 @@ export class JosanzEventDetailComponent implements OnInit {
 
   onBudgetSearch(value: string): void {
     this.budgetSearch = value;
-    this.showBudgetPicker.set(true);
+    this.showBudgetPicker.set(value.trim().length > 0);
+  }
+
+  onBudgetSearchBlur(): void {
+    window.setTimeout(() => this.showBudgetPicker.set(false), 150);
   }
 
   openBudgetPicker(): void {
@@ -243,8 +251,12 @@ export class JosanzEventDetailComponent implements OnInit {
     this.showBudgetPicker.set(false);
   }
 
-  selectBudgetItem(id: string): void {
-    this.highlightedBudgetId.set(id);
+  selectBudgetItem(item: JosanzBudgetCatalogItem): void {
+    this.highlightedBudgetId.set(item.id);
+    if (!this.budgetLines.some((line) => line.id === item.id)) {
+      this.budgetLines = [...this.budgetLines, item];
+    }
+    this.budgetSearch = '';
     this.showBudgetPicker.set(false);
   }
 

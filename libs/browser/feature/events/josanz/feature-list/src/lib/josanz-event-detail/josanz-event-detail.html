@@ -137,12 +137,22 @@
     @for (item of equipment; track item.id) {
       <article class="josanz-event-equipment-row">
         <button type="button" class="josanz-event-staff-card__remove" aria-label="Quitar">×</button>
-        <img class="josanz-event-equipment-row__thumb" [src]="item.imageUrl" [alt]="item.name" />
+        <div class="josanz-event-equipment-row__thumb" aria-hidden="true">
+          @if (item.imageUrl && !equipmentImageFailed().has(item.id)) {
+            <img [src]="item.imageUrl" [alt]="" (error)="onEquipmentImageError(item.id)" />
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <rect x="4" y="7" width="16" height="12" rx="2" />
+              <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <circle cx="12" cy="13" r="2.5" />
+            </svg>
+          }
+        </div>
         <div class="flex-1 min-w-0">
           <strong class="block text-[14px] font-extrabold" style="color: var(--josanz-text)">{{ item.name }}</strong>
           <span class="text-[13px]" style="color: var(--josanz-text-muted)">{{ item.warehouse }}</span>
           <span
-            class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
+            class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
             [ngStyle]="pillStyle(item.pillKey)"
           >
             {{ item.status }}
@@ -163,20 +173,25 @@
 
     <section class="josanz-event-budget-panel">
       <div class="josanz-event-budget-panel__search-wrap">
-        <josanz-list-search-field
-          placeholder="Mic"
+        <input
+          type="text"
+          class="josanz-event-budget-search"
+          placeholder="Buscar material (ej. Mic)"
           [value]="budgetSearch"
-          ariaLabel="Buscar material en presupuesto"
-          (valueChange)="onBudgetSearch($event)"
-        ></josanz-list-search-field>
-        @if (showBudgetPicker() && filteredBudgetCatalog().length) {
+          aria-label="Buscar material en presupuesto"
+          (input)="onBudgetSearch($any($event.target).value)"
+          (focus)="openBudgetPicker()"
+          (blur)="onBudgetSearchBlur()"
+        />
+        @if (showBudgetPicker() && budgetSearch.trim() && filteredBudgetCatalog().length) {
           <div class="josanz-event-budget-panel__dropdown" role="listbox">
             @for (item of filteredBudgetCatalog(); track item.id) {
               <button
                 type="button"
                 class="josanz-event-budget-line w-full text-left border-0"
                 [class.josanz-event-budget-line--active]="highlightedBudgetId() === item.id"
-                (click)="selectBudgetItem(item.id)"
+                (mousedown)="$event.preventDefault()"
+                (click)="selectBudgetItem(item)"
               >
                 <span>
                   <span class="josanz-event-budget-line__name">{{ item.name }}</span>
@@ -189,9 +204,18 @@
           </div>
         }
       </div>
-      <p class="m-0 text-[13px]" style="color: var(--josanz-text-muted)">
-        Material AV → principal + auxiliar · Cableado se rellena en la app / aparece en producción
-      </p>
+      <div class="josanz-event-budget-panel__body">
+        @for (line of budgetLines; track line.id) {
+          <div class="josanz-event-budget-line">
+            <span>
+              <span class="josanz-event-budget-line__name">{{ line.name }}</span>
+              <span class="josanz-event-budget-line__warehouse"> · {{ line.warehouse }}</span>
+            </span>
+            <span></span>
+            <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(line.pillKey)">{{ line.status }}</span>
+          </div>
+        }
+      </div>
       <footer class="josanz-event-budget-footer">
         <button type="button" class="josanz-event-budget-footer__link">Añadir datos de facturación</button>
         <span class="josanz-event-budget-footer__total">{{ budgetTotal }}</span>
