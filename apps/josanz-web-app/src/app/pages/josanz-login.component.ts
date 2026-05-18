@@ -1,8 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ButtonComponent, InputComponent, JOSANZ_FIGMA_LOGIN } from '@josanz-erp/josanz-ui';
+import {
+  ButtonComponent,
+  InputComponent,
+  JOSANZ_FIGMA_LOGIN,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 import { JosanzDemoAuthService } from '../auth/josanz-demo-auth.service';
 
 @Component({
@@ -13,10 +18,11 @@ import { JosanzDemoAuthService } from '../auth/josanz-demo-auth.service';
   styleUrl: './josanz-login.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class JosanzLoginComponent {
+export class JosanzLoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(JosanzDemoAuthService);
   private readonly router = inject(Router);
+  private readonly theme = inject(JosanzThemeService);
 
   readonly loginCta = JOSANZ_FIGMA_LOGIN.primaryCta;
 
@@ -24,6 +30,11 @@ export class JosanzLoginComponent {
     email: ['admin@josanz.com', Validators.required],
     password: ['demo', Validators.required],
   });
+
+  ngOnInit(): void {
+    this.theme.setAtmosphere('neutral');
+    this.theme.setTheme('luxe-rounded');
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {

@@ -8,7 +8,11 @@
 
 .active-link {
   opacity: 1 !important;
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--josanz-surface-muted, rgba(0, 0, 0, 0.03));
+}
+
+.active-link .nav-icon-container {
+  color: var(--josanz-text);
 }
 
 .active-link .active-indicator {

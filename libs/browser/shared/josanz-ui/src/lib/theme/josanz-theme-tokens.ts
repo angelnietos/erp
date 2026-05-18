@@ -541,7 +541,10 @@ export function applyJosanzThemeCssVariables(params: {
   root.style.setProperty('--josanz-text-muted', atmosphere.textMuted);
   root.style.setProperty('--josanz-border', atmosphere.border);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
-  root.style.setProperty('--josanz-accent', atmosphere.accent);
+  root.style.setProperty(
+    '--josanz-accent',
+    atmosphere.name === 'neutral' ? JOSANZ_FIGMA_BRAND_PRIMARY : atmosphere.accent,
+  );
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
   root.style.setProperty(
     '--josanz-card-shadow',

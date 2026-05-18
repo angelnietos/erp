@@ -2,6 +2,9 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import { type JosanzControlShape } from '../josanz-control-styles';
+import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
+
+export type JosanzMainTabsVariant = 'figma' | 'brand';
 
 @Component({
   selector: 'josanz-main-tabs',
@@ -30,11 +33,26 @@ export class MainTabsComponent implements OnInit, OnChanges {
   @Output() selectionChange = new EventEmitter<string>();
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
+  @Input() variant: JosanzMainTabsVariant = 'figma';
 
   active = '';
 
+  private useFigmaTabs(): boolean {
+    return (
+      this.variant === 'figma' ||
+      this.themeService.currentTheme().atmosphere.name === 'neutral'
+    );
+  }
+
   tabShellStyle(option: string): Record<string, string> {
     const on = this.active === option;
+    if (this.useFigmaTabs()) {
+      return {
+        backgroundColor: 'var(--josanz-surface)',
+        borderColor: on ? JOSANZ_FIGMA_SHELL.pillActiveText : 'var(--josanz-border)',
+        color: on ? JOSANZ_FIGMA_SHELL.pillActiveText : 'var(--josanz-text-muted)',
+      };
+    }
     return {
       backgroundColor: 'var(--josanz-surface)',
       borderColor: on ? 'var(--josanz-accent)' : 'var(--josanz-border)',
@@ -45,14 +63,17 @@ export class MainTabsComponent implements OnInit, OnChanges {
   tabClasses(option: string) {
     const base =
       'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
-    
+
+    const figma = this.useFigmaTabs();
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
-    const shapes = {
-      rounded: 'rounded-[10px]',
-      pill: 'rounded-full',
-      square: 'rounded-none',
-      inner: 'rounded-[8px]'
-    };
+    const shapes = figma
+      ? { rounded: 'rounded-lg', pill: 'rounded-full', square: 'rounded-none', inner: 'rounded-lg' }
+      : {
+          rounded: 'rounded-[10px]',
+          pill: 'rounded-full',
+          square: 'rounded-none',
+          inner: 'rounded-[8px]',
+        };
 
     return [
       base,

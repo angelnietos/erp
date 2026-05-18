@@ -1,19 +1,24 @@
 /* Valores base alineados con `josanz-figma-tokens` (exports Figma Base/Login). */
 :root,
-[data-theme="light"] {
+[data-theme='light'] {
   --josanz-bg: #fefefe;
   --josanz-surface: #ffffff;
-  --josanz-text: #0f172a;
-  --josanz-text-muted: #64748b;
+  --josanz-text: #222222;
+  --josanz-text-muted: #7c7c7c;
   --josanz-border: #e7edf1;
-  --josanz-primary: #0f1e2f;
+  --josanz-primary: #080808;
   --josanz-on-primary: #ffffff;
-  --josanz-primary-hover: #1a2d44;
-  --josanz-accent: #3b82f6;
+  --josanz-primary-hover: #1a1a1a;
+  --josanz-accent: #080808;
   --josanz-danger: #ef4444;
   --josanz-danger-hover: #dc2626;
-  --josanz-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.07);
+  --josanz-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
+  --josanz-card-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
   --josanz-on-danger: #ffffff;
+  --josanz-login-canvas: #fffefe;
+  --josanz-login-hero-start: #e8edf5;
+  --josanz-login-hero-end: #f5f7fb;
+  --josanz-login-cta: #0f1e2f;
   --josanz-stroke-widget: #e0e0e0;
   --josanz-stroke-field: #d7d7d7;
   --josanz-row-line: #e6e6e6;

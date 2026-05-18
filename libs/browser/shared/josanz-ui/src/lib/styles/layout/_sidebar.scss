@@ -47,8 +47,8 @@
   }
 
   &.active {
-    background: rgba(79, 70, 229, 0.08);
-    color: var(--josanz-primary);
+    background: var(--josanz-surface-muted);
+    color: var(--josanz-text);
   }
 
   svg { flex-shrink: 0; }

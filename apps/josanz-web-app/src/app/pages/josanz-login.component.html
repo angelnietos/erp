@@ -1,25 +1,25 @@
-<div class="josanz-login">
-  <aside class="josanz-login__hero" aria-hidden="true"></aside>
+<div class="josanz-figma-auth">
+  <aside class="josanz-figma-auth__hero" aria-hidden="true"></aside>
 
-  <section class="josanz-login__panel">
-    <div class="josanz-login__card">
-      <header class="josanz-login__header">
-        <div class="josanz-login__logo" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <section class="josanz-figma-auth__panel">
+    <div class="josanz-figma-auth__card">
+      <header class="josanz-figma-auth__header">
+        <div class="josanz-figma-auth__logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="2" width="20" height="20" rx="2" />
             <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5" />
           </svg>
         </div>
-        <p class="josanz-login__tag">Josanz Audiovisual</p>
-        <h1 class="josanz-login__title">Acceso ERP</h1>
-        <p class="josanz-login__subtitle">Modo demostración — sin servidor</p>
+        <p class="josanz-figma-auth__tag">Josanz Audiovisual</p>
+        <h1 class="josanz-figma-auth__title">Acceso ERP</h1>
+        <p class="josanz-figma-auth__subtitle">Introduce tus credenciales para continuar</p>
       </header>
 
-      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-login__form">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-figma-auth__form">
         <josanz-input
           label="E-mail"
           type="email"
-          placeholder="tu@empresa.com"
+          placeholder="Introduce tu e-mail"
           controlName="email"
           [parentForm]="loginForm"
         ></josanz-input>
