@@ -1,0 +1,12 @@
+<div class="flex h-[100dvh] min-h-0 overflow-hidden" [style.backgroundColor]="'var(--josanz-bg)'">
+  <div class="relative z-[100] hidden h-full min-h-0 shrink-0 md:flex">
+    <josanz-sidebar (logoutClick)="onLogout()"></josanz-sidebar>
+  </div>
+
+  <div class="relative flex min-h-0 min-w-0 flex-1 flex-col">
+    <main class="josanz-page-main josanz-scroll-quiet">
+      <router-outlet />
+    </main>
+    <josanz-mobile-tab-bar class="md:hidden"></josanz-mobile-tab-bar>
+  </div>
+</div>

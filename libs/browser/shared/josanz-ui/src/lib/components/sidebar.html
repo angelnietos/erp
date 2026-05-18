@@ -224,12 +224,17 @@
     </a>
 
     <!-- Logout -->
-    <div title="Cerrar sesión" class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[color:var(--josanz-danger)]">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <button
+      type="button"
+      title="Cerrar sesión"
+      (click)="onLogoutClick()"
+      class="w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-200 cursor-pointer hover:bg-[rgba(255,255,255,0.05)] text-[var(--josanz-text-muted)] hover:text-[color:var(--josanz-danger)] border-0 bg-transparent p-0"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M14 8v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2-2v-2" />
         <path d="M9 12h12l-3-3m0 6l3-3" />
       </svg>
-    </div>
+    </button>
   </div>
 </div>
 

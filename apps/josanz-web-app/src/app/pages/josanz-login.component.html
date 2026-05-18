@@ -1,0 +1,46 @@
+<div class="josanz-login">
+  <aside class="josanz-login__hero" aria-hidden="true"></aside>
+
+  <section class="josanz-login__panel">
+    <div class="josanz-login__card">
+      <header class="josanz-login__header">
+        <div class="josanz-login__logo" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="2" />
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5" />
+          </svg>
+        </div>
+        <p class="josanz-login__tag">Josanz Audiovisual</p>
+        <h1 class="josanz-login__title">Acceso ERP</h1>
+        <p class="josanz-login__subtitle">Modo demostración — sin servidor</p>
+      </header>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-login__form">
+        <josanz-input
+          label="E-mail"
+          type="email"
+          placeholder="tu@empresa.com"
+          controlName="email"
+          [parentForm]="loginForm"
+        ></josanz-input>
+
+        <josanz-input
+          label="Contraseña"
+          type="password"
+          placeholder="••••••••"
+          controlName="password"
+          [parentForm]="loginForm"
+        ></josanz-input>
+
+        <josanz-button
+          label="Acceder"
+          [showIcon]="false"
+          [fullWidth]="true"
+          [customColor]="loginCta"
+          [disabled]="loginForm.invalid"
+          (btnClick)="onSubmit()"
+        ></josanz-button>
+      </form>
+    </div>
+  </section>
+</div>

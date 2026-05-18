@@ -1,0 +1,89 @@
+:host {
+  display: block;
+  height: 100dvh;
+  width: 100%;
+}
+
+.josanz-login {
+  display: flex;
+  min-height: 100dvh;
+  background: #fffefe;
+}
+
+.josanz-login__hero {
+  display: none;
+  flex: 1 1 58%;
+  background: linear-gradient(145deg, #e8edf5 0%, #f5f7fb 55%, #eef2f8 100%);
+  border-right: 1px solid #e7edf1;
+}
+
+@media (min-width: 960px) {
+  .josanz-login__hero {
+    display: block;
+  }
+}
+
+.josanz-login__panel {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.josanz-login__card {
+  width: 100%;
+  max-width: 400px;
+}
+
+.josanz-login__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.josanz-login__logo {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f1e2f;
+  background: #deedff;
+}
+
+.josanz-login__tag {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #7c7c7c;
+}
+
+.josanz-login__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #222222;
+}
+
+.josanz-login__subtitle {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #7c7c7c;
+}
+
+.josanz-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.josanz-login__form josanz-button {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+}

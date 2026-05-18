@@ -101,7 +101,7 @@ export const AuthStore = signalStore(
         }
         syncErpTenantHtmlTheme();
         themeService.reapplyTheme();
-        void router.navigateByUrl('/auth/tenant', { replaceUrl: true });
+        void router.navigateByUrl('/auth/login', { replaceUrl: true });
       },
 
       refreshSession: rxMethod<void>(

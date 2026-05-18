@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { JosanzThemeService } from '../services/theme.service';
@@ -16,6 +16,12 @@ export class SidebarComponent {
   @Input() userName = 'Admin Josanz';
   @Input() userRole = 'Administrador';
   @Input() isOpen = false;
+
+  @Output() readonly logoutClick = new EventEmitter<void>();
+
+  onLogoutClick(): void {
+    this.logoutClick.emit();
+  }
 
   toggle() {
     this.isOpen = !this.isOpen;
