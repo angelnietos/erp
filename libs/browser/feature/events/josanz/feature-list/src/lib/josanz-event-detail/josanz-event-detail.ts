@@ -1,112 +1,149 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  DetailCardComponent,
   DocumentItemComponent,
-  DocumentListComponent,
   MainDetailLayoutComponent,
-  MainTemplateCardComponent,
+  SecondaryButtonComponent,
+  type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
+
+interface JosanzEventNote {
+  id: string;
+  text: string;
+}
+
+interface JosanzEventStaffMember {
+  id: string;
+  name: string;
+  role: string;
+  tag: string;
+  pillKey: JosanzStatusPillKey;
+  avatarUrl: string;
+}
+
+interface JosanzEventEquipment {
+  id: string;
+  name: string;
+  warehouse: string;
+  status: string;
+  pillKey: JosanzStatusPillKey;
+  imageUrl: string;
+}
 
 @Component({
   selector: 'josanz-event-detail',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MainDetailLayoutComponent,
-    MainTemplateCardComponent,
-    DetailCardComponent,
+    SecondaryButtonComponent,
     DocumentItemComponent,
-    DocumentListComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
 export class JosanzEventDetailComponent {
   private readonly router = inject(Router);
 
-  activeTab = signal('General');
+  activeTab = signal('Resumen');
+  showStaffComposer = signal(false);
+  staffDraft = '';
 
-  /** Pestañas alineadas con maqueta Josanz Audiovisual / tarjeta de evento en clientes. */
   readonly tabs = [
-    'General',
+    'Resumen',
     'Cliente',
-    'Operadores',
-    'Materiales',
-    'Proveedores',
-    'Presupuestos',
-    'Albarán',
+    'Staff',
+    'Equipo',
+    'Albaranes',
     'Facturas',
-    'Notas al staff',
+    'Informes / reportes',
+    'Emails',
   ];
 
-  readonly generalRows: { label: string; value: string; accent?: boolean }[] = [
-    { label: 'ID evento', value: '000000001' },
-    { label: 'Nombre', value: 'Congreso anual' },
-    { label: 'Tipología', value: 'Externo' },
-    { label: 'Fecha', value: '12/06/2026' },
-    { label: 'Estado', value: 'Confirmado', accent: true },
+  readonly heroImage =
+    'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400&h=400';
+
+  readonly eventNotes: JosanzEventNote[] = [
+    {
+      id: '1',
+      text: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.',
+    },
   ];
 
-  readonly scheduleRows: { label: string; value: string }[] = [
-    { label: 'Montaje', value: '11/06/2026 · 08:00' },
-    { label: 'Inicio evento', value: '12/06/2026 · 09:00' },
-    { label: 'Desmontaje', value: '12/06/2026 · 20:00' },
+  readonly staffNotes: JosanzEventNote[] = [
+    {
+      id: '1',
+      text: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.',
+    },
+    {
+      id: '2',
+      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+    },
   ];
 
-  readonly clientRows: { label: string; value: string }[] = [
+  readonly inspirationFiles = ['1.pdf', '2.pdf'];
+
+  readonly staffMembers: JosanzEventStaffMember[] = [
+    {
+      id: '1',
+      name: 'Nombre Apellidos',
+      role: 'Especialización',
+      tag: 'Técnico',
+      pillKey: 'staff-tecnico',
+      avatarUrl: 'https://i.pravatar.cc/96?img=12',
+    },
+    {
+      id: '2',
+      name: 'Nombre Apellidos',
+      role: 'Especialización',
+      tag: 'En prácticas',
+      pillKey: 'staff-practicas',
+      avatarUrl: 'https://i.pravatar.cc/96?img=32',
+    },
+    {
+      id: '3',
+      name: 'Nombre Apellidos',
+      role: 'Especialización',
+      tag: 'Freelance',
+      pillKey: 'staff-freelance',
+      avatarUrl: 'https://i.pravatar.cc/96?img=45',
+    },
+  ];
+
+  readonly equipment: JosanzEventEquipment[] = [
+    {
+      id: '1',
+      name: 'Equipo 001',
+      warehouse: 'Almacén X',
+      status: 'Correcto',
+      pillKey: 'confirmado',
+      imageUrl: 'https://images.unsplash.com/photo-1598488035139-b5b7090db90f?auto=format&fit=crop&q=80&w=120&h=120',
+    },
+    {
+      id: '2',
+      name: 'Equipo 001',
+      warehouse: 'Almacén X',
+      status: 'En uso',
+      pillKey: 'en-produccion',
+      imageUrl: 'https://images.unsplash.com/photo-1598488035139-b5b7090db90f?auto=format&fit=crop&q=80&w=120&h=120',
+    },
+  ];
+
+  readonly clientRows = [
     { label: 'Cliente', value: 'Cliente ejemplo S.L.' },
     { label: 'Contacto', value: 'María López' },
     { label: 'Email', value: 'maria@cliente-ejemplo.com' },
     { label: 'Teléfono', value: '+34 600 111 222' },
   ];
 
-  readonly operadores = [
-    { name: 'Operador A', role: 'Jefe de equipo', status: 'Activo' },
-    { name: 'Operador B', role: 'Técnico AV', status: 'Activo' },
-    { name: 'Operador C', role: 'Instalador', status: 'Ausente' },
-  ];
-
-  readonly materiales = [
-    { ref: 'AV-204', name: 'Pantalla LED 3×2', qty: '2 uds', warehouse: 'Almacén Central' },
-    { ref: 'AV-118', name: 'Mesa de mezclas digital', qty: '1 ud', warehouse: 'Almacén Norte' },
-    { ref: 'AV-045', name: 'Micrófono inalámbrico', qty: '6 uds', warehouse: 'Almacén Central' },
-  ];
-
-  readonly proveedores = [
-    { id: 'PRV-001', name: 'Proveedor iluminación', status: 'Activo' },
-    { id: 'PRV-014', name: 'Rigging externo', status: 'Activo' },
-  ];
-
-  readonly presupuestosPropios = ['Presupuesto_evento_v1.pdf', 'Presupuesto_evento_v2.pdf'];
-  readonly presupuestosExternos = ['Presupuesto_proveedor_A.pdf'];
-
-  readonly albaranes = ['Albaran_montaje_001.pdf', 'Albaran_material_002.pdf'];
-  readonly facturas = ['Factura_proforma.pdf', 'Factura_final.pdf'];
-
-  readonly staffNotes = [
-    {
-      author: 'Operador A',
-      date: '10/06/2026',
-      text: 'Cliente confirma acceso por muelle de carga a partir de las 07:30. Revisar cableado escenario B.',
-    },
-    {
-      author: 'Coordinación',
-      date: '08/06/2026',
-      text: 'Reservar equipo de respaldo para sistema de audio principal.',
-    },
-  ];
-
-  readonly resumenCard = {
-    imageUrl:
-      'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400&h=240',
-    title: 'Congreso anual',
-    badgeText: 'Confirmado',
-    subtitle: '12/06/2026 · Cliente ejemplo',
-    description:
-      'Evento corporativo con montaje previo, sesión plenaria y desmontaje el mismo día. Coordinación AV completa.',
-    tags: ['Cliente', 'Operadores', 'Materiales', 'Proveedores', 'Presupuestos', 'Albarán', 'Factura'],
-  };
+  pillStyle(key: JosanzStatusPillKey): Record<string, string> {
+    return {
+      backgroundColor: `var(--josanz-pill-${key}-bg)`,
+      color: `var(--josanz-pill-${key}-text)`,
+    };
+  }
 
   setTab(tab: string): void {
     this.activeTab.set(tab);
@@ -122,5 +159,9 @@ export class JosanzEventDetailComponent {
 
   onCancel(): void {
     void this.router.navigate(['/events']);
+  }
+
+  toggleStaffComposer(): void {
+    this.showStaffComposer.update((v) => !v);
   }
 }
