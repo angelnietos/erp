@@ -581,6 +581,8 @@ export function applyJosanzBrandCssVariables(
       : `0 12px 26px color-mix(in srgb, ${primaryColor} 26%, transparent)`,
   );
   root.style.setProperty('--josanz-sidebar-bg', isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface));
+  root.style.setProperty('--josanz-sidebar-width', isNeutral ? '36px' : '68px');
+  root.style.setProperty('--josanz-sidebar-expanded-width', isNeutral ? '103px' : '180px');
   root.style.setProperty('--josanz-sidebar-border', isNeutral ? 'transparent' : atmosphere.border);
   root.style.setProperty('--josanz-sidebar-shadow', isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow);
   root.style.setProperty('--josanz-sidebar-icon', isNeutral ? '#222222' : atmosphere.textMuted);
