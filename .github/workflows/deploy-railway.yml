@@ -1,0 +1,101 @@
+name: Deploy — Railway
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Railway environment'
+        required: true
+        default: production
+        type: choice
+        options:
+          - production
+          - staging
+      app:
+        description: 'App/service to deploy'
+        required: true
+        default: josanz-web-app
+        type: choice
+        options:
+          - all
+          - backend
+          - verifactu-api
+          - verifactu-worker
+          - frontend
+          - josanz-web-app
+          - saas-platform
+          - document-generator
+      detach:
+        description: 'Detach after upload instead of streaming deployment logs'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: backend
+            service_secret: RAILWAY_SERVICE_BACKEND
+          - app: verifactu-api
+            service_secret: RAILWAY_SERVICE_VERIFACTU_API
+          - app: verifactu-worker
+            service_secret: RAILWAY_SERVICE_VERIFACTU_WORKER
+          - app: frontend
+            service_secret: RAILWAY_SERVICE_FRONTEND
+          - app: josanz-web-app
+            service_secret: RAILWAY_SERVICE_JOSANZ_WEB_APP
+          - app: saas-platform
+            service_secret: RAILWAY_SERVICE_SAAS_PLATFORM
+          - app: document-generator
+            service_secret: RAILWAY_SERVICE_DOCUMENT_GENERATOR
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets[matrix.service_secret] }}
+    steps:
+      - name: Checkout
+        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Railway CLI
+        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        run: npm install -g @railway/cli
+
+      - name: Validate Railway configuration
+        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        run: |
+          missing=""
+          for key in RAILWAY_TOKEN RAILWAY_PROJECT_ID RAILWAY_SERVICE_ID; do
+            if [ -z "${!key}" ]; then
+              missing="$missing $key"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing Railway configuration:$missing"
+            echo "Service secret expected for ${{ matrix.app }}: ${{ matrix.service_secret }}"
+            exit 1
+          fi
+
+      - name: Deploy ${{ matrix.app }} to Railway
+        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        run: |
+          set -euo pipefail
+          flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "${{ inputs.environment }}")
+          if [ "${{ inputs.detach }}" = "true" ]; then
+            flags+=(--detach)
+          fi
+          railway up "${flags[@]}"

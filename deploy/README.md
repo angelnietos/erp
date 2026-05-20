@@ -26,6 +26,8 @@ COMPOSE_PROFILES=josanz,core
 - `.github/workflows/nx-affected-ci.yml` — CI (lint, test, build affected)
 - `.github/workflows/docker-images.yml` — build/push matricial a GHCR
 - `.github/workflows/deploy-ssh.yml` — deploy por SSH (`production` / `staging`)
+- `.github/workflows/deploy-railway.yml` — deploy manual a Railway por servicio
+- `deploy/railway/` — Dockerfiles y guía para servicios Railway
 
 ## Servidor (una vez)
 
@@ -66,6 +68,16 @@ COMPOSE_PROFILES=josanz,core
 | `GHCR_PULL_USER` | Usuario del PAT |
 
 Workflow **Deploy — SSH (Ubuntu)** → elegir `production` o `staging` (lee `deploy/.env.production` o `deploy/.env.staging`, con fallback a `deploy/.env`).
+
+## Railway
+
+También hay configuración para desplegar servicios individuales en Railway:
+
+- Dockerfiles por app en `deploy/railway/dockerfiles/`.
+- Nginx preparado para el `PORT` dinámico de Railway en apps Angular.
+- Workflow manual **Deploy — Railway** con selector de entorno y servicio.
+
+Lee `deploy/railway/README.md` para crear los servicios, apuntar cada uno a su Dockerfile y configurar secretos como `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`.
 
 ## Build local
 
