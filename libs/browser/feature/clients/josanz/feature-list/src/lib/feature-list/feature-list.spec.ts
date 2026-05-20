@@ -1,16 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FeatureList } from './feature-list';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { JosanzClientsListComponent } from './feature-list';
 
-describe('FeatureList', () => {
-  let component: FeatureList;
-  let fixture: ComponentFixture<FeatureList>;
+describe('JosanzClientsListComponent', () => {
+  let component: JosanzClientsListComponent;
+  let fixture: ComponentFixture<JosanzClientsListComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FeatureList],
+      imports: [JosanzClientsListComponent],
+      providers: [
+        { provide: Router, useValue: { navigate: jest.fn() } },
+        {
+          provide: ActivatedRoute,
+          useValue: { snapshot: { queryParamMap: convertToParamMap({}) } },
+        },
+      ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FeatureList);
+    fixture = TestBed.createComponent(JosanzClientsListComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

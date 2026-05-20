@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { JosanzUserCreate } from './josanz-user-create';
+import { Router } from '@angular/router';
+import { JosanzUserCreateComponent } from './josanz-user-create';
 
-describe('JosanzUserCreate', () => {
-  let component: JosanzUserCreate;
-  let fixture: ComponentFixture<JosanzUserCreate>;
+describe('JosanzUserCreateComponent', () => {
+  let component: JosanzUserCreateComponent;
+  let fixture: ComponentFixture<JosanzUserCreateComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JosanzUserCreate],
+      imports: [JosanzUserCreateComponent],
+      providers: [{ provide: Router, useValue: { navigate: jest.fn() } }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(JosanzUserCreate);
+    fixture = TestBed.createComponent(JosanzUserCreateComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
