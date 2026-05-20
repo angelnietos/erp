@@ -65,7 +65,18 @@ export class InputComponent {
   }
 
   getAccentColor(): string {
-    return this.customColor ?? this.themeService.currentTheme().primaryColor;
+    if (this.customColor) {
+      return this.customColor;
+    }
+    if (typeof document !== 'undefined') {
+      const token = getComputedStyle(document.documentElement)
+        .getPropertyValue('--josanz-interactive')
+        .trim();
+      if (token) {
+        return token;
+      }
+    }
+    return this.themeService.currentTheme().primaryColor;
   }
 
   focusRing(): string {

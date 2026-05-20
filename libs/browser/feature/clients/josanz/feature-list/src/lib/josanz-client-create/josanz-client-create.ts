@@ -3,9 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  ButtonComponent,
+  InputComponent,
+  MainDetailLayoutComponent,
   SecondaryButtonComponent,
-  UserAvatarComponent,
   josanzNonEmptyTrim,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
@@ -16,31 +16,33 @@ import {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    ButtonComponent,
+    InputComponent,
+    MainDetailLayoutComponent,
     SecondaryButtonComponent,
-    UserAvatarComponent,
   ],
   templateUrl: './josanz-client-create.html',
-  styleUrl: './josanz-client-create.css',
 })
 export class JosanzClientCreateComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
+  readonly tabs = ['Datos cliente'];
+  readonly activeTab = 'Datos cliente';
+
   readonly clientTypes: { value: string; label: string; pillKey: JosanzStatusPillKey }[] = [
-    { value: 'tipo-1', label: 'Tipo cliente', pillKey: 'cliente-tipo-pink' },
-    { value: 'tipo-2', label: 'Tipo cliente', pillKey: 'cliente-tipo-green' },
-    { value: 'tipo-3', label: 'Tipo cliente', pillKey: 'cliente-tipo-yellow' },
-    { value: 'nuevo', label: 'Nuevo', pillKey: 'cliente-nuevo' },
+    { value: 'tipo-1', label: 'Tipo cliente 1', pillKey: 'cliente-tipo-pink' },
+    { value: 'tipo-2', label: 'Tipo cliente 2', pillKey: 'cliente-tipo-green' },
+    { value: 'tipo-3', label: 'Tipo cliente 3', pillKey: 'cliente-tipo-yellow' },
+    { value: 'nuevo', label: 'Cliente nuevo', pillKey: 'cliente-nuevo' },
   ];
 
   form: FormGroup;
 
   constructor() {
     this.form = this.fb.group({
-      razonSocial: ['Empresa Ejemplo', josanzNonEmptyTrim],
-      email: ['email@email.com', [josanzNonEmptyTrim, Validators.email]],
-      telefono: ['699432567', josanzNonEmptyTrim],
+      razonSocial: ['', josanzNonEmptyTrim],
+      email: ['', [josanzNonEmptyTrim, Validators.email]],
+      telefono: ['', josanzNonEmptyTrim],
       tipo: ['tipo-1'],
     });
   }

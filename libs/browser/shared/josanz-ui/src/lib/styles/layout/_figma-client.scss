@@ -1,130 +1,125 @@
-// Clientes — listado, alta y feedback (Figma Neutral White)
+// Clientes — alta, operadores y feedback (Figma Neutral White)
 
-.josanz-client-create-page {
+.josanz-client-create__body {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 1rem 1.25rem 2.5rem;
-  box-sizing: border-box;
+}
 
-  @media (min-width: 768px) {
-    padding-inline: 2rem;
+.josanz-client-create__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 5.5rem 1fr;
+    gap: 2rem;
   }
 }
 
-.josanz-client-create-page__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.josanz-client-create-page__title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.josanz-client-create-page__back {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 8px;
-  border: 1px solid var(--josanz-border);
-  background: var(--josanz-surface-muted);
-  color: var(--josanz-text);
-  cursor: pointer;
-}
-
-.josanz-client-create-page__title {
-  margin: 0;
-  font-size: 1.375rem;
-  font-weight: 800;
-  color: var(--josanz-text-heading, #222);
-}
-
-.josanz-client-create-card {
-  border-radius: var(--josanz-radius-card, 12px);
-  border: 1px solid var(--josanz-border);
-  background: var(--josanz-surface);
-  box-shadow: var(--josanz-card-shadow);
-  padding: 1.5rem;
-}
-
-.josanz-client-create-logo {
-  width: 4.5rem;
-  height: 4.5rem;
+.josanz-client-create__brand {
+  width: 5.5rem;
+  height: 5.5rem;
   border-radius: 9999px;
   border: 1px solid var(--josanz-border);
-  background: var(--josanz-surface-muted);
+  background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface-muted, #f7f7f7));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1.25rem;
-  font-size: 10px;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  margin: 0 auto;
+
+  @media (min-width: 640px) {
+    margin: 0.25rem 0 0;
+  }
+}
+
+.josanz-client-create__brand-initials {
+  font-size: 1.125rem;
   font-weight: 800;
-  line-height: 1.1;
-  text-align: center;
+  line-height: 1;
   color: var(--josanz-text);
+  letter-spacing: -0.02em;
 }
 
-.josanz-client-create-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.josanz-client-create__brand-name {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--josanz-text-muted);
+  max-width: 4.5rem;
+  text-align: center;
+  line-height: 1.15;
 }
 
-.josanz-client-field {
+.josanz-client-create__fields {
+  min-width: 0;
+
+  josanz-input:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.josanz-client-type-select {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
 
-  label {
+  &__label {
+    margin-left: 0.25rem;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.1em;
     color: var(--josanz-label-muted, #7c7c7c);
   }
 
-  input,
-  select {
-    width: 100%;
-    box-sizing: border-box;
-    height: 2.5rem;
-    border-radius: 8px;
+  &__trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: var(--josanz-radius-control, 8px);
     border: 1px solid var(--josanz-stroke-field, #d7d7d7);
     background: var(--josanz-field-fill, #f5f5f5);
-    padding: 0 0.75rem;
-    font-size: 14px;
-    color: var(--josanz-text);
-    font-family: inherit;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus-within {
+      border-color: var(--josanz-interactive, var(--josanz-primary));
+      box-shadow: 0 0 0 2px var(--josanz-focus-ring);
+    }
+
+    select {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+      appearance: none;
+    }
   }
-}
 
-.josanz-client-type-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  min-height: 2.5rem;
-  padding: 0 0.75rem;
-  border-radius: 8px;
-  border: 1px solid var(--josanz-stroke-field, #d7d7d7);
-  background: var(--josanz-field-fill, #f5f5f5);
-
-  select {
+  &__spacer {
     flex: 1;
     min-width: 0;
-    border: none;
-    background: transparent;
-    padding: 0;
-    height: auto;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: var(--josanz-text-muted);
+    pointer-events: none;
   }
 }
 
@@ -132,27 +127,10 @@
   padding: 0.2rem 0.55rem;
   border-radius: 9999px;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   white-space: nowrap;
   flex-shrink: 0;
-}
-
-.josanz-client-create-actions {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 1.25rem;
-}
-
-.josanz-client-create-cancel {
-  border: none;
-  background: none;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--josanz-text-muted);
-  cursor: pointer;
-  padding: 0.5rem 0.75rem;
 }
 
 .josanz-client-operadores {
@@ -170,7 +148,7 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 800;
-    color: var(--josanz-text);
+    color: var(--josanz-text-heading, var(--josanz-text));
   }
 }
 
