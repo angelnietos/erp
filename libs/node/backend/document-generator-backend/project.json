@@ -15,6 +15,14 @@
         "main": "libs/node/backend/document-generator-backend/src/index.ts",
         "assets": ["libs/node/backend/document-generator-backend/*.md"]
       }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/document-generator-backend"],
+      "options": {
+        "jestConfig": "libs/node/backend/document-generator-backend/jest.config.cts",
+        "passWithNoTests": true
+      }
     }
   }
 }

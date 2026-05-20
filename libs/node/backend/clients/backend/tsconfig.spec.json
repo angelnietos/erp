@@ -5,7 +5,7 @@
     "types": ["jest", "node"]
   },
   "include": ["**/*.spec.ts", "**/*.test.ts", "test-setup.ts"],
-  "exclude": ["**/*.spec.ts"]
+  "exclude": []
 }
 
 
