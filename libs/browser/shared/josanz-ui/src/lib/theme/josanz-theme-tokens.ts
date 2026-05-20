@@ -560,7 +560,7 @@ export function applyJosanzBrandCssVariables(
         ? `color-mix(in srgb, ${primaryColor} 78%, white)`
         : `color-mix(in srgb, ${primaryColor} 82%, black)`,
   );
-  root.style.setProperty('--josanz-button-primary-text', '#FFFFFF');
+  root.style.setProperty('--josanz-button-primary-text', josanzReadableOnSolid(isNeutral ? '#0F1E2F' : primaryColor));
   root.style.setProperty(
     '--josanz-button-secondary-bg',
     isNeutral ? '#FFFFFF' : `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 8}%, ${surface})`,

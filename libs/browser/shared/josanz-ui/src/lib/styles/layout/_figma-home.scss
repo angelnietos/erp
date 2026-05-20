@@ -51,10 +51,11 @@
   height: 2.25rem;
   padding: 0 0.65rem;
   border-radius: 8px;
-  border: 1px solid var(--josanz-stroke-field, #d7d7d7);
-  background: var(--josanz-field-fill, #f5f5f5);
+  border: 1px solid var(--josanz-button-secondary-border, var(--josanz-stroke-field, #d7d7d7));
+  background: var(--josanz-button-secondary-bg, var(--josanz-field-fill, #f5f5f5));
   font-size: 11px;
-  color: var(--josanz-text-muted);
+  font-weight: 700;
+  color: var(--josanz-button-secondary-text, var(--josanz-text));
   white-space: nowrap;
 }
 
@@ -64,8 +65,8 @@
   gap: 0.25rem;
   padding: 0.2rem;
   border-radius: 8px;
-  background: var(--josanz-surface-muted);
-  border: 1px solid var(--josanz-border);
+  background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface));
+  border: 1px solid var(--josanz-button-secondary-border, var(--josanz-border));
 }
 
 .josanz-home__period-btn {
@@ -75,12 +76,13 @@
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--josanz-text-muted);
+  color: var(--josanz-text);
   cursor: pointer;
 
   &--active {
-    background: var(--josanz-text, #080808);
-    color: #fff;
+    background: var(--josanz-button-primary-bg, var(--josanz-primary));
+    color: var(--josanz-button-primary-text, var(--josanz-on-primary));
+    box-shadow: var(--josanz-button-shadow);
   }
 }
 
@@ -90,10 +92,11 @@
   gap: 0.35rem;
   height: 2.25rem;
   padding: 0 1rem;
-  border: none;
+  border: 1px solid var(--josanz-button-secondary-border, transparent);
   border-radius: 8px;
-  background: var(--josanz-text, #080808);
-  color: #fff;
+  background: var(--josanz-button-primary-bg, var(--josanz-primary));
+  color: var(--josanz-button-primary-text, var(--josanz-on-primary));
+  box-shadow: var(--josanz-button-shadow);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -177,7 +180,7 @@
   padding: 0.75rem 0.5rem;
   text-align: center;
   border-bottom: 1px solid var(--josanz-row-line);
-  background: var(--josanz-surface-muted);
+  background: color-mix(in srgb, var(--josanz-primary) 7%, var(--josanz-surface));
 
   &--corner {
     border-right: 1px solid var(--josanz-row-line);
@@ -189,8 +192,8 @@
   height: 2rem;
   margin: 0 auto;
   border-radius: 9999px;
-  background: var(--josanz-interactive, var(--josanz-primary));
-  color: #fff;
+  background: var(--josanz-button-primary-bg, var(--josanz-primary));
+  color: var(--josanz-button-primary-text, var(--josanz-on-primary));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,7 +203,7 @@
   display: inline-block;
   padding: 0.2rem 0.5rem;
   border-radius: 6px;
-  background: var(--josanz-surface-muted);
+  background: var(--josanz-button-secondary-bg, var(--josanz-surface-muted));
   font-size: 11px;
   font-weight: 700;
   color: var(--josanz-text-muted);
@@ -260,7 +263,7 @@
 
   &__desc {
     margin: 0.15rem 0 0;
-    color: var(--josanz-text-muted);
+    color: var(--josanz-text);
     line-height: 1.35;
     display: -webkit-box;
     -webkit-line-clamp: 2;
