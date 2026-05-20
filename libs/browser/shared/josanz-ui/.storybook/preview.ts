@@ -48,7 +48,8 @@ const designTokens = `
   --josanz-badge-neutral: ${JOSANZ_FIGMA_SEMANTIC.badgeNeutral};
   --josanz-field-accent: var(--josanz-primary);
   --josanz-content-max: 1280px;
-  --josanz-sidebar-width: 68px;
+  --josanz-sidebar-width: 36px;
+  --josanz-sidebar-expanded-width: 103px;
   --josanz-shell-pad-x: 1.5rem;
   --josanz-shell-pad-x-md: ${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px;
   --josanz-shell-pad-y: 1.5rem;
@@ -110,7 +111,8 @@ const designTokens = `
   --josanz-badge-neutral: #334155;
   --josanz-field-accent: var(--josanz-primary);
   --josanz-content-max: 1280px;
-  --josanz-sidebar-width: 68px;
+  --josanz-sidebar-width: 36px;
+  --josanz-sidebar-expanded-width: 103px;
   --josanz-shell-pad-x: 1.5rem;
   --josanz-shell-pad-x-md: ${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px;
   --josanz-shell-pad-y: 1.5rem;

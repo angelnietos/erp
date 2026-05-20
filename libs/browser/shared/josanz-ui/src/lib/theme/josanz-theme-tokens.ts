@@ -581,8 +581,8 @@ export function applyJosanzBrandCssVariables(
       : `0 12px 26px color-mix(in srgb, ${primaryColor} 26%, transparent)`,
   );
   root.style.setProperty('--josanz-sidebar-bg', isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface));
-  root.style.setProperty('--josanz-sidebar-width', isNeutral ? '36px' : '68px');
-  root.style.setProperty('--josanz-sidebar-expanded-width', isNeutral ? '103px' : '180px');
+  root.style.setProperty('--josanz-sidebar-width', '36px');
+  root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
   root.style.setProperty('--josanz-sidebar-border', isNeutral ? 'transparent' : atmosphere.border);
   root.style.setProperty('--josanz-sidebar-shadow', isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow);
   root.style.setProperty('--josanz-sidebar-icon', isNeutral ? '#222222' : atmosphere.textMuted);
@@ -749,7 +749,8 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
   root.style.setProperty('--josanz-badge-neutral', JOSANZ_FIGMA_SEMANTIC.badgeNeutral);
   root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
   root.style.setProperty('--josanz-content-max', '1280px');
-  root.style.setProperty('--josanz-sidebar-width', '68px');
+  root.style.setProperty('--josanz-sidebar-width', '36px');
+  root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
   root.style.setProperty('--josanz-shell-pad-x', '1.5rem');
   root.style.setProperty('--josanz-shell-pad-x-md', `${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px`);
   root.style.setProperty('--josanz-shell-pad-y', '1.5rem');
