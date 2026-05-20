@@ -26,10 +26,28 @@
   --josanz-secondary-fill: #dadfe6;
   --josanz-status-pill-muted-bg: #080808;
   --josanz-status-pill-muted-text: #ffffff;
+  --josanz-button-primary-bg: #0f1e2f;
+  --josanz-button-primary-hover-bg: #17283d;
+  --josanz-button-primary-text: #ffffff;
+  --josanz-button-secondary-bg: #ffffff;
+  --josanz-button-secondary-border: #0f1e2f;
+  --josanz-button-secondary-text: #0f1e2f;
+  --josanz-button-ghost-text: #0f1e2f;
+  --josanz-button-disabled-bg: #dadfe6;
+  --josanz-button-disabled-border: #dadfe6;
+  --josanz-button-disabled-text: #ffffff;
+  --josanz-button-shadow: 0 2px 8px rgba(231, 237, 241, 0.9);
+  --josanz-sidebar-width: 44px;
+  --josanz-sidebar-bg: #ffffff;
+  --josanz-sidebar-border: transparent;
+  --josanz-sidebar-shadow: 0 10px 24px rgba(189, 189, 189, 0.18);
+  --josanz-sidebar-icon: #222222;
+  --josanz-sidebar-icon-active: #222222;
+  --josanz-sidebar-hover-bg: transparent;
 }
 
 [data-josanz-atmosphere='neutral'] .active-link {
-  background-color: var(--josanz-surface-muted);
+  background-color: transparent;
 }
 
 [data-josanz-atmosphere='neutral'] .active-link .nav-icon-container {

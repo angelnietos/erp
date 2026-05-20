@@ -524,6 +524,7 @@ export function applyJosanzBrandCssVariables(
   const softBg = `color-mix(in srgb, ${primaryColor} ${softStrength}%, ${surface})`;
   const brandRgb = parseCssColorToRgb(primaryColor);
   const brandLum = brandRgb ? relativeLuminanceFromRgb(brandRgb) : 0;
+  const isNeutral = atmosphere.name === 'neutral';
   /** En lienzo oscuro, marcas muy oscuras pierden contraste: aclaramos el texto activo. */
   const pillText =
     isDark && brandLum < 0.22
@@ -547,6 +548,47 @@ export function applyJosanzBrandCssVariables(
   root.style.setProperty('--josanz-interactive', primaryColor);
   root.style.setProperty('--josanz-accent', primaryColor);
   root.style.setProperty('--btn-color', primaryColor);
+  root.style.setProperty(
+    '--josanz-button-primary-bg',
+    isNeutral ? '#0F1E2F' : primaryColor,
+  );
+  root.style.setProperty(
+    '--josanz-button-primary-hover-bg',
+    isNeutral
+      ? '#17283D'
+      : isDark
+        ? `color-mix(in srgb, ${primaryColor} 78%, white)`
+        : `color-mix(in srgb, ${primaryColor} 82%, black)`,
+  );
+  root.style.setProperty('--josanz-button-primary-text', '#FFFFFF');
+  root.style.setProperty(
+    '--josanz-button-secondary-bg',
+    isNeutral ? '#FFFFFF' : `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 8}%, ${surface})`,
+  );
+  root.style.setProperty(
+    '--josanz-button-secondary-border',
+    isNeutral ? '#0F1E2F' : `color-mix(in srgb, ${primaryColor} 48%, ${atmosphere.border})`,
+  );
+  root.style.setProperty('--josanz-button-secondary-text', isNeutral ? '#0F1E2F' : pillText);
+  root.style.setProperty('--josanz-button-ghost-text', isNeutral ? '#0F1E2F' : atmosphere.text);
+  root.style.setProperty('--josanz-button-disabled-bg', '#DADFE6');
+  root.style.setProperty('--josanz-button-disabled-border', '#DADFE6');
+  root.style.setProperty('--josanz-button-disabled-text', '#FFFFFF');
+  root.style.setProperty(
+    '--josanz-button-shadow',
+    isNeutral
+      ? '0 2px 8px rgba(231, 237, 241, 0.9)'
+      : `0 12px 26px color-mix(in srgb, ${primaryColor} 26%, transparent)`,
+  );
+  root.style.setProperty('--josanz-sidebar-bg', isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface));
+  root.style.setProperty('--josanz-sidebar-border', isNeutral ? 'transparent' : atmosphere.border);
+  root.style.setProperty('--josanz-sidebar-shadow', isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow);
+  root.style.setProperty('--josanz-sidebar-icon', isNeutral ? '#222222' : atmosphere.textMuted);
+  root.style.setProperty('--josanz-sidebar-icon-active', isNeutral ? '#222222' : pillText);
+  root.style.setProperty(
+    '--josanz-sidebar-hover-bg',
+    isNeutral ? 'transparent' : `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+  );
   root.style.setProperty(
     '--josanz-focus-ring',
     `color-mix(in srgb, ${primaryColor} 22%, transparent)`,

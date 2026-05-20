@@ -13,9 +13,11 @@ import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-s
       type="button"
       (click)="onClick()"
       [disabled]="disabled"
+      [attr.data-variant]="variant"
       [class]="buttonClasses"
       [style.backgroundColor]="getBgColor()"
       [style.borderColor]="getBorderColor()"
+      [style.boxShadow]="buttonShadow()"
       [ngStyle]="labelStyle()"
     >
       <span>{{ label }}</span>
@@ -27,6 +29,28 @@ import { josanzCornerButton, type JosanzControlShape } from '../josanz-control-s
       }
     </button>
   `,
+  styles: [
+    `
+      :host button {
+        font-family: inherit;
+      }
+
+      :host button[data-variant='primary']:not(:disabled):hover {
+        background-color: var(--josanz-button-primary-hover-bg) !important;
+      }
+
+      :host button[data-variant='secondary']:not(:disabled):hover,
+      :host button[data-variant='outline']:not(:disabled):hover {
+        background-color: var(--josanz-button-secondary-bg) !important;
+        box-shadow: 0 0 0 2px var(--josanz-focus-ring) !important;
+      }
+
+      :host button[data-variant='ghost']:not(:disabled):hover {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+    `,
+  ],
 })
 export class ButtonComponent {
   public themeService = inject(JosanzThemeService);
@@ -43,13 +67,13 @@ export class ButtonComponent {
 
   get buttonClasses() {
     const base =
-      'inline-flex items-center justify-center gap-2 border-2 border-solid outline-none whitespace-nowrap shadow-sm hover:shadow-md active:scale-95 transition-[box-shadow,transform] duration-200';
+      'inline-flex items-center justify-center gap-2 border border-solid outline-none whitespace-nowrap active:scale-[0.98] transition-[background-color,border-color,box-shadow,transform,filter] duration-150';
     
     const sizes = {
-      sm: 'h-8 px-3 text-xs',
-      md: 'h-10 px-4 text-[14px] font-semibold',
-      lg: 'h-12 px-8 text-base font-bold',
-      xl: 'h-14 px-10 text-lg font-bold'
+      sm: 'h-[25px] px-[10px] text-[11px] font-semibold',
+      md: 'h-[36px] px-[16px] text-[14px] font-semibold',
+      lg: 'h-[44px] px-[28px] text-base font-bold',
+      xl: 'h-[48px] px-[32px] text-lg font-bold'
     };
 
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
@@ -61,7 +85,7 @@ export class ButtonComponent {
       sizes[this.size] || sizes.md,
       corner,
       this.fullWidth ? 'w-full' : '',
-      this.disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+      this.disabled ? 'cursor-not-allowed pointer-events-none' : ''
     ].filter(Boolean).join(' ');
   }
 
@@ -70,12 +94,14 @@ export class ButtonComponent {
   }
 
   getBgColor() {
-    const t = this.themeService.currentTheme();
     if (this.variant === 'primary') {
-      return this.customColor ?? 'var(--josanz-primary)';
+      if (this.disabled) {
+        return 'var(--josanz-button-disabled-bg)';
+      }
+      return this.customColor ?? 'var(--josanz-button-primary-bg)';
     }
     if (this.variant === 'secondary') {
-      return t.atmosphere.surface;
+      return this.disabled ? 'var(--josanz-button-disabled-bg)' : 'var(--josanz-button-secondary-bg)';
     }
     if (this.variant === 'danger') {
       return 'var(--josanz-danger)';
@@ -87,23 +113,25 @@ export class ButtonComponent {
   }
 
   getBorderColor() {
-    const t = this.themeService.currentTheme();
     if (this.variant === 'outline') {
-      return this.customColor ?? 'var(--josanz-primary)';
+      return this.disabled ? 'var(--josanz-button-disabled-border)' : (this.customColor ?? 'var(--josanz-button-secondary-border)');
     }
     if (this.variant === 'secondary') {
-      return t.atmosphere.border;
+      return this.disabled ? 'var(--josanz-button-disabled-border)' : 'var(--josanz-button-secondary-border)';
     }
     return 'transparent';
   }
 
   /** Color vía `ngStyle` + token `--josanz-on-primary` (misma fuente que el tema). */
   labelStyle(): Record<string, string> {
-    const t = this.themeService.currentTheme();
+    if (this.disabled) {
+      const c = 'var(--josanz-button-disabled-text)';
+      return { color: c, WebkitTextFillColor: c };
+    }
     if (this.variant === 'primary') {
       const color = this.customColor
         ? josanzReadableOnSolid(this.customColor)
-        : 'var(--josanz-on-primary)';
+        : 'var(--josanz-button-primary-text)';
       return { color, WebkitTextFillColor: color };
     }
     if (this.variant === 'danger') {
@@ -111,9 +139,19 @@ export class ButtonComponent {
       return { color: c, WebkitTextFillColor: c };
     }
     if (this.variant === 'outline' || this.variant === 'ghost') {
-      return { color: this.customColor ?? 'var(--josanz-primary)' };
+      return { color: this.customColor ?? 'var(--josanz-button-secondary-text)' };
     }
-    return { color: t.atmosphere.text };
+    return { color: this.customColor ?? 'var(--josanz-button-secondary-text, var(--josanz-text))' };
+  }
+
+  buttonShadow(): string {
+    if (this.disabled || this.variant === 'ghost' || this.variant === 'outline') {
+      return 'none';
+    }
+    if (this.variant === 'primary') {
+      return 'var(--josanz-button-shadow)';
+    }
+    return '0 2px 8px rgba(231, 237, 241, 0.9)';
   }
 
   onClick() {
