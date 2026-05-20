@@ -1,59 +1,86 @@
 # Despliegue en servidor Ubuntu (Docker)
 
+## Apps y perfiles Compose
+
+| App Nx | Imagen GHCR | Perfil Compose |
+|--------|-------------|----------------|
+| `backend` | `.../backend:tag` | `core`, `josanz`, `legacy-front`, `all` |
+| `josanz-web-app` | `.../josanz-web-app:tag` | `josanz`, `all` |
+| `frontend` | `.../frontend:tag` | `legacy-front`, `all` |
+| `saas-platform` | `.../saas-platform:tag` | `saas`, `all` |
+| `document-generator` | `.../document-generator:tag` | `docs`, `all` |
+| `verifactu-api` | `.../verifactu-api:tag` | `verifactu`, `all` |
+| `verifactu-worker` | `.../verifactu-worker:tag` | `verifactu`, `all` |
+
+Ejemplo mínimo Josanz ERP:
+
+```bash
+COMPOSE_PROFILES=josanz,core
+```
+
 ## Qué incluye el repo
 
-- `docker/backend/Dockerfile` — API Nest (build con Nx + `pnpm`).
-- `docker/frontend/Dockerfile` — Angular estático + Nginx; proxy `/api` → backend.
-- `docker-compose.prod.yml` — Postgres, backend, frontend (solo **imágenes**; el build ocurre en CI o en local).
-- `.github/workflows/docker-images.yml` — sube imágenes a **GHCR** (`ghcr.io/<owner>/<repo>/backend|frontend`).
-- `.github/workflows/deploy-ssh.yml` — opcional: `docker compose pull && up` por SSH (requiere secretos).
+- `docker/backend/Dockerfile` — Node API (`--build-arg NX_PROJECT=backend|verifactu-api|verifactu-worker`)
+- `docker/frontend/Dockerfile` — Angular + Nginx (`NX_PROJECT`, `NGINX_PROFILE=spa|frontend`)
+- `docker-compose.prod.yml` — Postgres + servicios por perfil
+- `.github/workflows/nx-affected-ci.yml` — CI (lint, test, build affected)
+- `.github/workflows/docker-images.yml` — build/push matricial a GHCR
+- `.github/workflows/deploy-ssh.yml` — deploy por SSH (`production` / `staging`)
 
 ## Servidor (una vez)
 
-1. Instalar Docker y plugin Compose v2.
-2. Clonar o copiar en el servidor al menos:
-   - `docker-compose.prod.yml`
-   - `deploy/.env` (partir de `deploy/.env.example`)
-3. En `deploy/.env`:
-   - `DATABASE_URL` con host **`postgres`** (nombre del servicio en compose).
-   - `BACKEND_IMAGE` / `FRONTEND_IMAGE` con el tag que publica CI. En **GHCR** el owner/repo debe ir en **minúsculas** (p. ej. `ghcr.io/mi-org/mi-repo/backend:main`).
-4. Login en GHCR (imágenes privadas):
+1. Docker + Compose v2.
+2. Copiar `docker-compose.prod.yml` y `deploy/.env` (desde `deploy/.env.example`).
+3. `DATABASE_URL` con host **`postgres`**.
+4. Login GHCR (imágenes privadas):
+
    ```bash
    echo TOKEN_READ_PACKAGES | docker login ghcr.io -u USUARIO --password-stdin
    ```
-5. Migraciones Prisma (primera vez o tras cambios de schema), desde el host:
+
+5. Migraciones (solo si despliegas `backend`):
+
    ```bash
-   docker compose -f docker-compose.prod.yml run --rm backend \
+   set -a && source deploy/.env && set +a
+   docker compose -f docker-compose.prod.yml --profile core run --rm backend \
      npx prisma migrate deploy --schema=./prisma/schema.prisma
    ```
+
 6. Arranque:
+
    ```bash
    set -a && source deploy/.env && set +a
    docker compose -f docker-compose.prod.yml pull
    docker compose -f docker-compose.prod.yml up -d
    ```
 
-## CI/CD — secretos GitHub (deploy por SSH)
+## Secretos GitHub (deploy SSH)
 
-| Secreto            | Uso                                      |
-| ------------------ | ---------------------------------------- |
-| `DEPLOY_HOST`      | IP o hostname del servidor               |
-| `DEPLOY_USER`      | Usuario SSH                              |
-| `DEPLOY_SSH_KEY`   | Clave privada (PEM)                      |
-| `DEPLOY_PATH`      | Directorio remoto con `deploy/.env`      |
-| `GHCR_PULL_TOKEN`  | PAT con `read:packages` (pull imágenes)  |
-| `GHCR_PULL_USER`   | Usuario asociado al PAT                  |
+| Secreto | Uso |
+|---------|-----|
+| `DEPLOY_HOST` | IP o hostname |
+| `DEPLOY_USER` | Usuario SSH |
+| `DEPLOY_SSH_KEY` | Clave privada PEM |
+| `DEPLOY_PATH` | Directorio remoto con `deploy/.env` o `deploy/.env.staging` |
+| `GHCR_PULL_TOKEN` | PAT `read:packages` |
+| `GHCR_PULL_USER` | Usuario del PAT |
 
-Ejecutar workflow **Deploy — SSH (Ubuntu)** manualmente tras un push que haya publicado imágenes. Configura los secretos anteriores en el repositorio; si falta alguno, el job fallará de forma explícita.
+Workflow **Deploy — SSH (Ubuntu)** → elegir `production` o `staging` (lee `deploy/.env.production` o `deploy/.env.staging`, con fallback a `deploy/.env`).
 
-## Build local sin registry
+## Build local
 
 ```bash
-docker build -f docker/backend/Dockerfile -t josanz-backend:local .
-docker build -f docker/frontend/Dockerfile -t josanz-frontend:local .
-export BACKEND_IMAGE=josanz-backend:local FRONTEND_IMAGE=josanz-frontend:local
-# Completar deploy/.env (DATABASE_URL, JWT_*, etc.)
+docker build -f docker/backend/Dockerfile --build-arg NX_PROJECT=backend -t josanz-backend:local .
+docker build -f docker/frontend/Dockerfile --build-arg NX_PROJECT=josanz-web-app --build-arg NGINX_PROFILE=spa -t josanz-web-app:local .
+```
+
+Variables en `deploy/.env` y:
+
+```bash
+export COMPOSE_PROFILES=josanz,core
+export BACKEND_IMAGE=josanz-backend:local
+export JOSANZ_WEB_APP_IMAGE=josanz-web-app:local
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Desde la raíz del monorepo también puedes usar `npm run docker:build:backend`, `npm run docker:build:frontend` y `npm run docker:prod:pull` (requiere `deploy/.env` con las variables anteriores).
+Scripts npm en la raíz: `docker:build:backend`, `docker:build:frontend` (ver `package.json`).

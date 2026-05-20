@@ -1,9 +1,17 @@
 name: Deploy — SSH (Ubuntu)
 
-# Ejecutar tras publicar imágenes, o manualmente cuando el servidor ya tiene deploy/.env
+# Tras publicar imágenes en GHCR, o manualmente cuando el servidor tiene deploy/.env
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Entorno a desplegar'
+        required: true
+        default: production
+        type: choice
+        options:
+          - production
+          - staging
       ref:
         description: 'Rama o tag desplegado (informativo)'
         required: false
@@ -15,8 +23,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Definir estos secretos en el repo (Settings → Actions). Avisos "Context access might be invalid"
-    # en el editor suelen ser falsos positivos hasta iniciar sesión en la extensión GitHub Actions y recargar.
+    environment: ${{ inputs.environment }}
     env:
       DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -24,7 +31,21 @@ jobs:
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
       GHCR_PULL_USER: ${{ secrets.GHCR_PULL_USER }}
+      DEPLOY_ENV_FILE: deploy/.env.${{ inputs.environment }}
     steps:
+      - name: Validate deploy secrets
+        run: |
+          missing=""
+          for key in DEPLOY_HOST DEPLOY_USER DEPLOY_SSH_KEY DEPLOY_PATH; do
+            if [ -z "${!key}" ]; then
+              missing="$missing $key"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Faltan secretos:$missing"
+            exit 1
+          fi
+
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -35,11 +56,20 @@ jobs:
           script: |
             set -euo pipefail
             cd "${{ env.DEPLOY_PATH }}"
+            ENV_FILE="${{ env.DEPLOY_ENV_FILE }}"
+            if [ ! -f "$ENV_FILE" ]; then
+              ENV_FILE="deploy/.env"
+            fi
+            if [ ! -f "$ENV_FILE" ]; then
+              echo "No existe $ENV_FILE ni deploy/.env"
+              exit 1
+            fi
             if [ -n "${{ env.GHCR_PULL_TOKEN }}" ]; then
               echo "${{ env.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ env.GHCR_PULL_USER }}" --password-stdin
             fi
             set -a
-            . deploy/.env
+            . "$ENV_FILE"
             set +a
+            export COMPOSE_PROFILES="${COMPOSE_PROFILES:-josanz,core}"
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d --remove-orphans

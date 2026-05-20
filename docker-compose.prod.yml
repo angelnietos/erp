@@ -1,13 +1,15 @@
-# Producción: solo imágenes (build en CI). En servidor: pull + up.
+# Producción: imágenes publicadas por CI (GHCR). En servidor: pull + up.
 #
-#   export $(grep -v '^#' deploy/.env | xargs)
+# Perfiles (COMPOSE_PROFILES):
+#   josanz,core     → backend + josanz-web-app
+#   legacy-front,core → backend + frontend (nginx /api proxy)
+#   verifactu       → verifactu-api + verifactu-worker (+ postgres)
+#   saas | docs     → front aislado
+#   all             → todo lo definido en deploy/.env
+#
+#   set -a && source deploy/.env && set +a
 #   docker compose -f docker-compose.prod.yml pull
 #   docker compose -f docker-compose.prod.yml up -d
-#
-# Build local antes de subir a registry:
-#   docker build -f docker/backend/Dockerfile -t josanz-backend:local .
-#   docker build -f docker/frontend/Dockerfile -t josanz-frontend:local .
-#   BACKEND_IMAGE=josanz-backend:local FRONTEND_IMAGE=josanz-frontend:local docker compose -f docker-compose.prod.yml up -d
 
 services:
   postgres:
@@ -26,8 +28,9 @@ services:
       retries: 5
 
   backend:
-    image: ${BACKEND_IMAGE:?BACKEND_IMAGE requerido (p. ej. ghcr.io/org/repo/backend:main)}
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE requerido}
     restart: unless-stopped
+    profiles: [core, all, josanz, legacy-front]
     depends_on:
       postgres:
         condition: service_healthy
@@ -43,13 +46,65 @@ services:
     expose:
       - '3000'
 
-  frontend:
-    image: ${FRONTEND_IMAGE:?FRONTEND_IMAGE requerido}
+  verifactu-api:
+    image: ${VERIFACTU_API_IMAGE:-ghcr.io/library/alpine:3.20}
     restart: unless-stopped
+    profiles: [verifactu, all]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      VERIFACTU_PORT: '3110'
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL requerido}
+    expose:
+      - '3110'
+
+  verifactu-worker:
+    image: ${VERIFACTU_WORKER_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [verifactu, all]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      verifactu-api:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      VERIFACTU_WORKER_PORT: '3120'
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL requerido}
+    expose:
+      - '3120'
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [legacy-front, all]
     depends_on:
       - backend
     ports:
-      - '${HTTP_PORT:-80}:80'
+      - '${FRONTEND_HTTP_PORT:-8081}:80'
+
+  josanz-web-app:
+    image: ${JOSANZ_WEB_APP_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [josanz, all]
+    ports:
+      - '${JOSANZ_WEB_APP_HTTP_PORT:-8082}:80'
+
+  saas-platform:
+    image: ${SAAS_PLATFORM_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [saas, all]
+    ports:
+      - '${SAAS_PLATFORM_HTTP_PORT:-8083}:80'
+
+  document-generator:
+    image: ${DOCUMENT_GENERATOR_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [docs, all]
+    ports:
+      - '${DOCUMENT_GENERATOR_HTTP_PORT:-8084}:80'
 
 volumes:
   josanz_pgdata:

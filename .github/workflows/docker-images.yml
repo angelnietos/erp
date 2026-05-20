@@ -14,12 +14,41 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  backend:
+  build-push:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: backend
+            kind: backend
+            image: backend
+          - project: verifactu-api
+            kind: backend
+            image: verifactu-api
+          - project: verifactu-worker
+            kind: backend
+            image: verifactu-worker
+          - project: frontend
+            kind: frontend
+            image: frontend
+            nginx_profile: frontend
+          - project: josanz-web-app
+            kind: frontend
+            image: josanz-web-app
+            nginx_profile: spa
+          - project: saas-platform
+            kind: frontend
+            image: saas-platform
+            nginx_profile: spa
+          - project: document-generator
+            kind: frontend
+            image: document-generator
+            nginx_profile: spa
     steps:
       - uses: actions/checkout@v4
 
-      - name: Image name (GHCR en minúsculas)
+      - name: Image prefix (GHCR en minúsculas)
         id: img
         run: |
           R=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
@@ -32,64 +61,25 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Docker meta (backend)
+      - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.img.outputs.prefix }}/backend
+          images: ${{ steps.img.outputs.prefix }}/${{ matrix.image }}
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=
 
-      - name: Build and push backend
+      - name: Build and push (${{ matrix.project }})
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: docker/backend/Dockerfile
+          file: docker/${{ matrix.kind }}/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  frontend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Image name (GHCR en minúsculas)
-        id: img
-        run: |
-          R=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-          echo "prefix=${{ env.REGISTRY }}/$R" >> "$GITHUB_OUTPUT"
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker meta (frontend)
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ steps.img.outputs.prefix }}/frontend
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix=
-
-      - name: Build and push frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/frontend/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          build-args: ${{ matrix.kind == 'frontend' && format('NX_PROJECT={0}\nNGINX_PROFILE={1}', matrix.project, matrix.nginx_profile) || format('NX_PROJECT={0}', matrix.project) }}
+          cache-from: type=gha,scope=${{ matrix.image }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
