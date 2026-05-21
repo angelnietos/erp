@@ -25,11 +25,22 @@ Esta carpeta contiene la configuración para desplegar los servicios del monorep
 4. Si despliegas `frontend`, define `BACKEND_PROXY_URL` con la URL interna o pública del servicio `backend`.
 5. Para servicios backend con Prisma, usa la `DATABASE_URL` de la base de datos Railway y ejecuta migraciones antes de promover el entorno.
 
+Para publicar solo `josanz-web-app`, puedes dejar Railway así:
+
+- Source: repo de GitHub.
+- Branch: `test-deploy`.
+- Builder: Dockerfile o config-as-code desde `railway.json`.
+- Custom Build Command: vacío.
+- Custom Start Command: vacío.
+- Variables del servicio: ninguna obligatoria para el front estático. Railway inyecta `PORT` automáticamente y el Dockerfile lo usa en Nginx.
+
 ## GitHub Actions
 
 El workflow `.github/workflows/deploy-railway.yml` despliega manualmente con Railway CLI.
 
-También se ejecuta automáticamente al hacer `push` a la rama `test-deploy`. En ese caso despliega `backend` y `josanz-web-app` contra el entorno Railway `staging`. El servicio `backend` empaqueta la parte Node y las librerías de `libs/node` que usa la app. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
+También se ejecuta automáticamente al hacer `push` a la rama `test-deploy`. En ese caso despliega solo `josanz-web-app` contra el entorno Railway `staging`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
+
+El archivo `railway.json` de la raíz fuerza a Railway a usar `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` para este despliegue. Así Railway deja de usar Railpack + `npm ci` y pasa a usar `pnpm install --frozen-lockfile` con el Dockerfile del front.
 
 Secretos necesarios:
 
@@ -45,7 +56,7 @@ Secretos necesarios:
 | `RAILWAY_SERVICE_SAAS_PLATFORM` | ID o nombre exacto del servicio `saas-platform` |
 | `RAILWAY_SERVICE_DOCUMENT_GENERATOR` | ID o nombre exacto del servicio `document-generator` |
 
-Solo necesitas crear el secreto del servicio que vayas a desplegar. Si eliges `all`, deben existir todos los secretos de los servicios incluidos.
+Para desplegar solo el front de Josanz en push, necesitas `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`. Si eliges `all` manualmente, deben existir todos los secretos de los servicios incluidos.
 
 ## Migraciones Prisma
 

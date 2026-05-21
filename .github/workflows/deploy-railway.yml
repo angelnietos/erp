@@ -47,7 +47,7 @@ jobs:
         include:
           - app: backend
             service_secret: RAILWAY_SERVICE_BACKEND
-            deploy_on_push: true
+            deploy_on_push: false
           - app: verifactu-api
             service_secret: RAILWAY_SERVICE_VERIFACTU_API
             deploy_on_push: false
