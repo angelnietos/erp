@@ -76,6 +76,7 @@ También hay configuración para desplegar servicios individuales en Railway:
 - Dockerfiles por app en `deploy/railway/dockerfiles/`.
 - Nginx preparado para el `PORT` dinámico de Railway en apps Angular.
 - Workflow manual **Deploy — Railway** con selector de entorno y servicio.
+- Push a `test-deploy` despliega automáticamente `josanz-web-app` en Railway `staging`.
 
 Lee `deploy/railway/README.md` para crear los servicios, apuntar cada uno a su Dockerfile y configurar secretos como `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`.
 

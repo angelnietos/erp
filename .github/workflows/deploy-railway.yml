@@ -1,6 +1,9 @@
 name: Deploy — Railway
 
 on:
+  push:
+    branches:
+      - test-deploy
   workflow_dispatch:
     inputs:
       environment:
@@ -37,7 +40,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
     strategy:
       fail-fast: false
       matrix:
@@ -60,23 +63,25 @@ jobs:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
       RAILWAY_SERVICE_ID: ${{ secrets[matrix.service_secret] }}
+      RAILWAY_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+      RAILWAY_DETACH: ${{ github.event_name == 'workflow_dispatch' && inputs.detach || false }}
     steps:
       - name: Checkout
-        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         uses: actions/checkout@v4
 
       - name: Setup Node
-        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install Railway CLI
-        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: npm install -g @railway/cli
 
       - name: Validate Railway configuration
-        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: |
           missing=""
           for key in RAILWAY_TOKEN RAILWAY_PROJECT_ID RAILWAY_SERVICE_ID; do
@@ -91,11 +96,11 @@ jobs:
           fi
 
       - name: Deploy ${{ matrix.app }} to Railway
-        if: ${{ inputs.app == 'all' || inputs.app == matrix.app }}
+        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: |
           set -euo pipefail
-          flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "${{ inputs.environment }}")
-          if [ "${{ inputs.detach }}" = "true" ]; then
+          flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT")
+          if [ "$RAILWAY_DETACH" = "true" ]; then
             flags+=(--detach)
           fi
           railway up "${flags[@]}"

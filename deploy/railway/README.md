@@ -29,6 +29,8 @@ Esta carpeta contiene la configuración para desplegar los servicios del monorep
 
 El workflow `.github/workflows/deploy-railway.yml` despliega manualmente con Railway CLI.
 
+También se ejecuta automáticamente al hacer `push` a la rama `test-deploy`. En ese caso despliega `josanz-web-app` contra el entorno Railway `staging`. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno.
+
 Secretos necesarios:
 
 | Secreto | Uso |
