@@ -81,6 +81,7 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Validate Railway configuration
+        id: railway_config
         if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: |
           missing=""
@@ -92,11 +93,17 @@ jobs:
           if [ -n "$missing" ]; then
             echo "Missing Railway configuration:$missing"
             echo "Service secret expected for ${{ matrix.app }}: ${{ matrix.service_secret }}"
-            exit 1
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              exit 1
+            fi
+            echo "::warning::Railway deploy for ${{ matrix.app }} was skipped because secrets are missing: $missing"
+            exit 0
           fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy ${{ matrix.app }} to Railway
-        if: ${{ (github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        if: ${{ steps.railway_config.outputs.configured == 'true' && ((github.event_name == 'push' && matrix.app == 'josanz-web-app') || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
         run: |
           set -euo pipefail
           flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT")
