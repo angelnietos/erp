@@ -42,6 +42,8 @@ También se ejecuta automáticamente al hacer `push` a la rama `test-deploy`. En
 
 El archivo `railway.json` de la raíz fuerza a Railway a usar `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` para este despliegue. Así Railway deja de usar Railpack + `npm ci` y pasa a usar `pnpm install --frozen-lockfile` con el Dockerfile del front.
 
+Los Dockerfiles copian `scripts/` y `apps/backend/prisma/` antes de `pnpm install`, porque el `postinstall` del monorepo ejecuta Prisma y scripts de enlace.
+
 Secretos necesarios:
 
 | Secreto | Uso |

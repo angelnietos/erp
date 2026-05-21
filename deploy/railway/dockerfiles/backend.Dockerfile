@@ -2,8 +2,13 @@
 FROM node:20-bookworm-slim AS builder
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
 COPY package.json pnpm-lock.yaml ./
+COPY scripts ./scripts
+COPY apps/backend/prisma ./apps/backend/prisma
 RUN pnpm install --frozen-lockfile
 
 COPY . .
