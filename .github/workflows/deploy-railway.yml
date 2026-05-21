@@ -87,6 +87,7 @@ jobs:
         if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: npm install -g @railway/cli
 
+        
       - name: Validate Railway configuration
         id: railway_config
         if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
