@@ -165,13 +165,16 @@ const atmosphereToolbarItems = (Object.keys(JOSANZ_ATMOSPHERE_REGISTRY) as Josan
 // ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
 const atmosphereDecorator = (
   storyFn: () => unknown,
-  context: { globals: { josanzAtmosphere?: string } },
+  context: { args?: Record<string, unknown>; globals: { josanzAtmosphere?: string } },
 ) => {
   const key = (context.globals?.josanzAtmosphere ?? 'neutral') as JosanzAtmosphereName;
   const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
+  const customColor = typeof context.args?.['customColor'] === 'string' ? context.args['customColor'].trim() : '';
+  const brandColor = typeof context.args?.['brandColor'] === 'string' ? context.args['brandColor'].trim() : '';
+  const primaryColor = customColor || brandColor || JOSANZ_DEFAULT_PRIMARY;
   applyJosanzThemeCssVariables({
     atmosphere,
-    primaryColor: JOSANZ_DEFAULT_PRIMARY,
+    primaryColor,
     themeName: 'luxe-rounded',
   });
   return storyFn();

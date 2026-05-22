@@ -116,12 +116,19 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     }
     if (this.active === option) {
       if (this.useFigmaChips()) {
+        const activeText = this.customColor ?? 'var(--josanz-pill-active-text)';
         return {
-          color: 'var(--josanz-pill-active-text)',
-          WebkitTextFillColor: 'var(--josanz-pill-active-text)',
-          backgroundColor: 'var(--josanz-pill-active-bg)',
-          borderColor: 'var(--josanz-pill-active-border)',
-          boxShadow: '0 2px 10px -2px var(--josanz-focus-ring)',
+          color: activeText,
+          WebkitTextFillColor: activeText,
+          backgroundColor: this.customColor
+            ? `color-mix(in srgb, ${this.customColor} 14%, var(--josanz-surface))`
+            : 'var(--josanz-pill-active-bg)',
+          borderColor: this.customColor
+            ? `color-mix(in srgb, ${this.customColor} 36%, transparent)`
+            : 'var(--josanz-pill-active-border)',
+          boxShadow: this.customColor
+            ? `0 2px 10px -2px color-mix(in srgb, ${this.customColor} 45%, transparent)`
+            : '0 2px 10px -2px var(--josanz-focus-ring)',
         };
       }
       const on = 'var(--josanz-button-primary-text, var(--josanz-on-primary))';

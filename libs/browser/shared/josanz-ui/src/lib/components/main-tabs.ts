@@ -44,18 +44,28 @@ export class MainTabsComponent implements OnInit, OnChanges {
 
   tabShellStyle(option: string): Record<string, string> {
     const on = this.active === option;
+    const accent = this.customColor ?? 'var(--josanz-interactive)';
+    const accentText = this.customColor ?? 'var(--josanz-pill-active-text)';
     if (this.useFigmaTabs()) {
       return {
-        backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
-        borderColor: on ? 'var(--josanz-pill-active-text)' : 'var(--josanz-border)',
-        color: on ? 'var(--josanz-pill-active-text)' : 'var(--josanz-text-muted)',
-        boxShadow: on ? '0 0 0 1px var(--josanz-pill-active-border)' : 'none',
+        backgroundColor: on
+          ? this.customColor
+            ? `color-mix(in srgb, ${this.customColor} 14%, var(--josanz-surface))`
+            : 'var(--josanz-pill-active-bg)'
+          : 'var(--josanz-surface)',
+        borderColor: on ? accentText : 'var(--josanz-border)',
+        color: on ? accentText : 'var(--josanz-text-muted)',
+        boxShadow: on
+          ? this.customColor
+            ? `0 0 0 1px color-mix(in srgb, ${this.customColor} 32%, transparent)`
+            : '0 0 0 1px var(--josanz-pill-active-border)'
+          : 'none',
       };
     }
     return {
       backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
-      borderColor: on ? 'var(--josanz-interactive)' : 'var(--josanz-border)',
-      color: on ? 'var(--josanz-interactive)' : 'var(--josanz-text-muted)',
+      borderColor: on ? accent : 'var(--josanz-border)',
+      color: on ? accent : 'var(--josanz-text-muted)',
     };
   }
 

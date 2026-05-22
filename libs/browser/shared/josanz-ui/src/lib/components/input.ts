@@ -23,7 +23,7 @@ import type { JosanzControlShape } from '../josanz-control-styles';
           [class]="inputClasses"
           [style.backgroundColor]="'var(--josanz-field-fill)'"
           [style.color]="'var(--josanz-text)'"
-          [style.borderColor]="isFocused ? getAccentColor() : 'var(--josanz-stroke-field)'"
+          [style.borderColor]="borderColor()"
           [style.boxShadow]="focusRing()"
           (focus)="isFocused = true"
           (blur)="isFocused = false"
@@ -77,6 +77,13 @@ export class InputComponent {
       }
     }
     return this.themeService.currentTheme().primaryColor;
+  }
+
+  borderColor(): string {
+    if (this.isFocused || this.customColor) {
+      return this.getAccentColor();
+    }
+    return 'var(--josanz-stroke-field)';
   }
 
   focusRing(): string {
