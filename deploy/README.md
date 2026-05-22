@@ -6,6 +6,7 @@
 |--------|-------------|----------------|
 | `backend` | `.../backend:tag` | `core`, `josanz`, `legacy-front`, `all` |
 | `josanz-web-app` | `.../josanz-web-app:tag` | `josanz`, `all` |
+| `josanz-ui-storybook` | Railway Dockerfile | Storybook UI |
 | `frontend` | `.../frontend:tag` | `legacy-front`, `all` |
 | `saas-platform` | `.../saas-platform:tag` | `saas`, `all` |
 | `document-generator` | `.../document-generator:tag` | `docs`, `all` |
@@ -77,7 +78,8 @@ También hay configuración para desplegar servicios individuales en Railway:
 - Nginx preparado para el `PORT` dinámico de Railway en apps Angular.
 - Workflow manual **Deploy — Railway** con selector de entorno y servicio.
 - Push a `test-deploy` despliega automáticamente `josanz-web-app` en Railway `staging`.
-- `railway.json` fuerza el Dockerfile del front de Josanz y evita el Railpack + `npm ci`.
+- La rama `storybook-deploy` despliega el Storybook de `libs/browser/shared/josanz-ui`.
+- `railway.json` fuerza el Dockerfile del servicio de esta rama y evita el Railpack + `npm ci`.
 
 Lee `deploy/railway/README.md` para crear los servicios, apuntar cada uno a su Dockerfile y configurar secretos como `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`.
 

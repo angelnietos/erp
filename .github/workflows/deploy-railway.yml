@@ -3,7 +3,7 @@ name: Deploy — Railway
 on:
   push:
     branches:
-      - test-deploy
+      - storybook-deploy
   workflow_dispatch:
     inputs:
       environment:
@@ -21,6 +21,7 @@ on:
         type: choice
         options:
           - all
+          - josanz-ui-storybook
           - backend
           - verifactu-api
           - verifactu-worker
@@ -48,6 +49,9 @@ jobs:
           - app: backend
             service_secret: RAILWAY_SERVICE_BACKEND
             deploy_on_push: false
+          - app: josanz-ui-storybook
+            service_secret: RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK
+            deploy_on_push: true
           - app: verifactu-api
             service_secret: RAILWAY_SERVICE_VERIFACTU_API
             deploy_on_push: false

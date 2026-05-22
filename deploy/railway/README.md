@@ -11,6 +11,7 @@ Esta carpeta contiene la configuración para desplegar los servicios del monorep
 | `verifactu-worker` | `deploy/railway/dockerfiles/verifactu-worker.Dockerfile` | Mapea `PORT` a `VERIFACTU_WORKER_PORT` |
 | `frontend` | `deploy/railway/dockerfiles/frontend.Dockerfile` | Nginx SPA con proxy `/api`; configurar `BACKEND_PROXY_URL` |
 | `josanz-web-app` | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
+| `josanz-ui-storybook` | `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile` | Storybook estático de `libs/browser/shared/josanz-ui` |
 | `saas-platform` | `deploy/railway/dockerfiles/saas-platform.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
 | `document-generator` | `deploy/railway/dockerfiles/document-generator.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
 
@@ -34,11 +35,21 @@ Para publicar solo `josanz-web-app`, puedes dejar Railway así:
 - Custom Start Command: vacío.
 - Variables del servicio: ninguna obligatoria para el front estático. Railway inyecta `PORT` automáticamente y el Dockerfile lo usa en Nginx.
 
+Para publicar el Storybook de `josanz-ui`, usa la rama `storybook-deploy`:
+
+- Source: repo de GitHub.
+- Branch: `storybook-deploy`.
+- Builder: Dockerfile o config-as-code desde `railway.json`.
+- Dockerfile: `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`.
+- Custom Build Command: vacío.
+- Custom Start Command: vacío.
+- Variables del servicio: ninguna obligatoria. Railway inyecta `PORT` automáticamente.
+
 ## GitHub Actions
 
 El workflow `.github/workflows/deploy-railway.yml` despliega manualmente con Railway CLI.
 
-También se ejecuta automáticamente al hacer `push` a la rama `test-deploy`. En ese caso despliega solo `josanz-web-app` contra el entorno Railway `staging`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
+También se ejecuta automáticamente al hacer `push` a la rama configurada. En `test-deploy` despliega `josanz-web-app`; en `storybook-deploy` despliega `josanz-ui-storybook`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
 
 El archivo `railway.json` de la raíz fuerza a Railway a usar `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` para este despliegue. Así Railway deja de usar Railpack + `npm ci` y pasa a usar `pnpm install --frozen-lockfile` con el Dockerfile del front.
 
