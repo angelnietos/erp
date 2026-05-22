@@ -7,6 +7,7 @@ import {
   applyJosanzThemeCssVariables,
   type JosanzAtmosphereName,
 } from '../src/lib/theme/josanz-theme-tokens';
+import type { JosanzControlShape } from '../src/lib/josanz-control-styles';
 
 // ─── Google Fonts ────────────────────────────────────────────────────────────
 const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
@@ -162,21 +163,58 @@ const atmosphereToolbarItems = (Object.keys(JOSANZ_ATMOSPHERE_REGISTRY) as Josan
   }),
 );
 
+const brandToolbarItems = [
+  { value: JOSANZ_DEFAULT_PRIMARY, title: 'Josanz Negro' },
+  { value: '#0F1E2F', title: 'Azul Noche' },
+  { value: '#635BFF', title: 'Rockstar' },
+  { value: '#22C55E', title: 'Success' },
+  { value: '#F59E0B', title: 'Warning' },
+  { value: '#EF4444', title: 'Danger' },
+  { value: '#EC4899', title: 'Pink' },
+  { value: '#38BDF8', title: 'Sky' },
+  { value: '#8B5CF6', title: 'Violet' },
+];
+
+const shapeToolbarItems: Array<{ value: JosanzControlShape; title: string }> = [
+  { value: 'rounded', title: 'Rounded' },
+  { value: 'pill', title: 'Pill' },
+  { value: 'square', title: 'Square' },
+];
+
+const isShape = (value: unknown): value is JosanzControlShape =>
+  value === 'rounded' || value === 'pill' || value === 'square';
+
 // ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
 const atmosphereDecorator = (
   storyFn: () => unknown,
-  context: { args?: Record<string, unknown>; globals: { josanzAtmosphere?: string } },
+  context: {
+    args?: Record<string, unknown>;
+    globals: { josanzAtmosphere?: string; josanzBrandColor?: string; josanzShape?: string };
+  },
 ) => {
   const key = (context.globals?.josanzAtmosphere ?? 'neutral') as JosanzAtmosphereName;
   const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
   const customColor = typeof context.args?.['customColor'] === 'string' ? context.args['customColor'].trim() : '';
   const brandColor = typeof context.args?.['brandColor'] === 'string' ? context.args['brandColor'].trim() : '';
-  const primaryColor = customColor || brandColor || JOSANZ_DEFAULT_PRIMARY;
+  const toolbarBrandColor = context.globals?.josanzBrandColor || JOSANZ_DEFAULT_PRIMARY;
+  const primaryColor = customColor || brandColor || toolbarBrandColor;
+  const storyShape = context.args?.['shape'];
+  const toolbarShape = context.globals?.josanzShape;
+  const shape = isShape(storyShape) ? storyShape : isShape(toolbarShape) ? toolbarShape : 'rounded';
   applyJosanzThemeCssVariables({
     atmosphere,
     primaryColor,
-    themeName: 'luxe-rounded',
+    themeName: shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded',
   });
+  window.dispatchEvent(
+    new CustomEvent('josanz-ui-storybook-theme-change', {
+      detail: {
+        atmosphereName: atmosphere.name,
+        primaryColor,
+        shape,
+      },
+    }),
+  );
   return storyFn();
 };
 
@@ -228,6 +266,28 @@ export const globalTypes = {
       dynamicTitle: true,
     },
   },
+  josanzBrandColor: {
+    name: 'Marca',
+    description: 'Color de marca global para componentes Josanz',
+    defaultValue: JOSANZ_DEFAULT_PRIMARY,
+    toolbar: {
+      icon: 'paintbrush',
+      items: brandToolbarItems,
+      showName: true,
+      dynamicTitle: true,
+    },
+  },
+  josanzShape: {
+    name: 'Shape',
+    description: 'Forma global de controles (`JosanzThemeService.defaultShape`)',
+    defaultValue: 'rounded',
+    toolbar: {
+      icon: 'circlehollow',
+      items: shapeToolbarItems,
+      showName: true,
+      dynamicTitle: true,
+    },
+  },
 };
 
 export const parameters = {
@@ -243,7 +303,7 @@ export const parameters = {
   docs: {
     description: {
       component:
-        'Las stories responden a la barra **Atmósfera** (mismo registro que `JosanzThemeService`) y a **Theme** claro/oscuro. Comprueba contraste en fondos claros/oscuros y con distintos colores de marca desde la app o forzando tokens en `:root`.',
+        'Las stories responden a las barras **Atmósfera**, **Marca**, **Shape** y **Theme**. Esos controles sincronizan `JosanzThemeService` y los tokens CSS `--josanz-*` para comprobar contraste, color de marca y radios reales.',
     },
   },
   backgrounds: {

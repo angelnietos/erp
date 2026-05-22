@@ -37,7 +37,7 @@ export function sbEmit(channel: string, description?: string): ArgTypes[string] 
 
 /** Texto estándar para documentación de stories: integración con `JosanzThemeService`. */
 export const JOSANZ_STORYBOOK_THEME_DOCS =
-  '**Tema:** usa la barra **Atmósfera** (tokens de `JosanzThemeService`) y **Theme** claro/oscuro. Los componentes usan `atmosphere.text`, `textMuted`, `surface`, `border` y contraste automático sobre el color de marca (`josanzReadableOnSolid`).';
+  '**Tema:** usa las barras **Atmósfera**, **Marca**, **Shape** y **Theme**. Storybook sincroniza `JosanzThemeService` y los tokens CSS `--josanz-*`, asi los componentes que leen `currentTheme()` y los que leen CSS vars reaccionan igual que en la app.';
 
 export function josanzStoryThemeDescription(extra?: string): string {
   return extra ? `${JOSANZ_STORYBOOK_THEME_DOCS}\n\n${extra}` : JOSANZ_STORYBOOK_THEME_DOCS;

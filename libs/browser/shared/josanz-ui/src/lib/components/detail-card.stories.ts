@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { DetailCardComponent } from './detail-card';
 
 const meta: Meta<DetailCardComponent> = {
@@ -22,6 +22,8 @@ const meta: Meta<DetailCardComponent> = {
     description: { control: 'text', description: 'Texto descriptivo' },
     badgeText: { control: 'text', description: 'Texto del badge' },
     imageUrl: { control: 'text', description: 'URL de imagen (opcional)' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Override de shape'),
+    customColor: { control: 'color', description: 'Color del badge' },
     tags: {
       control: 'object',
       description: 'Etiquetas (array de strings)',
@@ -39,6 +41,8 @@ export const Playground: Story = {
     description: 'Empresa líder en el sector logístico con más de 20 años de experiencia.',
     badgeText: 'Activo',
     imageUrl: 'https://i.pravatar.cc/150?u=juan',
+    shape: 'rounded',
+    customColor: '',
     tags: ['Logística', 'Premium', 'Nacional'],
   },
   render: (args) => ({
@@ -51,6 +55,8 @@ export const Playground: Story = {
           [description]="description"
           [badgeText]="badgeText"
           [imageUrl]="imageUrl"
+          [shape]="shape"
+          [customColor]="customColor"
           [tags]="tags"
         ></lib-detail-card>
       </div>

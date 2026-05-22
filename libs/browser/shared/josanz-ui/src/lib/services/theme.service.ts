@@ -39,6 +39,7 @@ export type {
 } from '../list-view/list-view-preferences';
 
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
+const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
 
 interface JosanzStoredPreferences {
   themeName?: JosanzThemeName;
@@ -49,6 +50,12 @@ interface JosanzStoredPreferences {
   listViewMode?: JosanzListViewMode;
   listViewSelection?: JosanzListViewSelection;
   listGridColumns?: JosanzListGridColumns;
+}
+
+interface JosanzStorybookThemeDetail {
+  atmosphereName?: JosanzAtmosphereName;
+  primaryColor?: string;
+  shape?: JosanzControlShape;
 }
 
 @Injectable({
@@ -74,6 +81,7 @@ export class JosanzThemeService {
   constructor() {
     this.restorePreferences();
     this.applyToDOM();
+    this.setupStorybookBridge();
   }
 
   setTheme(name: JosanzThemeName) {
@@ -137,12 +145,46 @@ export class JosanzThemeService {
     return 'rounded';
   }
 
+  private getThemeNameFromShape(shape: JosanzControlShape): JosanzThemeName {
+    if (shape === 'square') {
+      return 'luxe-sharp';
+    }
+    if (shape === 'pill') {
+      return 'luxe-pill';
+    }
+    return 'luxe-rounded';
+  }
+
   private applyToDOM() {
     const theme = this.currentTheme();
     applyJosanzThemeCssVariables({
       atmosphere: theme.atmosphere,
       primaryColor: theme.primaryColor,
       themeName: theme.name,
+    });
+  }
+
+  private setupStorybookBridge(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    window.addEventListener(STORYBOOK_THEME_EVENT, (event) => {
+      const detail = (event as CustomEvent<JosanzStorybookThemeDetail>).detail ?? {};
+      this.currentTheme.update((theme) => {
+        const shape = detail.shape ?? theme.defaultShape;
+        const atmosphere =
+          detail.atmosphereName && this.atmospheres[detail.atmosphereName]
+            ? this.atmospheres[detail.atmosphereName]
+            : theme.atmosphere;
+        return {
+          ...theme,
+          name: this.getThemeNameFromShape(shape),
+          defaultShape: shape,
+          primaryColor: detail.primaryColor || theme.primaryColor,
+          atmosphere,
+        };
+      });
+      this.applyToDOM();
     });
   }
 

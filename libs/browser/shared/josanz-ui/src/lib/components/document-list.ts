@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { JosanzThemeService } from '../services/theme.service';
+import type { JosanzControlShape } from '../josanz-control-styles';
 
 @Component({
   selector: 'josanz-document-list',
@@ -27,9 +28,9 @@ import { JosanzThemeService } from '../services/theme.service';
 
       <div 
         class="overflow-hidden border border-solid w-full"
-        [class.rounded-2xl]="themeService.currentTheme().defaultShape === 'rounded'"
-        [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-        [class.rounded-[32px]]="themeService.currentTheme().defaultShape === 'pill'"
+        [class.rounded-2xl]="activeShape() === 'rounded'"
+        [class.rounded-none]="activeShape() === 'square'"
+        [class.rounded-[32px]]="activeShape() === 'pill'"
         [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
         [style.borderColor]="themeService.currentTheme().atmosphere.border"
         [style.boxShadow]="themeService.currentTheme().atmosphere.cardShadow || 'none'"
@@ -53,6 +54,12 @@ export class DocumentListComponent {
   @Input() empty = false;
   /** Color opcional para el botón de subida (si no se usa el primario). */
   @Input() accentColor?: string;
+  /** Override del shape; si no se pasa, usa el shape global del tema. */
+  @Input() shape?: JosanzControlShape;
 
   @Output() upload = new EventEmitter<void>();
+
+  activeShape(): JosanzControlShape {
+    return this.shape ?? this.themeService.currentTheme().defaultShape;
+  }
 }

@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzGridCardDensity } from '../list-view/list-view-preferences';
 import type { JosanzStatusPillVariant } from './main-template-card';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
@@ -90,9 +91,13 @@ export class GridListCardComponent {
   @Input() density: JosanzGridCardDensity = 'comfortable';
   @Input() previewLines: string[] = [];
   @Input() fieldLabels: string[] = [];
+  /** Override del shape; si no se pasa, usa el shape global del tema. */
+  @Input() shape?: JosanzControlShape;
+  /** Override del color semantico de la pastilla de estado. */
+  @Input() customColor?: string;
 
   cornerClass(): string {
-    const shape = this.themeService.currentTheme().defaultShape;
+    const shape = this.shape ?? this.themeService.currentTheme().defaultShape;
     if (shape === 'square') {
       return 'rounded-none';
     }
@@ -170,7 +175,7 @@ export class GridListCardComponent {
   }
 
   pillCornerClass(): string {
-    const shape = this.themeService.currentTheme().defaultShape;
+    const shape = this.shape ?? this.themeService.currentTheme().defaultShape;
     if (shape === 'pill') {
       return 'rounded-full';
     }
@@ -205,6 +210,12 @@ export class GridListCardComponent {
   }
 
   badgeStyles(): Record<string, string> {
+    if (this.customColor) {
+      return {
+        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
+        color: this.customColor,
+      };
+    }
     const key = this.resolvePillKey();
     return {
       'background-color': `var(--josanz-pill-${key}-bg)`,

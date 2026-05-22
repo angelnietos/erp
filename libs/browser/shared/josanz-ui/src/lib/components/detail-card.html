@@ -1,16 +1,16 @@
 <div
   class="p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-8 border border-solid transition-all group overflow-hidden hover:brightness-[1.02] hover:-translate-y-1 duration-300"
-  [class.rounded-2xl]="themeService.currentTheme().defaultShape === 'rounded'"
-  [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-  [class.rounded-[32px]]="themeService.currentTheme().defaultShape === 'pill'"
+  [class.rounded-2xl]="activeShape() === 'rounded'"
+  [class.rounded-none]="activeShape() === 'square'"
+  [class.rounded-[32px]]="activeShape() === 'pill'"
   [ngStyle]="shellStyle()"
 >
   <!-- Image Vertical -->
   <div
     class="w-full md:w-[186px] h-[200px] md:h-[186px] shrink-0 overflow-hidden shadow-inner"
-    [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
-    [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-    [class.rounded-[28px]]="themeService.currentTheme().defaultShape === 'pill'"
+    [class.rounded-xl]="activeShape() === 'rounded'"
+    [class.rounded-none]="activeShape() === 'square'"
+    [class.rounded-[28px]]="activeShape() === 'pill'"
     [style.backgroundColor]="themeService.currentTheme().atmosphere.border"
   >
     <img [src]="imageUrl" alt="Event image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -28,9 +28,9 @@
         </h3>
         <span
           class="text-[10px] font-bold px-3 py-1 uppercase"
-          [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
-          [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-          [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
+          [class.rounded-xl]="activeShape() === 'rounded'"
+          [class.rounded-none]="activeShape() === 'square'"
+          [class.rounded-full]="activeShape() === 'pill'"
           [ngStyle]="badgeStyle()"
         >
           {{ badgeText }}
@@ -66,9 +66,9 @@
       @for (tag of tags; track tag) {
         <span
           class="px-3 py-1 border border-solid text-[11px] font-semibold transition-colors cursor-default"
-          [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
-          [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-          [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
+          [class.rounded-xl]="activeShape() === 'rounded'"
+          [class.rounded-none]="activeShape() === 'square'"
+          [class.rounded-full]="activeShape() === 'pill'"
           [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
           [style.borderColor]="themeService.currentTheme().atmosphere.border"
           [style.color]="themeService.currentTheme().atmosphere.textMuted"
