@@ -1,0 +1,175 @@
+name: Deploy — Railway
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - storybook-deploy
+      - test-deploy
+      - backend-deploy
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Railway environment'
+        required: true
+        default: production
+        type: choice
+        options:
+          - production
+          - staging
+      app:
+        description: 'App/service to deploy'
+        required: true
+        default: josanz-web-app
+        type: choice
+        options:
+          - all
+          - josanz-ui-storybook
+          - backend
+          - verifactu-api
+          - verifactu-worker
+          - frontend
+          - josanz-web-app
+          - saas-platform
+          - document-generator
+      detach:
+        description: 'Detach after upload instead of streaming deployment logs'
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: backend
+            service_secret: RAILWAY_SERVICE_BACKEND
+            dockerfile_path: deploy/railway/dockerfiles/backend.Dockerfile
+            push_branch: backend-deploy
+            deploy_on_main: true
+          - app: josanz-ui-storybook
+            service_secret: RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK
+            dockerfile_path: deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile
+            push_branch: storybook-deploy
+            deploy_on_main: true
+          - app: verifactu-api
+            service_secret: RAILWAY_SERVICE_VERIFACTU_API
+            dockerfile_path: deploy/railway/dockerfiles/verifactu-api.Dockerfile
+            push_branch: ''
+            deploy_on_main: false
+          - app: verifactu-worker
+            service_secret: RAILWAY_SERVICE_VERIFACTU_WORKER
+            dockerfile_path: deploy/railway/dockerfiles/verifactu-worker.Dockerfile
+            push_branch: ''
+            deploy_on_main: false
+          - app: frontend
+            service_secret: RAILWAY_SERVICE_FRONTEND
+            dockerfile_path: deploy/railway/dockerfiles/frontend.Dockerfile
+            push_branch: ''
+            deploy_on_main: false
+          - app: josanz-web-app
+            service_secret: RAILWAY_SERVICE_JOSANZ_WEB_APP
+            dockerfile_path: deploy/railway/dockerfiles/josanz-web-app.Dockerfile
+            push_branch: test-deploy
+            deploy_on_main: true
+          - app: saas-platform
+            service_secret: RAILWAY_SERVICE_SAAS_PLATFORM
+            dockerfile_path: deploy/railway/dockerfiles/saas-platform.Dockerfile
+            push_branch: ''
+            deploy_on_main: false
+          - app: document-generator
+            service_secret: RAILWAY_SERVICE_DOCUMENT_GENERATOR
+            dockerfile_path: deploy/railway/dockerfiles/document-generator.Dockerfile
+            push_branch: ''
+            deploy_on_main: false
+    env:
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_SERVICE_ID: ${{ secrets[matrix.service_secret] }}
+      RAILWAY_ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'staging' }}
+      RAILWAY_DETACH: ${{ github.event_name == 'workflow_dispatch' && inputs.detach || false }}
+    steps:
+      - name: Checkout
+        if: ${{ (github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        if: ${{ (github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install backend dependencies
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate backend build
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: pnpm exec nx run backend:build
+
+      - name: Install Railway CLI
+        if: ${{ (github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        run: npm install -g @railway/cli
+
+      - name: Validate Railway configuration
+        id: railway_config
+        if: ${{ (github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        run: |
+          missing=""
+          for key in RAILWAY_TOKEN RAILWAY_PROJECT_ID RAILWAY_SERVICE_ID; do
+            if [ -z "${!key}" ]; then
+              missing="$missing $key"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing Railway configuration:$missing"
+            echo "Service secret expected for ${{ matrix.app }}: ${{ matrix.service_secret }}"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              exit 1
+            fi
+            echo "::warning::Railway deploy for ${{ matrix.app }} was skipped because secrets are missing: $missing"
+            exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+
+      - name: Generate Railway service config
+        if: ${{ steps.railway_config.outputs.configured == 'true' && ((github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: |
+          cat > railway.json <<EOF
+          {
+            "\$schema": "https://railway.com/railway.schema.json",
+            "build": {
+              "dockerfilePath": "${{ matrix.dockerfile_path }}"
+            },
+            "deploy": {
+              "restartPolicyType": "ON_FAILURE",
+              "restartPolicyMaxRetries": 3
+            }
+          }
+          EOF
+          cat railway.json
+
+      - name: Deploy ${{ matrix.app }} to Railway
+        if: ${{ steps.railway_config.outputs.configured == 'true' && ((github.event_name == 'push' && (matrix.push_branch == github.ref_name || ((github.ref_name == 'main' || github.ref_name == 'master') && matrix.deploy_on_main))) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: |
+          set -euo pipefail
+          flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT")
+          if [ "$RAILWAY_DETACH" = "true" ]; then
+            flags+=(--detach)
+          fi
+          railway up "${flags[@]}"

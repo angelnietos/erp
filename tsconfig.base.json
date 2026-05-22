@@ -55,7 +55,7 @@
         "libs/isomorphic/api/billing/api/src/index.ts"
       ],
       "@josanz-erp/billing-backend": [
-        "libs/node/backend/billing/backend/src/index.ts"
+        "libs/node/backend/billing-backend/src/index.ts"
       ],
       "@josanz-erp/fleet-api": ["libs/isomorphic/api/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [

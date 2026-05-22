@@ -139,6 +139,16 @@ export default [
     },
   },
   {
+    files: ['libs/node/backend/billing-backend/**/*.ts'],
+    rules: {
+      /**
+       * Billing backend is buildable (rollup) and imports Verifactu adapter wiring from a lint-only lib
+       * without its own build target; relax buildable→non-buildable enforcement here.
+       */
+      '@nx/enforce-module-boundaries': nxModuleBoundariesRule(false),
+    },
+  },
+  {
     files: ['libs/**/*.ts', 'libs/**/*.tsx', 'libs/**/*.js', 'libs/**/*.jsx'],
     rules: {
       // Allow internal relative imports within libs but prevent deep cross-project imports.
