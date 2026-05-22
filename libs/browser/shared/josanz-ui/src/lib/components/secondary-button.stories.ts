@@ -78,3 +78,36 @@ export const AllTypes: Story = {
     `,
   }),
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Acciones secundarias habituales: exportar listados, generar PDF de presupuesto y cancelar un flujo.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-5 p-4 md:grid-cols-3">
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h3 class="m-0 text-base font-black" style="color: var(--josanz-text);">Clientes</h3>
+          <p class="mb-5 mt-1 text-sm" style="color: var(--josanz-text-muted);">Exportación operativa del listado filtrado.</p>
+          <josanz-secondary-button label="Exportar Excel" type="excel"></josanz-secondary-button>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h3 class="m-0 text-base font-black" style="color: var(--josanz-text);">Presupuesto</h3>
+          <p class="mb-5 mt-1 text-sm" style="color: var(--josanz-text-muted);">Genera un documento para enviar al cliente.</p>
+          <josanz-secondary-button label="Generar PDF" type="pdf" customColor="var(--josanz-primary)"></josanz-secondary-button>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h3 class="m-0 text-base font-black" style="color: var(--josanz-text);">Edición</h3>
+          <p class="mb-5 mt-1 text-sm" style="color: var(--josanz-text-muted);">Salida segura sin guardar cambios.</p>
+          <josanz-secondary-button label="Cancelar" type="cancel" shape="pill"></josanz-secondary-button>
+        </section>
+      </div>
+    `,
+  }),
+};

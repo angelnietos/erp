@@ -86,6 +86,36 @@ export const NavigationExamples: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Tabs por contexto: ficha de cliente, detalle de evento y ajustes de aplicación.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-6 rounded-3xl p-6" style="background: var(--josanz-bg);">
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-5 mt-0 text-sm font-black" style="color: var(--josanz-text);">Ficha de cliente</h4>
+          <josanz-main-tabs [options]="['Datos', 'Operadores', 'Presupuestos', 'Facturas', 'Archivos']" selection="Datos"></josanz-main-tabs>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-5 mt-0 text-sm font-black" style="color: var(--josanz-text);">Evento</h4>
+          <josanz-main-tabs [options]="['Resumen', 'Presupuesto', 'Equipo', 'Documentos']" selection="Presupuesto" shape="pill" customColor="#635BFF"></josanz-main-tabs>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-5 mt-0 text-sm font-black" style="color: var(--josanz-text);">Ajustes</h4>
+          <josanz-main-tabs [options]="['General', 'Personalización']" selection="Personalización" shape="square"></josanz-main-tabs>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const InteractiveSelection: Story = {
   parameters: {
     docs: {

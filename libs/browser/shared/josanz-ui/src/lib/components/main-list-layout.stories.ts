@@ -119,3 +119,122 @@ export const WithPagination: Story = {
     `,
   }),
 };
+
+export const ClientUseCase: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Listado realista de clientes con filtros, CTA principal, exportación y tarjetas de resumen.',
+      },
+    },
+  },
+  args: {
+    title: 'Clientes',
+    primaryBtnLabel: 'Nuevo cliente',
+    filterOptions: ['Todos', 'Activos', 'Potenciales', 'Baja'],
+    paginationPage: 1,
+    paginationTotal: 8,
+    shape: 'rounded',
+    customColor: '',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="min-h-[720px]" style="background: var(--josanz-bg);">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
+          [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          [shape]="shape"
+          [customColor]="customColor"
+          (primaryAction)="primaryAction($event)"
+          (excelAction)="excelAction($event)"
+          (filterChange)="filterChange($event)"
+          (paginationChange)="paginationChange($event)"
+        >
+          <div class="mt-6 grid gap-4">
+            <div class="flex items-center justify-between rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <div class="flex items-center gap-4">
+                <div class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--josanz-primary) 14%, var(--josanz-surface)); color: var(--josanz-primary);">NB</div>
+                <div>
+                  <h5 class="m-0 text-sm font-black" style="color: var(--josanz-text);">NovaByte S.L.</h5>
+                  <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">B-12345678 · contacto@novabyte.es</p>
+                </div>
+              </div>
+              <span class="rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-confirmado-bg); color: var(--josanz-pill-confirmado-text);">Activo</span>
+            </div>
+            <div class="flex items-center justify-between rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <div class="flex items-center gap-4">
+                <div class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--josanz-warning) 14%, var(--josanz-surface)); color: var(--josanz-warning);">ES</div>
+                <div>
+                  <h5 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Eventos del Sur</h5>
+                  <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Sevilla · ops@eventosur.es</p>
+                </div>
+              </div>
+              <span class="rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-en-proceso-bg); color: var(--josanz-pill-en-proceso-text);">Potencial</span>
+            </div>
+          </div>
+        </josanz-main-list-layout>
+      </div>
+    `,
+  }),
+};
+
+export const BillingUseCase: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Listado de facturación con paginación visible y foco en estados de cobro.',
+      },
+    },
+  },
+  args: {
+    title: 'Facturación',
+    primaryBtnLabel: 'Nueva factura',
+    filterOptions: ['Todas', 'Pendientes', 'Cobradas', 'Vencidas'],
+    paginationPage: 3,
+    paginationTotal: 12,
+    shape: 'pill',
+    customColor: '#0F1E2F',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="min-h-[720px]" style="background: var(--josanz-bg);">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
+          [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          [shape]="shape"
+          [customColor]="customColor"
+          (primaryAction)="primaryAction($event)"
+          (excelAction)="excelAction($event)"
+          (filterChange)="filterChange($event)"
+          (paginationChange)="paginationChange($event)"
+        >
+          <div class="mt-6 grid gap-3">
+            <div class="grid grid-cols-[1fr_auto] gap-4 rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <div>
+                <h5 class="m-0 text-sm font-black" style="color: var(--josanz-text);">INV-2026-004 · NovaByte</h5>
+                <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Vence en 12 días · 1.250 EUR</p>
+              </div>
+              <span class="self-start rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-en-proceso-bg); color: var(--josanz-pill-en-proceso-text);">Pendiente</span>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-4 rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <div>
+                <h5 class="m-0 text-sm font-black" style="color: var(--josanz-text);">INV-2026-003 · Auralux</h5>
+                <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Pagada · 8.900 EUR</p>
+              </div>
+              <span class="self-start rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-facturado-bg); color: var(--josanz-pill-facturado-text);">Cobrada</span>
+            </div>
+          </div>
+        </josanz-main-list-layout>
+      </div>
+    `,
+  }),
+};

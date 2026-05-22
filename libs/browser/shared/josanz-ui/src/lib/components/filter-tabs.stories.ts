@@ -113,6 +113,36 @@ export const CommonScenarios: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Filtros por dominio: estados de cliente, periodos de dashboard y tipologías de evento.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-6 rounded-3xl p-6" style="background: var(--josanz-bg);">
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Clientes</h4>
+          <josanz-filter-tabs [options]="['Todos', 'Activos', 'Potenciales', 'Baja']" selected="Activos" variant="figma"></josanz-filter-tabs>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Inicio</h4>
+          <josanz-filter-tabs [options]="['Semana', 'Mes', 'Trimestre', 'Año']" selected="Mes" variant="brand" shape="pill"></josanz-filter-tabs>
+        </section>
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Eventos</h4>
+          <josanz-filter-tabs [options]="['Todos', 'Corporativo', 'Concierto', 'Privado']" selected="Corporativo" variant="underline"></josanz-filter-tabs>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const InteractiveFilterChange: Story = {
   parameters: {
     docs: {

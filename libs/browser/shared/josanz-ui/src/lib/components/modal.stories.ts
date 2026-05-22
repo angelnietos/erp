@@ -122,3 +122,46 @@ export const WithFooterActions: Story = {
     `,
   }),
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Caso real de producto: modal de envío de presupuesto con contenido y acciones proyectadas.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="min-h-[640px] overflow-hidden rounded-3xl p-10" style="background: color-mix(in srgb, var(--josanz-bg) 20%, #000);">
+        <josanz-modal title="Enviar presupuesto" width="560px" shape="rounded" customColor="var(--josanz-primary)">
+          <div class="space-y-5">
+            <p class="m-0 text-sm leading-relaxed" style="color: var(--josanz-text-muted);">
+              Revisa el resumen antes de enviar el presupuesto al cliente. El email incluirá el PDF y el enlace de aceptación.
+            </p>
+            <div class="rounded-2xl border border-solid p-4" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+              <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Cliente</p>
+              <strong class="mt-1 block" style="color: var(--josanz-text);">NovaByte S.L.</strong>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <div class="rounded-2xl border border-solid p-4" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+                <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Total</p>
+                <strong class="mt-1 block" style="color: var(--josanz-text);">12.450 EUR</strong>
+              </div>
+              <div class="rounded-2xl border border-solid p-4" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+                <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Validez</p>
+                <strong class="mt-1 block" style="color: var(--josanz-text);">15 días</strong>
+              </div>
+            </div>
+          </div>
+          <div footer-actions class="flex w-full justify-center gap-3">
+            <josanz-button label="Guardar borrador" variant="secondary" [showIcon]="false"></josanz-button>
+            <josanz-button label="Enviar presupuesto" variant="primary" [showIcon]="false"></josanz-button>
+          </div>
+        </josanz-modal>
+      </div>
+    `,
+  }),
+};

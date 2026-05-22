@@ -205,3 +205,35 @@ export const InteractiveNumberedNext: Story = {
     await expect(canvas.getByRole('button', { name: '5' })).toHaveAttribute('aria-current', 'page');
   },
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Uso recomendado por contexto: selector compacto para listados Figma y numerada para tablas densas.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-4xl gap-6 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <section class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h4 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Clientes</h4>
+            <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Selector compacto: ocupa poco espacio en toolbar.</p>
+          </div>
+          <josanz-pagination variant="figma" [current]="3" [total]="18" shape="pill"></josanz-pagination>
+        </section>
+        <section class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h4 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Facturas</h4>
+            <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Numerada: ideal para tablas con lectura secuencial.</p>
+          </div>
+          <josanz-pagination variant="numbered" [current]="9" [total]="24"></josanz-pagination>
+        </section>
+      </div>
+    `,
+  }),
+};

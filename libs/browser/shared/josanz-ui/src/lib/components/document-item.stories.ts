@@ -78,3 +78,36 @@ export const ActionMatrix: Story = {
     `,
   }),
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Filas de documento en contexto: contrato validado, presupuesto pendiente, archivo interno y documento con eliminación.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-5 md:grid-cols-2">
+        <section class="overflow-hidden rounded-2xl border border-solid" style="border-color: var(--josanz-stroke-widget); background: var(--josanz-surface);">
+          <div class="border-b border-solid p-4" style="border-color: var(--josanz-border);">
+            <h4 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Ficha de cliente</h4>
+          </div>
+          <josanz-document-item name="Contrato marco firmado.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Anexo RGPD pendiente.docx" statusColor="var(--josanz-warning)" [showView]="true" [showDownload]="true" [showDelete]="true"></josanz-document-item>
+        </section>
+
+        <section class="overflow-hidden rounded-2xl border border-solid" style="border-color: var(--josanz-stroke-widget); background: var(--josanz-surface);">
+          <div class="border-b border-solid p-4" style="border-color: var(--josanz-border);">
+            <h4 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Evento</h4>
+          </div>
+          <josanz-document-item name="Rider técnico.pdf" statusColor="var(--josanz-primary)" [showView]="true" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Plano escenario v3.png" statusColor="#635BFF" [showView]="true"></josanz-document-item>
+        </section>
+      </div>
+    `,
+  }),
+};

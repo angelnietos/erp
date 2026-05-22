@@ -92,3 +92,38 @@ export const EmptyState: Story = {
     `,
   }),
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Documentos por contexto de negocio: contratos de cliente, documentación de evento y presupuesto/factura.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-6xl gap-6 lg:grid-cols-3">
+        <josanz-document-list uploadLabel="Subir contrato" accentColor="var(--josanz-primary)">
+          <josanz-document-item name="Contrato marco NovaByte.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="NDA firmado.pdf" statusColor="var(--josanz-success)" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Anexo condiciones 2026.docx" statusColor="var(--josanz-warning)" [showView]="true" [showDownload]="true" [showDelete]="true"></josanz-document-item>
+        </josanz-document-list>
+
+        <josanz-document-list uploadLabel="Subir rider" accentColor="#635BFF" shape="pill">
+          <josanz-document-item name="Rider técnico.pdf" statusColor="#635BFF" [showView]="true" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Plano escenario.png" statusColor="var(--josanz-primary)" [showView]="true"></josanz-document-item>
+          <josanz-document-item name="Permisos ayuntamiento.pdf" statusColor="var(--josanz-warning)" [showDownload]="true"></josanz-document-item>
+        </josanz-document-list>
+
+        <josanz-document-list uploadLabel="Adjuntar factura" accentColor="var(--josanz-success)">
+          <josanz-document-item name="Presupuesto aprobado.xlsx" statusColor="var(--josanz-success)" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Factura emitida.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+          <josanz-document-item name="Justificante pago.pdf" statusColor="var(--josanz-primary)" [showDownload]="true" [showDelete]="true"></josanz-document-item>
+        </josanz-document-list>
+      </div>
+    `,
+  }),
+};

@@ -112,3 +112,54 @@ export const CustomColors: Story = {
     `,
   }),
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Casos reales de producto: CTA principal de listado, formulario de detalle, acción destructiva y barra mobile.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-6 p-4 md:grid-cols-2">
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Listado de clientes</p>
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h3 class="m-0 text-xl font-black" style="color: var(--josanz-text);">Clientes</h3>
+              <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">128 registros</p>
+            </div>
+            <josanz-button label="Nuevo cliente" variant="primary" size="md" [showIcon]="true"></josanz-button>
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Detalle / formulario</p>
+          <div class="flex flex-wrap gap-3">
+            <josanz-button label="Cancelar" variant="secondary" size="md" [showIcon]="false"></josanz-button>
+            <josanz-button label="Guardar cambios" variant="primary" size="md" [showIcon]="false"></josanz-button>
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Zona peligrosa</p>
+          <div class="flex flex-wrap gap-3">
+            <josanz-button label="Archivar" variant="outline" size="sm" [showIcon]="false"></josanz-button>
+            <josanz-button label="Eliminar cliente" variant="danger" size="sm" [showIcon]="false"></josanz-button>
+          </div>
+        </section>
+
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Mobile CTA</p>
+          <div class="max-w-xs">
+            <josanz-button label="Crear informe" variant="primary" size="lg" shape="pill" [fullWidth]="true" [showIcon]="true"></josanz-button>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
+};

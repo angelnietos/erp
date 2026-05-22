@@ -149,3 +149,44 @@ export const CommonTypes: Story = {
     };
   },
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Campos organizados como aparecen en alta de cliente: datos fiscales, contacto y condiciones comerciales.',
+      },
+    },
+  },
+  render: () => {
+    const clientForm = new FormGroup({
+      legalName: new FormControl('NovaByte S.L.', { validators: Validators.required }),
+      cif: new FormControl('B-12345678'),
+      email: new FormControl('facturacion@novabyte.es'),
+      phone: new FormControl('910 000 123'),
+      city: new FormControl('Madrid'),
+      paymentDays: new FormControl('30'),
+    });
+    return {
+      props: { clientForm },
+      template: `
+        <div class="max-w-4xl rounded-3xl border border-solid p-8" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <div class="mb-6">
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Alta de cliente</p>
+            <h3 class="m-0 mt-2 text-2xl font-black" style="color: var(--josanz-text);">Datos principales</h3>
+          </div>
+          <div class="grid gap-x-5 md:grid-cols-2">
+            <josanz-input label="Razón social" placeholder="Ej: NovaByte S.L." controlName="legalName" [parentForm]="clientForm"></josanz-input>
+            <josanz-input label="CIF" placeholder="B-00000000" controlName="cif" [parentForm]="clientForm"></josanz-input>
+            <josanz-input label="Email de facturación" type="email" placeholder="facturacion@empresa.es" controlName="email" [parentForm]="clientForm"></josanz-input>
+            <josanz-input label="Teléfono" placeholder="910 000 000" controlName="phone" [parentForm]="clientForm"></josanz-input>
+            <josanz-input label="Ciudad" placeholder="Madrid" controlName="city" [parentForm]="clientForm"></josanz-input>
+            <josanz-input label="Plazo de pago" type="number" placeholder="30" controlName="paymentDays" [parentForm]="clientForm" customColor="var(--josanz-primary)"></josanz-input>
+          </div>
+        </div>
+      `,
+    };
+  },
+};

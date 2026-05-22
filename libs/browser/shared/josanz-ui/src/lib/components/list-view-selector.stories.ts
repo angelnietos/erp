@@ -114,3 +114,36 @@ export const InteractiveDropdown: Story = {
     );
   },
 };
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Recomendaciones de vista según tipo de contenido: tabla para facturas, lista para clientes, grid para eventos.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-5 md:grid-cols-3">
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Facturas</p>
+          <h4 class="mb-4 mt-1 text-base font-black" style="color: var(--josanz-text);">Tabla</h4>
+          <josanz-list-view-selector label="Vista" selected="tabla"></josanz-list-view-selector>
+        </section>
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Clientes</p>
+          <h4 class="mb-4 mt-1 text-base font-black" style="color: var(--josanz-text);">Lista</h4>
+          <josanz-list-view-selector label="Vista" selected="tarjetas-lista"></josanz-list-view-selector>
+        </section>
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Eventos</p>
+          <h4 class="mb-4 mt-1 text-base font-black" style="color: var(--josanz-text);">Grid denso</h4>
+          <josanz-list-view-selector label="Vista" selected="tarjetas-grid-dense"></josanz-list-view-selector>
+        </section>
+      </div>
+    `,
+  }),
+};
