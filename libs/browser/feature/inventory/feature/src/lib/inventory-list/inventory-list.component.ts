@@ -8,21 +8,22 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiPaginationComponent,
-  UiBadgeComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
-  UiCardComponent,
-  UiInputComponent,
   UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { Product, InventoryFacade } from '@josanz-erp/inventory-data-access';
 import {
@@ -31,6 +32,9 @@ import {
   MasterFilterService,
   FilterableService,
   AIFormBridgeService,
+  ToastService,
+  GlobalAuthStore,
+  rbacAllows,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
@@ -42,425 +46,279 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
     CommonModule,
     RouterModule,
     FormsModule,
-    UiTableComponent,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiPaginationComponent,
-    UiBadgeComponent,
     UiLoaderComponent,
-    UiModalComponent,
     UiTabsComponent,
-    UiCardComponent,
-    UiInputComponent,
     UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
-    >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'"
-          >
-            Inventario de Activos
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >CENTRO DE RECURSOS</span
-            >
-            <span class="separator">/</span>
-            <span>MONITOREO GLOBAL</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          @if (config.enableCreate) {
-            <ui-josanz-button
-              variant="app"
-              size="md"
-              (clicked)="openCreateModal()"
-              icon="plus"
-            >
-              NUEVO PRODUCTO
-            </ui-josanz-button>
-          }
-        </div>
-      </header>
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver inventario."
+        permissionHint="products.view"
+      />
+    } @else {
+    <ui-feature-page-shell [extraClass]="'inventory-container'">
+      <ui-feature-header
+        title="Inventario"
+        breadcrumbLead="ACTIVOS"
+        breadcrumbTail="STOCK E INVENTARIO"
+        subtitle="Monitoreo global de activos y recursos"
+        icon="package"
+        actionLabel="NUEVO PRODUCTO"
+        (actionClicked)="goToNewProduct()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
-        <ui-josanz-stat-card
+      <ui-feature-stats>
+        <ui-stat-card
           label="Total Equipos"
           [value]="allProducts().length.toString()"
           icon="package"
           [accent]="true"
-        >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        ></ui-stat-card>
+        <ui-stat-card
           label="Stock Crítico"
           [value]="criticalCount().toString()"
           icon="alert-octagon"
-          [trend]="-1"
-        >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+          [trend]="-2"
+        ></ui-stat-card>
+        <ui-stat-card
           label="Valoración Flota"
           [value]="formatCurrencyEu(totalValue())"
           icon="bar-chart-3"
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Sincronización"
+          value="Online"
+          icon="refresh-cw"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
+
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar equipamiento o SKU…"
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
+        </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshProducts()"
+          title="Actualizar"
         >
-        </ui-josanz-stat-card>
-      </div>
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          Ordenar: nombre
+        </ui-button>
+      </ui-feature-filter-bar>
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($any($event))"
-        ></ui-josanz-tabs>
+      @if (error() && allProducts().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshProducts()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
 
-        <ui-josanz-search
-          variant="filled"
-          placeholder="BUSCAR EQUIPAMIENTO O SKU..."
-          (searchChange)="onSearch($any($event))"
-          class="search-bar"
-        ></ui-josanz-search>
-      </div>
-
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-josanz-loader
-            message="SINCRONIZANDO INVENTARIO GLOBAL..."
-          ></ui-josanz-loader>
+      @if (isLoading() && allProducts().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando inventario…"></ui-loader>
+        </div>
+      } @else if (error() && allProducts().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <h3>No se pudo cargar el inventario</h3>
+          <p>{{ error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshProducts()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
-        <ui-josanz-card
-          variant="glass"
-          class="table-card"
-          [class.neon-glow]="!pluginStore.highPerformanceMode()"
-        >
-          <ui-josanz-table
-            [columns]="columns"
-            [data]="products()"
-            variant="default"
-          >
-            <ng-template #cellTemplate let-product let-key="key">
-              @switch (key) {
-                @case ('name') {
-                  <div class="product-cell">
-                    <div
-                      class="product-icon"
-                      [style.background]="currentTheme().primary + '15'"
-                    >
-                      <lucide-icon
-                        [name]="product.type === 'serialized' ? 'cpu' : 'box'"
-                        [size]="14"
-                        [style.color]="currentTheme().primary"
-                      ></lucide-icon>
-                    </div>
-                    <a
-                      [routerLink]="['/inventory', product.id]"
-                      class="product-link"
-                    >
-                      {{ product.name | uppercase }}
-                    </a>
-                  </div>
-                }
-                @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(product.status)">
-                    {{ getStatusLabel(product.status) | uppercase }}
-                  </ui-josanz-badge>
-                }
-                @case ('totalStock') {
-                  <div class="stock-info">
-                    <span class="val font-mono">{{ product.totalStock }}</span>
-                    @if (product.reservedStock > 0) {
-                      <span
-                        class="res text-warning font-mono"
-                        [style.color]="currentTheme().secondary"
-                        >({{ product.reservedStock }} RES.)</span
-                      >
-                    }
-                  </div>
-                }
-                @case ('dailyRate') {
-                  <span class="price-val font-mono">{{
-                    product.dailyRate | currency: 'EUR'
-                  }}</span>
-                  <small class="unit">/ DÍA</small>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-josanz-button
-                      variant="ghost"
-                      size="sm"
-                      icon="eye"
-                      [routerLink]="['/inventory', product.id]"
-                    ></ui-josanz-button>
-                    @if (config.enableEdit) {
-                      <ui-josanz-button
-                        variant="ghost"
-                        size="sm"
-                        icon="pencil"
-                        (clicked)="editProduct(product)"
-                      ></ui-josanz-button>
-                    }
-                  </div>
-                }
-                @default {
-                  {{ product[key] }}
-                }
-              }
-            </ng-template>
-          </ui-josanz-table>
+        <ui-feature-grid>
+          @for (product of sortedProducts(); track product.id) {
+            <ui-feature-card
+              [name]="product.name | uppercase"
+              [subtitle]="product.category | uppercase"
+              [avatarInitials]="getInitials(product.name)"
+              [avatarBackground]="
+                product.type === 'serialized'
+                  ? 'linear-gradient(135deg, #10b981, #059669)'
+                  : 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+              "
+              [status]="
+                product.status === 'available'
+                  ? 'active'
+                  : product.status === 'reserved'
+                    ? 'warning'
+                    : 'danger'
+              "
+              [badgeLabel]="getStatusLabel(product.status) | uppercase"
+              [badgeVariant]="getStatusVariant(product.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
+              (cardClicked)="onRowClick(product)"
+              (editClicked)="editProduct(product)"
+              (duplicateClicked)="onDuplicate(product)"
+              (deleteClicked)="confirmDelete(product)"
+              [footerItems]="[
+                { icon: 'layers', label: 'Stock: ' + product.totalStock },
+                {
+                  icon: 'euro',
+                  label: (product.dailyRate | currency: 'EUR') + ' / día',
+                },
+              ]"
+            >
+              <div class="product-meta">
+                <span class="sku">SKU: {{ product.sku || 'N/A' }}</span>
+              </div>
+            </ui-feature-card>
+          } @empty {
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún producto coincide con la búsqueda o los filtros
+                  actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="circle-x"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="box"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>No hay productos</h3>
+                <p>
+                  El inventario está vacío. Comienza registrando tu primer activo.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="goToNewProduct()"
+                  icon="CirclePlus"
+                  >Registrar equipo</ui-button
+                >
+              </div>
+            }
+          }
+        </ui-feature-grid>
 
-          <footer
-            class="table-footer"
-            [style.background]="currentTheme().primary + '05'"
-          >
-            <div class="table-info text-uppercase">
-              {{ products().length }} ACTIVOS EN VISTA ACTUAL
-            </div>
-            <ui-josanz-pagination
-              [currentPage]="currentPage()"
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
-          </footer>
-        </ui-josanz-card>
+        <footer class="pagination-footer">
+          <ui-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </footer>
       }
-    </div>
-
-    <!-- Modals remain for logic but styled with glass variant -->
-    <ui-josanz-modal
-      [isOpen]="isModalOpen()"
-      [title]="
-        editingProduct()
-          ? 'MODIFICACIÓN DE ACTIVO'
-          : 'REGISTRO DE NUEVO RECURSO'
-      "
-      (closed)="closeModal()"
-      variant="dark"
-    >
-      <div class="form-grid">
-        <div class="form-section">
-          <h3
-            class="section-title text-uppercase"
-            [style.color]="currentTheme().primary"
-          >
-            Identificación Técnica
-          </h3>
-          <ui-josanz-input
-            label="Nombre del Producto"
-            [(ngModel)]="formData.name"
-            placeholder="DENOMINACIÓN COMERCIAL O TÉCNICA..."
-            icon="box"
-          ></ui-josanz-input>
-
-          <div class="input-row">
-            <ui-josanz-input
-              label="Referencia SKU"
-              [(ngModel)]="formData.sku"
-              icon="hash"
-            ></ui-josanz-input>
-            <ui-josanz-input
-              label="Categoría"
-              [(ngModel)]="formData.category"
-              icon="tag"
-            ></ui-josanz-input>
-          </div>
-        </div>
-
-        <div class="form-section">
-          <h3
-            class="section-title text-uppercase"
-            [style.color]="currentTheme().primary"
-          >
-            Stock y tarifación
-          </h3>
-          <div class="input-row">
-            <ui-josanz-input
-              label="Unidades en stock"
-              type="number"
-              [placeholder]="'0'"
-              hint="Cantidad inicial de unidades disponibles del producto."
-              [(ngModel)]="formData.totalStock"
-              icon="layers"
-            ></ui-josanz-input>
-            <ui-josanz-input
-              label="Tarifa diaria (€)"
-              type="number"
-              [placeholder]="'0'"
-              hint="Precio de alquiler por día y unidad."
-              [(ngModel)]="formData.dailyRate"
-              icon="euro"
-            ></ui-josanz-input>
-          </div>
-        </div>
-      </div>
-
-      <div modal-footer class="modal-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()"
-          >CANCELAR</ui-josanz-button
-        >
-        <ui-josanz-button
-          variant="glass"
-          (clicked)="saveProduct()"
-          [disabled]="!formData.name"
-        >
-          {{ editingProduct() ? 'ACTUALIZAR REGISTRO' : 'CONFIRMAR ALTA' }}
-        </ui-josanz-button>
-      </div>
-    </ui-josanz-modal>
+    </ui-feature-page-shell>
+    }
   `,
   styles: [
     `
-      .page-container {
-        padding: 1.5rem;
-        max-width: 1400px;
-        margin: 0 auto;
-        box-sizing: border-box;
+      .flex-1 {
+        flex: 1;
       }
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
-
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
+      .product-meta {
         margin-top: 0.5rem;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .navigation-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding: 0.25rem 1rem;
-        border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .search-bar {
-        width: 320px;
-      }
-
-      /* Table Luxe Refinement */
-      .table-card {
-        border-radius: 16px;
-        overflow: hidden;
-      }
-      .neon-glow {
-        box-shadow:
-          0 0 40px rgba(0, 0, 0, 0.4),
-          inset 0 0 1px rgba(255, 255, 255, 0.1);
-      }
-
-      .product-cell {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-      .product-icon {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .product-link {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 700;
-        font-size: 0.8rem;
-        letter-spacing: 0.02em;
-        transition: 0.2s;
-      }
-      .product-link:hover {
-        color: var(--brand);
-        text-shadow: 0 0 10px var(--brand-glow);
-      }
-
-      .table-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .form-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-      }
-      .section-title {
+        font-family: var(--font-mono);
         font-size: 0.7rem;
-        font-weight: 900;
-        letter-spacing: 0.15em;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-      .input-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
       }
 
-      @media (max-width: 1024px) {
-        .stats-row {
-          grid-template-columns: 1fr;
-        }
-        .navigation-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-          padding: 1rem;
-        }
-        .search-bar {
-          width: 100%;
-        }
-        .input-row {
-          grid-template-columns: 1fr;
-        }
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
       }
-    `,
+
+      /* BABOONI LUXE INVENTORY OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .product-meta {
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
+        padding: 4px 10px;
+        border-radius: 6px;
+        border: 1px solid rgba(0,0,0,0.03);
+        display: inline-block;
+        margin-top: 0.75rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .sku {
+        color: var(--brand);
+        font-weight: 850;
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .selection-header {
+        background: color-mix(in srgb, var(--surface) 40%, transparent);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+      }
+     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -473,6 +331,11 @@ export class InventoryListComponent
   private readonly facade = inject(InventoryFacade);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly aiFormBridge = inject(AIFormBridgeService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'products.view', 'products.manage');
 
   currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
@@ -481,36 +344,43 @@ export class InventoryListComponent
   products = this.facade.products;
   allProducts = this.facade.allProducts;
   isLoading = this.facade.isLoading;
+  error = this.facade.error;
   activeTab = this.facade.activeTab;
+
+  readonly hasAnyProducts = computed(() => this.allProducts().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyProducts() && this.products().length === 0,
+  );
   currentPage = signal(1);
   totalPages = signal(1);
   searchTerm = '';
+  sortField = signal<'name'>('name');
+  sortDirection = signal<1 | -1>(1);
 
-  isModalOpen = signal(false);
-  isDeleteModalOpen = signal(false);
-  editingProduct = signal<Product | null>(null);
-  productToDelete = signal<Product | null>(null);
+  /** Lista filtrada del facade, ordenada según `sortField` y `sortDirection`. */
+  sortedProducts = computed(() => {
+    const items = [...this.products()];
+    const dir = this.sortDirection();
+    const field = this.sortField();
+    items.sort((a, b) => {
+      const aVal = field === 'name' ? (a.name || '') : '';
+      const bVal = field === 'name' ? (b.name || '') : '';
+      const cmp = aVal.localeCompare(bVal, 'es', { sensitivity: 'base' });
+      return dir === 1 ? cmp : -cmp;
+    });
+    return items;
+  });
 
-  formData: Partial<Product> = {
-    name: '',
-    sku: '',
-    category: '',
-    status: 'available',
-    totalStock: 0,
-    availableStock: 0,
-    reservedStock: 0,
-    dailyRate: 0,
-    type: 'generic',
-  };
+  private readonly listAiFormProxy: Record<string, unknown> = {};
 
   ngOnInit() {
-    this.aiFormBridge.registerDataProxy(this.formData as Record<string, unknown>);
+    this.aiFormBridge.registerDataProxy(this.listAiFormProxy);
     this.masterFilter.registerProvider(this);
     this.loadProducts();
   }
 
   ngOnDestroy() {
-    this.aiFormBridge.unregisterDataProxy(this.formData as Record<string, unknown>);
+    this.aiFormBridge.unregisterDataProxy(this.listAiFormProxy);
     this.masterFilter.unregisterProvider();
   }
 
@@ -519,7 +389,7 @@ export class InventoryListComponent
     const term = query.toLowerCase().trim();
     if (!term) return of(this.allProducts());
 
-    const matches = this.allProducts().filter((p) => {
+    const matches = this.allProducts().filter((p: Product) => {
       const searchableText = [
         p.name,
         p.sku ?? '',
@@ -585,87 +455,91 @@ export class InventoryListComponent
   }
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadProducts();
   }
 
-  openCreateModal() {
-    this.editingProduct.set(null);
-    this.formData = {
-      name: '',
-      sku: '',
-      category: '',
-      status: 'available',
-      totalStock: 1,
-      dailyRate: 0,
-      type: 'generic',
-      availableStock: 0,
-      reservedStock: 0,
-    };
-    this.isModalOpen.set(true);
+  refreshProducts() {
+    this.facade.loadProducts(true);
+  }
+
+  clearFiltersAndSearch(): void {
+    this.searchTerm = '';
+    this.masterFilter.search('');
+    this.facade.searchProducts('');
+    this.facade.setTab('all');
+    this.currentPage.set(1);
+  }
+
+  toggleSort() {
+    this.sortDirection.set(this.sortDirection() === 1 ? -1 : 1);
+  }
+
+  goToNewProduct(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  onRowClick(product: Product) {
+    void this.router.navigate([product.id], { relativeTo: this.route });
+  }
+
+  getInitials(name: string | undefined): string {
+    return (name || 'P')
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
   }
 
   editProduct(product: Product) {
-    this.editingProduct.set(product);
-    this.formData = { ...product };
-    this.isModalOpen.set(true);
+    void this.router.navigate([product.id, 'edit'], { relativeTo: this.route });
   }
 
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingProduct.set(null);
-  }
-
-  saveProduct() {
-    const name = this.formData.name?.trim();
-    if (!name) return;
-
-    const totalStock = Math.max(
-      0,
-      Math.floor(Number(this.formData.totalStock ?? 0)),
-    );
-    const dailyRate = Math.max(0, Number(this.formData.dailyRate ?? 0));
-
-    const productToEdit = this.editingProduct();
-    if (productToEdit) {
-      this.facade.updateProduct(productToEdit.id, {
-        ...this.formData,
-        name,
-        totalStock,
-        dailyRate,
+  onDuplicate(product: Product) {
+    const { id: _omitId, ...rest } = product;
+    void _omitId;
+    this.facade
+      .createProduct({
+        ...rest,
+        name: `${product.name} (COPIA)`,
+        sku: product.sku ? `${product.sku}-COPY` : '',
+      })
+      .subscribe({
+        next: () =>
+          this.toast.show(
+            `Copia creada a partir de «${product.name}»`,
+            'success',
+          ),
+        error: () =>
+          this.toast.show('No se pudo duplicar el producto.', 'error'),
       });
-    } else {
-      this.facade.createProduct({
-        name,
-        sku: (this.formData.sku ?? '').trim(),
-        category: (this.formData.category ?? '').trim() || 'Varios',
-        type: this.formData.type ?? 'generic',
-        status: this.formData.status ?? 'available',
-        totalStock,
-        availableStock: totalStock,
-        reservedStock: 0,
-        dailyRate,
-      });
-    }
-    this.closeModal();
   }
 
   confirmDelete(product: Product) {
-    this.productToDelete.set(product);
-    this.isDeleteModalOpen.set(true);
-  }
-  closeDeleteModal() {
-    this.isDeleteModalOpen.set(false);
-    this.productToDelete.set(null);
-  }
-  deleteProduct() {
-    const p = this.productToDelete();
-    if (p) {
-      this.facade.deleteProduct(p.id);
-      this.closeDeleteModal();
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el producto ${product.name}?`,
+      )
+    ) {
+      return;
     }
+    this.facade.deleteProduct(product.id).subscribe({
+      next: (ok) => {
+        if (ok) {
+          this.toast.show(
+            `«${product.name}» eliminado del inventario`,
+            'success',
+          );
+        } else {
+          this.toast.show('No se pudo eliminar el producto.', 'error');
+        }
+      },
+      error: () =>
+        this.toast.show('Error al eliminar. Inténtalo de nuevo.', 'error'),
+    });
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
+  getStatusVariant(
+    status: string,
+  ): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
       case 'available':
         return 'success';
@@ -674,7 +548,7 @@ export class InventoryListComponent
       case 'maintenance':
         return 'info';
       default:
-        return 'default';
+        return 'secondary';
     }
   }
 
@@ -701,14 +575,15 @@ export class InventoryListComponent
 
   totalValue = computed(() =>
     this.allProducts().reduce(
-      (acc: number, p: Product) => acc + p.dailyRate * p.totalStock,
+      (acc: number, p: Product) =>
+        acc + (p.dailyRate ?? 0) * (p.totalStock ?? 0),
       0,
     ),
   );
   criticalCount = computed(
     () =>
       this.allProducts().filter(
-        (p: Product) => p.availableStock < p.totalStock * 0.2,
+        (p: Product) => (p.availableStock ?? 0) < (p.totalStock ?? 0) * 0.2,
       ).length,
   );
 }

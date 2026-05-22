@@ -1,0 +1,21 @@
+{
+  "name": "document-generator-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/feature/document-generator/src",
+  "prefix": "lib",
+  "projectType": "library",
+  "tags": ["scope:document-generator", "type:feature"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/browser/feature/document-generator/jest.config.cts",
+        "tsConfig": "libs/browser/feature/document-generator/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

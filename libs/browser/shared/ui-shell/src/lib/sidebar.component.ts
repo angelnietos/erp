@@ -1,30 +1,10 @@
 import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import {
-  LucideAngularModule,
-  LayoutDashboard,
-  Users,
-  Wrench,
-  PieChart,
-  ShieldCheck,
-  Package,
-  Receipt,
-  Truck,
-  Car,
-  Key,
-  History,
-  FileCheck,
-  ChevronRight,
-  ChevronLeft,
-  Folder,
-  Calendar,
-  FileText,
-  Clock,
-  BrainCircuit,
-} from 'lucide-angular';
-import { AuthStore, PluginStore } from '@josanz-erp/shared-data-access';
-import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
+import { LucideAngularModule } from 'lucide-angular';
+import { PluginStore } from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
+import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
 @Component({
   selector: 'josanz-sidebar',
@@ -36,12 +16,18 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       <div class="header">
         @if (!isCollapsed()) {
           <div class="logo-area">
-            <div class="logo-capsule"></div>
-            <span class="logo-text">JOSANZ</span>
+            <div class="logo-capsule">
+              <div class="logo-inner"></div>
+            </div>
+            <div class="logo-brand">
+              <span class="logo-text">JOSANZ</span>
+              <span class="logo-tag">PRO</span>
+            </div>
           </div>
         }
 
         <button
+          type="button"
           class="toggle-control"
           (click)="toggle()"
           [attr.aria-label]="isCollapsed() ? 'Expandir' : 'Contraer'"
@@ -49,6 +35,7 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
           <lucide-icon
             [name]="isCollapsed() ? 'chevron-right' : 'chevron-left'"
             size="16"
+            aria-hidden="true"
           ></lucide-icon>
         </button>
       </div>
@@ -64,9 +51,10 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
                 routerLinkActive="active"
                 class="nav-link"
                 [attr.title]="item.label"
+                [attr.aria-label]="isCollapsed() ? item.label : null"
               >
                 <div class="icon-wrapper">
-                  <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                  <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
                 </div>
                 @if (!isCollapsed()) {
                   <span class="label-text">{{ item.label }}</span>
@@ -86,9 +74,10 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
               routerLink="/settings"
               class="nav-link settings-link"
               routerLinkActive="active"
+              [attr.aria-label]="isCollapsed() ? 'Configuración' : null"
             >
               <div class="icon-wrapper">
-                <lucide-icon name="settings" size="18"></lucide-icon>
+                <lucide-icon name="cog" size="18" aria-hidden="true"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Configuración</span>
@@ -96,9 +85,14 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
             </a>
           </li>
           <li class="nav-item">
-            <button class="nav-link logout" (click)="logout()">
+            <button
+              type="button"
+              class="nav-link logout"
+              (click)="logout()"
+              [attr.aria-label]="isCollapsed() ? 'Cerrar sesión' : null"
+            >
               <div class="icon-wrapper">
-                <lucide-icon name="log-out" size="18"></lucide-icon>
+                <lucide-icon name="log-out" size="18" aria-hidden="true"></lucide-icon>
               </div>
               @if (!isCollapsed()) {
                 <span class="label-text">Cerrar Sesión</span>
@@ -116,132 +110,111 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         height: 100%;
       }
 
-      /* ======================================================
-         SIDEBAR — ALWAYS DARK, INDEPENDENT OF ACTIVE THEME
-         ====================================================== */
       .sidebar-container {
-        width: 185px; /* Reduced from 210px */
-        min-width: 185px;
+        width: 190px;
+        min-width: 190px;
         height: 100%;
-        background: linear-gradient(
-          165deg,
-          #0d0d12 0%,
-          #0a0a0f 48%,
-          #08080c 100%
-        );
-        backdrop-filter: blur(28px);
-        -webkit-backdrop-filter: blur(28px);
+        background: linear-gradient(165deg, #0a0a0f 0%, #060609 100%);
+        backdrop-filter: blur(24px);
         border-right: 1px solid rgba(255, 255, 255, 0.05);
         display: flex;
         flex-direction: column;
-        transition:
-          width 0.45s cubic-bezier(0.4, 0, 0.2, 1),
-          min-width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-        color: rgba(255, 255, 255, 0.55);
-        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: rgba(255, 255, 255, 0.6);
         position: relative;
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.6);
-      }
-
-      /* Brand-colored neon edge */
-      .sidebar-container::after {
-        content: '';
-        position: absolute;
-        top: 0; right: 0; bottom: 0;
-        width: 1px;
-        background: linear-gradient(to bottom, transparent, var(--brand), transparent);
-        opacity: 0.25;
-        box-shadow: 0 0 8px var(--brand-glow);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.4);
       }
 
       .sidebar-container.collapsed {
-        width: 56px;
-        min-width: 56px;
+        width: 64px;
+        min-width: 64px;
       }
 
       .header {
-        height: 42px; /* Reduced from 48px to match top nav */
+        height: 80px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 16px; /* Reduced from 20px */
+        padding: 0 16px;
         flex-shrink: 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        margin-bottom: 4px;
-        transition: padding 0.3s ease;
-      }
-
-      .collapsed .header {
-        padding: 0;
-        justify-content: center;
       }
 
       .logo-area {
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 12px;
       }
 
       .logo-capsule {
-        width: 4px;
-        height: 28px;
-        background: var(--brand);
-        border-radius: 2px;
-        box-shadow: 0 0 20px var(--brand-glow);
-        animation: logoPulse 3s infinite ease-in-out;
-      }
-
-      @keyframes logoPulse {
-        0%, 100% { transform: scaleY(1); opacity: 0.8; }
-        50% { transform: scaleY(1.1); opacity: 1; filter: brightness(1.2); }
-      }
-
-      .logo-text {
-        font-weight: 800;
-        font-size: 0.95rem; /* Reduced from 1.05rem */
-        letter-spacing: 0.16em;
-        font-family: var(--font-display, 'DM Sans', system-ui, sans-serif);
-        background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0.55));
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      .toggle-control {
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        color: rgba(255, 255, 255, 0.45);
-        width: 28px;
-        height: 28px;
-        border-radius: 6px;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--brand), var(--brand-muted));
+        border-radius: 10px;
         display: flex;
         align-items: center;
         justify-content: center;
+        box-shadow: 0 4px 15px var(--brand-glow);
+        position: relative;
+      }
+
+      .logo-inner {
+        width: 12px;
+        height: 12px;
+        background: #fff;
+        border-radius: 2px;
+        transform: rotate(45deg);
+      }
+
+      .logo-brand {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .logo-text {
+        font-family: 'Outfit', var(--font-display);
+        font-weight: 800;
+        font-size: 1.15rem;
+        letter-spacing: 0.05em;
+        color: #fff;
+        line-height: 1;
+      }
+
+      .logo-tag {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--brand);
+        letter-spacing: 0.2em;
+        margin-top: 2px;
+      }
+
+      .toggle-control {
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        color: rgba(255, 255, 255, 0.4);
         cursor: pointer;
-        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
       }
 
       .toggle-control:hover {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
         color: #fff;
         border-color: var(--brand);
-        box-shadow: 0 0 12px var(--brand-glow);
       }
 
       .nav-area {
         flex: 1;
-        padding: 12px 10px;
+        padding: 8px 12px;
         overflow-y: auto;
         scrollbar-width: none;
       }
 
       .nav-area::-webkit-scrollbar { display: none; }
-
-      .footer-area {
-        padding: 12px;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        background: rgba(0, 0, 0, 0.3);
-      }
 
       .nav-list {
         list-style: none;
@@ -252,71 +225,53 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
         gap: 4px;
       }
 
-      /* All nav links — hardcoded dark text, never inherits theme */
       .nav-link {
+        height: 44px;
         display: flex;
         align-items: center;
-        padding: 6px 12px; /* Reduced padding from 7/10 */
-        border-radius: 6px;
+        padding: 0 12px;
+        color: rgba(255, 255, 255, 0.55);
         text-decoration: none;
-        color: rgba(255, 255, 255, 0.5);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
-        min-height: 38px; /* Reduced from 42px */
-        font-weight: 700;
-        font-size: 0.64rem; /* Reduced from 0.68rem */
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        border: 1px solid transparent;
         background: transparent;
-        width: 100%;
-        cursor: pointer;
-      }
-
-      .collapsed .nav-link {
-        padding: 10px 0;
-        justify-content: center;
+        border: 1px solid transparent;
       }
 
       .nav-link:hover {
-        background: rgba(255, 255, 255, 0.07);
-        color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
+        color: #fff;
         transform: translateX(4px);
       }
 
-      .collapsed .nav-link:hover {
-        transform: scale(1.1);
-      }
+      .collapsed .nav-link:hover { transform: scale(1.05); }
 
       .nav-link.active {
-        background: color-mix(in srgb, var(--brand) 14%, rgba(255,255,255,0.03));
-        color: var(--brand);
-        border-color: color-mix(in srgb, var(--brand) 28%, transparent);
+        background: var(--brand-surface);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.05);
       }
 
-      .nav-link.active::before {
+      .nav-link.active::after {
         content: '';
         position: absolute;
-        left: -4px;
-        top: 15%; height: 70%;
+        left: 0;
+        top: 25%;
+        bottom: 25%;
         width: 3px;
         background: var(--brand);
         border-radius: 0 4px 4px 0;
-        box-shadow: 0 0 12px var(--brand-glow);
+        box-shadow: 0 0 10px var(--brand);
       }
 
-      .active-glow {
-        position: absolute;
-        right: 0; top: 0; bottom: 0;
-        width: 36px;
-        background: linear-gradient(to right, transparent, color-mix(in srgb, var(--brand) 12%, transparent));
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.3s;
+      .nav-link.active .icon-wrapper {
+        color: var(--brand);
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 8px var(--brand-glow));
       }
-
-      .nav-link.active .active-glow { opacity: 1; }
 
       .logout:hover {
         background: rgba(239, 68, 68, 0.12) !important;
@@ -335,6 +290,20 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
 
       .nav-link:hover .icon-wrapper { transform: scale(1.08); }
 
+      .nav-link:focus-visible {
+        outline: none;
+        background: color-mix(in srgb, var(--brand) 10%, rgba(255, 255, 255, 0.06));
+        color: #fff;
+        border-color: color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.1));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 32%, transparent);
+      }
+
+      .toggle-control:focus-visible {
+        outline: none;
+        border-color: color-mix(in srgb, var(--brand) 55%, rgba(255, 255, 255, 0.12));
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent);
+      }
+
       .label-text {
         margin-left: 12px;
         white-space: nowrap;
@@ -345,71 +314,39 @@ import { NavMenuItem } from '@josanz-erp/shared-ui-kit';
       ::-webkit-scrollbar { width: 3px; }
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
       ::-webkit-scrollbar-track { background: transparent; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .sidebar-container {
+          transition: none;
+        }
+        .logo-capsule {
+          animation: none;
+        }
+        .nav-link:hover {
+          transform: none;
+        }
+        .collapsed .nav-link:hover {
+          transform: none;
+        }
+      }
     `,
   ],
 
 })
 export class SidebarComponent {
-  private readonly authStore = inject(AuthStore);
+  private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
 
-  private readonly navItems: NavMenuItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'layout-dashboard',
-      route: '/',
-    },
-    { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients' },
-    {
-      id: 'projects',
-      label: 'Proyectos',
-      icon: 'file-text',
-      route: '/projects',
-    },
-    { id: 'events', label: 'Eventos', icon: 'calendar', route: '/events' },
-    {
-      id: 'availability',
-      label: 'Disponibilidad',
-      icon: 'clock',
-      route: '/users/availability',
-    },
-    { id: 'services', label: 'Servicios', icon: 'wrench', route: '/services' },
-    { id: 'reports', label: 'Reportes', icon: 'pie-chart', route: '/reports' },
-    { id: 'audit', label: 'Auditoría', icon: 'shield-check', route: '/audit' },
-    {
-      id: 'inventory',
-      label: 'Inventario',
-      icon: 'package',
-      route: '/inventory',
-    },
-    {
-      id: 'budgets',
-      label: 'Presupuestos',
-      icon: 'receipt',
-      route: '/budgets',
-    },
-    { id: 'delivery', label: 'Albaranes', icon: 'truck', route: '/delivery' },
-    { id: 'fleet', label: 'Flota', icon: 'car', route: '/fleet' },
-    { id: 'rentals', label: 'Alquileres', icon: 'key', route: '/rentals' },
-    { id: 'billing', label: 'Facturación', icon: 'history', route: '/billing' },
-    {
-      id: 'verifactu',
-      label: 'VeriFactu',
-      icon: 'file-check',
-      route: '/verifactu',
-    },
-    {
-      id: 'ai-insights',
-      label: 'AI Insights',
-      icon: 'cpu',
-      route: '/ai-insights',
-    },
-  ];
+  private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
+  /** Entradas del menú: solo módulos/plugins activos. RBAC aplica en features y listas, no aquí. */
   filteredNavItems = computed(() => {
-    const enabled = this.pluginStore.enabledPlugins();
-    return this.navItems.filter((item) => ['dashboard', 'ai-insights'].includes(item.id || '') || enabled.includes(item.id || ''));
+    return this.navItems.filter((item) => {
+      if (item.id !== 'dashboard' && item.id !== 'ai-insights' && !this.pluginStore.enabledPlugins().includes(item.id || '')) {
+        return false;
+      }
+      return true;
+    });
   });
 
   isCollapsed = signal(false);
@@ -419,6 +356,6 @@ export class SidebarComponent {
   }
 
   logout() {
-    this.authStore.logout();
+    this.identityAuth.logout();
   }
 }

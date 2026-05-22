@@ -1,4 +1,14 @@
 import { Injectable, signal, effect, computed } from '@angular/core';
+import {
+  accessibleMutedColor,
+  hexToRgbTripletString,
+  isLightBackgroundFromHex,
+  mixRgbHex,
+  normalizeCssHexColor,
+  parseHexColor,
+  pickTextOnBrand,
+  ringFocusFromBrand,
+} from '../utils/theme-color';
 
 /** Global app color palettes (selector in shell). Not the same as UI-kit *component* variants (button primary, alert success, etc.). */
 export type Theme =
@@ -62,14 +72,30 @@ export type Theme =
   | 'fortnite-storm'
   | 'cyber-neon-pink'
   | 'onyx-premium'
-  | 'platinum-luxe';
+  | 'platinum-luxe'
+  | 'cyber-ocean'
+  | 'blood-moon'
+  | 'midnight-sun'
+  | 'icy-phantom'
+  | 'aurora-veil'
+  | 'obsidian-rose'
+  | 'sandstone-day'
+  | 'nocturne-slate'
+  /** Paleta oficial Babooni / Biosstel (kit); el resto de temas son variantes de acento sobre este kit en tenant `babooni`. */
+  | 'rayman-vibrant'
+  | 'nintendo-neon'
+  | 'cyberpunk-edge'
+  | 'rockstar-vintage'
+  | 'galactic-void'
+  | 'emerald-overdrive'
+  | 'cyber-noir'
+  | 'obsidian-gold'
+  | 'babooni';
+
+export type Density = 'compact' | 'standard' | 'spacious';
 
 function hexToRgbTriplet(hex: string): string {
-  const normalized = hex.replace('#', '').trim();
-  if (normalized.length !== 6) return '79, 70, 229';
-  const n = parseInt(normalized, 16);
-  if (Number.isNaN(n)) return '79, 70, 229';
-  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+  return hexToRgbTripletString(hex);
 }
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -103,16 +129,16 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Modern Silk',
     primary: '#4f46e5',
     secondary: '#64748b',
-    background: '#f8fafc',
+    background: '#ffffff',
     surface: '#ffffff',
     text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e2e8f0',
+    textMuted: '#475569',
+    border: 'rgba(15, 23, 42, 0.1)',
     brand: '#4f46e5',
-    brandGlow: 'rgba(79, 70, 229, 0.15)',
-    bgSecondary: '#f1f5f9',
-    bgTertiary: '#e2e8f0',
-    bgStyle: 'bokeh',
+    brandGlow: 'rgba(79, 70, 229, 0.1)',
+    bgSecondary: '#f8fafc',
+    bgTertiary: '#f1f5f9',
+    bgStyle: 'spot',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
@@ -122,16 +148,16 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   dark: {
     name: 'Elevated Midnight',
     primary: '#818cf8',
-    secondary: '#94a3b8',
-    background: '#0f172a',
-    surface: '#1e293b',
+    secondary: '#c7d2fe',
+    background: '#0b0f1a',
+    surface: '#151b2b',
     text: '#f8fafc',
     textMuted: '#94a3b8',
-    border: 'rgba(255, 255, 255, 0.12)',
+    border: 'rgba(129, 140, 248, 0.2)',
     brand: '#818cf8',
     brandGlow: 'rgba(129, 140, 248, 0.35)',
-    bgSecondary: '#141e33',
-    bgTertiary: '#243354',
+    bgSecondary: '#0f1422',
+    bgTertiary: '#1e2538',
     bgStyle: 'nebula',
     success: '#34d399',
     warning: '#fbbf24',
@@ -160,24 +186,24 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     uiVariant: 'glass',
   },
   green: {
-    name: 'Emerald Grid',
-    primary: '#34d399',
-    secondary: '#86efac',
-    background: '#062016',
-    surface: '#0d3223',
-    text: '#ecfdf5',
-    textMuted: '#a7f3d0',
-    border: 'rgba(16, 185, 129, 0.25)',
-    brand: '#34d399',
-    brandGlow: 'rgba(52, 211, 153, 0.45)',
-    bgSecondary: '#0a2a1d',
-    bgTertiary: '#143b2b',
-    bgStyle: 'grid',
+    name: 'Emerald Matrix',
+    primary: '#10b981',
+    secondary: '#34d399',
+    background: '#041510',
+    surface: '#0a2119',
+    text: '#ffffff',
+    textMuted: '#86efac',
+    border: 'rgba(52, 211, 153, 0.15)',
+    brand: '#10b981',
+    brandGlow: 'rgba(16, 185, 129, 0.5)',
+    bgSecondary: '#061b14',
+    bgTertiary: '#0d2a1f',
+    bgStyle: 'matrix',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#10b981',
-    uiVariant: 'solid',
+    uiVariant: 'glass',
   },
   purple: {
     name: 'Void Spiral',
@@ -221,18 +247,18 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   rose: {
     name: 'Cyber-Rose',
-    primary: '#f43f5e',
-    secondary: '#64748B',
+    primary: '#ff007f',
+    secondary: '#ff7eb9',
     background: '#0a0005',
     surface: '#1a000d',
     text: '#fff1f2',
     textMuted: '#fb7185',
-    border: '#f43f5e33',
-    brand: '#f43f5e',
-    brandGlow: 'rgba(244, 63, 94, 0.4)',
-    bgSecondary: '#1a000d',
-    bgTertiary: '#2d0016',
-    bgStyle: 'bokeh',
+    border: 'rgba(255, 0, 127, 0.25)',
+    brand: '#ff007f',
+    brandGlow: 'rgba(255, 0, 127, 0.4)',
+    bgSecondary: '#120008',
+    bgTertiary: '#240012',
+    bgStyle: 'aurora',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#f43f5e',
@@ -321,23 +347,23 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   teal: {
     name: 'Abyss-Teal',
-    primary: '#14b8a6',
-    secondary: '#64748B',
-    background: '#020807',
-    surface: '#0a1f1c',
+    primary: '#2dd4bf',
+    secondary: '#99f6e4',
+    background: '#020d0c',
+    surface: '#081e1c',
     text: '#f0fdfa',
     textMuted: '#5eead4',
-    border: '#14b8a633',
-    brand: '#14b8a6',
-    brandGlow: 'rgba(20, 184, 166, 0.45)',
-    bgSecondary: '#0a1f1c',
-    bgTertiary: '#0f2e29',
+    border: 'rgba(45, 212, 191, 0.2)',
+    brand: '#2dd4bf',
+    brandGlow: 'rgba(45, 212, 191, 0.4)',
+    bgSecondary: '#051413',
+    bgTertiary: '#0f2b28',
     bgStyle: 'nebula',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#14b8a6',
-    uiVariant: 'minimal',
+    uiVariant: 'glass',
   },
   amber: {
     name: 'Forge-Amber',
@@ -503,15 +529,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Corporate Light',
     primary: '#0ea5e9',
     secondary: '#475569',
-    background: '#f8fafc',
+    background: '#f1f5f9',
     surface: '#ffffff',
     text: '#0f172a',
-    textMuted: '#64748b',
-    border: '#e2e8f0',
+    textMuted: '#475569',
+    border: 'rgba(15, 23, 42, 0.12)',
     brand: '#0ea5e9',
     brandGlow: 'rgba(14, 165, 233, 0.15)',
-    bgSecondary: '#f1f5f9',
-    bgTertiary: '#e2e8f0',
+    bgSecondary: '#e2e8f0',
+    bgTertiary: '#cbd5e1',
     bgStyle: 'spot',
     success: '#059669',
     warning: '#f59e0b',
@@ -563,15 +589,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Vanilla Latte',
     primary: '#d97706',
     secondary: '#57534e',
-    background: '#fafaf9',
+    background: '#f5f5f4',
     surface: '#ffffff',
     text: '#292524',
-    textMuted: '#78716c',
-    border: '#e7e5e4',
+    textMuted: '#57534e',
+    border: 'rgba(41, 37, 36, 0.12)',
     brand: '#d97706',
     brandGlow: 'rgba(217, 119, 6, 0.1)',
-    bgSecondary: '#f5f5f4',
-    bgTertiary: '#e7e5e4',
+    bgSecondary: '#e7e5e4',
+    bgTertiary: '#d6d3d1',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#c2410c',
@@ -683,15 +709,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Island Life',
     primary: '#6bb33b',
     secondary: '#f9f5d7',
-    background: '#f1f8e9',
+    background: '#e8f5e9',
     surface: '#ffffff',
     text: '#2d4a22',
-    textMuted: '#7ca668',
-    border: '#c5e1a5',
+    textMuted: '#4a7c33',
+    border: 'rgba(45, 74, 34, 0.15)',
     brand: '#6bb33b',
     brandGlow: 'rgba(107, 179, 59, 0.15)',
-    bgSecondary: '#e8f5e9',
-    bgTertiary: '#c5e1a5',
+    bgSecondary: '#c5e1a5',
+    bgTertiary: '#aed581',
     bgStyle: 'spot',
     success: '#43a047',
     warning: '#fbc02d',
@@ -803,15 +829,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '✦ Pearl White',
     primary: '#6366f1',
     secondary: '#8b5cf6',
-    background: '#fafafa',
+    background: '#f3f4f6',
     surface: '#ffffff',
     text: '#111827',
-    textMuted: '#6b7280',
-    border: '#e5e7eb',
+    textMuted: '#4b5563',
+    border: 'rgba(17, 24, 39, 0.1)',
     brand: '#6366f1',
     brandGlow: 'rgba(99, 102, 241, 0.12)',
-    bgSecondary: '#f3f4f6',
-    bgTertiary: '#e5e7eb',
+    bgSecondary: '#e5e7eb',
+    bgTertiary: '#d1d5db',
     bgStyle: 'spot',
     success: '#059669',
     warning: '#d97706',
@@ -823,15 +849,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌤 Sky Day',
     primary: '#0ea5e9',
     secondary: '#38bdf8',
-    background: '#f0f9ff',
+    background: '#e0f2fe',
     surface: '#ffffff',
     text: '#0c4a6e',
     textMuted: '#0369a1',
-    border: '#bae6fd',
+    border: 'rgba(12, 74, 110, 0.15)',
     brand: '#0ea5e9',
     brandGlow: 'rgba(14, 165, 233, 0.15)',
-    bgSecondary: '#e0f2fe',
-    bgTertiary: '#bae6fd',
+    bgSecondary: '#bae6fd',
+    bgTertiary: '#7dd3fc',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -843,15 +869,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌸 Rose Quartz',
     primary: '#e11d48',
     secondary: '#fb7185',
-    background: '#fff1f2',
+    background: '#ffe4e6',
     surface: '#ffffff',
     text: '#4c0519',
     textMuted: '#be123c',
-    border: '#fecdd3',
+    border: 'rgba(76, 5, 25, 0.15)',
     brand: '#e11d48',
     brandGlow: 'rgba(225, 29, 72, 0.12)',
-    bgSecondary: '#ffe4e6',
-    bgTertiary: '#fecdd3',
+    bgSecondary: '#fecdd3',
+    bgTertiary: '#fda4af',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -863,15 +889,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌿 Sage Garden',
     primary: '#16a34a',
     secondary: '#86efac',
-    background: '#f0fdf4',
+    background: '#dcfce7',
     surface: '#ffffff',
     text: '#14532d',
     textMuted: '#15803d',
-    border: '#bbf7d0',
+    border: 'rgba(20, 83, 45, 0.15)',
     brand: '#16a34a',
     brandGlow: 'rgba(74, 222, 128, 0.12)',
-    bgSecondary: '#dcfce7',
-    bgTertiary: '#bbf7d0',
+    bgSecondary: '#bbf7d0',
+    bgTertiary: '#86efac',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#a16207',
@@ -883,15 +909,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '💜 Lavender Mist',
     primary: '#7c3aed',
     secondary: '#a78bfa',
-    background: '#faf5ff',
+    background: '#ede9fe',
     surface: '#ffffff',
     text: '#3b0764',
     textMuted: '#6d28d9',
-    border: '#ddd6fe',
+    border: 'rgba(59, 7, 100, 0.15)',
     brand: '#7c3aed',
     brandGlow: 'rgba(124, 58, 237, 0.12)',
-    bgSecondary: '#ede9fe',
-    bgTertiary: '#ddd6fe',
+    bgSecondary: '#ddd6fe',
+    bgTertiary: '#c4b5fd',
     bgStyle: 'bokeh',
     success: '#059669',
     warning: '#d97706',
@@ -903,15 +929,15 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: '🌅 Sunrise Glow',
     primary: '#ea580c',
     secondary: '#fb923c',
-    background: '#fff7ed',
+    background: '#ffedd5',
     surface: '#ffffff',
     text: '#431407',
     textMuted: '#c2410c',
-    border: '#fed7aa',
+    border: 'rgba(67, 20, 7, 0.18)',
     brand: '#ea580c',
     brandGlow: 'rgba(234, 88, 12, 0.12)',
-    bgSecondary: '#ffedd5',
-    bgTertiary: '#fed7aa',
+    bgSecondary: '#fed7aa',
+    bgTertiary: '#fdba74',
     bgStyle: 'spot',
     success: '#15803d',
     warning: '#b45309',
@@ -1161,41 +1187,41 @@ export const THEMES: Record<Theme, ThemeConfig> = {
   },
   'league-legends': {
     name: 'Summoner Rift',
-    primary: '#c5a059',
-    secondary: '#0a1428',
-    background: '#091428',
-    surface: '#0a323c',
-    text: '#ffffff',
-    textMuted: '#005a82',
-    border: 'rgba(197, 160, 89, 0.3)',
-    brand: '#c5a059',
-    brandGlow: 'rgba(197, 160, 89, 0.5)',
-    bgSecondary: '#0a1428',
+    primary: '#c8aa6e',
+    secondary: '#010a13',
+    background: '#010a13',
+    surface: '#091428',
+    text: '#f0e6d2',
+    textMuted: '#a09b8c',
+    border: 'rgba(200, 170, 110, 0.3)',
+    brand: '#c8aa6e',
+    brandGlow: 'rgba(200, 170, 110, 0.4)',
+    bgSecondary: '#091428',
     bgTertiary: '#0a323c',
-    bgStyle: 'aurora',
+    bgStyle: 'nebula',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
-    info: '#3b82f6',
+    info: '#005a82',
     uiVariant: 'glass',
   },
   'valorant-spike': {
     name: 'Tactical Spike',
     primary: '#ff4655',
-    secondary: '#0f1923',
+    secondary: '#ece8e1',
     background: '#0f1923',
-    surface: '#1f2937',
+    surface: '#1a232e',
     text: '#ece8e1',
-    textMuted: '#ff4655',
-    border: 'rgba(255, 70, 85, 0.3)',
+    textMuted: '#7b8085',
+    border: 'rgba(255, 70, 85, 0.25)',
     brand: '#ff4655',
-    brandGlow: 'rgba(255, 70, 85, 0.5)',
+    brandGlow: 'rgba(255, 70, 85, 0.4)',
     bgSecondary: '#0f1923',
     bgTertiary: '#1f2937',
     bgStyle: 'grid',
-    success: '#10b981',
+    success: '#00ad7c',
     warning: '#f59e0b',
-    danger: '#ef4444',
+    danger: '#ff4655',
     info: '#3b82f6',
     uiVariant: 'minimal',
   },
@@ -1263,33 +1289,33 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Neon Pink',
     primary: '#ff00ff',
     secondary: '#00ffff',
-    background: '#050505',
-    surface: '#121212',
+    background: '#050005',
+    surface: '#120012',
     text: '#ffffff',
-    textMuted: '#ff00ff',
-    border: 'rgba(255, 0, 255, 0.3)',
+    textMuted: '#f9a8d4',
+    border: 'rgba(255, 0, 255, 0.35)',
     brand: '#ff00ff',
-    brandGlow: 'rgba(255, 0, 255, 0.5)',
-    bgSecondary: '#000000',
-    bgTertiary: '#121212',
+    brandGlow: 'rgba(255, 0, 255, 0.6)',
+    bgSecondary: '#0a000a',
+    bgTertiary: '#1a001a',
     bgStyle: 'matrix',
-    success: '#10b981',
-    warning: '#f59e0b',
-    danger: '#ef4444',
-    info: '#3b82f6',
+    success: '#00ffaa',
+    warning: '#fcee0a',
+    danger: '#ff003c',
+    info: '#00ffff',
     uiVariant: 'glass',
   },
   'onyx-premium': {
     name: 'Onyx Black',
-    primary: '#ffffff',
+    primary: '#d4af37',
     secondary: '#404040',
     background: '#000000',
     surface: '#171717',
     text: '#ffffff',
     textMuted: '#a3a3a3',
     border: '#262626',
-    brand: '#ffffff',
-    brandGlow: 'rgba(255, 255, 255, 0.2)',
+    brand: '#d4af37',
+    brandGlow: 'rgba(212, 175, 55, 0.2)',
     bgSecondary: '#0a0a0a',
     bgTertiary: '#171717',
     bgStyle: 'spot',
@@ -1303,21 +1329,362 @@ export const THEMES: Record<Theme, ThemeConfig> = {
     name: 'Platinum Luxe',
     primary: '#111827',
     secondary: '#d1d5db',
-    background: '#f3f4f6',
+    background: '#e5e7eb',
     surface: '#ffffff',
     text: '#111827',
     textMuted: '#374151',
-    border: '#e5e7eb',
+    border: 'rgba(17, 24, 39, 0.15)',
     brand: '#111827',
     brandGlow: 'rgba(17, 24, 39, 0.15)',
-    bgSecondary: '#f9fafb',
-    bgTertiary: '#f3f4f6',
+    bgSecondary: '#d1d5db',
+    bgTertiary: '#9ca3af',
     bgStyle: 'bokeh',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
     info: '#3b82f6',
     uiVariant: 'solid',
+  },
+  'cyber-ocean': {
+    name: 'Cyber Ocean',
+    primary: '#06b6d4',
+    secondary: '#0891b2',
+    background: '#020617',
+    surface: '#0f172a',
+    text: '#f8fafc',
+    textMuted: '#94a3b8',
+    border: 'rgba(6, 182, 212, 0.2)',
+    brand: '#06b6d4',
+    brandGlow: 'rgba(6, 182, 212, 0.5)',
+    bgSecondary: '#020617',
+    bgTertiary: '#1e293b',
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4',
+    uiVariant: 'glass',
+  },
+  'blood-moon': {
+    name: 'Blood Moon',
+    primary: '#ef4444',
+    secondary: '#991b1b',
+    background: '#0c0505',
+    surface: '#1a0505',
+    text: '#fee2e2',
+    textMuted: '#f87171',
+    border: 'rgba(239, 68, 68, 0.2)',
+    brand: '#ef4444',
+    brandGlow: 'rgba(239, 68, 68, 0.5)',
+    bgSecondary: '#0c0505',
+    bgTertiary: '#2d0a0a',
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#f87171',
+    uiVariant: 'glass',
+  },
+  'midnight-sun': {
+    name: 'Midnight Sun',
+    primary: '#f59e0b',
+    secondary: '#d97706',
+    background: '#090702',
+    surface: '#181205',
+    text: '#fffbeb',
+    textMuted: '#fbbf24',
+    border: 'rgba(245, 158, 11, 0.2)',
+    brand: '#f59e0b',
+    brandGlow: 'rgba(245, 158, 11, 0.5)',
+    bgSecondary: '#090702',
+    bgTertiary: '#261a0a',
+    bgStyle: 'bokeh',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#fbbf24',
+    uiVariant: 'glass',
+  },
+  'icy-phantom': {
+    name: 'Icy Phantom',
+    primary: '#334155',
+    secondary: '#475569',
+    background: '#ebf0f5',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#334155',
+    border: 'rgba(15, 23, 42, 0.1)',
+    brand: '#334155',
+    brandGlow: 'rgba(51, 65, 85, 0.15)',
+    bgSecondary: '#cbd5e1',
+    bgTertiary: '#94a3b8',
+    bgStyle: 'spot',
+    success: '#059669',
+    warning: '#f59e0b',
+    danger: '#dc2626',
+    info: '#334155',
+    uiVariant: 'minimal',
+  },
+  'aurora-veil': {
+    name: 'Aurora Veil',
+    primary: '#22d3ee',
+    secondary: '#a78bfa',
+    background: '#06060f',
+    surface: '#101525',
+    text: '#f0f9ff',
+    textMuted: '#93c5fd',
+    border: 'rgba(34, 211, 238, 0.22)',
+    brand: '#22d3ee',
+    brandGlow: 'rgba(34, 211, 238, 0.45)',
+    bgSecondary: '#0c1220',
+    bgTertiary: '#1a2235',
+    bgStyle: 'aurora',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#fb7185',
+    info: '#38bdf8',
+    uiVariant: 'glass',
+  },
+  'obsidian-rose': {
+    name: 'Obsidian Rose',
+    primary: '#fb7185',
+    secondary: '#fda4af',
+    background: '#0b0708',
+    surface: '#181115',
+    text: '#fff1f2',
+    textMuted: '#f9a8d4',
+    border: 'rgba(251, 113, 133, 0.22)',
+    brand: '#fb7185',
+    brandGlow: 'rgba(251, 113, 133, 0.42)',
+    bgSecondary: '#120c0e',
+    bgTertiary: '#24181c',
+    bgStyle: 'bokeh',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#f87171',
+    info: '#f472b6',
+    uiVariant: 'glass',
+  },
+  'sandstone-day': {
+    name: 'Sandstone Day',
+    primary: '#b45309',
+    secondary: '#78716c',
+    background: '#faf8f5',
+    surface: '#ffffff',
+    text: '#1c1917',
+    textMuted: '#57534e',
+    border: 'rgba(28, 25, 23, 0.1)',
+    brand: '#d97706',
+    brandGlow: 'rgba(217, 119, 6, 0.18)',
+    bgSecondary: '#f5f0e8',
+    bgTertiary: '#e7e2da',
+    bgStyle: 'spot',
+    success: '#15803d',
+    warning: '#c2410c',
+    danger: '#b91c1c',
+    info: '#0369a1',
+    uiVariant: 'solid',
+  },
+  'nocturne-slate': {
+    name: 'Nocturne Slate',
+    primary: '#38bdf8',
+    secondary: '#64748b',
+    background: '#070a0f',
+    surface: '#111827',
+    text: '#f1f5f9',
+    textMuted: '#94a3b8',
+    border: 'rgba(148, 163, 184, 0.2)',
+    brand: '#38bdf8',
+    brandGlow: 'rgba(56, 189, 248, 0.38)',
+    bgSecondary: '#0c1018',
+    bgTertiary: '#1e293b',
+    bgStyle: 'nebula',
+    success: '#34d399',
+    warning: '#fbbf24',
+    danger: '#f87171',
+    info: '#38bdf8',
+    uiVariant: 'glass',
+  },
+  /** Tema principal Babooni — alineado con Biosstel (`theme.css`); sin capa extra en `applyBabooniBiosstelTenantSkinIfNeeded`. */
+  babooni: {
+    name: 'Babooni · Biosstel',
+    primary: '#004B93',
+    secondary: '#185C80',
+    background: '#ffffff',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    border: 'rgba(0, 75, 147, 0.12)',
+    brand: '#004B93',
+    brandGlow: 'rgba(0, 75, 147, 0.1)',
+    bgSecondary: '#f8fafc',
+    bgTertiary: '#f1f5f9',
+    bgStyle: 'spot',
+    success: '#21B158',
+    warning: '#f59e0b',
+    danger: '#EF4444',
+    info: '#5966F4',
+    uiVariant: 'solid',
+  },
+  'rayman-vibrant': {
+    name: 'Rayman Vibrant',
+    primary: '#ffdd00',
+    secondary: '#ff00ff',
+    background: '#1a0033',
+    surface: '#2d0059',
+    text: '#ffffff',
+    textMuted: '#cc99ff',
+    border: 'rgba(255, 0, 255, 0.2)',
+    brand: '#ffdd00',
+    brandGlow: 'rgba(255, 221, 0, 0.5)',
+    bgSecondary: '#240046',
+    bgTertiary: '#330066',
+    bgStyle: 'bokeh',
+    success: '#3cfc00',
+    warning: '#ffcc00',
+    danger: '#ff3b30',
+    info: '#00beef',
+    uiVariant: 'glass',
+  },
+  'nintendo-neon': {
+    name: 'Nintendo Neon',
+    primary: '#e60012',
+    secondary: '#00beef',
+    background: '#ffffff',
+    surface: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    border: 'rgba(230, 0, 18, 0.15)',
+    brand: '#e60012',
+    brandGlow: 'rgba(230, 0, 18, 0.2)',
+    bgSecondary: '#f8fafc',
+    bgTertiary: '#f1f5f9',
+    bgStyle: 'spot',
+    success: '#3cfc00',
+    warning: '#fff000',
+    danger: '#e60012',
+    info: '#00beef',
+    uiVariant: 'solid',
+  },
+  'cyberpunk-edge': {
+    name: 'Cyberpunk Edge',
+    primary: '#fcee0a',
+    secondary: '#00f0ff',
+    background: '#000000',
+    surface: '#0d0d0d',
+    text: '#ffffff',
+    textMuted: '#666666',
+    border: 'rgba(252, 238, 10, 0.3)',
+    brand: '#fcee0a',
+    brandGlow: 'rgba(252, 238, 10, 0.6)',
+    bgSecondary: '#050505',
+    bgTertiary: '#121212',
+    bgStyle: 'matrix',
+    success: '#00ffaa',
+    warning: '#fcee0a',
+    danger: '#ff003c',
+    info: '#00f0ff',
+    uiVariant: 'glass',
+  },
+  'rockstar-vintage': {
+    name: 'Rockstar Vintage',
+    primary: '#f5c518',
+    secondary: '#ffffff',
+    background: '#050505',
+    surface: '#111111',
+    text: '#ffffff',
+    textMuted: '#888888',
+    border: 'rgba(255, 255, 255, 0.1)',
+    brand: '#f5c518',
+    brandGlow: 'rgba(245, 197, 24, 0.4)',
+    bgSecondary: '#0a0a0a',
+    bgTertiary: '#1a1a1a',
+    bgStyle: 'spot',
+    success: '#4caf50',
+    warning: '#ff9800',
+    danger: '#f44336',
+    info: '#2196f3',
+    uiVariant: 'solid',
+  },
+  'galactic-void': {
+    name: 'Galactic Void',
+    primary: '#a855f7',
+    secondary: '#3b82f6',
+    background: '#030014',
+    surface: '#0f0035',
+    text: '#ffffff',
+    textMuted: '#a855f7',
+    border: 'rgba(168, 85, 247, 0.3)',
+    brand: '#a855f7',
+    brandGlow: 'rgba(168, 85, 247, 0.5)',
+    bgSecondary: '#050010',
+    bgTertiary: '#14002e',
+    bgStyle: 'nebula',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
+  },
+  'emerald-overdrive': {
+    name: 'Emerald Overdrive',
+    primary: '#10b981',
+    secondary: '#064e3b',
+    background: '#020d08',
+    surface: '#062014',
+    text: '#ffffff',
+    textMuted: '#10b981',
+    border: 'rgba(16, 185, 129, 0.3)',
+    brand: '#10b981',
+    brandGlow: 'rgba(16, 185, 129, 0.5)',
+    bgSecondary: '#020805',
+    bgTertiary: '#0a1f12',
+    bgStyle: 'matrix',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
+  },
+  'cyber-noir': {
+    name: 'Cyber Noir',
+    primary: '#06b6d4',
+    secondary: '#111827',
+    background: '#0a0a0a',
+    surface: '#171717',
+    text: '#ffffff',
+    textMuted: '#64748b',
+    border: 'rgba(6, 182, 212, 0.25)',
+    brand: '#06b6d4',
+    brandGlow: 'rgba(6, 182, 212, 0.4)',
+    bgSecondary: '#050505',
+    bgTertiary: '#1f2937',
+    bgStyle: 'grid',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#06b6d4',
+    uiVariant: 'glass',
+  },
+  'obsidian-gold': {
+    name: 'Obsidian Gold',
+    primary: '#d4af37',
+    secondary: '#000000',
+    background: '#050505',
+    surface: '#121212',
+    text: '#f3f4f6',
+    textMuted: '#9ca3af',
+    border: 'rgba(212, 175, 55, 0.3)',
+    brand: '#d4af37',
+    brandGlow: 'rgba(212, 175, 55, 0.5)',
+    bgSecondary: '#000000',
+    bgTertiary: '#1a1a1a',
+    bgStyle: 'aurora',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#3b82f6',
+    uiVariant: 'glass',
   },
 };
 
@@ -1330,10 +1697,30 @@ export interface ThemeMenuSection {
 
 const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
   {
+    id: 'luxe',
+    label: '✨ Premium Design',
+    keys: [
+      'aurora-veil',
+      'nocturne-slate',
+      'obsidian-rose',
+      'cyber-noir',
+      'obsidian-gold',
+      'cyber-ocean',
+      'blood-moon',
+      'midnight-sun',
+      'icy-phantom',
+      'onyx-premium',
+      'platinum-luxe',
+      'galactic-void',
+      'emerald-overdrive',
+    ],
+  },
+  {
     id: 'light',
     label: '☀️ Temas Claros',
     keys: [
       'pearl',
+      'sandstone-day',
       'sky-day',
       'rose-quartz',
       'sage',
@@ -1383,6 +1770,10 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
     id: 'gaming',
     label: 'Inspiración videojuegos',
     keys: [
+      'rayman-vibrant',
+      'nintendo-neon',
+      'cyberpunk-edge',
+      'rockstar-vintage',
       'assassin-creed',
       'rainbow_six',
       'zelda-legend',
@@ -1396,22 +1787,43 @@ const THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
   },
 ];
 
-function buildThemeMenuSections(): ThemeMenuSection[] {
+function buildThemeMenuSections(
+  base: readonly ThemeMenuSection[] = THEME_MENU_SECTIONS_BASE,
+  excludeFromOthers: readonly Theme[] = ['babooni'],
+): ThemeMenuSection[] {
   const used = new Set<Theme>();
-  const sections: ThemeMenuSection[] = THEME_MENU_SECTIONS_BASE.map((s) => {
+  const sections: ThemeMenuSection[] = base.map((s) => {
     for (const k of s.keys) {
       used.add(k);
     }
     return { id: s.id, label: s.label, keys: [...s.keys] };
   });
-  const missing = (Object.keys(THEMES) as Theme[]).filter((k) => !used.has(k));
+  const missing = (Object.keys(THEMES) as Theme[]).filter(
+    (k) => !used.has(k) && !excludeFromOthers.includes(k),
+  );
   if (missing.length > 0) {
     sections.push({ id: 'other', label: 'Otros', keys: missing });
   }
   return sections;
 }
 
-const THEME_MENU_SECTIONS = buildThemeMenuSections();
+/** Menú del selector cuando `data-erp-tenant="babooni"`: primero el kit oficial, luego variantes premium y el resto. */
+const BABOONI_THEME_MENU_SECTIONS_BASE: readonly ThemeMenuSection[] = [
+  {
+    id: 'babooni-official',
+    label: 'Babooni — tema principal',
+    keys: ['babooni'],
+  },
+  {
+    id: 'luxe',
+    label: '✨ Variantes premium (sobre el kit Babooni)',
+    keys: [...THEME_MENU_SECTIONS_BASE[0].keys],
+  },
+  ...THEME_MENU_SECTIONS_BASE.slice(1),
+];
+
+const THEME_MENU_SECTIONS = buildThemeMenuSections(THEME_MENU_SECTIONS_BASE, ['babooni']);
+const BABOONI_THEME_MENU_SECTIONS = buildThemeMenuSections(BABOONI_THEME_MENU_SECTIONS_BASE, []);
 
 const UI_VARIANT_KEYS = [
   'glass',
@@ -1433,30 +1845,69 @@ export class ThemeService {
   readonly currentTheme = signal<Theme>('light');
   readonly currentThemeData = computed(() => THEMES[this.currentTheme()]);
   readonly currentVariant = signal<string>('glass');
+  readonly currentDensity = signal<Density>('standard');
   readonly themes = THEMES;
-  readonly themeMenuSections = THEME_MENU_SECTIONS;
   private readonly isHighPerf = signal<boolean>(false);
+
+  /** Secciones del selector: en tenant Babooni, el kit oficial primero y premium como variantes del kit. */
+  get themeMenuSections(): ThemeMenuSection[] {
+    if (typeof document === 'undefined') {
+      return THEME_MENU_SECTIONS;
+    }
+    const tenant = document.documentElement
+      .getAttribute('data-erp-tenant')
+      ?.trim()
+      .toLowerCase();
+    return tenant === 'babooni' ? BABOONI_THEME_MENU_SECTIONS : THEME_MENU_SECTIONS;
+  }
 
   constructor() {
     const stored = this.getStoredTheme();
     const storedVariant = this.getStoredVariant();
-    const initialTheme = stored || 'light';
+    const tenant =
+      typeof document !== 'undefined'
+        ? document.documentElement
+            .getAttribute('data-erp-tenant')
+            ?.trim()
+            .toLowerCase() ?? ''
+        : '';
+    const initialTheme = stored || (tenant === 'babooni' ? 'babooni' : 'light');
     const initialVariant = storedVariant || THEMES[initialTheme].uiVariant || 'glass';
+    const initialDensity = this.getStoredDensity() || 'standard';
     
     this.currentTheme.set(initialTheme);
     this.currentVariant.set(initialVariant);
+    this.currentDensity.set(initialDensity);
+    
     this.applyTheme(initialTheme, initialVariant);
+    this.applyDensity(initialDensity);
 
     effect(() => {
       const theme = this.currentTheme();
       const variant = this.currentVariant();
+      
+      // Fast theme switch: disable transitions temporarily to avoid "seconds" of lag
+      const root = document.documentElement;
+      root.classList.add('theme-switching');
+      
       this.applyTheme(theme, variant);
       this.storeTheme(theme);
       this.storeVariant(variant);
+
+      // Restore transitions after styles have settled
+      setTimeout(() => {
+        root.classList.remove('theme-switching');
+      }, 50);
     });
 
     effect(() => {
       this.applyPerformanceMode(this.isHighPerf());
+    });
+
+    effect(() => {
+      const density = this.currentDensity();
+      this.applyDensity(density);
+      this.storeDensity(density);
     });
   }
 
@@ -1466,6 +1917,59 @@ export class ThemeService {
 
   setVariant(variant: 'glass' | 'solid' | 'flat' | 'neumorphic' | 'minimal') {
     this.currentVariant.set(variant);
+  }
+
+  setDensity(density: Density) {
+    this.currentDensity.set(density);
+  }
+
+  /**
+   * Vuelve a aplicar variables CSS (p. ej. tras cambiar `data-erp-tenant` en `<html>`).
+   */
+  reapplyTheme(): void {
+    this.applyTheme(this.currentTheme(), this.currentVariant());
+  }
+
+  /**
+   * Actualiza el color primario/marca de forma dinámica para todo el sistema.
+   * Útil para personalización de perfil o temas personalizados.
+   */
+  updatePrimaryColor(hex: string) {
+    const normalized = normalizeCssHexColor(hex);
+    if (!normalized) {
+      return;
+    }
+    const root = document.documentElement;
+    root.style.setProperty('--brand', normalized);
+    root.style.setProperty('--brand-rgb', hexToRgbTriplet(normalized));
+    root.style.setProperty('--primary', normalized);
+    root.style.setProperty('--primary-rgb', hexToRgbTriplet(normalized));
+    root.style.setProperty('--brand-glow', `rgba(${hexToRgbTriplet(normalized)}, 0.5)`);
+    root.style.setProperty('--brand-ambient', `rgba(${hexToRgbTriplet(normalized)}, 0.12)`);
+    root.style.setProperty(
+      '--brand-ambient-strong',
+      `rgba(${hexToRgbTriplet(normalized)}, 0.2)`,
+    );
+
+    // Si la variante es glass, actualizamos también el borde vibrante
+    if (this.currentVariant() === 'glass') {
+      root.style.setProperty('--border-vibrant', `rgba(${hexToRgbTriplet(normalized)}, 0.3)`);
+      root.style.setProperty('--card-border', `rgba(${hexToRgbTriplet(normalized)}, 0.3)`);
+      root.style.setProperty(
+        '--btn-shadow',
+        `0 4px 20px rgba(${hexToRgbTriplet(normalized)}, 0.3)`,
+      );
+    }
+
+    const themeKey = this.currentTheme();
+    const cfg = THEMES[themeKey];
+    const isLight = isLightBackgroundFromHex(cfg.background);
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(normalized));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(normalized, isLight));
+
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('custom_primary_color', normalized);
+    }
   }
 
   private applyTheme(theme: Theme, variant: string) {
@@ -1485,8 +1989,22 @@ export class ThemeService {
     root.style.setProperty('--theme-secondary', config.secondary);
     root.style.setProperty('--theme-background', config.background);
     root.style.setProperty('--theme-surface', config.surface);
+
+    const isLight = isLightBackgroundFromHex(config.background);
+    const mutedResolved = accessibleMutedColor(
+      config.textMuted,
+      config.text,
+      isLight,
+    );
+    const textRgb = parseHexColor(config.text);
+    const mutedRgb = parseHexColor(mutedResolved);
+    const secondaryResolved =
+      textRgb && mutedRgb
+        ? mixRgbHex(mutedRgb, textRgb, isLight ? 0.18 : 0.28)
+        : mutedResolved;
+
     root.style.setProperty('--theme-text', config.text);
-    root.style.setProperty('--theme-text-muted', config.textMuted);
+    root.style.setProperty('--theme-text-muted', mutedResolved);
     root.style.setProperty('--theme-border', config.border);
 
     // Cyber-Luxe tokens
@@ -1497,23 +2015,52 @@ export class ThemeService {
     root.style.setProperty('--bg-secondary', config.bgSecondary);
     root.style.setProperty('--bg-tertiary', config.bgTertiary);
     root.style.setProperty('--text-primary', config.text);
-    root.style.setProperty('--text-secondary', config.textMuted);
+    root.style.setProperty('--text-secondary', secondaryResolved);
+    root.style.setProperty('--text-muted', mutedResolved);
+    root.style.setProperty('--accent-muted', mutedResolved);
     root.style.setProperty('--border-soft', config.border);
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(config.brand));
+    root.style.setProperty('--ring-focus', ringFocusFromBrand(config.brand, isLight));
 
     root.style.setProperty('--surface', hexToRgba(config.surface, 0.78));
     const brandRgb = hexToRgbTriplet(config.brand);
+
     root.style.setProperty('--brand-ambient', `rgba(${brandRgb}, 0.12)`);
     root.style.setProperty('--brand-ambient-strong', `rgba(${brandRgb}, 0.2)`);
+    root.style.setProperty('--surface-opacity', isLight ? '0.94' : '0.78');
 
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-ui-variant', variant);
+    root.setAttribute('data-theme-is-light', isLight ? 'true' : 'false');
+    root.style.colorScheme = isLight ? 'light' : 'dark';
+    root.setAttribute('data-bg-style', config.bgStyle || 'aurora');
 
     // ── STRUCTURAL TOKENS ──────────────────────────────────────────────
     // Apply variant-specific tokens directly via inline style to bypass
     // Angular ViewEncapsulation (encapsulated component styles cannot see
     // CSS-rule-level html[data-ui-variant] overrides, but they CAN inherit
     // inline CSS variables from :root / documentElement).
-    this.applyStructuralTokens(root, variant, config);
+    this.applyStructuralTokens(root, variant, config, isLight);
+    this.applyBabooniBiosstelTenantSkinIfNeeded(root, variant, config, theme);
+
+    const surfaceResolved =
+      root.style.getPropertyValue('--theme-surface').trim() || config.surface;
+    root.style.setProperty('--theme-input-bg', surfaceResolved);
+  }
+
+  /**
+   * Tenant `babooni`: base neutra Biosstel (fondos, texto, bordes) + cromas del tema elegido.
+   * Así las variantes premium se distinguen (Aurora vs Blood Moon, etc.) sin perder el “kit” Babooni.
+   * Tema `babooni`: sin esta capa (el kit completo ya está en `THEMES.babooni`).
+   */
+  private applyBabooniBiosstelTenantSkinIfNeeded(
+    root: HTMLElement,
+    variant: string,
+    baseConfig: ThemeConfig,
+    themeKey: Theme,
+  ): void {
+    // Disabled so that Babooni fully applies theme colors instead of forcing light neutrals
+    return;
   }
 
   /**
@@ -1526,6 +2073,7 @@ export class ThemeService {
     root: HTMLElement,
     variant: string,
     config: ThemeConfig,
+    isLight = false,
   ): void {
     // Reset all structural tokens first
     const structuralTokens = [
@@ -1556,51 +2104,97 @@ export class ThemeService {
       '--btn-radius',
       '--btn-shadow',
       '--btn-border-width',
+      '--surface-glass',
+      '--surface-vibrant',
+      '--surface-rich',
+      '--surface-glow',
     ];
     structuralTokens.forEach((t) => root.style.removeProperty(t));
 
+    // Core surface used by .ui-glass
+    const surfaceAlpha = isLight ? 0.94 : 0.78;
+    const surfaceRgba = hexToRgba(config.surface, surfaceAlpha);
+    root.style.setProperty('--surface', surfaceRgba);
+    root.style.setProperty('--surface-glass', surfaceRgba);
+    
+    // Vibrant variant (hint of primary color)
+    const vibrancy = isLight ? '92%' : '86%';
+    const primaryMix = isLight ? '8%' : '14%';
+    root.style.setProperty('--surface-vibrant', `color-mix(in srgb, ${surfaceRgba} ${vibrancy}, ${config.primary} ${primaryMix})`);
+    
+    // Rich variant (more saturated)
+    root.style.setProperty('--surface-rich', `color-mix(in srgb, ${surfaceRgba} ${isLight ? '85%' : '75%'}, ${config.primary} ${isLight ? '15%' : '25%'})`);
+    
+    // Inner glow for depth
+    root.style.setProperty('--surface-glow', isLight 
+      ? 'rgba(255, 255, 255, 0.4)' 
+      : `color-mix(in srgb, ${config.primary} 10%, transparent)`);
+
     switch (variant) {
       case 'glass':
-        root.style.setProperty('--variant-blur', '28px');
-        root.style.setProperty('--radius-lg', '16px');
-        root.style.setProperty('--radius-md', '10px');
-        root.style.setProperty('--radius-xl', '24px');
+        root.style.setProperty('--variant-blur', isLight ? '16px' : '40px');
+        root.style.setProperty('--radius-lg', '24px');
+        root.style.setProperty('--radius-md', '14px');
+        root.style.setProperty('--radius-xl', '32px');
         root.style.setProperty(
           '--border-vibrant',
-          `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
+          isLight
+            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.4)`
+            : `rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
         );
         root.style.setProperty(
           '--shadow-inset-shine',
-          'inset 0 1px 0 rgba(255,255,255,0.08)',
+          isLight
+            ? 'inset 0 1px 0 rgba(255,255,255,0.9)'
+            : 'inset 0 1px 1px rgba(255,255,255,0.12)',
         );
-        root.style.setProperty('--shadow-md', '0 8px 32px rgba(0,0,0,0.4)');
+        root.style.setProperty(
+          '--shadow-md',
+          isLight
+            ? '0 10px 40px rgba(0,0,0,0.06)'
+            : '0 10px 40px rgba(0,0,0,0.45)',
+        );
         // Card
         root.style.setProperty(
           '--card-bg',
-          `color-mix(in srgb, ${config.surface} 70%, transparent)`,
+          `color-mix(in srgb, ${config.surface} ${isLight ? '92%' : '65%'}, transparent)`,
         );
         root.style.setProperty(
           '--card-border',
-          `rgba(${hexToRgbTriplet(config.brand)}, 0.2)`,
+          isLight
+            ? `rgba(${hexToRgbTriplet(config.brand)}, 0.35)`
+            : `rgba(${hexToRgbTriplet(config.brand)}, 0.25)`,
         );
-        root.style.setProperty('--card-shadow', '0 8px 32px rgba(0,0,0,0.4)');
+        root.style.setProperty(
+          '--card-shadow',
+          isLight
+            ? '0 12px 48px rgba(0,0,0,0.05)'
+            : '0 12px 48px rgba(0,0,0,0.5)',
+        );
         // Input
         root.style.setProperty(
           '--input-bg',
-          `color-mix(in srgb, ${config.surface} 50%, transparent)`,
+          isLight
+            ? `color-mix(in srgb, ${config.surface} 98%, transparent)`
+            : `color-mix(in srgb, ${config.surface} 50%, transparent)`,
         );
+        root.style.setProperty('--input-border', isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
         root.style.setProperty('--input-radius', '10px');
         // Modal
         root.style.setProperty('--modal-radius', '24px');
         root.style.setProperty(
           '--modal-bg',
-          `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`,
+          isLight
+            ? `color-mix(in srgb, ${config.bgSecondary} 95%, transparent)`
+            : `color-mix(in srgb, ${config.bgSecondary} 80%, transparent)`,
         );
         // Button
         root.style.setProperty('--btn-radius', '10px');
         root.style.setProperty(
           '--btn-shadow',
-          `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
+          isLight
+            ? `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.15)`
+            : `0 4px 20px rgba(${hexToRgbTriplet(config.brand)}, 0.3)`,
         );
         break;
 
@@ -1611,21 +2205,30 @@ export class ThemeService {
         root.style.setProperty('--radius-xl', '14px');
         root.style.setProperty('--border-vibrant', config.border);
         root.style.setProperty('--shadow-inset-shine', 'none');
-        root.style.setProperty('--shadow-md', '0 4px 12px rgba(0,0,0,0.25)');
+        root.style.setProperty(
+          '--shadow-md',
+          isLight ? '0 4px 12px rgba(0,0,0,0.06)' : '0 4px 12px rgba(0,0,0,0.25)',
+        );
         // Card
-        root.style.setProperty('--card-bg', config.bgSecondary);
+        root.style.setProperty('--card-bg', config.surface);
         root.style.setProperty('--card-border', config.border);
-        root.style.setProperty('--card-shadow', '0 2px 8px rgba(0,0,0,0.2)');
+        root.style.setProperty(
+          '--card-shadow',
+          isLight ? '0 2px 8px rgba(0,0,0,0.04)' : '0 2px 8px rgba(0,0,0,0.2)',
+        );
         // Input
-        root.style.setProperty('--input-bg', config.bgTertiary);
+        root.style.setProperty('--input-bg', config.bgSecondary);
+        root.style.setProperty('--input-border', config.border);
         root.style.setProperty('--input-radius', '6px');
         root.style.setProperty(
           '--input-shadow',
-          'inset 0 1px 3px rgba(0,0,0,0.2)',
+          isLight
+            ? 'inset 0 1px 2px rgba(0,0,0,0.05)'
+            : 'inset 0 1px 3px rgba(0,0,0,0.2)',
         );
         // Modal
         root.style.setProperty('--modal-radius', '10px');
-        root.style.setProperty('--modal-bg', config.bgSecondary);
+        root.style.setProperty('--modal-bg', config.surface);
         // Button
         root.style.setProperty('--btn-radius', '6px');
         root.style.setProperty('--btn-shadow', 'none');
@@ -1779,6 +2382,72 @@ export class ThemeService {
     if (typeof localStorage !== 'undefined') {
       const stored = localStorage.getItem('ui-variant');
       if (stored && isUiVariantKey(stored)) {
+        return stored;
+      }
+    }
+    return null;
+  }
+
+  private applyDensity(density: Density) {
+    const root = document.documentElement;
+    root.setAttribute('data-density', density);
+
+    switch (density) {
+      case 'compact':
+        root.style.setProperty('--feature-page-padding', '0.4rem');
+        root.style.setProperty('--feature-page-gap', '0.4rem');
+        root.style.setProperty('--card-padding', '0.65rem');
+        root.style.setProperty('--stat-card-padding', '0.6rem 0.8rem');
+        root.style.setProperty('--input-padding', '0.35rem 0.5rem');
+        root.style.setProperty('--btn-padding-sm', '0.35rem 0.65rem');
+        root.style.setProperty('--btn-padding-md', '0.5rem 0.8rem');
+        root.style.setProperty('--font-size-base', '11.2px');
+        root.style.setProperty('--grid-min-col-width', '220px');
+        root.style.setProperty('--stat-grid-min-width', '180px');
+        root.style.setProperty('--avatar-size', '28px');
+        root.style.setProperty('--icon-size-md', '14px');
+        break;
+      case 'spacious':
+        root.style.setProperty('--feature-page-padding', '3.5rem');
+        root.style.setProperty('--feature-page-gap', '3rem');
+        root.style.setProperty('--card-padding', '3rem');
+        root.style.setProperty('--stat-card-padding', '3rem 3.5rem');
+        root.style.setProperty('--input-padding', '1.4rem 1.6rem');
+        root.style.setProperty('--btn-padding-sm', '1.2rem 2.2rem');
+        root.style.setProperty('--btn-padding-md', '1.6rem 2.8rem');
+        root.style.setProperty('--font-size-base', '15px');
+        root.style.setProperty('--grid-min-col-width', '440px');
+        root.style.setProperty('--stat-grid-min-width', '320px');
+        root.style.setProperty('--avatar-size', '64px');
+        root.style.setProperty('--icon-size-md', '26px');
+        break;
+      default: // standard
+        root.style.setProperty('--feature-page-padding', '1.5rem');
+        root.style.setProperty('--feature-page-gap', '1.5rem');
+        root.style.setProperty('--card-padding', '1.5rem');
+        root.style.setProperty('--stat-card-padding', '1.5rem 2rem');
+        root.style.setProperty('--input-padding', '0.75rem 1rem');
+        root.style.setProperty('--btn-padding-sm', '0.75rem 1.5rem');
+        root.style.setProperty('--btn-padding-md', '1rem 2rem');
+        root.style.setProperty('--font-size-base', '13px');
+        root.style.setProperty('--grid-min-col-width', '360px');
+        root.style.setProperty('--stat-grid-min-width', '260px');
+        root.style.setProperty('--avatar-size', '44px');
+        root.style.setProperty('--icon-size-md', '20px');
+        break;
+    }
+  }
+
+  private storeDensity(density: Density) {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('ui-density', density);
+    }
+  }
+
+  private getStoredDensity(): Density | null {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem('ui-density') as Density;
+      if (['compact', 'standard', 'spacious'].includes(stored)) {
         return stored;
       }
     }

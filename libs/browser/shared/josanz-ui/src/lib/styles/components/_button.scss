@@ -1,0 +1,87 @@
+// ─── Josanz UI – Button Component Styles ───────────────────────────────────
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 0.8125rem;   // 13px
+  border-radius: var(--btn-radius, 0.75rem); // default rounded-xl
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  outline: none;
+
+  // ── Shapes ──────────────────────────────────────────────────────────────
+  &--shape-rounded { --btn-radius: 0.75rem; }
+  &--shape-pill    { --btn-radius: 9999px; }
+  &--shape-square  { --btn-radius: 0.25rem; }
+
+  // ── Sizes ──────────────────────────────────────────────────────────────
+  &--sm  { height: 2rem;   padding: 0 0.875rem; font-size: 0.75rem; }
+  &--md  { height: 2.75rem; padding: 0 1.25rem; }
+  &--lg  { height: 3.25rem; padding: 0 1.75rem; font-size: 0.9375rem; }
+  &--xl  { height: 3.5rem;  padding: 0 2rem;    font-size: 1rem; }
+  &--full { width: 100%; }
+
+  // ── Variants ────────────────────────────────────────────────────────────
+  &--primary {
+    background: var(--btn-color, var(--josanz-primary));
+    color: var(--josanz-on-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    &:hover  { filter: brightness(1.1); transform: translateY(-1px); }
+    &:active { transform: translateY(0); box-shadow: none; }
+  }
+
+  &--secondary {
+    background: var(--btn-color, var(--josanz-surface-muted));
+    color: var(--josanz-text);
+    border-color: var(--btn-border-color, transparent);
+    &:hover  { filter: brightness(0.95); }
+  }
+
+  &--outline {
+    background: transparent;
+    color: var(--btn-color, var(--josanz-primary));
+    border-color: var(--btn-color, var(--josanz-primary));
+    &:hover  { opacity: 0.7; }
+  }
+
+  &--ghost {
+    background: transparent;
+    color: var(--btn-color, var(--josanz-text-muted));
+    &:hover {
+      background: var(--josanz-surface-muted);
+      color: var(--josanz-text);
+    }
+  }
+
+  &--danger {
+    background: var(--btn-color, var(--josanz-danger));
+    color: var(--josanz-on-danger);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+    &:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      background: var(--btn-color, var(--josanz-danger-hover));
+    }
+    &:active {
+      transform: translateY(0);
+      box-shadow: none;
+      filter: brightness(0.95);
+    }
+  }
+
+  // ── States ──────────────────────────────────────────────────────────────
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    filter: none;
+  }
+}

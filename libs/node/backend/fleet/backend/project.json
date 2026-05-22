@@ -1,7 +1,7 @@
 {
   "name": "fleet-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/backend/src",
+  "sourceRoot": "libs/node/backend/fleet/backend/src",
   "projectType": "library",
   "implicitDependencies": ["shared-data-access"],
   "tags": ["scope:fleet", "type:backend"],
@@ -10,25 +10,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/fleet/backend",
-        "main": "libs/fleet/backend/src/index.ts",
-        "tsConfig": "libs/fleet/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/fleet/backend",
+        "main": "libs/node/backend/fleet/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/fleet/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/fleet/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/fleet/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/fleet/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/fleet/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/fleet/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/fleet/backend"]
     }
   }
 }

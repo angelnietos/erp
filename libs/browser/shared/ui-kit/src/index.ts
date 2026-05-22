@@ -27,6 +27,14 @@ export { UiLoaderComponent } from './lib/loader/loader.component';
 export { UiTableComponent } from './lib/table/table.component';
 
 export { UiSearchComponent } from './lib/search/search.component';
+export type { SearchVariant } from './lib/search/search.component';
+
+export { UiSearchToolbarComponent } from './lib/search-toolbar/search-toolbar.component';
+export type { SearchToolbarAppearance } from './lib/search-toolbar/search-toolbar.component';
+
+export { UiFeatureFilterBarComponent } from './lib/feature-filter-bar/feature-filter-bar.component';
+
+export { UiFeatureAccessDeniedComponent } from './lib/feature-access-denied/feature-access-denied.component';
 
 export { UiPaginationComponent } from './lib/pagination/pagination.component';
 
@@ -58,6 +66,18 @@ export { UIMascotComponent } from './lib/mascot/mascot.component';
 export { UIAIChatComponent } from './lib/ai-assistant/ai-assistant.component';
 export { DynamicCanvasComponent } from './lib/dynamic-canvas/dynamic-canvas.component';
 
+// Layout
+export { UiFeaturePageShellComponent } from './lib/layout/feature-page-shell/feature-page-shell.component';
+export type { UiFeaturePageShellVariant } from './lib/layout/feature-page-shell/feature-page-shell.component';
+export { UiFeatureHeaderComponent } from './lib/layout/feature-header/feature-header.component';
+export type { UiFeatureHeaderLayout } from './lib/layout/feature-header/feature-header.component';
+export { UiFeatureStatsComponent } from './lib/layout/feature-stats/feature-stats.component';
+export { UiFeatureGridComponent } from './lib/layout/feature-grid/feature-grid.component';
+export { UiFeatureCardComponent } from './lib/layout/feature-card/feature-card.component';
+
 // Pipes
 export { SelectMapperPipe } from './lib/pipes/select-mapper.pipe';
+
+// Directives
+export { HasPermissionDirective } from './lib/directives/has-permission.directive';
 

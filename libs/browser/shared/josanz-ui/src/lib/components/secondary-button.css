@@ -1,0 +1,10 @@
+:host button:hover {
+  border-color: var(--josanz-button-secondary-border) !important;
+  box-shadow:
+    0 2px 8px 0 rgba(231, 237, 241, 0.9),
+    0 0 0 1px var(--josanz-focus-ring);
+}
+
+:host button:hover svg {
+  color: var(--josanz-button-secondary-text);
+}

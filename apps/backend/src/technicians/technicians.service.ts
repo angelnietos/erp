@@ -1,19 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import type {
+  SetAvailabilityBodyDto,
+  BulkAvailabilityBodyDto,
+} from './technicians.dto';
 
-export interface SetAvailabilityDto {
-  date: string;   // ISO date string yyyy-MM-dd
-  type: string;   // AVAILABLE | UNAVAILABLE | HOLIDAY | SICK_LEAVE
-  notes?: string;
-}
-
-export interface BulkAvailabilityDto {
-  slots: Array<{ date: string; type: string; notes?: string }>;
-}
+export type SetAvailabilityDto = SetAvailabilityBodyDto;
+export type BulkAvailabilityDto = BulkAvailabilityBodyDto;
 
 @Injectable()
 export class TechniciansService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /** Ficha de técnico vinculada al usuario (mismo `userId` en el tenant). */
+  async findByUserId(tenantId: string, userId: string) {
+    return this.prisma.technician.findFirst({
+      where: { tenantId, userId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
 
   /** Devuelve todos los técnicos del tenant */
   async findAll(tenantId: string) {
@@ -86,14 +100,16 @@ export class TechniciansService {
     }
 
     const dayStart = new Date(dto.date + 'T00:00:00.000Z');
-    const dayEnd = new Date(dto.date + 'T23:59:59.999Z');
+    const dayEnd = new Date(dto.date + 'T23:59:59.999Z'); // fin del día para `endDate` al crear
+    const dayNextUtc = new Date(dayStart);
+    dayNextUtc.setUTCDate(dayNextUtc.getUTCDate() + 1);
 
-    // Busca si ya existe registro para ese día
+    // Registro del mismo día civil (UTC), tolerando milisegundos en BD
     const existing = await this.prisma.technicianAvailability.findFirst({
       where: {
         technicianId: resolvedId,
         tenantId,
-        startDate: { gte: dayStart, lte: dayEnd },
+        startDate: { gte: dayStart, lt: dayNextUtc },
       },
     });
 

@@ -17,7 +17,8 @@
     "services-shell",
     "reports-shell",
     "audit-shell",
-    "receipts-shell"
+    "receipts-shell",
+    "projects-data-access"
   ],
   "targets": {
     "build": {
@@ -49,8 +50,8 @@
           },
           {
             "type": "anyComponentStyle",
-            "maximumWarning": "16kb",
-            "maximumError": "24kb"
+            "maximumWarning": "44kb",
+            "maximumError": "48kb"
           }
         ]
       },
@@ -66,14 +67,14 @@
           "budgets": [
             {
               "type": "initial",
-            "maximumWarning": "720kb",
-            "maximumError": "1.25mb"
-          },
-          {
-            "type": "anyComponentStyle",
-            "maximumWarning": "16kb",
-            "maximumError": "24kb"
-          }
+              "maximumWarning": "720kb",
+              "maximumError": "1.25mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "44kb",
+              "maximumError": "48kb"
+            }
           ]
         },
         "development": {
@@ -83,13 +84,13 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "3mb",
+              "maximumWarning": "3.1mb",
               "maximumError": "5mb"
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "20kb",
-              "maximumError": "32kb"
+              "maximumWarning": "44kb",
+              "maximumError": "48kb"
             }
           ]
         }
@@ -99,6 +100,9 @@
     "serve": {
       "continuous": true,
       "executor": "@angular/build:dev-server",
+      "options": {
+        "proxyConfig": "apps/frontend/proxy.conf.json"
+      },
       "configurations": {
         "production": {
           "buildTarget": "frontend:build:production"

@@ -1,0 +1,119 @@
+<div class="josanz-home">
+  <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div>
+      <h1 class="josanz-home__title">Inicio</h1>
+      <p class="josanz-home__greeting mt-2">Hola/Bienvenid&#64; Usuari&#64;</p>
+    </div>
+    <div class="flex items-center gap-2 text-[13px] font-semibold" style="color: var(--josanz-text-muted)">
+      <span>Usuari&#64;</span>
+      <span
+        class="flex h-9 w-9 items-center justify-center rounded-full border border-solid"
+        style="background: var(--josanz-avatar-wash, #deedff); border-color: var(--josanz-border)"
+        aria-hidden="true"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <circle cx="12" cy="8" r="4" />
+          <path d="M5 20a7 7 0 0 1 14 0" />
+        </svg>
+      </span>
+    </div>
+  </header>
+
+  <div class="josanz-home__toolbar">
+    <josanz-filter-tabs
+      [options]="viewOptions"
+      [selected]="viewMode"
+      variant="brand"
+      (selectionChange)="onViewChange($event)"
+    ></josanz-filter-tabs>
+
+    <span class="hidden h-6 w-px sm:inline-block" style="background: var(--josanz-border)" aria-hidden="true"></span>
+
+    <div class="josanz-home__period-group" role="group" aria-label="Rango temporal">
+      @for (p of periodOptions; track p) {
+        <button
+          type="button"
+          class="josanz-home__period-btn"
+          [class.josanz-home__period-btn--active]="isPeriodActive(p)"
+          (click)="onPeriodChange(p)"
+        >
+          {{ p }}
+        </button>
+      }
+    </div>
+
+    <span class="josanz-home__toolbar-spacer"></span>
+
+    <span class="josanz-home__date-field">De Día/Mes/Año</span>
+    <span class="josanz-home__date-field">A Día/Mes/Año</span>
+
+    <button type="button" class="josanz-home__launch-btn">
+      Lanzar
+      <span aria-hidden="true">+</span>
+    </button>
+  </div>
+
+  <section class="josanz-home__kpi-row" aria-label="Resumen">
+    <article class="josanz-home__kpi-card">
+      <p class="josanz-home__kpi-card__label">Dato</p>
+    </article>
+    <article class="josanz-home__kpi-card">
+      <p class="josanz-home__kpi-card__label">Dato</p>
+    </article>
+    <article class="josanz-home__kpi-card josanz-home__kpi-card--wide">
+      <p class="josanz-home__kpi-card__label">Dato</p>
+      <p class="josanz-home__kpi-card__value">0</p>
+    </article>
+    <article class="josanz-home__kpi-card josanz-home__kpi-card--hero">
+      <p class="josanz-home__kpi-card__label">Dato</p>
+      <p class="josanz-home__kpi-card__empty">Aún no cuentas con…</p>
+    </article>
+  </section>
+
+  <section class="josanz-home__schedule" aria-label="Planificación semanal">
+    <div class="overflow-x-auto">
+      <div class="josanz-home__schedule-grid">
+        <div class="josanz-home__schedule-head josanz-home__schedule-head--corner"></div>
+        @for (tech of technicians; track tech.id) {
+          <div class="josanz-home__schedule-head">
+            <div class="josanz-home__tech-avatar" [attr.title]="tech.initials">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M5 20a7 7 0 0 1 14 0" />
+              </svg>
+            </div>
+          </div>
+        }
+
+        @for (day of days; track day) {
+          <div class="josanz-home__schedule-cell josanz-home__schedule-cell--day">
+            <span class="josanz-home__day-label">{{ day }}</span>
+          </div>
+          @for (tech of technicians; track tech.id) {
+            @let cell = cellFor(day, tech.id);
+            <div class="josanz-home__schedule-cell">
+              @if (cell?.event; as event) {
+                <a routerLink="/events/1" class="josanz-home__event-card block no-underline">
+                  <p class="josanz-home__event-card__title">{{ event.title }}</p>
+                  <div class="josanz-home__event-card__tags">
+                    @for (tag of event.tags; track tag.label) {
+                      <span
+                        class="josanz-home__event-card__tag"
+                        [style.backgroundColor]="tag.bg"
+                        [style.color]="tag.text"
+                      >
+                        {{ tag.label }}
+                      </span>
+                    }
+                  </div>
+                  <p class="josanz-home__event-card__client">{{ event.client }}</p>
+                  <p class="josanz-home__event-card__desc">{{ event.description }}</p>
+                </a>
+              }
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </section>
+</div>

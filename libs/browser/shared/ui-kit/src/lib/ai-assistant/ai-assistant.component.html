@@ -1,9 +1,10 @@
+@if (bot() && bot()!.status === 'active') {
 <div
   class="ai-assistant-wrapper"
   [class]="'feature-' + feature"
   [class.is-open]="isOpen()"
-  [class.secondary]="feature === 'buddy'"
-  *ngIf="bot() && bot()!.status === 'active'"
+  [class.secondary]="assistantRole === 'domain'"
+  [attr.data-assistant-role]="assistantRole"
 >
   <!-- Floating Mascot Bubble -->
   <div
@@ -11,34 +12,43 @@
     [class.open]="isOpen()"
     cdkDrag
     cdkDragBoundary="body"
-    [style.transform]="
-      'translate3d(' + botPosition().x + 'px, ' + botPosition().y + 'px, 0)'
-    "
+    [cdkDragFreeDragPosition]="{ x: 0, y: 0 }"
+    [style.left.px]="botPosition().x"
+    [style.top.px]="botPosition().y"
+    role="button"
+    tabindex="0"
     (click)="toggleChat()"
+    (keydown.enter)="toggleChat()"
+    (keydown.space)="$event.preventDefault(); toggleChat()"
     (cdkDragEnded)="onMascotDragEnd($event)"
   >
-    <ui-josanz-mascot
-      [type]="$any(bot()!.mascotType)"
+    <ui-mascot
+      [type]="bot()!.mascotType"
       [color]="bot()!.color"
-      [personality]="$any(bot()!.personality)"
-      [bodyShape]="$any(bot()!.bodyShape)"
-      [eyesType]="$any(bot()!.eyesType)"
-      [mouthType]="$any(bot()!.mouthType)"
+      [secondaryColor]="bot()!.secondaryColor"
+      [personality]="bot()!.personality"
+      [bodyShape]="bot()!.bodyShape"
+      [eyesType]="bot()!.eyesType"
+      [mouthType]="mascotMouthToUi(bot()!.mouthType)"
       [rageMode]="aiBotStore.rageMode()"
       [rageStyle]="aiBotStore.rageStyle()"
-    ></ui-josanz-mascot>
+    ></ui-mascot>
     <div class="notification-dot animate-pulse"></div>
   </div>
 
   <!-- Chat Window -->
+  @if (isOpen()) {
   <div
     class="chat-window-container"
-    *ngIf="isOpen()"
     cdkDrag
     cdkDragBoundary="body"
     [style.left.px]="chatWindowPosition().x"
     [style.top.px]="chatWindowPosition().y"
+    tabindex="-1"
+    role="dialog"
+    [attr.aria-label]="'Chat con ' + bot()!.name"
     (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
     (cdkDragEnded)="onChatWindowDragEnd($event)"
   >
     <div class="chat-window animate-slide-up">
@@ -52,6 +62,7 @@
             name="grip-vertical"
             size="14"
             class="drag-handle-icon"
+            aria-hidden="true"
           ></lucide-icon>
           <span
             class="status-indicator"
@@ -59,7 +70,13 @@
           ></span>
           <div>
             <h4>{{ bot()!.name }}</h4>
-            <p>Tu asistente de {{ bot()!.feature }}</p>
+            <p>
+              @if (assistantRole === 'buddy') {
+                Contexto: <strong>{{ domainFeature() }}</strong> · orquestador
+              } @else {
+                Tu asistente de {{ bot()!.feature }}
+              }
+            </p>
           </div>
         </div>
         <div class="window-actions">
@@ -82,21 +99,26 @@
       <div class="chat-messages">
         <div class="message bot-msg">
           <p>
-            ¡Hola! Soy {{ bot()!.name }}. Estoy analizando tus datos de **{{
-              bot()!.feature
-            }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+            ¡Hola! Soy {{ bot()!.name }}.
+            @if (assistantRole === 'buddy') {
+              Estoy contigo en el módulo **{{ domainFeature() }}** del ERP. ¿En qué puedo ayudarte?
+            } @else {
+              Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?
+            }
           </p>
           <div class="bot-skills-badges">
-            <span
-              *ngFor="let skill of bot()!.activeSkills; trackBy: trackBySkill"
-              class="skill-badge"
-              [style.background]="bot()!.color + '22'"
-              [style.color]="bot()!.color"
-            >
-              {{ skill }}
-            </span>
+            @for (skill of bot()!.activeSkills; track skill) {
+              <span
+                class="skill-badge"
+                [style.background]="bot()!.color + '22'"
+                [style.color]="bot()!.color"
+              >
+                {{ skill }}
+              </span>
+            }
           </div>
-          <div class="commands-help" *ngIf="bot()!.feature === 'buddy'">
+          @if (assistantRole === 'buddy') {
+          <div class="commands-help">
             <p><strong>Comandos disponibles:</strong></p>
             <ul>
               <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>
@@ -111,18 +133,19 @@
               <li><code>cambiar tema</code> - Cambiar apariencia</li>
             </ul>
           </div>
+          }
         </div>
 
+        @for (msg of messages(); track msg.id) {
         <div
-          *ngFor="let msg of messages(); trackBy: trackByMsg"
           class="message"
           [class.user-msg]="msg.role === 'user'"
           [class.bot-msg]="msg.role === 'bot'"
         >
           <!-- Reasoning Block -->
+          @if (msg.reasoning) {
           <div
             class="msg-reasoning"
-            *ngIf="msg.reasoning"
             [style.border-left-color]="bot()!.color"
           >
             <div class="reasoning-header">
@@ -131,29 +154,29 @@
             </div>
             <p class="reasoning-text">{{ msg.reasoning }}</p>
           </div>
+          }
 
           <!-- Main Content -->
+          @if (msg.text) {
           <p
             class="msg-content"
-            *ngIf="msg.text"
             [innerHTML]="msg.text"
           ></p>
+          }
 
           <!-- Typing Indicator -->
-          <div
-            class="typing-indicator"
-            *ngIf="!msg.text && msg.id.toString().startsWith('typing')"
-          >
+          @if (!msg.text && msg.id.toString().startsWith('typing')) {
+          <div class="typing-indicator">
             <span class="dot"></span>
             <span class="dot"></span>
             <span class="dot"></span>
           </div>
+          }
 
-          <div
-            class="msg-feedback"
-            *ngIf="msg.role === 'bot' && msg.id !== 'err' && msg.text"
-          >
-            <div class="feedback-actions" *ngIf="!msg.feedbackSubmitted">
+          @if (msg.role === 'bot' && msg.id !== 'err' && msg.text) {
+          <div class="msg-feedback">
+            @if (!msg.feedbackSubmitted) {
+            <div class="feedback-actions">
               <button
                 class="feedback-btn"
                 (click)="submitFeedback(msg, 'positive')"
@@ -169,15 +192,17 @@
                 👎
               </button>
             </div>
-            <div
-              class="feedback-submitted text-friendly"
-              *ngIf="msg.feedbackSubmitted"
-            >
+            }
+            @if (msg.feedbackSubmitted) {
+            <div class="feedback-submitted text-friendly">
               <lucide-icon name="check" size="12"></lucide-icon> Guardado en
               Memoria
             </div>
+            }
           </div>
+          }
         </div>
+        }
       </div>
 
       <!-- Input Area -->
@@ -199,15 +224,17 @@
           (keyup.enter)="sendMessage()"
           placeholder="Escribe un mensaje..."
         />
-        <ui-josanz-button
+        <ui-button
           variant="ghost"
           size="sm"
           icon="send"
           (clicked)="sendMessage()"
           [disabled]="!currentInput.trim()"
         >
-        </ui-josanz-button>
+        </ui-button>
       </div>
     </div>
   </div>
+  }
 </div>
+}

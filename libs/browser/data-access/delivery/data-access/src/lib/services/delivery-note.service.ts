@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface DeliveryNote {
   id: string;
@@ -37,8 +38,10 @@ export class DeliveryNoteService {
     return this.http.get<DeliveryNote[]>(this.apiUrl);
   }
 
-  getDeliveryNote(id: string): Observable<DeliveryNote> {
-    return this.http.get<DeliveryNote>(`${this.apiUrl}/${id}`);
+  getDeliveryNote(id: string): Observable<DeliveryNote | undefined> {
+    return this.http
+      .get<DeliveryNote>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<DeliveryNote>());
   }
 
   createDeliveryNote(deliveryNote: Omit<DeliveryNote, 'id'>): Observable<DeliveryNote> {

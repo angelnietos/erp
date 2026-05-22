@@ -1,0 +1,126 @@
+/* Premium styles for UI Kit components — Nintendo Switch, Ubisoft & Rockstar inspiration */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;700;900&family=Outfit:wght@400;500;600;700;800&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&family=Press+Start+2P&family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  /* Professional Light Theme */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+
+  --brand: #e60012;
+  --brand-muted: #ffccd0;
+  --brand-glow: rgba(230, 0, 18, 0.1);
+  --brand-surface: rgba(230, 0, 18, 0.05);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --surface: #ffffff;
+  --surface-hover: #f8fafc;
+  --surface-glass: rgba(255, 255, 255, 0.9);
+  --border-soft: #e2e8f0;
+  --border-vibrant: #cbd5e1;
+  --ring-focus: var(--brand);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.06);
+
+  --font-main: 'Inter', system-ui, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-gaming: 'Orbitron', sans-serif;
+
+  --transition-base: 250ms ease;
+  --transition-spring: 400ms cubic-bezier(0.3, 1.2, 0.4, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  font-size: 14px;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-main);
+  line-height: 1.5;
+  position: relative;
+}
+
+/* Background Styles — Clean & Professional */
+html body {
+  background-image: none;
+  background-color: var(--bg-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.display-xl {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* Professional Glass Container */
+.ui-glass {
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.ui-glass:hover {
+  border-color: var(--border-vibrant);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+/**
+ * Babooni LUXE Overrides — Seamless integration
+ */
+html[data-erp-tenant='babooni'] {
+  --brand: #000000;
+}
+
+html[data-erp-tenant='babooni'] .display-xl {
+  font-weight: 900;
+  letter-spacing: -0.05em;
+}

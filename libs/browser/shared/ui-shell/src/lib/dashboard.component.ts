@@ -4,9 +4,15 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import { finalize } from 'rxjs';
-import { 
-  UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiStatCardComponent, UiResourceMonitorComponent, ResourceItem 
+import {
+  UiCardComponent,
+  UiButtonComponent,
+  UiBadgeComponent,
+  UiStatCardComponent,
+  UiResourceMonitorComponent,
+  ResourceItem,
+  UiFeatureStatsComponent,
+  UiFeatureHeaderComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
@@ -16,74 +22,72 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   imports: [
     CommonModule, RouterModule, LucideAngularModule, 
     UiCardComponent, UiButtonComponent, UiBadgeComponent,
-    UiStatCardComponent, UiResourceMonitorComponent
+    UiStatCardComponent,
+    UiResourceMonitorComponent,
+    UiFeatureStatsComponent,
+    UiFeatureHeaderComponent,
   ],
   template: `
     <div class="dashboard-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Centro de Mando / Operaciones
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">VISIÓN GLOBAL</span>
-            <span class="separator">/</span>
-            <span>MÉTRICAS EN TIEMPO REAL</span>
-          </div>
-        </div>
-        <div class="header-actions">
-           <ui-josanz-button
+      <ui-feature-header
+        title="Centro de Mando / Operaciones"
+        breadcrumbLead="VISIÓN GLOBAL"
+        breadcrumbTail="MÉTRICAS EN TIEMPO REAL"
+      >
+        <div actions class="dashboard-top-actions">
+          <ui-button
             variant="glass"
             size="md"
             icon="refresh-cw"
             [loading]="isSyncing()"
             (clicked)="syncDashboard()"
-          >SINCRONIZAR</ui-josanz-button>
-          <ui-josanz-button variant="primary" size="md" icon="plus" (clicked)="goNewRental()">
+            >SINCRONIZAR</ui-button
+          >
+          <ui-button variant="primary" size="md" icon="plus" (clicked)="goNewRental()">
             EXPEDIENTE RNT
-          </ui-josanz-button>
+          </ui-button>
         </div>
-      </header>
+      </ui-feature-header>
 
-      <div class="stats-grid">
-        <ui-josanz-stat-card 
+      <ui-feature-stats>
+        <ui-stat-card 
           label="Facturación Mensual" 
           value="€42,850.00" 
           icon="trending-up" 
           [trend]="12.5" 
           [accent]="true">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Alquileres Activos" 
           value="24" 
           icon="key" 
           [trend]="8">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Presupuestos Pendientes" 
           value="15" 
           icon="alert-circle" 
           [trend]="-2">
-        </ui-josanz-stat-card>
+        </ui-stat-card>
 
-        <ui-josanz-stat-card 
+        <ui-stat-card 
           label="Disponibilidad Flota" 
           value="92%" 
           icon="truck">
-        </ui-josanz-stat-card>
-      </div>
+        </ui-stat-card>
+      </ui-feature-stats>
 
       <div class="main-content-grid">
-        <ui-josanz-card 
+        <ui-card 
           variant="glass" 
           title="Registro de Actividad" 
           class="recent-card"
           [class.neon-glow]="!pluginStore.highPerformanceMode()">
           
           <div slot="header-actions">
-            <ui-josanz-button variant="ghost" size="sm" [style.color]="currentTheme().primary">VER HISTORIAL</ui-josanz-button>
+            <ui-button variant="ghost" size="sm" [style.color]="currentTheme().primary">VER HISTORIAL</ui-button>
           </div>
           
           <div class="activity-list">
@@ -94,19 +98,19 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
                   <span class="activity-user" [style.color]="currentTheme().primary">{{ act.user }}</span>
                   <span class="activity-msg">{{ act.msg }}</span>
                 </div>
-                <ui-josanz-badge [variant]="act.type === 'billing' ? 'success' : 'info'">{{ act.type | uppercase }}</ui-josanz-badge>
+                <ui-badge [variant]="act.type === 'billing' ? 'success' : 'info'">{{ act.type | uppercase }}</ui-badge>
               </div>
             }
           </div>
-        </ui-josanz-card>
+        </ui-card>
 
         <div class="sidebar-grid">
-          <ui-josanz-resource-monitor 
+          <ui-resource-monitor 
             title="Sistemas de Captación" 
             [items]="resourceItems">
-          </ui-josanz-resource-monitor>
+          </ui-resource-monitor>
 
-          <ui-josanz-card variant="glass" title="Rendimiento Global" [class.neon-glow]="!pluginStore.highPerformanceMode()">
+          <ui-card variant="glass" title="Rendimiento Global" [class.neon-glow]="!pluginStore.highPerformanceMode()">
             <div class="performance-summary">
               <div class="perf-stat">
                 <span class="p-lbl text-uppercase">UPTIME GARANTIZADO</span>
@@ -118,33 +122,23 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
               </div>
             </div>
             <div class="perf-footer" [style.color]="currentTheme().primary">
-              <lucide-icon name="shield-check" size="14" class="mr-2"></lucide-icon>
+              <lucide-icon name="shield-check" size="14" class="mr-2" aria-hidden="true"></lucide-icon>
               CONEXIÓN SEGURA ACTIVA
             </div>
-          </ui-josanz-card>
+          </ui-card>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .dashboard-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+    .dashboard-container { padding: 0.5rem 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .dashboard-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
     }
-    
-    .glow-text { 
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.05em; font-family: var(--font-main);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
-    }
-    
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
 
     .main-content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; min-height: 400px; }
     .sidebar-grid { display: flex; flex-direction: column; gap: 1.5rem; }

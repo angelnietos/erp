@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Guia del sistema" />
+
+# Josanz UI
+
+Libreria visual para el ERP Josanz. Las stories estan pensadas como documentacion viva: cada componente debe mostrar su API, estados importantes, variantes de tema y ejemplos de composicion.
+
+## Como usar esta documentacion
+
+- Usa la toolbar **Atmosfera** para probar las paletas reales de `JosanzThemeService`.
+- Usa la toolbar **Marca** para cambiar el color primario global.
+- Usa la toolbar **Shape** para probar `rounded`, `pill` y `square` en componentes que heredan `defaultShape`.
+- Usa la toolbar **Theme** para alternar claro/oscuro.
+- En cada story, el panel **Controls** permite cambiar inputs sin tocar codigo.
+- El panel **Actions** registra eventos `@Output` como clicks, cambios de filtro, paginacion o subida de documentos.
+
+## Convenciones
+
+- `shape`: `rounded`, `pill` o `square`. Comparte lenguaje visual entre botones, inputs, tabs, paginacion y modales.
+- `customColor`: color de marca local. Los componentes calculan contraste cuando el fondo es solido.
+- `Marca` global: si una story no pasa `customColor`, usa el color de marca de la toolbar.
+- `Shape` global: si una story no pasa `shape`, usa `JosanzThemeService.currentTheme().defaultShape`.
+- Tokens CSS: los componentes deben preferir `--josanz-*` sobre colores hardcodeados.
+- Composicion: layouts como `main-list-layout` y `main-detail-layout` documentan como montar pantallas completas.
+
+## Checklist al anadir un componente
+
+- Story `Playground` con todos los inputs relevantes.
+- Story de estados: vacio, cargado, error, disabled o variantes.
+- Story de composicion si el componente se usa dentro de un layout.
+- Descripcion de props y outputs en `argTypes`.
+- Verificacion visual en atmosferas clara, oscura y neutral.

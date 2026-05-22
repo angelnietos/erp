@@ -1,22 +1,25 @@
-import { Component, Input, ContentChild, TemplateRef } from '@angular/core';
+import { Component, Input, ContentChild, TemplateRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export type TableVariant = 'default' | 'striped' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-table',
+  selector: 'ui-table',
   standalone: true,
   imports: [CommonModule, ScrollingModule],
   template: `
     <div
-      class="table-container"
-      [class]="'table-' + variant"
+      [ngClass]="['table-container', 'table-' + variant]"
       [class.table-virtual-active]="useVirtual"
+      [style.--row-height]="actualRowHeight + 'px'"
+      [style.--cell-padding]="cellPadding"
     >
       @if (useVirtual && data.length === 0) {
         <div class="empty-state standalone">
-          <span class="text-uppercase">No hay registros</span>
+          <span class="empty-title">Sin registros</span>
+          <span class="empty-hint">Prueba a ajustar filtros o crear un elemento nuevo.</span>
         </div>
       } @else if (useVirtual) {
         <div class="virt-head" [style.gridTemplateColumns]="gridTemplate">
@@ -81,7 +84,8 @@ export type TableVariant = 'default' | 'striped' | 'glass';
               <tr>
                 <td [attr.colspan]="columns.length" class="empty-cell">
                   <div class="empty-state">
-                    <span class="text-uppercase">No hay registros</span>
+                    <span class="empty-title">Sin registros</span>
+                    <span class="empty-hint">Prueba a cambiar filtros o crear uno nuevo.</span>
                   </div>
                 </td>
               </tr>
@@ -99,10 +103,11 @@ export type TableVariant = 'default' | 'striped' | 'glass';
       .table-container {
         width: 100%;
         overflow-x: auto;
-        border-radius: var(--radius-lg);
-        background: var(--surface, var(--bg-secondary));
+        border-radius: var(--radius-xl);
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(35px);
         border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-sm), var(--shadow-inset-shine);
+        box-shadow: var(--shadow-xl);
         position: relative;
       }
 
@@ -111,153 +116,105 @@ export type TableVariant = 'default' | 'striped' | 'glass';
         border-collapse: separate;
         border-spacing: 0;
         text-align: left;
-        min-width: 1200px; /* Prevent squashing - ensuring horizontal scroll */
+        min-width: 1000px;
       }
 
       thead {
         position: sticky;
         top: 0;
         z-index: 10;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.03) 0%,
-          rgba(255, 255, 255, 0.01) 100%
-        );
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
       }
 
       th {
-        padding: 0.6rem;
-        font-size: 0.52rem;
+        padding: 1.25rem var(--cell-padding);
+        font-size: 0.75rem;
         font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--text-muted);
-        border-bottom: 1px solid var(--border-soft);
-        font-family: var(--font-display);
-        background: color-mix(in srgb, var(--surface) 80%, var(--brand) 3%);
+        letter-spacing: 0.15em;
+        color: #fff;
+        border-bottom: 1px solid var(--brand);
+        font-family: var(--font-main);
+        background: rgba(10, 15, 25, 0.95);
+        backdrop-filter: blur(20px);
         user-select: none;
-        line-height: 1.2;
+        transition: background 0.3s ease;
       }
 
       td {
-        padding: 0.6rem;
-        font-size: 0.72rem;
+        padding: var(--cell-padding);
+        font-size: 0.9rem;
         color: var(--text-primary);
         border-bottom: 1px solid var(--border-soft);
-        transition: var(--transition-fast);
-        vertical-align: top;
-        font-weight: 500;
-        line-height: 1.4;
+        transition: all 0.4s var(--transition-spring);
+        vertical-align: middle;
+        font-weight: 600;
+        height: var(--row-height);
       }
 
       .table-row {
-        transition: var(--transition-base);
+        transition: all 0.5s var(--transition-spring);
         position: relative;
         background: transparent;
       }
 
-      .table-row:hover td,
-      .virt-row.table-row:hover .virt-td {
-        background: color-mix(in srgb, var(--brand) 4%, transparent);
-        color: var(--text-primary);
+      .table-row:hover td {
+        background: rgba(var(--brand-rgb), 0.08);
+        color: #fff;
       }
 
-      .table-row:hover td:first-child,
-      .virt-row.table-row:hover .virt-td:first-child {
-        box-shadow: inset 3px 0 0 var(--brand);
-      }
-
-      .table-row {
-        transition: background 0.18s ease;
+      .table-row:hover td:first-child {
+        box-shadow: inset 4px 0 0 var(--brand);
       }
 
       .table-row:last-child td {
         border-bottom: none;
       }
 
-      .virt-head {
-        display: grid;
-        align-items: center;
-        min-height: 40px;
-        background: var(--bg-tertiary);
-        border-bottom: 1px solid var(--border-vibrant);
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        min-width: 1200px;
-      }
-
-      .virt-th {
-        padding: 1rem 1.25rem;
-        font-size: 0.6rem;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-secondary);
-        font-family: var(--font-display);
-        white-space: nowrap;
-      }
-
-      .virt-viewport {
-        width: 100%;
-        border: none;
-      }
-
-      .virt-row {
-        display: grid;
-        align-items: stretch;
-        min-height: 48px;
-        border-bottom: 1px solid var(--border-soft);
-        transition: var(--transition-base);
-        min-width: 1200px;
-      }
-
-      .virt-td {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem 1.25rem;
-        font-size: 0.85rem;
-        color: var(--text-primary);
-        min-width: 0;
-      }
-
-      .table-striped tbody tr:nth-child(even) td {
-        background: rgba(255, 255, 255, 0.015);
-      }
-
       .table-glass {
-        background: var(--surface);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid var(--border-vibrant);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(40px) saturate(2);
+        border-color: rgba(255, 255, 255, 0.1);
       }
 
-      .empty-cell {
-        padding: 0;
-      }
       .empty-state {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.75rem;
-        padding: 4rem 2rem;
+        gap: 1rem;
+        padding: 6rem 2rem;
         color: var(--text-muted);
       }
 
-      .empty-state span {
-        font-size: 0.75rem;
-        letter-spacing: 0.2em;
-        font-weight: 800;
-        opacity: 0.5;
-        font-family: var(--font-display);
+      .empty-title {
+        font-size: 0.85rem;
+        letter-spacing: 0.25em;
+        font-weight: 900;
+        font-family: var(--font-gaming);
         text-transform: uppercase;
+        color: #fff;
+        text-shadow: 0 0 10px var(--brand-glow);
+      }
+
+      .empty-hint {
+        font-size: 0.9rem;
+        font-weight: 500;
+        line-height: 1.6;
+        max-width: 35ch;
+        text-align: center;
+        color: var(--text-muted);
+        letter-spacing: 0.05em;
       }
 
       .empty-state.standalone {
         padding: 4rem 2rem;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .table-row,
+        .virt-row {
+          transition: none !important;
+        }
       }
     `,
   ],
@@ -273,6 +230,22 @@ export class UiTableComponent {
   @Input() rowHeight = 56;
 
   @ContentChild('cellTemplate') cellTemplate!: TemplateRef<unknown>;
+
+  private themeService = inject(ThemeService);
+
+  get actualRowHeight(): number {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return 44;
+    if (density === 'spacious') return 72;
+    return this.rowHeight;
+  }
+
+  get cellPadding(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '0.5rem 1rem';
+    if (density === 'spacious') return '1.5rem 2rem';
+    return '1.25rem 1.5rem';
+  }
 
   get useVirtual(): boolean {
     return this.virtualScroll && this.data.length > 24;

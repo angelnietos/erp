@@ -46,6 +46,11 @@ export class TechnicianApiService {
     return this.http.get<Technician[]>(this.baseUrl);
   }
 
+  /** Ficha de técnico del usuario autenticado (JWT + x-tenant-id). */
+  getMyTechnician(): Observable<Technician> {
+    return this.http.get<Technician>(`${this.baseUrl}/me`);
+  }
+
   /** Obtiene la disponibilidad de un técnico en un rango de fechas */
   getAvailability(technicianId: string, startDate?: string, endDate?: string): Observable<TechnicianAvailability[]> {
     return this.http.get<TechnicianAvailability[]>(`${this.baseUrl}/${technicianId}/availability`, {
@@ -60,11 +65,14 @@ export class TechnicianApiService {
 
   /** Guarda disponibilidad de un día concreto */
   setFullDayAvailability(technicianId: string, date: string, type: string, notes?: string): Observable<TechnicianAvailability> {
-    return this.http.post<TechnicianAvailability>(`${this.baseUrl}/${technicianId}/availability`, {
-      date,
-      type,
-      notes
-    });
+    const body: { date: string; type: string; notes?: string } = { date, type };
+    if (notes !== undefined && notes !== '') {
+      body.notes = notes;
+    }
+    return this.http.post<TechnicianAvailability>(
+      `${this.baseUrl}/${technicianId}/availability`,
+      body,
+    );
   }
 
   /** Guarda disponibilidad en bloque (usado por el bot) */

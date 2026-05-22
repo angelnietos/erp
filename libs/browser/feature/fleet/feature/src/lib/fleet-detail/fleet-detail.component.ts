@@ -6,7 +6,7 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
@@ -14,10 +14,12 @@ import {
   UiBadgeComponent,
   UiLoaderComponent,
   UiStatCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { VehicleService, Vehicle } from '@josanz-erp/fleet-data-access';
 import { openPrintableDocument } from '@josanz-erp/shared-utils';
+import { DocumentListComponent, DocumentItemComponent } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-fleet-detail',
@@ -31,16 +33,19 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
     UiBadgeComponent,
     UiLoaderComponent,
     UiStatCardComponent,
+    UiFeaturePageShellComponent,
+    DocumentListComponent,
+    DocumentItemComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
     >
+      <div class="fleet-detail__stack">
       @if (isLoading()) {
-        <ui-josanz-loader
-          message="Sincronizando unidad móvil..."
-        ></ui-josanz-loader>
+        <ui-loader message="Sincronizando unidad móvil..."></ui-loader>
       } @else if (vehicle()) {
         <header
           class="page-header"
@@ -48,7 +53,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
         >
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/fleet">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER A LOGÍSTICA
             </button>
             <h1
@@ -66,50 +71,55 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="wrench"
-              >MANTENIMIENTO</ui-josanz-button
+            <ui-button
+              variant="glass"
+              size="md"
+              icon="wrench"
+              (click)="onMaintenance()"
+              >MANTENIMIENTO</ui-button
             >
-            <ui-josanz-button variant="primary" size="md" icon="map-pin"
-              >RUTAS ACTIVAS</ui-josanz-button
+            <ui-button
+              variant="primary"
+              size="md"
+              icon="map-pin"
+              (click)="onActiveRoutes()"
+              >RUTAS ACTIVAS</ui-button
             >
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card
+          <ui-stat-card
             label="Kilometraje Total"
             [value]="vehicle()?.mileage?.toLocaleString() + ' KM'"
             icon="gauge"
             [accent]="true"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="ITV Vence"
             [value]="formatDate(vehicle()?.itvExpiry)"
             icon="calendar-check"
             [trend]="isExpired(vehicle()?.itvExpiry) ? -1 : 1"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="Conductor Actual"
             [value]="vehicle()?.currentDriver || 'SIN ASIGNAR'"
             icon="user-check"
           >
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="content-grid">
           <div class="main-column">
-            <ui-josanz-card
-              variant="glass"
-              title="Especificaciones del Vehículo"
-            >
+            <ui-card variant="glass" title="Especificaciones del Vehículo">
               <div class="spec-grid">
                 <div class="spec-item">
                   <span class="label">TIPO UNIDAD</span>
-                  <ui-josanz-badge variant="info">{{
+                  <ui-badge variant="info">{{
                     vehicle()?.type | uppercase
-                  }}</ui-josanz-badge>
+                  }}</ui-badge>
                 </div>
                 <div class="spec-item">
                   <span class="label">CAPACIDAD CARGA</span>
@@ -126,17 +136,17 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
                   }}</span>
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Historial de Movimientos">
+            <ui-card variant="glass" title="Historial de Movimientos">
               <p class="empty-text text-friendly">
                 No hay movimientos operativos registrados en las últimas 24h.
               </p>
-            </ui-josanz-card>
+            </ui-card>
           </div>
 
           <div class="side-column">
-            <ui-josanz-card variant="glass" title="Monitor de Estado">
+            <ui-card variant="glass" title="Monitor de Estado">
               <div class="status-monitor">
                 <div class="status-indicator" [class]="vehicle()?.status"></div>
                 <div class="status-details">
@@ -146,34 +156,33 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
                   <span class="status-subtext">Actualizado: hace 12 min</span>
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Documentación Digital">
-              <div class="doc-list">
-                <div class="doc-item" (click)="downloadTechnicalSheet()">
-                  <lucide-icon name="file-text" size="16"></lucide-icon>
-                  <span>FICHA TÉCNICA.PDF</span>
-                </div>
-                <div class="doc-item" (click)="downloadInsurancePolicy()">
-                  <lucide-icon name="shield-check" size="16"></lucide-icon>
-                  <span>PÓLIZA SEGURO.PDF</span>
-                </div>
-              </div>
-            </ui-josanz-card>
+            <ui-card variant="glass" title="Documentación Digital">
+              <josanz-document-list [showUpload]="false">
+                <josanz-document-item 
+                  name="FICHA TÉCNICA.PDF" 
+                  (download)="downloadTechnicalSheet()"
+                ></josanz-document-item>
+                <josanz-document-item 
+                  name="PÓLIZA SEGURO.PDF" 
+                  (download)="downloadInsurancePolicy()"
+                ></josanz-document-item>
+              </josanz-document-list>
+            </ui-card>
           </div>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
+      .fleet-detail__stack {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        width: 100%;
       }
 
       .back-btn {
@@ -299,45 +308,6 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
         color: var(--text-muted);
       }
 
-      .doc-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-      .doc-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all 0.3s;
-        user-select: none;
-      }
-      .doc-item:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #fff;
-        border-color: var(--brand);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      .doc-item:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      }
-      .doc-item lucide-icon {
-        color: var(--brand);
-        transition: color 0.3s;
-      }
-      .doc-item:hover lucide-icon {
-        color: #fff;
-      }
-
       .empty-text {
         color: var(--text-muted);
         font-size: 0.75rem;
@@ -448,6 +418,7 @@ import { openPrintableDocument } from '@josanz-erp/shared-utils';
 })
 export class FleetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly service = inject(VehicleService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
@@ -458,16 +429,38 @@ export class FleetDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      // Using real service with mock timeout
-      setTimeout(() => {
-        this.service.getVehicles().subscribe((list) => {
-          const v = list.find((item) => item.id === id);
-          this.vehicle.set(v || null);
-          this.isLoading.set(false);
-        });
-      }, 500);
+    if (!id) {
+      this.isLoading.set(false);
+      return;
     }
+    const cached = this.service.getListCached(id);
+    if (cached) {
+      this.vehicle.set(cached);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.service.getVehicle(id).subscribe({
+      next: (v) => {
+        this.vehicle.set(v ?? null);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!cached) {
+          this.vehicle.set(null);
+        }
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onMaintenance() {
+    const id = this.vehicle()?.id;
+    if (id) this.router.navigate(['/fleet', id, 'edit']);
+  }
+
+  onActiveRoutes() {
+    this.router.navigate(['/fleet'], { queryParams: { filter: 'in_use' } });
   }
 
   getStatusLabel(status: string | undefined): string {
@@ -519,7 +512,6 @@ export class FleetDetailComponent implements OnInit {
       </div>
 
       <div class="footer-note">
-        <p><em>Documento generado automáticamente por el sistema ERP Josanz</em></p>
         <p><em>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</em></p>
       </div>
     `;
@@ -573,7 +565,6 @@ export class FleetDetailComponent implements OnInit {
       </div>
 
       <div class="footer-note">
-        <p><em>Documento informativo generado por el sistema ERP Josanz</em></p>
         <p><em>Para póliza oficial, contactar con la compañía aseguradora</em></p>
         <p><em>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</em></p>
       </div>

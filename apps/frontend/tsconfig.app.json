@@ -21,6 +21,9 @@
       "@josanz-erp/shared-ui-shell": [
         "libs/browser/shared/ui-shell/src/index.ts"
       ],
+      "@josanz-erp/babooni-ui": [
+        "libs/browser/shared/babooni-ui/src/index.ts"
+      ],
       "@josanz-erp/ai-insights-feature": [
         "libs/browser/feature/ai-insights/feature/src/index.ts"
       ],
@@ -103,6 +106,9 @@
       "@josanz-erp/fleet-api": ["libs/isomorphic/api/fleet/api/src/index.ts"],
       "@josanz-erp/clients-data-access": [
         "libs/browser/data-access/clients/data-access/src/index.ts"
+      ],
+      "@josanz-erp/projects-data-access": [
+        "libs/browser/data-access/projects/data-access/src/index.ts"
       ],
       "@josanz-erp/clients-feature": [
         "libs/browser/feature/clients/feature/src/index.ts"

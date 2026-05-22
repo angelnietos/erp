@@ -1,17 +1,44 @@
-export * from './lib/store/auth.store';
+export {
+  catchHttpDetailNotFound,
+  httpErrorMessage,
+} from './lib/http/http-not-found';
+export { GlobalAuthStore } from './lib/store/auth.store';
+export { rbacAllows } from './lib/utils/rbac';
+export {
+  accessibleMutedColor,
+  FALLBACK_BRAND_HEX,
+  hexToRgbTripletString,
+  isLightBackgroundFromHex,
+  mixRgbHex,
+  normalizeCssHexColor,
+  parseHexColor,
+  pickTextOnBrand,
+  relativeLuminance,
+  ringFocusFromBrand,
+} from './lib/utils/theme-color';
 export * from './lib/services/theme.service';
 export * from './lib/services/technician-api.service';
+export * from './lib/services/time-off-api.service';
 export * from './lib/services/toast.service';
 export * from './lib/services/master-filter.service';
 export * from './lib/tokens/filter.tokens';
 export * from './lib/store/notification-feed.store';
 export * from './lib/services/receipts-api.service';
 export * from './lib/services/domain-events-api.service';
+export * from './lib/services/audit-logs-api.service';
 export * from './lib/services/services-catalog-api.service';
 export * from './lib/store/plugin.store';
 export * from './lib/guards/plugin.guard';
 export * from './lib/services/dashboard-analytics.service';
 
 export { AIBotStore } from './lib/store/ai-bot.store';
+export { AIInferenceService } from './lib/services/ai/ai-inference.service';
+export type {
+  AIProvider,
+  GenerateResponseOptions,
+} from './lib/services/ai/ai-inference.service';
 export * from './lib/models/ai-bot.model';
 export { AIFormBridgeService } from './lib/services/ai-form-bridge.service';
+export { OrchestrationBus } from './lib/services/ai/orchestration-bus.service';
+export type { OrchestrationTask, OrchestrationType } from './lib/services/ai/orchestration-bus.service';
+export { getAiFeatureFromUrl } from './lib/utils/ai-route-feature';

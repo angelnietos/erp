@@ -78,7 +78,10 @@ export class EventBus {
       priority,
     };
 
-    this.handlers.get(eventType)!.add(metadata);
+    const bucket = this.handlers.get(eventType);
+    if (bucket) {
+      bucket.add(metadata);
+    }
 
     // Return unsubscribe function
     return () => {

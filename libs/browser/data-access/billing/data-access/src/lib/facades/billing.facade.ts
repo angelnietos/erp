@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { Invoice, InvoiceService } from '../services/invoice.service';
-import { BudgetService } from '@josanz-erp/budget-data-access';
 import { Budget } from '@josanz-erp/budget-api';
 import { VerifactuService } from '@josanz-erp/verifactu-data-access';
 import { getStoredTenantId } from '@josanz-erp/identity-data-access';
@@ -14,7 +14,6 @@ export interface BillingTabs {
 @Injectable({ providedIn: 'root' })
 export class BillingFacade {
   private readonly service = inject(InvoiceService);
-  private readonly budgetService = inject(BudgetService);
   private readonly verifactuService = inject(VerifactuService);
 
   /** Full list from API; tabs and mutations keep this in sync. */
@@ -72,16 +71,34 @@ export class BillingFacade {
     ];
   });
 
-  loadInvoices(): void {
+  /** Inserta o sustituye una factura en memoria (p. ej. tras crear/editar en formulario). */
+  upsertInvoice(invoice: Invoice): void {
+    this._allInvoices.update((items) => {
+      const idx = items.findIndex((i) => i.id === invoice.id);
+      if (idx >= 0) {
+        const next = [...items];
+        next[idx] = invoice;
+        return next;
+      }
+      return [...items, invoice];
+    });
+  }
+
+  loadInvoices(force = false): void {
+    if (!force && this._allInvoices().length > 0) return;
+    this._error.set(null);
     this._isLoading.set(true);
     this.service.getInvoices().subscribe({
       next: (data) => {
         this._allInvoices.set(data);
         this._isLoading.set(false);
+        this._error.set(null);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading invoices');
+      error: () => {
         this._isLoading.set(false);
+        this._error.set(
+          'No se pudieron cargar las facturas. Comprueba la conexión e inténtalo de nuevo.',
+        );
       },
     });
   }
@@ -94,21 +111,37 @@ export class BillingFacade {
     this._searchTerm.set(term);
   }
 
-  createInvoice(invoice: Omit<Invoice, 'id'>): void {
-    this.service.createInvoice(invoice).subscribe({
-      next: (newItem) => {
-        this._allInvoices.update((items) => [...items, newItem]);
-      },
-    });
+  /**
+   * Crea en API y sincroniza `_allInvoices`. Para encadenar navegación o toasts, usar esto.
+   */
+  createInvoice$(invoice: Omit<Invoice, 'id'>): Observable<Invoice> {
+    return this.service.createInvoice(invoice).pipe(
+      tap((newItem) =>
+        this._allInvoices.update((items) => [...items, newItem]),
+      ),
+    );
   }
 
-  updateInvoice(id: string, updates: Partial<Invoice>): void {
-    this.service.updateInvoice(id, updates).subscribe({
-      next: (updatedItem) =>
+  createInvoice(invoice: Omit<Invoice, 'id'>): void {
+    this.createInvoice$(invoice).subscribe();
+  }
+
+  /**
+   * Actualiza en API y sincroniza `_allInvoices`. Reutilizable desde formulario,
+   * listado o detalle cuando hace falta encadenar (p. ej. navegar tras guardar).
+   */
+  updateInvoice$(id: string, updates: Partial<Invoice>): Observable<Invoice> {
+    return this.service.updateInvoice(id, updates).pipe(
+      tap((updatedItem) =>
         this._allInvoices.update((items) =>
           items.map((i) => (i.id === id ? updatedItem : i)),
         ),
-    });
+      ),
+    );
+  }
+
+  updateInvoice(id: string, updates: Partial<Invoice>): void {
+    this.updateInvoice$(id, updates).subscribe();
   }
 
   deleteInvoice(id: string): void {
@@ -140,7 +173,7 @@ export class BillingFacade {
   }
 
   loadBudgets(): void {
-    this.budgetService.getBudgets().subscribe({
+    this.service.getBudgets().subscribe({
       next: (budgets) => {
         this._budgets.set(budgets);
       },
@@ -156,7 +189,7 @@ export class BillingFacade {
     this.verifactuService.submitInvoiceDirect(invoiceId, tenantId).subscribe({
       next: (res) => {
         if (res.success) {
-          this.loadInvoices();
+          this.loadInvoices(true);
         } else {
           this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
         }

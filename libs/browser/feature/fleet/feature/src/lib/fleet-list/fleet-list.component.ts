@@ -1,22 +1,40 @@
-import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  signal,
+  inject,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiTableComponent,
   UiButtonComponent,
-  UiSearchComponent,
-  UiPaginationComponent,
-  UiBadgeComponent,
+  UiFeatureFilterBarComponent,
   UiLoaderComponent,
-  UiModalComponent,
-  UiCardComponent,
   UiTabsComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
+  UiSelectComponent,
   UiInputComponent,
-  UiStatCardComponent
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  ToastService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
 
@@ -24,255 +42,619 @@ import { Vehicle, VehicleService } from '@josanz-erp/fleet-data-access';
   selector: 'lib-fleet-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
+    CommonModule,
+    RouterModule,
     FormsModule,
-    UiTableComponent, 
-    UiButtonComponent, 
-    UiSearchComponent, 
-    UiPaginationComponent, 
-    UiBadgeComponent,
+    UiButtonComponent,
+    UiFeatureFilterBarComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiCardComponent,
     UiTabsComponent,
+    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
+    LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
+    UiSelectComponent,
     UiInputComponent,
-    UiStatCardComponent,
-    UiStatCardComponent,
-    LucideAngularModule
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'">
-            Gestión de Flota Logística
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">UNIDADES LOGÍSTICAS</span>
-            <span class="separator">/</span>
-            <span>MONITOREO DE MOVILIDAD</span>
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver la flota."
+        permissionHint="fleet.view"
+      />
+    } @else {
+    <ui-feature-page-shell [extraClass]="'fleet-container'">
+      <ui-feature-header
+        title="Flota Logística"
+        breadcrumbLead="OPERACIONES"
+        breadcrumbTail="FLOTA Y MANTENIMIENTO"
+        subtitle="Monitoreo de movilidad y mantenimiento preventivo"
+        icon="truck"
+        actionLabel="NUEVA UNIDAD"
+        (actionClicked)="goToNewVehicle()"
+      ></ui-feature-header>
+
+      <ui-feature-stats>
+        <ui-stat-card
+          label="Unidades Activas"
+          [value]="vehicles().length.toString()"
+          icon="truck"
+          [accent]="true"
+        >
+        </ui-stat-card>
+        <ui-stat-card
+          label="En Mantenimiento"
+          [value]="maintenanceCount().toString()"
+          icon="wrench"
+          [trend]="-2"
+        >
+        </ui-stat-card>
+        <ui-stat-card
+          label="Alertas Técnicas"
+          [value]="alertCount().toString()"
+          icon="alert-triangle"
+          [class.text-danger]="alertCount() > 0"
+        >
+        </ui-stat-card>
+        <ui-stat-card
+          label="Sincronización GPS"
+          value="Online"
+          icon="navigation"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
+
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar matrícula o conductor…"
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
+        </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
+        >
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshVehicles()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          Ordenar:
+          {{
+            sortField() === 'plate'
+              ? 'matrícula'
+              : sortField() === 'year'
+                ? 'año'
+                : 'estado'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
+
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <ui-select
+                id="status-filter"
+                label="Estado"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'available', label: 'Disponible' },
+                  { value: 'in_use', label: 'En uso' },
+                  { value: 'maintenance', label: 'Mantenimiento' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
+            </div>
+            <div class="filter-group">
+              <ui-select
+                id="type-filter"
+                label="Tipo"
+                [(ngModel)]="typeFilter"
+                (ngModelChange)="typeFilter.set($event); currentPage.set(1)"
+                [options]="[
+                  { value: 'all', label: 'Todos los tipos' },
+                  { value: 'van', label: 'Furgoneta' },
+                  { value: 'truck', label: 'Camión' },
+                  { value: 'car', label: 'Coche' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="year-min-filter"
+                label="Año mínimo"
+                type="number"
+                placeholder="2000"
+                min="1900" max="2030"
+                [(ngModel)]="yearMinFilter"
+                (ngModelChange)="yearMinFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="year-max-filter"
+                label="Año máximo"
+                type="number"
+                placeholder="2025"
+                min="1900" max="2030"
+                [(ngModel)]="yearMaxFilter"
+                (ngModelChange)="yearMaxFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
           </div>
         </div>
-        <div class="header-actions">
-          <ui-josanz-button variant="app" size="md" (clicked)="openCreateModal()" icon="plus">
-            NUEVA UNIDAD
-          </ui-josanz-button>
+      }
+
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
+            <span
+              >{{ selectedCount() }} vehículo{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionado{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
+              Eliminar seleccionados
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
         </div>
-      </header>
+      }
 
-      <div class="stats-row">
-        <ui-josanz-stat-card 
-          label="Unidades Activas" 
-          [value]="vehicles().length.toString()" 
-          icon="truck" 
-          [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
-          label="En Mantenimiento" 
-          [value]="maintenanceCount().toString()" 
-          icon="wrench" 
-          [trend]="-2">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
-          label="Alertas Técnicas" 
-          [value]="alertCount().toString()" 
-          icon="alert-triangle" 
-          [class.text-danger]="alertCount() > 0">
-        </ui-josanz-stat-card>
-      </div>
+      @if (loadError() && vehicles().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshVehicles()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs 
-          [tabs]="tabs" 
-          [activeTab]="activeTab()" 
-          variant="underline" 
-          (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
-        
-        <ui-josanz-search 
-          variant="filled"
-          placeholder="BUSCAR MATRÍCULA O CONDUCTOR..." 
-          (searchChange)="onSearch($event)"
-          class="search-bar"
-        ></ui-josanz-search>
-      </div>
-
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-josanz-loader message="SINCRONIZANDO TELEMETRÍA DE FLOTA..."></ui-josanz-loader>
+      @if (isLoading() && vehicles().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando flota…"></ui-loader>
+        </div>
+      } @else if (loadError() && vehicles().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <h3>No se pudo cargar la flota</h3>
+          <p>{{ loadError() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshVehicles()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
-        <ui-josanz-card variant="glass" class="table-card" [class.neon-glow]="!pluginStore.highPerformanceMode()">
-          <ui-josanz-table [columns]="columns" [data]="displayedVehicles()" variant="default">
-            <ng-template #cellTemplate let-vehicle let-key="key">
-              @switch (key) {
-                @case ('plate') {
-                  <div class="vehicle-cell">
-                    <div class="vehicle-icon" [style.background]="currentTheme().primary + '15'">
-                      <lucide-icon [name]="getVehicleIcon(vehicle.type)" [size]="14" [style.color]="currentTheme().primary"></lucide-icon>
-                    </div>
-                    <a [routerLink]="['/fleet', vehicle.id]" class="vehicle-link text-uppercase">
-                      {{ vehicle.plate }}
-                    </a>
-                  </div>
-                }
-                @case ('type') {
-                  <ui-josanz-badge variant="info">{{ getTypeLabel(vehicle.type) | uppercase }}</ui-josanz-badge>
-                }
-                @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(vehicle.status)">
-                    {{ getStatusLabel(vehicle.status) | uppercase }}
-                  </ui-josanz-badge>
-                }
-                @case ('insuranceExpiry') {
-                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.insuranceExpiry)">
-                    {{ formatDate(vehicle.insuranceExpiry) }}
-                  </span>
-                }
-                @case ('itvExpiry') {
-                  <span class="text-secondary font-mono" [class.overdue]="isExpired(vehicle.itvExpiry)">
-                    {{ formatDate(vehicle.itvExpiry) }}
-                  </span>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-josanz-button variant="ghost" size="sm" icon="eye" [routerLink]="['/fleet', vehicle.id]"></ui-josanz-button>
-                    <ui-josanz-button variant="ghost" size="sm" icon="pencil" (clicked)="editVehicle(vehicle)"></ui-josanz-button>
-                  </div>
-                }
-                @default {
-                  {{ vehicle[key] }}
-                }
-              }
-            </ng-template>
-          </ui-josanz-table>
-
-          <footer class="table-footer" [style.background]="currentTheme().primary + '05'">
-            <div class="table-info uppercase">
-              {{ displayedVehicles().length }} UNIDADES EN RANGO OPERATIVO
+        <ui-feature-grid>
+          <!-- Selection Header -->
+          @if (paginatedVehicles().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todos</span>
+              </label>
             </div>
-            <ui-josanz-pagination 
-              [currentPage]="currentPage()" 
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
-          </footer>
-        </ui-josanz-card>
+          }
+
+          @for (vehicle of paginatedVehicles(); track vehicle.id) {
+            <ui-feature-card
+              [name]="vehicle.plate | uppercase"
+              [subtitle]="vehicle.brand + ' ' + vehicle.model | uppercase"
+              [avatarInitials]="getInitials(vehicle.plate)"
+              [avatarBackground]="getVehicleGradient(vehicle.type)"
+              [status]="vehicle.status === 'available' ? 'active' : 'offline'"
+              [badgeLabel]="getStatusLabel(vehicle.status) | uppercase"
+              [badgeVariant]="getStatusVariant(vehicle.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="true"
+              (cardClicked)="onRowClick(vehicle)"
+              (editClicked)="editVehicle(vehicle)"
+              (duplicateClicked)="onDuplicate(vehicle)"
+              (deleteClicked)="confirmDelete(vehicle)"
+              [footerItems]="[
+                { icon: 'calendar', label: 'Año: ' + vehicle.year },
+                {
+                  icon: 'shield',
+                  label: 'Seguro: ' + formatDate(vehicle.insuranceExpiry),
+                },
+                {
+                  icon: 'check-square',
+                  label: 'ITV: ' + formatDate(vehicle.itvExpiry),
+                },
+              ]"
+            >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedVehicles().has(vehicle.id)"
+                  (change)="toggleVehicleSelection(vehicle.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
+              <div footer-extra class="vehicle-status">
+                @if (vehicle.status === 'maintenance') {
+                  <span class="maintenance-badge">
+                    <lucide-icon name="wrench" size="12" aria-hidden="true"></lucide-icon>
+                    EN MANTENIMIENTO
+                  </span>
+                } @else if (vehicle.status === 'in_use') {
+                  <span class="in-use-badge">
+                    <lucide-icon name="truck" size="12" aria-hidden="true"></lucide-icon>
+                    EN USO
+                  </span>
+                } @else {
+                  <span class="available-badge">
+                    <lucide-icon name="check-circle" size="12" aria-hidden="true"></lucide-icon>
+                    DISPONIBLE
+                  </span>
+                }
+              </div>
+            </ui-feature-card>
+          } @empty {
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ningún vehículo coincide con la búsqueda, la pestaña o los
+                  filtros actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="circle-x"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="truck"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>No hay unidades</h3>
+                <p>Comienza registrando tu primer vehículo en la flota.</p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="goToNewVehicle()"
+                  icon="CirclePlus"
+                  >Registrar unidad</ui-button
+                >
+              </div>
+            }
+          }
+        </ui-feature-grid>
       }
-    </div>
-
-    <!-- Create/Edit Modal -->
-    <ui-josanz-modal 
-      [isOpen]="isModalOpen()" 
-      [title]="editingVehicle() ? 'MODIFICACIÓN DE FICHA TÉCNICA' : 'REGISTRO DE NUEVA UNIDAD'"
-      (closed)="closeModal()"
-      variant="dark"
-    >
-      <div class="form-grid">
-        <div class="form-section">
-          <h3 class="section-title text-uppercase" [style.color]="currentTheme().primary">Especificaciones Técnicas</h3>
-          <div class="input-grid">
-            <ui-josanz-input label="Matrícula" [(ngModel)]="formData.plate" icon="hash"></ui-josanz-input>
-            <ui-josanz-input label="Marca" [(ngModel)]="formData.brand" icon="car"></ui-josanz-input>
-            <ui-josanz-input label="Modelo" [(ngModel)]="formData.model" icon="box"></ui-josanz-input>
-            <ui-josanz-input label="Año" type="number" [(ngModel)]="formData.year" icon="calendar"></ui-josanz-input>
-          </div>
-        </div>
-      </div>
-      
-      <div modal-footer class="modal-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()">CANCELAR</ui-josanz-button>
-        <ui-josanz-button variant="glass" (clicked)="saveVehicle()" [disabled]="!formData.plate">
-          {{ editingVehicle() ? 'ACTUALIZAR FICHA' : 'REGISTRAR UNIDAD' }}
-        </ui-josanz-button>
-      </div>
-    </ui-josanz-modal>
-
+    </ui-feature-page-shell>
+    }
   `,
-  styles: [`
-    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
-    
-    .page-header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    
-    .glow-text { 
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-      letter-spacing: 0.05em; font-family: var(--font-main);
-    }
-    
-    .breadcrumb {
-      display: flex; gap: 8px; font-size: 0.6rem; font-weight: 700;
-      letter-spacing: 0.1em; color: var(--text-muted); margin-top: 0.5rem;
-    }
-    
-    .stats-row { 
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; 
-    }
+  styles: [
+    `
+      .flex-1 {
+        flex: 1;
+      }
 
-    .navigation-bar { 
-      display: flex; justify-content: space-between; align-items: center; 
-      margin-bottom: 1.5rem; padding: 0.25rem 1rem; border-radius: 12px;
-      background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
-    }
+      .vehicle-alerts {
+        margin-top: 1rem;
+      }
+      .alert-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        letter-spacing: 0.05em;
+      }
+      .alert-badge.overdue {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+      }
 
-    .search-bar { width: 320px; }
-    
-    /* Table Luxe Refinement */
-    .table-card { border-radius: 16px; overflow: hidden; }
-    .neon-glow { box-shadow: 0 0 40px rgba(0, 0, 0, 0.4), inset 0 0 1px rgba(255, 255, 255, 0.1); }
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
 
-    .vehicle-cell { display: flex; align-items: center; gap: 12px; }
-    .vehicle-icon {
-      width: 32px; height: 32px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
 
-    .vehicle-link { 
-      color: #fff; text-decoration: none; font-weight: 700; font-size: 0.8rem;
-      letter-spacing: 0.05em; transition: 0.2s;
-    }
-    .vehicle-link:hover { color: var(--brand); text-shadow: 0 0 10px var(--brand-glow); }
-    
-    .overdue { color: var(--danger); font-weight: 800; }
-    .row-actions { display: flex; gap: 4px; }
-    
-    .table-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255,255,255,0.05);
-    }
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
 
-    .form-section { display: flex; flex-direction: column; gap: 1.5rem; }
-    .section-title { font-size: 0.7rem; font-weight: 900; letter-spacing: 0.15em; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        /* La posición la aplica ui-feature-card [card-extra]. */
+        position: static;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    @media (max-width: 1024px) {
-      .stats-row { grid-template-columns: 1fr; }
-      .navigation-bar { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
-      .search-bar { width: 100%; }
-      .input-grid { grid-template-columns: 1fr; }
-    }
-  `],
+      /* Form Enhancements */
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .notes-textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+      }
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      :host ::ng-deep .feature-filter-bar ui-button.active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      @media (max-width: 900px) {
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* BABOONI LUXE FLEET OVERRIDES */
+      :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
+        background: color-mix(in srgb, var(--surface) 55%, transparent);
+        backdrop-filter: blur(14px);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
+        background: var(--surface);
+        border: 1px solid var(--brand);
+        border-radius: 16px;
+        padding: 1rem 2rem;
+        box-shadow: 0 12px 32px -8px rgba(var(--brand-rgb), 0.15);
+        margin: 1.5rem 0;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .selection-header {
+        background: color-mix(in srgb, var(--surface) 40%, transparent);
+        border-radius: 12px;
+        padding: 0.75rem 1.25rem;
+        border-bottom: none;
+        margin-bottom: 1rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .maintenance-badge,
+      :host-context(html[data-erp-tenant='babooni']) .in-use-badge,
+      :host-context(html[data-erp-tenant='babooni']) .available-badge {
+        background: color-mix(in srgb, var(--surface) 85%, transparent);
+        padding: 0.35rem 0.85rem;
+        border-radius: 8px;
+        font-weight: 850;
+        font-size: 0.65rem;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        border: 1px solid rgba(0,0,0,0.02);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .maintenance-badge { color: #f59e0b; }
+      :host-context(html[data-erp-tenant='babooni']) .in-use-badge { color: #3b82f6; }
+      :host-context(html[data-erp-tenant='babooni']) .available-badge { color: #10b981; }
+    `,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FleetListComponent implements OnInit, OnDestroy, FilterableService<Vehicle> {
+export class FleetListComponent
+  implements OnInit, OnDestroy, FilterableService<Vehicle>
+{
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly vehicleService = inject(VehicleService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'fleet.view', 'fleet.manage');
 
   currentTheme = this.themeService.currentThemeData;
 
-  tabs = [
-    { id: 'all', label: 'Todos', badge: 0 },
-    { id: 'available', label: 'Disponibles', badge: 0 },
-    { id: 'in_use', label: 'En Uso', badge: 0 },
-    { id: 'maintenance', label: 'Mantenimiento', badge: 0 },
-  ];
+  tabs = computed(() => [
+    { id: 'all', label: 'Todos', badge: this.vehicles().length },
+    {
+      id: 'available',
+      label: 'Disponibles',
+      badge: this.vehicles().filter((v) => v.status === 'available').length,
+    },
+    {
+      id: 'in_use',
+      label: 'En Uso',
+      badge: this.vehicles().filter((v) => v.status === 'in_use').length,
+    },
+    {
+      id: 'maintenance',
+      label: 'Mantenimiento',
+      badge: this.vehicles().filter((v) => v.status === 'maintenance').length,
+    },
+  ]);
 
   columns = [
     { key: 'plate', header: 'MATRÍCULA' },
@@ -288,22 +670,27 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   vehicles = signal<Vehicle[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   currentPage = signal(1);
-  totalPages = signal(1);
   activeTab = signal('all');
   searchFilter = signal('');
-  
-  isModalOpen = signal(false);
-  editingVehicle = signal<Vehicle | null>(null);
-  
-  formData: Partial<Vehicle> = {
-    plate: '', brand: '', model: '', year: new Date().getFullYear(),
-    type: 'van', status: 'available', insuranceExpiry: '', itvExpiry: ''
-  };
 
-  ngOnInit() { 
+  // Advanced filtering
+  showAdvancedFilters = signal(false);
+  statusFilter = signal<string>('all');
+  typeFilter = signal<string>('all');
+  yearMinFilter = signal<number | null>(null);
+  yearMaxFilter = signal<number | null>(null);
+
+  sortField = signal<'plate' | 'year' | 'status'>('plate');
+  sortDirection = signal<1 | -1>(1);
+
+  // Bulk actions
+  selectedVehicles = signal<Set<string>>(new Set());
+
+  ngOnInit() {
     this.masterFilter.registerProvider(this);
-    this.loadVehicles(); 
+    this.loadVehicles();
   }
 
   ngOnDestroy() {
@@ -312,131 +699,382 @@ export class FleetListComponent implements OnInit, OnDestroy, FilterableService<
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Vehicle[]> {
-    const term = query.toLowerCase();
-    const matches = this.vehicles().filter(v => 
-      v.plate.toLowerCase().includes(term) || 
-      (v.brand ?? '').toLowerCase().includes(term) ||
-      (v.model ?? '').toLowerCase().includes(term)
-    );
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.vehicles());
+
+    const matches = this.vehicles().filter((v: Vehicle) => {
+      const searchableText = [
+        v.plate,
+        v.brand ?? '',
+        v.model ?? '',
+        v.type,
+        v.status,
+        v.year?.toString() || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
     return of(matches);
   }
 
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      camion: ['camion', 'truck', 'camión'],
+      furgon: ['furgon', 'van', 'furgón'],
+      coche: ['coche', 'car', 'vehiculo', 'vehículo'],
+      mantenimiento: ['mantenimiento', 'repair', 'service'],
+      disponible: ['disponible', 'available', 'libre'],
+      uso: ['uso', 'in_use', 'ocupado'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
+    );
+  }
+
   loadVehicles() {
+    this.loadError.set(null);
     this.isLoading.set(true);
     this.vehicleService.getVehicles().subscribe({
       next: (vehicles: Vehicle[]) => {
         this.vehicles.set(vehicles);
-        this.updateTabBadges(vehicles);
+        this.vehicleService.seedListCache(vehicles);
         this.isLoading.set(false);
+        this.loadError.set(null);
       },
-      error: () => this.isLoading.set(false)
+      error: () => {
+        this.isLoading.set(false);
+        this.loadError.set(
+          'No se pudieron cargar los vehículos. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
     });
   }
 
-  updateTabBadges(vehicles: Vehicle[]) {
-    const counts = {
-      all: vehicles.length,
-      available: vehicles.filter(v => v.status === 'available').length,
-      in_use: vehicles.filter(v => v.status === 'in_use').length,
-      maintenance: vehicles.filter(v => v.status === 'maintenance').length,
-    };
-    this.tabs = this.tabs.map(tab => ({ ...tab, badge: counts[tab.id as keyof typeof counts] }));
+  clearFiltersAndSearch(): void {
+    this.searchFilter.set('');
+    this.masterFilter.search('');
+    this.activeTab.set('all');
+    this.statusFilter.set('all');
+    this.typeFilter.set('all');
+    this.yearMinFilter.set(null);
+    this.yearMaxFilter.set(null);
+    this.currentPage.set(1);
   }
 
-  onTabChange(tabId: string) { this.activeTab.set(tabId); }
-  onSearch(term: string) { 
-    this.searchFilter.set(term); 
+  onTabChange(tabId: string) {
+    this.activeTab.set(tabId);
+  }
+
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshVehicles() {
+    this.loadVehicles();
+    this.toast.show('Vehículos actualizados', 'info');
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'plate') {
+      this.sortField.set('year');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'year') {
+      this.sortField.set('status');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('plate');
+      this.sortDirection.set(1);
+    }
+  }
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedVehicles();
+    const currentSelected = this.selectedVehicles();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((v) => newSelected.delete(v.id));
+      this.selectedVehicles.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((v) => newSelected.add(v.id));
+      this.selectedVehicles.set(newSelected);
+    }
+  }
+
+  toggleVehicleSelection(vehicleId: string) {
+    const currentSelected = this.selectedVehicles();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(vehicleId)) {
+      newSelected.delete(vehicleId);
+    } else {
+      newSelected.add(vehicleId);
+    }
+
+    this.selectedVehicles.set(newSelected);
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedVehicles());
+
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} vehículos?`)) {
+      selectedIds.forEach((id) => this.vehicleService.deleteVehicle(id));
+      this.selectedVehicles.set(new Set());
+      this.toast.show(`${selectedIds.length} vehículos eliminados`, 'success');
+    }
+  }
+
+  clearSelection() {
+    this.selectedVehicles.set(new Set());
+  }
+
+  onSearch(term: string) {
+    this.searchFilter.set(term);
     this.masterFilter.search(term);
   }
-  onPageChange(page: number) { this.currentPage.set(page); this.loadVehicles(); }
+  onPageChange(page: number) {
+    this.currentPage.set(page);
+  }
 
-  openCreateModal() {
-    this.editingVehicle.set(null);
-    this.formData = { plate: '', brand: '', model: '', year: new Date().getFullYear(), type: 'van', status: 'available' };
-    this.isModalOpen.set(true);
+  goToNewVehicle(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  onRowClick(vehicle: Vehicle) {
+    void this.router.navigate([vehicle.id], { relativeTo: this.route });
+  }
+
+  getInitials(plate: string): string {
+    return (plate || 'V').slice(0, 2).toUpperCase();
+  }
+
+  getVehicleGradient(type: string): string {
+    switch (type) {
+      case 'van':
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'truck':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      default:
+        return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
   }
 
   editVehicle(vehicle: Vehicle) {
-    this.editingVehicle.set(vehicle);
-    this.formData = { ...vehicle };
-    this.isModalOpen.set(true);
+    void this.router.navigate([vehicle.id, 'edit'], { relativeTo: this.route });
   }
 
-  closeModal() { this.isModalOpen.set(false); this.editingVehicle.set(null); }
+  onDuplicate(vehicle: Vehicle) {
+    const { id: _omitId, ...rest } = vehicle;
+    void _omitId;
+    this.vehicleService
+      .createVehicle({
+        ...rest,
+        plate: `${vehicle.plate}-C`,
+      } as Omit<Vehicle, 'id'>)
+      .subscribe({
+        next: () => {
+          this.vehicles.update((list) =>
+            list.filter((v: Vehicle) => v.id !== vehicle.id),
+          );
+          this.toast.show(`Unidad ${vehicle.plate} eliminada`, 'success');
+        },
+        error: () => this.toast.show('No se pudo duplicar la unidad.', 'error'),
+      });
+  }
 
-  saveVehicle() {
-    if (!this.formData.plate) return;
-    const vehicleToEdit = this.editingVehicle();
-    if (vehicleToEdit) {
-      this.vehicleService.updateVehicle(vehicleToEdit.id, this.formData).subscribe({
-        next: (updated) => {
-          this.vehicles.update(list => list.map(v => v.id === updated.id ? updated : v));
-          this.closeModal();
-        }
-      });
-    } else {
-      this.vehicleService.createVehicle(this.formData as Omit<Vehicle, 'id'>).subscribe({
-        next: (newV) => { 
-          this.vehicles.update(list => [...list, newV]);
-          this.closeModal();
-        }
-      });
+  confirmDelete(vehicle: Vehicle) {
+    if (
+      !confirm(
+        `¿Estás seguro de que deseas eliminar el vehículo ${vehicle.plate}?`,
+      )
+    ) {
+      return;
     }
+    this.vehicleService.deleteVehicle(vehicle.id).subscribe({
+      next: () => {
+        this.vehicles.update((list) => list.filter((v) => v.id !== vehicle.id));
+        this.toast.show(`Unidad ${vehicle.plate} eliminada`, 'success');
+      },
+      error: () => {
+        this.toast.show(
+          'No se pudo eliminar la unidad. Inténtalo de nuevo.',
+          'error',
+        );
+      },
+    });
   }
 
   getTypeLabel(type: string): string {
     switch (type) {
-      case 'van': return 'Furgón';
-      case 'truck': return 'Camión';
-      default: return 'Coche';
+      case 'van':
+        return 'Furgón';
+      case 'truck':
+        return 'Camión';
+      default:
+        return 'Coche';
     }
   }
 
   getVehicleIcon(type: string): string {
     switch (type) {
-      case 'van': return 'truck';
-      case 'truck': return 'clapperboard'; // Custom icons
-      default: return 'car';
+      case 'van':
+        return 'truck';
+      case 'truck':
+        return 'clapperboard'; // Custom icons
+      default:
+        return 'car';
     }
   }
 
-  getStatusVariant(status: string): 'success' | 'warning' | 'info' | 'default' {
+  getStatusVariant(
+    status: string,
+  ): 'success' | 'warning' | 'info' | 'secondary' | 'primary' | 'danger' {
     switch (status) {
-      case 'available': return 'success';
-      case 'in_use': return 'warning';
-      case 'maintenance': return 'info';
-      default: return 'default';
+      case 'available':
+        return 'success';
+      case 'in_use':
+        return 'warning';
+      case 'maintenance':
+        return 'info';
+      default:
+        return 'secondary';
     }
   }
 
   getStatusLabel(status: string): string {
     switch (status) {
-      case 'available': return 'Disponible';
-      case 'in_use': return 'En Uso';
-      case 'maintenance': return 'Mantenimiento';
-      default: return status;
+      case 'available':
+        return 'Disponible';
+      case 'in_use':
+        return 'En Uso';
+      case 'maintenance':
+        return 'Mantenimiento';
+      default:
+        return status;
     }
   }
 
-  isExpired(date: string): boolean {
+  isExpired(date: string | undefined): boolean {
     if (!date) return false;
     return new Date(date) < new Date();
   }
 
-  formatDate(date: string): string {
+  formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
   }
 
-  maintenanceCount = computed(() => this.vehicles().filter(v => v.status === 'maintenance').length);
-  alertCount = computed(() => this.vehicles().filter(v => this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry)).length);
+  maintenanceCount = computed(
+    () =>
+      this.vehicles().filter((v: Vehicle) => v.status === 'maintenance').length,
+  );
+  alertCount = computed(
+    () =>
+      this.vehicles().filter(
+        (v: Vehicle) =>
+          this.isExpired(v.insuranceExpiry) || this.isExpired(v.itvExpiry),
+      ).length,
+  );
 
   displayedVehicles = computed(() => {
     let list = this.vehicles();
     const tab = this.activeTab();
-    if (tab !== 'all') list = list.filter((v) => v.status === tab);
+    if (tab !== 'all') list = list.filter((v: Vehicle) => v.status === tab);
     const t = this.searchFilter().trim().toLowerCase();
-    if (t) list = list.filter((v) => v.plate.toLowerCase().includes(t) || (v.brand || '').toLowerCase().includes(t));
+    if (t)
+      list = list.filter(
+        (v: Vehicle) =>
+          v.plate.toLowerCase().includes(t) ||
+          (v.brand || '').toLowerCase().includes(t),
+      );
+
+    // Advanced filters
+    if (this.statusFilter() !== 'all') {
+      list = list.filter((v) => v.status === this.statusFilter());
+    }
+    if (this.typeFilter() !== 'all') {
+      list = list.filter((v) => v.type === this.typeFilter());
+    }
+    const yearMin = this.yearMinFilter();
+    if (yearMin !== null) {
+      list = list.filter((v) => (v.year || 0) >= yearMin);
+    }
+    const yearMax = this.yearMaxFilter();
+    if (yearMax !== null) {
+      list = list.filter((v) => (v.year || 0) <= yearMax);
+    }
+
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+      if (field === 'plate') {
+        valA = (a.plate || '').toLowerCase();
+        valB = (b.plate || '').toLowerCase();
+      } else if (field === 'year') {
+        valA = a.year ?? 0;
+        valB = b.year ?? 0;
+      } else {
+        valA = (a.status || '').toLowerCase();
+        valB = (b.status || '').toLowerCase();
+      }
+      if (valA < valB) return -1 * dir;
+      if (valA > valB) return 1 * dir;
+      return 0;
+    });
+
     return list;
   });
+
+  paginatedVehicles = computed(() => {
+    const displayed = this.displayedVehicles();
+    const pageSize = 12;
+    const start = (this.currentPage() - 1) * pageSize;
+    const end = start + pageSize;
+    return displayed.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const displayed = this.displayedVehicles();
+    const pageSize = 12;
+    return Math.ceil(displayed.length / pageSize);
+  });
+
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedVehicles().size);
+  hasSelections = computed(() => this.selectedVehicles().size > 0);
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedVehicles();
+    return (
+      paginated.length > 0 &&
+      paginated.every((v) => this.selectedVehicles().has(v.id))
+    );
+  });
+
+  readonly hasAnyVehicles = computed(() => this.vehicles().length > 0);
+  readonly filterProducesNoResults = computed(
+    () => this.hasAnyVehicles() && this.displayedVehicles().length === 0,
+  );
 }

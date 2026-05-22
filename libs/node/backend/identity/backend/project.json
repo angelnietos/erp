@@ -1,7 +1,7 @@
 {
   "name": "identity-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/identity/backend/src",
+  "sourceRoot": "libs/node/backend/identity/backend/src",
   "projectType": "library",
   "tags": ["scope:identity", "type:backend"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/identity/backend",
-        "main": "libs/identity/backend/src/index.ts",
-        "tsConfig": "libs/identity/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/identity/backend",
+        "main": "libs/node/backend/identity/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/identity/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/identity/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/identity/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/identity/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/identity/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/identity/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/identity/backend"]
     }
   }
 }

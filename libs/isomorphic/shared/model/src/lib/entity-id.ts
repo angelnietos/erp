@@ -1,4 +1,4 @@
-﻿export class EntityId {
+export class EntityId {
   readonly value: string;
 
   constructor(value?: string) {

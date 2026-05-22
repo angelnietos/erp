@@ -1,232 +1,374 @@
-import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+import {
+  Component, Input, Output, EventEmitter, forwardRef,
+  HostListener, ElementRef, inject, ViewChild, OnDestroy, NgZone,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 
-export type SelectVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info' | 'theme' | 'primary' | 'secondary' | 'transparent' | 'minimal' | 'rounded' | 'glass' | 'soft';
+export type SelectVariant =
+  | 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light'
+  | 'error' | 'success' | 'warning' | 'info' | 'theme' | 'primary'
+  | 'secondary' | 'transparent' | 'minimal' | 'rounded' | 'glass' | 'soft';
 
 @Component({
-  selector: 'ui-josanz-select',
+  selector: 'ui-select',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => UiSelectComponent),
-      multi: true,
-    },
-  ],
+  imports: [CommonModule],
+  providers: [{
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(() => UiSelectComponent),
+    multi: true,
+  }],
   template: `
-    <div class="form-group">
-      @if (label) { <label [for]="id">{{ label }}</label> }
-      <div class="select-wrapper">
-        <select 
-          [id]="id" 
-          (change)="onSelect($event)"
-          (blur)="onBlur()"
-          [disabled]="disabled"
-          [class]="'select-' + variant"
-          [class.select-sm]="size === 'sm'"
-          [class.invalid]="error"
-        >
-          @if (placeholder) {
-            <option value="" disabled [selected]="!value">{{ placeholder }}</option>
-          }
-          @for (option of options; track option.value) {
-            <option [value]="option.value" [selected]="value === option.value">
-              {{ option.label }}
-            </option>
-          }
-        </select>
-        <div class="chevron"></div>
+    <div class="form-group" [class.disabled]="disabled">
+      @if (label) { <label [id]="id + '-label'" [for]="id">{{ label }}</label> }
+      <div
+        #triggerRef
+        [id]="id || null"
+        class="select-wrapper"
+        [class.is-open]="isOpen"
+        [class.select-sm]="size === 'sm'"
+        role="combobox"
+        [attr.aria-expanded]="isOpen"
+        [attr.aria-disabled]="disabled"
+        [attr.aria-controls]="isOpen ? listboxPanelId : null"
+        [attr.aria-haspopup]="'listbox'"
+        [attr.aria-labelledby]="label ? id + '-label' : null"
+        [attr.aria-label]="!label ? (placeholder || 'Seleccionar opción') : null"
+        [attr.tabindex]="disabled ? -1 : 0"
+        (click)="onTriggerClick($event)"
+        (keydown.enter)="onTriggerKeydown($event, 'enter')"
+        (keydown.space)="onTriggerKeydown($event, 'space')"
+        (keydown.escape)="onTriggerKeydown($event, 'escape')"
+      >
+        <div class="select-trigger" [class.invalid]="error">
+          <span class="placeholder-text" [class.hidden]="!!selectedLabel">{{ placeholder }}</span>
+          <span class="selected-text">{{ selectedLabel }}</span>
+        </div>
+        <div class="chevron" aria-hidden="true"></div>
       </div>
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-    label { 
-      font-size: 0.75rem; 
-      font-weight: 700; 
-      text-transform: uppercase; 
-      letter-spacing: 0.05em; 
-      color: var(--text-secondary); 
-      margin-left: 2px; 
+    .form-group { display:flex; flex-direction:column; gap:0.5rem; width:100%; }
+    label {
+      font-size:0.7rem; font-weight:700; text-transform:uppercase;
+      letter-spacing:0.1em; color:var(--text-muted);
+      margin-left:0.25rem; font-family:var(--font-main);
     }
-    .select-wrapper { position: relative; display: flex; align-items: center; }
-
-    /* Base Select Styles */
-    select {
-      width: 100%; 
-      padding: 8px 32px 8px 12px;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      color: var(--text-primary);
-      font-size: 0.8rem;
-      transition: var(--transition-base, 280ms ease); 
-      outline: none; 
-      font-family: var(--font-main);
-      appearance: none; 
-      cursor: pointer;
-      box-shadow: var(--shadow-inset-shine, inset 0 1px 0 rgba(255, 255, 255, 0.04));
+    .select-wrapper {
+      position:relative; display:flex; align-items:stretch;
+      border-radius:var(--radius-md,10px); cursor:pointer; user-select:none;
     }
-
-    .select-sm { padding: 4px 28px 4px 10px !important; font-size: 0.72rem !important; }
-    .select-sm + .chevron { right: 10px; width: 6px; height: 6px; margin-top: -4px; }
-
-    select:focus {
-      border-color: color-mix(in srgb, var(--brand) 70%, var(--border-soft));
-      background: color-mix(in srgb, var(--bg-secondary) 90%, var(--brand) 3%);
-      box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--brand-glow) 38%, transparent),
-        0 10px 26px -10px var(--brand-glow);
+    .select-trigger {
+      width:100%; padding:0.75rem 3rem 0.75rem 1rem;
+      background:var(--surface-vibrant,rgba(255,255,255,0.05));
+      border:1px solid var(--border-soft,rgba(255,255,255,0.1));
+      border-radius:var(--radius-md,10px); color:var(--text-primary);
+      font-size:0.9rem; font-weight:500; line-height:1.5;
+      transition:all 0.2s ease; font-family:var(--font-main);
+      box-shadow:var(--shadow-sm); min-height:2.75rem;
+      display:flex; align-items:center;
     }
-
-    select:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--brand) 50%, transparent));
-      outline-offset: 2px;
+    .placeholder-text { color:var(--text-muted); opacity:0.5; }
+    .placeholder-text.hidden { display:none; }
+    .select-wrapper:not(.disabled):hover .select-trigger {
+      border-color:var(--brand);
+      background:var(--surface-rich,rgba(255,255,255,0.08));
+      transform:translateY(-1px);
     }
-
-    /* Variants */
-    .select-theme, .select-default {
-      background: var(--bg-tertiary);
-      border-color: var(--border-vibrant);
+    .select-wrapper.select-sm .select-trigger {
+      padding:0.45rem 2.5rem 0.45rem 0.85rem; font-size:0.8rem; min-height:auto;
     }
-
-    .select-filled {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: transparent;
+    .is-open .select-trigger {
+      background:var(--surface-rich); border-color:var(--brand);
+      box-shadow:0 0 0 3px var(--brand-glow),var(--shadow-md);
     }
-
-    .select-outlined {
-      background: transparent;
-      border: 2px solid var(--border-vibrant);
-    }
-
-    .select-ghost {
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .select-ghost:focus {
-      background: rgba(255, 255, 255, 0.03);
-      border-color: var(--brand);
-    }
-
-    .select-dark {
-      background: #000;
-      border-color: #222;
-    }
-
-    .select-error {
-      border-color: var(--danger) !important;
-      background: rgba(239, 68, 68, 0.05);
-    }
-    
-    .select-error:focus {
-      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
-    }
-
-    .select-success {
-      border-color: var(--success);
-    }
-
-    /* Additional variants */
-    .select-primary {
-      background: var(--brand-surface, color-mix(in srgb, var(--brand) 14%, transparent));
-      border-color: var(--brand);
-    }
-
-    .select-secondary {
-      background: rgba(99, 102, 241, 0.1);
-      border-color: #6366f1;
-    }
-
-    .select-transparent {
-      background: transparent;
-      border: none;
-    }
-
-    .select-minimal {
-      background: transparent;
-      border: none;
-      border-bottom: 2px solid var(--border-soft);
-      border-radius: 0;
-    }
-
-    .select-rounded {
-      border-radius: 50px;
-      padding-left: 1.5rem;
-    }
-
-    .select-glass {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .select-soft {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #e2e8f0;
-    }
-
-    select.invalid { border-color: var(--danger); }
-    select:disabled { 
-      opacity: 0.4; 
-      cursor: not-allowed; 
-      filter: grayscale(1);
-    }
-
+    .select-trigger.invalid { border-color:var(--danger)!important; }
+    .disabled { opacity:0.5; cursor:not-allowed; pointer-events:none; }
     .chevron {
-      position: absolute; 
-      right: 12px; /* Adjusted from 16px */
-      width: 8px; /* Slightly smaller chevron */
-      height: 8px;
-      border-right: 2px solid var(--text-muted); 
-      border-bottom: 2px solid var(--text-muted);
-      transform: rotate(45deg); 
-      pointer-events: none; 
-      margin-top: -6px;
-      transition: all 0.3s ease;
+      position:absolute; right:1rem; top:50%;
+      width:0.4rem; height:0.4rem;
+      border-right:2.5px solid var(--text-muted);
+      border-bottom:2.5px solid var(--text-muted);
+      transform:translateY(-60%) rotate(45deg);
+      pointer-events:none; transition:transform 0.2s ease,border-color 0.2s ease;
+      opacity:0.7;
     }
-    
-    select:focus + .chevron {
-      border-color: var(--brand);
-      transform: rotate(225deg) translateY(-2px);
+    .select-wrapper:hover .chevron { border-color:var(--brand); opacity:1; }
+    .is-open .chevron { transform:translateY(-20%) rotate(225deg); border-color:var(--brand); opacity:1; }
+    :host-context(html[data-erp-tenant='babooni']) .select-trigger {
+      border-radius:12px; font-weight:600;
+      border-color:color-mix(in srgb,var(--border-soft) 60%,transparent);
+      box-shadow:var(--shadow-sm),inset 0 1px 0 var(--surface-glow,transparent);
+      backdrop-filter:blur(10px);
     }
-
-    option { 
-      background: var(--bg-secondary); 
-      color: var(--text-primary); 
+    :host-context(html[data-erp-tenant='babooni']) .select-wrapper:hover .select-trigger {
+      box-shadow:var(--shadow-md),inset 0 1px 0 var(--surface-glow,transparent);
+      border-color:var(--brand);
+    }
+    :host-context(html[data-erp-tenant='babooni']) label {
+      font-size:0.72rem; font-weight:800; letter-spacing:0.05em; color:var(--brand);
     }
   `],
 })
-export class UiSelectComponent implements ControlValueAccessor {
+export class UiSelectComponent implements ControlValueAccessor, OnDestroy {
   @Input() id = '';
   @Input() label = '';
-  @Input() placeholder = '';
-  @Input() options: { label: string, value: unknown }[] = [];
+  @Input() placeholder = 'Seleccionar...';
+  @Input() options: { label: string; value: unknown }[] = [];
   @Input() error = false;
   @Input() size: 'sm' | 'md' = 'md';
   @Input() variant: SelectVariant = 'default';
 
+  /** Emite el valor elegido (string). Evita el nombre `change` (evento nativo + ESLint). */
+  @Output() selectionChange = new EventEmitter<string>();
+  @Output() valueChange = new EventEmitter<string>();
+
+  @ViewChild('triggerRef') triggerRef!: ElementRef<HTMLElement>;
+
   value: unknown = '';
   disabled = false;
-  onChange = (_: unknown) => {
-    // Standard Angular ControlValueAccessor placeholder
-  };
-  onTouched = () => {
-    // Standard Angular ControlValueAccessor placeholder
-  };
+  isOpen = false;
+
+  /** ID del listbox en portal (aria-controls en el combobox). */
+  readonly listboxPanelId = `ui-select-lb-${Math.random().toString(36).slice(2, 11)}`;
+
+  private overlayEl: HTMLDivElement | null = null;
+  private repositionCleanup: (() => void) | null = null;
+  private readonly elementRef = inject(ElementRef);
+  private readonly zone = inject(NgZone);
+
+  get selectedLabel(): string {
+    return this.options.find(o => o.value === this.value)?.label ?? '';
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const inHost = this.elementRef.nativeElement.contains(event.target);
+    const inOverlay = this.overlayEl?.contains(event.target as Node);
+    if (!inHost && !inOverlay) {
+      this.closeDropdown();
+    }
+  }
+
+  onTriggerClick(event: MouseEvent): void {
+    event.preventDefault();
+    this.toggleDropdown();
+  }
+
+  /** El template tipa `$event` en keydown como `Event` (strict templates). */
+  onTriggerKeydown(event: Event, key: 'enter' | 'space' | 'escape'): void {
+    if (this.disabled) {
+      return;
+    }
+    if (key === 'escape') {
+      if (this.isOpen) {
+        event.preventDefault();
+        this.closeDropdown();
+      }
+      return;
+    }
+    event.preventDefault();
+    this.toggleDropdown();
+  }
+
+  toggleDropdown(): void {
+    if (this.disabled) {
+      return;
+    }
+    if (this.isOpen) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
+  }
+
+  private openDropdown(): void {
+    this.isOpen = true;
+    this.buildOverlay();
+    this.attachRepositionListeners();
+  }
+
+  private closeDropdown(): void {
+    this.isOpen = false;
+    this.detachRepositionListeners();
+    this.destroyOverlay();
+  }
+
+  /**
+   * Scroll en contenedores (main, modales) no dispara `window:scroll`. Capturing en `document`
+   * mantiene el overlay alineado al trigger con `position: fixed`.
+   */
+  private attachRepositionListeners(): void {
+    this.detachRepositionListeners();
+    const reposition = () => {
+      if (this.isOpen) {
+        this.positionOverlay();
+      }
+    };
+    document.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    this.repositionCleanup = () => {
+      document.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+    };
+  }
+
+  private detachRepositionListeners(): void {
+    this.repositionCleanup?.();
+    this.repositionCleanup = null;
+  }
+
+  // ── Body-portal overlay ────────────────────────────────────────────────────
+
+  private buildOverlay(): void {
+    this.destroyOverlay();
+
+    const el = document.createElement('div');
+    el.className = 'ui-select-portal';
+    el.id = this.listboxPanelId;
+    el.setAttribute('role', 'listbox');
+
+    // Get computed CSS variables from the host element for theming
+    const hostStyle = getComputedStyle(document.documentElement);
+    const brand     = hostStyle.getPropertyValue('--brand').trim()       || '#10b981';
+    const surface   = hostStyle.getPropertyValue('--surface-rich').trim()|| '#111';
+    const border    = hostStyle.getPropertyValue('--border-soft').trim() || 'rgba(255,255,255,0.1)';
+    const textPrim  = hostStyle.getPropertyValue('--text-primary').trim()|| '#fff';
+    const fontMain  = hostStyle.getPropertyValue('--font-main').trim()   || 'inherit';
+
+    el.style.cssText = [
+      'position:fixed',
+      'overflow-y:auto',
+      `background:${surface}`,
+      'backdrop-filter:blur(20px)',
+      '-webkit-backdrop-filter:blur(20px)',
+      `border:1px solid ${border}`,
+      'border-radius:12px',
+      'z-index:2147483647',
+      'box-shadow:0 20px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.06)',
+      'padding:6px',
+      `font-family:${fontMain}`,
+      'animation:uiSelectPopIn 0.18s cubic-bezier(0.16,1,0.3,1) both',
+    ].join(';');
+
+    // Inject keyframes once
+    if (!document.getElementById('ui-select-keyframes')) {
+      const s = document.createElement('style');
+      s.id = 'ui-select-keyframes';
+      s.textContent = `
+        @keyframes uiSelectPopIn {
+          from { opacity:0; transform:translateY(-8px) scale(0.97); }
+          to   { opacity:1; transform:translateY(0)    scale(1);    }
+        }
+        .ui-select-portal::-webkit-scrollbar { width:4px; }
+        .ui-select-portal::-webkit-scrollbar-thumb {
+          background:rgba(255,255,255,0.2); border-radius:10px;
+        }
+      `;
+      document.head.appendChild(s);
+    }
+
+    // Render options
+    this.options.forEach(option => {
+      const item = document.createElement('div');
+      const isSelected = option.value === this.value;
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+      item.textContent = option.label;
+      item.style.cssText = [
+        'padding:0.7rem 1rem',
+        'border-radius:8px',
+        'font-size:0.85rem',
+        'font-weight:' + (isSelected ? '700' : '500'),
+        `color:${isSelected ? '#fff' : textPrim}`,
+        `background:${isSelected ? brand : 'transparent'}`,
+        'cursor:pointer',
+        'margin-bottom:2px',
+        'transition:background 0.12s,padding-left 0.12s',
+        'user-select:none',
+      ].join(';');
+
+      item.addEventListener('mouseenter', () => {
+        if (!isSelected) {
+          item.style.background = `color-mix(in srgb,${brand} 18%,transparent)`;
+          item.style.paddingLeft = '1.25rem';
+        }
+      });
+      item.addEventListener('mouseleave', () => {
+        if (!isSelected) {
+          item.style.background = 'transparent';
+          item.style.paddingLeft = '1rem';
+        }
+      });
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // prevent blur before click
+        e.stopPropagation();
+        this.zone.run(() => this.selectValue(option));
+      });
+
+      el.appendChild(item);
+    });
+
+    this.overlayEl = el;
+    document.body.appendChild(el);
+    this.positionOverlay();
+  }
+
+  private positionOverlay(): void {
+    const el = this.overlayEl;
+    const trigger: HTMLElement =
+      this.triggerRef?.nativeElement ??
+      (this.elementRef.nativeElement as HTMLElement).querySelector('.select-wrapper');
+    if (!el || !trigger) return;
+
+    const rect = trigger.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showAbove = spaceBelow < 180 && rect.top > 200;
+    const maxH = showAbove
+      ? Math.min(250, rect.top - 12)
+      : Math.min(250, spaceBelow - 12);
+
+    el.style.left      = `${rect.left}px`;
+    el.style.width     = `${rect.width}px`;
+    el.style.maxHeight = `${maxH}px`;
+    if (showAbove) {
+      el.style.top    = 'auto';
+      el.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+    } else {
+      el.style.top    = `${rect.bottom + 6}px`;
+      el.style.bottom = 'auto';
+    }
+  }
+
+  private destroyOverlay(): void {
+    this.overlayEl?.remove();
+    this.overlayEl = null;
+  }
+
+  private selectValue(option: { label: string; value: unknown }): void {
+    const s = String(option.value);
+    this.value = option.value;
+    this.onChange(option.value);
+    this.selectionChange.emit(s);
+    this.valueChange.emit(s);
+    this.closeDropdown();
+    this.onTouched();
+  }
+
+  ngOnDestroy(): void {
+    this.detachRepositionListeners();
+    this.destroyOverlay();
+  }
+
+  // ── ControlValueAccessor ───────────────────────────────────────────────────
+  onChange: (v: unknown) => void = () => { /* stub */ };
+  onTouched = () => { /* stub */ };
 
   writeValue(value: unknown): void { this.value = value; }
   registerOnChange(fn: (v: unknown) => void): void { this.onChange = fn; }
   registerOnTouched(fn: () => void): void { this.onTouched = fn; }
   setDisabledState(isDisabled: boolean): void { this.disabled = isDisabled; }
-
-  onSelect(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
-    this.value = val;
-    this.onChange(val);
-  }
-  onBlur(): void { this.onTouched(); }
 }

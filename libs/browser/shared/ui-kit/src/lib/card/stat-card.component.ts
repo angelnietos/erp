@@ -3,155 +3,269 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
-  selector: 'ui-josanz-stat-card',
+  selector: 'ui-stat-card',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="stat-card ui-glass ui-neon" [class.accent]="accent">
       <div class="stat-icon-wrapper">
-        <lucide-icon [name]="icon" size="22"></lucide-icon>
+        <lucide-icon [name]="icon" size="22" aria-hidden="true"></lucide-icon>
       </div>
       <div class="stat-content">
         <span class="stat-label">{{ label }}</span>
         <div class="stat-value-row">
           <h2 class="stat-value">{{ value }}</h2>
           @if (trend !== undefined) {
-            <span class="stat-trend" [class.up]="trend > 0" [class.down]="trend < 0">
+            <span
+              class="stat-trend"
+              [class.up]="trend > 0"
+              [class.down]="trend < 0"
+            >
               {{ trend > 0 ? '↑' : '↓' }} {{ trend > 0 ? '+' : '' }}{{ trend }}%
             </span>
           }
         </div>
       </div>
-      @if (accent) { <div class="accent-line"></div> }
+      @if (accent) {
+        <div class="accent-line"></div>
+      }
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-    .stat-card {
-      padding: 1.125rem 1.375rem;
-      border-radius: var(--radius-lg);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-      transition:
-        transform 0.35s var(--ease-out-expo),
-        box-shadow 0.35s var(--ease-out-expo);
-      background: var(--card-bg, var(--surface));
-      border: 1px solid var(--card-border, var(--border-soft));
-      box-shadow: var(--shadow-sm), var(--shadow-inset-shine);
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        height: 100%;
+        min-height: 0;
+      }
 
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md), 0 0 32px -8px var(--brand-glow);
-    }
+      .stat-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+        padding: var(--stat-card-padding, 1.5rem 2rem);
+        font-family: var(--font-main);
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--border-soft);
+        /* Fijo: no usar --radius-lg (p. ej. 40px en neumorfismo / variantes UI). */
+        border-radius: var(--stat-card-radius, 10px);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        overflow: hidden;
+      }
 
-    /* Shimmer on hover */
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
-      transform: skewX(-15deg);
-      transition: left 0.6s var(--ease-out-expo);
-      pointer-events: none;
-    }
-    .stat-card:hover::after { left: 150%; }
+      .stat-content {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        min-height: 0;
+      }
 
-    .stat-icon-wrapper {
-      width: 3rem;
-      height: 3rem;
-      min-width: 3rem;
-      background: color-mix(in srgb, var(--brand) 12%, transparent);
-      border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
-      border-radius: var(--radius-md);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--brand);
-      transition: all 0.35s var(--ease-out-expo);
-    }
+      .stat-value-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 0.5rem;
+        min-height: 2.35rem;
+      }
 
-    .stat-card:hover .stat-icon-wrapper {
-      transform: scale(1.12) rotate(-6deg);
-      background: var(--brand);
-      color: #fff;
-      box-shadow: 0 0 20px var(--brand-glow);
-      border-color: transparent;
-    }
+      .accent-line {
+        margin-top: auto;
+        flex-shrink: 0;
+        height: 3px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, var(--brand), transparent);
+        opacity: 0.85;
+      }
 
-    .stat-content {
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-      flex: 1;
-      min-width: 0;
-    }
+      .stat-card.ui-glass {
+        border-radius: var(--stat-card-radius, 10px) !important;
+      }
 
-    .stat-label {
-      font-size: 0.6rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      font-family: var(--font-display);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .stat-card:hover {
+        transform: translateY(-6px);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--brand);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.2);
+      }
 
-    .stat-value-row {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 0.5rem;
-    }
+      .stat-icon-wrapper {
+        width: var(--avatar-size, 44px);
+        height: var(--avatar-size, 44px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--brand-surface);
+        border-radius: 12px;
+        color: var(--brand);
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+      }
 
-    .stat-value {
-      font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-      font-weight: 900;
-      margin: 0;
-      font-family: var(--font-display);
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
-      line-height: 1;
-    }
+      .stat-card:hover .stat-icon-wrapper {
+        background: var(--brand);
+        color: #fff;
+        transform: scale(1.1);
+        box-shadow: 0 0 20px var(--brand-glow);
+      }
 
-    .stat-trend {
-      font-size: 0.68rem;
-      font-weight: 800;
-      padding: 0.2rem 0.55rem;
-      border-radius: 2rem;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+      .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        display: block;
+        margin-bottom: 4px;
+        letter-spacing: 0.02em;
+      }
 
-    .stat-trend.up {
-      background: color-mix(in srgb, var(--success, #10b981) 12%, transparent);
-      color: var(--success, #10b981);
-      border: 1px solid color-mix(in srgb, var(--success, #10b981) 25%, transparent);
-    }
+      .stat-value {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        min-width: 0;
+        flex: 1 1 auto;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .stat-trend.down {
-      background: color-mix(in srgb, var(--danger, #ef4444) 12%, transparent);
-      color: var(--danger, #ef4444);
-      border: 1px solid color-mix(in srgb, var(--danger, #ef4444) 25%, transparent);
-    }
+      .stat-trend {
+        flex-shrink: 0;
+        white-space: nowrap;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+        color: var(--text-muted);
+      }
 
-    .accent-line {
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--brand), color-mix(in srgb, var(--brand) 50%, transparent));
-      box-shadow: 0 0 12px var(--brand-glow);
-    }
-  `],
+      .stat-trend.up {
+        color: var(--success, #10b981);
+        background: color-mix(in srgb, var(--success, #10b981) 18%, transparent);
+      }
+
+      .stat-trend.down {
+        color: var(--danger, #ef4444);
+        background: color-mix(in srgb, var(--danger, #ef4444) 18%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card,
+      :host-context(html[data-erp-tenant='babooni']) .stat-card.ui-glass {
+        border-radius: 12px;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card {
+        background: linear-gradient(135deg, 
+          var(--surface-vibrant, var(--surface)) 0%, 
+          color-mix(in srgb, var(--brand) 4%, var(--surface-rich, var(--surface))) 100%
+        );
+        backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
+        box-shadow: 
+          var(--card-shadow, var(--shadow-sm)),
+          inset 0 1px 0 var(--surface-glow, transparent);
+        padding: 1.25rem 1.5rem;
+        gap: 0.75rem;
+      }
+
+      /* Glass Sheen Effect */
+      :host-context(html[data-erp-tenant='babooni']) .stat-card::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          45deg,
+          transparent 45%,
+          rgba(255, 255, 255, 0.03) 50%,
+          transparent 55%
+        );
+        transform: rotate(-45deg);
+        pointer-events: none;
+        transition: transform 0.6s ease;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card:hover::after {
+        transform: rotate(-45deg) translate(10%, 10%);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card:hover {
+        transform: translateY(-4px);
+        background: var(--surface);
+        box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.08);
+        border-color: color-mix(in srgb, var(--brand) 25%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-icon-wrapper {
+        width: 3rem;
+        height: 3rem;
+        background: color-mix(in srgb, var(--brand) 12%, transparent);
+        border-radius: 10px;
+        color: var(--brand);
+        border: 1px solid color-mix(in srgb, var(--brand) 20%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-card:hover .stat-icon-wrapper {
+        background: var(--brand);
+        color: var(--text-on-brand, white);
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--brand) 25%, transparent);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-label {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-value {
+        font-size: 2.35rem;
+        font-weight: 900;
+        font-family: var(--font-main, inherit);
+        letter-spacing: -0.04rem;
+        color: var(--text-primary);
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .stat-trend {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .stat-card {
+          transition: none;
+        }
+        .stat-card:hover {
+          transform: none;
+        }
+        .stat-card:hover .stat-icon-wrapper {
+          transform: none;
+        }
+        .stat-icon-wrapper {
+          transition: none;
+        }
+        .accent-line {
+          transition: none;
+        }
+      }
+    `,
+  ],
 })
 export class UiStatCardComponent {
   @Input() label = '';

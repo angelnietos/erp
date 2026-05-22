@@ -4,7 +4,7 @@ const apiOrigin = process.env['API_ORIGIN'] || 'http://127.0.0.1:3000';
 
 test.describe('Fase 4 — login, tenant y API', () => {
   test('login seed y recibos visibles', async ({ page }) => {
-    await page.goto('/auth/login');
+    await page.goto('/auth/login?tenant=josanz');
     await page.getByLabel(/e-mail/i).fill('admin@josanz.com');
     await page.getByLabel(/contraseña/i).fill('Admin123!');
     await page.getByRole('button', { name: /acceder/i }).click();
@@ -19,7 +19,7 @@ test.describe('Fase 4 — login, tenant y API', () => {
   test('POST dominio event + auditoría (cabecera tenant)', async ({
     page,
   }) => {
-    await page.goto('/auth/login');
+    await page.goto('/auth/login?tenant=josanz');
     await page.getByLabel(/e-mail/i).fill('admin@josanz.com');
     await page.getByLabel(/contraseña/i).fill('Admin123!');
     await page.getByRole('button', { name: /acceder/i }).click();

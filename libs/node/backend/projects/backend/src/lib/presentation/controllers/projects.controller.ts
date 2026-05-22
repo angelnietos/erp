@@ -9,6 +9,8 @@ import {
   UseGuards,
   Query,
   Req,
+  ParseUUIDPipe,
+  NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { ProjectsService } from '../../application/services/projects.service';
@@ -16,7 +18,11 @@ import {
   CreateProjectDto,
   UpdateProjectDto,
 } from '../../application/dtos/create-project.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  requireRequestTenantId,
+  requireRequestUserId,
+} from '@josanz-erp/shared-infrastructure';
 
 @Controller('projects')
 @UseGuards(JwtAuthGuard)
@@ -25,17 +31,12 @@ export class ProjectsController {
 
   @Get()
   async findAll(@Req() req: Request, @Query('clientId') clientId?: string) {
-    const r = req as unknown as {
-      tenantId?: string;
-      headers: { [key: string]: string };
-    };
-    const tenantId = r.tenantId || r.headers['x-tenant-id'];
-    return this.projectsService.getProjectsList(tenantId, clientId);
+    return this.projectsService.getProjectsList(requireRequestTenantId(req), clientId);
   }
 
   @Post()
-  async create(@Body() dto: CreateProjectDto) {
-    const project = await this.projectsService.create(dto);
+  async create(@Req() req: Request, @Body() dto: CreateProjectDto) {
+    const project = await this.projectsService.create(dto, requireRequestUserId(req));
     return {
       id: project.id.value,
       name: project.name,
@@ -45,26 +46,35 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     const project = await this.projectsService.findById(id);
-    return project
-      ? {
-          id: project.id.value,
-          tenantId: project.tenantId.value,
-          name: project.name,
-          description: project.description,
-          status: project.status,
-          startDate: project.startDate?.toISOString().split('T')[0],
-          endDate: project.endDate?.toISOString().split('T')[0],
-          clientId: project.clientId?.value,
-          createdAt: project.createdAt.toISOString().split('T')[0],
-        }
-      : null;
+    if (!project) {
+      throw new NotFoundException('Proyecto no encontrado');
+    }
+    return {
+      id: project.id.value,
+      tenantId: project.tenantId.value,
+      name: project.name,
+      description: project.description,
+      status: project.status,
+      startDate: project.startDate?.toISOString().split('T')[0],
+      endDate: project.endDate?.toISOString().split('T')[0],
+      clientId: project.clientId?.value,
+      createdAt: project.createdAt.toISOString().split('T')[0],
+    };
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateProjectDto) {
-    const project = await this.projectsService.update(id, dto);
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateProjectDto,
+  ) {
+    const project = await this.projectsService.update(
+      id,
+      dto,
+      requireRequestUserId(req),
+    );
     return {
       id: project.id.value,
       name: project.name,
@@ -77,39 +87,42 @@ export class ProjectsController {
   }
 
   @Patch(':id/complete')
-  async complete(@Param('id') id: string) {
-    const project = await this.projectsService.complete(id);
+  async complete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const project = await this.projectsService.complete(id, requireRequestUserId(req));
     return {
       id: project.id.value,
       status: project.status,
-      message: 'Project completed successfully',
+      message: 'Proyecto completado correctamente',
     };
   }
 
   @Patch(':id/cancel')
-  async cancel(@Param('id') id: string) {
-    const project = await this.projectsService.cancel(id);
+  async cancel(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const project = await this.projectsService.cancel(id, requireRequestUserId(req));
     return {
       id: project.id.value,
       status: project.status,
-      message: 'Project cancelled successfully',
+      message: 'Proyecto cancelado correctamente',
     };
   }
 
   @Post(':id/duplicate')
-  async duplicate(@Param('id') id: string) {
-    const duplicatedProject = await this.projectsService.duplicate(id);
+  async duplicate(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const duplicatedProject = await this.projectsService.duplicate(
+      id,
+      requireRequestUserId(req),
+    );
     return {
       id: duplicatedProject.id.value,
       name: duplicatedProject.name,
       status: duplicatedProject.status,
-      message: 'Project duplicated successfully',
+      message: 'Proyecto duplicado correctamente',
     };
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
-    await this.projectsService.delete(id);
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    await this.projectsService.delete(id, requireRequestUserId(req));
     return { success: true };
   }
 }

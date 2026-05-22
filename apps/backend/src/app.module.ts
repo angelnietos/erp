@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import {
+  ClsTenantFromJwtInterceptor,
   SharedInfrastructureModule,
   TenantGuard,
 } from '@josanz-erp/shared-infrastructure';
@@ -14,16 +15,18 @@ import { RentalsModule } from '@josanz-erp/rentals-backend';
 import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
-import { ProjectsModule } from './projects/projects.module';
-import { ServicesModule } from './services/services.module';
+import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
+import { ServicesBackendModule } from '@josanz-erp/services-backend';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Phase3Module } from './phase3/phase3.module';
 import { HealthModule } from './health/health.module';
 import { ReportsExportModule } from './reports-export/reports-export.module';
 import { AiInsightsModule } from './ai-insights/ai-insights.module';
 import { TechniciansModule } from './technicians/technicians.module';
+import { TimeOffModule } from './time-off/time-off.module';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -53,8 +56,8 @@ import { TechniciansModule } from './technicians/technicians.module';
     DeliveryModule.forRoot(),
     BillingModule.forRoot(),
     FleetModule.forRoot(),
-    ProjectsModule,
-    ServicesModule,
+    ProjectsBackendModule,
+    ServicesBackendModule,
     ReceiptsBackendModule,
     AnalyticsModule,
     Phase3Module,
@@ -62,11 +65,17 @@ import { TechniciansModule } from './technicians/technicians.module';
     ReportsExportModule,
     AiInsightsModule,
     TechniciansModule,
+    TimeOffModule,
+    AuditModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: TenantGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ClsTenantFromJwtInterceptor,
     },
   ],
 })

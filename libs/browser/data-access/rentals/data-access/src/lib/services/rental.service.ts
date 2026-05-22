@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export type RentalSignatureStatus = 'NONE' | 'PENDING' | 'SIGNED';
 
@@ -41,12 +42,33 @@ export class RentalService {
   private http = inject(HttpClient);
   private apiUrl = '/api/rentals';
 
+  private readonly listCache = new Map<string, Rental>();
+
+  /** Llamar al cargar el listado para hidratar detalle sin spinner continuo. */
+  seedListCache(rentals: Rental[]): void {
+    this.listCache.clear();
+    for (const r of rentals) {
+      this.listCache.set(r.id, r);
+    }
+  }
+
+  /** Tras crear o actualizar desde formulario: el detalle puede hidratar al instante. */
+  upsertListCache(rental: Rental): void {
+    this.listCache.set(rental.id, rental);
+  }
+
+  getListCached(id: string): Rental | undefined {
+    return this.listCache.get(id);
+  }
+
   getRentals(): Observable<Rental[]> {
     return this.http.get<Rental[]>(this.apiUrl);
   }
 
-  getRental(id: string): Observable<Rental> {
-    return this.http.get<Rental>(`${this.apiUrl}/${id}`);
+  getRental(id: string): Observable<Rental | undefined> {
+    return this.http
+      .get<Rental>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Rental>());
   }
 
   addRentalAnnex(

@@ -1,0 +1,32 @@
+@if (variant === 'primary') {
+  <button
+    (click)="onClick()"
+    [disabled]="disabled"
+    [style.width]="size === 'lg' ? '280px' : size === 'md' ? 'auto' : ''"
+    [style.height]="size === 'lg' ? '48px' : size === 'md' ? '37px' : ''"
+    [style.background-color]="disabled ? 'var(--josanz-text-muted)' : 'var(--josanz-primary)'"
+    [style.color]="'var(--josanz-on-primary)'"
+    [style.cursor]="disabled ? 'not-allowed' : 'pointer'"
+    [style.border-radius]="'var(--josanz-radius-control)'"
+    style="display: flex; align-items: center; justify-content: center; gap: 8px; border: none; transition: opacity 0.2s; font-weight: 600; font-size: 16px; padding: 0 24px;"
+  >
+    <span>{{ label }}</span>
+    @if (showIcon) {
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+    }
+  </button>
+}
+@if (variant === 'secondary') {
+  <button
+    (click)="onClick()"
+    [style.width]="size === 'lg' ? '280px' : 'auto'"
+    [style.height]="size === 'lg' ? '48px' : '37px'"
+    [style.border-radius]="'var(--josanz-radius-control)'"
+    style="display: flex; align-items: center; justify-content: center; background: transparent; border: none; cursor: pointer; color: var(--josanz-text-muted); font-weight: 500; font-size: 16px;"
+  >
+    <span>{{ label }}</span>
+  </button>
+}

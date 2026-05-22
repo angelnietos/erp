@@ -20,17 +20,29 @@ import {
   Clock,
 } from 'lucide-angular';
 import {
-  UiCardComponent,
-  UiBadgeComponent,
+  UiButtonComponent,
   UiStatCardComponent,
-  UiSearchComponent
+  UiFeatureFilterBarComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiPaginationComponent,
+  UiLoaderComponent,
+  UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
+import { HttpErrorResponse } from '@angular/common/http';
 import {
-  DomainEventsApiService,
+  AuditLogApiDto,
+  AuditLogsApiService,
   ThemeService,
   PluginStore,
   MasterFilterService,
   FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
+  httpErrorMessage,
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 
@@ -67,15 +79,7 @@ interface AuditLog {
   timestamp: string;
   details?: string;
   changes?: Record<string, { old: unknown; new: unknown }>;
-}
-
-/** Shape of a domain event payload as stored in the backend. */
-interface DomainEventPayload {
-  name?: string;
-  userName?: string;
-  email?: string;
-  changes?: Record<string, { old: unknown; new: unknown }>;
-  [key: string]: unknown;
+  targetEntity?: string;
 }
 
 @Component({
@@ -83,402 +87,256 @@ interface DomainEventPayload {
   standalone: true,
   imports: [
     CommonModule,
-    UiCardComponent,
-    UiBadgeComponent,
+    UiButtonComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
+    UiPaginationComponent,
+    UiLoaderComponent,
     UiStatCardComponent,
-    UiSearchComponent,
-    LucideAngularModule
+  UiFeatureFilterBarComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="page-container animate-fade-in" [class.perf-optimized]="pluginStore.highPerformanceMode()">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-breadcrumb">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Auditoría de Sistema
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">CONTROL Y SEGURIDAD</span>
-            <span class="separator">/</span>
-            <span>TRAZABILIDAD DE OPERACIONES</span>
-          </div>
-        </div>
-      </header>
+    <ui-feature-page-shell
+      [fadeIn]="true"
+      [extraClass]="'page-container' + (pluginStore.highPerformanceMode() ? ' perf-optimized' : '')"
+    >
+      @if (!canAccess()) {
+        <ui-feature-access-denied
+          message="No tienes permiso para ver el registro de auditoría."
+          permissionHint="audit.view"
+        />
+      } @else {
+      <ui-feature-header
+        title="Auditoría de Sistema"
+        breadcrumbLead="SEGURIDAD Y CUMPLIMIENTO"
+        breadcrumbTail="TRAZA DE AUDITORÍA"
+        subtitle="Trazabilidad completa de operaciones y seguridad"
+        icon="shield-check"
+      ></ui-feature-header>
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
-          variant="filled"
-          placeholder="BUSCAR EN EL LOG POR USUARIO, ACCIÓN O ENTIDAD..." 
-          (searchChange)="onSearch($event)"
-          class="flex-1 max-w-md"
-        ></ui-josanz-search>
-      </div>
-
-      <div class="stats-row">
-        <ui-josanz-stat-card 
-          label="Total Registros" 
+      <ui-feature-stats>
+        <ui-stat-card 
+          label="Registros Totales" 
           [value]="auditLogs().length.toString()" 
           icon="history" 
-          [accent]="true">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
-          label="Acciones Hoy" 
+          [accent]="true"
+          class="stat-standard">
+        </ui-stat-card>
+        <ui-stat-card 
+          label="Acciones hoy" 
           [value]="todayActionsCount().toString()" 
-          icon="activity" 
-          [trend]="8">
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card 
+          icon="activity"
+          class="stat-standard">
+        </ui-stat-card>
+        <ui-stat-card 
           label="Usuarios Activos" 
           [value]="activeUsersCount().toString()" 
-          icon="users">
-        </ui-josanz-stat-card>
-      </div>
+          icon="users"
+          class="stat-standard">
+        </ui-stat-card>
+      </ui-feature-stats>
 
-      <div class="audit-content">
-        <ui-josanz-card class="logs-card">
-          <div class="logs-header">
-            <h2>Historial de Actividades</h2>
-            <span class="logs-count"
-              >{{ filteredLogs().length }} registros</span
-            >
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por usuario, acción o entidad..."
+        (searchChange)="onSearch($event)"
+      >
+        <div class="filter-actions">
+          <ui-button
+            variant="ghost"
+            size="sm"
+            [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+            (clicked)="toggleSort()"
+            class="sort-button"
+          >
+            ORDENAR POR:
+            <span class="sort-field-label">
+              {{
+                sortField() === 'timestamp'
+                  ? 'FECHA'
+                  : sortField() === 'userName'
+                    ? 'USUARIO'
+                    : 'ACCIÓN'
+              }}
+            </span>
+          </ui-button>
+          
+          <ui-button
+            variant="solid"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="reloadLogs()"
+            [loading]="isLoading()"
+            class="refresh-button"
+          >
+            ACTUALIZAR
+          </ui-button>
+        </div>
+      </ui-feature-filter-bar>
+
+      <div class="audit-trail-grid-wrap animate-fade-in">
+        @if (isLoading() && auditLogs().length === 0) {
+          <div class="audit-loading-surface">
+            <ui-loader message="Analizando traza de auditoría..."></ui-loader>
           </div>
-
-          <div class="logs-list">
-            @for (log of filteredLogs(); track log.id) {
-              <div
-                class="log-item"
-                [class.expanded]="expandedLog() === log.id"
+        } @else if (loadError() && auditLogs().length === 0) {
+          <div class="audit-error-surface">
+            <lucide-icon name="alert-triangle" size="48"></lucide-icon>
+            <h3>Fallo en el servidor</h3>
+            <p>{{ loadError() }}</p>
+            <ui-button variant="solid" (clicked)="reloadLogs()">Reintentar conexión</ui-button>
+          </div>
+        } @else {
+          <ui-feature-grid>
+            @for (log of paginatedLogs(); track log.id) {
+              <ui-feature-card
+                [name]="log.userName"
+                [subtitle]="getEntityText(log.entity)"
+                [avatarInitials]="log.userName.slice(0, 2)"
+                [avatarBackground]="getActionOrbColor(log.action)"
+                [badgeLabel]="getActionText(log.action)"
+                [badgeVariant]="getActionVariant(log.action)"
+                [showEdit]="false"
+                [footerItems]="[
+                  { icon: 'clock', label: formatTimestamp(log.timestamp) },
+                  { icon: 'info', label: log.id.slice(0,8) }
+                ]"
+                (cardClicked)="toggleLogExpansion(log.id)"
+                class="audit-card"
               >
-                <div class="log-summary" (click)="toggleLogExpansion(log.id)" (keydown.enter)="toggleLogExpansion(log.id)" (keydown.space)="toggleLogExpansion(log.id); $event.preventDefault()" tabindex="0">
-                  <div class="log-icon">
-                    <lucide-icon
-                      [img]="getActionIcon(log.action)"
-                      size="20"
-                    ></lucide-icon>
-                  </div>
-
-                  <div class="log-info">
-                    <div class="log-primary">
-                      <span class="log-user">{{ log.userName }}</span>
-                      <span class="log-action">{{ log.action }}</span>
-                      <span class="log-entity">{{ log.entity }}</span>
-                      @if (log.entityName) {
-                        <span class="log-entity-name"
-                          >"{{ log.entityName }}"</span
-                        >
-                      }
-                    </div>
-                    <div class="log-meta">
-                      <span class="log-timestamp">
-                        <lucide-icon [img]="Clock" size="14"></lucide-icon>
-                        {{ log.timestamp | date:'short' }}
-                      </span>
-                      <ui-josanz-badge [variant]="getActionVariant(log.action)">
-                        {{ log.action }}
-                      </ui-josanz-badge>
-                    </div>
-                  </div>
-
-                  <div class="log-toggle">
-                    <lucide-icon
-                      [img]="History"
-                      size="16"
-                      [class.rotated]="expandedLog() === log.id"
-                    ></lucide-icon>
-                  </div>
-                </div>
-
-                @if (expandedLog() === log.id) {
-                  <div class="log-details">
-                    @if (log.details) {
-                      <div class="details-section">
-                        <h4>Detalles</h4>
-                        <p>{{ log.details }}</p>
-                      </div>
-                    }
+                @if (log.entityName) {
+                  <div class="target-chip">
+                    <span class="chip-label">OBJETIVO:</span>
+                    <span class="chip-value">{{ log.entityName }}</span>
                   </div>
                 }
-              </div>
-            }
 
-            @if (filteredLogs().length === 0) {
-              <div class="no-logs">
-                <lucide-icon [img]="History" size="48"></lucide-icon>
-                <p>No se encontraron registros de auditoría</p>
+                @if (expandedLog() === log.id) {
+                  <div class="log-expansion-panel animate-slide-down">
+                    <div class="detail-row">
+                      <lucide-icon name="info" size="14"></lucide-icon>
+                      <p>{{ log.details || 'Sin detalles adicionales' }}</p>
+                    </div>
+                    
+                    @if (hasChanges(log.changes || {})) {
+                      <div class="changes-timeline">
+                        <div class="timeline-header">VALORES MODIFICADOS</div>
+                        @for (change of getChangesArray(log.changes || {}); track change.field) {
+                          <div class="change-entry">
+                            <span class="field">{{ change.field }}</span>
+                            <div class="flow">
+                              <span class="old">{{ change.old | json }}</span>
+                              <lucide-icon name="arrow-right" size="12"></lucide-icon>
+                              <span class="new">{{ change.new | json }}</span>
+                            </div>
+                          </div>
+                        }
+                      </div>
+                    }
+                    
+                    <div class="technical-meta">
+                      <span>ENTITY_ID: {{ log.targetEntity }}</span>
+                      <span class="spacer">|</span>
+                      <span>TRACE_ID: {{ log.id }}</span>
+                    </div>
+                  </div>
+                }
+              </ui-feature-card>
+            } @empty {
+              <div class="full-empty-state">
+                <div class="orb-empty"></div>
+                <lucide-icon name="shield" size="64"></lucide-icon>
+                <h3>Traza de Auditoría Vacía</h3>
+                <p>Aún no se ha registrado actividad para este tenant. Las acciones de usuarios y cambios en el sistema aparecerán aquí en tiempo real.</p>
               </div>
             }
+          </ui-feature-grid>
+          
+          <div class="pagination-footer">
+            <ui-pagination 
+              [currentPage]="currentPage()" 
+              [totalPages]="totalPages()"
+              (pageChange)="goToPage($event)"
+            ></ui-pagination>
           </div>
-        </ui-josanz-card>
+        }
       </div>
-    </div>
-
+      }
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container { padding: 1.5rem; max-width: 1400px; margin: 0 auto; box-sizing: border-box; }
+    .filter-actions { display: flex; gap: 1rem; align-items: center; }
+    .sort-field-label { color: var(--brand); font-weight: 950; margin-left: 0.25rem; }
 
-    .audit-content {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
+    .audit-trail-grid-wrap { margin-top: 2rem; position: relative; }
+    
+    .audit-card {
+      background: rgba(255, 255, 255, 0.03) !important;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05) !important;
+      transition: all 0.4s var(--ease-out-expo);
+    }
+    .audit-card:hover { transform: translateY(-5px); border-color: rgba(var(--brand-rgb), 0.3) !important; }
+
+    .target-chip {
+      margin-top: 1rem; padding: 0.5rem 0.85rem; border-radius: 10px;
+      background: rgba(var(--brand-rgb), 0.1); border: 1px solid rgba(var(--brand-rgb), 0.2);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .chip-label { font-size: 0.6rem; font-weight: 950; color: var(--brand); letter-spacing: 0.05em; }
+    .chip-value { font-size: 0.75rem; font-weight: 800; color: var(--text-primary); }
+
+    .log-expansion-panel {
+      margin-top: 1.5rem; padding: 1.5rem; border-radius: 16px;
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+      display: flex; flex-direction: column; gap: 1.25rem;
     }
 
-    .filters-card {
-      padding: 1.5rem;
+    .detail-row { display: flex; gap: 0.75rem; color: var(--text-muted); }
+    .detail-row p { font-size: 0.85rem; margin: 0; line-height: 1.5; font-weight: 500; }
+
+    .changes-timeline { display: flex; flex-direction: column; gap: 0.75rem; }
+    .timeline-header { font-size: 0.65rem; font-weight: 950; color: var(--brand); opacity: 0.8; letter-spacing: 0.1em; }
+    .change-entry { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.75rem; background: rgba(255,255,255,0.02); border-radius: 8px; }
+    .change-entry .field { font-size: 0.7rem; font-weight: 850; color: var(--text-secondary); text-transform: uppercase; }
+    .change-entry .flow { display: flex; align-items: center; gap: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem; }
+    .change-entry .old { text-decoration: line-through; opacity: 0.5; }
+    .change-entry .new { color: #10b981; font-weight: 700; }
+
+    .technical-meta { margin-top: 0.5rem; font-size: 0.55rem; color: var(--text-muted); opacity: 0.4; display: flex; gap: 1rem; font-family: var(--font-mono); }
+
+    .full-empty-state {
+      padding: 6rem 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; color: var(--text-muted); background: rgba(0,0,0,0.15); border-radius: 32px;
+      border: 2px dashed rgba(255,255,255,0.05); position: relative; overflow: hidden;
+      grid-column: 1 / -1;
+    }
+    .full-empty-state h3 { font-size: 1.5rem; font-weight: 950; color: var(--text-primary); margin: 1.5rem 0 0.5rem; }
+    .full-empty-state p { max-width: 400px; font-size: 0.9rem; opacity: 0.6; }
+
+    .orb-empty {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(var(--brand-rgb), 0.1) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none;
     }
 
-    .filters-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .filters-header h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1rem;
-      align-items: end;
-    }
-
-    .filter-actions {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .logs-card {
-      padding: 1.5rem;
-    }
-
-    .logs-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .logs-header h2 {
-      margin: 0;
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .logs-count {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .logs-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .log-item {
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 0.5rem;
-      background: rgba(255,255,255,0.05);
-      overflow: hidden;
-    }
-
-    .log-summary {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-
-    .log-summary:hover {
-      background: rgba(255,255,255,0.1);
-    }
-
-    .log-icon {
-      padding: 0.5rem;
-      background: rgba(var(--primary-rgb), 0.1);
-      border-radius: 0.375rem;
-      color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .log-info {
-      flex: 1;
-    }
-
-    .log-primary {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.5rem;
-    }
-
-    .log-user {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .log-action {
-      color: var(--text-secondary);
-    }
-
-    .log-entity {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .log-entity-name {
-      color: var(--success);
-      font-style: italic;
-    }
-
-    .log-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .log-timestamp {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .log-toggle {
-      transition: transform 0.2s;
-    }
-
-    .log-toggle .rotated {
-      transform: rotate(180deg);
-    }
-
-    .log-details {
-      padding: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
-    }
-
-    .details-section {
-      margin-bottom: 1rem;
-    }
-
-    .details-section h4 {
-      margin: 0 0 0.5rem 0;
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .changes-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .change-item {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 0.25rem;
-      font-family: monospace;
-      font-size: 0.875rem;
-    }
-
-    .change-field {
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .change-old {
-      color: var(--danger);
-      text-decoration: line-through;
-    }
-
-    .change-arrow {
-      color: var(--text-secondary);
-    }
-
-    .change-new {
-      color: var(--success);
-    }
-
-    .no-logs {
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-secondary);
-    }
-
-    .no-logs p {
-      margin: 1rem 0 0 0;
-      font-size: 1.125rem;
-    }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba(255,255,255,0.1);
-    }
-
-    .page-info {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-    }
-
-    .text-uppercase {
-      text-transform: uppercase;
-    }
-
-    .glow-text {
-      font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0;
-      letter-spacing: 0.05em; font-family: var(--font-main);
-    }
-
-    @media (max-width: 768px) {
-      .filters-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .log-primary {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
-      }
-
-      .log-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-
-      .pagination {
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-    }
-  `,
-  ],
+    .pagination-footer { margin-top: 4rem; display: flex; justify-content: center; }
+  `],
 })
 export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService<AuditLog> {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
-  private readonly domainEventsApi = inject(DomainEventsApiService);
+  private readonly auditLogsApi = inject(AuditLogsApiService);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(this.authStore, 'audit.view');
 
   currentTheme = this.themeService.currentThemeData;
 
@@ -500,6 +358,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   expandedLog = signal<string | null>(null);
   currentPage = signal(1);
   pageSize = 20;
+
+  sortField = signal<'timestamp' | 'userName' | 'action'>('timestamp');
+  sortDirection = signal<1 | -1>(-1);
 
   filters: AuditFilter = {
     dateFrom: '',
@@ -527,61 +388,6 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     { label: 'Factura', value: 'INVOICE' },
     { label: 'Recibo', value: 'RECEIPT' },
     { label: 'Equipo', value: 'EQUIPMENT' },
-  ];
-
-  private readonly seedAuditLogs: AuditLog[] = [
-    {
-      id: '1',
-      userName: 'Admin User',
-      action: 'CREATE',
-      entity: 'PROJECT',
-      entityName: 'Proyecto Demo 1',
-      timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
-      details: 'Proyecto creado con configuración básica',
-      changes: {
-        name: { old: null, new: 'Proyecto Demo 1' },
-        status: { old: null, new: 'ACTIVE' },
-      },
-    },
-    {
-      id: '2',
-      userName: 'John Doe',
-      action: 'UPDATE',
-      entity: 'SERVICE',
-      entityName: 'Servicio de Streaming',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-      details: 'Actualización de precio y configuración',
-      changes: {
-        basePrice: { old: 450, new: 500 },
-        hourlyRate: { old: 45, new: 50 },
-      },
-    },
-    {
-      id: '3',
-      userName: 'Admin User',
-      action: 'LOGIN',
-      entity: 'USER',
-      entityName: 'Admin User',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
-      details: 'Inicio de sesión exitoso',
-    },
-    {
-      id: '4',
-      userName: 'Jane Smith',
-      action: 'DELETE',
-      entity: 'CLIENT',
-      entityName: 'Cliente Antiguo',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
-      details: 'Cliente eliminado del sistema',
-    },
-    {
-      id: '5',
-      userName: 'John Doe',
-      action: 'EXPORT',
-      entity: 'INVOICE',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
-      details: 'Exportación de facturas a PDF',
-    },
   ];
 
   auditLogs = signal<AuditLog[]>([]);
@@ -624,55 +430,115 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       filtered = filtered.filter((log) => new Date(log.timestamp) <= toDate);
     }
 
-    filtered.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    filtered.sort((a, b) => {
+      let cmp = 0;
+      if (field === 'timestamp') {
+        cmp =
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      } else if (field === 'userName') {
+        cmp = a.userName.localeCompare(b.userName, 'es', {
+          sensitivity: 'base',
+        });
+      } else {
+        cmp = a.action.localeCompare(b.action, 'es');
+      }
+      return cmp * dir;
+    });
     return filtered;
   });
 
+  isLoading = signal(true);
+  loadError = signal<string | null>(null);
+
+  readonly filterProducesNoResults = computed(
+    () => this.auditLogs().length > 0 && this.filteredLogs().length === 0,
+  );
+
   ngOnInit() {
     this.masterFilter.registerProvider(this);
-    // Set default date range (last 7 days)
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
+    /** Sin rango por defecto: el API ya devuelve los últimos N registros reales; filtrar por 7 días ocultaba historial útil. */
+    this.filters.dateFrom = '';
+    this.filters.dateTo = '';
 
-    this.filters.dateFrom = sevenDaysAgo.toISOString().split('T')[0];
-    this.filters.dateTo = today.toISOString().split('T')[0];
+    this.fetchAuditLogs();
+  }
 
-    this.domainEventsApi.list(150).subscribe((events) => {
-      const fromDomain: AuditLog[] = events.map((e) => {
-        const payload = e.payload as DomainEventPayload;
-        const userName = payload?.name || payload?.userName || payload?.email || 'Sistema';
-        const entityName = payload?.name || payload?.email || `${e.aggregateType} · ${e.aggregateId.slice(0, 8)}`;
+  private normalizeApiRow(raw: AuditLogApiDto): AuditLog {
+    const validActions: AuditLog['action'][] = [
+      'CREATE',
+      'UPDATE',
+      'DELETE',
+      'COPY',
+      'LOGIN',
+      'LOGOUT',
+      'EXPORT',
+      'IMPORT',
+    ];
+    const validEntities: AuditLog['entity'][] = [
+      'USER',
+      'PROJECT',
+      'SERVICE',
+      'EVENT',
+      'CLIENT',
+      'INVOICE',
+      'RECEIPT',
+      'EQUIPMENT',
+    ];
 
-        const validActions: AuditLog['action'][] = ['CREATE', 'UPDATE', 'DELETE', 'COPY', 'LOGIN', 'LOGOUT', 'EXPORT', 'IMPORT'];
-        const validEntities: AuditLog['entity'][] = ['USER', 'PROJECT', 'SERVICE', 'EVENT', 'CLIENT', 'INVOICE', 'RECEIPT', 'EQUIPMENT'];
+    const action = (
+      validActions.includes(raw.action as AuditLog['action'])
+        ? raw.action
+        : 'UPDATE'
+    ) as AuditLog['action'];
+    const entity = (
+      validEntities.includes(raw.entity as AuditLog['entity'])
+        ? raw.entity
+        : 'PROJECT'
+    ) as AuditLog['entity'];
 
-        const action = validActions.includes(e.eventType as AuditLog['action'])
-          ? (e.eventType as AuditLog['action'])
-          : 'UPDATE';
-        const entity = validEntities.includes(e.aggregateType as AuditLog['entity'])
-          ? (e.aggregateType as AuditLog['entity'])
-          : 'PROJECT';
-        
-        return {
-          id: `de-${e.id}`,
-          userName,
-          action,
-          entity,
-          entityName,
-          timestamp: e.occurredAt,
-          details: e.eventType,
-          changes: payload?.changes || { payload: { old: null, new: e.payload } },
-        };
-      });
-      
-      // Use real data if available, otherwise show seeds to avoid empty screen
-      if (fromDomain.length > 0) {
-        this.auditLogs.set(fromDomain);
-      } else {
-        this.auditLogs.set([...this.seedAuditLogs]);
-      }
+    return {
+      id: raw.id,
+      userName: raw.userName,
+      action,
+      entity,
+      entityName: raw.entityName,
+      timestamp: raw.timestamp,
+      details: raw.details,
+      changes: raw.changes,
+    };
+  }
+
+  private fetchAuditLogs(): void {
+    this.loadError.set(null);
+    this.isLoading.set(true);
+    this.auditLogsApi.list(200).subscribe({
+      next: (rows) => {
+        this.auditLogs.set(rows.map((r) => this.normalizeApiRow(r)));
+        this.isLoading.set(false);
+        this.loadError.set(null);
+      },
+      error: (err: unknown) => {
+        this.isLoading.set(false);
+        const detail =
+          err instanceof HttpErrorResponse
+            ? httpErrorMessage(err)
+            : 'Error desconocido';
+        this.loadError.set(
+          `No se pudo cargar el registro de auditoría: ${detail}. Comprueba que el backend esté en marcha y que la sesión sea válida.`,
+        );
+      },
     });
+  }
+
+  reloadLogs(): void {
+    this.fetchAuditLogs();
+  }
+
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
+    this.clearFilters();
   }
 
   ngOnDestroy() {
@@ -681,6 +547,19 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   onSearch(term: string) {
     this.masterFilter.search(term);
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'timestamp') {
+      this.sortField.set('userName');
+      this.sortDirection.set(1);
+    } else if (this.sortField() === 'userName') {
+      this.sortField.set('action');
+      this.sortDirection.set(1);
+    } else {
+      this.sortField.set('timestamp');
+      this.sortDirection.set(-1);
+    }
   }
 
   filter(query: string): Observable<AuditLog[]> {
@@ -698,13 +577,9 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
   }
 
   clearFilters() {
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
-
     this.filters = {
-      dateFrom: sevenDaysAgo.toISOString().split('T')[0],
-      dateTo: today.toISOString().split('T')[0],
+      dateFrom: '',
+      dateTo: '',
     };
 
     this.applyFilters();
@@ -712,6 +587,16 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
 
   toggleLogExpansion(logId: string) {
     this.expandedLog.set(this.expandedLog() === logId ? null : logId);
+  }
+
+  getActionOrbColor(action: string): string {
+    switch (action) {
+      case 'CREATE': return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'UPDATE': return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+      case 'DELETE': return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'COPY': return 'linear-gradient(135deg, #8b5cf6, #6d28d9)';
+      default: return 'linear-gradient(135deg, #6b7280, #374151)';
+    }
   }
 
   getActionIcon(action: string) {
@@ -722,6 +607,8 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
         return this.TrendingUp;
       case 'DELETE':
         return this.History;
+      case 'COPY':
+        return this.FileText;
       case 'LOGIN':
       case 'LOGOUT':
         return this.User;
@@ -738,6 +625,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       CREATE: 'creó',
       UPDATE: 'actualizó',
       DELETE: 'eliminó',
+      COPY: 'duplicó',
       LOGIN: 'inició sesión',
       LOGOUT: 'cerró sesión',
       EXPORT: 'exportó',
@@ -760,7 +648,7 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
     return texts[entity] || entity.toLowerCase();
   }
 
-  getActionVariant(action: string): string {
+  getActionVariant(action: string): 'warning' | 'danger' | 'primary' | 'secondary' | 'success' | 'info' {
     switch (action) {
       case 'CREATE':
         return 'success';
@@ -771,6 +659,8 @@ export class AuditTrailComponent implements OnInit, OnDestroy, FilterableService
       case 'LOGIN':
       case 'LOGOUT':
         return 'secondary';
+      case 'COPY':
+        return 'info';
       default:
         return 'secondary';
     }

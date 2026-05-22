@@ -1,0 +1,2 @@
+/* Alias si algo apunta a styles.css: misma hoja que Storybook (Tailwind + design system). */
+@import './styles.scss';

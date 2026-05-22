@@ -12,7 +12,7 @@ export interface ResourceItem {
 }
 
 @Component({
-  selector: 'ui-josanz-resource-monitor',
+  selector: 'ui-resource-monitor',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
@@ -29,7 +29,7 @@ export interface ResourceItem {
           <div class="resource-item">
             <div class="item-info">
               <div class="item-label-group">
-                @if (item.icon) { <lucide-icon [name]="item.icon" size="14"></lucide-icon> }
+                @if (item.icon) { <lucide-icon [name]="item.icon" size="14" aria-hidden="true"></lucide-icon> }
                 <span class="item-name">{{ item.name }}</span>
               </div>
               <span class="item-status-text" [class]="item.status">{{ item.label }}</span>

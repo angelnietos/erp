@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { Product, InventoryService } from '../services/inventory.service';
 
 export interface BaseTabs {
@@ -57,16 +58,21 @@ export class InventoryFacade {
     ];
   });
 
-  loadProducts(): void {
+  loadProducts(force = false): void {
+    if (!force && this._allProducts().length > 0) return;
+    this._error.set(null);
     this._isLoading.set(true);
     this.service.getProducts().subscribe({
       next: (data) => {
         this._allProducts.set(data);
         this._isLoading.set(false);
+        this._error.set(null);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading products');
+      error: () => {
         this._isLoading.set(false);
+        this._error.set(
+          'No se pudieron cargar los productos. Comprueba la conexión e inténtalo de nuevo.',
+        );
       },
     });
   }
@@ -79,28 +85,44 @@ export class InventoryFacade {
     this._searchTerm.set(term);
   }
 
-  createProduct(product: Omit<Product, 'id'>): void {
-    this.service.createProduct(product).subscribe({
-      next: (newItem) => {
+  createProduct(product: Omit<Product, 'id'>): Observable<Product> {
+    return this.service.createProduct(product).pipe(
+      tap((newItem) => {
         this._allProducts.update((items) => [...items, newItem]);
-      },
-    });
+      }),
+    );
   }
 
-  updateProduct(id: string, updates: Partial<Product>): void {
-    this.service.updateProduct(id, updates).subscribe({
-      next: (updatedItem) =>
-        this._allProducts.update((items) => items.map((i) => (i.id === id ? updatedItem : i))),
-    });
+  updateProduct(id: string, updates: Partial<Product>): Observable<Product> {
+    return this.service.updateProduct(id, updates).pipe(
+      tap((updatedItem) =>
+        this._allProducts.update((items) =>
+          items.map((i) => (i.id === id ? updatedItem : i)),
+        ),
+      ),
+    );
   }
 
-  deleteProduct(id: string): void {
-    this.service.deleteProduct(id).subscribe({
-      next: (success) => {
+  deleteProduct(id: string): Observable<boolean> {
+    return this.service.deleteProduct(id).pipe(
+      tap((success) => {
         if (success) {
           this._allProducts.update((items) => items.filter((i) => i.id !== id));
         }
-      },
+      }),
+    );
+  }
+
+  /** Tras GET por id o guardado: mantiene la lista alineada sin recargar todo. */
+  patchProductInCache(product: Product): void {
+    this._allProducts.update((items) => {
+      const i = items.findIndex((x) => x.id === product.id);
+      if (i === -1) {
+        return [...items, product];
+      }
+      const next = [...items];
+      next[i] = product;
+      return next;
     });
   }
 }

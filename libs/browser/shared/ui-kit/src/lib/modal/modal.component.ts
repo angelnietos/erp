@@ -6,7 +6,7 @@ export type ModalShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neum
 export type ModalVariant = string;
 
 @Component({
-  selector: 'ui-josanz-modal',
+  selector: 'ui-modal',
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -19,6 +19,7 @@ export type ModalVariant = string;
         tabindex="0"
         aria-modal="true"
         role="dialog"
+        [attr.aria-labelledby]="title ? titleHeadingId : null"
       >
         <div
           [class]="
@@ -33,7 +34,7 @@ export type ModalVariant = string;
           tabindex="0"
         >
           <div class="modal-header">
-            <h3>{{ title }}</h3>
+            <h3 [id]="titleHeadingId">{{ title }}</h3>
             <button class="close-btn" (click)="onClose()" aria-label="Close modal">×</button>
           </div>
           <div class="modal-body text-friendly">
@@ -53,190 +54,148 @@ export type ModalVariant = string;
     .modal-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       display: flex; align-items: center;
-      justify-content: center; z-index: 1000; 
-      animation: modalFadeIn 0.3s ease;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(var(--variant-blur, 16px)) saturate(1.1);
-      -webkit-backdrop-filter: blur(var(--variant-blur, 16px)) saturate(1.1);
+      justify-content: center;
+      z-index: 20000;
+      animation: modalFadeIn 0.5s var(--ease-out-expo);
+      background: rgba(2, 4, 8, 0.85);
+      backdrop-filter: blur(25px) saturate(1.8);
     }
 
-    @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes modalSlideUp { 
-      from { opacity: 0; transform: translateY(20px) scale(0.95); } 
-      to { opacity: 1; transform: translateY(0) scale(1); } 
+    @keyframes modalFadeIn { from { opacity: 0; backdrop-filter: blur(0px); } to { opacity: 1; backdrop-filter: blur(25px); } }
+    @keyframes modalSpringUp { 
+      0% { opacity: 0; transform: translateY(60px) scale(0.95); } 
+      100% { opacity: 1; transform: translateY(0) scale(1); } 
     }
 
-    /* Modal Content Base - Integrates with DOM Theme Mixins */
+    /* Modal Content Base — Cyber-Luxe */
     .modal-content {
-      --modal-radius: var(--radius-xl, 28px);
-      --modal-bg: var(--bg-secondary);
-      --modal-border: var(--border-soft);
-      --modal-border-width: 1px;
-      --modal-shadow: var(--shadow-lg, 0 24px 64px rgba(0, 0, 0, 0.55));
-      --modal-header-color: var(--text-primary);
+      --modal-radius: var(--radius-xl);
+      --modal-bg: rgba(13, 18, 30, 0.95);
+      --modal-border: rgba(255, 255, 255, 0.1);
+      --modal-accent: var(--brand);
       
-      /* Read JS-injected tokens — these override the defaults above */
       border-radius: var(--modal-radius); 
-      min-width: 480px;
+      min-width: 500px;
       max-width: 90vw; 
-      max-height: 90vh; 
+      max-height: 85vh; 
       overflow: hidden;
       background: var(--modal-bg);
-      border: var(--modal-border-width) solid var(--modal-border);
-      box-shadow:
-        var(--modal-shadow),
-        0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent),
-        var(--shadow-inset-shine, none);
-      animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(45px);
+      border: 1px solid var(--modal-border);
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.05);
+      animation: modalSpringUp 0.6s var(--transition-spring);
       position: relative;
+      isolation: isolate;
     }
 
-    /* shape-auto: reads ThemeService-injected tokens directly */
-    .modal-shape-auto {
-      border-radius: var(--modal-radius);
-      background: var(--modal-bg);
-      border-width: var(--modal-border-width);
-      box-shadow: var(--modal-shadow), 0 0 0 1px color-mix(in srgb, var(--brand) 12%, transparent);
+    /* Cinematic Noise Layer */
+    .modal-content::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: -1;
     }
-    .modal-color-default { --modal-border: var(--border-soft); }
-    .modal-color-primary { border-top: 4px solid var(--brand); --modal-header-color: var(--brand); }
-    .modal-color-danger { border-top: 4px solid var(--danger); --modal-header-color: var(--danger); }
-    .modal-color-success { border-top: 4px solid var(--success); --modal-header-color: var(--success); }
-    .modal-color-warning { border-top: 4px solid var(--warning); --modal-header-color: var(--warning); }
-    .modal-color-info { border-top: 4px solid var(--info); --modal-header-color: var(--info); }
 
-    /* STRUCTURAL SHAPES */
-    .modal-shape-auto {
-      /* Relies on the default native injection from HTML tokens */
-    }
+    .modal-color-danger { --modal-accent: var(--danger); }
+    .modal-color-success { --modal-accent: var(--success); }
+    .modal-color-warning { --modal-accent: var(--warning); }
+    .modal-color-info { --modal-accent: var(--info); }
     
-    .modal-shape-solid {
-      --modal-bg: var(--bg-secondary);
-      --modal-radius: 12px;
-      --modal-border: var(--border-soft);
-      --modal-shadow: 0 16px 40px rgba(0,0,0,0.4);
-    }
-
     .modal-shape-glass {
-      --modal-bg: color-mix(in srgb, var(--bg-secondary) 75%, transparent);
-      backdrop-filter: blur(28px); -webkit-backdrop-filter: blur(28px);
-      --modal-border: var(--border-vibrant);
-    }
-    .overlay-shape-glass {
-      background: color-mix(in srgb, var(--bg-primary) 40%, transparent);
+      background: rgba(10, 15, 25, 0.4);
+      backdrop-filter: blur(60px) saturate(2);
+      border-color: rgba(255, 255, 255, 0.12);
     }
 
-    .modal-shape-flat {
-      --modal-bg: var(--bg-tertiary);
-      --modal-border-width: 0px;
-      --modal-radius: 4px;
-      --modal-shadow: 0 4px 20px rgba(0,0,0,0.2);
-    }
-
-    .modal-shape-outline {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 2px;
-      --modal-border: var(--border-soft);
-      --modal-shadow: none;
-    }
-
-    .modal-shape-neumorphic {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 0px;
-      --modal-radius: 30px;
-      --modal-shadow: -12px -12px 30px rgba(255,255,255,0.02), 12px 12px 30px rgba(0,0,0,0.6);
-    }
-
-    .modal-shape-minimal {
-      --modal-bg: var(--bg-primary);
-      --modal-border-width: 0px;
-      --modal-radius: 0px;
-      --modal-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-
-    .modal-shape-fullscreen {
-      width: 100vw; height: 100vh; max-width: 100%; border-radius: 0; margin: 0;
-      border: none;
-    }
-
-    /* Modal Innards */
+    /* Header — Cyber-Luxe Menu Style */
     .modal-header {
       display: flex; 
       justify-content: space-between; 
       align-items: center;
-      padding: 1.5rem 2rem;
-      background: color-mix(in srgb, var(--bg-primary) 50%, transparent);
-      border-bottom: 1px solid var(--border-soft);
+      padding: 2.25rem 3rem;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      position: relative;
     }
 
     .modal-header h3 {
       margin: 0;
-      font-size: 1.05rem;
+      font-size: 1.25rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--modal-header-color);
-      font-family: var(--font-display);
+      letter-spacing: 0.15em;
+      color: #fff;
+      font-family: var(--font-main);
+      text-shadow: 0 0 20px var(--modal-accent);
     }
 
     .close-btn {
-      width: 2.25rem;
-      height: 2.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: color-mix(in srgb, var(--text-muted) 12%, transparent);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-md);
-      font-size: 1.35rem;
+      width: 2.75rem; height: 2.75rem;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      font-size: 1.5rem;
       cursor: pointer;
-      padding: 0;
-      line-height: 1;
-      color: var(--text-secondary);
-      transition:
-        color 0.25s ease,
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.25s ease,
-        border-color 0.25s ease;
+      color: var(--text-muted);
+      transition: all 0.4s var(--transition-spring);
     }
 
     .close-btn:hover {
-      color: var(--brand);
-      background: color-mix(in srgb, var(--brand) 14%, transparent);
-      border-color: color-mix(in srgb, var(--brand) 35%, transparent);
-      transform: rotate(90deg) scale(1.05);
-    }
-
-    .close-btn:focus-visible {
-      outline: 2px solid var(--ring-focus);
-      outline-offset: 2px;
+      color: #fff;
+      background: rgba(var(--brand-rgb), 0.2);
+      border-color: var(--brand);
+      transform: rotate(90deg);
+      box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.3);
     }
 
     .modal-body {
-      padding: 1.75rem 2rem;
-      max-height: min(60vh, 32rem);
+      padding: 3rem;
+      max-height: 65vh;
       overflow-y: auto;
-      font-size: 0.92rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text-primary);
     }
 
     .modal-footer {
-      padding: 1.25rem 2rem;
+      padding: 1.75rem 3rem;
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
       justify-content: flex-end;
-      background: color-mix(in srgb, var(--bg-primary) 55%, transparent);
-      border-top: 1px solid var(--border-soft);
+      gap: 1rem;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Custom Scrollbar for Modal Body */
+    /* Custom Scrollbar */
     .modal-body::-webkit-scrollbar { width: 6px; }
-    .modal-body::-webkit-scrollbar-track { background: transparent; }
-    .modal-body::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 3px; }
-    .modal-body::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+    .modal-body::-webkit-scrollbar-thumb { 
+      background: rgba(255, 255, 255, 0.1); 
+      border-radius: 10px; 
+    }
+    .modal-body::-webkit-scrollbar-thumb:hover { background: var(--modal-accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .modal-overlay {
+        animation: none;
+      }
+      .modal-content {
+        animation: none;
+      }
+      .close-btn:hover {
+        transform: none;
+      }
+    }
   `],
 })
 export class UiModalComponent {
+  private static titleSeq = 0;
+  /** Stable id for `aria-labelledby` on the dialog overlay. */
+  readonly titleHeadingId = `ui-modal-title-${++UiModalComponent.titleSeq}`;
+
   @Input() isOpen = false;
   @Input() title = '';
   @Input() showFooter = true;

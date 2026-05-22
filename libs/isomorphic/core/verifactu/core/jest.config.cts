@@ -7,7 +7,7 @@ export default {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }],
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../../../../../../coverage/libs/verifactu/core',
+  coverageDirectory: '../../../../../../../coverage/libs/isomorphic/core/verifactu/core',
 };
 
 

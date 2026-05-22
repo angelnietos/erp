@@ -26,6 +26,9 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 /** Default slug matches `prisma/seed.ts` tenant (`slug: 'josanz'`). */
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
+/** `sessionStorage`: tenant elegido en la pantalla previa (`/auth/tenant`). */
+export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
@@ -39,6 +42,10 @@ export class AuthService {
   ): Observable<AuthResponse> {
     const body: LoginCredentials = { email, password, tenantSlug };
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, body);
+  }
+
+  refreshSession(): Observable<AuthResponse> {
+    return this.http.get<AuthResponse>(`${this.apiUrl}/session`);
   }
 
   setToken(token: string): void {
@@ -81,11 +88,22 @@ export class AuthService {
     const roles = Array.isArray(rawRoles)
       ? rawRoles.filter((r): r is string => typeof r === 'string')
       : [];
+    const rawPerms = payload['permissions'];
+    const permissions = Array.isArray(rawPerms)
+      ? rawPerms.filter((p): p is string => typeof p === 'string')
+      : [];
     const user: UserPayload = {
       id: payload['sub'],
       email: payload['email'],
       roles,
+      permissions,
     };
-    return { user, tenantId: getStoredTenantId() ?? '' };
+    /** Alinear localStorage con el JWT (si falta `tenant_id`, las APIs no enviaban `x-tenant-id`). */
+    const tidFromJwt =
+      typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
+    if (tidFromJwt) {
+      setStoredTenantId(tidFromJwt);
+    }
+    return { user, tenantId: getStoredTenantId() ?? tidFromJwt ?? '' };
   }
 }

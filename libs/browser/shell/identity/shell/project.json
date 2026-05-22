@@ -1,7 +1,7 @@
 {
-  "name": "shell",
+  "name": "identity-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/identity/shell/src",
+  "sourceRoot": "libs/browser/shell/identity/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/identity/shell/jest.config.cts",
-        "tsConfig": "libs/identity/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/identity/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/identity/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,7 +24,3 @@
     }
   }
 }
-
-
-
-

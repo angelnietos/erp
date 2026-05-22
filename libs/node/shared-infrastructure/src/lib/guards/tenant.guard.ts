@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException, Forbi
 import { Reflector } from '@nestjs/core';
 import { ClsService } from 'nestjs-cls';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { SKIP_TENANT_GUARD_KEY } from '../decorators/skip-tenant.decorator';
 import { TenantContext } from '../middleware/tenant.middleware';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -20,6 +21,14 @@ export class TenantGuard implements CanActivate {
     ]);
 
     if (isPublic) {
+      return true;
+    }
+
+    const skipTenant = this.reflector.getAllAndOverride<boolean>(
+      SKIP_TENANT_GUARD_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (skipTenant) {
       return true;
     }
 

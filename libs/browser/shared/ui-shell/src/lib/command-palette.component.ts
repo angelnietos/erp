@@ -3,7 +3,12 @@ import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
 import { UiSearchComponent } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, AuthStore, MasterFilterService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  MasterFilterService,
+  MasterFilterResultItem,
+} from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 
 export interface CommandItem {
   id: string;
@@ -15,6 +20,30 @@ export interface CommandItem {
   action?: () => void;
 }
 
+/** Labels for items from `MasterFilterService.results` (per-module entities). */
+function contextHitId(item: MasterFilterResultItem): string {
+  const v = item.id;
+  return v != null ? String(v) : '';
+}
+
+function contextHitLabel(item: MasterFilterResultItem): string {
+  const name = item.name?.trim();
+  if (name) return name;
+  const label = item.label?.trim();
+  if (label) return label;
+  return 'Resultado';
+}
+
+function contextHitDescription(item: MasterFilterResultItem): string {
+  const d = item.description?.trim();
+  return d || 'Ver detalle en el módulo actual';
+}
+
+function contextTrackKey(item: MasterFilterResultItem, index: number): string {
+  const id = contextHitId(item);
+  return id ? `ctx-${id}` : `ctx-idx-${index}`;
+}
+
 @Component({
   selector: 'josanz-command-palette',
   standalone: true,
@@ -22,42 +51,48 @@ export interface CommandItem {
   template: `
     <div 
       class="overlay animate-fade-in" 
-      (click)="closePalette.emit()" 
+      (click)="closePalette.emit()"
+      (keydown.escape)="closePalette.emit()"
       tabindex="-1"
       role="dialog"
       aria-modal="true"
       aria-label="Paleta de comandos"
     >
       <div class="palette-container animate-scale-in" (click)="$event.stopPropagation()" role="none">
-        <ui-josanz-search 
-          variant="glass" 
-          placeholder="¿QUÉ DESEAS ENCONTRAR O HACER?" 
+        <ui-search
+          variant="glass"
+          placeholder="Buscar módulos, acciones o ir a…"
           (searchChange)="onSearch($event)"
           id="cmd-search"
-        ></ui-josanz-search>
+        ></ui-search>
 
         <div class="results-area">
           @if (filteredItems().length === 0 && contextResults().length === 0) {
             <div class="empty-state">
-              <lucide-icon name="search-x" size="32" class="text-muted"></lucide-icon>
-              <p class="text-uppercase text-muted">No se han encontrado resultados técnicos</p>
+              <lucide-icon name="search-x" size="32" class="text-muted" aria-hidden="true"></lucide-icon>
+              <p class="empty-title">Sin coincidencias</p>
+              <p class="empty-hint">Prueba con otras palabras o revisa el módulo actual.</p>
             </div>
           } @else {
             @if (contextResults().length > 0) {
                <div class="category-group">
-                 <div class="category-label text-uppercase">Resultados en este Módulo</div>
-                 @for (item of contextResults(); track $any(item).id) {
+                 <div class="category-label">En este módulo</div>
+                 @for (item of contextResults(); track contextTrackKey(item, $index)) {
                     <div 
                       class="command-item context-hit" 
+                      role="button"
+                      tabindex="0"
                       (click)="executeContextItem(item)"
-                      [class.active]="selectedId() === 'ctx-' + $any(item).id"
+                      (keydown.enter)="executeContextItem(item)"
+                      (keydown.space)="$event.preventDefault(); executeContextItem(item)"
+                      [class.active]="selectedId() === contextTrackKey(item, $index)"
                     >
                       <div class="item-icon ctx">
-                        <lucide-icon name="arrow-right-circle" size="18"></lucide-icon>
+                        <lucide-icon name="arrow-right-circle" size="18" aria-hidden="true"></lucide-icon>
                       </div>
                       <div class="item-info">
-                        <span class="label text-uppercase">{{ $any(item).name || $any(item).label || 'Resultado' }}</span>
-                        <span class="desc">{{ $any(item).description || 'Ver detalle en el módulo actual' }}</span>
+                        <span class="label">{{ contextHitLabel(item) }}</span>
+                        <span class="desc">{{ contextHitDescription(item) }}</span>
                       </div>
                     </div>
                  }
@@ -66,24 +101,25 @@ export interface CommandItem {
 
             @for (cat of categories(); track cat) {
               <div class="category-group">
-                <div class="category-label text-uppercase">{{ cat }}</div>
+                <div class="category-label">{{ cat }}</div>
                 @for (item of getItemsByCategory(cat); track item.id) {
                   <div 
                     class="command-item" 
                     (click)="executeCommand(item)"
                     (keydown.enter)="executeCommand(item)"
+                    (keydown.space)="$event.preventDefault(); executeCommand(item)"
                     [class.active]="selectedId() === item.id"
                     tabindex="0"
                     role="button"
                   >
                     <div class="item-icon">
-                      <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                      <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
                     </div>
                     <div class="item-info">
-                      <span class="label text-uppercase">{{ item.label }}</span>
+                      <span class="label">{{ item.label }}</span>
                       <span class="desc">{{ item.description }}</span>
                     </div>
-                    <div class="item-shortcut">↵ ENTER</div>
+                    <div class="item-shortcut">Enter</div>
                   </div>
                 }
               </div>
@@ -93,11 +129,11 @@ export interface CommandItem {
 
         <footer class="palette-footer">
           <div class="footer-hint">
-            <kbd>↑↓</kbd> NAVEGAR
-            <kbd>↵</kbd> EJECUTAR
-            <kbd>ESC</kbd> SALIR
+            <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+            <span><kbd>Enter</kbd> abrir</span>
+            <span><kbd>Esc</kbd> cerrar</span>
           </div>
-          <div class="footer-logo text-uppercase">Josanz <span class="text-brand">Core</span></div>
+          <div class="footer-logo">Josanz <span class="text-brand">Core</span></div>
         </footer>
       </div>
     </div>
@@ -130,46 +166,93 @@ export interface CommandItem {
     }
 
     .category-group { margin-bottom: 1.5rem; }
-    .category-label { font-size: 0.6rem; font-weight: 800; color: var(--text-muted); margin-bottom: 0.75rem; letter-spacing: 0.15em; padding-left: 0.5rem; }
+    .category-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+      letter-spacing: 0.04em;
+      padding-left: 0.5rem;
+      text-transform: none;
+    }
 
     .command-item {
-      display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-radius: 6px; cursor: pointer; transition: 0.2s;
+      display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; border-radius: 8px; cursor: pointer; transition: background 0.2s, border-color 0.2s;
       outline: none;
+      border-left: 3px solid transparent;
     }
-    .command-item:hover, .command-item.active { background: rgba(240, 62, 62, 0.08); border-left: 3px solid var(--brand); }
-    .command-item:focus { background: rgba(240, 62, 62, 0.05); }
+    .command-item:hover, .command-item.active { background: rgba(240, 62, 62, 0.08); border-left-color: var(--brand); }
+    .command-item:focus-visible {
+      background: rgba(240, 62, 62, 0.1);
+      border-left-color: var(--brand);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 35%, transparent);
+    }
     
     .item-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--bg-tertiary); border-radius: 4px; color: var(--text-secondary); }
     .command-item:hover .item-icon, .command-item.active .item-icon { color: var(--brand); }
 
-    .item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .item-info .label { font-size: 0.8rem; font-weight: 800; color: #fff; letter-spacing: 0.05em; }
-    .item-info .desc { font-size: 0.65rem; color: var(--text-muted); }
+    .item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .item-info .label { font-size: 0.84rem; font-weight: 700; color: #fff; letter-spacing: 0.02em; text-transform: none; }
+    .item-info .desc { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
 
-    .item-shortcut { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; opacity: 0; transition: 0.2s; }
+    .item-shortcut { font-size: 0.62rem; color: var(--text-muted); font-weight: 600; opacity: 0; transition: opacity 0.2s; text-transform: none; }
     .command-item:hover .item-shortcut, .command-item.active .item-shortcut { opacity: 0.5; }
 
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; padding: 4rem 0; }
-    .empty-state p { font-size: 0.7rem; font-weight: 800; }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; padding: 3.5rem 1rem; text-align: center; }
+    .empty-title { font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); margin: 0; }
+    .empty-hint { font-size: 0.78rem; font-weight: 500; color: var(--text-muted); margin: 0; max-width: 26ch; line-height: 1.45; }
 
     .palette-footer {
       padding: 1rem; border-top: 1px solid var(--border-soft); background: rgba(0, 0, 0, 0.1);
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;
     }
-    .footer-hint { font-size: 0.6rem; color: var(--text-muted); font-weight: 800; display: flex; gap: 12px; }
-    kbd { background: #000; padding: 2px 6px; border-radius: 3px; border: 1px solid var(--border-soft); color: var(--brand); }
-    .footer-logo { font-size: 0.65rem; font-weight: 900; letter-spacing: 0.1em; color: var(--text-muted); }
+    .footer-hint {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem 1rem;
+      align-items: center;
+    }
+    .footer-hint span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    kbd {
+      background: color-mix(in srgb, var(--text-primary) 8%, #0a0a0c);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-soft);
+      color: var(--text-secondary);
+      font-size: 0.62rem;
+      font-weight: 700;
+      font-family: var(--font-main);
+    }
+    .footer-logo { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; color: var(--text-muted); text-transform: none; }
 
     @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .animate-scale-in { animation: scaleIn 0.2s cubic-bezier(0, 0, 0.2, 1); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-scale-in {
+        animation: none;
+      }
+    }
   `]
 })
 export class CommandPaletteComponent {
+  /** Exposed for template — typed context rows from `MasterFilterService`. */
+  readonly contextHitLabel = contextHitLabel;
+  readonly contextHitDescription = contextHitDescription;
+  readonly contextTrackKey = contextTrackKey;
+
   closePalette = output<void>();
   private router = inject(Router);
 
   allItems: CommandItem[] = [
-    { id: '1', label: 'Crear Presupuesto', description: 'Generar nuevo documento fiscal de cotización', icon: 'file-plus', category: 'Acciones Rápidas', route: '/budgets/create' },
+    { id: '1', label: 'Crear Presupuesto', description: 'Generar nuevo documento fiscal de cotización', icon: 'file-plus', category: 'Acciones Rápidas', route: '/budgets/new' },
     { id: '2', label: 'Ver Inventario', description: 'Consultar stock y disponibilidad técnica', icon: 'package', category: 'Navegación', route: '/inventory' },
     { id: '3', label: 'Estado VeriFactu', description: 'Monitoreo de comunicaciones con AEAT', icon: 'shield-check', category: 'Fiscalidad', route: '/verifactu' },
     { id: '4', label: 'Gestionar Flota', description: 'Control de vehículos y logística', icon: 'truck', category: 'Logística', route: '/fleet' },
@@ -231,7 +314,8 @@ export class CommandPaletteComponent {
     }
   }
 
-  executeContextItem(item: any) {
+  executeContextItem(item: MasterFilterResultItem) {
+    void item;
     // Si tiene ruta específica en el objeto de negocio, la usamos, sino lógica dummy para el demo
     this.closePalette.emit();
   }

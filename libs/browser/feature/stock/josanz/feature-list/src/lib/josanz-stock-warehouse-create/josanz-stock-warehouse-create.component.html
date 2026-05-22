@@ -1,0 +1,44 @@
+<josanz-main-detail-layout
+  title="Nuevo almacén"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear almacén"
+  [saveDisabled]="form.invalid"
+>
+  <div class="py-2 md:py-4">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+      <div class="space-y-4">
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+          Identificación
+        </h2>
+        <div
+          class="rounded-2xl border border-solid p-6 md:p-7"
+          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+        >
+          <div class="grid grid-cols-1 gap-5">
+            <josanz-input label="Nombre del almacén" placeholder="Almacén Central" controlName="nombre" [parentForm]="form"></josanz-input>
+            <josanz-input label="Código interno" placeholder="ALM-01" controlName="codigo" [parentForm]="form"></josanz-input>
+          </div>
+        </div>
+      </div>
+      <div class="space-y-4">
+        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+          Ubicación y notas
+        </h2>
+        <div
+          class="rounded-2xl border border-solid p-6 md:p-7"
+          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+        >
+          <div class="grid grid-cols-1 gap-5">
+            <josanz-input label="Dirección" placeholder="Calle, población…" controlName="direccion" [parentForm]="form"></josanz-input>
+            <josanz-input label="Notas" placeholder="Horario, contacto…" controlName="notas" [parentForm]="form"></josanz-input>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</josanz-main-detail-layout>

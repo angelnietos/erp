@@ -2,7 +2,7 @@ import { AIBot } from '../../models/ai-bot.model';
 
 export const DASHBOARD_BOT: AIBot = {
   id: 'dash-bot',
-  name: 'Dash-Bot',
+  name: 'JAIME',
   feature: 'dashboard',
   description: 'Gestiona métricas y análisis del panel de control principal.',
   skills: [

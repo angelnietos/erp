@@ -1,6 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Body,
+  UseGuards,
+  Req,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { Request } from 'express';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  requireRequestTenantId,
+  requireRequestUserId,
+} from '@josanz-erp/shared-infrastructure';
 import { ClientsService } from '../../application/clients.service';
 
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
@@ -12,31 +27,43 @@ export class ClientsController {
 
   @Get()
   async findAll(@Req() req: Request) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.clientsService.findAll(r.tenantId || r.headers['x-tenant-id'] || 'default');
+    return this.clientsService.findAll(requireRequestTenantId(req));
   }
 
   @Get(':id')
-  async findOne(@Req() req: Request, @Param('id') id: string) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.clientsService.findOne(r.tenantId || r.headers['x-tenant-id'] || 'default', id);
+  async findOne(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.clientsService.findOne(requireRequestTenantId(req), id);
   }
 
   @Post()
   async create(@Req() req: Request, @Body() data: AnyPayload) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.clientsService.create(r.tenantId || r.headers['x-tenant-id'] || 'default', data);
+    return this.clientsService.create(
+      requireRequestTenantId(req),
+      data,
+      requireRequestUserId(req),
+    );
   }
 
   @Put(':id')
-  async update(@Req() req: Request, @Param('id') id: string, @Body() data: AnyPayload) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.clientsService.update(r.tenantId || r.headers['x-tenant-id'] || 'default', id, data);
+  async update(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: AnyPayload,
+  ) {
+    return this.clientsService.update(
+      requireRequestTenantId(req),
+      id,
+      data,
+      requireRequestUserId(req),
+    );
   }
 
   @Delete(':id')
-  async delete(@Req() req: Request, @Param('id') id: string) {
-    const r = req as unknown as { tenantId: string, headers: { [key: string]: string } };
-    return this.clientsService.delete(r.tenantId || r.headers['x-tenant-id'] || 'default', id);
+  async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    return this.clientsService.delete(
+      requireRequestTenantId(req),
+      id,
+      requireRequestUserId(req),
+    );
   }
 }

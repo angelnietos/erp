@@ -1,0 +1,77 @@
+/* Overrides globales cuando la atmósfera activa es Neutral White (export Figma). */
+
+[data-josanz-atmosphere='neutral'] {
+  --josanz-bg: #fefefe;
+  --josanz-surface: #ffffff;
+  --josanz-text: #222222;
+  --josanz-text-muted: #7c7c7c;
+  --josanz-border: #e7edf1;
+  --josanz-primary: #080808;
+  --josanz-on-primary: #ffffff;
+  --josanz-primary-hover: #1a1a1a;
+  --josanz-accent: #080808;
+  --josanz-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
+  --josanz-card-shadow: 0 10px 24px rgba(189, 189, 189, 0.35);
+  --josanz-text-heading: #222222;
+  --josanz-label-muted: #7c7c7c;
+  --josanz-field-fill: #f5f5f5;
+  --josanz-stroke-field: #d7d7d7;
+  --josanz-stroke-widget: #e0e0e0;
+  --josanz-row-line: #e6e6e6;
+  --josanz-surface-muted: #f7f7f7;
+  --josanz-header-filter-bg: #eeeeee;
+  --josanz-radius-control: 8px;
+  --josanz-radius-widget: 8px;
+  --josanz-radius-card: 12px;
+  --josanz-secondary-fill: #dadfe6;
+  --josanz-status-pill-muted-bg: #080808;
+  --josanz-status-pill-muted-text: #ffffff;
+  --josanz-button-primary-bg: #0f1e2f;
+  --josanz-button-primary-hover-bg: #17283d;
+  --josanz-button-primary-text: #ffffff;
+  --josanz-button-secondary-bg: #ffffff;
+  --josanz-button-secondary-border: #0f1e2f;
+  --josanz-button-secondary-text: #0f1e2f;
+  --josanz-button-ghost-text: #0f1e2f;
+  --josanz-button-disabled-bg: #dadfe6;
+  --josanz-button-disabled-border: #dadfe6;
+  --josanz-button-disabled-text: #ffffff;
+  --josanz-button-shadow: 0 2px 8px rgba(231, 237, 241, 0.9);
+  --josanz-sidebar-width: 36px;
+  --josanz-sidebar-expanded-width: 103px;
+  --josanz-sidebar-bg: #ffffff;
+  --josanz-sidebar-border: transparent;
+  --josanz-sidebar-shadow: 0 10px 24px rgba(189, 189, 189, 0.18);
+  --josanz-sidebar-icon: #222222;
+  --josanz-sidebar-icon-active: #222222;
+  --josanz-sidebar-hover-bg: transparent;
+}
+
+[data-josanz-atmosphere='neutral'] .active-link {
+  background-color: transparent;
+}
+
+[data-josanz-atmosphere='neutral'] .active-link .nav-icon-container {
+  color: var(--josanz-text);
+}
+
+[data-josanz-atmosphere='neutral'] .active-indicator {
+  box-shadow: none !important;
+}
+
+[data-josanz-atmosphere='neutral'] .rounded-2xl {
+  border-radius: var(--josanz-radius-card);
+}
+
+[data-josanz-atmosphere='neutral'] .josanz-app-settings section {
+  border-radius: var(--josanz-radius-card);
+  box-shadow: var(--josanz-card-shadow);
+}
+
+[data-josanz-atmosphere='neutral'] .josanz-main-list h1 {
+  color: var(--josanz-text-heading);
+}
+
+[data-josanz-atmosphere='neutral'] .josanz-main-list__header .h-\[3px\] {
+  background: linear-gradient(90deg, var(--josanz-interactive, #080808), transparent) !important;
+}

@@ -1,10 +1,10 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { DomainEvent } from '@josanz-erp/shared-model';
 
 /**
- * OutboxService â€” transactionally persists domain events to the outbox table.
+ * OutboxService — transactionally persists domain events to the outbox table.
  *
  * Called inside the same Prisma transaction as the business operation so that
  * events are never lost even if the process crashes before the worker picks them up.

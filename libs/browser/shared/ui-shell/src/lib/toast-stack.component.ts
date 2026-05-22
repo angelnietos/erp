@@ -18,11 +18,11 @@ import { ToastService } from '@josanz-erp/shared-data-access';
       @for (t of toast.toasts(); track t.id) {
         <div class="toast" [class]="t.variant" role="status">
           @if (t.variant === 'success') {
-            <lucide-icon [img]="IconCheck" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconCheck" size="18" class="toast-icon" aria-hidden="true" />
           } @else if (t.variant === 'error') {
-            <lucide-icon [img]="IconAlert" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconAlert" size="18" class="toast-icon" aria-hidden="true" />
           } @else {
-            <lucide-icon [img]="IconInfo" size="18" class="toast-icon" />
+            <lucide-icon [img]="IconInfo" size="18" class="toast-icon" aria-hidden="true" />
           }
           <span class="toast-msg">{{ t.message }}</span>
           <button
@@ -31,7 +31,7 @@ import { ToastService } from '@josanz-erp/shared-data-access';
             (click)="toast.dismiss(t.id)"
             aria-label="Cerrar"
           >
-            <lucide-icon [img]="IconX" size="16" />
+            <lucide-icon [img]="IconX" size="16" aria-hidden="true" />
           </button>
         </div>
       }
@@ -108,6 +108,13 @@ import { ToastService } from '@josanz-erp/shared-data-access';
         opacity: 1;
         color: #fff;
       }
+      .toast-close:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--info, #3b82f6) 65%, transparent);
+        outline-offset: 2px;
+        border-radius: 4px;
+        opacity: 1;
+        color: #fff;
+      }
       @keyframes toast-in {
         from {
           transform: translateY(8px);
@@ -116,6 +123,12 @@ import { ToastService } from '@josanz-erp/shared-data-access';
         to {
           transform: translateY(0);
           opacity: 1;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .toast {
+          animation: none;
         }
       }
     `,

@@ -1,0 +1,146 @@
+@if (total > 0 && variant === 'figma') {
+  <nav
+    class="flex w-full flex-wrap justify-center md:justify-end"
+    [class.overflow-visible]="pagePickerOpen"
+    [style.--josanz-primary]="customColor || null"
+    aria-label="Paginación"
+  >
+    <div [class]="shellBlockClass()" [ngStyle]="shellBlockCombinedStyle()">
+      <button
+        type="button"
+        class="flex min-h-9 min-w-9 shrink-0 items-center justify-center border-r border-solid px-3 text-[15px] font-semibold leading-none transition hover:brightness-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+        [style.border-color]="themeService.currentTheme().atmosphere.border"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        [disabled]="effectiveCurrent <= 1"
+        aria-label="Página anterior"
+        (click)="prev()"
+      >
+        ‹
+      </button>
+      <div class="relative border-x border-solid" [style.border-color]="themeService.currentTheme().atmosphere.border">
+        <button
+          type="button"
+          class="josanz-pagination__picker flex min-h-9 select-none items-center gap-2 px-4 py-2 text-[13px] font-semibold tabular-nums transition hover:brightness-[0.96]"
+          [style.color]="themeService.currentTheme().atmosphere.text"
+          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+          [attr.aria-expanded]="pagePickerOpen"
+          aria-haspopup="listbox"
+          [attr.aria-controls]="pagePickerOpen ? pageListId : null"
+          aria-label="Ir a página"
+          (click)="togglePagePicker($event)"
+        >
+          <span aria-current="page">{{ effectiveCurrent }} / {{ total }}</span>
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            class="opacity-50 transition-transform"
+            [class.rotate-180]="pagePickerOpen"
+            aria-hidden="true"
+          >
+            <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        @if (pagePickerOpen) {
+          <ul
+            [id]="pageListId"
+            role="listbox"
+            class="josanz-pagination__page-menu absolute bottom-full left-1/2 z-50 mb-1 max-h-48 min-w-[4.5rem] -translate-x-1/2 list-none overflow-y-auto border border-solid p-1 shadow-lg"
+            [ngClass]="cornerClass()"
+            [ngStyle]="surfaceNavStyle()"
+            [attr.aria-label]="'Páginas del 1 al ' + total"
+          >
+            @for (page of pageOptions(); track page) {
+              <li role="presentation">
+                <button
+                  type="button"
+                  role="option"
+                  class="josanz-pagination__page-option w-full rounded-md px-3 py-1.5 text-left text-[13px] font-semibold tabular-nums transition hover:brightness-[0.96]"
+                  [attr.aria-selected]="page === effectiveCurrent"
+                  [ngStyle]="pageButtonStyle(page === effectiveCurrent)"
+                  (click)="selectPage(page, $event)"
+                >
+                  {{ page }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      <button
+        type="button"
+        class="flex min-h-9 min-w-9 shrink-0 items-center justify-center border-l border-solid px-3 text-[15px] font-semibold leading-none transition hover:brightness-[0.96] disabled:cursor-not-allowed disabled:opacity-35"
+        [style.border-color]="themeService.currentTheme().atmosphere.border"
+        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+        [style.color]="themeService.currentTheme().atmosphere.text"
+        [disabled]="effectiveCurrent >= total"
+        aria-label="Página siguiente"
+        (click)="next()"
+      >
+        ›
+      </button>
+    </div>
+  </nav>
+}
+
+@if (total > 0 && variant === 'numbered') {
+  <nav
+    class="josanz-pagination flex flex-wrap items-center justify-center gap-1 sm:gap-2"
+    [style.--josanz-primary]="customColor || null"
+    aria-label="Paginación"
+  >
+    <button
+      type="button"
+      class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+      [ngClass]="cornerClass()"
+      [ngStyle]="surfaceNavStyle()"
+      (click)="prev()"
+      [disabled]="effectiveCurrent <= 1"
+      aria-label="Página anterior"
+    >
+      ‹
+    </button>
+
+    <ol class="flex list-none flex-wrap items-center justify-center gap-1 p-0 m-0">
+      @for (item of pageItems(); track trackPageItem($index, item)) {
+        <li>
+          @if (item === 'ellipsis') {
+            <span
+              class="josanz-pagination__ellipsis px-2 text-sm font-medium select-none"
+              [style.color]="themeService.currentTheme().atmosphere.textMuted"
+              aria-hidden="true"
+              >…</span
+            >
+          } @else {
+            <button
+              type="button"
+              class="josanz-pagination__page min-h-9 min-w-9 border border-solid text-sm font-semibold transition shadow-sm hover:brightness-[0.97]"
+              [ngClass]="cornerClass()"
+              [ngStyle]="pageButtonStyle(item === effectiveCurrent)"
+              [attr.aria-current]="item === effectiveCurrent ? 'page' : null"
+              (click)="go(item)"
+            >
+              {{ item }}
+            </button>
+          }
+        </li>
+      }
+    </ol>
+
+    <button
+      type="button"
+      class="josanz-pagination__nav min-h-9 min-w-9 border border-solid px-2 text-sm font-semibold shadow-sm transition hover:brightness-[0.97] disabled:cursor-not-allowed disabled:opacity-40"
+      [ngClass]="cornerClass()"
+      [ngStyle]="surfaceNavStyle()"
+      (click)="next()"
+      [disabled]="effectiveCurrent >= total"
+      aria-label="Página siguiente"
+    >
+      ›
+    </button>
+  </nav>
+}

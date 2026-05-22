@@ -9,18 +9,24 @@ import {
   ElementRef,
   OnInit,
   OnDestroy,
+  isDevMode,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
-import { Router, RouterModule } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import {
   AIBotStore,
   DashboardAnalyticsService,
   ThemeService,
   Theme,
-  THEMES,
-  MasterFilterService,
   InterBotMessage,
+  OrchestrationBus,
+  TechnicianApiService,
+  getAiFeatureFromUrl,
+  AIProvider,
+  mascotMouthToUi,
 } from '@josanz-erp/shared-data-access';
 import { UIMascotComponent } from '../mascot/mascot.component';
 import { UiButtonComponent } from '../button/button.component';
@@ -29,8 +35,40 @@ import { DragDropModule, CdkDragEnd } from '@angular/cdk/drag-drop';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
+type ChatMessageItem = {
+  id: string;
+  text: string;
+  role: 'user' | 'bot';
+  reasoning?: string;
+  feedbackSubmitted?: boolean;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+interface SpeechRecognitionLike {
+  continuous: boolean;
+  lang: string;
+  onstart: (() => void) | null;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  onend: (() => void) | null;
+  start(): void;
+  stop(): void;
+}
+
+interface SpeechRecognitionResultEvent {
+  results: {
+    [index: number]: { [index: number]: { transcript: string } };
+  };
+}
+
+type WindowWithSpeechRecognition = Window &
+  typeof globalThis & {
+    SpeechRecognition?: SpeechRecognitionCtor;
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+  };
+
 @Component({
-  selector: 'ui-josanz-ai-assistant',
+  selector: 'ui-ai-assistant',
   standalone: true,
   imports: [
     CommonModule,
@@ -52,14 +90,32 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return this._feature();
   }
 
+  /** En layout dual: Buddy (orquestador) vs bot del módulo actual. */
+  @Input() assistantRole: 'buddy' | 'domain' = 'domain';
+
   aiBotStore = inject(AIBotStore);
-  masterFilterService = inject(MasterFilterService);
+  orchestrationBus = inject(OrchestrationBus);
+  private technicianApi = inject(TechnicianApiService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
   http = inject(HttpClient);
-  masterFilter = inject(MasterFilterService);
   router = inject(Router);
   ngZone = inject(NgZone);
+
+  /** Módulo ERP actual (eventos, clientes, …) para contexto cuando el shell es Buddy. */
+  private readonly navEvents = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+  );
+  readonly domainFeature = computed(() => {
+    this.navEvents();
+    return getAiFeatureFromUrl(this.router.url);
+  });
+
+  /** Dominio ERP para memoria cuando este chat es el orquestador (antiguo Buddy). */
+  readonly contextFeature = computed(() => {
+    const f = this._feature();
+    return this.assistantRole === 'buddy' ? this.domainFeature() : f;
+  });
 
   readonly currentUserId = signal<string>(
     JSON.parse(localStorage.getItem('auth_user') || 'null')?.email ||
@@ -68,10 +124,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   );
 
   readonly currentUserPersonality = computed(() =>
-    this.aiBotStore.getUserPersonality(this.feature, this.currentUserId()),
+    this.aiBotStore.getUserPersonality(this.contextFeature(), this.currentUserId()),
   );
 
-  readonly bot = computed(() => this.aiBotStore.getBotByFeature(this.feature));
+  readonly bot = computed(() =>
+    this.aiBotStore.getEffectiveBotForCurrentUser(this.feature),
+  );
+
+  /** Expuesto al template: `AIBot` puede tener bocas legacy (`grin`/`none`). */
+  readonly mascotMouthToUi = mascotMouthToUi;
   readonly botPosition = computed(() =>
     this.aiBotStore.getBotPosition(this.feature),
   );
@@ -91,15 +152,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return { x, y };
   });
   readonly isOpen = signal(false);
-  readonly messages = signal<
-    {
-      id: string;
-      text: string;
-      role: 'user' | 'bot';
-      reasoning?: string;
-      feedbackSubmitted?: boolean;
-    }[]
-  >([]);
+  readonly messages = signal<ChatMessageItem[]>([]);
   readonly currentReasoning = signal<string>('');
   hfToken = signal<string>(localStorage.getItem('hf_token') || '');
   currentInput = '';
@@ -113,26 +166,42 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     this.messages.set([]);
   }
 
-  submitFeedback(msg: any, type: 'positive' | 'negative') {
+  submitFeedback(msg: ChatMessageItem, type: 'positive' | 'negative') {
     msg.feedbackSubmitted = true;
     this.messages.update((m) => [...m]);
     const fbText = `Feedback de Usuario (${type === 'positive' ? '👍 POSITIVO' : '👎 NEGATIVO'}): Tu respuesta fue "${msg.text.substring(0, 75)}...".`;
-    this.aiBotStore.remember(this.feature, fbText, type === 'positive' ? 3 : 5);
+    this.aiBotStore.remember(
+      this.contextFeature(),
+      fbText,
+      type === 'positive' ? 3 : 5,
+    );
   }
 
   isListening = signal(false);
-  private recognition: any;
+  private recognition: SpeechRecognitionLike | null = null;
   private textBeforeDictation = '';
   private el = inject(ElementRef);
 
   constructor() {
     this.initSpeechRecognition();
+
+    // React to inter-bot queue messages
     effect(() => {
       const b = this.bot();
-      console.log(`[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`);
+      this.aiBotStore.interBotQueue(); // re-ejecutar cuando lleguen mensajes
+      if (isDevMode()) {
+        console.debug(
+          `[AI Assistant] Feature: ${this.feature}, Bot: ${b?.name}, Status: ${b?.status}`,
+        );
+      }
       
       this.aiBotStore.interBotTick();
-      const items = this.aiBotStore.pullInterBotMessagesFor(this.feature);
+      const items =
+        this.assistantRole === 'buddy'
+          ? this.aiBotStore.pullInterBotMessagesForFeatures([this._feature()], {
+              includeGlobalBroadcast: true,
+            })
+          : this.aiBotStore.pullInterBotMessagesForDomainFeature(this.feature);
       if (items.length === 0) return;
       items.forEach((item: InterBotMessage, i: number) => {
         const delay = 80 + i * 350;
@@ -145,6 +214,62 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
             }
           });
         }, delay);
+      });
+    });
+
+    // React to OrchestrationBus tasks dispatched to this bot
+    effect(() => {
+      this.orchestrationBus.tasks(); // re-ejecutar cuando haya tareas nuevas
+      const selfFeature = this._feature();
+      if (!selfFeature) return;
+      const pending = this.orchestrationBus.getPendingFor(selfFeature);
+      if (pending.length === 0) return;
+
+      pending.forEach((task) => {
+        const claimed = this.orchestrationBus.claimTask(task.id);
+        if (!claimed) return;
+
+        this.ngZone.run(async () => {
+          try {
+            const instruction = (task.payload['instruction'] as string) ||
+              `Ejecuta: ${task.type} — ${JSON.stringify(task.payload)}`;
+            const targetDomain = task.to;
+
+            const isOrchestrator = this.assistantRole === 'buddy';
+            const orchName = this.aiBotStore.getBotDisplayName(selfFeature);
+            const taskLabel = isOrchestrator
+              ? `🎯 **Tarea de ${orchName} (orquestador):** ${instruction}`
+              : `🎯 **Tarea en tu dominio (${targetDomain}):** ${instruction}`;
+
+            this.messages.update(m => [
+              ...m,
+              {
+                id: `${Date.now()}-orch`,
+                text: taskLabel,
+                role: 'bot',
+              },
+            ]);
+            this.scrollToBottom();
+
+            if (isOrchestrator) {
+              await this.triggerAIResponse(
+                `INSTRUCCIÓN AUTOMÁTICA DEL ORQUESTADOR (${orchName}):\n${instruction}\n\nEjecuta esta tarea en el contexto de tu dominio (${targetDomain}). Responde brevemente qué hiciste y ejecuta las acciones de sistema correspondientes.`,
+              );
+            } else {
+              await this.triggerAIResponse(
+                `INSTRUCCIÓN DE WORKFLOW:\n${instruction}\n\nActúa como especialista del dominio **${selfFeature}** y ejecuta lo necesario en el ERP.`,
+              );
+            }
+
+            this.orchestrationBus.complete(
+              task.id,
+              `Bot ${targetDomain} procesó la tarea`,
+            );
+          } catch (e: unknown) {
+            const message = e instanceof Error ? e.message : String(e);
+            this.orchestrationBus.fail(task.id, message);
+          }
+        });
       });
     });
   }
@@ -198,9 +323,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         await this.aiBotStore.autoSelectProvider();
       }
 
-      // Log del estado de proveedores
-      const status = this.aiBotStore.getProviderStatus();
-      console.log('Estado de proveedores de IA:', status);
+      if (isDevMode()) {
+        console.debug('Estado de proveedores de IA:', this.aiBotStore.getProviderStatus());
+      }
     } catch (error) {
       console.warn('Error inicializando proveedores gratuitos:', error);
     }
@@ -224,15 +349,15 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   private initSpeechRecognition() {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition ||
-      (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      this.recognition = new SpeechRecognition();
+    const w = window as WindowWithSpeechRecognition;
+    const SpeechRecognitionCtor =
+      w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (SpeechRecognitionCtor) {
+      this.recognition = new SpeechRecognitionCtor();
       this.recognition.continuous = false;
       this.recognition.lang = 'es-ES';
       this.recognition.onstart = () => this.isListening.set(true);
-      this.recognition.onresult = (event: any) => {
+      this.recognition.onresult = (event: SpeechRecognitionResultEvent) => {
         this.ngZone.run(() => {
           const speech = event.results[0][0].transcript;
           this.currentInput = speech;
@@ -254,13 +379,12 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   }
 
   onMascotDragEnd(event: CdkDragEnd) {
-    const element = event.source.element.nativeElement;
-    const rect = element.getBoundingClientRect();
-    const newPosition = {
-      x: rect.left,
-      y: rect.top,
-    };
-    this.aiBotStore.updateBotPosition(this.feature, newPosition);
+    // getBoundingClientRect gives the true viewport position after dragging
+    const rect = event.source.element.nativeElement.getBoundingClientRect();
+    // Save the new absolute position so left/top CSS props update on next render
+    this.aiBotStore.updateBotPosition(this.feature, { x: rect.left, y: rect.top });
+    // Reset CDK's internal drag delta — position is now encoded in left/top CSS
+    event.source.reset();
   }
 
   onChatWindowDragEnd(event: CdkDragEnd) {
@@ -313,7 +437,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     ]);
     this.currentInput = '';
     this.scrollToBottom();
-    this.aiBotStore.trackInteraction(this.feature, this.currentUserId());
+    this.aiBotStore.trackInteraction(this.contextFeature(), this.currentUserId());
     this.aiBotStore.broadcastMessage(this.feature, userInput, 'all');
     await this.triggerAIResponse(userInput);
   }
@@ -332,13 +456,74 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     try {
       // Construir contexto basado en el rol del bot y historial de conversación
-      const botMemories = this.aiBotStore.getBotContext(this.feature);
+      const memoryKeys =
+        this.assistantRole === 'buddy'
+          ? [...new Set([this._feature(), this.domainFeature()])]
+          : [this.feature];
+      const botMemories = memoryKeys.flatMap((k) =>
+        this.aiBotStore.getBotContext(k),
+      );
       const conversationHistory = this.messages()
         .slice(-6) // Últimos 6 mensajes para mantener contexto relevante
         .map((m) => `${m.role === 'user' ? 'Usuario' : 'Asistente'}: ${m.text}`)
         .join('\n');
 
-      const systemPrompt = `Eres ${this.bot()!.name}, un asistente de IA especializado en ${this.bot()!.feature}. Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}`;
+      const displayName = this.aiBotStore.getBotDisplayName(this.feature);
+      const userLayer = this.mergeUserLayersForPrompt();
+      const userLayerExtras: string[] = [];
+      if (userLayer.rules.trim()) {
+        userLayerExtras.push(
+          `Reglas que el usuario quiere que respetes:\n${userLayer.rules.trim()}`,
+        );
+      }
+      if (userLayer.systemInstructions.trim()) {
+        userLayerExtras.push(
+          `Instrucciones adicionales del usuario:\n${userLayer.systemInstructions.trim()}`,
+        );
+      }
+      if (userLayer.promptPresets.length > 0) {
+        userLayerExtras.push(
+          `Comportamientos / prompts definidos por el usuario:\n${userLayer.promptPresets
+            .map((p) => `- **${p.title}**: ${p.content}`)
+            .join('\n')}`,
+        );
+      }
+      if (userLayer.activeSkills.length > 0) {
+        userLayerExtras.push(
+          `Capacidades que este usuario tiene activas (prioriza ayudar en estas áreas): ${userLayer.activeSkills.join(', ')}.`,
+        );
+      }
+      const userLayerBlock =
+        userLayerExtras.length > 0 ? `\n\n${userLayerExtras.join('\n\n')}` : '';
+
+      let technicianSnapshot = '';
+      if (this.domainFeature() === 'users') {
+        try {
+          const techs = await firstValueFrom(this.technicianApi.getTechnicians());
+          const summary = techs.map((t) => ({
+            id: t.id,
+            nombre:
+              [t.user?.firstName, t.user?.lastName].filter(Boolean).join(' ').trim() ||
+              t.user?.email ||
+              '(sin nombre)',
+            email: t.user?.email,
+            skills: t.skills,
+            estado: t.status,
+          }));
+          technicianSnapshot =
+            `\n\nDatos actuales de técnicos (API /api/technicians). Usa estos ids y habilidades en tus respuestas:\n${JSON.stringify(summary, null, 2)}\n`;
+        } catch {
+          technicianSnapshot =
+            '\n\n(No se pudo cargar la lista de técnicos; sugiere comprobar sesión y API.)\n';
+        }
+      }
+
+      const domainHint =
+        this.assistantRole === 'buddy'
+          ? ` El usuario está ahora en el módulo **${this.domainFeature()}** del ERP; prioriza ese contexto en ejemplos y acciones.`
+          : '';
+      const botFeature = this.bot()?.feature ?? this.feature;
+      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${botFeature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
@@ -351,7 +536,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
                   `- ${m.text} (${new Date(m.timestamp).toLocaleDateString()})`,
               )
               .join('\n')}\n\n`
-          : '');
+          : '') +
+        technicianSnapshot;
 
       // Generar respuesta usando proveedores gratuitos con contexto
       const response = await this.aiBotStore.generateFreeResponse(
@@ -367,7 +553,9 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         const actionStr = parts[1].trim();
 
         // Ejecutar la acción técnica en el sistema (Workflow)
-        await this.aiBotStore.executeAction(actionStr);
+        await this.aiBotStore.executeAction(actionStr, {
+          sourceFeature: this.feature,
+        });
       }
 
       // Actualizar mensaje con respuesta (limpia de metadatos de acción)
@@ -387,14 +575,13 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
       // Registrar interacción exitosa
       this.aiBotStore.recordSuccessfulInteraction(
-        this.feature,
+        this.contextFeature(),
         'current_user',
         userInput,
         'chat_response',
         Date.now(),
       );
-    } catch (e) {
-      // Manejar errores
+    } catch {
       this.messages.update((m) =>
         m.map((msg) =>
           msg.id === typingId
@@ -412,7 +599,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   async executeFunction(
     funcName: string,
-    args: Record<string, any>,
+    args: Record<string, unknown>,
   ): Promise<void> {
     try {
       switch (funcName) {
@@ -436,7 +623,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         case 'switch_to_free_provider': {
           const preferred = String(args['preferred'] ?? '');
           if (preferred) {
-            this.aiBotStore.selectedProvider.set(preferred as any);
+            this.aiBotStore.selectedProvider.set(preferred as AIProvider);
             await this.triggerAIResponse(
               `(SISTEMA: Cambiado a proveedor gratuito: ${preferred})`,
             );
@@ -672,7 +859,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private detectGeneralCommand(
     text: string,
-  ): { type: string; args: Record<string, any> } | null {
+  ): { type: string; args: Record<string, unknown> } | null {
     const lowerText = text.toLowerCase();
 
     // Detección de cálculos matemáticos
@@ -681,7 +868,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       /cuánto\s+es\s+(.+)/i,
       /what\s+is\s+(.+)/i,
       /calculate\s+(.+)/i,
-      /(\d+[\+\-\*\/\(\)\.\s]*\d+)/, // Expresiones con números y operadores
+      /(\d+[-+*/().\s]*\d+)/, // Expresiones con números y operadores
     ];
 
     for (const pattern of calcPatterns) {
@@ -689,7 +876,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       if (match && match[1]) {
         const expression = match[1].trim();
         // Verificar que contenga operadores matemáticos
-        if (/[\+\-\*\/]/.test(expression)) {
+        if (/[-+*/]/.test(expression)) {
           return { type: 'calculate', args: { expression } };
         }
       }
@@ -754,7 +941,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
   private async executeGeneralCommand(
     type: string,
-    args: Record<string, any>,
+    args: Record<string, unknown>,
     userInput: string,
   ) {
     // Agregar mensaje del usuario
@@ -770,28 +957,35 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
     try {
       switch (type) {
-        case 'calculate':
-          reasoning = `Calculando la expresión matemática: ${args['expression']}`;
-          const result = this.safeEvaluateMath(args['expression']);
-          botResponse = `El resultado de ${args['expression']} es: **${result}**`;
+        case 'calculate': {
+          const expression = String(args['expression'] ?? '');
+          reasoning = `Calculando la expresión matemática: ${expression}`;
+          const result = this.safeEvaluateMath(expression);
+          botResponse = `El resultado de ${expression} es: **${result}**`;
           break;
+        }
 
-        case 'web_search':
-          reasoning = `Realizando búsqueda web para: ${args['query']}`;
-          botResponse = `Buscando información sobre "${args['query']}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
+        case 'web_search': {
+          const query = String(args['query'] ?? '');
+          reasoning = `Realizando búsqueda web para: ${query}`;
+          botResponse = `Buscando información sobre "${query}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
           // Aquí podrías integrar una API de búsqueda si tienes acceso
           break;
+        }
 
-        case 'generate_image':
-          reasoning = `Generando imagen con el prompt: ${args['prompt']}`;
-          botResponse = `Generando imagen de "${args['prompt']}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
+        case 'generate_image': {
+          const prompt = String(args['prompt'] ?? '');
+          reasoning = `Generando imagen con el prompt: ${prompt}`;
+          botResponse = `Generando imagen de "${prompt}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
           break;
+        }
 
-        case 'summarize':
+        case 'summarize': {
           reasoning = `Resumiendo el texto proporcionado`;
-          const summary = this.generateSummary(args['text']);
+          const summary = this.generateSummary(String(args['text'] ?? ''));
           botResponse = `Resumen: ${summary}`;
           break;
+        }
 
         case 'current_time':
           reasoning = `Consultando la hora actual`;
@@ -865,11 +1059,27 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
     return summary.length > 100 ? summary.substring(0, 100) + '...' : summary;
   }
 
-  trackBySkill(index: number, skill: string) {
-    return skill;
-  }
-
-  trackByMsg(index: number, msg: any) {
-    return msg.id;
+  /**
+   * Capa de preferencias del usuario: Buddy + capa del módulo actual (p. ej. JAIME en panel).
+   */
+  private mergeUserLayersForPrompt() {
+    if (this.assistantRole !== 'buddy') {
+      return this.aiBotStore.getUserAgentConfig(this.feature);
+    }
+    const principal = this._feature();
+    const b = this.aiBotStore.getUserAgentConfig(principal);
+    const dom = this.domainFeature();
+    const d = this.aiBotStore.getUserAgentConfig(dom);
+    if (dom === principal) {
+      return b;
+    }
+    return {
+      activeSkills: [...new Set([...b.activeSkills, ...d.activeSkills])],
+      rules: [b.rules, d.rules].filter(Boolean).join('\n\n'),
+      systemInstructions: [b.systemInstructions, d.systemInstructions]
+        .filter(Boolean)
+        .join('\n\n'),
+      promptPresets: [...b.promptPresets, ...d.promptPresets],
+    };
   }
 }

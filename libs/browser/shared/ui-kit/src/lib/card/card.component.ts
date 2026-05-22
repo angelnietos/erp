@@ -6,14 +6,13 @@ export type CardShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neumo
 export type CardVariant = string;
 
 @Component({
-  selector: 'ui-josanz-card',
+  selector: 'ui-card',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div 
-      class="card" 
-      [class]="'card-color-' + color"
-      [class]="'card-shape-' + shape"
+    <div
+      class="card"
+      [ngClass]="['card-color-' + color, 'card-shape-' + shape]"
       [class.card-auto-overrides]="shape === 'auto'"
       [class.hover-effect]="hover || interactive"
       [class.ui-neon]="hover"
@@ -45,15 +44,11 @@ export type CardVariant = string;
     }
     
     .card {
-      /* Structural tokens injected via JS in ThemeService.applyStructuralTokens() */
-      border-radius: var(--card-radius, var(--radius-lg, 12px));
-      background: var(--card-bg, var(--surface));
-      border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
-      box-shadow: var(--card-shadow, var(--shadow-sm)), var(--shadow-inset-shine);
-      transition:
-        transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-        border-color 0.35s ease;
+      border-radius: var(--radius-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-md);
+      transition: all 0.6s var(--transition-spring);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -61,126 +56,64 @@ export type CardVariant = string;
       isolation: isolate;
     }
 
+    /* Nintendo Side Accent for Color Variants */
     .card::before {
       content: '';
       position: absolute;
-      inset: 0 0 auto 0;
-      height: 1px;
-      background: linear-gradient(
-        90deg,
-        transparent,
-        color-mix(in srgb, var(--brand) 45%, transparent),
-        color-mix(in srgb, #fff 25%, transparent),
-        color-mix(in srgb, var(--brand) 35%, transparent),
-        transparent
-      );
-      opacity: 0.55;
-      pointer-events: none;
-      z-index: 1;
+      left: 0; top: 0; bottom: 0; width: 0;
+      background: var(--brand);
+      transition: width 0.4s var(--transition-spring);
+      z-index: 10;
     }
 
-    /* shape-auto: picks up all tokens from ThemeService */
-    .card-shape-auto {
-      border-radius: var(--card-radius, var(--radius-lg, 12px));
-      background: var(--card-bg, var(--surface));
-      border: var(--card-border-width, 1px) solid var(--card-border, var(--border-soft));
-      box-shadow: var(--card-shadow, var(--shadow-md, 0 4px 20px rgba(0,0,0,0.3))), var(--shadow-inset-shine, none);
-    }
-
-    /* COLOR THEMATIC TOKENS */
-    .card-color-default { --card-bg: var(--surface); --card-border: var(--border-soft); }
-    .card-color-primary { --card-bg: color-mix(in srgb, var(--brand) 15%, transparent); --card-border: color-mix(in srgb, var(--brand) 40%, transparent); }
-    .card-color-brand { --card-bg: linear-gradient(135deg, var(--brand) 0%, var(--brand-muted) 100%); --card-border: transparent; color: white; }
-    .card-color-danger { --card-bg: rgba(239, 68, 68, 0.1); --card-border: rgba(239, 68, 68, 0.3); }
-    .card-color-success { --card-bg: rgba(16, 185, 129, 0.1); --card-border: rgba(16, 185, 129, 0.3); }
-    .card-color-warning { --card-bg: rgba(245, 158, 11, 0.1); --card-border: rgba(245, 158, 11, 0.3); }
-    .card-color-info { --card-bg: rgba(59, 130, 246, 0.1); --card-border: rgba(59, 130, 246, 0.3); }
-
-    /* STRUCTURAL SHAPES overrides - Cleaned up to use global tokens preferred by ThemeService */
-    .card-shape-auto {
-      border-radius: var(--radius-lg);
-      background: var(--card-bg);
-      border: var(--card-border-width) solid var(--card-border);
-      box-shadow: var(--card-shadow), var(--shadow-inset-shine);
-    }
-    
-    .card-shape-solid {
-      --card-bg: var(--bg-tertiary);
-      --card-border: var(--brand);
-      --card-radius: 0px;
-      --card-border-width: 2px;
-      --card-shadow: 4px 4px 0px rgba(0,0,0,0.6);
-    }
-
-    .card-shape-glass {
-      --card-bg: var(--surface);
-      backdrop-filter: blur(var(--variant-blur)); -webkit-backdrop-filter: blur(var(--variant-blur));
-      --card-border: var(--border-vibrant);
-    }
-
-    .card-shape-flat {
-      --card-bg: var(--bg-secondary);
-      --card-border: var(--text-primary);
-      --card-border-width: 3px;
-      --card-radius: 0px;
-      --card-shadow: none;
-    }
-
-    .card-shape-neumorphic {
-      --card-bg: var(--bg-primary);
-      --card-border-width: 0px;
-      --card-shadow: var(--shadow-md);
-      --card-radius: 40px;
-    }
-
-    .card-shape-minimal {
-      --card-bg: transparent;
-      --card-border-width: 0px;
-      --card-shadow: none;
-      --card-radius: 0px;
-      border-bottom: 2px solid var(--border-soft) !important;
-    }
+    .card-color-primary::before, .card-color-brand::before { width: 4px; }
 
     .card-header {
-      padding: 0.875rem 1.25rem;
+      padding: 1.5rem 2rem;
       border-bottom: 1px solid var(--border-soft);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: color-mix(in srgb, var(--surface) 70%, var(--brand) 4%);
+      background: linear-gradient(to right, rgba(255,255,255,0.03), transparent);
+      position: relative;
+      z-index: 1;
     }
 
-    .header-main { display: flex; flex-direction: column; gap: 0.25rem; }
-
     .card-header h3 {
-      font-size: 0.58rem; /* Reduced from 0.62rem */
-      letter-spacing: 0.08em;
-      color: var(--text-secondary);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
       margin: 0;
+      font-family: var(--font-display);
     }
 
     .card-body {
-      padding: 0.875rem; /* Reduced from 1.25rem */
+      padding: 2rem;
       flex: 1;
+      position: relative;
+      z-index: 1;
     }
 
-    .card-footer {
-      padding: 0.875rem 1.25rem;
-      background: color-mix(in srgb, var(--surface) 60%, transparent);
-      border-top: 1px solid var(--border-soft);
-    }
-
-    .hover-effect { cursor: pointer; }
     .hover-effect:hover {
-      transform: translateY(-5px);
-      box-shadow:
-        0 24px 48px rgba(0, 0, 0, 0.38),
-        0 0 36px -12px var(--brand-glow, rgba(255, 255, 255, 0.08));
-      --card-border: color-mix(in srgb, var(--brand) 55%, var(--border-soft));
+      transform: translateY(-12px) scale(1.02);
+      background: var(--bg-tertiary);
+      border-color: var(--brand);
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6), 0 0 30px var(--brand-ambient);
     }
+    
+    .hover-effect:hover::before { width: 8px; }
 
-    .hover-effect::before {
-      opacity: 0.9;
+    .card-color-brand {
+      background: linear-gradient(135deg, var(--brand), var(--brand-muted));
+      border: none;
+    }
+    .card-color-brand h3 { color: #fff; text-shadow: 0 0 10px rgba(0,0,0,0.3); }
+
+    .card-shape-glass {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(30px) saturate(2);
+      border-color: rgba(255, 255, 255, 0.08);
     }
   `],
 })

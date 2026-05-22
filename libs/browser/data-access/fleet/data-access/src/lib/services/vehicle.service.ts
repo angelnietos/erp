@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface Vehicle {
   id: string;
@@ -23,12 +24,34 @@ export class VehicleService {
   private http = inject(HttpClient);
   private apiUrl = '/api/vehicles';
 
+  /** Último listado cargado (p. ej. desde flota) para hidratar detalle sin esperar. */
+  private readonly listCache = new Map<string, Vehicle>();
+
+  /** Llamar al cargar el listado para que el detalle pueda mostrar datos al instante. */
+  seedListCache(vehicles: Vehicle[]): void {
+    this.listCache.clear();
+    for (const v of vehicles) {
+      this.listCache.set(v.id, v);
+    }
+  }
+
+  /** Tras crear o actualizar desde formulario: el detalle puede hidratar al instante. */
+  upsertListCache(vehicle: Vehicle): void {
+    this.listCache.set(vehicle.id, vehicle);
+  }
+
+  getListCached(id: string): Vehicle | undefined {
+    return this.listCache.get(id);
+  }
+
   getVehicles(): Observable<Vehicle[]> {
     return this.http.get<Vehicle[]>(this.apiUrl);
   }
 
   getVehicle(id: string): Observable<Vehicle | undefined> {
-    return this.http.get<Vehicle>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<Vehicle>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Vehicle>());
   }
 
   getVehiclesByStatus(status: string): Observable<Vehicle[]> {

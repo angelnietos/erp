@@ -1,0 +1,4 @@
+:host {
+  display: block;
+  --btn-color: var(--josanz-primary);
+}

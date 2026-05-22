@@ -12,8 +12,8 @@ import {
   UiCardComponent,
   UiButtonComponent,
   UiLoaderComponent,
-  UiTableComponent,
   UiStatCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   ThemeService,
@@ -22,7 +22,7 @@ import {
   ServiceCatalogItemDto,
 } from '@josanz-erp/shared-data-access';
 import { openPrintableDocument, escapeHtml } from '@josanz-erp/shared-utils';
-import { BudgetService } from '@josanz-erp/budget-data-access';
+import { BudgetService, BudgetStore } from '@josanz-erp/budget-data-access';
 import { Budget, BudgetItem } from '@josanz-erp/budget-api';
 
 @Component({
@@ -35,26 +35,33 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
     UiCardComponent,
     UiButtonComponent,
     UiLoaderComponent,
-    UiTableComponent,
     UiStatCardComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
     >
+      <div class="budget-detail__stack">
       @if (isLoading()) {
-        <ui-josanz-loader
+        <ui-loader
           message="Sincronizando expediente fiscal..."
-        ></ui-josanz-loader>
+        ></ui-loader>
       } @else if (budget()) {
         <header
           class="page-header"
           [style.border-bottom-color]="currentTheme().primary + '33'"
         >
           <div class="header-breadcrumb">
-            <button class="back-btn" routerLink="/budgets">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+            <button
+              type="button"
+              class="back-btn"
+              routerLink="/budgets"
+              aria-label="Volver al listado de presupuestos"
+            >
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>
             <h1
@@ -72,81 +79,85 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button
+            <ui-button
               variant="glass"
               size="md"
               icon="file-text"
               (clicked)="downloadPDF()"
-              >GENERAR PDF</ui-josanz-button
+              >GENERAR PDF</ui-button
             >
-            <ui-josanz-button
+            <ui-button
               variant="primary"
               size="md"
               icon="send"
               (clicked)="sendToClient()"
-              >ENVIAR FIRMA</ui-josanz-button
+              >ENVIAR FIRMA</ui-button
             >
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card
+          <ui-stat-card
             label="Total Presupuestado"
             [value]="formatCurrencyEu(budget()?.total || 0)"
             icon="wallet"
             [accent]="true"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="Estado Actual"
             [value]="getStatusLabel(budget()?.status)"
             [icon]="getStatusIcon(budget()?.status)"
           >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
+          </ui-stat-card>
+          <ui-stat-card
             label="Vencimiento Oferta"
             [value]="formatDate(budget()?.endDate)"
             icon="calendar-clock"
           >
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="main-content">
-          <ui-josanz-card variant="glass" title="Detalle de Líneas Comerciales">
-            <ui-josanz-table
-              [columns]="itemColumns"
-              [data]="budget()?.items || []"
-            >
-              <ng-template #cellTemplate let-item let-key="key">
-                @switch (key) {
-                  @case ('price') {
-                    <span class="font-mono">{{
-                      formatCurrencyEu(item.price)
-                    }}</span>
-                  }
-                  @case ('discount') {
-                    <span>{{ item.discount }}%</span>
-                  }
-                  @case ('tax') {
-                    <span>{{ item.tax }}%</span>
-                  }
-                  @default {
-                    {{ item[key] }}
-                  }
-                }
-              </ng-template>
-            </ui-josanz-table>
-          </ui-josanz-card>
+          <ui-card variant="glass" title="Detalle de Líneas Comerciales">
+            <div class="line-items-cards" role="list">
+              @for (line of budget()?.items || []; track line.id) {
+                <article class="line-item-card" role="listitem">
+                  <h3 class="line-item-card__title">Producto {{ line.productId }}</h3>
+                  <dl class="line-item-card__grid">
+                    <div>
+                      <dt>Cantidad</dt>
+                      <dd>{{ line.quantity }}</dd>
+                    </div>
+                    <div>
+                      <dt>Precio</dt>
+                      <dd class="font-mono">{{ formatCurrencyEu(line.price) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Descuento</dt>
+                      <dd>{{ line.discount }}%</dd>
+                    </div>
+                    <div>
+                      <dt>Impuesto</dt>
+                      <dd>{{ line.tax }}%</dd>
+                    </div>
+                  </dl>
+                </article>
+              } @empty {
+                <p class="line-items-empty">Sin líneas en este presupuesto.</p>
+              }
+            </div>
+          </ui-card>
 
           <div class="sidebar-info">
-            <ui-josanz-card variant="glass" title="Servicios para presupuestar">
+            <ui-card variant="glass" title="Servicios para presupuestar">
               <p class="catalog-hint">
                 Referencia el catálogo tipificado al redactar líneas; precios orientativos.
               </p>
               @if (servicesLoading()) {
-                <ui-josanz-loader
+                <ui-loader
                   message="Cargando catálogo..."
-                ></ui-josanz-loader>
+                ></ui-loader>
               } @else if (catalogServices().length === 0) {
                 <p class="catalog-empty">Sin datos de catálogo (revisa API o tenant).</p>
               } @else {
@@ -162,17 +173,17 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
                   }
                 </ul>
               }
-              <ui-josanz-button
+              <ui-button
                 variant="glass"
                 size="sm"
                 class="full-width catalog-link"
                 routerLink="/services"
               >
                 Abrir catálogo completo
-              </ui-josanz-button>
-            </ui-josanz-card>
+              </ui-button>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Información Logística">
+            <ui-card variant="glass" title="Información Logística">
               <div class="info-list">
                 <div class="info-item">
                   <span class="label">CREADO</span>
@@ -191,51 +202,50 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
                   }}</span>
                 </div>
               </div>
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Acciones de Seguimiento">
+            <ui-card variant="glass" title="Acciones de Seguimiento">
               <div class="actions-grid">
                 @if (budget()?.status === 'ACCEPTED') {
-                  <ui-josanz-button
+                  <ui-button
                     variant="primary"
                     class="full-width"
                     icon="truck"
                     (clicked)="createDelivery()"
                   >
                     GENERAR ALBARÁN
-                  </ui-josanz-button>
-                  <ui-josanz-button
+                  </ui-button>
+                  <ui-button
                     variant="glass"
                     class="full-width"
                     icon="history"
                     (clicked)="createInvoice()"
                   >
                     EMITIR FACTURA
-                  </ui-josanz-button>
+                  </ui-button>
                 } @else {
-                  <ui-josanz-button
+                  <ui-button
                     variant="glass"
                     class="full-width"
                     (clicked)="approveBudget()"
-                    >FORZAR ACEPTACIÓN</ui-josanz-button
+                    >FORZAR ACEPTACIÓN</ui-button
                   >
                 }
               </div>
-            </ui-josanz-card>
+            </ui-card>
           </div>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
+      .budget-detail__stack {
         display: flex;
         flex-direction: column;
         gap: 1.5rem;
+        width: 100%;
       }
 
       .back-btn {
@@ -294,6 +304,62 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
         grid-template-columns: 2fr 1fr;
         gap: 1.5rem;
       }
+
+      .line-items-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .line-item-card {
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-md, 8px);
+        padding: 0.85rem 1rem;
+        background: color-mix(in srgb, var(--surface) 92%, transparent);
+      }
+      .line-item-card__title {
+        margin: 0 0 0.65rem 0;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1.35;
+        word-break: break-word;
+      }
+      .line-item-card__grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem 1rem;
+        margin: 0;
+      }
+      .line-item-card__grid > div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+      .line-item-card__grid dt {
+        margin: 0;
+        font-size: 0.58rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      .line-item-card__grid dd {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+      .line-items-empty {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+      @media (max-width: 520px) {
+        .line-item-card__grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
       .sidebar-info {
         display: flex;
         flex-direction: column;
@@ -388,6 +454,7 @@ export class BudgetDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly budgetService = inject(BudgetService);
+  readonly store = inject(BudgetStore);
   private readonly servicesCatalog = inject(ServicesCatalogApiService);
 
   currentTheme = this.themeService.currentThemeData;
@@ -395,14 +462,6 @@ export class BudgetDetailComponent implements OnInit {
   isLoading = signal(true);
   catalogServices = signal<ServiceCatalogItemDto[]>([]);
   servicesLoading = signal(true);
-
-  itemColumns = [
-    { key: 'productId', header: 'Producto ID' },
-    { key: 'quantity', header: 'Cant.', width: '80px' },
-    { key: 'price', header: 'Precio', width: '120px' },
-    { key: 'discount', header: 'Descuento', width: '100px' },
-    { key: 'tax', header: 'Impuesto', width: '100px' },
-  ];
 
   ngOnInit() {
     this.loadCatalog();
@@ -427,14 +486,28 @@ export class BudgetDetailComponent implements OnInit {
   }
 
   loadBudget(id: string) {
-    this.isLoading.set(true);
+    const fromStore = this.store.budgets().find((b) => b.id === id);
+    if (fromStore) {
+      this.budget.set(fromStore);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
     this.budgetService.getBudget(id).subscribe({
       next: (budget) => {
-        this.budget.set(budget);
+        if (budget) {
+          this.budget.set(budget);
+          this.store.patchBudget(budget);
+        } else if (!fromStore) {
+          this.budget.set(null);
+        }
         this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Error loading budget:', error);
+        if (!fromStore) {
+          this.budget.set(null);
+        }
         this.isLoading.set(false);
       },
     });
@@ -462,7 +535,7 @@ export class BudgetDetailComponent implements OnInit {
       case 'sent':
         return 'navigation';
       case 'rejected':
-        return 'x-circle';
+        return 'circle-x';
       default:
         return 'help-circle';
     }
@@ -515,6 +588,7 @@ export class BudgetDetailComponent implements OnInit {
     this.budgetService.sendBudget(budget.id).subscribe({
       next: (updatedBudget) => {
         this.budget.set(updatedBudget);
+        this.store.patchBudget(updatedBudget);
       },
       error: (error) => {
         console.error('Error sending budget:', error);
@@ -528,6 +602,7 @@ export class BudgetDetailComponent implements OnInit {
     this.budgetService.acceptBudget(budget.id).subscribe({
       next: (updatedBudget) => {
         this.budget.set(updatedBudget);
+        this.store.patchBudget(updatedBudget);
       },
       error: (error) => {
         console.error('Error approving budget:', error);

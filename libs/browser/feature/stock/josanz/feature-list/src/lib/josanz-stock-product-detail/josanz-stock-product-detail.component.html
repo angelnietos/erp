@@ -1,0 +1,85 @@
+<josanz-main-detail-layout
+  [title]="'Producto ' + (productId || '—')"
+  [showFooterActions]="false"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Guardar cambios"
+>
+  <div class="py-2 md:py-4">
+    @if (activeTab() === 'Ficha') {
+      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Datos del artículo
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of fichaRows; track row.label) {
+              <div
+                class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0"
+                style="border-color: var(--josanz-border)"
+              >
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
+                  row.label
+                }}</span>
+                <span
+                  class="text-[16px] font-extrabold leading-snug"
+                  [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
+                  >{{ row.value }}</span
+                >
+              </div>
+            }
+          </div>
+        </div>
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Logística
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            <div class="flex flex-col gap-1 border-b border-solid pb-4" style="border-color: var(--josanz-border)">
+              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
+                >Ubicación sugerida</span
+              >
+              <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">Pasillo B · Estantería 12</span>
+            </div>
+            <div class="flex flex-col gap-1 border-b border-solid pb-4" style="border-color: var(--josanz-border)">
+              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
+                >Lote / serie</span
+              >
+              <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">LOT-2024-8891</span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
+                >Notas internas</span
+              >
+              <span class="text-[14px] font-medium leading-relaxed" style="color: var(--josanz-text-muted)"
+                >Control de calidad pendiente en la próxima recepción.</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'Movimientos') {
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Movimientos de stock</span>
+        <p class="max-w-md text-[14px] leading-relaxed">
+          El histórico de entradas, salidas y ajustes se cargará cuando el servicio de inventario esté conectado.
+        </p>
+      </div>
+    }
+  </div>
+</josanz-main-detail-layout>

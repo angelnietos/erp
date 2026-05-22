@@ -3,7 +3,20 @@
  * Base interface for all domain events in the ERP system
  */
 
-// No imports needed here
+/** UUID v4 for event ids (uses Web Crypto when available). */
+export function generateEventUuid(): string {
+  if (typeof globalThis !== 'undefined') {
+    const { crypto } = globalThis;
+    if (crypto && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 export interface DomainEvent {
   /**
@@ -43,16 +56,7 @@ export abstract class BaseDomainEvent implements DomainEvent {
   readonly eventVersion: number;
 
   constructor(aggregateId: string, eventVersion = 1) {
-    const g: any = globalThis as any;
-    const id =
-      g && g.crypto && typeof g.crypto.randomUUID === 'function'
-        ? g.crypto.randomUUID()
-        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = (Math.random() * 16) | 0;
-            const v = c === 'x' ? r : (r & 0x3) | 0x8;
-            return v.toString(16);
-          });
-    this.eventId = id;
+    this.eventId = generateEventUuid();
     this.aggregateId = aggregateId;
     this.eventType = this.constructor.name;
     this.occurredOn = new Date();

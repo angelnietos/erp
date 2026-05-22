@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface Product {
   id: string;
@@ -28,7 +29,9 @@ export class InventoryService {
   }
 
   getProduct(id: string): Observable<Product | undefined> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<Product>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Product>());
   }
 
   createProduct(product: Omit<Product, 'id'>): Observable<Product> {

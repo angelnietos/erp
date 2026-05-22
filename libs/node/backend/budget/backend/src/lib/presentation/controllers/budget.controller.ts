@@ -1,8 +1,20 @@
-import { Body, Controller, Get, Param, Post, Patch, Delete, UseGuards, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Patch,
+  Delete,
+  UseGuards,
+  Req,
+  ParseUUIDPipe,
+  NotFoundException,
+} from '@nestjs/common';
 import { Request } from 'express';
 import { BudgetService } from '../../application/services/budget.service';
 import { CreateBudgetDto } from '../../application/dtos/create-budget.dto';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, requireRequestTenantId } from '@josanz-erp/shared-infrastructure';
 
 @Controller('budgets')
 @UseGuards(JwtAuthGuard)
@@ -11,8 +23,7 @@ export class BudgetController {
 
   @Get()
   async findAll(@Req() req: Request) {
-    const r = req as unknown as { tenantId?: string, headers: { [key: string]: string } };
-    return this.budgetService.findAll(r.tenantId || r.headers['x-tenant-id']);
+    return this.budgetService.findAll(requireRequestTenantId(req));
   }
 
   @Post()
@@ -27,44 +38,45 @@ export class BudgetController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  async findById(@Param('id', ParseUUIDPipe) id: string) {
     const budget = await this.budgetService.findById(id);
-    return budget
-      ? {
-          id: budget.id.value,
-          clientId: budget.clientId.value,
-          startDate: budget.startDate.toISOString().split('T')[0],
-          endDate: budget.endDate.toISOString().split('T')[0],
-          total: budget.total,
-          status: budget.status,
-          version: budget.version,
-          createdAt: budget.createdAt.toISOString().split('T')[0],
-          items: budget.items.map((i) => ({
-            id: i.id.value,
-            productId: i.productId.value,
-            quantity: i.quantity,
-            price: i.price,
-            tax: i.tax,
-            discount: i.discount,
-          })),
-        }
-      : null;
+    if (!budget) {
+      throw new NotFoundException('Presupuesto no encontrado');
+    }
+    return {
+      id: budget.id.value,
+      clientId: budget.clientId.value,
+      startDate: budget.startDate.toISOString().split('T')[0],
+      endDate: budget.endDate.toISOString().split('T')[0],
+      total: budget.total,
+      status: budget.status,
+      version: budget.version,
+      createdAt: budget.createdAt.toISOString().split('T')[0],
+      items: budget.items.map((i) => ({
+        id: i.id.value,
+        productId: i.productId.value,
+        quantity: i.quantity,
+        price: i.price,
+        tax: i.tax,
+        discount: i.discount,
+      })),
+    };
   }
 
   @Patch(':id/send')
-  async send(@Param('id') id: string) {
+  async send(@Param('id', ParseUUIDPipe) id: string) {
     await this.budgetService.send(id);
-    return { message: 'Budget sent successfully' };
+    return { message: 'Presupuesto enviado correctamente' };
   }
 
   @Patch(':id/accept')
-  async accept(@Param('id') id: string) {
+  async accept(@Param('id', ParseUUIDPipe) id: string) {
     await this.budgetService.accept(id);
-    return { message: 'Budget accepted successfully' };
+    return { message: 'Presupuesto aceptado correctamente' };
   }
 
   @Patch(':id')
-  async updateDraft(@Param('id') id: string, @Body() dto: CreateBudgetDto) {
+  async updateDraft(@Param('id', ParseUUIDPipe) id: string, @Body() dto: CreateBudgetDto) {
     const budget = await this.budgetService.updateDraft(id, dto);
     return {
       id: budget.id.value,
@@ -87,7 +99,7 @@ export class BudgetController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string) {
+  async delete(@Param('id', ParseUUIDPipe) id: string) {
     await this.budgetService.delete(id);
     return { success: true };
   }

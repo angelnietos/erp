@@ -18,6 +18,54 @@ export type MascotPersonality =
   | 'ninja'
   | 'queen';
 
+/** Forma del cuerpo del `ui-mascot` (CSS classes en el componente). */
+export type MascotBodyShape =
+  | 'round'
+  | 'square'
+  | 'capsule'
+  | 'tri'
+  | 'mushroom-cap'
+  | 'mushroom-full'
+  | 'mushroom-luminescent'
+  | 'mushroom-morel'
+  | 'bonsai'
+  | 'bonsai-sakura'
+  | 'bonsai-maple';
+
+/** Ojos del `ui-mascot` (incl. `glow` usado en bots extendidos). */
+export type MascotEyesType =
+  | 'dots'
+  | 'joy'
+  | 'shades'
+  | 'angry'
+  | 'insane'
+  | 'glow';
+
+/** Boca admitida por `ui-mascot`. */
+export type MascotMouthType = 'smile' | 'line' | 'o' | 'mean';
+
+/** Valores guardados en `AIBot` (incl. legacy mapeados en ajustes). */
+export type AIBotMouthType = MascotMouthType | 'grin' | 'none';
+
+export type MascotRageStyle = 'terror' | 'angry' | 'dark';
+
+/** Boca almacenada en `AIBot` → entrada de `ui-mascot`. */
+export function mascotMouthToUi(mouth: AIBotMouthType): MascotMouthType {
+  switch (mouth) {
+    case 'smile':
+    case 'line':
+    case 'o':
+    case 'mean':
+      return mouth;
+    case 'grin':
+      return 'smile';
+    case 'none':
+      return 'line';
+    default:
+      return 'line';
+  }
+}
+
 export interface UserPersonalityProfile {
   nickname: string;
   style:
@@ -161,7 +209,25 @@ export interface AIBot {
   secondaryColor: string;
   mascotType: MascotType;
   personality: MascotPersonality;
-  bodyShape: 'round' | 'square' | 'tri' | 'capsule' | 'star';
-  eyesType: 'dots' | 'joy' | 'shades' | 'glow' | 'angry';
-  mouthType: 'smile' | 'line' | 'o' | 'none' | 'grin';
+  bodyShape: MascotBodyShape;
+  eyesType: MascotEyesType;
+  mouthType: AIBotMouthType;
+}
+
+/** Prompts con nombre para comportamientos concretos (p. ej. informes, tono formal). */
+export interface UserAgentPromptPreset {
+  id: string;
+  title: string;
+  content: string;
+}
+
+/**
+ * Capa por usuario y por agente (p. ej. JAIME / dashboard): skills activas para esa cuenta,
+ * reglas en texto libre e instrucciones extra que se inyectan en el contexto del LLM.
+ */
+export interface UserAgentCustomConfig {
+  activeSkills: string[];
+  rules: string;
+  systemInstructions: string;
+  promptPresets: UserAgentPromptPreset[];
 }

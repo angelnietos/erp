@@ -1,12 +1,16 @@
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { 
   UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-  UiLoaderComponent, UiStatCardComponent
+  UiLoaderComponent, UiStatCardComponent, UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { InventoryFacade, Product } from '@josanz-erp/inventory-data-access';
+import {
+  InventoryFacade,
+  InventoryService,
+  Product,
+} from '@josanz-erp/inventory-data-access';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
 @Component({
@@ -15,17 +19,27 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
   imports: [
     CommonModule, RouterModule, LucideAngularModule,
     UiCardComponent, UiButtonComponent, UiBadgeComponent, 
-    UiLoaderComponent, UiStatCardComponent
+    UiLoaderComponent, UiStatCardComponent, UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="pluginStore.highPerformanceMode() ? 'high-perf' : ''"
+    >
+      <div class="inventory-detail__stack">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando ficha de activo..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando ficha de activo..."></ui-loader>
       } @else if (product()) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
-            <button class="back-btn" routerLink="/inventory">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+            <button
+              type="button"
+              class="back-btn"
+              routerLink="/inventory"
+              aria-label="Volver al listado de inventario"
+            >
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER AL LISTADO
             </button>
             <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
@@ -38,66 +52,71 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="edit">EDITAR ACTIVO</ui-josanz-button>
-            <ui-josanz-button variant="primary" size="md" icon="printer">ETIQUETA QR</ui-josanz-button>
+            <ui-button variant="glass" size="md" icon="pencil" (clicked)="onEdit()">EDITAR ACTIVO</ui-button>
+            <ui-button variant="primary" size="md" icon="printer" (clicked)="onPrintQr()">ETIQUETA QR</ui-button>
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Existencias" 
             [value]="product()?.totalStock?.toString() || '0'" 
             icon="box" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Precio Unitario" 
             [value]="formatCurrencyEu(product()?.dailyRate || 0)" 
             icon="tag">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Valor Stock" 
             [value]="formatCurrencyEu((product()?.totalStock || 0) * (product()?.dailyRate || 0))" 
             icon="trending-up">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="content-grid">
-          <ui-josanz-card variant="glass" title="Especificaciones Generales">
+          <ui-card variant="glass" title="Especificaciones Generales">
             <div class="spec-list">
               <div class="spec-item">
                 <span class="label">CATEGORÍA</span>
-                <ui-josanz-badge variant="info">{{ product()?.category | uppercase }}</ui-josanz-badge>
+                <ui-badge variant="info">{{ product()?.category | uppercase }}</ui-badge>
               </div>
               <div class="spec-item">
                 <span class="label">ESTADO DE STOCK</span>
-                <ui-josanz-badge [variant]="(product()?.totalStock || 0) < 5 ? 'warning' : 'success'">
+                <ui-badge [variant]="(product()?.totalStock || 0) < 5 ? 'warning' : 'success'">
                   {{ (product()?.totalStock || 0) < 5 ? 'CRÍTICO' : 'OPTIMO' }}
-                </ui-josanz-badge>
+                </ui-badge>
               </div>
               <div class="spec-item">
                 <span class="label">ÚLTIMA ACTUALIZACIÓN</span>
                 <span class="value font-mono">01/04/2026</span>
               </div>
             </div>
-          </ui-josanz-card>
+          </ui-card>
 
-          <ui-josanz-card variant="glass" title="Descripción del Producto">
+          <ui-card variant="glass" title="Descripción del Producto">
              <p class="description-text text-friendly">{{ product()?.description || 'Sin descripción técnica disponible.' }}</p>
-          </ui-josanz-card>
+          </ui-card>
         </div>
       } @else {
         <div class="error-state">
-           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary"></lucide-icon>
+           <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().primary" aria-hidden="true"></lucide-icon>
            <h2>ACTIVO NO ENCONTRADO</h2>
-           <ui-josanz-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-josanz-button>
+           <ui-button variant="primary" routerLink="/inventory">VOLVER AL INVENTARIO</ui-button>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container { padding: 0; max-width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 1.5rem; }
-    
+    .inventory-detail__stack {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      width: 100%;
+    }
     .back-btn {
       background: none; border: none; color: var(--text-muted); 
       display: flex; align-items: center; gap: 8px; font-size: 0.6rem;
@@ -141,7 +160,9 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 })
 export class InventoryDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly facade = inject(InventoryFacade);
+  private readonly inventoryService = inject(InventoryService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -151,14 +172,54 @@ export class InventoryDetailComponent implements OnInit {
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-       // Mock or real load
-       setTimeout(() => {
-         const p = this.facade.allProducts().find(item => item.id === id);
-         this.product.set(p || null);
-         this.isLoading.set(false);
-       }, 500);
+    if (!id) {
+      this.isLoading.set(false);
+      return;
     }
+    const fromList = this.facade.allProducts().find((item) => item.id === id);
+    if (fromList) {
+      this.product.set(fromList);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.inventoryService.getProduct(id).subscribe({
+      next: (p) => {
+        if (p) {
+          this.product.set(p);
+        } else if (!fromList) {
+          this.product.set(null);
+        }
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!fromList) {
+          this.product.set(null);
+        }
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onEdit() {
+    const id = this.product()?.id;
+    if (id) this.router.navigate(['/inventory', id, 'edit']);
+  }
+
+  onPrintQr() {
+    const p = this.product();
+    if (!p) return;
+    const win = window.open('', '_blank');
+    if (!win) return;
+    win.document.write(`
+      <html><head><title>QR ${p.sku}</title>
+      <style>body{font-family:monospace;text-align:center;padding:2rem}
+      .code{font-size:2rem;font-weight:bold;border:3px solid #000;padding:1rem;display:inline-block;margin:1rem}
+      </style></head><body>
+      <h2>${p.name}</h2><div class="code">[QR] ${p.sku}</div>
+      <p>SKU: ${p.sku} | Stock: ${p.totalStock} | Precio: ${p.dailyRate}€/día</p>
+      <script>window.print()</scr` + `ipt></body></html>`);
+    win.document.close();
   }
 
   formatCurrencyEu(value: number): string {

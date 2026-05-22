@@ -1,7 +1,7 @@
 {
   "name": "rentals-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/domain/src",
+  "sourceRoot": "libs/isomorphic/core/rentals/core/src",
   "projectType": "library",
   "tags": ["scope:rentals", "type:core"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/rentals/domain",
-        "main": "libs/rentals/domain/src/index.ts",
-        "tsConfig": "libs/rentals/domain/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/rentals/core",
+        "main": "libs/isomorphic/core/rentals/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/rentals/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/rentals/domain/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/rentals/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/rentals/domain/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/rentals/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/rentals/domain"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/rentals/core"]
     }
   }
 }

@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { config as loadEnv } from 'dotenv';
 import { INestApplication, Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -10,7 +11,9 @@ loadEnv({ path: 'apps/backend/.env' });
 loadEnv();
 
 function parseCorsOrigins(): string | string[] {
-  const raw = process.env.CORS_ORIGIN ?? 'http://localhost:4200';
+  const raw =
+    process.env.CORS_ORIGIN ??
+    'http://localhost:4200,http://localhost:4300';
   const list = raw
     .split(',')
     .map((s) => s.trim())
@@ -59,6 +62,7 @@ function attachPublicRateLimits(app: INestApplication) {
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   // Security headers (ADR-009)
   app.use(helmet());

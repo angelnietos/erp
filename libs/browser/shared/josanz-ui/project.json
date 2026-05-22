@@ -1,0 +1,79 @@
+{
+  "name": "josanz-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/shared/josanz-ui/src",
+  "prefix": "josanz",
+  "projectType": "library",
+  "tags": ["scope:josanz-web-app", "type:ui"],
+  "targets": {
+    "build": {
+      "executor": "@nx/angular:package",
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
+      "options": {
+        "tsConfig": "libs/browser/shared/josanz-ui/tsconfig.lib.json"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/browser/shared/josanz-ui/jest.config.cts",
+        "tsConfig": "libs/browser/shared/josanz-ui/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "storybook": {
+      "executor": "@storybook/angular:start-storybook",
+      "options": {
+        "port": 4400,
+        "configDir": "libs/browser/shared/josanz-ui/.storybook",
+        "browserTarget": "josanz-ui:build",
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.scss"],
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "build-storybook": {
+      "executor": "@storybook/angular:build-storybook",
+      "outputs": ["{options.outputDir}"],
+      "options": {
+        "outputDir": "dist/storybook/josanz-ui",
+        "configDir": "libs/browser/shared/josanz-ui/.storybook",
+        "browserTarget": "josanz-ui:build",
+        "styles": ["libs/browser/shared/josanz-ui/src/lib/styles.scss"],
+        "compodoc": false
+      },
+      "configurations": {
+        "ci": {
+          "quiet": true
+        }
+      }
+    },
+    "test-storybook": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "test-storybook -c libs/browser/shared/josanz-ui/.storybook --url=http://localhost:4400"
+      }
+    },
+    "static-storybook": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["build-storybook"],
+      "options": {
+        "buildTarget": "josanz-ui:build-storybook",
+        "staticFilePath": "dist/storybook/josanz-ui",
+        "spa": true
+      },
+      "configurations": {
+        "ci": {
+          "buildTarget": "josanz-ui:build-storybook:ci"
+        }
+      }
+    }
+  }
+}

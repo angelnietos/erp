@@ -1,0 +1,30 @@
+// ─── Josanz UI – Card Component ────────────────────────────────────────────
+
+.card {
+  background: var(--josanz-surface);
+  border: 1px solid var(--josanz-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--josanz-shadow);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+  &:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &--flat  { box-shadow: none; }
+  &--glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  h3 { font-size: 1rem; font-weight: 800; color: var(--josanz-text); }
+}

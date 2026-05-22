@@ -1,0 +1,25 @@
+.josanz-input-host {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.josanz-input-host--rounded .josanz-field {
+  border-radius: 6px;
+}
+
+.josanz-input-host--pill .josanz-field {
+  border-radius: 9999px;
+}
+
+.josanz-input-host--square .josanz-field {
+  border-radius: 2px;
+}
+
+.josanz-input-host .josanz-field:focus {
+  outline: none;
+  border-color: var(--josanz-field-accent, var(--josanz-accent)) !important;
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--josanz-field-accent, var(--josanz-accent)) 22%, transparent) !important;
+}

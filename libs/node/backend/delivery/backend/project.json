@@ -1,7 +1,7 @@
 {
   "name": "delivery-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/delivery/backend/src",
+  "sourceRoot": "libs/node/backend/delivery/backend/src",
   "projectType": "library",
   "implicitDependencies": ["shared-data-access"],
   "tags": ["scope:delivery", "type:backend"],
@@ -10,25 +10,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/delivery/backend",
-        "main": "libs/delivery/backend/src/index.ts",
-        "tsConfig": "libs/delivery/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/delivery/backend",
+        "main": "libs/node/backend/delivery/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/delivery/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/delivery/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/delivery/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/delivery/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/delivery/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/delivery/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/delivery/backend"]
     }
   }
 }

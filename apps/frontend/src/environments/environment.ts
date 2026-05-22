@@ -1,13 +1,15 @@
 /**
- * Desarrollo: el dev server de Angular (Vite) no puede proxyar /api de forma fiable porque el
- * HTML fallback captura esas peticiones. Las peticiones relativas /api/* se envían al origen real aquí.
+ * Desarrollo — API del ERP (`nx serve backend`, por defecto :3000):
+ * - URL absoluta: el navegador llama directamente al Nest (CORS ya permite `http://localhost:4200`).
+ *   Evita el fallo "Cannot POST /api/..." cuando el proxy del dev server no reenvía bien.
+ * - `''`: rutas relativas `/api/*` → `proxy.conf.json` → mismo host que el dev server.
+ * Debe coincidir con `PORT` en `apps/backend/.env` (por defecto 3000).
  */
 export const environment = {
   production: false,
-  /** Vacío = mismas peticiones relativas (p. ej. detrás de un reverse proxy en prod). */
   apiOrigin: 'http://localhost:3000',
   /** Opcional: si el verifactu-api exige VERIFACTU_REQUIRE_API_KEY, pegar aquí la clave del tenant. */
   verifactuApiKey: '',
-  // aiApiKey: 'xai-rtUJRQ0KKE96WunqD5eYq8odwaXVIdhv7Sd1eYWHzju3xP5nwYrJqOLEHhpW3oVBa43G9keJruQFtbcE',
-  aiApiKey: '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',
+  aiApiKey: '',
+  googleApiKey: '',
 };

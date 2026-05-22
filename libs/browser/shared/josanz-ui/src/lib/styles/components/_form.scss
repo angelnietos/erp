@@ -1,0 +1,49 @@
+// ─── Josanz UI – Form / Input Component ────────────────────────────────────
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.form-label {
+  font-size: 0.6875rem;  // 11px
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--josanz-label-muted);
+}
+
+.form-input {
+  height: 2.75rem;
+  width: 100%;
+  padding: 0 1rem;
+  border-radius: var(--josanz-radius-control);
+  border: 1.5px solid var(--josanz-stroke-field);
+  background: var(--josanz-field-fill);
+  color: var(--josanz-text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+
+  &::placeholder { color: var(--josanz-text-muted); font-weight: 400; }
+
+  &:focus {
+    border-color: var(--josanz-primary);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-primary) 18%, transparent);
+  }
+
+  &--error {
+    border-color: var(--josanz-danger);
+    &:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-danger) 18%, transparent); }
+  }
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--josanz-text-muted);
+  &--error { color: var(--josanz-danger); }
+}

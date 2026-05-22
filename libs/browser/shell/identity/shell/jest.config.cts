@@ -1,8 +1,9 @@
 module.exports = {
-  displayName: 'shell',
+  displayName: 'identity-shell',
   preset: '../../../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../../../coverage/libs/identity/shell',
+  coverageDirectory:
+    '../../../../../../../coverage/libs/browser/shell/identity/shell',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

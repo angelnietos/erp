@@ -7,7 +7,7 @@
 
   <!-- Tenant ID Input -->
   <div class="tenant-section">
-    <ui-josanz-card title="Configuración">
+    <ui-card title="Configuración">
       <div class="tenant-input">
         <label for="tenantId">Tenant ID</label>
         <div class="input-row">
@@ -24,12 +24,12 @@
           </button>
         </div>
       </div>
-    </ui-josanz-card>
+    </ui-card>
   </div>
 
   <!-- Submit Invoice Section -->
   <div class="submit-section">
-    <ui-josanz-card title="Enviar Factura a VeriFactu">
+    <ui-card title="Enviar Factura a VeriFactu">
       <div class="submit-form">
         <div class="input-group">
           <label for="invoiceId">Invoice ID</label>
@@ -67,12 +67,12 @@
           {{ store.error() }}
         </div>
       }
-    </ui-josanz-card>
+    </ui-card>
   </div>
 
   <!-- Records Table -->
   <div class="records-section">
-    <ui-josanz-card title="Registros de Facturas">
+    <ui-card title="Registros de Facturas">
       @if (store.loading() && store.records().length === 0) {
         <div class="loading-state">Cargando registros...</div>
       } @else if (store.records().length === 0) {
@@ -117,7 +117,7 @@
           </table>
         </div>
       }
-    </ui-josanz-card>
+    </ui-card>
   </div>
 
   <!-- Detail Modal -->

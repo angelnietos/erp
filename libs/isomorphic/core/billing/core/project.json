@@ -1,7 +1,7 @@
 {
   "name": "billing-core",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/billing/core/src",
+  "sourceRoot": "libs/isomorphic/core/billing/core/src",
   "projectType": "library",
   "tags": ["scope:billing", "type:core"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
        "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/billing/core",
-        "main": "libs/billing/core/src/index.ts",
-        "tsConfig": "libs/billing/core/tsconfig.lib.json",
+        "outputPath": "dist/libs/isomorphic/core/billing/core",
+        "main": "libs/isomorphic/core/billing/core/src/index.ts",
+        "tsConfig": "libs/isomorphic/core/billing/core/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/billing/core/**/*.ts"]
+        "lintFilePatterns": ["libs/isomorphic/core/billing/core/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/billing/core/jest.config.cts",
+        "jestConfig": "libs/isomorphic/core/billing/core/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/billing/core"]
+      "outputs": ["{workspaceRoot}/coverage/libs/isomorphic/core/billing/core"]
     }
   }
 }

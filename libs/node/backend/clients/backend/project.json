@@ -1,7 +1,7 @@
 {
   "name": "clients-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/clients/backend/src",
+  "sourceRoot": "libs/node/backend/clients/backend/src",
   "projectType": "library",
   "tags": ["scope:clients", "type:backend"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/clients/backend",
-        "main": "libs/clients/backend/src/index.ts",
-        "tsConfig": "libs/clients/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/clients/backend",
+        "main": "libs/node/backend/clients/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/clients/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/clients/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/clients/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/clients/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/clients/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/clients/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/clients/backend"]
     }
   }
 }

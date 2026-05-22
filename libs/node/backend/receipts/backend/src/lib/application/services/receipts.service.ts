@@ -54,7 +54,7 @@ export class ReceiptsService {
   async update(id: string, dto: UpdateReceiptDto): Promise<Receipt> {
     const receipt = await this.receiptsRepository.findById(new EntityId(id));
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException('Recibo no encontrado');
     }
 
     if (dto.amount !== undefined) {
@@ -86,7 +86,7 @@ export class ReceiptsService {
   async markAsPaid(id: string, paymentMethod: string, paymentDate?: Date): Promise<Receipt> {
     const receipt = await this.receiptsRepository.findById(new EntityId(id));
     if (!receipt) {
-      throw new NotFoundException('Receipt not found');
+      throw new NotFoundException('Recibo no encontrado');
     }
 
     if (receipt.status === 'PAID') {

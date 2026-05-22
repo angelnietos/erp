@@ -6,6 +6,7 @@ import {
   signal,
   computed,
   HostListener,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
@@ -16,10 +17,11 @@ import { SidebarComponent } from './sidebar.component';
 import {
   ThemeService,
   Theme,
-  AuthStore,
   PluginStore,
   AIBotStore,
+  getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -44,6 +46,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     <josanz-crm-background></josanz-crm-background>
     <josanz-toast-stack />
     <div class="app-layout" style="position: relative; z-index: 1;">
+      <a href="#erp-main-content" class="erp-skip-link">Saltar al contenido principal</a>
       <!-- Sidebar -->
       <josanz-sidebar (logoutClick)="logoutClick.emit()"></josanz-sidebar>
 
@@ -64,6 +67,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 name="search"
                 size="18"
                 class="search-icon"
+                aria-hidden="true"
               ></lucide-icon>
               <input type="text" placeholder="Buscar en el ERP..." readonly />
               <div class="search-shortcut">⌘K</div>
@@ -74,14 +78,31 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
             <!-- Tenant Badge -->
             @if (tenantName) {
               <div class="tenant-badge">
-                <lucide-icon name="building-2" size="16"></lucide-icon>
+                <lucide-icon name="building-2" size="16" aria-hidden="true"></lucide-icon>
                 <span>{{ tenantName }}</span>
               </div>
             }
 
-            <button class="icon-btn" (click)="toggleNotifications()">
-              <lucide-icon name="bell" size="20"></lucide-icon>
-              <div class="notification-dot"></div>
+            <!-- Companion Presence -->
+            <button 
+              type="button" 
+              class="icon-btn companion-presence"
+              [class.active]="aiBotStore.activeBotFeature()"
+              (click)="toggleAssistant()"
+              [title]="'Hablar con ' + aiBotStore.getBotDisplayName(aiBotStore.activeBotFeature())"
+            >
+              <div class="buddy-mini-glow"></div>
+              <lucide-icon name="bot" size="20" aria-hidden="true"></lucide-icon>
+            </button>
+
+            <button
+              type="button"
+              class="icon-btn"
+              (click)="toggleNotifications()"
+              aria-label="Notificaciones"
+            >
+              <lucide-icon name="bell" size="20" aria-hidden="true"></lucide-icon>
+              <div class="notification-dot" aria-hidden="true"></div>
             </button>
 
             @if (premiumExperience()) {
@@ -90,17 +111,26 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 [style.color]="currentThemeData().primary"
                 [style.border-color]="currentThemeData().primary + '44'"
               >
-                <lucide-icon name="sparkles" size="14"></lucide-icon>
+                <lucide-icon name="sparkles" size="14" aria-hidden="true"></lucide-icon>
                 <span>LUXE MODE</span>
               </div>
             }
 
             <!-- Theme Selector -->
             <div class="theme-selector">
-              <button class="theme-btn" (click)="toggleThemeMenu()">
+              <button
+                type="button"
+                class="theme-btn"
+                (click)="toggleThemeMenu()"
+                [attr.aria-label]="
+                  showThemeMenu() ? 'Cerrar selector de tema' : 'Abrir selector de tema'
+                "
+                [attr.aria-expanded]="showThemeMenu()"
+              >
                 <lucide-icon
                   [name]="currentTheme() === 'dark' ? 'moon' : 'sun'"
                   size="20"
+                  aria-hidden="true"
                 ></lucide-icon>
               </button>
               @if (showThemeMenu()) {
@@ -141,6 +171,40 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                       }
                     </div>
                   }
+
+                  <!-- Density Selector -->
+                  <div class="theme-section density-section" role="group" aria-label="Densidad de interfaz">
+                    <div class="theme-section-label">Densidad de interfaz</div>
+                    <div class="density-options">
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'compact'"
+                        (click)="themeService.setDensity('compact')"
+                      >
+                        <lucide-icon name="shrink" size="14"></lucide-icon>
+                        Compacta
+                      </button>
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'standard'"
+                        (click)="themeService.setDensity('standard')"
+                      >
+                        <lucide-icon name="maximize-2" size="14"></lucide-icon>
+                        Normal
+                      </button>
+                      <button 
+                        type="button" 
+                        class="density-btn"
+                        [class.active]="themeService.currentDensity() === 'spacious'"
+                        (click)="themeService.setDensity('spacious')"
+                      >
+                        <lucide-icon name="expand" size="14"></lucide-icon>
+                        Amplia
+                      </button>
+                    </div>
+                  </div>
                 </div>
               }
             </div>
@@ -158,7 +222,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                 <span class="user-role">Administrador</span>
               </div>
               <div class="avatar">
-                <lucide-icon name="user" size="20"></lucide-icon>
+                <lucide-icon name="user" size="20" aria-hidden="true"></lucide-icon>
               </div>
 
               @if (showUserMenu()) {
@@ -166,12 +230,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
                   <div class="menu-header">
                     <span class="text-uppercase">SISTEMA CORE v2.1</span>
                   </div>
-                  <button class="menu-item" routerLink="/settings">
-                    <lucide-icon name="settings" size="16"></lucide-icon>
+                  <button type="button" class="menu-item" routerLink="/settings">
+                    <lucide-icon name="settings" size="16" aria-hidden="true"></lucide-icon>
                     CONFIGURACIÓN
                   </button>
-                  <button class="menu-item logout" (click)="logout()">
-                    <lucide-icon name="log-out" size="16"></lucide-icon>
+                  <button type="button" class="menu-item logout" (click)="logout()">
+                    <lucide-icon name="log-out" size="16" aria-hidden="true"></lucide-icon>
                     CERRAR SESIÓN
                   </button>
                 </div>
@@ -195,22 +259,24 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         }
 
         <!-- Dynamic Content -->
-        <main class="content-scroll">
+        <main id="erp-main-content" class="content-scroll" tabindex="-1">
           <div class="content">
             <router-outlet></router-outlet>
           </div>
         </main>
 
-        <!-- IA Assistances Ecosystem (Global & Contextual) -->
-        <ui-josanz-ai-assistant
-          [feature]="currentFeature()"
-        ></ui-josanz-ai-assistant>
-
-        @if (aiBotStore.getBotByFeature('buddy')) {
-          <ui-josanz-ai-assistant
-            [feature]="'buddy'"
-            class="secondary-assistant"
-          ></ui-josanz-ai-assistant>
+        <!-- Buddy: global companion always present -->
+        <ui-ai-assistant
+          [feature]="aiBotStore.activeBotFeature()"
+          assistantRole="buddy"
+          #mainAssistant
+        ></ui-ai-assistant>
+        <!-- Domain specialist: the bot for the current feature -->
+        @if (routeDomain() && routeDomain() !== aiBotStore.activeBotFeature()) {
+          <ui-ai-assistant
+            [feature]="routeDomain()"
+            assistantRole="domain"
+          ></ui-ai-assistant>
         }
       </div>
     </div>
@@ -241,18 +307,18 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       }
 
       .top-nav {
-        height: 42px; /* Reduced from 48px */
-        background: rgba(10, 10, 10, 0.82);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
+        height: 42px;
+        background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+        backdrop-filter: blur(18px) saturate(1.15);
+        -webkit-backdrop-filter: blur(18px) saturate(1.15);
         border-bottom: 1px solid var(--border-soft);
         display: flex;
         align-items: center;
         justify-content: space-between;
         padding: 0 16px;
         flex-shrink: 0;
-        z-index: 100;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        z-index: 5000;
+        box-shadow: 0 4px 24px color-mix(in srgb, var(--bg-primary) 40%, transparent);
       }
 
       .search-container {
@@ -267,7 +333,7 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         background: rgba(255, 255, 255, 0.02);
         border-radius: 6px;
         padding: 0 10px;
-        height: 30px; /* Reduced from 34px */
+        height: 30px;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border: 1px solid rgba(255, 255, 255, 0.04);
         cursor: pointer;
@@ -291,6 +357,14 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
       .search-box:focus-within .search-icon {
         color: var(--brand);
+      }
+
+      .search-box:focus-visible {
+        outline: none;
+        border-color: var(--brand);
+        box-shadow:
+          0 0 0 2px color-mix(in srgb, var(--brand) 28%, transparent),
+          0 0 15px var(--brand-glow);
       }
 
       .search-box input {
@@ -348,19 +422,25 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         box-shadow: 0 0 10px var(--brand-glow);
       }
 
-      .icon-btn {
-        position: relative;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        color: var(--text-secondary);
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
+      .companion-presence {
+        color: var(--brand);
+        border-color: color-mix(in srgb, var(--brand) 40%, transparent);
+        background: color-mix(in srgb, var(--brand) 8%, transparent);
+      }
+
+      .companion-presence:hover {
+        background: color-mix(in srgb, var(--brand) 15%, transparent);
+        box-shadow: 0 0 20px var(--brand-glow);
+      }
+
+      .buddy-mini-glow {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: radial-gradient(circle at 50% 50%, var(--brand), transparent 70%);
+        opacity: 0.15;
+        filter: blur(4px);
+        animation: pulse 2s infinite alternate;
       }
 
       .icon-btn:hover {
@@ -369,6 +449,14 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         border-color: var(--brand);
         box-shadow: 0 0 10px var(--brand-glow);
         transform: translateY(-1px);
+      }
+
+      .icon-btn:focus-visible,
+      .theme-btn:focus-visible {
+        outline: none;
+        border-color: var(--brand);
+        color: #fff;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 35%, transparent);
       }
 
       .notification-dot {
@@ -412,14 +500,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         top: 100%;
         right: 0;
         margin-top: 12px;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        padding: 6px 4px 8px;
-        min-width: 220px;
-        max-width: min(92vw, 280px);
-        max-height: min(calc(100vh - 5.5rem), 26rem);
+        background: color-mix(
+          in srgb,
+          var(--bg-secondary) 96%,
+          var(--brand) 4%
+        );
+        backdrop-filter: blur(20px) saturate(1.2);
+        -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        border: 1px solid color-mix(in srgb, var(--brand) 22%, var(--border-soft));
+        border-radius: 14px;
+        padding: 8px 6px 10px;
+        min-width: 228px;
+        max-width: min(92vw, 300px);
+        max-height: min(calc(100vh - 5.5rem), 28rem);
         overflow-x: hidden;
         overflow-y: auto;
         overscroll-behavior: contain;
@@ -427,8 +520,11 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         scrollbar-color: color-mix(in srgb, var(--text-muted) 50%, transparent)
           transparent;
         -webkit-overflow-scrolling: touch;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        z-index: 200;
+        box-shadow:
+          0 4px 6px rgba(0, 0, 0, 0.08),
+          0 18px 48px rgba(0, 0, 0, 0.35),
+          0 0 0 1px color-mix(in srgb, var(--text-primary) 6%, transparent);
+        z-index: 5100;
         animation: menuFadeIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
@@ -459,6 +555,51 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         text-transform: uppercase;
         color: var(--text-muted);
         opacity: 0.9;
+      }
+      .theme-option.active .theme-option-name {
+        color: var(--brand);
+        font-weight: 700;
+      }
+
+      .density-section {
+        border-top: 1px solid var(--border-soft);
+        padding-top: 12px !important;
+        margin-top: 8px;
+      }
+
+      .density-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .density-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 8px 4px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .density-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: var(--brand-border-soft);
+        color: var(--text-primary);
+      }
+
+      .density-btn.active {
+        background: var(--brand-surface);
+        border-color: var(--brand);
+        color: var(--brand);
       }
 
       .theme-option-name {
@@ -502,6 +643,12 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       .theme-option:hover {
         background: rgba(255, 255, 255, 0.05);
         color: #fff;
+      }
+
+      .theme-option:focus-visible,
+      .menu-item:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--brand) 40%, transparent);
       }
 
       .theme-option.active {
@@ -571,19 +718,32 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
         transform: scale(1.05);
       }
 
+      .user-profile:focus-visible {
+        outline: none;
+        border-radius: 10px;
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--brand) 38%, transparent);
+      }
+
       .user-menu {
         position: absolute;
         top: 100%;
         right: 0;
         margin-top: 16px;
-        background: rgba(15, 15, 15, 0.95);
-        backdrop-filter: blur(10px);
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
+        background: color-mix(
+          in srgb,
+          var(--bg-secondary) 96%,
+          var(--brand) 4%
+        );
+        backdrop-filter: blur(20px) saturate(1.2);
+        -webkit-backdrop-filter: blur(20px) saturate(1.2);
+        border: 1px solid color-mix(in srgb, var(--brand) 18%, var(--border-soft));
+        border-radius: 14px;
         padding: 12px;
         min-width: 220px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        z-index: 200;
+        box-shadow:
+          0 8px 32px rgba(0, 0, 0, 0.4),
+          0 0 0 1px color-mix(in srgb, var(--text-primary) 6%, transparent);
+        z-index: 5100;
       }
 
       .menu-header {
@@ -674,6 +834,19 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
       ::-webkit-scrollbar-track {
         background: transparent;
       }
+
+      @media (prefers-reduced-motion: reduce) {
+        .theme-menu {
+          animation: none;
+        }
+        .icon-btn:hover,
+        .theme-btn:hover {
+          transform: none;
+        }
+        .user-profile:hover .avatar {
+          transform: none;
+        }
+      }
     `,
   ],
 })
@@ -681,35 +854,16 @@ export class AppLayoutComponent {
   readonly logoutClick = output<void>();
   readonly themeService = inject(ThemeService);
   private readonly router = inject(Router);
+  private readonly navEvents = toSignal(
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
+  );
+  /** Dominio IA según la ruta (Stage-Bot, Lens-Bot, JAIME, …). */
+  readonly routeDomain = computed(() => {
+    this.navEvents();
+    return getAiFeatureFromUrl(this.router.url);
+  });
   readonly currentTheme = this.themeService.currentTheme;
   readonly currentThemeData = this.themeService.currentThemeData;
-  readonly aiBotStore = inject(AIBotStore);
-  private readonly navEvents = toSignal(
-    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)),
-  );
-
-  readonly currentFeature = computed(() => {
-    // Escuchamos el signal de navegación para forzar la re-evaluación
-    this.navEvents();
-    const url = this.router.url;
-    if (url.includes('/inventory')) return 'inventory';
-    if (url.includes('/budgets')) return 'budgets';
-    if (url.includes('/projects')) return 'projects';
-    if (url.includes('/clients')) return 'clients';
-    if (url.includes('/fleet')) return 'fleet';
-    if (url.includes('/rentals')) return 'rentals';
-    if (url.includes('/audit')) return 'audit';
-    if (url.includes('/verifactu')) return 'verifactu';
-    if (url.includes('/billing')) return 'billing';
-    if (url.includes('/delivery')) return 'delivery';
-    if (url.includes('/services')) return 'services';
-    if (url.includes('/receipts')) return 'receipts';
-    if (url.includes('/events')) return 'events';
-    if (url.includes('/reports')) return 'reports';
-    if (url.includes('/availability')) return 'availability';
-    if (url.includes('/users')) return 'users';
-    return 'dashboard';
-  });
 
   showThemeMenu = signal(false);
 
@@ -718,9 +872,11 @@ export class AppLayoutComponent {
   showCommandPalette = signal(false);
   showUserMenu = signal(false);
 
-  private readonly authStore = inject(AuthStore);
+  private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
-  readonly premiumExperience = this.pluginStore.premiumExperience;
+  readonly aiBotStore = inject(AIBotStore);
+  readonly mainAssistant = viewChild.required<UIAIChatComponent>('mainAssistant');
+  readonly premiumExperience = computed(() => !this.pluginStore.highPerformanceMode());
 
   @HostListener('window:keydown', ['$event'])
   handleGlobalShortcuts(event: KeyboardEvent) {
@@ -750,8 +906,12 @@ export class AppLayoutComponent {
     this.showUserMenu.update((v) => !v);
   }
 
+  toggleAssistant() {
+    this.mainAssistant().toggleChat();
+  }
+
   logout() {
-    this.authStore.logout();
+    this.identityAuth.logout();
   }
 
   setTheme(theme: Theme) {

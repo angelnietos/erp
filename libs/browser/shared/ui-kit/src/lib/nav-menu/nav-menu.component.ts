@@ -1,7 +1,8 @@
-import { Component, Input, output } from '@angular/core';
+import { Component, output, inject, computed, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { GlobalAuthStore as AuthStore } from '@josanz-erp/shared-data-access';
 
 export interface NavMenuItem {
   id: string;
@@ -10,18 +11,19 @@ export interface NavMenuItem {
   route: string;
   badge?: string;
   children?: NavMenuItem[];
+  permission?: string;
 }
 
 export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' | 'bordered' | 'compact';
 
 @Component({
-  selector: 'ui-josanz-nav-menu',
+  selector: 'ui-nav-menu',
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule],
   template: `
-    <nav class="nav-menu" [class]="'nav-menu-' + variant">
+    <nav class="nav-menu" [class]="'nav-menu-' + variant()">
       <ul class="nav-list">
-        @for (item of items; track item.id) {
+        @for (item of filteredItems(); track item.id) {
           <li class="nav-item" [class.has-children]="item.children?.length">
             <a
               [routerLink]="item.route"
@@ -32,7 +34,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
               (click)="itemClick.emit(item)"
             >
               <span class="nav-icon">
-                <lucide-icon [name]="item.icon" size="18"></lucide-icon>
+                <lucide-icon [name]="item.icon" size="18" aria-hidden="true"></lucide-icon>
               </span>
               <span class="nav-label">{{ item.label }}</span>
               @if (item.badge) {
@@ -51,7 +53,7 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
                       (click)="itemClick.emit(child)"
                     >
                       <span class="nav-icon">
-                        <lucide-icon [name]="child.icon" size="18"></lucide-icon>
+                        <lucide-icon [name]="child.icon" size="18" aria-hidden="true"></lucide-icon>
                       </span>
                       <span class="nav-label">{{ child.label }}</span>
                     </a>
@@ -67,96 +69,85 @@ export type NavMenuVariant = 'default' | 'dark' | 'light' | 'primary' | 'ghost' 
   styles: [`
     :host { display: block; }
     .nav-menu { width: 100%; }
-    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+    .nav-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
     .nav-item { display: flex; flex-direction: column; }
     .nav-link {
       display: flex; 
       align-items: center; 
-      gap: 8px; 
-      padding: 6px 10px;
-      border-radius: var(--radius-sm, 8px); 
+      gap: 12px; 
+      padding: 10px 16px;
+      border-radius: var(--radius-md); 
       text-decoration: none; 
-      color: var(--text-secondary);
-      transition: var(--transition-base, 0.25s ease); 
-      font-size: 0.6rem; 
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      transition: all 0.3s ease; 
+      font-size: 0.85rem; 
+      font-weight: 600;
       position: relative;
-      font-family: var(--font-main);
-      border: 1px solid transparent;
-      line-height: 1.25;
     }
     
-    .nav-link::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 0%;
-      width: 2px;
-      background: var(--brand);
-      transition: height 0.3s ease;
-      box-shadow: 0 0 10px var(--brand-glow);
+    .nav-link.child { padding-left: 44px; font-size: 0.8rem; }
+    .nav-icon { 
+      width: 20px; 
+      height: 20px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      flex-shrink: 0; 
+      transition: color 0.3s ease; 
+      color: var(--text-muted); 
     }
-
-    .nav-link.child { padding-left: 38px; font-size: 0.64rem; opacity: 0.75; }
-    .nav-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: var(--transition-base, 0.25s ease); color: var(--text-muted); }
-    .nav-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
     .nav-badge {
-      font-size: 0.6rem; 
-      font-weight: 950; 
-      padding: 2px 6px;
-      border-radius: 2px; 
+      font-size: 0.65rem; 
+      font-weight: 700; 
+      padding: 2px 8px;
+      border-radius: 100px; 
       background: var(--brand); 
       color: white;
-      box-shadow: 0 0 10px var(--brand-glow);
     }
-    .nav-children { list-style: none; padding: 0; margin: 2px 0; display: flex; flex-direction: column; gap: 2px; }
 
     /* Interactions */
     .nav-link:hover {
-      background: rgba(255, 255, 255, 0.03);
-      color: #fff;
+      color: var(--text-primary);
+      background: rgba(var(--brand-rgb), 0.05);
     }
     
     .nav-link:hover .nav-icon {
-      transform: translateX(3px);
       color: var(--brand);
     }
 
+    /* Active State */
     .nav-link.active {
-      background: color-mix(in srgb, var(--brand) 14%, transparent); 
-      color: var(--text-primary); 
-      border-right: 1px solid var(--brand);
+      color: var(--brand); 
+      background: rgba(var(--brand-rgb), 0.08);
+      font-weight: 700;
     }
-    
+
+    /* Active Indicator */
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%; width: 3px;
+      background: var(--brand);
+      border-radius: 0 4px 4px 0;
+    }
+
     .nav-link.active .nav-icon {
       color: var(--brand);
-      filter: drop-shadow(0 0 5px var(--brand-glow));
     }
-    
-    .nav-link.active::before {
-      height: 70%;
-    }
-
-    /* Variant Modifiers */
-    .nav-menu-dark .nav-link { color: var(--text-muted); background: rgba(0, 0, 0, 0.2); }
-    .nav-menu-dark .nav-link.active { background: #000; border-color: var(--brand); }
-
-    .nav-menu-primary .nav-link.active { background: var(--brand); color: white; border: none; }
-    .nav-menu-primary .nav-badge { background: #fff; color: var(--brand); }
-
-    .nav-menu-bordered .nav-link { border: 1px solid var(--border-soft); }
-    .nav-menu-bordered .nav-link.active { border-color: var(--brand); }
-
-    .nav-menu-compact .nav-link { padding: 5px 10px; font-size: 0.62rem; letter-spacing: 0.04em; }
-    .nav-menu-compact .nav-icon { width: 16px; height: 16px; }
   `]
 })
 export class NavMenuComponent {
-  @Input() items: NavMenuItem[] = [];
-  @Input() variant: NavMenuVariant = 'default';
+  items = input<NavMenuItem[]>([]);
+  variant = input<NavMenuVariant>('default');
   readonly itemClick = output<NavMenuItem>();
+  
+  private readonly authStore = inject(AuthStore);
+
+  /** Visibilidad por contexto (p. ej. shell); no filtrar por permisos RBAC aquí. */
+  filteredItems = computed(() => {
+    const user = this.authStore.user();
+    if (!user) return [];
+    return [...this.items()];
+  });
 }

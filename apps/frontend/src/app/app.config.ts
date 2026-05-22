@@ -2,6 +2,8 @@ import {
   ApplicationConfig,
   provideZoneChangeDetection,
   importProvidersFrom,
+  APP_INITIALIZER,
+  inject,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -9,7 +11,16 @@ import { appRoutes } from './app.routes';
 import {
   authInterceptor,
   tenantInterceptor,
+  AuthService,
+  AuthStore,
+  TenantModulesApiService,
+  TenantModulesRealtimeService,
+  TENANT_MODULES_REALTIME_API_ORIGIN,
+  getStoredTenantId,
+  syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
+import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { firstValueFrom, catchError, of, tap } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import {
@@ -21,6 +32,7 @@ import {
   Building2,
   Bell,
   LayoutDashboard,
+  Layout,
   Users,
   Package,
   Receipt,
@@ -36,9 +48,10 @@ import {
   Trash2,
   Eye,
   Play,
-  CheckCircle,
-  XCircle,
-  Plus,
+  Check,
+  X,
+  CirclePlus,
+  ArrowUp,
   FileText,
   FileCheck,
   Download,
@@ -48,42 +61,45 @@ import {
   ShieldCheck,
   QrCode,
   Save,
-  AlertTriangle,
+  TriangleAlert,
   Mail,
   Slash,
   TrendingUp,
-  AlertCircle,
+  CircleAlert,
   BellOff,
-  X,
   Clock,
   RefreshCw,
   Construction,
+  Cog,
   ArrowLeft,
   SearchX,
   FilePlus,
   UserPlus,
   Hash,
+  IdCard,
   Calendar,
   CalendarClock,
+  CalendarPlus,
   Euro,
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  MoreVertical,
+  EllipsisVertical,
   MoreHorizontal,
-  PlayCircle,
+  CirclePlay,
   CalendarCheck,
   Box,
   Briefcase,
-  PieChart,
-  CheckSquare,
+  ChartPie,
+  SquareCheck,
   PenTool,
   RotateCcw,
   DollarSign,
   Archive,
   Shield,
-  AlertOctagon,
+  OctagonAlert,
   BarChart3,
+  BarChart2,
   Layers,
   Wrench,
   Activity,
@@ -92,15 +108,17 @@ import {
   Info,
   Tag,
   Puzzle,
+  SlidersHorizontal,
   Sliders,
   Settings2,
-  FileWarning,
-  UploadCloud,
+  FileX,
+  CloudUpload,
   Printer,
   Timer,
   FileUp,
   Wallet,
   HelpCircle,
+  Keyboard,
   Phone,
   Smartphone,
   MapPin,
@@ -108,20 +126,16 @@ import {
   Inbox,
   Gauge,
   UserCheck,
-  Edit,
   Filter,
   Copy,
   Star,
-  Check,
-  SlidersHorizontal,
   CreditCard,
-  LineChart,
+  ChartLine,
   PartyPopper,
   Presentation,
-  RotateCw,
   ExternalLink,
   Bot,
-  CheckCircle2,
+  CircleCheck,
   Cpu,
   GripVertical,
   Mic,
@@ -132,12 +146,52 @@ import {
   FlaskConical,
   Globe,
   Volume2,
-  Layout,
+  BarChart,
+  CheckCircle,
+  Banknote,
+  CheckCheck,
+  UploadCloud,
+  RotateCw,
+  AlertTriangle,
+  Navigation,
+  AlertCircle,
+  CheckSquare,
+  AlertOctagon,
+  StickyNote,
+  Palette,
+  ShieldOff,
+  UserX,
+  Plus,
+  ShieldAlert,
+  Calculator,
+  WifiOff,
+  CloudOff,
+  CalendarDays,
+  CircleUser,
+  CircleX,
+  CircleCheckBig,
+  BrainCircuit,
+  Shrink,
+  Maximize2,
+  Expand,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    /** Antes de cualquier tema: marca `data-erp-tenant` desde session (babooni → Biosstel). */
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => () => {
+        syncErpTenantHtmlTheme();
+      },
+    },
+    {
+      provide: TENANT_MODULES_REALTIME_API_ORIGIN,
+      useFactory: () => environment.apiOrigin?.replace(/\/$/, '') ?? '',
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(
@@ -148,6 +202,64 @@ export const appConfig: ApplicationConfig = {
         authInterceptor,
       ]),
     ),
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => {
+        const authService = inject(AuthService);
+        const globalAuthStore = inject(GlobalAuthStore);
+        const tenantModulesApi = inject(TenantModulesApiService);
+        const tenantModulesRealtime = inject(TenantModulesRealtimeService);
+        const authStore = inject(AuthStore);
+        const pluginStore = inject(PluginStore);
+        tenantModulesRealtime.registerIdentityRefresh(() => {
+          authStore.refreshSession();
+        });
+        return async () => {
+          const token = localStorage.getItem('auth_token');
+          if (!token) {
+            pluginStore.loadFromStorage();
+            return;
+          }
+          try {
+            const response = await firstValueFrom(
+              authService.refreshSession().pipe(catchError(() => of(null)))
+            );
+            if (response) {
+              authService.setToken(response.accessToken);
+              if (response.tenantId) {
+                authService.setTenantId(response.tenantId);
+              }
+              const u = response.user;
+              const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;
+              globalAuthStore.setUser({
+                id: u.id,
+                email: u.email,
+                name: displayName,
+                tenantId: response.tenantId || getStoredTenantId() || '',
+                permissions: u.permissions,
+              });
+              await firstValueFrom(
+                tenantModulesApi.fetchEnabledModules().pipe(
+                  tap((r) => pluginStore.setPlugins(r.enabledModuleIds)),
+                  catchError(() => {
+                    pluginStore.loadFromStorage();
+                    return of(null);
+                  })
+                )
+              );
+              tenantModulesRealtime.connect(
+                environment.apiOrigin?.replace(/\/$/, '') ?? '',
+              );
+            } else {
+              pluginStore.loadFromStorage();
+            }
+          } catch {
+            pluginStore.loadFromStorage();
+          }
+        };
+      },
+      multi: true,
+    },
     importProvidersFrom(
       LucideAngularModule.pick({
         User,
@@ -157,6 +269,7 @@ export const appConfig: ApplicationConfig = {
         Building2,
         Bell,
         LayoutDashboard,
+        Layout,
         Users,
         Package,
         Receipt,
@@ -172,9 +285,10 @@ export const appConfig: ApplicationConfig = {
         Trash2,
         Eye,
         Play,
-        CheckCircle,
-        XCircle,
-        Plus,
+        Check,
+        X,
+        CirclePlus,
+        ArrowUp,
         FileText,
         FileCheck,
         Download,
@@ -184,42 +298,45 @@ export const appConfig: ApplicationConfig = {
         ShieldCheck,
         QrCode,
         Save,
-        AlertTriangle,
+        TriangleAlert,
         Mail,
         Slash,
         TrendingUp,
-        AlertCircle,
+        CircleAlert,
         BellOff,
-        X,
         Clock,
         RefreshCw,
         Construction,
+        Cog,
         ArrowLeft,
         SearchX,
         FilePlus,
         UserPlus,
         Hash,
+        IdCard,
         Calendar,
         CalendarClock,
+        CalendarPlus,
         Euro,
         ChevronRight,
         ChevronDown,
         ChevronUp,
-        MoreVertical,
+        EllipsisVertical,
         MoreHorizontal,
-        PlayCircle,
+        CirclePlay,
         CalendarCheck,
         Box,
         Briefcase,
-        PieChart,
-        CheckSquare,
+        ChartPie,
+        SquareCheck,
         PenTool,
         RotateCcw,
         DollarSign,
         Archive,
         Shield,
-        AlertOctagon,
+        OctagonAlert,
         BarChart3,
+        BarChart2,
         Layers,
         Wrench,
         Activity,
@@ -228,15 +345,17 @@ export const appConfig: ApplicationConfig = {
         Info,
         Tag,
         Puzzle,
+        SlidersHorizontal,
         Sliders,
         Settings2,
-        FileWarning,
-        UploadCloud,
+        FileX,
+        CloudUpload,
         Printer,
         Timer,
         FileUp,
         Wallet,
         HelpCircle,
+        Keyboard,
         Phone,
         Smartphone,
         MapPin,
@@ -244,20 +363,16 @@ export const appConfig: ApplicationConfig = {
         Inbox,
         Gauge,
         UserCheck,
-        Edit,
         Filter,
         Copy,
         Star,
-        Check,
-        SlidersHorizontal,
         CreditCard,
-        LineChart,
+        ChartLine,
         PartyPopper,
         Presentation,
-        RotateCw,
         ExternalLink,
         Bot,
-        CheckCircle2,
+        CircleCheck,
         Cpu,
         GripVertical,
         Mic,
@@ -268,7 +383,34 @@ export const appConfig: ApplicationConfig = {
         FlaskConical,
         Globe,
         Volume2,
-        Layout,
+        BarChart,
+        CheckCircle,
+        Banknote,
+        CheckCheck,
+        UploadCloud,
+        RotateCw,
+        AlertTriangle,
+        Navigation,
+        AlertCircle,
+        CheckSquare,
+        AlertOctagon,
+        StickyNote,
+        Palette,
+        ShieldOff,
+        UserX,
+        Plus,
+        ShieldAlert,
+        Calculator,
+        WifiOff,
+        CloudOff,
+        CalendarDays,
+        CircleUser,
+        CircleX,
+        CircleCheckBig,
+        BrainCircuit,
+        Shrink,
+        Maximize2,
+        Expand,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },

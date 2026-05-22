@@ -8,7 +8,7 @@ export type InputShape = 'auto' | 'solid' | 'glass' | 'outline' | 'flat' | 'neum
 export type InputVariant = string;
 
 @Component({
-  selector: 'ui-josanz-input',
+  selector: 'ui-input',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
   providers: [
@@ -22,16 +22,14 @@ export type InputVariant = string;
     <div class="form-group" [class.disabled]="disabled">
       @if (label) { <label [for]="id" class="label">{{ label }}</label> }
       
-      <div 
-        class="input-wrapper" 
-        [class]="'input-color-' + color"
-        [class]="'input-shape-' + shape"
-        [class]="'input-' + size"
+      <div
+        class="input-wrapper"
+        [ngClass]="['input-color-' + color, 'input-shape-' + shape, 'input-' + size]"
         [class.input-auto-overrides]="shape === 'auto'"
         [class.has-icon]="icon" 
         [class.has-error]="error" 
       >
-        @if (icon) { <lucide-icon [name]="icon" class="field-icon"></lucide-icon> }
+        @if (icon) { <lucide-icon [name]="icon" class="field-icon" aria-hidden="true"></lucide-icon> }
         <input 
           [id]="id" 
           [type]="type" 
@@ -49,162 +47,157 @@ export type InputVariant = string;
       }
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    :host {
-      display: block;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; position: relative; }
 
     .label {
-      font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
-      letter-spacing: 0.12em; color: var(--text-muted);
-      margin-left: 12px; font-family: var(--font-display);
+      font-size: 0.7rem; 
+      font-weight: 700; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
+      color: var(--text-muted); 
+      margin-left: 0.25rem;
+      font-family: var(--font-main);
+      transition: all 0.2s ease;
     }
 
     .input-wrapper { 
       position: relative; display: flex; align-items: center; 
-      /* DOM inherited defaults */
-      --input-bg: var(--surface, rgba(255, 255, 255, 0.02));
+      --input-bg: var(--bg-secondary);
       --input-border: var(--border-soft);
-      --input-radius: var(--radius-md, 8px);
-      --input-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+      --input-radius: 12px;
       --input-color: var(--text-primary);
-      --input-glow: var(--brand-glow);
-      --input-focus: var(--brand);
+      --input-accent: var(--brand);
+      --input-padding-v: calc(var(--page-gap, 1.5rem) * 0.5 + 0.2rem);
+      --input-padding-h: calc(var(--page-gap, 1.5rem) * 0.7 + 0.3rem);
     }
+
+    .input-wrapper:focus-within .label { color: var(--input-accent); opacity: 1; }
 
     /* THEMATIC COLOR TOKENS */
-    .input-color-default { --input-focus: var(--brand); --input-glow: var(--brand-glow); }
-    .input-color-primary { --input-bg: color-mix(in srgb, var(--brand) 10%, transparent); --input-border: color-mix(in srgb, var(--brand) 40%, transparent); --input-focus: var(--brand); --input-glow: var(--brand-glow); }
-    .input-color-danger { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
-    .input-color-success { --input-border: var(--success); --input-focus: var(--success); --input-glow: rgba(16, 185, 129, 0.4); }
-    .input-color-warning { --input-border: var(--warning); --input-focus: var(--warning); --input-glow: rgba(245, 158, 11, 0.4); }
-    .input-color-info { --input-border: var(--info); --input-focus: var(--info); --input-glow: rgba(59, 130, 246, 0.4); }
+    .input-color-danger { --input-accent: var(--danger); }
+    .input-color-success { --input-accent: var(--success); }
+    .input-color-warning { --input-accent: var(--warning); }
+    .input-color-info { --input-accent: var(--info); }
 
-    /* ERROR OVERRIDE */
-    .input-wrapper.has-error { --input-border: var(--danger); --input-focus: var(--danger); --input-glow: rgba(239, 68, 68, 0.4); }
-
-    /* STRUCTURAL SHAPES */
-    .input-shape-auto {
-      /* Adopts native HTML Token variables */
-    }
-
-    .input-shape-solid {
-      --input-bg: var(--bg-secondary);
-      --input-border: var(--brand);
-      --input-radius: 0px;
-      --input-shadow: 4px 4px 0px rgba(0,0,0,0.5);
-    }
+    .input-wrapper.has-error { --input-border: var(--danger); --input-accent: var(--danger); }
 
     .input-shape-glass {
-      --input-bg: rgba(255, 255, 255, 0.05);
-      --input-border: var(--border-vibrant);
-      --input-radius: var(--radius-md);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      --input-bg: rgba(255, 255, 255, 0.02);
+      --input-border: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(25px) saturate(1.2);
     }
 
-    .input-shape-flat {
-      --input-bg: var(--bg-secondary);
-      --input-border: var(--text-primary);
-      --input-radius: 0px;
-      --input-shadow: none;
-      border-width: 2px;
+    .input-wrapper.input-shape-solid {
+      --input-bg: var(--bg-tertiary);
+      --input-border: var(--border-soft);
     }
-
-    .input-shape-neumorphic {
-      --input-bg: var(--bg-primary);
-      --input-border: transparent;
-      --input-radius: 30px;
-      --input-shadow: inset -4px -4px 10px rgba(255,255,255,0.02), inset 4px 4px 10px rgba(0,0,0,0.4);
-    }
-
-    .input-shape-minimal {
-      --input-bg: transparent;
-      --input-border: transparent;
-      --input-radius: 0;
-      --input-shadow: none;
-      border-bottom: 2px solid var(--border-soft) !important;
-    }
-
-    .input-shape-rounded {
-      --input-radius: 50px;
-    }
-    
-    .input-sm input { padding: 0.4rem 0.75rem; font-size: 0.75rem; }
-    .input-sm .field-icon { left: 0.75rem; width: 0.9rem; height: 0.9rem; }
-    .input-sm.has-icon input { padding-left: 2.2rem; }
 
     /* ELEMENT BASE RULES */
     input {
-      width: 100%; padding: 0.8rem 1.25rem;
-      background: var(--input-bg, rgba(255, 255, 255, 0.02)); 
-      border: 1px solid var(--input-border, var(--border-soft));
-      border-radius: var(--input-radius, var(--radius-md, 8px)); 
-      color: var(--input-color, var(--text-primary));
-      font-size: 0.8rem; font-weight: 600; 
-      transition: all var(--transition-base, 0.3s ease);
-      outline: none; font-family: var(--font-main);
-      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
-      box-sizing: border-box;
+      width: 100%; 
+      padding: 0.75rem 1rem;
+      background: var(--surface-vibrant, var(--input-bg));
+      border: 1px solid var(--border-soft, var(--input-border));
+      border-radius: var(--input-radius);
+      color: var(--input-color);
+      font-size: 0.9rem; 
+      font-weight: 500;
+      transition: all 0.25s ease;
+      outline: none; 
+      font-family: var(--font-main);
+      box-shadow: var(--shadow-sm);
     }
-
-    /* shape-auto: reads JS-injected tokens from ThemeService */
-    .input-shape-auto input {
-      background: var(--input-bg, rgba(255, 255, 255, 0.02));
-      border: 1px solid var(--input-border, var(--border-soft));
-      border-radius: var(--input-radius, var(--radius-md, 8px));
-      box-shadow: var(--input-shadow, inset 0 2px 4px rgba(0,0,0,0.1));
+ 
+    .has-icon input {
+      padding-left: 3rem;
     }
-
-    .input-shape-underline input { border-bottom: 2px solid var(--border-soft); }
-    .input-shape-minimal input { border-bottom: 1px solid var(--border-soft); padding-left: 0; padding-right: 0; }
-    .input-shape-rounded input { padding-left: 1.5rem; padding-right: 1.5rem; }
 
     /* FOCUS STATES */
     input:focus {
-      background: color-mix(in srgb, var(--input-bg) 92%, #fff);
-      border-color: var(--input-focus);
-      box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--input-focus) 22%, transparent),
-        0 12px 28px -8px var(--input-glow);
+      background: var(--surface-rich);
+      border-color: var(--input-accent);
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
+      transform: translateY(-1px);
     }
 
-    input:focus-visible {
-      outline: 2px solid var(--ring-focus, color-mix(in srgb, var(--input-focus) 50%, transparent));
-      outline-offset: 2px;
-    }
-
-    .input-shape-underline input:focus {
-      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
-    }
-    .input-shape-minimal input:focus {
-      box-shadow: none; border-bottom-color: var(--input-focus); background: transparent;
-    }
-    .input-shape-neumorphic input:focus {
-      box-shadow: inset -6px -6px 12px rgba(255,255,255,0.02), inset 6px 6px 12px rgba(0,0,0,0.6);
-      border-color: var(--input-focus);
-    }
-    
     input::placeholder {
       color: var(--text-muted);
-      opacity: 0.62;
+      opacity: 0.4;
       font-weight: 500;
     }
     
-    .has-icon input { padding-left: 2.75rem; }
+    .has-icon input { padding-left: 3.5rem; }
     .field-icon { 
-      position: absolute; left: 1rem; width: 1.1rem; height: 1.1rem; 
-      color: var(--text-muted); pointer-events: none; transition: 0.3s;
+      position: absolute; left: 1.4rem; width: 1.3rem; height: 1.3rem; 
+      color: var(--text-muted); pointer-events: none; transition: all 0.3s;
     }
-    input:focus ~ .field-icon,
-    input:not(:placeholder-shown) ~ .field-icon { color: var(--input-focus); }
+    input:focus ~ .field-icon { 
+       color: var(--input-accent);
+       transform: scale(1.15);
+       filter: drop-shadow(0 0 10px var(--input-accent));
+    }
 
-    .input-wrapper.has-error .field-icon { color: var(--danger); }
+    input:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    input:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(0.5); }
+    .hint { 
+      font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; margin-left: 0.5rem; 
+      font-weight: 600; opacity: 0.8;
+    }
+    .hint.error { color: var(--danger); opacity: 1; }
 
-    .hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; margin-left: 4px; font-weight: 500; }
-    .hint.error { color: var(--danger); font-weight: 600; }
+    /* Babooni Tenant Enhancements */
+    :host-context(html[data-erp-tenant='babooni']) input {
+      border-radius: 10px;
+      font-weight: 600;
+      border-color: color-mix(in srgb, var(--border-soft) 60%, transparent);
+      box-shadow: 
+        var(--shadow-sm),
+        inset 0 1px 0 var(--surface-glow, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) input:focus {
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+ 
+    :host-context(html[data-erp-tenant='babooni']) .label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--brand);
+    }
+
+    /* Figma `Login.svg`: campos blancos, borde #D7D7D7, radio 8px (tenant Josanz). */
+    :host-context(.auth-wrapper--figma) .input-wrapper {
+      --input-bg: #ffffff;
+      --input-border: #d7d7d7;
+      --input-radius: 8px;
+      --input-color: #222222;
+      backdrop-filter: none;
+    }
+    :host-context(.auth-wrapper--figma) .label {
+      color: #7c7c7c;
+      font-weight: 600;
+    }
+    :host-context(.auth-wrapper--figma) input {
+      box-shadow: none;
+      min-height: 43px;
+    }
+    :host-context(.auth-wrapper--figma) input:focus {
+      box-shadow: 0 0 0 2px rgba(15, 30, 47, 0.12);
+      transform: none;
+      border-color: #0f1e2f;
+    }
+    :host-context(.auth-wrapper--figma) .field-icon {
+      color: #7c7c7c;
+    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
@@ -237,7 +230,7 @@ export class UiInputComponent implements ControlValueAccessor {
   }
 
   value = '';
-  disabled = false;
+  @Input() disabled = false;
   onChange: (value: string) => void = () => { /* empty */ };
   onTouched = () => { /* empty */ };
 

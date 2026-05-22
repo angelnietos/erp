@@ -4,13 +4,19 @@ import { CommonModule } from '@angular/common';
 export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'gradient';
 
 @Component({
-  selector: 'ui-josanz-loader',
+  selector: 'ui-loader',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="loader-container" [class.overlay]="overlay">
+    <div
+      class="loader-container"
+      [class.overlay]="overlay"
+      role="status"
+      [attr.aria-live]="message ? 'polite' : null"
+      aria-busy="true"
+    >
       <div class="loader" [class]="'loader-' + variant">
-        <div class="spinner"></div>
+        <div class="spinner" aria-hidden="true"></div>
         @if (message) {
           <p class="message">{{ message }}</p>
         }
@@ -22,76 +28,76 @@ export type LoaderVariant = 'default' | 'dark' | 'light' | 'primary' | 'success'
       display: flex; 
       justify-content: center; 
       align-items: center; 
-      padding: 1.5rem; 
+      padding: 2rem; 
     }
     
     .loader-container.overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(5, 7, 10, 0.85); 
-      backdrop-filter: blur(12px);
-      z-index: 2000;
+      background: rgba(0, 0, 0, 0.9); 
+      backdrop-filter: blur(25px) saturate(2);
+      z-index: 50000;
+      animation: loaderFadeIn 0.5s var(--ease-out-expo);
     }
+
+    @keyframes loaderFadeIn { from { opacity: 0; } to { opacity: 1; } }
     
     .loader { 
       display: flex; 
       flex-direction: column; 
       align-items: center; 
-      gap: 0.85rem; 
+      gap: 1.5rem; 
     }
 
-    /* Spinner Base - Modern Tech Style */
+    /* Holographic Spinner */
     .spinner {
-      width: 36px; 
-      height: 36px; 
-      border: 2px solid rgba(255, 255, 255, 0.05);
-      border-top: 2px solid var(--brand);
-      border-right: 2px solid var(--brand);
+      width: 60px; 
+      height: 60px; 
+      border: 3px solid rgba(255, 255, 255, 0.03);
+      border-top: 3px solid var(--brand);
       border-radius: 50%; 
-      animation: spin 1s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-      box-shadow: 0 0 15px var(--brand-glow);
+      animation: spin 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      box-shadow: 0 0 30px var(--brand-glow);
       position: relative;
     }
     
+    .spinner::before {
+      content: '';
+      position: absolute;
+      inset: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 2px solid var(--brand-ambient-strong);
+      border-radius: 50%;
+      animation: spin 1.5s linear infinite reverse;
+    }
+
     .spinner::after {
       content: '';
       position: absolute;
-      top: 5px; left: 5px; right: 5px; bottom: 5px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-bottom: 2px solid var(--accent);
-      border-left: 2px solid var(--accent);
+      inset: -10px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-left: 1px solid var(--brand-glow);
       border-radius: 50%;
-      animation: spin 0.6s linear infinite reverse;
+      animation: spin 3s linear infinite;
+      filter: blur(2px);
     }
 
-    /* Variants */
-    .loader-default .spinner { border-top-color: var(--brand); border-right-color: var(--brand); }
-    .loader-default .message { color: var(--text-secondary); }
-
-    .loader-dark .spinner { border-top-color: #fff; border-right-color: #fff; }
-    .loader-dark .message { color: #fff; }
-
-    .loader-primary .spinner { border-top-color: var(--brand); border-right-color: var(--brand); }
-    .loader-primary .message { color: var(--brand); }
-
-    .loader-success .spinner { border-top-color: var(--success); border-right-color: var(--success); }
-    .loader-success .message { color: var(--success); }
-
-    .loader-danger .spinner { border-top-color: var(--danger); border-right-color: var(--danger); }
-    .loader-danger .message { color: var(--danger); }
+    .loader-success .spinner { border-top-color: var(--success); box-shadow: 0 0 30px var(--success); }
+    .loader-danger .spinner { border-top-color: var(--danger); box-shadow: 0 0 30px var(--danger); }
+    .loader-warning .spinner { border-top-color: var(--warning); box-shadow: 0 0 30px var(--warning); }
 
     .message {
-      font-size: 0.62rem;
-      font-weight: 600;
+      font-size: 0.75rem;
+      font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      margin: 0;
-      color: var(--text-secondary);
-      animation: pulse 1.5s ease-in-out infinite;
-      font-family: var(--font-main);
+      letter-spacing: 0.3em;
+      color: #fff;
+      text-shadow: 0 0 15px var(--brand-glow);
+      animation: messagePulse 2s ease-in-out infinite;
+      font-family: var(--font-display);
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    @keyframes messagePulse { 0%, 100% { opacity: 0.4; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } }
   `],
 })
 export class UiLoaderComponent {

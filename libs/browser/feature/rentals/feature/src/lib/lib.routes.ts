@@ -5,6 +5,7 @@ import { RentalsDetailComponent } from './rentals-detail/rentals-detail.componen
 export const rentalsFeatureRoutes: Route[] = [
   { path: '', component: RentalsListComponent },
   { path: ':id', component: RentalsDetailComponent },
+  { path: ':id/edit', component: RentalsDetailComponent },
 ];
 
 export * from './rentals-list/rentals-list.component';

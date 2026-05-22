@@ -1,3 +1,12 @@
+export {
+  DEFAULT_TENANT_MODULE_IDS,
+  TENANT_MODULE_LABELS_ES,
+  requiredModuleIdsForPermission,
+  isPermissionAllowedForModules,
+  filterPermissionsToEnabledModules,
+  normalizeTenantModuleIds,
+} from './lib/tenant-modules';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;
@@ -5,6 +14,9 @@ export interface UserPayload {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  permissions: string[];
+  /** Permisos asignados al usuario además de los de sus roles (se fusionan en el JWT). */
+  extraPermissions?: string[];
   category?: string;
 }
 
@@ -15,6 +27,8 @@ export interface User {
   lastName?: string;
   isActive: boolean;
   roles: string[];
+  permissions: string[];
+  extraPermissions?: string[];
   category?: string;
   createdAt: string;
   updatedAt?: string;
@@ -23,8 +37,8 @@ export interface User {
 export interface AuthResponse {
   accessToken: string;
   user: UserPayload;
-  /** Resolved tenant UUID; store and send as x-tenant-id on subsequent API calls. */
-  tenantId: string;
+  /** Tenant cliente (UUID). Vacío en login del panel SaaS (`platform_users`). */
+  tenantId?: string;
 }
 
 // DTOs shared between Backend and Frontend (no decorators - pure types)
@@ -41,6 +55,7 @@ export interface CreateUserDto {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  extraPermissions?: string[];
   category?: string;
 }
 
@@ -49,6 +64,7 @@ export interface UpdateUserDto {
   firstName?: string;
   lastName?: string;
   roles?: string[];
+  extraPermissions?: string[];
   category?: string;
   isActive?: boolean;
 }

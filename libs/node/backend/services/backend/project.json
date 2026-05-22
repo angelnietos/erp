@@ -1,7 +1,7 @@
 {
   "name": "services-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/services/backend/src",
+  "sourceRoot": "libs/node/backend/services/backend/src",
   "projectType": "library",
   "tags": ["scope:services", "type:backend"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/services/backend",
-        "main": "libs/services/backend/src/index.ts",
-        "tsConfig": "libs/services/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/services/backend",
+        "main": "libs/node/backend/services/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/services/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/services/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/services/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/services/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/services/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/services/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/services/backend"]
     }
   }
 }

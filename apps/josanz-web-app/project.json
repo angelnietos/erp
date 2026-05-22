@@ -1,0 +1,86 @@
+{
+  "name": "josanz-web-app",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/josanz-web-app/src",
+  "tags": ["scope:josanz-web-app", "type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/josanz-web-app",
+        "browser": "apps/josanz-web-app/src/main.ts",
+        "tsConfig": "apps/josanz-web-app/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/josanz-web-app/public"
+          }
+        ],
+        "styles": [
+          "apps/josanz-web-app/src/styles.css",
+          "libs/browser/shared/josanz-ui/src/lib/styles.scss"
+        ]
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "4kb",
+              "maximumError": "8kb"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "configurations": {
+        "production": {
+          "buildTarget": "josanz-web-app:build:production"
+        },
+        "development": {
+          "buildTarget": "josanz-web-app:build:development"
+        }
+      },
+      "defaultConfiguration": "development"
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/josanz-web-app/jest.config.cts",
+        "tsConfig": "apps/josanz-web-app/tsconfig.spec.json"
+      }
+    },
+    "serve-static": {
+      "continuous": true,
+      "executor": "@nx/web:file-server",
+      "options": {
+        "buildTarget": "josanz-web-app:build",
+        "port": 4200,
+        "staticFilePath": "dist/apps/josanz-web-app/browser",
+        "spa": true
+      }
+    }
+  }
+}

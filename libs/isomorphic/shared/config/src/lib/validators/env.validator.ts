@@ -126,8 +126,12 @@ export function validateEnv(schema: EnvSchema[]): ValidationResult {
       continue;
     }
 
+    if (typeof value !== 'string') {
+      continue;
+    }
+
     let isValid = true;
-    const stringValue = value!;
+    const stringValue = value;
 
     switch (envVar.type) {
       case 'number': {

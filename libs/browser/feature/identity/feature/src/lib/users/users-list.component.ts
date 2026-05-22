@@ -1,11 +1,29 @@
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, signal, inject, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { UiButtonComponent, UiCardComponent, UiSearchComponent, UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
+import { 
+  UiButtonComponent, 
+  UiFeatureFilterBarComponent, 
+  UiLoaderComponent,
+  UiStatCardComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
+} from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { User } from '@josanz-erp/identity-api';
-import { Observable, of } from 'rxjs';
-import { ThemeService, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import { catchError, finalize, map, Observable, of, take } from 'rxjs';
+import {
+  ThemeService,
+  MasterFilterService,
+  FilterableService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-users-list',
@@ -13,317 +31,255 @@ import { ThemeService, MasterFilterService, FilterableService } from '@josanz-er
   imports: [
     CommonModule,
     LucideAngularModule,
-    UiCardComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiLoaderComponent,
     UiButtonComponent,
+    UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
+    UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container animate-slide-up">
-      <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
-        <div class="header-main">
-          <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'">
-            Directorio de Usuarios
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary">GESTIÓN DE ACCESOS</span>
-            <span class="separator">/</span>
-            <span>IDENTIDAD Y ROLES</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          <ui-josanz-button variant="glass" size="md" icon="user-plus">
-            NUEVO USUARIO
-          </ui-josanz-button>
-        </div>
-      </header>
+    @if (!canViewUsers()) {
+      <ui-feature-access-denied
+        message="Tu rol no incluye permiso para ver o gestionar usuarios."
+        permissionHint="users.view o users.manage"
+      />
+    } @else {
+      <ui-feature-page-shell [fadeIn]="true" [extraClass]="'users-container'">
+        <ui-feature-header
+          title="Usuarios"
+          breadcrumbLead="IDENTIDAD Y ACCESO"
+          breadcrumbTail="USUARIOS DEL ERP"
+          subtitle="Gestión de identidades y control de acceso"
+          icon="users"
+          [actionLabel]="canManageUsers() ? 'NUEVO USUARIO' : ''"
+          (actionClicked)="onHeaderPrimaryAction()"
+        ></ui-feature-header>
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-search 
-          variant="filled"
-          placeholder="BUSCAR USUARIO POR NOMBRE, EMAIL O ROL..." 
+        @if (loadError() && hasAnyUsers()) {
+          <div class="feature-load-error-banner" role="status" aria-live="polite">
+            <lucide-icon
+              name="alert-circle"
+              size="18"
+              class="feature-load-error-banner__icon"
+              aria-hidden="true"
+            ></lucide-icon>
+            <span class="feature-load-error-banner__text">{{ loadError() }}</span>
+            <ui-button variant="ghost" size="sm" (clicked)="loadUsers()">Reintentar</ui-button>
+          </div>
+        }
+
+        <ui-feature-stats>
+          <ui-stat-card 
+            label="Total Usuarios" 
+            [value]="users().length.toString()" 
+            icon="users"
+            [accent]="true">
+          </ui-stat-card>
+          <ui-stat-card 
+            label="Activos ahora" 
+            [value]="activeUsersCount().toString()" 
+            icon="zap">
+          </ui-stat-card>
+          <ui-stat-card 
+            label="Roles Definidos" 
+            [value]="rolesCount().toString()" 
+            icon="shield">
+          </ui-stat-card>
+          <ui-stat-card
+            label="Sistema"
+            value="RBAC v2"
+            icon="lock"
+            [accent]="false"
+          ></ui-stat-card>
+        </ui-feature-stats>
+
+        <ui-feature-filter-bar
+          [appearance]="'feature'"
+          [searchVariant]="'glass'"
+          placeholder="Buscar usuarios por nombre, email o rol…"
           (searchChange)="onSearch($event)"
-          class="flex-1 max-w-md"
-        ></ui-josanz-search>
-      </div>
+        >
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="sliders-horizontal"
+            [attr.title]="'Alternar ordenación entre nombre y correo'"
+            (clicked)="toggleSort()"
+          >
+            Ordenar por
+            {{ sortField() === 'name' ? 'nombre' : 'correo' }}
+          </ui-button>
+        </ui-feature-filter-bar>
 
-      <ui-josanz-card variant="glass" class="users-card">
-        <div class="users-list">
-          <div class="users-header">
-            <h3>Usuarios del Sistema</h3>
-            <span class="users-count"
-              >{{ filteredUsers().length }} usuarios</span
-            >
+        @if (isLoading()) {
+          <div class="feature-loader-wrap">
+            <ui-loader message="Sincronizando identidades…"></ui-loader>
           </div>
-
-          @if (isLoading()) {
-            <div class="loading-state">
-              <ui-josanz-loader message="SINCRONIZANDO IDENTIDADES..."></ui-josanz-loader>
-            </div>
-          } @else {
-            <div class="users-table">
-              <div class="table-header">
-                <div class="col-email">Email</div>
-                <div class="col-name">Nombre</div>
-                <div class="col-category">Categoría</div>
-                <div class="col-roles">Roles</div>
-                <div class="col-status">Estado</div>
-                <div class="col-actions">Acciones</div>
-              </div>
-
-              <div class="table-body">
-                @for (user of filteredUsers(); track user.id) {
-                  <div class="table-row">
-                    <div class="col-email">{{ user.email }}</div>
-                    <div class="col-name">
-                      {{ user.firstName || '' }} {{ user.lastName || '' }}
-                    </div>
-                    <div class="col-category">{{ user.category || '-' }}</div>
-                    <div class="col-roles">
-                      @for (role of user.roles; track role) {
-                        <span class="role-badge" [style.background]="currentTheme().primary">{{ role }}</span>
-                      }
-                    </div>
-                    <div class="col-status">
-                      <span
-                        class="status-badge"
-                        [class.active]="user.isActive"
-                        [class.inactive]="!user.isActive"
-                      >
-                        {{ user.isActive ? 'Activo' : 'Inactivo' }}
-                      </span>
-                    </div>
-                    <div class="col-actions">
-                      <ui-josanz-button variant="ghost" size="sm" icon="pencil">Editar</ui-josanz-button>
-                    </div>
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        </div>
-      </ui-josanz-card>
-    </div>
+        } @else if (loadError() && !hasAnyUsers()) {
+          <div class="feature-error-screen" role="alert">
+            <lucide-icon name="wifi-off" size="56" class="feature-error-screen__icon" aria-hidden="true"></lucide-icon>
+            <h3>No se pudo cargar la lista</h3>
+            <p>
+              {{
+                loadError() ||
+                  'Comprueba la conexión o inténtalo de nuevo en unos segundos.'
+              }}
+            </p>
+            <ui-button variant="solid" (clicked)="loadUsers()">Reintentar</ui-button>
+          </div>
+        } @else if (!hasAnyUsers()) {
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="users" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
+            <h3>Sin usuarios</h3>
+            <p>
+              Aún no hay cuentas en este espacio de trabajo. Cuando se den de alta, aparecerán aquí.
+            </p>
+          </div>
+        } @else if (filterProducesNoResults()) {
+          <div class="feature-empty feature-empty--wide">
+            <lucide-icon name="search-x" size="64" class="feature-empty__icon" aria-hidden="true"></lucide-icon>
+            <h3>Sin resultados</h3>
+            <p>Ningún usuario coincide con la búsqueda actual.</p>
+            <ui-button variant="ghost" size="sm" (clicked)="clearFiltersAndSearch()">
+              Limpiar búsqueda
+            </ui-button>
+          </div>
+        } @else {
+          <ui-feature-grid>
+            @for (user of filteredUsers(); track user.id) {
+              <ui-feature-card
+                [name]="(user.firstName || '') + ' ' + (user.lastName || '')"
+                [subtitle]="user.email"
+                [avatarInitials]="getInitials(user.firstName, user.lastName)"
+                [avatarBackground]="getStatusGradient(user.isActive)"
+                [status]="user.isActive ? 'active' : 'offline'"
+                [badgeLabel]="user.roles[0] || 'SIN ROL'"
+                (detailClicked)="onRowClick(user)"
+                (editClicked)="onEdit(user)"
+                (deleteClicked)="onDelete(user)"
+                [footerItems]="[
+                  { icon: 'shield', label: (user.category || 'ESTÁNDAR') | uppercase },
+                  { icon: 'key', label: user.roles.length + (user.roles.length === 1 ? ' ROL' : ' ROLES') },
+                  { 
+                    icon: 'lock', 
+                    label: user.permissions.includes('*') 
+                      ? 'ACCESO TOTAL' 
+                      : user.permissions.length + (user.permissions.length === 1 ? ' PERMISO' : ' PERMISOS') 
+                  }
+                ]"
+              >
+                 <div footer-extra class="users-extra-actions">
+                   <button
+                     type="button"
+                     class="action-btn warning"
+                     (click)="onDeactivate(user); $event.stopPropagation()"
+                     [attr.aria-label]="
+                       (user.isActive ? 'Desactivar usuario: ' : 'Activar usuario: ') +
+                       userDisplayLabel(user)
+                     "
+                     [title]="user.isActive ? 'Desactivar' : 'Activar'"
+                   >
+                     <lucide-icon [name]="user.isActive ? 'user-x' : 'user-check'" size="16" aria-hidden="true"></lucide-icon>
+                   </button>
+                 </div>
+              </ui-feature-card>
+            }
+          </ui-feature-grid>
+        }
+      </ui-feature-page-shell>
+    }
   `,
-  styles: [
-    `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
-      }
+  styles: [`
+    .users-extra-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.85rem;
-        border-bottom: 1px solid var(--border-soft);
-      }
+    .action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
 
-      .page-title {
-        font-size: 1.35rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0 0 0.25rem 0;
-        letter-spacing: -0.02em;
-        font-family: var(--font-main);
-        line-height: 1.15;
-      }
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+    }
 
-      .breadcrumb {
-        display: flex;
-        gap: 6px;
-        font-size: 0.55rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        color: var(--text-muted);
-      }
-      .breadcrumb .active {
-        color: var(--brand);
-      }
-      .breadcrumb .separator {
-        opacity: 0.3;
-      }
+    html[data-theme-is-light='true'] .action-btn:hover {
+      background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+    }
 
-      .navigation-bar { 
-        display: flex; gap: 1rem; margin-bottom: 1.5rem; padding: 0.75rem 1rem; border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4); border: 1px solid rgba(255,255,255,0.05);
-      }
-
-      .flex-1 { flex: 1; }
-      .max-w-md { max-width: 28rem; }
-
-      .glow-text { 
-        font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0; 
-        letter-spacing: 0.05em; font-family: var(--font-main);
-      }
-
-      .users-card {
-        padding: 1.5rem;
-      }
-
-      .users-list {
-        width: 100%;
-      }
-
-      .users-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-      }
-
-      .users-header h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin: 0;
-      }
-
-      .users-count {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        font-weight: 500;
-      }
-
-      .users-table {
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        overflow: hidden;
-        background: var(--surface);
-      }
-
-      .table-header {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
-        background: var(--surface-hover);
-        border-bottom: 1px solid var(--border-soft);
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .table-body {
-        max-height: 600px;
-        overflow-y: auto;
-      }
-
-      .table-row {
-        display: grid;
-        grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr;
-        gap: 1rem;
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--border-subtle);
-        align-items: center;
-        transition: background-color 0.2s ease;
-      }
-
-      .table-row:hover {
-        background: var(--surface-hover);
-      }
-
-      .col-email {
-        font-weight: 500;
-        color: var(--text-primary);
-      }
-
-      .col-name {
-        color: var(--text-primary);
-      }
-
-      .col-category {
-        color: var(--text-secondary);
-        font-size: 0.875rem;
-      }
-
-      .col-roles {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.25rem;
-      }
-
-      .role-badge {
-        background: var(--brand);
-        color: white;
-        padding: 0.125rem 0.5rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        font-weight: 500;
-      }
-
-      .col-status .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 16px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .status-badge.active {
-        background: var(--success);
-        color: white;
-      }
-
-      .status-badge.inactive {
-        background: var(--error);
-        color: white;
-      }
-
-      .col-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .loading-state {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 3rem;
-        color: var(--text-muted);
-      }
-
-      .animate-spin {
-        animation: spin 1s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(0deg);
-        }
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    `,
-  ],
+    .action-btn.warning:hover {
+      color: var(--warning);
+    }
+  `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsersListComponent implements OnInit, OnDestroy, FilterableService<User> {
   private readonly usersService = inject(UsersService);
   private readonly themeService = inject(ThemeService);
   private readonly masterFilter = inject(MasterFilterService);
+  public readonly authStore = inject(GlobalAuthStore);
+  public readonly router = inject(Router);
+  readonly canViewUsers = rbacAllows(this.authStore, 'users.view', 'users.manage');
+  readonly canManageUsers = rbacAllows(this.authStore, 'users.manage');
 
   currentTheme = this.themeService.currentThemeData;
   users = signal<User[]>([]);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
+  readonly hasAnyUsers = computed(() => this.users().length > 0);
+
+  sortField = signal<'name' | 'email'>('name');
+  sortDirection = signal<1 | -1>(1);
+
+  activeUsersCount = computed(() => this.users().filter((u: User) => u.isActive).length);
+  rolesCount = computed(() => new Set(this.users().flatMap((u: User) => u.roles)).size);
+
   filteredUsers = computed(() => {
-    const list = this.users();
+    let list = [...this.users()];
     const t = this.masterFilter.query().trim().toLowerCase();
-    if (!t) return list;
-    return list.filter(u => 
-      u.email.toLowerCase().includes(t) || 
-      (u.firstName ?? '').toLowerCase().includes(t) || 
-      (u.lastName ?? '').toLowerCase().includes(t) ||
-      u.roles.some(r => r.toLowerCase().includes(t))
-    );
+    if (t) {
+      list = list.filter((u: User) =>
+        u.email.toLowerCase().includes(t) ||
+        (u.firstName ?? '').toLowerCase().includes(t) ||
+        (u.lastName ?? '').toLowerCase().includes(t) ||
+        u.roles.some((r: string) => r.toLowerCase().includes(t)),
+      );
+    }
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    list.sort((a, b) => {
+      let valA = '';
+      let valB = '';
+      if (field === 'name') {
+        valA = `${a.firstName ?? ''} ${a.lastName ?? ''}`.trim().toLowerCase();
+        valB = `${b.firstName ?? ''} ${b.lastName ?? ''}`.trim().toLowerCase();
+      } else {
+        valA = (a.email || '').toLowerCase();
+        valB = (b.email || '').toLowerCase();
+      }
+      return valA.localeCompare(valB, 'es', { sensitivity: 'base' }) * dir;
+    });
+    return list;
+  });
+
+  /** Hay datos cargados pero la búsqueda actual no devuelve filas. */
+  readonly filterProducesNoResults = computed(() => {
+    if (!this.hasAnyUsers() || this.filteredUsers().length > 0) {
+      return false;
+    }
+    return this.masterFilter.query().trim().length > 0;
   });
 
   ngOnInit() {
@@ -335,28 +291,98 @@ export class UsersListComponent implements OnInit, OnDestroy, FilterableService<
     this.masterFilter.unregisterProvider();
   }
 
+  onHeaderPrimaryAction(): void {
+    void this.router.navigate(['/users', 'new']);
+  }
+
+  loadUsers() {
+    this.loadError.set(null);
+    this.isLoading.set(true);
+    this.usersService
+      .findAll()
+      .pipe(
+        take(1),
+        catchError(() => {
+          this.loadError.set('No se pudo cargar la lista. Comprueba la conexión o vuelve a intentarlo.');
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe((users) => {
+        if (users !== null) {
+          this.users.set(users);
+          this.loadError.set(null);
+        }
+      });
+  }
+
+  // Implementation of FilterableService<User>
+  filter(query: string): Observable<User[]> {
+    return this.usersService.findAll().pipe(
+      map(users => {
+        const q = query.toLowerCase().trim();
+        return users.filter(u => 
+          u.email.toLowerCase().includes(q) ||
+          (`${u.firstName} ${u.lastName}`).toLowerCase().includes(q)
+        );
+      })
+    );
+  }
+
   onSearch(term: string) {
     this.masterFilter.search(term);
   }
 
-  filter(query: string): Observable<User[]> {
-    const term = query.toLowerCase();
-    const matches = this.users().filter(u => 
-      u.email.toLowerCase().includes(term) || 
-      (u.firstName ?? '').toLowerCase().includes(term) || 
-      (u.lastName ?? '').toLowerCase().includes(term)
-    );
-    return of(matches);
+  clearFiltersAndSearch(): void {
+    this.masterFilter.search('');
   }
 
-  private loadUsers() {
-    this.isLoading.set(true);
-    this.usersService.findAll().subscribe({
-      next: (list) => {
-        this.users.set(list);
-        this.isLoading.set(false);
-      },
-      error: () => this.isLoading.set(false)
+  toggleSort() {
+    if (this.sortField() === 'name') {
+      this.sortField.set('email');
+    } else {
+      this.sortField.set('name');
+    }
+  }
+
+  onRowClick(user: User) {
+    this.router.navigate(['/users', user.id]);
+  }
+
+  onEdit(user: User) {
+    this.router.navigate(['/users', user.id, 'edit']);
+  }
+
+  onDelete(user: User) {
+    if (confirm(`¿Estás seguro de que deseas eliminar al usuario ${user.email}?`)) {
+      this.usersService.delete(user.id).subscribe({
+        next: () => this.users.update((list) => list.filter((u) => u.id !== user.id)),
+      });
+    }
+  }
+
+  onDeactivate(user: User) {
+    const newStatus = !user.isActive;
+    this.usersService.update(user.id, { isActive: newStatus }).subscribe({
+      next: () => {
+        this.users.update(list => list.map(u => u.id === user.id ? { ...u, isActive: newStatus } : u));
+      }
     });
+  }
+
+  /** Nombre legible para etiquetas ARIA (activar/desactivar). */
+  userDisplayLabel(user: User): string {
+    const n = `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim();
+    return n || user.email || 'Usuario';
+  }
+
+  getInitials(first: string | undefined, last: string | undefined): string {
+    return ((first?.charAt(0) || '') + (last?.charAt(0) || '')).toUpperCase() || 'U';
+  }
+
+  getStatusGradient(isActive: boolean): string {
+    return isActive 
+      ? 'linear-gradient(135deg, #10b981, #059669)' 
+      : 'linear-gradient(135deg, #6b7280, #374151)';
   }
 }

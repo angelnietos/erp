@@ -1,7 +1,7 @@
 {
   "name": "budget-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/budget/backend/src",
+  "sourceRoot": "libs/node/backend/budget/backend/src",
   "projectType": "library",
   "tags": ["scope:budget", "type:backend"],
   "targets": {
@@ -9,25 +9,25 @@
       "executor": "@nx/rollup:rollup",
       "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/budget/backend",
-        "main": "libs/budget/backend/src/index.ts",
-        "tsConfig": "libs/budget/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/budget/backend",
+        "main": "libs/node/backend/budget/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/budget/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/budget/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/budget/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/budget/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/budget/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/budget/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/budget/backend"]
     }
   }
 }

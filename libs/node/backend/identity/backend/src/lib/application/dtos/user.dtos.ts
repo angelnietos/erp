@@ -1,4 +1,6 @@
+import { Transform } from 'class-transformer';
 import {
+  Allow,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -30,12 +32,14 @@ export class CreateUserDto implements ICreateUserDto {
   password!: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)
   firstName?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)
@@ -45,7 +49,12 @@ export class CreateUserDto implements ICreateUserDto {
   @IsString({ each: true })
   roles!: string[];
 
+  /** `@Allow()` asegura whitelist con `forbidNonWhitelisted` (p. ej. metadatos con arrays opcionales). */
+  @Allow()
+  extraPermissions?: string[];
+
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)
@@ -58,16 +67,19 @@ export class CreateUserDto implements ICreateUserDto {
  */
 export class UpdateUserDto implements IUpdateUserDto {
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsEmail()
   email?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)
   firstName?: string;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)
@@ -78,7 +90,11 @@ export class UpdateUserDto implements IUpdateUserDto {
   @IsString({ each: true })
   roles?: string[];
 
+  @Allow()
+  extraPermissions?: string[];
+
   @IsOptional()
+  @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
   @MinLength(1)
   @MaxLength(50)

@@ -1,13 +1,13 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiLoaderComponent,
-  UiTableComponent,
   UiStatCardComponent,
   UiCardComponent,
   UiButtonComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
@@ -22,20 +22,25 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
     RouterModule,
     LucideAngularModule,
     UiLoaderComponent,
-    UiTableComponent,
     UiStatCardComponent,
     UiCardComponent,
     UiButtonComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container page-container--skip-horizontal-inset animate-fade-in" [class.high-perf]="pluginStore.highPerformanceMode()">
+    <ui-feature-page-shell
+      [variant]="'widthOnly'"
+      [fadeIn]="true"
+      [extraClass]="(pluginStore.highPerformanceMode() ? 'high-perf ' : '') + 'billing-detail-root'"
+    >
+      <div class="billing-detail__inner">
       @if (isLoading()) {
-        <ui-josanz-loader message="Sincronizando registros fiscales con AEAT..."></ui-josanz-loader>
+        <ui-loader message="Sincronizando registros fiscales con AEAT..."></ui-loader>
       } @else if (invoice(); as inv) {
         <header class="page-header" [style.border-bottom-color]="currentTheme().primary + '33'">
           <div class="header-breadcrumb">
             <button class="back-btn" routerLink="/billing">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
+              <lucide-icon name="arrow-left" size="14" aria-hidden="true"></lucide-icon>
               VOLVER A FACTURACIÓN
             </button>
             <h1 class="page-title text-uppercase glow-text" [style.text-shadow]="'0 0 24px ' + currentTheme().primary + '44'">
@@ -48,58 +53,72 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button variant="glass" icon="printer" (clicked)="printInvoice()">IMPRIMIR</ui-josanz-button>
+            <ui-button variant="glass" icon="printer" (clicked)="printInvoice()">IMPRIMIR</ui-button>
             @if (inv.status === 'draft') {
-              <ui-josanz-button variant="primary" icon="play" (clicked)="issueInvoice()">EMITIR FACTURA</ui-josanz-button>
+              <ui-button variant="primary" icon="play" (clicked)="issueInvoice()">EMITIR FACTURA</ui-button>
             }
             @if (inv.status === 'pending') {
-              <ui-josanz-button variant="primary" icon="check-circle" (clicked)="markAsPaid()">NOTIFICAR PAGO</ui-josanz-button>
+              <ui-button variant="primary" icon="check-circle" (clicked)="markAsPaid()">NOTIFICAR PAGO</ui-button>
             }
             @if (inv.status !== 'draft') {
                @if (!inv.verifactuStatus || inv.verifactuStatus === 'pending') {
-                 <ui-josanz-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-josanz-button>
+                 <ui-button variant="app" icon="shield-check" (clicked)="sendToAEAT()">ENVIAR AEAT</ui-button>
                }
                @if (inv.verifactuStatus === 'sent') {
-                 <ui-josanz-button variant="outline" icon="file-warning" (clicked)="rectifyInvoice()">RECTIFICAR FACTURA</ui-josanz-button>
+                 <ui-button variant="outline" icon="file-warning" (clicked)="rectifyInvoice()">RECTIFICAR FACTURA</ui-button>
                }
                @if (inv.verifactuStatus === 'error') {
-                 <ui-josanz-button variant="app" icon="refresh-cw" (clicked)="sendToAEAT()">REINTENTAR AEAT</ui-josanz-button>
+                 <ui-button variant="app" icon="refresh-cw" (clicked)="sendToAEAT()">REINTENTAR AEAT</ui-button>
                }
             }
           </div>
         </header>
 
         <div class="stats-row">
-          <ui-josanz-stat-card 
+          <ui-stat-card 
             label="Total Facturado" 
             [value]="formatCurrencyEu(inv.total)" 
             icon="wallet" 
             [accent]="true">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Integridad VeriFactu" 
             [value]="getVerifactuLabel(inv.verifactuStatus)" 
             [icon]="getVerifactuIcon(inv.verifactuStatus)">
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card 
+          </ui-stat-card>
+          <ui-stat-card 
             label="Fecha Emisión" 
             [value]="formatDate(inv.issueDate)" 
             icon="calendar">
-          </ui-josanz-stat-card>
+          </ui-stat-card>
         </div>
 
         <div class="main-content">
           <div class="detail-cards">
-            <ui-josanz-card variant="glass" title="Líneas de Facturación">
-              <ui-josanz-table [columns]="itemColumns" [data]="inv.items || []">
-                <ng-template #cellTemplate let-item let-key="key">
-                  @switch (key) {
-                    @case ('unitPrice') { <span class="font-mono">{{ formatCurrencyEu(item.unitPrice) }}</span> }
-                    @case ('total') { <strong class="font-mono" [style.color]="currentTheme().primary">{{ formatCurrencyEu(item.total) }}</strong> }
-                    @default { {{ item[key] }} }
-                  }
-                </ng-template>
-              </ui-josanz-table>
+            <ui-card variant="glass" title="Líneas de Facturación">
+              <div class="line-items-cards" role="list">
+                @for (line of inv.items || []; track line.id) {
+                  <article class="line-item-card" role="listitem">
+                    <h3 class="line-item-card__title">{{ line.description }}</h3>
+                    <dl class="line-item-card__grid">
+                      <div>
+                        <dt>Ud.</dt>
+                        <dd>{{ line.quantity }}</dd>
+                      </div>
+                      <div>
+                        <dt>Precio unit.</dt>
+                        <dd class="font-mono">{{ formatCurrencyEu(line.unitPrice) }}</dd>
+                      </div>
+                      <div class="line-item-card__subtotal">
+                        <dt>Subtotal</dt>
+                        <dd class="font-mono" [style.color]="currentTheme().primary">{{ formatCurrencyEu(line.total) }}</dd>
+                      </div>
+                    </dl>
+                  </article>
+                } @empty {
+                  <p class="line-items-empty">Sin líneas de facturación.</p>
+                }
+              </div>
 
               <footer slot="footer" class="invoice-summary" [style.border-top-color]="currentTheme().primary + '22'">
                 <div class="summary-line">
@@ -115,13 +134,13 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                   <span>{{ formatCurrencyEu(inv.total) }}</span>
                 </div>
               </footer>
-            </ui-josanz-card>
+            </ui-card>
           </div>
 
           <aside class="sidebar">
-            <ui-josanz-card variant="glass" title="Vigilancia Fiscal (AEAT)">
+            <ui-card variant="glass" title="Vigilancia Fiscal (AEAT)">
                <div class="vf-status-box" [style.background]="getVerifactuBg()">
-                 <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28"></lucide-icon>
+                 <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28" aria-hidden="true"></lucide-icon>
                  <div class="vf-text">
                    <h4 class="text-uppercase">{{ getVerifactuLabel(inv.verifactuStatus) }}</h4>
                    <p class="text-friendly">Certificación VeriFactu cumplimentada bajo normativa 2026/02/AEAT.</p>
@@ -129,36 +148,38 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                </div>
                @if (inv.verifactuStatus === 'sent') {
                  <div class="qr-placeholder ui-filled">
-                    <lucide-icon name="qr-code" size="64"></lucide-icon>
+                    <lucide-icon name="qr-code" size="64" aria-hidden="true"></lucide-icon>
                     <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Código HASH Certificado</p>
                  </div>
                }
-            </ui-josanz-card>
+            </ui-card>
 
-            <ui-josanz-card variant="glass" title="Notas del Expediente">
+            <ui-card variant="glass" title="Notas del Expediente">
                <p class="notes-text text-friendly">{{ inv.notes || 'No hay notas adicionales para este documento fiscal.' }}</p>
-            </ui-josanz-card>
+            </ui-card>
           </aside>
         </div>
       } @else {
         <div class="error-container ui-glass">
-          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().danger"></lucide-icon>
+          <lucide-icon name="alert-triangle" size="48" [style.color]="currentTheme().danger" aria-hidden="true"></lucide-icon>
           <h3>Expediente No Encontrado</h3>
           <p>El documento solicitado no existe o no tiene permisos de acceso.</p>
-          <ui-josanz-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-josanz-button>
+          <ui-button variant="glass" routerLink="/billing">VOLVER AL LISTADO</ui-button>
         </div>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [`
-    .page-container {
+    .billing-detail__inner {
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
       padding: clamp(1rem, 2.5vw, 1.75rem) clamp(1rem, 2.5vw, 2rem) 2rem;
       box-sizing: border-box;
+      width: 100%;
     }
-    
+
     .back-btn {
       background: none; border: none; color: var(--text-muted); 
       display: flex; align-items: center; gap: 8px; font-size: 0.6rem;
@@ -226,6 +247,64 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
 
     .notes-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6; }
 
+    .line-items-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .line-item-card {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md, 8px);
+      padding: 0.85rem 1rem;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+    }
+    .line-item-card__title {
+      margin: 0 0 0.65rem 0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.35;
+    }
+    .line-item-card__grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.65rem 1rem;
+      margin: 0;
+    }
+    .line-item-card__grid > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 0;
+    }
+    .line-item-card__grid dt {
+      margin: 0;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .line-item-card__grid dd {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .line-item-card__subtotal dd {
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .line-items-empty {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    @media (max-width: 640px) {
+      .line-item-card__grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .error-container {
       padding: 4rem;
       display: flex;
@@ -250,13 +329,6 @@ export class BillingDetailComponent implements OnInit {
   invoice = signal<Invoice | null>(null);
   isLoading = signal(true);
 
-  itemColumns = [
-    { key: 'description', header: 'CONCEPTO' },
-    { key: 'quantity', header: 'UD.', width: '70px' },
-    { key: 'unitPrice', header: 'PRECIO UNIT.', width: '120px' },
-    { key: 'total', header: 'SUBTOTAL', width: '120px' },
-  ];
-
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -265,21 +337,41 @@ export class BillingDetailComponent implements OnInit {
   }
 
   loadInvoice(id: string) {
-    this.isLoading.set(true);
-    // Mocking the backend call with real-time feedback
-    setTimeout(() => {
-      this.invoiceService.getInvoice(id).subscribe({
-        next: (inv) => {
-          if (inv) this.invoice.set(inv);
-          else this.setMockInvoice(id);
-          this.isLoading.set(false);
-        },
-        error: () => {
+    const fromList = this.facade.allInvoices().find((i) => i.id === id);
+    if (fromList) {
+      this.invoice.set(fromList);
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
+    this.invoiceService.getInvoice(id).subscribe({
+      next: (inv) => {
+        if (inv) {
+          this.invoice.set(inv);
+          // Consultar estado real en Verifactu (CRM) para sincronizar UI
+          this.verifactuApi.getInvoiceDetail(id).subscribe({
+             next: (vf) => {
+                this.invoice.update(current => current ? { 
+                  ...current, 
+                  verifactuStatus: vf.verifactuStatus as 'sent' | 'error' | 'pending',
+                  aeatReference: vf.aeatReference,
+                  qrCode: vf.qrCode
+                } : current);
+             },
+             error: () => { /* Ignorar si no hay registro aún */ }
+          });
+        } else if (!fromList) {
           this.setMockInvoice(id);
-          this.isLoading.set(false);
         }
-      });
-    }, 600);
+        this.isLoading.set(false);
+      },
+      error: () => {
+        if (!fromList) {
+          this.setMockInvoice(id);
+        }
+        this.isLoading.set(false);
+      },
+    });
   }
 
   private setMockInvoice(id: string) {
@@ -368,10 +460,13 @@ export class BillingDetailComponent implements OnInit {
     const inv = this.invoice();
     const tenantId = getStoredTenantId();
     if (!inv || !tenantId) return;
-    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId).subscribe({
+    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId, inv.invoiceNumber, inv.total).subscribe({
       next: (res) => {
         if (!res.success) {
           this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
+        } else {
+          // Si el envío a la cola fue OK, esperamos un poco y recargamos para ver el resultado del worker
+          setTimeout(() => this.loadInvoice(inv.id), 2000);
         }
         this.loadInvoice(inv.id);
       },

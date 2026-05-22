@@ -1,0 +1,110 @@
+# Producción: imágenes publicadas por CI (GHCR). En servidor: pull + up.
+#
+# Perfiles (COMPOSE_PROFILES):
+#   josanz,core     → backend + josanz-web-app
+#   legacy-front,core → backend + frontend (nginx /api proxy)
+#   verifactu       → verifactu-api + verifactu-worker (+ postgres)
+#   saas | docs     → front aislado
+#   all             → todo lo definido en deploy/.env
+#
+#   set -a && source deploy/.env && set +a
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD requerido}
+      POSTGRES_DB: ${POSTGRES_DB:-josanz_erp}
+    volumes:
+      - josanz_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ${BACKEND_IMAGE:?BACKEND_IMAGE requerido}
+    restart: unless-stopped
+    profiles: [core, all, josanz, legacy-front]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL requerido}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET requerido}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-${JWT_SECRET}}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost}
+    expose:
+      - '3000'
+
+  verifactu-api:
+    image: ${VERIFACTU_API_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [verifactu, all]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      VERIFACTU_PORT: '3110'
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL requerido}
+    expose:
+      - '3110'
+
+  verifactu-worker:
+    image: ${VERIFACTU_WORKER_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [verifactu, all]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      verifactu-api:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      VERIFACTU_WORKER_PORT: '3120'
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL requerido}
+    expose:
+      - '3120'
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [legacy-front, all]
+    depends_on:
+      - backend
+    ports:
+      - '${FRONTEND_HTTP_PORT:-8081}:80'
+
+  josanz-web-app:
+    image: ${JOSANZ_WEB_APP_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [josanz, all]
+    ports:
+      - '${JOSANZ_WEB_APP_HTTP_PORT:-8082}:80'
+
+  saas-platform:
+    image: ${SAAS_PLATFORM_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [saas, all]
+    ports:
+      - '${SAAS_PLATFORM_HTTP_PORT:-8083}:80'
+
+  document-generator:
+    image: ${DOCUMENT_GENERATOR_IMAGE:-ghcr.io/library/alpine:3.20}
+    restart: unless-stopped
+    profiles: [docs, all]
+    ports:
+      - '${DOCUMENT_GENERATOR_HTTP_PORT:-8084}:80'
+
+volumes:
+  josanz_pgdata:

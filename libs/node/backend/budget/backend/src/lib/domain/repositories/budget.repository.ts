@@ -1,3 +1,3 @@
-﻿export {}; // migrated to @josanz-erp/budget-core
+export {}; // migrated to @josanz-erp/budget-core
 
 

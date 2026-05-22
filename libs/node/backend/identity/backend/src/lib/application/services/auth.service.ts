@@ -2,10 +2,17 @@ import { BadRequestException, Inject, Injectable, UnauthorizedException } from '
 import { JwtService } from '@nestjs/jwt';
 import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from '@josanz-erp/shared-infrastructure';
+import {
+  AuditLogWriterService,
+  PrismaService,
+} from '@josanz-erp/shared-infrastructure';
 import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
+import { PlatformLoginDto } from '../dtos/platform-login.dto';
+
+const PLATFORM_JWT_ROLES = ['PlatformOwner'] as const;
+const PLATFORM_JWT_PERMISSIONS = ['platform.tenants.manage'] as const;
 
 type AuthenticatedUserView = {
   id: string;
@@ -13,6 +20,8 @@ type AuthenticatedUserView = {
   firstName?: string;
   lastName?: string;
   roles: string[];
+  permissions: string[];
+  extraPermissions?: string[];
 };
 
 @Injectable()
@@ -22,6 +31,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly cls: ClsService<TenantContext>,
+    private readonly auditLogWriter: AuditLogWriterService,
   ) {}
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
@@ -64,11 +74,35 @@ export class AuthService {
       throw new UnauthorizedException('User is deactivated');
     }
 
-    const payload = { 
-      sub: user.id.value, 
-      email: user.email, 
-      roles: user.roles 
+    const permissions = await this.mergeEffectivePermissions(
+      tenantId,
+      user.roles,
+      user.extraPermissions ?? [],
+    );
+
+    const payload = {
+      sub: user.id.value,
+      email: user.email,
+      roles: user.roles,
+      permissions,
+      tenantId,
     };
+
+    const displayName = [user.firstName, user.lastName]
+      .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      .join(' ')
+      .trim();
+    void this.auditLogWriter
+      .record(user.id.value, {
+        action: 'LOGIN',
+        targetEntity: 'Auth:session',
+        changesJson: {
+          entityType: 'USER',
+          entityName: displayName || user.email,
+          details: 'Inicio de sesión',
+        },
+      })
+      .catch(() => undefined);
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
@@ -78,6 +112,8 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         roles: user.roles,
+        permissions,
+        extraPermissions: user.extraPermissions,
       },
       tenantId,
     };
@@ -92,8 +128,149 @@ export class AuthService {
         firstName: user.firstName,
         lastName: user.lastName,
         roles: user.roles,
+        permissions: [],
       };
     }
     return null;
+  }
+
+  async platformLogin(dto: PlatformLoginDto): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const email = dto.email.trim().toLowerCase();
+    const row = await this.prisma.platformUser.findUnique({
+      where: { email },
+    });
+    if (
+      !row ||
+      !(await bcrypt.compare(dto.password, row.password))
+    ) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!row.isActive) {
+      throw new UnauthorizedException('User is deactivated');
+    }
+
+    const userView: AuthenticatedUserView = {
+      id: row.id,
+      email: row.email,
+      firstName: row.firstName ?? undefined,
+      lastName: row.lastName ?? undefined,
+      roles: [...PLATFORM_JWT_ROLES],
+      permissions: [...PLATFORM_JWT_PERMISSIONS],
+    };
+
+    const payload = {
+      sub: row.id,
+      email: row.email,
+      roles: userView.roles,
+      permissions: userView.permissions,
+      kind: 'platform',
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: userView,
+      tenantId: '',
+    };
+  }
+
+  async refreshPlatformSession(userId: string): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const row = await this.prisma.platformUser.findUnique({
+      where: { id: userId },
+    });
+    if (!row || !row.isActive) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const userView: AuthenticatedUserView = {
+      id: row.id,
+      email: row.email,
+      firstName: row.firstName ?? undefined,
+      lastName: row.lastName ?? undefined,
+      roles: [...PLATFORM_JWT_ROLES],
+      permissions: [...PLATFORM_JWT_PERMISSIONS],
+    };
+
+    const payload = {
+      sub: row.id,
+      email: row.email,
+      roles: userView.roles,
+      permissions: userView.permissions,
+      kind: 'platform',
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: userView,
+      tenantId: '',
+    };
+  }
+
+  async refreshSession(userId: string, tenantId: string): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const userRow = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { tenantId: true },
+    });
+    const effectiveTenantId = userRow?.tenantId ?? tenantId;
+    if (!effectiveTenantId) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const permissions = await this.mergeEffectivePermissions(
+      effectiveTenantId,
+      user.roles,
+      user.extraPermissions ?? [],
+    );
+
+    const payload = {
+      sub: user.id.value,
+      email: user.email,
+      roles: user.roles,
+      permissions,
+      tenantId: effectiveTenantId,
+    };
+
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id.value,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+        permissions,
+        extraPermissions: user.extraPermissions,
+      },
+      tenantId: effectiveTenantId,
+    };
+  }
+
+  private async mergeEffectivePermissions(
+    tenantId: string,
+    roleNames: string[],
+    extraPermissions: string[],
+  ): Promise<string[]> {
+    const rolesData = await this.prisma.role.findMany({
+      where: { tenantId, name: { in: roleNames } },
+      select: { permissions: true },
+    });
+    const fromRoles = rolesData.flatMap((r) => r.permissions);
+    return Array.from(new Set([...fromRoles, ...extraPermissions]));
   }
 }

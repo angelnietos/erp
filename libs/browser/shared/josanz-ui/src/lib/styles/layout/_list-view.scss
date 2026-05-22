@@ -1,0 +1,102 @@
+// Modos de listado: tabla, tarjetas en lista o tarjetas en cuadrícula.
+
+.josanz-main-list__stack.josanz-list-view--cards-list {
+  gap: var(--josanz-list-stack-gap, 1rem);
+}
+
+.josanz-main-list__stack.josanz-list-view--cards-grid {
+  gap: var(--josanz-list-stack-gap, 1rem);
+
+  .josanz-list-thead {
+    display: none;
+  }
+}
+
+.josanz-main-list__stack.josanz-list-view--cards-grid-compact {
+  gap: 0.625rem;
+
+  .josanz-list-grid {
+    gap: 0.625rem;
+  }
+}
+
+.josanz-main-list__stack.josanz-list-view--cards-grid-dense {
+  gap: 0.5rem;
+
+  .josanz-list-grid {
+    gap: 0.5rem;
+  }
+}
+
+.josanz-main-list__stack.josanz-list-view--table {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--josanz-border);
+  border-radius: 1rem;
+  background-color: var(--josanz-surface);
+  box-shadow: var(--josanz-card-shadow, 0 1px 3px rgba(0, 0, 0, 0.06));
+
+  .josanz-list-thead {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: 1px solid var(--josanz-border);
+    background-color: var(--josanz-bg);
+  }
+
+  .josanz-catalog-list__rows,
+  .josanz-list-rows--table-target {
+    gap: 0 !important;
+  }
+
+  josanz-main-template-card {
+    display: block;
+
+    .josanz-list-card {
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+  }
+
+  josanz-main-template-card:not(:last-child) .josanz-list-card {
+    border-bottom: 1px solid var(--josanz-border);
+  }
+}
+
+.josanz-list-grid {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 1rem;
+  grid-template-columns: repeat(var(--josanz-list-grid-cols, 3), minmax(0, 1fr));
+}
+
+@media (max-width: 1023px) {
+  .josanz-list-grid {
+    grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 2), minmax(0, 1fr));
+  }
+
+  .josanz-list-view--cards-grid-compact .josanz-list-grid,
+  .josanz-list-view--cards-grid-dense .josanz-list-grid {
+    grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 3), minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .josanz-list-view--cards-grid-compact .josanz-list-grid,
+  .josanz-list-view--cards-grid-dense .josanz-list-grid {
+    grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 4), minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .josanz-list-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.josanz-list-grid__cell {
+  min-width: 0;
+}

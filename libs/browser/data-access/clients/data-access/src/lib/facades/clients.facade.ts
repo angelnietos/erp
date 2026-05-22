@@ -18,7 +18,8 @@ export class ClientsFacade {
   readonly error = this._error.asReadonly();
 
   // Actions
-  loadClients(): void {
+  loadClients(force = false): void {
+    if (!force && this._clients().length > 0) return;
     this._isLoading.set(true);
     this._error.set(null);
     this.clientService.getClients().subscribe({
@@ -26,8 +27,8 @@ export class ClientsFacade {
         this._clients.set(data);
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error loading clients');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudieron cargar los clientes.');
         this._isLoading.set(false);
       }
     });
@@ -54,8 +55,8 @@ export class ClientsFacade {
         this._clients.update(clients => [...clients, newClient]);
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error creating client');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo crear el cliente.');
         this._isLoading.set(false);
       }
     });
@@ -70,8 +71,8 @@ export class ClientsFacade {
         );
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error updating client');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo actualizar el cliente.');
         this._isLoading.set(false);
       }
     });
@@ -86,8 +87,8 @@ export class ClientsFacade {
         }
         this._isLoading.set(false);
       },
-      error: (err) => {
-        this._error.set(err.message || 'Error deleting client');
+      error: (err: { message?: string }) => {
+        this._error.set(err.message || 'No se pudo eliminar el cliente.');
         this._isLoading.set(false);
       }
     });

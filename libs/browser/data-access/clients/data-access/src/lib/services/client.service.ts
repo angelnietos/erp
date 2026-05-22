@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { catchHttpDetailNotFound } from '@josanz-erp/shared-data-access';
 
 export interface ClientContact {
   id: string;
@@ -61,7 +62,7 @@ export interface Rental {
   endDate: string;
   status: string;
   totalPrice?: number;
-  rentalItems?: any[];
+  rentalItems?: unknown[];
 }
 
 export interface Client {
@@ -98,7 +99,9 @@ export class ClientService {
   }
 
   getClient(id: string): Observable<Client | undefined> {
-    return this.http.get<Client>(`${this.apiUrl}/${id}`);
+    return this.http
+      .get<Client>(`${this.apiUrl}/${id}`)
+      .pipe(catchHttpDetailNotFound<Client>());
   }
 
   createClient(client: Omit<Client, 'id'>): Observable<Client> {

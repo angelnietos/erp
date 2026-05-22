@@ -69,28 +69,47 @@ export class PrismaUserRepository implements UserRepositoryPort {
 
   async save(user: User): Promise<void> {
     const tenantId = this.resolveTenantId();
-    await this.prisma.user.upsert({
-      where: { id: user.id.value },
-      update: {
-        email: user.email,
-        password: user.passwordHash,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isActive: user.isActive,
-        category: user.category,
-        updatedAt: new Date(),
-      },
-      create: {
-        id: user.id.value,
-        tenantId,
-        email: user.email,
-        password: user.passwordHash,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        isActive: user.isActive,
-        category: user.category,
-        createdAt: user.createdAt,
-      },
+    const userId = user.id.value;
+    await this.prisma.$transaction(async (tx) => {
+      await tx.user.upsert({
+        where: { id: userId },
+        update: {
+          email: user.email,
+          password: user.passwordHash,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isActive: user.isActive,
+          category: user.category,
+          extraPermissions: user.extraPermissions,
+          updatedAt: new Date(),
+        },
+        create: {
+          id: userId,
+          tenantId,
+          email: user.email,
+          password: user.passwordHash,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          isActive: user.isActive,
+          category: user.category,
+          extraPermissions: user.extraPermissions,
+          createdAt: user.createdAt,
+        },
+      });
+
+      await tx.userRole.deleteMany({ where: { userId } });
+      if (user.roles.length > 0) {
+        const rows = await tx.role.findMany({
+          where: { tenantId, name: { in: user.roles } },
+          select: { id: true },
+        });
+        if (rows.length > 0) {
+          await tx.userRole.createMany({
+            data: rows.map((r) => ({ userId, roleId: r.id })),
+            skipDuplicates: true,
+          });
+        }
+      }
     });
   }
 
@@ -107,6 +126,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       isActive: data.isActive,
       category: data.category,
       roles: (data.roles || []).map((r) => r.role.name),
+      extraPermissions: data.extraPermissions ?? [],
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     });

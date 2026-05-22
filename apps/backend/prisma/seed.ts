@@ -1,7 +1,7 @@
 import { PrismaClient, Prisma, type Product } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
-import { createHash, randomUUID } from 'crypto';
+import { createHash } from 'crypto';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -53,11 +53,105 @@ type PrismaWithPhase4 = PrismaClient & {
       skipDuplicates?: boolean;
     }): Prisma.PrismaPromise<Prisma.BatchPayload>;
   };
+  /** Modelo `PlatformUser` (panel SaaS); el delegate existe en runtime tras `prisma generate`. */
+  platformUser: {
+    upsert(args: {
+      where: { email: string };
+      update: { password: string; isActive: boolean };
+      create: {
+        email: string;
+        password: string;
+        firstName: string;
+        lastName: string;
+      };
+    }): Prisma.PrismaPromise<{ id: string; email: string }>;
+  };
 };
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
 }) as unknown as PrismaWithPhase4;
+
+/**
+ * Catálogo explícito alineado con `PERMISSIONS_CATALOG` (identity).
+ * Los roles con `*` lo llevan además del comodín para que cuentas sin `*` en JWT
+ * (p. ej. copias de rol) sigan teniendo acceso granular coherente.
+ */
+const ALL_APP_PERMISSIONS: readonly string[] = [
+  'dashboard.view',
+  'users.view',
+  'users.manage',
+  'roles.manage',
+  'tenants.manage',
+  'clients.view',
+  'clients.manage',
+  'products.view',
+  'products.manage',
+  'inventory.movement',
+  'budgets.view',
+  'budgets.create',
+  'budgets.approve',
+  'invoices.view',
+  'invoices.submit',
+  'rentals.view',
+  'rentals.manage',
+  'rentals.approve',
+  'projects.view',
+  'projects.manage',
+  'fleet.view',
+  'fleet.manage',
+  'events.view',
+  'events.manage',
+  'services.view',
+  'services.manage',
+  'reports.view',
+  'audit.view',
+  'delivery.view',
+  'delivery.manage',
+  'billing.view',
+  'verifactu.view',
+  'receipts.view',
+  'ai.view',
+];
+
+function uniquePermissions(perms: readonly string[]): string[] {
+  return Array.from(new Set(perms));
+}
+
+/** `*` más todo el catálogo granular (SuperAdmin / Administrador). */
+const FULL_ACCESS_ROLE_PERMISSIONS = uniquePermissions(['*', ...ALL_APP_PERMISSIONS]);
+
+/** Sin comodín: aprobaciones y contexto de lectura. */
+const RESPONSABLE_ROLE_PERMISSIONS = uniquePermissions([
+  'dashboard.view',
+  'users.view',
+  'users.manage',
+  'clients.view',
+  'clients.manage',
+  'products.view',
+  'inventory.movement',
+  'budgets.view',
+  'budgets.approve',
+  'rentals.view',
+  'rentals.approve',
+  'projects.view',
+  'projects.manage',
+  'events.view',
+  'events.manage',
+  'services.view',
+  'reports.view',
+]);
+
+/** Sin comodín: usuario operativo con navegación básica. */
+const BASIC_USER_ROLE_PERMISSIONS = uniquePermissions([
+  'dashboard.view',
+  'clients.view',
+  'products.view',
+  'budgets.create',
+  'events.view',
+  'services.view',
+  'projects.view',
+]);
 
 /** Removes demo rows for this tenant so `prisma db seed` is idempotent. */
 async function clearTenantDemoData(tenantId: string) {
@@ -99,6 +193,7 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.inventory.deleteMany({ where: { product: { tenantId } } });
   await prisma.damageReport.deleteMany({ where: { tenantId } });
   await prisma.product.deleteMany({ where: { tenantId } });
+  await prisma.category.deleteMany({ where: { tenantId } });
   await prisma.vehicle.deleteMany({ where: { tenantId } });
   await prisma.projectEvent.deleteMany({ where: { project: { tenantId } } });
   await prisma.eventTechnician.deleteMany({ where: { event: { tenantId } } });
@@ -106,31 +201,173 @@ async function clearTenantDemoData(tenantId: string) {
   await prisma.project.deleteMany({ where: { tenantId } });
   await prisma.technician.deleteMany({ where: { tenantId } });
   await prisma.driver.deleteMany({ where: { tenantId } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.deleteMany({ where: { tenantId } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).clientContact.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
   await prisma.outboxEvent.deleteMany({});
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
-  await prisma.user.deleteMany({ where: { tenantId, email: { not: 'admin@josanz.com' } } });
+  /** Cuentas semilla que no deben borrarse al repetir `db seed`. */
+  const SEED_PROTECTED_USER_EMAILS = [
+    'admin@josanz.com',
+    'root@babooni.com',
+    'florina.mahalean@babooni.com',
+    'alvaro.ballesteros@babooni.com',
+    'alejandro.ballesteros@babooni.com',
+    'angel.nieto@babooni.com',
+  ] as const;
+  await prisma.user.deleteMany({
+    where: { tenantId, email: { notIn: [...SEED_PROTECTED_USER_EMAILS] } },
+  });
+}
+
+async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
+  let superAdminRole = await prisma.role.findFirst({
+    where: { tenantId, name: 'SuperAdmin' },
+  });
+  if (!superAdminRole) {
+    superAdminRole = await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'SuperAdmin',
+        type: 'SUPERADMIN',
+        permissions: FULL_ACCESS_ROLE_PERMISSIONS,
+        description: 'Super administrador: acceso total y configuración de roles y permisos',
+      },
+    });
+  } else {
+    superAdminRole = await prisma.role.update({
+      where: { id: superAdminRole.id },
+      data: { permissions: FULL_ACCESS_ROLE_PERMISSIONS },
+    });
+  }
+
+  const isAdminTenant = tenantSlug === 'babooni';
+
+  if (isAdminTenant) {
+    const babooniPlatformPerms = uniquePermissions([
+      'tenants.manage',
+      'users.manage',
+      'dashboard.view',
+      'reports.view',
+    ]);
+    let ba = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
+    if (!ba) {
+      ba = await prisma.role.create({
+        data: {
+          tenantId,
+          name: 'Admin Babooni',
+          type: 'ADMIN',
+          permissions: babooniPlatformPerms,
+          description: 'Administrador de la plataforma Babooni',
+        },
+      });
+    } else {
+      await prisma.role.update({
+        where: { id: ba.id },
+        data: { permissions: babooniPlatformPerms },
+      });
+    }
+  }
+
+  let adminRole = await prisma.role.findFirst({ where: { tenantId, name: 'Administrador' } });
+  if (!adminRole) {
+    adminRole = await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Administrador',
+        type: 'ADMIN',
+        permissions: FULL_ACCESS_ROLE_PERMISSIONS,
+        description: 'Control total de la empresa',
+      },
+    });
+  } else {
+    adminRole = await prisma.role.update({
+      where: { id: adminRole.id },
+      data: { permissions: FULL_ACCESS_ROLE_PERMISSIONS },
+    });
+  }
+
+  let respRole = await prisma.role.findFirst({ where: { tenantId, name: 'Responsable' } });
+  if (!respRole) {
+    respRole = await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Responsable',
+        type: 'RESPONSIBLE',
+        permissions: RESPONSABLE_ROLE_PERMISSIONS,
+        description: 'Puede aprobar operaciones y ver contexto operativo',
+      },
+    });
+  } else {
+    await prisma.role.update({
+      where: { id: respRole.id },
+      data: { permissions: RESPONSABLE_ROLE_PERMISSIONS },
+    });
+  }
+
+  let userRole = await prisma.role.findFirst({ where: { tenantId, name: 'Usuario' } });
+  if (!userRole) {
+    userRole = await prisma.role.create({
+      data: {
+        tenantId,
+        name: 'Usuario',
+        type: 'USER',
+        permissions: BASIC_USER_ROLE_PERMISSIONS,
+        description: 'Acceso limitado a funcionalidades básicas',
+      },
+    });
+  } else {
+    await prisma.role.update({
+      where: { id: userRole.id },
+      data: { permissions: BASIC_USER_ROLE_PERMISSIONS },
+    });
+  }
+
+  return adminRole;
 }
 
 async function main() {
   console.log('🌱 Seeding database...');
 
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'ADMIN' },
+  // 1. BABOONI Tenant
+  const babooniTenant = await prisma.tenant.upsert({
+    where: { slug: 'babooni' },
     update: {},
-    create: { name: 'ADMIN' },
+    create: {
+      name: 'Babooni Technologies',
+      slug: 'babooni',
+    },
   });
 
-  await prisma.role.upsert({
-    where: { name: 'STAFF' },
-    update: {},
-    create: { name: 'STAFF' },
+  const babooniAdminRole = await ensureDefaultRoles(babooniTenant.id, 'babooni');
+
+  const hashedPassword = await bcrypt.hash('Admin123!', 10);
+
+  // 1b. Panel SaaS (tabla `platform_users`, sin tenant cliente) — marca Babooni
+  await prisma.platformUser.deleteMany({
+    where: { email: 'platform@josanz.com' },
+  });
+  await prisma.platformUser.upsert({
+    where: { email: 'platform@babooni.com' },
+    update: {
+      password: hashedPassword,
+      isActive: true,
+      firstName: 'Platform',
+      lastName: 'Babooni',
+    },
+    create: {
+      email: 'platform@babooni.com',
+      password: hashedPassword,
+      firstName: 'Platform',
+      lastName: 'Babooni',
+    },
   });
 
+  // 2. Main Demo Tenant (Josanz)
   const tenant = await prisma.tenant.upsert({
     where: { slug: 'josanz' },
     update: {},
@@ -140,7 +377,87 @@ async function main() {
     },
   });
 
-  const hashedPassword = await bcrypt.hash('Admin123!', 10);
+  await ensureDefaultRoles(tenant.id, 'josanz');
+  const josanzSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: tenant.id, name: 'SuperAdmin' },
+  });
+
+  // 3. Create Admin Users for both
+  const babooniAdmin = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: babooniTenant.id, email: 'root@babooni.com' } },
+    update: { password: hashedPassword },
+    create: {
+      tenantId: babooniTenant.id,
+      email: 'root@babooni.com',
+      password: hashedPassword,
+      firstName: 'Babooni',
+      lastName: 'Root',
+    },
+  });
+
+  const babooniSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: babooniTenant.id, name: 'SuperAdmin' },
+  });
+
+  await prisma.userRole.upsert({
+    where: { userId_roleId: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id } },
+    update: {},
+    create: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id },
+  });
+
+  const babooniResponsibleRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: babooniTenant.id, name: 'Responsable' },
+  });
+  /** Equipo Babooni (roles ERP: PM/CEO/CTO → Administrador o Responsable). */
+  const babooniTeamSeed = [
+    {
+      email: 'florina.mahalean@babooni.com',
+      firstName: 'Florina',
+      lastName: 'Mahalean',
+      roleId: babooniResponsibleRole.id,
+    },
+    {
+      email: 'alvaro.ballesteros@babooni.com',
+      firstName: 'Alvaro',
+      lastName: 'Ballesteros',
+      roleId: babooniAdminRole.id,
+    },
+    {
+      email: 'alejandro.ballesteros@babooni.com',
+      firstName: 'Alejandro',
+      lastName: 'Ballesteros',
+      roleId: babooniAdminRole.id,
+    },
+    {
+      email: 'angel.nieto@babooni.com',
+      firstName: 'Angel',
+      lastName: 'Nieto',
+      roleId: babooniResponsibleRole.id,
+    },
+  ] as const;
+  for (const u of babooniTeamSeed) {
+    const row = await prisma.user.upsert({
+      where: { tenantId_email: { tenantId: babooniTenant.id, email: u.email } },
+      update: {
+        password: hashedPassword,
+        firstName: u.firstName,
+        lastName: u.lastName,
+      },
+      create: {
+        tenantId: babooniTenant.id,
+        email: u.email,
+        password: hashedPassword,
+        firstName: u.firstName,
+        lastName: u.lastName,
+      },
+    });
+    await prisma.userRole.upsert({
+      where: { userId_roleId: { userId: row.id, roleId: u.roleId } },
+      update: {},
+      create: { userId: row.id, roleId: u.roleId },
+    });
+  }
+
   const admin = await prisma.user.upsert({
     where: {
       tenantId_email: { tenantId: tenant.id, email: 'admin@josanz.com' },
@@ -155,10 +472,9 @@ async function main() {
     },
   });
 
-  await prisma.userRole.upsert({
-    where: { userId_roleId: { userId: admin.id, roleId: adminRole.id } },
-    update: {},
-    create: { userId: admin.id, roleId: adminRole.id },
+  await prisma.userRole.deleteMany({ where: { userId: admin.id } });
+  await prisma.userRole.create({
+    data: { userId: admin.id, roleId: josanzSuperAdminRole.id },
   });
 
   const rawApiKey = 'vf_dev_josanz_key';
@@ -334,6 +650,7 @@ async function main() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.create({
     data: {
       tenantId: tenant.id,
@@ -357,6 +674,7 @@ async function main() {
     },
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await (prisma as any).eventReport.create({
     data: {
       tenantId: tenant.id,
@@ -421,7 +739,7 @@ async function main() {
       clientId: clients[0].id,
       startDate: new Date('2026-04-10'),
       endDate: new Date('2026-04-15'),
-      status: 'APPROVED',
+      status: 'ACCEPTED',
       total: 2300,
       items: {
         create: [
@@ -448,7 +766,7 @@ async function main() {
       clientId: clients[1].id,
       startDate: new Date('2026-04-20'),
       endDate: new Date('2026-04-22'),
-      status: 'APPROVED',
+      status: 'ACCEPTED',
       total: 1200,
       items: {
         create: [
@@ -843,42 +1161,107 @@ async function main() {
   ]);
   console.log('- Created vehicles');
 
-  // Seed categories
-  await prisma.$transaction([
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Audio/Video',
-        type: 'PRODUCT',
-        description: 'Equipos de audio y video',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Sonido',
-        type: 'PRODUCT',
-        description: 'Equipos de sonido',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Personal',
-        type: 'SERVICE',
-        description: 'Servicios de personal técnico',
-      },
-    }),
-    prisma.category.create({
-      data: {
-        tenantId: tenant.id,
-        name: 'Transporte',
-        type: 'SERVICE',
-        description: 'Servicios de transporte',
-      },
-    }),
-  ]);
+  // Seed categories (ids necesarios para productos con categoryRef SERVICE → GET /api/services)
+  await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Audio/Video',
+      type: 'PRODUCT',
+      description: 'Equipos de audio y video',
+    },
+  });
+  await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Sonido',
+      type: 'PRODUCT',
+      description: 'Equipos de sonido',
+    },
+  });
+  const josanzCategoryPersonal = await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Personal',
+      type: 'SERVICE',
+      description: 'Servicios de personal técnico',
+    },
+  });
+  const josanzCategoryTransport = await prisma.category.create({
+    data: {
+      tenantId: tenant.id,
+      name: 'Transporte',
+      type: 'SERVICE',
+      description: 'Servicios de transporte',
+    },
+  });
   console.log('- Created categories');
+
+  const josanzServiceCatalog: {
+    name: string;
+    type: string;
+    categoryId: string;
+    sku: string;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    {
+      name: 'Streaming evento en vivo',
+      type: 'STREAMING',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-STR-001',
+      price: 890,
+      dailyRate: 120,
+    },
+    {
+      name: 'Producción multicámara',
+      type: 'PRODUCCIÓN',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-PRD-001',
+      price: 2400,
+      dailyRate: 350,
+    },
+    {
+      name: 'Transporte equipo PA',
+      type: 'TRANSPORTE',
+      categoryId: josanzCategoryTransport.id,
+      sku: 'SRV-TRN-001',
+      price: 320,
+      dailyRate: 85,
+    },
+    {
+      name: 'Técnico de iluminación (jornada)',
+      type: 'PERSONAL_TÉCNICO',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-PER-001',
+      price: 280,
+      dailyRate: 45,
+    },
+    {
+      name: 'Operación cámara / vídeo',
+      type: 'VIDEO_TÉCNICO',
+      categoryId: josanzCategoryPersonal.id,
+      sku: 'SRV-VID-001',
+      price: 420,
+      dailyRate: 65,
+    },
+  ];
+
+  for (const s of josanzServiceCatalog) {
+    const row = await prisma.product.create({
+      data: {
+        tenantId: tenant.id,
+        name: s.name,
+        sku: s.sku,
+        categoryId: s.categoryId,
+        category: 'SERVICE',
+        type: s.type,
+        price: s.price,
+        dailyRate: s.dailyRate,
+        description: `Servicio de catálogo — ${s.name}`,
+      },
+    });
+    console.log(`- Created service (catalog): ${row.name}`);
+  }
 
   // Seed technicians
   
@@ -902,6 +1285,7 @@ async function main() {
     },
   });
 
+  /** Índices: [0] admin, [1] Dani Sonido (dani@josanz.com, AUDIO/RF), [2] Alex Ilu (iluminación). Ids = UUID al insertar. */
   const technicians = await prisma.$transaction([
     prisma.technician.create({
       data: {
@@ -993,11 +1377,11 @@ async function main() {
   ]);
   console.log('- Created events');
 
-  // Assign technicians to events
+  // Assign technicians to events (Concierto Verano 2026 → Dani Sonido, skills AUDIO/RF)
   await prisma.eventTechnician.create({
     data: {
       eventId: events[0].id,
-      technicianId: technicians[0].id,
+      technicianId: technicians[1].id,
     },
   });
   console.log('- Assigned technicians to events');
@@ -1091,17 +1475,6 @@ async function main() {
   });
   console.log('- Created idempotency key');
 
-  await prisma.auditLog.create({
-    data: {
-      userId: admin.id,
-      action: 'SEED',
-      targetEntity: 'Database',
-      correlationId: randomUUID(),
-      changesJson: { source: 'prisma/seed.ts' } as Prisma.InputJsonValue,
-    },
-  });
-  console.log('- Created audit log');
-
   const day = 24 * 60 * 60 * 1000;
   const now = Date.now();
   await prisma.erpReceipt.createMany({
@@ -1143,7 +1516,424 @@ async function main() {
   });
   console.log('- Seeded erp_receipts (demo)');
 
+  await clearTenantDemoData(babooniTenant.id);
+  await seedBabooniTenantDemo(babooniTenant.id);
+
   console.log('✅ Database seeded successfully!');
+}
+
+/**
+ * Datos demo para el tenant Babooni (listas inventario / clientes / presupuestos con filas).
+ * Idempotente: va después de `clearTenantDemoData(babooniTenant.id)`.
+ */
+async function seedBabooniTenantDemo(tenantId: string) {
+  /** El cuadrante de disponibilidad lista `Technician`, no solo `User`. Tras `clearTenantDemoData` hay que recrearlos. */
+  const babooniOpsUsers = await prisma.user.findMany({
+    where: {
+      tenantId,
+      email: {
+        in: [
+          'root@babooni.com',
+          'florina.mahalean@babooni.com',
+          'alvaro.ballesteros@babooni.com',
+          'alejandro.ballesteros@babooni.com',
+          'angel.nieto@babooni.com',
+        ],
+      },
+    },
+  });
+  const userByEmail = new Map(babooniOpsUsers.map((u) => [u.email, u]));
+
+  const technicianSeeds: { email: string; hourlyRate: number; skills: string[] }[] = [
+    { email: 'root@babooni.com', hourlyRate: 55, skills: ['DIRECTOR', 'SISTEMAS'] },
+    {
+      email: 'florina.mahalean@babooni.com',
+      hourlyRate: 48,
+      skills: ['PROJECT_MANAGEMENT', 'COORDINACIÓN'],
+    },
+    {
+      email: 'alvaro.ballesteros@babooni.com',
+      hourlyRate: 60,
+      skills: ['MANAGEMENT', 'ESTRATEGIA'],
+    },
+    {
+      email: 'alejandro.ballesteros@babooni.com',
+      hourlyRate: 58,
+      skills: ['ARQUITECTURA', 'TECNOLOGÍA'],
+    },
+    {
+      email: 'angel.nieto@babooni.com',
+      hourlyRate: 52,
+      skills: ['DESARROLLO', 'AV'],
+    },
+  ];
+
+  for (const row of technicianSeeds) {
+    const u = userByEmail.get(row.email);
+    if (!u) {
+      console.warn(`- Babooni seed: usuario no encontrado para técnico ${row.email}`);
+      continue;
+    }
+    await prisma.technician.upsert({
+      where: { userId: u.id },
+      update: {
+        tenantId,
+        hourlyRate: row.hourlyRate,
+        skills: row.skills,
+        status: 'ACTIVE',
+      },
+      create: {
+        tenantId,
+        userId: u.id,
+        hourlyRate: row.hourlyRate,
+        skills: row.skills,
+        status: 'ACTIVE',
+      },
+    });
+  }
+  console.log('- Babooni: técnicos / operarios AV (usuarios semilla vinculados)');
+
+  const [clientA, clientB] = await prisma.$transaction([
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Biosstel Eventos S.L.',
+        taxId: 'B11111111',
+        email: 'hola@biosstel.demo',
+        phone: '+34 900 000 001',
+        address: 'Calle Demo 1',
+        city: 'Madrid',
+        zipCode: '28001',
+        sector: 'Corporate',
+        description: 'Cliente demo (seed Babooni)',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Contacto Demo',
+              email: 'contacto@biosstel.demo',
+              phone: '+34 611 000 001',
+              position: 'Compras',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Producciones Norte',
+        taxId: 'B22222222',
+        email: 'info@pnorte.demo',
+        phone: '+34 900 000 002',
+        sector: 'Production',
+        description: 'Segundo cliente demo Babooni',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'María Pérez',
+              email: 'maria@pnorte.demo',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+    }),
+  ]);
+
+  await prisma.$transaction([
+    prisma.project.create({
+      data: {
+        tenantId,
+        name: 'Proyecto corporativo Biosstel',
+        description: 'Montaje audiovisual demo Babooni (seed)',
+        status: 'ACTIVE',
+        startDate: new Date('2026-05-01'),
+        endDate: new Date('2026-09-30'),
+        clientId: clientA.id,
+      },
+    }),
+    prisma.project.create({
+      data: {
+        tenantId,
+        name: 'Tour Producciones Norte',
+        description: 'Segundo proyecto demo — referencia en listado',
+        status: 'ACTIVE',
+        startDate: new Date('2026-06-15'),
+        endDate: new Date('2026-12-20'),
+        clientId: clientB.id,
+      },
+    }),
+  ]);
+
+  const productDefs: {
+    name: string;
+    sku: string;
+    stock: number;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    { name: 'Micrófono inalámbrico doble', sku: 'BB-MIC-01', stock: 12, price: 450, dailyRate: 15 },
+    { name: 'Mesa digital 16 canales', sku: 'BB-MIX-01', stock: 4, price: 3200, dailyRate: 95 },
+    { name: 'Truss aluminio 3 m', sku: 'BB-TRS-01', stock: 24, price: 180, dailyRate: 8 },
+  ];
+
+  const inserted: Product[] = [];
+  for (const p of productDefs) {
+    const product = await prisma.product.create({
+      data: {
+        tenantId,
+        name: p.name,
+        sku: p.sku,
+        category: 'AV',
+        type: 'generic',
+        price: p.price,
+        dailyRate: p.dailyRate,
+        description: `Equipo demo Babooni — ${p.name}`,
+        inventory: {
+          create: {
+            totalStock: p.stock,
+            status: 'AVAILABLE',
+          },
+        },
+      },
+    });
+    inserted.push(product);
+  }
+
+  const babooniCatPersonal = await prisma.category.create({
+    data: {
+      tenantId,
+      name: 'Personal técnico',
+      type: 'SERVICE',
+      description: 'Servicios de personal (Babooni demo)',
+    },
+  });
+  const babooniCatTransport = await prisma.category.create({
+    data: {
+      tenantId,
+      name: 'Logística',
+      type: 'SERVICE',
+      description: 'Transporte y logística (Babooni demo)',
+    },
+  });
+
+  const babooniServiceCatalog: {
+    name: string;
+    type: string;
+    categoryId: string;
+    sku: string;
+    price: number;
+    dailyRate: number;
+  }[] = [
+    {
+      name: 'Dirección técnica de evento',
+      type: 'PRODUCCIÓN',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-DIR-01',
+      price: 950,
+      dailyRate: 220,
+    },
+    {
+      name: 'Streaming multicámara HD',
+      type: 'STREAMING',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-STR-01',
+      price: 1200,
+      dailyRate: 280,
+    },
+    {
+      name: 'Furgoneta carga PA',
+      type: 'TRANSPORTE',
+      categoryId: babooniCatTransport.id,
+      sku: 'BB-SRV-TRN-01',
+      price: 180,
+      dailyRate: 95,
+    },
+    {
+      name: 'Técnico de iluminación',
+      type: 'PERSONAL_TÉCNICO',
+      categoryId: babooniCatPersonal.id,
+      sku: 'BB-SRV-ILU-01',
+      price: 320,
+      dailyRate: 48,
+    },
+  ];
+
+  for (const s of babooniServiceCatalog) {
+    await prisma.product.create({
+      data: {
+        tenantId,
+        name: s.name,
+        sku: s.sku,
+        categoryId: s.categoryId,
+        category: 'SERVICE',
+        type: s.type,
+        price: s.price,
+        dailyRate: s.dailyRate,
+        description: `Servicio catálogo Babooni — ${s.name}`,
+      },
+    });
+  }
+  console.log('- Babooni: servicios de catálogo (cuenta técnica SERVICE)');
+
+  const budgetApprovedBabooni = await prisma.budget.create({
+    data: {
+      tenantId,
+      clientId: clientA.id,
+      startDate: new Date('2026-05-01'),
+      endDate: new Date('2026-05-03'),
+      status: 'APPROVED',
+      total: 1620,
+      items: {
+        create: [
+          { productId: inserted[0].id, quantity: 2, price: 450, tax: 21 },
+          { productId: inserted[2].id, quantity: 4, price: 180, tax: 21 },
+        ],
+      },
+    },
+  });
+
+  await prisma.budget.create({
+    data: {
+      tenantId,
+      clientId: clientB.id,
+      startDate: new Date('2026-06-10'),
+      endDate: new Date('2026-06-12'),
+      status: 'DRAFT',
+      total: 6400,
+      items: {
+        create: [{ productId: inserted[1].id, quantity: 2, price: 3200, tax: 21 }],
+      },
+    },
+  });
+
+  const babooniSignatureDataUrl =
+    'data:image/svg+xml,' +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="280" height="100" viewBox="0 0 280 100"><rect fill="#ffffff" width="100%" height="100%" stroke="#94a3b8" stroke-width="1"/><path d="M24 58 Q72 28 120 52 T228 48" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><text x="140" y="86" text-anchor="middle" font-size="10" fill="#64748b" font-family="system-ui,sans-serif">Firma demo Babooni</text></svg>`,
+    );
+
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId,
+      budgetId: budgetApprovedBabooni.id,
+      status: 'signed',
+      signatureBlobUrl: babooniSignatureDataUrl,
+    },
+  });
+  await prisma.deliveryNote.create({
+    data: {
+      tenantId,
+      budgetId: budgetApprovedBabooni.id,
+      status: 'pending',
+    },
+  });
+
+  const babooniDrivers = await prisma.$transaction([
+    prisma.driver.create({
+      data: {
+        tenantId,
+        name: 'Laura Méndez',
+        licenseNumber: 'BB-LIC-DRV-01',
+        licenseType: 'C',
+      },
+    }),
+    prisma.driver.create({
+      data: {
+        tenantId,
+        name: 'Pablo Ortega',
+        licenseNumber: 'BB-LIC-DRV-02',
+        licenseType: 'B',
+      },
+    }),
+  ]);
+
+  await prisma.$transaction([
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Furgón Babooni L2',
+        plate: 'BB900AAA',
+        type: 'van',
+        capacity: 1100,
+        status: 'available',
+        location: 'Nave Babooni — Madrid',
+        nextMaintenance: new Date('2026-10-01'),
+        driverId: babooniDrivers[0].id,
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Camión rigging',
+        plate: 'BB900AAB',
+        type: 'truck',
+        capacity: 3200,
+        status: 'in_use',
+        location: 'En montaje — IFEMA',
+        nextMaintenance: new Date('2026-08-20'),
+        driverId: babooniDrivers[1].id,
+      },
+    }),
+    prisma.vehicle.create({
+      data: {
+        tenantId,
+        name: 'Furgoneta sonido',
+        plate: 'BB900AAC',
+        type: 'van',
+        capacity: 850,
+        status: 'maintenance',
+        location: 'Taller colaborador',
+        nextMaintenance: new Date('2026-04-22'),
+      },
+    }),
+  ]);
+
+  await prisma.rental.create({
+    data: {
+      tenantId,
+      clientId: clientA.id,
+      reference: 'BB-EXP-2026-0001',
+      startDate: new Date('2026-07-08'),
+      endDate: new Date('2026-07-10'),
+      status: 'ACTIVE',
+      pickupLocation: 'Almacén Babooni',
+      dropoffLocation: 'Palacio de Congresos',
+      totalPrice: 1890,
+      notes: 'Alquiler demo — sonido corporativo',
+      rentalItems: {
+        create: [
+          { productId: inserted[0].id, quantity: 4 },
+          { productId: inserted[2].id, quantity: 6 },
+        ],
+      },
+    },
+  });
+
+  await prisma.rental.create({
+    data: {
+      tenantId,
+      clientId: clientB.id,
+      reference: 'BB-EXP-2026-0002',
+      startDate: new Date('2026-09-01'),
+      endDate: new Date('2026-09-03'),
+      status: 'DRAFT',
+      pickupLocation: 'Almacén Babooni',
+      dropoffLocation: 'Cliente (por confirmar)',
+      totalPrice: 6400,
+      notes: 'Borrador — mesa digital + micrófonos',
+      rentalItems: {
+        create: [{ productId: inserted[1].id, quantity: 1 }],
+      },
+    },
+  });
+
+  console.log(
+    '- Babooni: clientes, proyectos, productos, presupuestos, albaranes, flota y alquileres demo',
+  );
 }
 
 main()

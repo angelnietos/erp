@@ -7,18 +7,19 @@ import {
   inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
   UiButtonComponent,
   UiBadgeComponent,
   UiLoaderComponent,
-  UiTableComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
   DeliveryNote as ApiDeliveryNote,
   DeliveryNoteService,
+  DeliveryFacade,
 } from '@josanz-erp/delivery-data-access';
 import {
   openPrintableDocument,
@@ -61,16 +62,17 @@ export interface DeliveryDetailView {
     UiButtonComponent,
     UiBadgeComponent,
     UiLoaderComponent,
-    UiTableComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div class="page-container page-container--skip-horizontal-inset">
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
+      <div class="delivery-detail__stack">
       @if (isLoading()) {
-        <ui-josanz-loader message="Cargando albarán..."></ui-josanz-loader>
+        <ui-loader message="Cargando albarán..."></ui-loader>
       } @else if (delivery(); as d) {
         <div class="page-header">
           <button type="button" class="back-btn" routerLink="/delivery">
-            <lucide-icon name="arrow-left"></lucide-icon>
+            <lucide-icon name="arrow-left" aria-hidden="true"></lucide-icon>
             Volver
           </button>
         </div>
@@ -79,16 +81,17 @@ export interface DeliveryDetailView {
           <div class="delivery-info">
             <h1>Albarán #{{ d.id.slice(0, 8) }}</h1>
             <div class="badges">
-              <ui-josanz-badge [variant]="getStatusVariant(d.status)">
+              <ui-badge [variant]="getStatusVariant(d.status)">
                 {{ getStatusLabel(d.status) }}
-              </ui-josanz-badge>
+              </ui-badge>
               <span class="client-name">{{ d.clientName }}</span>
             </div>
           </div>
           <div class="header-actions">
-            <ui-josanz-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-josanz-button>
+            <ui-button variant="secondary" icon="pencil" (clicked)="goToEdit(d.id)">Editar</ui-button>
+            <ui-button icon="download" (clicked)="downloadPDF()">Descargar PDF</ui-button>
             @if (d.status === 'pending') {
-              <ui-josanz-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-josanz-button>
+              <ui-button icon="pen-tool" (clicked)="openSignature()">Firmar</ui-button>
             }
           </div>
         </div>
@@ -112,25 +115,35 @@ export interface DeliveryDetailView {
           </div>
         </div>
 
-        <ui-josanz-card title="Material Entregado">
-          <ui-josanz-table [columns]="itemColumns" [data]="d.items">
-            <ng-template #cellTemplate let-item let-key="key">
-              @switch (key) {
-                @case ('condition') {
-                  <ui-josanz-badge [variant]="getConditionVariant(item.condition)">
+        <ui-card title="Material Entregado">
+          <div class="line-items-cards" role="list">
+            @for (item of d.items; track item.id) {
+              <article class="line-item-card" role="listitem">
+                <div class="line-item-card__row">
+                  <h2 class="line-item-card__title">{{ item.productName }}</h2>
+                  <ui-badge [variant]="getConditionVariant(item.condition)">
                     {{ getConditionLabel(item.condition) }}
-                  </ui-josanz-badge>
-                }
-                @default {
-                  {{ item[key] }}
-                }
-              }
-            </ng-template>
-          </ui-josanz-table>
-        </ui-josanz-card>
+                  </ui-badge>
+                </div>
+                <dl class="line-item-card__meta">
+                  <div class="line-item-card__field">
+                    <dt>Cantidad</dt>
+                    <dd>{{ item.quantity }}</dd>
+                  </div>
+                  <div class="line-item-card__field">
+                    <dt>Observaciones</dt>
+                    <dd>{{ item.observations }}</dd>
+                  </div>
+                </dl>
+              </article>
+            } @empty {
+              <p class="line-items-empty">No hay líneas de material en este albarán.</p>
+            }
+          </div>
+        </ui-card>
 
         @if (d.status === 'signed' || d.status === 'completed') {
-          <ui-josanz-card title="Firma del receptor">
+          <ui-card title="Firma del receptor">
             <div class="signature-box">
               @if (d.signatureImageSrc) {
                 <img
@@ -151,18 +164,24 @@ export interface DeliveryDetailView {
               }
               <span class="signature-name">{{ d.recipientName }}</span>
             </div>
-          </ui-josanz-card>
+          </ui-card>
         }
       } @else {
         <p class="not-found text-friendly">No se encontró el albarán.</p>
         <button type="button" class="back-btn" routerLink="/delivery">Volver al listado</button>
       }
-    </div>
+      </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
+      .delivery-detail__stack {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
         padding: 24px;
+        box-sizing: border-box;
       }
       .page-header {
         margin-bottom: 16px;
@@ -173,13 +192,13 @@ export interface DeliveryDetailView {
         gap: 8px;
         background: none;
         border: none;
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
         cursor: pointer;
         font-size: 14px;
         padding: 8px 0;
       }
       .back-btn:hover {
-        color: white;
+        color: var(--text-primary, #fff);
       }
       .delivery-header {
         display: flex;
@@ -189,7 +208,7 @@ export interface DeliveryDetailView {
       }
       .delivery-info h1 {
         margin: 0 0 12px 0;
-        color: white;
+        color: var(--text-primary, #fff);
         font-size: 28px;
         font-weight: 700;
       }
@@ -199,7 +218,7 @@ export interface DeliveryDetailView {
         gap: 12px;
       }
       .client-name {
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
         font-size: 14px;
       }
       .header-actions {
@@ -208,12 +227,31 @@ export interface DeliveryDetailView {
       }
       .delivery-meta {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 24px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 12px;
+        background: color-mix(in srgb, var(--text-primary, #fff) 4%, transparent);
+        border-radius: var(--radius-md, 8px);
         padding: 20px;
         margin-bottom: 24px;
+        border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+      }
+      @media (max-width: 900px) {
+        .delivery-meta {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 520px) {
+        .delivery-meta {
+          grid-template-columns: 1fr;
+        }
+        .delivery-header {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+        .header-actions {
+          flex-wrap: wrap;
+        }
       }
       .meta-item {
         display: flex;
@@ -221,11 +259,11 @@ export interface DeliveryDetailView {
         gap: 4px;
       }
       .meta-item .label {
-        color: #64748b;
+        color: var(--text-muted, #64748b);
         font-size: 12px;
       }
       .meta-item .value {
-        color: white;
+        color: var(--text-primary, #fff);
         font-size: 14px;
       }
       .link {
@@ -272,7 +310,66 @@ export interface DeliveryDetailView {
         font-weight: 600;
       }
       .not-found {
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
+      }
+
+      .line-items-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .line-item-card {
+        border: 1px solid var(--border-soft, rgba(148, 163, 184, 0.35));
+        border-radius: var(--radius-md, 8px);
+        padding: 0.9rem 1rem;
+        background: color-mix(in srgb, var(--surface, #fff) 96%, transparent);
+      }
+      .line-item-card__row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+        margin-bottom: 0.65rem;
+      }
+      .line-item-card__title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary, #fff);
+        line-height: 1.35;
+        flex: 1;
+        min-width: 0;
+      }
+      .line-item-card__meta {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        margin: 0;
+      }
+      .line-item-card__field {
+        display: grid;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+      .line-item-card__field dt {
+        margin: 0;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--text-muted, #94a3b8);
+      }
+      .line-item-card__field dd {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-primary, #e2e8f0);
+        word-break: break-word;
+      }
+      .line-items-empty {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-muted, #94a3b8);
       }
     `,
   ],
@@ -281,18 +378,13 @@ export class DeliveryDetailComponent implements OnInit {
   @Input() id?: string;
 
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly deliveryNoteService = inject(DeliveryNoteService);
+  private readonly deliveryFacade = inject(DeliveryFacade);
 
   delivery = signal<DeliveryDetailView | null>(null);
   isLoading = signal(true);
   sigImageBroken = signal(false);
-
-  itemColumns = [
-    { key: 'productName', header: 'Producto' },
-    { key: 'quantity', header: 'Cantidad', width: '100px' },
-    { key: 'condition', header: 'Estado', width: '120px' },
-    { key: 'observations', header: 'Observaciones' },
-  ];
 
   ngOnInit() {
     const routeId = this.id || this.route.snapshot.paramMap.get('id');
@@ -323,8 +415,11 @@ export class DeliveryDetailComponent implements OnInit {
       observations: i.observations?.trim() || '—',
     }));
 
-    const toDay = (iso: string) =>
-      iso.includes('T') ? iso.split('T')[0]! : iso;
+    const toDay = (iso: string) => {
+      if (!iso.includes('T')) return iso;
+      const datePart = iso.split('T')[0];
+      return datePart ?? iso;
+    };
 
     return {
       id: api.id,
@@ -343,15 +438,27 @@ export class DeliveryDetailComponent implements OnInit {
   }
 
   loadDelivery(id: string) {
-    this.isLoading.set(true);
     this.sigImageBroken.set(false);
+    const fromList = this.deliveryFacade.deliveryNotes().find((n) => n.id === id);
+    if (fromList) {
+      this.delivery.set(this.toView(fromList));
+      this.isLoading.set(false);
+    } else {
+      this.isLoading.set(true);
+    }
     this.deliveryNoteService.getDeliveryNote(id).subscribe({
       next: (api) => {
-        this.delivery.set(this.toView(api));
+        if (api) {
+          this.delivery.set(this.toView(api));
+        } else if (!fromList) {
+          this.delivery.set(null);
+        }
         this.isLoading.set(false);
       },
       error: () => {
-        this.delivery.set(null);
+        if (!fromList) {
+          this.delivery.set(null);
+        }
         this.isLoading.set(false);
       },
     });
@@ -418,6 +525,10 @@ export class DeliveryDetailComponent implements OnInit {
   formatDate(date: string | undefined): string {
     if (!date) return '-';
     return new Date(date).toLocaleDateString('es-ES');
+  }
+
+  goToEdit(id: string) {
+    void this.router.navigate(['/delivery', id, 'edit']);
   }
 
   downloadPDF() {

@@ -1,37 +1,33 @@
 {
   "name": "receipts-backend",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/receipts/backend/src",
+  "sourceRoot": "libs/node/backend/receipts/backend/src",
   "projectType": "library",
   "tags": ["scope:receipts", "type:backend"],
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
-      "outputs": ["{workspaceRoot}/dist/libs/receipts/backend"],
+      "outputs": ["{workspaceRoot}/dist/{projectRoot}"],
       "options": {
-        "outputPath": "dist/libs/services/backend",
-        "main": "libs/services/backend/src/index.ts",
-        "tsConfig": "libs/services/backend/tsconfig.lib.json",
+        "outputPath": "dist/libs/node/backend/receipts/backend",
+        "main": "libs/node/backend/receipts/backend/src/index.ts",
+        "tsConfig": "libs/node/backend/receipts/backend/tsconfig.lib.json",
         "assets": []
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/services/backend/**/*.ts"]
+        "lintFilePatterns": ["libs/node/backend/receipts/backend/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/services/backend/jest.config.cts",
+        "jestConfig": "libs/node/backend/receipts/backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/services/backend"]
+      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/receipts/backend"]
     }
   }
 }
-
-
-
-

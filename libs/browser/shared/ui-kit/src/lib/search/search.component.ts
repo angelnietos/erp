@@ -5,12 +5,17 @@ import { LucideAngularModule } from 'lucide-angular';
 export type SearchVariant = 'default' | 'filled' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-search',
+  selector: 'ui-search',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="search-wrapper" [class]="'search-' + variant" [class.focused]="isFocused">
-      <lucide-icon name="search" class="search-icon"></lucide-icon>
+    <div
+      class="search-wrapper"
+      [class]="'search-' + variant"
+      [class.search-dock]="dockToolbar"
+      [class.focused]="isFocused"
+    >
+      <lucide-icon name="search" class="search-icon" aria-hidden="true"></lucide-icon>
       <input 
         type="text" 
         [placeholder]="placeholder"
@@ -20,135 +25,181 @@ export type SearchVariant = 'default' | 'filled' | 'glass';
         (blur)="isFocused = false"
       />
       @if (value) {
-        <button class="clear-btn" (click)="onClear($event)">
-          <lucide-icon name="x"></lucide-icon>
+        <button type="button" class="clear-btn" (click)="onClear($event)" aria-label="Limpiar búsqueda">
+          <lucide-icon name="x" aria-hidden="true"></lucide-icon>
         </button>
       }
       <div class="focus-indicator"></div>
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
     :host {
       display: block;
+      flex: 1 1 auto;
+      min-width: 0;
+      width: 100%;
     }
+
     .search-wrapper {
       position: relative;
       display: flex;
       align-items: center;
-      border-radius: var(--radius-md);
-      transition:
-        border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.3s ease,
-        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-      background: var(--surface);
+      border-radius: 14px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      background: none !important;
       border: 1px solid var(--border-soft);
+      /* El texto del input/placeholder se recorta si el padre fuerza ancho: permitir compresión en flex. */
       overflow: hidden;
       width: 100%;
-      box-shadow: var(--shadow-sm);
+      min-width: 0;
+      box-shadow: none !important;
+      --search-padding-v: calc(var(--page-gap, 1.5rem) * 0.4 + 0.15rem);
     }
 
     .search-wrapper.focused {
-      border-color: color-mix(in srgb, var(--brand) 65%, var(--border-soft));
-      background: var(--surface);
-      box-shadow:
-        0 0 0 3px color-mix(in srgb, var(--brand-glow) 40%, transparent),
-        0 8px 24px -8px var(--brand-glow);
+      border-color: var(--brand);
+      background: var(--surface-rich, rgba(255, 255, 255, 0.08));
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
+      transform: translateY(-1px);
     }
 
     .search-icon { 
       position: absolute; 
-      left: 1.1rem; 
-      width: 1.1rem; 
-      height: 1.1rem; 
+      left: 1.25rem; 
+      width: 1rem !important; 
+      height: 1rem !important; 
       color: var(--text-muted);
-      transition: var(--transition-base);
+      transition: all 0.4s var(--transition-spring);
       pointer-events: none;
     }
 
     .search-wrapper.focused .search-icon {
       color: var(--brand);
-      transform: scale(1.1);
+      transform: none;
+      filter: none;
     }
 
     input {
-      width: 100%; 
-      padding: 0.55rem 2.5rem 0.55rem 2.35rem; 
-      background: transparent;
-      border: none; 
-      font-size: 0.72rem; 
+      flex: 1 1 0;
+      min-width: 0;
+      width: 0;
+      padding: var(--search-padding-v) 0.9rem var(--search-padding-v) 2.75rem;
+      background: transparent !important;
+      background-color: transparent !important;
+      border: none !important;
+      font-size: 0.875rem;
       font-weight: 500;
-      outline: none; 
+      outline: none !important;
       font-family: var(--font-main);
       color: var(--text-primary);
+      text-transform: none !important;
+      box-shadow: none !important;
+      -webkit-appearance: none;
+      line-height: 1.4;
     }
+
+    /* width:0 + flex-grow hace que el <input> use todo el ancho útil (evita corte "a la mitad" en toolbars). */
 
     input::placeholder {
       color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.56rem;
-      font-weight: 600;
-      font-family: var(--font-main);
-      opacity: 0.58;
+      opacity: 0.7;
+      font-size: 0.875rem;
+      font-weight: 400;
+      text-transform: none !important;
+      letter-spacing: 0.01em;
     }
 
-    .clear-btn {
-      position: absolute; 
-      right: 0.75rem; 
-      background: color-mix(in srgb, var(--border-soft) 60%, transparent);
-      border: 1px solid var(--border-soft);
-      border-radius: 50%;
-      width: 1.5rem;
-      height: 1.5rem;
-      cursor: pointer;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition-fast);
-      padding: 0;
-    }
-
-    .clear-btn:hover {
-      background: var(--danger);
-      color: white;
-      border-color: var(--danger);
-      transform: scale(1.1);
-    }
-
-    .clear-btn lucide-icon { width: 0.8rem; height: 0.8rem; }
-
-    /* Variants */
-    .search-filled { 
-      background: var(--surface);
-      border-color: var(--border-soft);
-    }
-    
     .search-glass {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(30px) saturate(1.8);
+      border-color: rgba(255, 255, 255, 0.08);
     }
 
     .focus-indicator {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: var(--brand);
-      transform: scaleX(0);
-      transition: var(--transition-spring);
-      transform-origin: center;
+      display: none;
     }
 
-    .search-wrapper.focused .focus-indicator { transform: scaleX(1); }
+
+
+    .search-wrapper.search-dock {
+      border: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      border-radius: 0;
+    }
+    
+    .search-wrapper.search-dock input {
+      padding: 0.7rem 2.75rem 0.7rem 2.85rem;
+    }
+    
+    .search-wrapper.search-dock .search-icon {
+      left: 1rem;
+    }
+
+    .search-wrapper:has(.clear-btn) input {
+      padding-right: 2.35rem;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 0.45rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 1.65rem;
+      height: 1.65rem;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 82%, transparent);
+      background: color-mix(in srgb, var(--theme-surface, #131722) 92%, transparent);
+      border-radius: 999px;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .clear-btn:hover {
+      color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 35%, transparent);
+      background: color-mix(in srgb, var(--brand) 12%, var(--theme-surface, #131722) 88%);
+    }
+
+    .clear-btn lucide-icon {
+      width: 0.85rem;
+      height: 0.85rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper.focused {
+      background: var(--surface-vibrant);
+      border-color: var(--brand);
+      box-shadow: 
+        0 8px 30px -10px color-mix(in srgb, var(--brand) 15%, transparent),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .search-wrapper:not(.focused) {
+      background: color-mix(in srgb, var(--surface-vibrant) 80%, transparent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .focus-indicator {
+        transition: none;
+      }
+      .clear-btn:hover {
+        transform: none;
+      }
+    }
   `],
 })
 export class UiSearchComponent {
-  @Input() placeholder = 'BUSCAR...';
+  @Input() placeholder = 'Buscar...';
   @Input() value = '';
   @Input() variant: SearchVariant = 'default';
+  /** Integrado en barra unificada: sin marco propio (usa el del toolbar). */
+  @Input() dockToolbar = false;
   @Output() searchChange = new EventEmitter<string>();
 
   isFocused = false;

@@ -1,0 +1,82 @@
+<josanz-main-detail-layout
+  title="Detalle de Presupuesto"
+  [showFooterActions]="false"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="py-2 md:py-4">
+    @if (activeTab() === 'General') {
+      <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Información del presupuesto
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of infoRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
+                  row.label
+                }}</span>
+                <span
+                  class="text-[16px] font-extrabold leading-snug"
+                  [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
+                  >{{ row.value }}</span
+                >
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
+            Importes y validez
+          </h2>
+          <div
+            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+          >
+            @for (row of amountRows; track row.label) {
+              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
+                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
+                  row.label
+                }}</span>
+                <span
+                  class="text-[16px] font-extrabold leading-snug"
+                  [style.color]="row.highlight ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
+                  >{{ row.value }}</span
+                >
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (activeTab() === 'Líneas') {
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Líneas de presupuesto</span>
+        <p class="max-w-md text-[14px] leading-relaxed">El desglose por conceptos e IVA aparecerá aquí cuando el módulo esté enlazado.</p>
+      </div>
+    }
+
+    @if (activeTab() === 'Documentación') {
+      <div
+        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
+        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
+      >
+        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Sin documentos</span>
+        <p class="max-w-md text-[14px] leading-relaxed">Aún no hay PDF ni anexos asociados a este presupuesto.</p>
+      </div>
+    }
+  </div>
+</josanz-main-detail-layout>

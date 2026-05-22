@@ -7,6 +7,8 @@ export interface UserProps {
   lastName?: string;
   isActive: boolean;
   roles: string[];
+  /** Permisos granulares además de los que aportan los roles (p. ej. acceso puntual). */
+  extraPermissions: string[];
   category?: string;
   createdAt: Date;
   updatedAt?: Date;
@@ -22,10 +24,15 @@ export class User extends AggregateRoot {
     this.props = props;
   }
 
-  static create(props: Omit<UserProps, 'createdAt' | 'isActive'>): User {
+  static create(
+    props: Omit<UserProps, 'createdAt' | 'isActive' | 'extraPermissions'> & {
+      extraPermissions?: string[];
+    },
+  ): User {
     const id = new EntityId();
     return new User(id, {
       ...props,
+      extraPermissions: props.extraPermissions ?? [],
       isActive: true,
       createdAt: new Date(),
     });
@@ -40,9 +47,27 @@ export class User extends AggregateRoot {
     lastName?: string,
     category?: string,
   ): void {
-    this.props.firstName = firstName;
-    this.props.lastName = lastName;
-    this.props.category = category;
+    if (firstName !== undefined) {
+      this.props.firstName = firstName;
+    }
+    if (lastName !== undefined) {
+      this.props.lastName = lastName;
+    }
+    if (category !== undefined) {
+      this.props.category = category;
+    }
+    if (firstName !== undefined || lastName !== undefined || category !== undefined) {
+      this.props.updatedAt = new Date();
+    }
+  }
+
+  updateEmail(email: string): void {
+    this.props.email = email;
+    this.props.updatedAt = new Date();
+  }
+
+  setIsActive(isActive: boolean): void {
+    this.props.isActive = isActive;
     this.props.updatedAt = new Date();
   }
 
@@ -68,6 +93,17 @@ export class User extends AggregateRoot {
   }
   get roles(): string[] {
     return this.props.roles;
+  }
+  get extraPermissions(): string[] {
+    return this.props.extraPermissions;
+  }
+  setRoles(roles: string[]): void {
+    this.props.roles = [...roles];
+    this.props.updatedAt = new Date();
+  }
+  setExtraPermissions(extraPermissions: string[]): void {
+    this.props.extraPermissions = [...extraPermissions];
+    this.props.updatedAt = new Date();
   }
   get category(): string | undefined {
     return this.props.category;

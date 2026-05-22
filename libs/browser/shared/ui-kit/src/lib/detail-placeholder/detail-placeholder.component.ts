@@ -7,7 +7,7 @@ import { UiCardComponent } from '../card/card.component';
 
 
 @Component({
-  selector: 'ui-josanz-detail-placeholder',
+  selector: 'ui-detail-placeholder',
   standalone: true,
   imports: [
     CommonModule,
@@ -20,21 +20,21 @@ import { UiCardComponent } from '../card/card.component';
     <div class="placeholder-container animate-fade-in">
       <header class="page-header">
         <div class="header-main">
-          <h1 class="page-title text-uppercase">VISTA DE DETALLE</h1>
+          <h1 class="page-title">Vista de detalle</h1>
           <div class="breadcrumb">
-            <span class="active">EXPEDIENTE CENTRAL</span>
+            <span class="active">Expediente</span>
             <span class="separator">/</span>
-            <span>MODO CONSULTA</span>
+            <span>En preparación</span>
           </div>
         </div>
-        <ui-josanz-button
+        <ui-button
           variant="ghost"
           size="md"
           (clicked)="goBack()"
           icon="arrow-left"
         >
-          VOLVER AL LISTADO
-        </ui-josanz-button>
+          Volver al listado
+        </ui-button>
       </header>
 
       <div class="feature-msg">
@@ -43,37 +43,36 @@ import { UiCardComponent } from '../card/card.component';
             name="construction"
             size="64"
             class="text-brand"
+            aria-hidden="true"
           ></lucide-icon>
-          <h2 class="text-uppercase">Módulo en Construcción</h2>
-          <p class="intel-text text-uppercase">
-            El sistema de detalle para el registro #{{ id() }} se encuentra
-            actualmente en fase de implementación.
+          <h2>Página en preparación</h2>
+          <p class="intel-text">
+            El detalle del registro n.º {{ id() }} aún no está disponible; estamos
+            terminando esta pantalla para que puedas consultarlo con comodidad.
           </p>
-          <div class="terminal-text">
-            <span>> SYS: BINDING_DATA_SOURCE...</span>
+          <div class="terminal-text" aria-hidden="true">
+            <span>&gt; SYS: BINDING_DATA_SOURCE…</span>
             <span class="blink">_</span>
           </div>
-          <ui-josanz-button variant="primary" (clicked)="goBack()">
-            RETORNAR A LA CENTRAL
-          </ui-josanz-button>
+          <ui-button variant="primary" (clicked)="goBack()">Volver atrás</ui-button>
         </div>
       </div>
 
       <div class="stats-preview">
-        <ui-josanz-card variant="glass">
-          <div class="stat-lbl text-uppercase">Trazabilidad</div>
+        <ui-card variant="glass">
+          <div class="stat-lbl">Referencia</div>
           <div class="stat-val font-mono">
             OP-{{ id()?.slice(0, 8) | uppercase }}
           </div>
-        </ui-josanz-card>
-        <ui-josanz-card variant="glass">
-          <div class="stat-lbl text-uppercase">Estado Servidor</div>
-          <div class="stat-val text-success text-uppercase">Sincronizado</div>
-        </ui-josanz-card>
-        <ui-josanz-card variant="glass">
-          <div class="stat-lbl text-uppercase">Permisos</div>
-          <div class="stat-val text-uppercase">Administrador</div>
-        </ui-josanz-card>
+        </ui-card>
+        <ui-card variant="glass">
+          <div class="stat-lbl">Estado</div>
+          <div class="stat-val text-success">Sincronizado</div>
+        </ui-card>
+        <ui-card variant="glass">
+          <div class="stat-lbl">Permisos</div>
+          <div class="stat-val">Administrador</div>
+        </ui-card>
       </div>
     </div>
   `,
@@ -81,11 +80,13 @@ import { UiCardComponent } from '../card/card.component';
     `
       .placeholder-container {
         padding: 0;
-        max-width: 1400px;
-        margin: 0 auto;
+        max-width: var(--feature-page-max-width, 1400px);
+        margin-left: auto;
+        margin-right: auto;
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
+        box-sizing: border-box;
       }
 
       .page-header {
@@ -108,9 +109,9 @@ import { UiCardComponent } from '../card/card.component';
       .breadcrumb {
         display: flex;
         gap: 6px;
-        font-size: 0.55rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
         color: var(--text-muted);
       }
       .breadcrumb .active {
@@ -157,15 +158,17 @@ import { UiCardComponent } from '../card/card.component';
       }
 
       h2 {
-        font-size: 1.5rem;
-        font-weight: 900;
+        font-size: 1.35rem;
+        font-weight: 800;
         color: #fff;
-        letter-spacing: 0.1em;
+        letter-spacing: -0.02em;
+        margin: 0;
       }
       .intel-text {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        line-height: 1.6;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.55;
+        max-width: 36rem;
       }
 
       .terminal-text {
@@ -200,15 +203,16 @@ import { UiCardComponent } from '../card/card.component';
       }
 
       .stat-lbl {
-        font-size: 0.6rem;
-        font-weight: 800;
+        font-size: 0.7rem;
+        font-weight: 600;
         color: var(--text-muted);
         margin-bottom: 8px;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.04em;
+        text-transform: none;
       }
       .stat-val {
-        font-size: 1.1rem;
-        font-weight: 900;
+        font-size: 1.05rem;
+        font-weight: 700;
         color: #fff;
       }
 
@@ -217,6 +221,13 @@ import { UiCardComponent } from '../card/card.component';
       }
       .text-success {
         color: var(--success);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .blink {
+          animation: none;
+          opacity: 0.7;
+        }
       }
     `,
   ],

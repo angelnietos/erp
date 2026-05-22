@@ -1,0 +1,34 @@
+<josanz-main-list-layout 
+  [title]="title" 
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  [paginationTotal]="4"
+  [paginationPage]="1"
+  [searchValue]="searchQuery"
+  searchPlacement="actions"
+  (searchChange)="onSearch($event)"
+  (primaryAction)="onAdd()"
+  (filterChange)="onFilter($event)"
+  (excelAction)="onExcel()">
+
+  <div class="josanz-list-thead">
+    <div
+      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
+    >
+      <div class="josanz-list-template-row__title truncate">Nº Presupuesto</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Cliente</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Fecha</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Validez</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Total</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
+    </div>
+  </div>
+
+  <josanz-adaptive-list-rows
+    [items]="filteredBudgetItems"
+    [defaultLabels]="budgetLabels"
+    (itemClick)="openDetail()"
+  ></josanz-adaptive-list-rows>
+</josanz-main-list-layout>

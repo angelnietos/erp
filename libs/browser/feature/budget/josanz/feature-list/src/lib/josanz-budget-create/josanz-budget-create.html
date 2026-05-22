@@ -1,0 +1,32 @@
+<josanz-main-detail-layout 
+  title="Nuevo Presupuesto" 
+  [tabs]="tabs" 
+  [activeTab]="activeTab()" 
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+  saveLabel="Crear presupuesto"
+  [saveDisabled]="form.invalid"
+>
+  <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 600px; padding-top: 24px;">
+    <josanz-input
+      label="Cliente"
+      placeholder="Seleccione un cliente"
+      controlName="cliente"
+      [parentForm]="form">
+    </josanz-input>
+    <josanz-input
+      label="Fecha"
+      type="date"
+      controlName="fecha"
+      [parentForm]="form">
+    </josanz-input>
+    <josanz-input
+      label="Notas"
+      placeholder="Notas adicionales..."
+      controlName="notas"
+      [parentForm]="form">
+    </josanz-input>
+  </div>
+</josanz-main-detail-layout>

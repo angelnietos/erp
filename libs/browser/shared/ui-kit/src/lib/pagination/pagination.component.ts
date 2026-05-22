@@ -1,30 +1,43 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { ThemeService } from '@josanz-erp/shared-data-access';
 
 export type PaginationVariant = 'default' | 'minimal' | 'glass';
 
 @Component({
-  selector: 'ui-josanz-pagination',
+  selector: 'ui-pagination',
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   template: `
-    <div class="pagination" [class]="'pagination-' + variant">
+    <nav
+      class="pagination"
+      [class]="'pagination-' + variant"
+      role="navigation"
+      aria-label="Paginación"
+      [style.--pg-gap]="pgGap"
+      [style.--pg-btn-size]="pgBtnSize"
+    >
       <button 
+        type="button"
         class="page-btn nav-btn" 
         [disabled]="currentPage === 1"
         (click)="onPageChange(currentPage - 1)"
+        [attr.aria-label]="variant === 'minimal' ? 'Página anterior' : 'Ir a la página anterior'"
       >
-        <lucide-icon name="chevron-left"></lucide-icon>
-        @if (variant !== 'minimal') { <span>ANTERIOR</span> }
+        <lucide-icon name="chevron-left" aria-hidden="true"></lucide-icon>
+        @if (variant !== 'minimal') { <span>Anterior</span> }
       </button>
       
       <div class="pages-group">
         @for (page of visiblePages; track page) {
           <button 
+            type="button"
             class="page-btn" 
             [class.active]="page === currentPage"
             (click)="onPageChange(page)"
+            [attr.aria-label]="'Ir a la página ' + page"
+            [attr.aria-current]="page === currentPage ? 'page' : null"
           >
             {{ page }}
           </button>
@@ -32,104 +45,74 @@ export type PaginationVariant = 'default' | 'minimal' | 'glass';
       </div>
       
       <button 
+        type="button"
         class="page-btn nav-btn"
         [disabled]="currentPage === totalPages"
         (click)="onPageChange(currentPage + 1)"
+        [attr.aria-label]="'Ir a la página siguiente'"
       >
-        @if (variant !== 'minimal') { <span>SIGUIENTE</span> }
-        <lucide-icon name="chevron-right"></lucide-icon>
+        @if (variant !== 'minimal') { <span>Siguiente</span> }
+        <lucide-icon name="chevron-right" aria-hidden="true"></lucide-icon>
       </button>
-    </div>
+    </nav>
   `,
   styles: [`
     .pagination {
       display: flex;
-      gap: 10px;
+      gap: var(--pg-gap);
       justify-content: center;
       align-items: center;
-      padding: 0.65rem 0.35rem;
+      padding: 1rem 0.5rem;
       width: 100%;
-      flex-wrap: wrap;
     }
 
     .pages-group {
       display: flex;
-      gap: 7px;
-      flex-wrap: wrap;
-      justify-content: center;
+      gap: calc(var(--pg-gap) / 2);
     }
 
     .page-btn {
-      min-height: 2.1rem;
-      min-width: 2.1rem;
-      padding: 0 0.65rem;
-      background: var(--bg-tertiary);
+      height: var(--pg-btn-size);
+      min-width: var(--pg-btn-size);
+      padding: 0 0.75rem;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(10px);
       border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
-      color: var(--text-secondary);
-      font-size: 0.62rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.055em;
-      line-height: 1.3;
       cursor: pointer;
-      transition:
-        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-        background 0.25s ease,
-        border-color 0.25s ease,
-        color 0.25s ease,
-        box-shadow 0.28s ease;
+      transition: all 0.4s var(--transition-spring);
       font-family: var(--font-main);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     }
 
     .page-btn:not(:disabled):hover {
-      background: color-mix(in srgb, var(--surface-hover, var(--bg-secondary)) 88%, var(--brand) 6%);
+      background: rgba(255, 255, 255, 0.08);
       color: #fff;
-      border-color: color-mix(in srgb, var(--brand) 45%, var(--border-soft));
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px -10px var(--brand-glow);
-    }
-
-    .page-btn:not(:disabled):active {
-      transform: translateY(0) scale(0.97);
-    }
-
-    .page-btn:focus-visible {
-      outline: 2px solid var(--ring-focus);
-      outline-offset: 2px;
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .page-btn.active {
       background: var(--brand);
-      border-color: var(--brand);
       color: #fff;
-      box-shadow:
-        0 1px 0 rgba(255, 255, 255, 0.15) inset,
-        0 6px 22px -6px var(--brand-glow);
+      border-color: var(--brand);
+      box-shadow: var(--shadow-brand);
     }
 
     .page-btn:disabled {
-      opacity: 0.35;
+      opacity: 0.3;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
     }
 
-    .nav-btn { font-size: 0.52rem; letter-spacing: 0.05em; }
-    .nav-btn lucide-icon { width: 1.1rem; height: 1.1rem; }
-
-    /* Variants */
-    .pagination-minimal .pages-group { display: none; }
-    
-    .pagination-glass .page-btn {
-      background: color-mix(in srgb, var(--surface, rgba(255, 255, 255, 0.04)) 70%, transparent);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+    .nav-btn { 
+      font-size: 0.75rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.1em; 
     }
   `],
 })
@@ -139,6 +122,22 @@ export class UiPaginationComponent {
   @Input() maxVisiblePages = 5;
   @Input() variant: PaginationVariant = 'default';
   @Output() pageChange = new EventEmitter<number>();
+
+  private themeService = inject(ThemeService);
+
+  get pgGap(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '6px';
+    if (density === 'spacious') return '16px';
+    return '12px';
+  }
+
+  get pgBtnSize(): string {
+    const density = this.themeService.currentDensity();
+    if (density === 'compact') return '2.125rem';
+    if (density === 'spacious') return '2.75rem';
+    return '2.5rem';
+  }
 
   get visiblePages(): number[] {
     const pages: number[] = [];

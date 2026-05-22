@@ -9,7 +9,21 @@ export const servicesFeatureRoutes: Route[] = [
       ),
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('./services-detail/services-detail.component').then(
+        (m) => m.ServicesDetailComponent,
+      ),
+  },
+  {
     path: ':id',
+    loadComponent: () =>
+      import('./services-detail/services-detail.component').then(
+        (m) => m.ServicesDetailComponent,
+      ),
+  },
+  {
+    path: ':id/edit',
     loadComponent: () =>
       import('./services-detail/services-detail.component').then(
         (m) => m.ServicesDetailComponent,

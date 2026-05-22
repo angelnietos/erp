@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'dark' | 'light' | 'error' | 'success' | 'warning' | 'info';
 
 @Component({
-  selector: 'ui-josanz-datepicker',
+  selector: 'ui-datepicker',
   standalone: true,
   imports: [CommonModule],
   providers: [
@@ -32,93 +32,96 @@ export type DatepickerVariant = 'default' | 'filled' | 'outlined' | 'ghost' | 'd
       </div>
     </div>
   `,
+  styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .datepicker { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-    .label { 
-      font-size: 0.75rem; 
+    .datepicker { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; position: relative; }
+    .label {
+      font-size: 0.7rem; 
       font-weight: 700; 
       text-transform: uppercase; 
-      letter-spacing: 0.05em; 
-      color: var(--text-secondary); 
-      margin-left: 2px; 
+      letter-spacing: 0.1em; 
+      color: var(--text-muted); 
+      margin-left: 0.25rem;
+      font-family: var(--font-main);
     }
     .input-wrapper { position: relative; }
 
-    /* Base Input Styles */
     input {
       width: 100%; 
-      padding: 12px 16px; 
-      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      background: var(--surface-vibrant, var(--bg-secondary));
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md, 10px);
+      color: var(--text-primary);
       font-size: 0.9rem; 
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      font-weight: 500;
+      transition: all 0.25s ease;
       outline: none; 
       font-family: var(--font-main);
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-soft);
-      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
     }
 
     input:focus {
+      background: var(--surface-rich);
       border-color: var(--brand);
-      background: var(--bg-secondary);
-      box-shadow: 0 0 15px var(--brand-glow);
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md);
+      transform: translateY(-1px);
     }
 
-    /* Webkit Calendar Icon Styling */
     input::-webkit-calendar-picker-indicator {
-      filter: invert(0.8) sepia(1) saturate(5) hue-rotate(-50deg); /* Brand-ish color */
+      filter: invert(1) brightness(0.8) sepia(1) saturate(10) hue-rotate(var(--brand-hue, 320deg));
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.65;
       transition: all 0.3s ease;
+      transform: scale(1.1);
     }
-    
+
     input:focus::-webkit-calendar-picker-indicator {
       opacity: 1;
-      filter: invert(1);
-    }
-
-    /* Variants */
-    .datepicker-default, .datepicker-theme {
-      background: var(--bg-tertiary);
-      border-color: var(--border-vibrant);
-    }
-
-    .datepicker-filled {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: transparent;
-    }
-
-    .datepicker-outlined {
-      background: transparent;
-      border: 2px solid var(--border-vibrant);
-    }
-
-    .datepicker-ghost {
-      background: transparent;
-      border: 1px solid transparent;
-    }
-    .datepicker-ghost:focus {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .datepicker-dark {
-      background: #000;
-      border-color: #222;
+      transform: scale(1.2);
     }
 
     .datepicker-error {
       border-color: var(--danger) !important;
-      background: rgba(239, 68, 68, 0.05);
+      background: color-mix(in srgb, var(--danger) 5%, var(--bg-secondary)) !important;
+      box-shadow: 0 0 20px color-mix(in srgb, var(--danger) 20%, transparent) !important;
     }
 
     .datepicker-success {
       border-color: var(--success);
+      background: color-mix(in srgb, var(--success) 5%, var(--bg-secondary));
     }
 
     input:disabled { 
       opacity: 0.4; 
       cursor: not-allowed; 
-      filter: grayscale(1);
+    }
+
+    /* Babooni Tenant Enhancements */
+    :host-context(html[data-erp-tenant='babooni']) input {
+      border-radius: 12px;
+      font-weight: 600;
+      border-color: color-mix(in srgb, var(--border-soft) 60%, transparent);
+      box-shadow: 
+        var(--shadow-sm),
+        inset 0 1px 0 var(--surface-glow, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) input:focus {
+      box-shadow: 
+        0 0 0 3px var(--brand-glow),
+        var(--shadow-md),
+        inset 0 1px 0 var(--surface-glow, transparent);
+    }
+ 
+    :host-context(html[data-erp-tenant='babooni']) .label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--brand);
     }
   `],
 })

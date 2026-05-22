@@ -9,6 +9,60 @@
   --error: #EF4444;
 }
 
+.tenant-context {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tenant-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary, #f8fafc);
+  background: rgba(240, 62, 62, 0.12);
+  border: 1px solid rgba(240, 62, 62, 0.35);
+}
+
+.tenant-pill lucide-icon {
+  flex-shrink: 0;
+  color: var(--primary);
+}
+
+.tenant-pill__slug {
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--primary);
+  opacity: 0.95;
+}
+
+.link-muted {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link-muted:hover {
+  color: var(--text-primary, #f8fafc);
+}
+
 /* Theme Selector */
 .theme-selector-container {
   margin-bottom: 1.5rem;
@@ -158,12 +212,30 @@
 
 .logo-icon { width: 32px; height: 32px; }
 
+.logo-circle--babooni {
+  background: linear-gradient(135deg, #1e6b3a, #3d8b4a, #2d4a1c);
+  box-shadow:
+    0 10px 28px -6px rgba(30, 107, 58, 0.5),
+    0 0 30px rgba(45, 74, 28, 0.35);
+  animation: pulse-glow-babooni 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow-babooni {
+  0%,
+  100% {
+    box-shadow: 0 10px 28px -6px rgba(30, 107, 58, 0.5), 0 0 30px rgba(45, 74, 28, 0.35);
+  }
+  50% {
+    box-shadow: 0 10px 40px -4px rgba(30, 107, 58, 0.7), 0 0 45px rgba(50, 120, 60, 0.45);
+  }
+}
+
 .brand-tag {
   margin: 0 0 8px;
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.2em;
-  color: rgba(248, 250, 252, 0.55);
+  color: rgba(248, 250, 252, 0.66);
 }
 
 h1 {
@@ -313,3 +385,117 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 }
 
 @keyframes rotate { to { transform: rotate(360deg); } }
+
+/* --- Figma `Login.svg`: tenant Josanz (`.auth-wrapper--figma`) --- */
+.auth-wrapper--figma {
+  background-color: #fffefe;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.auth-figma-hero {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 180px;
+  background: linear-gradient(145deg, #e8edf5 0%, #f5f7fb 50%, #fffefe 100%);
+}
+
+@media (min-width: 900px) {
+  .auth-wrapper--figma {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
+  .auth-figma-hero {
+    display: block;
+    min-height: 100vh;
+    flex: 1 1 58%;
+    max-width: 62%;
+  }
+}
+
+@media (max-width: 899px) {
+  .auth-wrapper--figma {
+    padding: 2rem 1.25rem 2.5rem;
+  }
+}
+
+.auth-wrapper--figma .auth-card--figma {
+  animation: slide-up 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 10px 40px -12px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e7edf1;
+  background: #ffffff;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-radius: 20px;
+  max-width: 360px;
+  width: 100%;
+}
+
+@media (min-width: 900px) {
+  .auth-wrapper--figma .auth-card--figma {
+    align-self: center;
+    margin: 0 6vw 0 1.5rem;
+    flex: 0 0 auto;
+  }
+}
+
+.auth-card--figma {
+  float: none;
+}
+
+.auth-card--figma h1 {
+  color: #222222;
+}
+
+.auth-card--figma .brand-tag {
+  color: #7c7c7c;
+}
+
+.auth-card--figma .tenant-pill {
+  color: #222222;
+  background: rgba(15, 30, 47, 0.06);
+  border: 1px solid rgba(215, 215, 215, 0.95);
+}
+
+.auth-card--figma .tenant-pill lucide-icon {
+  color: #0f1e2f;
+}
+
+.auth-card--figma .tenant-pill__slug {
+  color: #0f1e2f;
+  opacity: 0.9;
+}
+
+.auth-card--figma .link-muted {
+  color: #7c7c7c;
+}
+
+.auth-card--figma .link-muted:hover {
+  color: #222222;
+}
+
+.auth-card--figma .auth-footer a {
+  color: #0f1e2f;
+}
+
+.auth-card--figma .logo-circle {
+  background: linear-gradient(135deg, #0f1e2f, #2e425a);
+  box-shadow: 0 8px 24px -8px rgba(15, 30, 47, 0.35);
+  animation: none;
+}
+
+.auth-card--figma .logo-circle--babooni {
+  background: linear-gradient(135deg, #1e6b3a, #3d8b4a, #2d4a1c);
+  box-shadow: 0 10px 28px -6px rgba(30, 107, 58, 0.45);
+}
+
+.auth-wrapper--figma .auth-form ui-button {
+  display: block;
+  width: 100%;
+}

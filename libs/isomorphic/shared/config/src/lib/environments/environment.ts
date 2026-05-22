@@ -128,7 +128,6 @@ export const DEFAULT_CONFIG: Configuration = {
  * Get configuration based on environment
  */
 export function getConfig(): Configuration {
-  const env = (process.env['NODE_ENV'] as Environment) || 'development';
   return mergeConfig(DEFAULT_CONFIG, getEnvOverrides());
 }
 

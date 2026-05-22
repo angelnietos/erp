@@ -11,46 +11,46 @@
 } @else {
 <div class="page-header">
   <h1>{{ isEditMode() ? 'Editar presupuesto' : 'Nuevo Presupuesto' }}</h1>
-  <ui-josanz-button (clicked)="onSubmit()" icon="save" [disabled]="budgetForm.invalid || store.loading()" [loading]="store.loading()">
+  <ui-button (clicked)="onSubmit()" icon="save" [disabled]="budgetForm.invalid || store.loading()" [loading]="store.loading()">
     {{ isEditMode() ? 'Guardar cambios' : 'Guardar Presupuesto' }}
-  </ui-josanz-button>
+  </ui-button>
 </div>
 
 <div class="create-grid">
   <!-- Datos del Cliente -->
-  <ui-josanz-card title="Información General">
+  <ui-card title="Información General">
     <form [formGroup]="budgetForm">
-      <ui-josanz-select
+      <ui-select
         id="clientId"
         label="Seleccionar Cliente"
         placeholder="Busca un cliente..."
         [options]="clients() | selectMapper:'name':'id'"
         formControlName="clientId"
         [error]="!!(budgetForm.get('clientId')?.invalid && budgetForm.get('clientId')?.touched)"
-      ></ui-josanz-select>
+      ></ui-select>
 
       <div class="date-row">
-        <ui-josanz-input
+        <ui-input
           id="startDate"
           type="date"
           label="Fecha Inicio Evento"
           formControlName="startDate"
-        ></ui-josanz-input>
+        ></ui-input>
 
-        <ui-josanz-input
+        <ui-input
           id="endDate"
           type="date"
           label="Fecha Fin Evento"
           formControlName="endDate"
-        ></ui-josanz-input>
+        ></ui-input>
       </div>
     </form>
-  </ui-josanz-card>
+  </ui-card>
 
   <!-- Líneas de Detalle -->
-  <ui-josanz-card title="Líneas de Presupuesto">
+  <ui-card title="Líneas de Presupuesto">
     <div slot="header-actions">
-      <ui-josanz-button (clicked)="addItem()" icon="plus" variant="ghost">Agregar Línea</ui-josanz-button>
+      <ui-button (clicked)="addItem()" icon="plus" variant="ghost">Agregar Línea</ui-button>
     </div>
 
     <div class="items-list" [formGroup]="budgetForm">
@@ -58,25 +58,25 @@
         @for (item of items.controls; track $index; let i = $index) {
           <div [formGroupName]="i" class="item-row animate-in">
             <div class="col-product">
-              <ui-josanz-select
+              <ui-select
                 label="Producto"
                 placeholder="Seleccionar..."
                 [options]="products() | selectMapper:'name':'id'"
                 formControlName="productId"
                 (change)="onProductChange(i)"
-              ></ui-josanz-select>
+              ></ui-select>
             </div>
             <div class="col-qty">
-              <ui-josanz-input type="number" label="Cant." formControlName="quantity"></ui-josanz-input>
+              <ui-input type="number" label="Cant." formControlName="quantity"></ui-input>
             </div>
             <div class="col-price">
-              <ui-josanz-input type="number" label="Precio" formControlName="price"></ui-josanz-input>
+              <ui-input type="number" label="Precio" formControlName="price"></ui-input>
             </div>
             <div class="col-disc">
-              <ui-josanz-input type="number" label="Dto. %" formControlName="discount"></ui-josanz-input>
+              <ui-input type="number" label="Dto. %" formControlName="discount"></ui-input>
             </div>
             <div class="col-tax">
-              <ui-josanz-input type="number" label="IVA %" formControlName="tax"></ui-josanz-input>
+              <ui-input type="number" label="IVA %" formControlName="tax"></ui-input>
             </div>
             <div class="col-remove">
               <button class="remove-btn" (click)="removeItem(i)">
@@ -100,6 +100,6 @@
         <span class="value">{{ calculateTotal() | currency:'EUR' }}</span>
       </div>
     </div>
-  </ui-josanz-card>
+  </ui-card>
 </div>
 }

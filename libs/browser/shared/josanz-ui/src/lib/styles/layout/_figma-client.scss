@@ -1,0 +1,199 @@
+// Clientes — alta, operadores y feedback (Figma Neutral White)
+
+.josanz-client-create__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.josanz-client-create__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  align-items: start;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 5.5rem 1fr;
+    gap: 2rem;
+  }
+}
+
+.josanz-client-create__brand {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--josanz-border);
+  background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface-muted, #f7f7f7));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  margin: 0 auto;
+
+  @media (min-width: 640px) {
+    margin: 0.25rem 0 0;
+  }
+}
+
+.josanz-client-create__brand-initials {
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--josanz-text);
+  letter-spacing: -0.02em;
+}
+
+.josanz-client-create__brand-name {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--josanz-text-muted);
+  max-width: 4.5rem;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.josanz-client-create__fields {
+  min-width: 0;
+
+  josanz-input:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+.josanz-client-type-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+
+  &__label {
+    margin-left: 0.25rem;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--josanz-label-muted, #7c7c7c);
+  }
+
+  &__trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: var(--josanz-radius-control, 8px);
+    border: 1px solid var(--josanz-stroke-field, #d7d7d7);
+    background: var(--josanz-field-fill, #f5f5f5);
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus-within {
+      border-color: var(--josanz-interactive, var(--josanz-primary));
+      box-shadow: 0 0 0 2px var(--josanz-focus-ring);
+    }
+
+    select {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+      appearance: none;
+    }
+  }
+
+  &__spacer {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: var(--josanz-text-muted);
+    pointer-events: none;
+  }
+}
+
+.josanz-client-type-chip {
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.josanz-client-operadores {
+  border-radius: var(--josanz-radius-card, 12px);
+  border: 1px solid var(--josanz-border);
+  background: var(--josanz-surface);
+  box-shadow: var(--josanz-card-shadow);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--josanz-text-heading, var(--josanz-text));
+  }
+}
+
+.josanz-client-success-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: #76d296;
+  color: #064e3b;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--josanz-card-shadow);
+}
+
+.josanz-client-success-toast__close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  opacity: 0.85;
+}
+
+.josanz-client-success-modal__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  background: #22c55e;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.josanz-client-success-modal__body {
+  font-size: 14px;
+  color: var(--josanz-text-muted);
+  margin: 0;
+}

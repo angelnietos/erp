@@ -6,21 +6,23 @@ import {
   ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import {
-  UiCardComponent,
+  UiLoaderComponent,
   UiButtonComponent,
   UiBadgeComponent,
-  UiLoaderComponent,
-  UiTabsComponent,
-  TabItem,
-  UiStatCardComponent,
+  UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 
-import { ClientService, Client } from '@josanz-erp/clients-data-access';
-
+import {
+  Budget,
+  ClientService,
+  Client,
+  DeliveryNote,
+  Invoice,
+} from '@josanz-erp/clients-data-access';
 
 @Component({
   selector: 'lib-clients-detail',
@@ -29,519 +31,665 @@ import { ClientService, Client } from '@josanz-erp/clients-data-access';
     CommonModule,
     RouterModule,
     LucideAngularModule,
-    UiCardComponent,
+    UiLoaderComponent,
     UiButtonComponent,
     UiBadgeComponent,
-    UiLoaderComponent,
-    UiTabsComponent,
-    UiStatCardComponent,
+    UiFeaturePageShellComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
-    >
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
+    <div class="ns-detail">
       @if (isLoading()) {
-        <ui-josanz-loader
-          message="Sincronizando expediente de cliente..."
-        ></ui-josanz-loader>
+        <div class="ns-loading">
+          <ui-loader message="Cargando..."></ui-loader>
+        </div>
+      } @else if (loadError()) {
+        <div class="ns-error">
+          <lucide-icon name="alert-circle" size="48" class="ns-error-icon" aria-hidden="true"></lucide-icon>
+          <p>{{ loadError() }}</p>
+          <div class="ns-error-actions">
+            <ui-button variant="solid" size="sm" (clicked)="reload()">Reintentar</ui-button>
+            <ui-button variant="ghost" size="sm" routerLink="/clients">Volver</ui-button>
+          </div>
+        </div>
       } @else if (client()) {
-        <header
-          class="page-header"
-          [style.border-bottom-color]="currentTheme().primary + '33'"
-        >
-          <div class="header-breadcrumb">
-            <button class="back-btn" routerLink="/clients">
-              <lucide-icon name="arrow-left" size="14"></lucide-icon>
-              VOLVER AL CRM
-            </button>
-            <h1
-              class="page-title text-uppercase glow-text"
-              [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '44'"
-            >
-              {{ client()?.name }}
-            </h1>
-            <div class="breadcrumb">
-              <span class="active" [style.color]="currentTheme().primary"
-                >SECTOR: {{ client()?.sector | uppercase }}</span
-              >
-              <span class="separator">/</span>
-              <span>ID: {{ client()?.id?.slice(0, 8) }}</span>
-            </div>
+        <div class="ns-header-bar">
+          <button class="ns-back" routerLink="/clients">
+            <lucide-icon name="arrow-left" size="18" aria-hidden="true"></lucide-icon>
+          </button>
+          <div class="ns-header-info">
+            <h1 class="ns-header-title">{{ client()?.name }}</h1>
+            <p class="ns-header-meta">
+              {{ client()?.sector || 'General' }} ·
+              {{ client()?.id?.slice(0, 8) }}
+            </p>
           </div>
-          <div class="header-actions">
-            <ui-josanz-button variant="glass" size="md" icon="mail"
-              >CONTACTAR</ui-josanz-button
-            >
-            <ui-josanz-button variant="primary" size="md" icon="edit"
-              >EDITAR PERFIL</ui-josanz-button
-            >
+          <div class="ns-header-actions">
+            <ui-button variant="solid" size="sm" icon="pencil" (click)="onEdit()">Editar</ui-button>
           </div>
-        </header>
-
-        <div class="stats-row">
-          <ui-josanz-stat-card
-            label="Inversión Total"
-            value="12.450 €"
-            icon="line-chart"
-            [accent]="true"
-          >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card
-            label="Proyectos Activos"
-            value="3"
-            icon="briefcase"
-            [trend]="1"
-          >
-          </ui-josanz-stat-card>
-          <ui-josanz-stat-card label="Rating Fidelidad" value="9.8" icon="star">
-          </ui-josanz-stat-card>
         </div>
 
-        <ui-josanz-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+        <div class="ns-stats-row">
+          <div class="ns-stat-box">
+            <span class="ns-stat-num">12.450</span>
+            <span class="ns-stat-lbl">Inversión €</span>
+          </div>
+          <div class="ns-stat-box ns-stat-blue">
+            <span class="ns-stat-num">3</span>
+            <span class="ns-stat-lbl">Proyectos</span>
+          </div>
+          <div class="ns-stat-box ns-stat-green">
+            <span class="ns-stat-num">9.8</span>
+            <span class="ns-stat-lbl">Rating</span>
+          </div>
+        </div>
 
-        <div class="main-content">
+        <div class="ns-tabs">
+          @for (tab of tabs(); track tab.id) {
+            <button
+              class="ns-tab"
+              [class.ns-tab-active]="activeTab() === tab.id"
+              (click)="onTabChange(tab.id)"
+            >
+              {{ tab.label }}
+              @if (tab.badge) {
+                <span class="ns-tab-badge">{{ tab.badge }}</span>
+              }
+            </button>
+          }
+        </div>
+
+        <div class="ns-content">
           @switch (activeTab()) {
             @case ('general') {
-              <div class="detail-grid">
-                <ui-josanz-card variant="glass" title="Información Corporativa">
-                  <div class="info-list">
-                    <div class="info-item">
-                      <span class="label">RAZÓN SOCIAL</span>
-                      <span class="value">{{ client()?.name }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">DESCRIPCIÓN</span>
-                      <span class="value text-muted">{{
-                        client()?.description || 'Sin descripción corporativa.'
-                      }}</span>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">SECTOR ACTUACIÓN</span>
-                      <ui-josanz-badge variant="info">{{
-                        client()?.sector
-                      }}</ui-josanz-badge>
-                    </div>
-                    <div class="info-item">
-                      <span class="label">ALTA SISTEMA</span>
-                      <span class="value font-mono">{{
-                        formatDate(client()?.createdAt)
-                      }}</span>
-                    </div>
+              <div class="ns-section">
+                <div class="ns-info-card">
+                  <div class="ns-info-row">
+                    <span class="ns-info-label">Nombre</span>
+                    <span class="ns-info-value">{{ client()?.name }}</span>
                   </div>
-                </ui-josanz-card>
-
-                <ui-josanz-card variant="glass" title="Puntos de Contacto">
-                  <div class="info-list">
-                    @for (contact of client()?.contacts; track contact.id) {
-                      <div class="info-item">
-                        <span class="label">{{ contact.isPrimary ? 'PRINCIPAL / ' : '' }}{{ contact.position | uppercase }}</span>
-                        <span class="value">{{ contact.name }}</span>
-                      </div>
-                      @if (contact.email) {
-                        <div class="info-item">
-                          <span class="label">EMAIL</span>
-                          <span class="value text-brand-link">{{ contact.email }}</span>
-                        </div>
-                      }
-                      @if (contact.phone) {
-                        <div class="info-item">
-                          <span class="label">TELÉFONO</span>
-                          <span class="value">{{ contact.phone }}</span>
-                        </div>
-                      }
-                    }
-                    @empty {
-                      <div class="info-item text-muted">Módulo de contactos en sincronización o sin datos.</div>
-                    }
+                  <div class="ns-info-row">
+                    <span class="ns-info-label">Sector</span>
+                    <ui-badge variant="info">{{ client()?.sector }}</ui-badge>
                   </div>
-                </ui-josanz-card>
+                  <div class="ns-info-row">
+                    <span class="ns-info-label">Email</span>
+                    <span class="ns-info-value">{{
+                      client()?.email || '—'
+                    }}</span>
+                  </div>
+                  <div class="ns-info-row">
+                    <span class="ns-info-label">Teléfono</span>
+                    <span class="ns-info-value">{{
+                      client()?.phone || '—'
+                    }}</span>
+                  </div>
+                </div>
               </div>
             }
             @case ('budgets') {
-              <ui-josanz-card variant="glass" title="Presupuestos">
-                <div class="document-list">
-                  @for (budget of client()?.budgets; track budget.id) {
-                    <div class="document-item">
-                      <div class="doc-icon">
-                        <lucide-icon name="calculator" size="20"></lucide-icon>
-                      </div>
-                      <div class="doc-info">
-                        <span class="doc-title">Oferta {{ formatCurrency(budget.total) }}</span>
-                        <span class="doc-meta">Periodo: {{ formatDate(budget.startDate) }} — {{ formatDate(budget.endDate) }}</span>
-                      </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge variant="info">{{ budget.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/budgets/{{ budget.id }}">VER</ui-josanz-button>
-                      </div>
+              <div class="ns-list">
+                @for (budget of client()?.budgets; track budget.id) {
+                  <a [routerLink]="['/budgets', budget.id]" class="ns-doc-card">
+                    <div class="ns-doc-icon ns-blue">
+                      <lucide-icon name="calculator" size="20" aria-hidden="true"></lucide-icon>
                     </div>
-                  } @empty {
-                    <div class="placeholder-state">
-                      <lucide-icon name="file-search" size="48" class="text-muted"></lucide-icon>
-                      <p>Sin presupuestos registrados.</p>
+                    <div class="ns-doc-info">
+                      <span class="ns-doc-title"
+                        >Oferta {{ formatCurrency(budget.total) }}</span
+                      >
+                      <span class="ns-doc-meta"
+                        >{{ formatDate(budget.startDate) }} —
+                        {{ formatDate(budget.endDate) }}</span
+                      >
                     </div>
-                  }
-                </div>
-              </ui-josanz-card>
+                    <ui-badge variant="info">{{ budget.status }}</ui-badge>
+                  </a>
+                } @empty {
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="calculator" size="28" aria-hidden="true"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Aún no hay presupuestos</h3>
+                    <p class="ns-empty-state__hint">
+                      Los presupuestos que crees para este cliente aparecerán aquí con su
+                      estado y fechas.
+                    </p>
+                  </div>
+                }
+              </div>
             }
             @case ('invoices') {
-              <ui-josanz-card variant="glass" title="Documentación (Facturas y Albaranes)">
-                <div class="document-list">
+              <div class="ns-list ns-list--documental">
+                @if (
+                  getAllInvoices().length === 0 && getAllDeliveryNotes().length === 0
+                ) {
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="archive" size="28" aria-hidden="true"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Sin documentación fiscal</h3>
+                    <p class="ns-empty-state__hint">
+                      Cuando generes facturas o albaranes desde los presupuestos de este
+                      cliente, los verás listados aquí.
+                    </p>
+                  </div>
+                } @else {
+                  @if (getAllInvoices().length === 0) {
+                    <div
+                      class="ns-empty-state ns-empty-state--inline"
+                      role="status"
+                    >
+                      <div
+                        class="ns-empty-state__icon-wrap ns-empty-state__icon-wrap--sm"
+                        aria-hidden="true"
+                      >
+                        <lucide-icon name="receipt" size="20" aria-hidden="true"></lucide-icon>
+                      </div>
+                      <div class="ns-empty-state__text">
+                        <span class="ns-empty-state__title-inline"
+                          >No hay facturas todavía</span
+                        >
+                        <span class="ns-empty-state__hint-inline"
+                          >Se mostrarán al emitirse desde un presupuesto.</span
+                        >
+                      </div>
+                    </div>
+                  }
                   @for (inv of getAllInvoices(); track inv.id) {
-                    <div class="document-item">
-                      <div class="doc-icon">
-                        <lucide-icon name="receipt" size="20"></lucide-icon>
-                      </div>
-                      <div class="doc-info">
-                        <span class="doc-title">Factura {{ inv.invoiceNumber }}</span>
-                        <span class="doc-meta">Emitida: {{ formatDate(inv.issueDate) }} · {{ formatCurrency(inv.total) }}</span>
-                      </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge [variant]="inv.status === 'PAID' ? 'success' : 'warning'">{{ inv.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/billing/{{ inv.id }}">VER</ui-josanz-button>
-                      </div>
+                  <a [routerLink]="['/billing', inv.id]" class="ns-doc-card">
+                    <div class="ns-doc-icon ns-green">
+                      <lucide-icon name="receipt" size="20" aria-hidden="true"></lucide-icon>
                     </div>
-                  }
-                  
-                  @for (dn of getAllDeliveryNotes(); track dn.id) {
-                    <div class="document-item">
-                      <div class="doc-icon">
-                        <lucide-icon name="file-text" size="20"></lucide-icon>
-                      </div>
-                      <div class="doc-info">
-                        <span class="doc-title">Albarán de Presupuesto</span>
-                        <span class="doc-meta">Firma: {{ dn.status }} · Alta: {{ formatDate(dn.createdAt) }}</span>
-                      </div>
-                      <div style="display:flex; gap:10px; align-items:center;">
-                        <ui-josanz-badge [variant]="dn.status === 'signed' ? 'success' : 'info'">{{ dn.status }}</ui-josanz-badge>
-                        <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/delivery/{{ dn.id }}">VER</ui-josanz-button>
-                      </div>
+                    <div class="ns-doc-info">
+                      <span class="ns-doc-title"
+                        >Factura {{ inv.invoiceNumber }}</span
+                      >
+                      <span class="ns-doc-meta">{{
+                        formatCurrency(inv.total)
+                      }}</span>
                     </div>
+                    <ui-badge
+                      [variant]="inv.status === 'PAID' ? 'success' : 'warning'"
+                      >{{ inv.status }}</ui-badge
+                    >
+                  </a>
                   }
-
-                  @if (getAllInvoices().length === 0 && getAllDeliveryNotes().length === 0) {
-                    <div class="placeholder-state">
-                      <p>No existen facturas ni albaranes vinculados al circuito de este cliente.</p>
+                @for (dn of getAllDeliveryNotes(); track dn.id) {
+                  <a [routerLink]="['/delivery', dn.id]" class="ns-doc-card">
+                    <div class="ns-doc-icon ns-orange">
+                      <lucide-icon name="file-text" size="20" aria-hidden="true"></lucide-icon>
                     </div>
-                  }
-                </div>
-              </ui-josanz-card>
+                    <div class="ns-doc-info">
+                      <span class="ns-doc-title">Albarán</span>
+                      <span class="ns-doc-meta"
+                        >{{ dn.status }} · {{ formatDate(dn.createdAt) }}</span
+                      >
+                    </div>
+                    <ui-badge
+                      [variant]="dn.status === 'signed' ? 'success' : 'info'"
+                      >{{ dn.status }}</ui-badge
+                    >
+                  </a>
+                }
+                }
+              </div>
             }
             @case ('reports') {
-              <ui-josanz-card variant="glass" title="Informes de Evento">
-                <div class="document-list">
-                  @for (report of client()?.eventReports; track report.id) {
-                    <div class="document-item" style="align-items: flex-start; flex-direction: column;">
-                      <div style="display: flex; gap: 10px; width: 100%;">
-                        <div class="doc-icon"><lucide-icon name="clipboard-check" size="20"></lucide-icon></div>
-                        <div class="doc-info">
-                          <span class="doc-title">{{ report.title }}</span>
-                          <span class="doc-meta">Fecha: {{ formatDate(report.createdAt) }} · Autor: {{ report.author?.firstName || 'Sistema' }}</span>
-                        </div>
-                        <div style="flex-grow: 1;"></div>
-                        <ui-josanz-button variant="ghost" size="sm" icon="calendar" routerLink="/events/{{ report.eventId }}">VER EVENTO</ui-josanz-button>
+              <div class="ns-list">
+                @for (report of client()?.eventReports; track report.id) {
+                  <a
+                    [routerLink]="['/events', report.eventId]"
+                    class="ns-doc-card"
+                    style="flex-direction: column; align-items: flex-start;"
+                  >
+                    <div
+                      style="display: flex; align-items: center; gap: 0.875rem; width: 100%;"
+                    >
+                      <div class="ns-doc-icon ns-blue">
+                        <lucide-icon
+                          name="clipboard-check"
+                          size="20"
+                          aria-hidden="true"
+                        ></lucide-icon>
                       </div>
-                      <div style="padding-left: 50px; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; margin-top: 10px; width: 100%;">
-                        {{ report.content }}
+                      <div class="ns-doc-info">
+                        <span class="ns-doc-title">{{ report.title }}</span>
+                        <span class="ns-doc-meta"
+                          >{{ formatDate(report.createdAt) }} ·
+                          {{ report.author?.firstName || 'Sistema' }}</span
+                        >
                       </div>
                     </div>
-                  } @empty {
-                    <div class="placeholder-state">
-                      <lucide-icon name="clipboard-x" size="48" class="text-muted"></lucide-icon>
-                      <p>Aún no hay informes técnicos de eventos asociados.</p>
+                    <p
+                      style="margin: 0.5rem 0 0 2.5rem; color: var(--text-muted); font-size: 0.85rem;"
+                    >
+                      {{ report.content }}
+                    </p>
+                  </a>
+                } @empty {
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="file-text" size="28" aria-hidden="true"></lucide-icon>
                     </div>
-                  }
-                </div>
-              </ui-josanz-card>
+                    <h3 class="ns-empty-state__title">Sin informes de evento</h3>
+                    <p class="ns-empty-state__hint">
+                      Los informes redactados tras los eventos de este cliente se listarán
+                      aquí con fecha y autor.
+                    </p>
+                  </div>
+                }
+              </div>
             }
             @case ('commercial') {
-              <ui-josanz-card variant="glass" title="Historial Comercial">
-                <div class="commercial-history">
-                  @for (rental of client()?.rentals; track rental.id) {
-                    <div class="history-item">
-                      <div class="history-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                        <span class="project-title" style="font-weight: 600;">Expediente {{ rental.reference || rental.id.substring(0,8) }}</span>
-                        <div style="display:flex; gap:10px; align-items:center;">
-                          <ui-josanz-badge [variant]="rental.status === 'COMPLETED' ? 'success' : (rental.status === 'ACTIVE' ? 'info' : 'warning')">
-                            {{ rental.status }}
-                          </ui-josanz-badge>
-                          <ui-josanz-button variant="ghost" size="sm" icon="external-link" routerLink="/rentals/{{ rental.id }}">VER</ui-josanz-button>
-                        </div>
-                      </div>
-                      <div class="history-details">
-                        <span class="detail">Período: {{ formatDate(rental.startDate) }} — {{ formatDate(rental.endDate) }}</span>
-                        <span class="detail">Valor: {{ formatCurrency(rental.totalPrice || 0) }}</span>
-                        <span class="detail">Equipos: {{ rental.rentalItems?.length || 0 }} elementos</span>
-                      </div>
+              <div class="ns-list">
+                @for (rental of client()?.rentals; track rental.id) {
+                  <a [routerLink]="['/rentals', rental.id]" class="ns-doc-card">
+                    <div class="ns-doc-icon ns-orange">
+                      <lucide-icon name="package" size="20" aria-hidden="true"></lucide-icon>
                     </div>
-                  } @empty {
-                    <div class="placeholder-state">
-                      <p>Aún no existen proyectos ni alquileres registrados para esta entidad.</p>
+                    <div class="ns-doc-info">
+                      <span class="ns-doc-title">{{
+                        rental.reference || rental.id.slice(0, 8)
+                      }}</span>
+                      <span class="ns-doc-meta"
+                        >{{ formatDate(rental.startDate) }} ·
+                        {{ formatCurrency(rental.totalPrice || 0) }}</span
+                      >
                     </div>
-                  }
-                </div>
-              </ui-josanz-card>
-            }
-            @default {
-              <ui-josanz-card variant="glass" title="Módulo en Sincronización">
-                <div class="placeholder-state">
-                  <lucide-icon
-                    name="activity"
-                    size="48"
-                    class="text-muted"
-                  ></lucide-icon>
-                  <p>
-                    Este módulo modular está siendo actualizado con datos en
-                    tiempo real.
-                  </p>
-                </div>
-              </ui-josanz-card>
+                    <ui-badge
+                      [variant]="
+                        rental.status === 'COMPLETED' ? 'success' : 'info'
+                      "
+                      >{{ rental.status }}</ui-badge
+                    >
+                  </a>
+                } @empty {
+                  <div class="ns-empty-state">
+                    <div class="ns-empty-state__icon-wrap" aria-hidden="true">
+                      <lucide-icon name="truck" size="28" aria-hidden="true"></lucide-icon>
+                    </div>
+                    <h3 class="ns-empty-state__title">Sin movimientos de alquiler</h3>
+                    <p class="ns-empty-state__hint">
+                      Los alquileres y expedientes comerciales vinculados a este cliente
+                      aparecerán en esta vista.
+                    </p>
+                  </div>
+                }
+              </div>
             }
           }
         </div>
       }
     </div>
+    </ui-feature-page-shell>
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
+      .ns-detail {
+        padding: 1.5rem;
+        max-width: 800px;
         margin: 0 auto;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .ns-loading {
+        display: flex;
+        justify-content: center;
+        padding: 3rem;
+      }
+
+      .ns-error {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
-      }
-
-      .back-btn {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        display: flex;
         align-items: center;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 800;
-        cursor: pointer;
-        padding: 0;
-        margin-bottom: 0.5rem;
-        transition: color 0.3s;
+        justify-content: center;
+        padding: 3rem 1.5rem;
+        text-align: center;
+        gap: 0.75rem;
       }
-      .back-btn:hover {
-        color: #fff;
+      .ns-error-icon {
+        color: var(--error);
+        opacity: 0.9;
       }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 900;
-        color: #fff;
+      .ns-error p {
         margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
-
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
-        font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
         color: var(--text-muted);
+        max-width: 28ch;
+      }
+      .ns-error-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
         margin-top: 0.5rem;
       }
 
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+      .ns-header-bar {
+        display: flex;
+        align-items: center;
         gap: 1rem;
+        margin-bottom: 1.5rem;
       }
 
-      .detail-grid {
+      .ns-back {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .ns-back:hover {
+        background: var(--border-soft);
+        color: var(--text-primary);
+      }
+
+      .ns-header-info {
+        flex: 1;
+      }
+
+      .ns-header-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text-primary);
+      }
+
+      .ns-header-meta {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        margin: 4px 0 0;
+      }
+
+      .ns-header-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .ns-stats-row {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .ns-stat-box {
+        padding: 1rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .ns-stat-num {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .ns-stat-lbl {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+      }
+
+      .ns-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        overflow-x: auto;
+      }
+
+      .ns-tab {
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.15s ease;
+      }
+      .ns-tab:hover {
+        background: var(--surface);
+      }
+      .ns-tab-active {
+        background: var(--surface);
+        color: var(--text-primary);
+      }
+
+      .ns-tab-badge {
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 10px;
+        background: var(--border-soft);
+      }
+
+      .ns-content {
         margin-top: 1rem;
       }
 
-      .info-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-        padding: 0.5rem 0;
-      }
-      .info-item {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-        padding-bottom: 0.5rem;
-      }
-      .info-item:last-child {
-        border-bottom: none;
-      }
-      .info-item .label {
-        font-size: 0.55rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        letter-spacing: 0.1em;
-      }
-      .info-item .value {
-        font-size: 0.72rem;
-        font-weight: 800;
-        color: #fff;
-      }
-      .text-brand-link {
-        color: var(--brand) !important;
-        text-decoration: underline;
-        cursor: pointer;
-      }
-
-      .placeholder-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 200px;
-        gap: 1.5rem;
-        text-align: center;
-        color: var(--text-muted);
-        font-size: 0.8rem;
-        font-weight: 600;
-      }
-
-      .document-list {
+      .ns-section {
         display: flex;
         flex-direction: column;
         gap: 1rem;
       }
-      .document-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+
+      .ns-info-card {
         padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.02);
-      }
-      .doc-icon {
-        width: 40px;
-        height: 40px;
-        background: var(--brand-surface);
-        border: 1px solid var(--brand-border);
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--brand);
-      }
-      .doc-info {
-        flex: 1;
-      }
-      .doc-title {
-        display: block;
-        font-weight: 700;
-        color: #fff;
-        font-size: 0.85rem;
-      }
-      .doc-meta {
-        display: block;
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 2px;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
       }
 
-      .timeline {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-      }
-      .timeline-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        position: relative;
-      }
-      .timeline-item:not(:last-child)::before {
-        content: '';
-        position: absolute;
-        left: 12px;
-        top: 32px;
-        bottom: -24px;
-        width: 2px;
-        background: rgba(255, 255, 255, 0.1);
-      }
-      .timeline-marker {
-        width: 24px;
-        height: 24px;
-        background: var(--brand-surface);
-        border: 2px solid var(--brand);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--brand);
-        flex-shrink: 0;
-      }
-      .timeline-content {
-        flex: 1;
-        margin-top: 2px;
-      }
-      .timeline-title {
-        display: block;
-        font-weight: 600;
-        color: #fff;
-        font-size: 0.85rem;
-      }
-      .timeline-meta {
-        display: block;
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        margin-top: 2px;
-      }
-
-      .commercial-history {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-      }
-      .history-item {
-        padding: 1rem;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.02);
-      }
-      .history-header {
+      .ns-info-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-soft);
       }
-      .project-title {
-        font-weight: 700;
-        color: #fff;
+      .ns-info-row:last-child {
+        border-bottom: none;
+      }
+
+      .ns-info-label {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .ns-info-value {
         font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
       }
-      .history-details {
+
+      .ns-list {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: 0.5rem;
       }
-      .detail {
-        font-size: 0.75rem;
-        color: var(--text-secondary);
+
+      .ns-list--documental {
+        gap: 0.75rem;
+      }
+
+      /** Estados vacíos: bloque centrado con jerarquía tipográfica */
+      .ns-empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 2.5rem 1.75rem 2.75rem;
+        margin: 0.25rem 0 0.5rem;
+        border-radius: 16px;
+        border: 1px dashed color-mix(in srgb, var(--text-muted) 28%, var(--border-soft));
+        background: color-mix(in srgb, var(--bg-tertiary) 55%, var(--bg-secondary));
+        box-shadow: inset 0 1px 0 color-mix(in srgb, var(--text-primary) 4%, transparent);
+      }
+
+      .ns-empty-state__icon-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 64px;
+        height: 64px;
+        margin-bottom: 1rem;
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--brand) 14%, var(--bg-secondary));
+        color: color-mix(in srgb, var(--brand) 88%, var(--text-primary));
+        box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--brand) 35%, transparent);
+      }
+
+      .ns-empty-state__icon-wrap--sm {
+        width: 44px;
+        height: 44px;
+        margin-bottom: 0;
+        border-radius: 12px;
+        flex-shrink: 0;
+      }
+
+      .ns-empty-state__title {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+        max-width: 22rem;
+      }
+
+      .ns-empty-state__hint {
+        margin: 0.55rem 0 0;
+        font-size: 0.875rem;
+        line-height: 1.55;
+        font-weight: 500;
+        color: var(--text-muted);
+        max-width: 26rem;
+      }
+
+      /** Variante horizontal cuando hay otros documentos en la misma pestaña */
+      .ns-empty-state--inline {
+        flex-direction: row;
+        align-items: center;
+        text-align: left;
+        padding: 1rem 1.15rem;
+        margin: 0 0 0.35rem;
+      }
+
+      .ns-empty-state--inline .ns-empty-state__text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        min-width: 0;
+      }
+
+      .ns-empty-state__title-inline {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+
+      .ns-empty-state__hint-inline {
+        font-size: 0.78rem;
+        line-height: 1.45;
+        font-weight: 500;
+        color: var(--text-muted);
+      }
+
+      .ns-doc-card {
+        display: flex;
+        align-items: center;
+        gap: 0.875rem;
+        padding: 0.875rem 1rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .ns-doc-card:hover {
+        border-color: var(--text-muted);
+        transform: translateX(4px);
+      }
+
+      .ns-doc-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+      }
+      .ns-doc-icon.ns-blue {
+        background: #3b82f6;
+      }
+      .ns-doc-icon.ns-green {
+        background: #10b981;
+      }
+      .ns-doc-icon.ns-orange {
+        background: #f59e0b;
+      }
+
+      .ns-doc-card ui-button {
+        opacity: 0.7;
+        transition: opacity 0.15s;
+      }
+      .ns-doc-card ui-button:hover {
+        opacity: 1;
+      }
+      .ns-doc-icon.ns-orange {
+        background: #f59e0b;
+      }
+
+      .ns-doc-info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .ns-doc-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .ns-doc-meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      @media (max-width: 640px) {
+        .ns-empty-state {
+          padding: 1.75rem 1.25rem 2rem;
+        }
+        .ns-empty-state--inline {
+          flex-direction: column;
+          text-align: center;
+          align-items: center;
+        }
+        .ns-empty-state--inline .ns-empty-state__text {
+          align-items: center;
+        }
+        .ns-stats-row {
+          grid-template-columns: 1fr;
+        }
+        .ns-header-bar {
+          flex-wrap: wrap;
+        }
       }
     `,
   ],
@@ -551,55 +699,94 @@ export class ClientsDetailComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly clientService = inject(ClientService);
 
   currentTheme = this.themeService.currentThemeData;
   client = signal<Client | null>(null);
   isLoading = signal(true);
+  loadError = signal<string | null>(null);
   activeTab = signal('general');
-  tabs = signal<TabItem[]>([]);
+  tabs = signal<{ id: string; label: string; badge?: number }[]>([]);
 
   ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.loadClient(id);
+    } else {
+      this.loadError.set('Cliente no especificado');
+      this.isLoading.set(false);
+    }
+  }
+
+  reload(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.loadClient(id);
     }
   }
 
+  onEdit() {
+    const id = this.client()?.id;
+    if (id) this.router.navigate(['/clients', id, 'edit']);
+  }
+
   loadClient(id: string) {
     this.isLoading.set(true);
+    this.loadError.set(null);
     this.clientService.getClient(id).subscribe({
       next: (c) => {
         if (c) {
           this.client.set(c);
-          
+
           let invoiceCount = 0;
           let deliveryNoteCount = 0;
-          c.budgets?.forEach(b => {
+          c.budgets?.forEach((b) => {
             if (b.invoices) invoiceCount += b.invoices.length;
             if (b.deliveryNotes) deliveryNoteCount += b.deliveryNotes.length;
           });
 
           this.tabs.set([
             { id: 'general', label: 'Estrategia' },
-            { id: 'budgets', label: 'Presupuestos', badge: c.budgets?.length || 0 },
-            { id: 'invoices', label: 'Documental', badge: invoiceCount + deliveryNoteCount },
-            { id: 'reports', label: 'Informes de Evento', badge: c.eventReports?.length || 0 },
-            { id: 'commercial', label: 'Historial Comercial', badge: c.rentals?.length || 0 },
+            {
+              id: 'budgets',
+              label: 'Presupuestos',
+              badge: c.budgets?.length || 0,
+            },
+            {
+              id: 'invoices',
+              label: 'Documental',
+              badge: invoiceCount + deliveryNoteCount,
+            },
+            {
+              id: 'reports',
+              label: 'Informes de Evento',
+              badge: c.eventReports?.length || 0,
+            },
+            {
+              id: 'commercial',
+              label: 'Historial Comercial',
+              badge: c.rentals?.length || 0,
+            },
           ]);
+        } else {
+          this.loadError.set('No se encontró el cliente.');
         }
         this.isLoading.set(false);
       },
-      error: () => this.isLoading.set(false)
+      error: () => {
+        this.loadError.set('No se pudo cargar el cliente.');
+        this.isLoading.set(false);
+      },
     });
   }
 
-  getAllInvoices() {
-    const invoices: any[] = [];
+  getAllInvoices(): Invoice[] {
+    const invoices: Invoice[] = [];
     const c = this.client();
     if (c?.budgets) {
-      c.budgets.forEach((b: any) => {
-        if (b.invoices) {
+      c.budgets.forEach((b: Budget) => {
+        if (b.invoices?.length) {
           invoices.push(...b.invoices);
         }
       });
@@ -607,12 +794,12 @@ export class ClientsDetailComponent implements OnInit {
     return invoices;
   }
 
-  getAllDeliveryNotes() {
-    const notes: any[] = [];
+  getAllDeliveryNotes(): DeliveryNote[] {
+    const notes: DeliveryNote[] = [];
     const c = this.client();
     if (c?.budgets) {
-      c.budgets.forEach((b: any) => {
-        if (b.deliveryNotes) {
+      c.budgets.forEach((b: Budget) => {
+        if (b.deliveryNotes?.length) {
           notes.push(...b.deliveryNotes);
         }
       });
@@ -630,6 +817,9 @@ export class ClientsDetailComponent implements OnInit {
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value);
+    return new Intl.NumberFormat('es-ES', {
+      style: 'currency',
+      currency: 'EUR',
+    }).format(value);
   }
 }

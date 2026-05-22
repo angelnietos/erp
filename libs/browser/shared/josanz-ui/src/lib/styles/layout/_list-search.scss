@@ -1,0 +1,149 @@
+// Barra de búsqueda y toolbar de filtros en listados (alineación Figma: derecha).
+
+.josanz-list-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 16.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--josanz-border);
+  background-color: var(--josanz-surface);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--josanz-interactive, var(--josanz-primary));
+    box-shadow: 0 0 0 2px var(--josanz-focus-ring);
+  }
+
+  &:focus-within &__icon {
+    color: var(--josanz-interactive, var(--josanz-primary));
+    opacity: 1;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 1rem;
+    height: 1rem;
+    color: var(--josanz-text-muted);
+    opacity: 0.75;
+    pointer-events: none;
+  }
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    box-shadow: none;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: var(--josanz-text);
+    appearance: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: var(--josanz-text-muted);
+      opacity: 0.9;
+    }
+
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button,
+    &::-webkit-search-results-button,
+    &::-webkit-search-results-decoration {
+      display: none;
+    }
+  }
+}
+
+// Búsqueda bajo botones de acción (maqueta Clientes).
+.josanz-main-list__search-actions {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+
+  .josanz-list-search {
+    max-width: min(100%, 16.5rem);
+  }
+}
+
+// Fila de filtros secundarios + búsqueda a la derecha (maqueta Vehículos / catálogo).
+.josanz-list-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  width: 100%;
+  min-width: 0;
+
+  &__filters {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: min(100%, 12rem);
+
+    &--only:empty {
+      display: none;
+    }
+  }
+
+  &__search-slot {
+    display: flex;
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    margin-left: auto;
+    min-width: min(100%, 10rem);
+    max-width: 16.5rem;
+    width: 100%;
+
+    .josanz-list-search {
+      max-width: 100%;
+    }
+  }
+
+  @media (min-width: 640px) {
+    flex-wrap: nowrap;
+
+    &__search-slot {
+      width: auto;
+      min-width: 10rem;
+    }
+  }
+}
+
+.josanz-list-filters-extra {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.josanz-list-filters-panel {
+  &__summary {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: var(--josanz-text-muted);
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+  }
+}

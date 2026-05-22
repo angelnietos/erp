@@ -1,0 +1,57 @@
+<josanz-main-list-layout 
+  [title]="title" 
+  [primaryBtnLabel]="primaryBtnLabel"
+  [filterOptions]="filterOptions"
+  [paginationTotal]="10"
+  [paginationPage]="1"
+  [searchValue]="searchQuery"
+  (searchChange)="onSearch($event)"
+  (primaryAction)="onAdd()"
+  (filterChange)="onFilter($event)"
+  (excelAction)="onExcel()">
+
+  <div extra-filters class="flex flex-col gap-3">
+    <josanz-main-tabs 
+      [options]="['Productos / lotes', 'Productos en alquiler']"
+      [selection]="activeType"
+      (selectionChange)="onTypeChange($event)"
+      shape="rounded">
+    </josanz-main-tabs>
+    <josanz-filter-tabs 
+      [options]="secondaryFilterOptions"
+      (selectionChange)="onSecondaryFilterChange($event)">
+    </josanz-filter-tabs>
+  </div>
+
+  <div extra-actions>
+    @if (activeType === 'Productos / lotes') {
+      <josanz-button 
+        label="Nuevo almacén +" 
+        [showIcon]="false"
+        variant="primary"
+        (btnClick)="onAddWarehouse()">
+      </josanz-button>
+    }
+  </div>
+  
+  <div class="josanz-list-thead josanz-list-thead--compact">
+    <div
+      class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
+    >
+      <div class="josanz-list-template-row__title truncate">Referencia</div>
+      <div class="josanz-list-template-row__fields">
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Nombre Producto</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Categoría</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Stock Actual</div>
+        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Almacén</div>
+      </div>
+      <div class="josanz-list-template-row__status"><span class="truncate">Estado</span></div>
+    </div>
+  </div>
+
+  <josanz-adaptive-list-rows
+    [items]="filteredStockItems"
+    [defaultLabels]="stockLabels"
+    (itemClick)="openProductDetail($event.id)"
+  ></josanz-adaptive-list-rows>
+</josanz-main-list-layout>

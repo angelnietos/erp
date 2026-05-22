@@ -1,0 +1,30 @@
+# Git y entornos
+.git
+.github
+.cursor
+**/.DS_Store
+*.md
+!README.md
+
+# Dependencias y salidas
+node_modules
+dist
+tmp
+coverage
+.nx
+**/.angular/cache
+
+# Tests y calidad
+**/*.spec.ts
+**/jest.config.*
+**/test-setup.ts
+**/e2e
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# Env local (las variables se inyectan en compose/CI)
+.env
+.env.*

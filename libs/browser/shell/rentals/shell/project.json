@@ -1,7 +1,7 @@
 {
   "name": "rentals-shell",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/rentals/shell/src",
+  "sourceRoot": "libs/browser/shell/rentals/shell/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/rentals/shell/jest.config.cts",
-        "tsConfig": "libs/rentals/shell/tsconfig.spec.json"
+        "jestConfig": "libs/browser/shell/rentals/shell/jest.config.cts",
+        "tsConfig": "libs/browser/shell/rentals/shell/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

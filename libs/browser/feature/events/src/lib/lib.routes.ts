@@ -18,8 +18,15 @@ export const eventsFeatureRoutes: Route[] = [
   {
     path: ':id',
     loadComponent: () =>
-      import('./components/events-list.component').then(
-        (m) => m.EventsListComponent,
+      import('./components/new-event.component').then(
+        (m) => m.NewEventComponent,
+      ),
+  },
+  {
+    path: ':id/edit',
+    loadComponent: () =>
+      import('./components/new-event.component').then(
+        (m) => m.NewEventComponent,
       ),
   },
 ];

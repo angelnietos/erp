@@ -1,35 +1,45 @@
 import {
   Component,
   OnInit,
-  inject,
+  OnDestroy,
   signal,
+  inject,
   computed,
   ChangeDetectionStrategy,
-  OnDestroy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import {
-  UiTableComponent,
   UiButtonComponent,
-  UiSearchComponent,
+  UiFeatureFilterBarComponent,
   UiPaginationComponent,
-  UiBadgeComponent,
   UiLoaderComponent,
   UiModalComponent,
   UiTabsComponent,
-  UiCardComponent,
   UiStatCardComponent,
-  UiInputComponent,
+  UiFeatureHeaderComponent,
+  UiFeatureStatsComponent,
+  UiFeatureGridComponent,
+  UiFeatureCardComponent,
+  UiFeatureAccessDeniedComponent,
+  UiFeaturePageShellComponent,
   UiSelectComponent,
+  UiInputComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { LucideAngularModule } from 'lucide-angular';
-import { ThemeService, PluginStore, MasterFilterService, FilterableService } from '@josanz-erp/shared-data-access';
+import {
+  ThemeService,
+  PluginStore,
+  MasterFilterService,
+  FilterableService,
+  ToastService,
+  GlobalAuthStore,
+  rbacAllows,
+} from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
-import { Budget } from '@josanz-erp/budget-api';
 import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
 
 @Component({
@@ -39,626 +49,872 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     CommonModule,
     RouterModule,
     FormsModule,
-    UiTableComponent,
     UiButtonComponent,
-    UiSearchComponent,
+    UiFeatureFilterBarComponent,
     UiPaginationComponent,
-    UiBadgeComponent,
     UiLoaderComponent,
-    UiModalComponent,
-    UiTabsComponent,
-    UiCardComponent,
-    UiStatCardComponent,
-    UiInputComponent,
-    UiSelectComponent,
+  UiModalComponent,
+  UiTabsComponent,
+  UiStatCardComponent,
+    UiFeatureHeaderComponent,
+    UiFeatureStatsComponent,
+    UiFeatureGridComponent,
+    UiFeatureCardComponent,
     LucideAngularModule,
+    UiFeatureAccessDeniedComponent,
+    UiFeaturePageShellComponent,
+    UiSelectComponent,
+    UiInputComponent,
   ],
   template: `
-    <div
-      class="page-container animate-fade-in"
-      [class.high-perf]="pluginStore.highPerformanceMode()"
-    >
-      <header
-        class="page-header"
-        [style.border-bottom-color]="currentTheme().primary + '33'"
-      >
-        <div class="header-breadcrumb">
-          <h1
-            class="page-title text-uppercase glow-text"
-            [style.text-shadow]="'0 0 20px ' + currentTheme().primary + '66'"
-          >
-            Facturación & Integridad Fiscal
-          </h1>
-          <div class="breadcrumb">
-            <span class="active" [style.color]="currentTheme().primary"
-              >GESTIÓN INTEGRAL</span
-            >
-            <span class="separator">/</span>
-            <span>VERIFACTU REGULATION (AEAT)</span>
-          </div>
-        </div>
-        <div class="header-actions">
-          @if (config.enableCreate) {
-            <ui-josanz-button
-              variant="app"
-              size="md"
-              (clicked)="openCreateModal()"
-              icon="plus"
-            >
-              EMITIR FACTURA
-            </ui-josanz-button>
-          }
-        </div>
-      </header>
+    @if (!canAccess()) {
+      <ui-feature-access-denied
+        message="No tienes permiso para ver facturación."
+        permissionHint="invoices.view"
+      />
+    } @else {
+    <ui-feature-page-shell [extraClass]="'billing-container'">
+      <ui-feature-header
+        title="Facturación"
+        breadcrumbLead="FACTURACIÓN Y FISCALIDAD"
+        breadcrumbTail="CONTROL DE INGRESOS"
+        subtitle="Gestión fiscal e integridad Verifactu (AEAT)"
+        icon="banknote"
+        actionLabel="EMITIR FACTURA"
+        (actionClicked)="goToNewInvoice()"
+      ></ui-feature-header>
 
-      <div class="stats-row">
-        <ui-josanz-stat-card
+      <ui-feature-stats>
+        <ui-stat-card
           label="Total Operado"
           [value]="formatCurrencyEu(totalInvoiced())"
           icon="trending-up"
           [accent]="true"
-        >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        ></ui-stat-card>
+        <ui-stat-card
           label="Pendiente Cobro"
           [value]="formatCurrencyEu(totalPending())"
           icon="clock"
           [trend]="5"
-        >
-        </ui-josanz-stat-card>
-        <ui-josanz-stat-card
+        ></ui-stat-card>
+        <ui-stat-card
           label="Documentos AEAT"
           [value]="allInvoices().length.toString()"
           icon="shield-check"
+        ></ui-stat-card>
+        <ui-stat-card
+          label="Cumplimiento Fiscal"
+          value="100%"
+          icon="check-check"
+          [accent]="false"
+        ></ui-stat-card>
+      </ui-feature-stats>
+
+      <ui-feature-filter-bar
+        [appearance]="'feature'"
+        [searchVariant]="'glass'"
+        placeholder="Buscar por NIF, cliente o número..."
+        (searchChange)="onSearch($event)"
+      >
+        <div uiFeatureFilterStates>
+          <ui-tabs
+            [tabs]="tabs()"
+            [activeTab]="activeTab()"
+            variant="underline"
+            (tabChange)="onTabChange($event)"
+          ></ui-tabs>
+        </div>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="filter"
+          [class.active]="showAdvancedFilters()"
+          (clicked)="toggleAdvancedFilters()"
         >
-        </ui-josanz-stat-card>
-      </div>
+          Filtros Avanzados
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          icon="rotate-cw"
+          (clicked)="refreshInvoices()"
+          title="Actualizar"
+        >
+          Actualizar
+        </ui-button>
+        <ui-button
+          variant="ghost"
+          size="sm"
+          [icon]="sortDirection() === 1 ? 'ChevronUp' : 'ChevronDown'"
+          (clicked)="toggleSort()"
+        >
+          Ordenar:
+          {{
+            sortField() === 'issueDate'
+              ? 'fecha'
+              : sortField() === 'total'
+                ? 'total'
+                : 'estado'
+          }}
+        </ui-button>
+      </ui-feature-filter-bar>
 
-      <div class="navigation-bar ui-glass-panel">
-        <ui-josanz-tabs
-          [tabs]="tabs()"
-          [activeTab]="activeTab()"
-          variant="underline"
-          (tabChange)="onTabChange($event)"
-        ></ui-josanz-tabs>
+      @if (error() && allInvoices().length > 0) {
+        <div
+          class="feature-load-error-banner"
+          role="status"
+          aria-live="polite"
+        >
+          <lucide-icon
+            name="alert-circle"
+            size="20"
+            class="feature-load-error-banner__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <span class="feature-load-error-banner__text">{{ error() }}</span>
+          <ui-button
+            variant="ghost"
+            size="sm"
+            icon="rotate-cw"
+            (clicked)="refreshInvoices()"
+          >
+            Reintentar
+          </ui-button>
+        </div>
+      }
 
-        <ui-josanz-search
-          variant="filled"
-          placeholder="BUSCAR NIF, CLIENTE O Nº..."
-          (searchChange)="onSearch($event)"
-          class="search-bar"
-        ></ui-josanz-search>
-      </div>
+      <!-- Advanced Filters -->
+      @if (showAdvancedFilters()) {
+        <div class="advanced-filters">
+          <div class="filters-grid">
+            <div class="filter-group">
+              <ui-select
+                id="status-filter"
+                label="Estado"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="statusFilter.set($event); currentPage.set(1)"
+                [options]="[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'draft', label: 'Borrador' },
+                  { value: 'pending', label: 'Pendiente' },
+                  { value: 'paid', label: 'Pagada' },
+                  { value: 'sent', label: 'Enviada' },
+                  { value: 'cancelled', label: 'Cancelada' }
+                ]"
+                variant="glass" size="sm"
+              ></ui-select>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="date-from-filter"
+                label="Fecha desde"
+                type="date"
+                [(ngModel)]="dateFromFilter"
+                (ngModelChange)="dateFromFilter.set($event); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="date-to-filter"
+                label="Fecha hasta"
+                type="date"
+                [(ngModel)]="dateToFilter"
+                (ngModelChange)="dateToFilter.set($event); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="amount-min-filter"
+                label="Importe mínimo (€)"
+                type="number"
+                placeholder="0"
+                min="0" step="0.01"
+                [(ngModel)]="amountMinFilter"
+                (ngModelChange)="amountMinFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
+            <div class="filter-group">
+              <ui-input
+                id="amount-max-filter"
+                label="Importe máximo (€)"
+                type="number"
+                placeholder="Sin límite"
+                min="0" step="0.01"
+                [(ngModel)]="amountMaxFilter"
+                (ngModelChange)="amountMaxFilter.set($event ? +$event : null); currentPage.set(1)"
+                shape="glass" size="sm"
+              ></ui-input>
+            </div>
+          </div>
+        </div>
+      }
 
-      @if (isLoading()) {
-        <div class="loader-container">
-          <ui-josanz-loader
-            message="SINCRONIZANDO REGISTROS FISCALES..."
-          ></ui-josanz-loader>
+      <!-- Bulk Actions Bar -->
+      @if (hasSelections()) {
+        <div class="bulk-actions-bar">
+          <div class="bulk-info">
+            <lucide-icon name="check-square" size="16" aria-hidden="true"></lucide-icon>
+            <span
+              >{{ selectedCount() }} factura{{
+                selectedCount() === 1 ? '' : 's'
+              }}
+              seleccionada{{ selectedCount() === 1 ? '' : 's' }}</span
+            >
+          </div>
+          <div class="bulk-buttons">
+            <ui-select
+              class="bulk-status-select"
+              placeholder="Cambiar estado"
+              [options]="[
+                { value: 'draft', label: 'Marcar como borrador' },
+                { value: 'pending', label: 'Marcar como pendiente' },
+                { value: 'paid', label: 'Marcar como pagada' },
+                { value: 'sent', label: 'Marcar como enviada' },
+                { value: 'cancelled', label: 'Marcar como cancelada' }
+              ]"
+              (selectionChange)="bulkChangeStatusFromCustom($event)"
+              variant="glass" size="sm"
+            ></ui-select>
+            <ui-button variant="danger" size="sm" (clicked)="bulkDelete()">
+              <lucide-icon name="trash2" size="14" aria-hidden="true"></lucide-icon>
+              Eliminar seleccionadas
+            </ui-button>
+            <ui-button variant="ghost" size="sm" (clicked)="clearSelection()">
+              Cancelar
+            </ui-button>
+          </div>
+        </div>
+      }
+
+      @if (isLoading() && allInvoices().length === 0) {
+        <div class="feature-loader-wrap">
+          <ui-loader message="Sincronizando facturas…"></ui-loader>
+        </div>
+      } @else if (error() && allInvoices().length === 0) {
+        <div class="feature-error-screen" role="alert">
+          <lucide-icon
+            name="wifi-off"
+            size="48"
+            class="feature-error-screen__icon"
+            aria-hidden="true"
+          ></lucide-icon>
+          <h3>No se pudo cargar la facturación</h3>
+          <p>{{ error() }}</p>
+          <ui-button variant="solid" icon="rotate-cw" (clicked)="refreshInvoices()">
+            Reintentar
+          </ui-button>
         </div>
       } @else {
-        <ui-josanz-card
-          variant="glass"
-          class="table-card"
-          [class.neon-glow]="!pluginStore.highPerformanceMode()"
-        >
-          <ui-josanz-table
-            [columns]="columns"
-            [data]="invoices()"
-            variant="default"
-            [virtualScroll]="invoices().length > 24"
-          >
-            <ng-template #cellTemplate let-inv let-key="key">
-              @switch (key) {
-                @case ('invoiceNumber') {
-                  <a
-                    [routerLink]="['/billing', inv.id]"
-                    class="invoice-link text-uppercase"
-                    [style.color]="currentTheme().primary"
-                  >
-                    {{ inv.invoiceNumber }}
-                  </a>
+        <ui-feature-grid>
+          <!-- Selection Header -->
+          @if (paginatedInvoices().length > 0) {
+            <div class="selection-header">
+              <label class="checkbox-label" for="select-all-checkbox">
+                <input
+                  id="select-all-checkbox"
+                  type="checkbox"
+                  [checked]="isAllSelected()"
+                  (change)="toggleSelectAll()"
+                  class="selection-checkbox"
+                />
+                <span>Seleccionar todas</span>
+              </label>
+            </div>
+          }
+
+          @for (inv of paginatedInvoices(); track inv.id) {
+            <ui-feature-card
+              [name]="inv.invoiceNumber"
+              [subtitle]="inv.clientName | uppercase"
+              [avatarInitials]="getInitials(inv.invoiceNumber)"
+              [avatarBackground]="getFiscalGradient(inv.verifactuStatus)"
+              [status]="inv.status === 'paid' ? 'active' : 'offline'"
+              [badgeLabel]="getStatusLabel(inv.status) | uppercase"
+              [badgeVariant]="getStatusVariant(inv.status)"
+              [showEdit]="true"
+              [showDuplicate]="true"
+              [showDelete]="inv.status === 'draft'"
+              (cardClicked)="onRowClick(inv)"
+              (editClicked)="goToEditInvoice(inv)"
+              (duplicateClicked)="onDuplicate(inv)"
+              (deleteClicked)="confirmDelete(inv)"
+              [footerItems]="[
+                { icon: 'calendar', label: formatDate(inv.issueDate) },
+                {
+                  icon: 'euro',
+                  label: (inv.total || 0 | currency: 'EUR') || '-',
+                },
+                {
+                  icon: 'shield',
+                  label: inv.verifactuStatus
+                    ? (getVerifactuLabel(inv.verifactuStatus) | uppercase)
+                    : 'PENDIENTE',
+                },
+              ]"
+            >
+              <div card-extra class="card-selection">
+                <input
+                  type="checkbox"
+                  [checked]="selectedInvoices().has(inv.id)"
+                  (change)="toggleInvoiceSelection(inv.id)"
+                  (click)="$event.stopPropagation()"
+                  class="selection-checkbox"
+                />
+              </div>
+              <div class="fiscal-indicators">
+                @if (inv.verifactuStatus === 'sent') {
+                  <span class="fiscal-badge success-glow">
+                    <lucide-icon name="shield-check" size="12" aria-hidden="true"></lucide-icon>
+                    AEAT REPORTED
+                  </span>
+                } @else if (inv.verifactuStatus === 'error') {
+                  <span class="fiscal-badge error-glow">
+                    <lucide-icon name="alert-triangle" size="12" aria-hidden="true"></lucide-icon>
+                    FISCAL ERROR
+                  </span>
                 }
-                @case ('status') {
-                  <ui-josanz-badge [variant]="getStatusVariant(inv.status)">
-                    {{ getStatusLabel(inv.status) | uppercase }}
-                  </ui-josanz-badge>
+              </div>
+
+              <div footer-extra class="billing-extra-actions">
+                <ui-button
+                  variant="ghost"
+                  size="sm"
+                  icon="eye"
+                  [routerLink]="['/billing', inv.id]"
+                  title="Detalles"
+                ></ui-button>
+
+                @if (inv.status === 'draft') {
+                  <ui-button
+                    variant="ghost"
+                    size="sm"
+                    icon="play"
+                    (click)="$event.stopPropagation(); issueInvoice(inv)"
+                    class="text-success"
+                    title="Emitir Factura"
+                  ></ui-button>
                 }
-                @case ('verifactuStatus') {
-                  @if (inv.verifactuStatus) {
-                    <div class="vf-status-cell">
-                      <ui-josanz-badge
-                        [variant]="getVerifactuVariant(inv.verifactuStatus)"
-                      >
-                        {{ getVerifactuLabel(inv.verifactuStatus) | uppercase }}
-                      </ui-josanz-badge>
-                      @if (inv.verifactuStatus === 'sent') {
-                        <lucide-icon
-                          name="shield-check"
-                          [size]="12"
-                          [style.color]="currentTheme().success"
-                        ></lucide-icon>
-                      }
-                    </div>
-                  } @else {
-                    <span class="text-muted">—</span>
-                  }
-                }
-                @case ('total') {
-                  <span class="currency-value">{{
-                    inv.total | currency: 'EUR'
-                  }}</span>
-                }
-                @case ('actions') {
-                  <div class="row-actions">
-                    <ui-josanz-button
+
+                @if (inv.status !== 'draft' && config.enableVerifactu) {
+                  @if (
+                    !inv.verifactuStatus ||
+                    inv.verifactuStatus === 'pending' ||
+                    inv.verifactuStatus === 'error'
+                  ) {
+                    <ui-button
                       variant="ghost"
                       size="sm"
-                      icon="eye"
-                      [routerLink]="['/billing', inv.id]"
-                      title="Ver Detalle"
-                    ></ui-josanz-button>
-
-                    @if (inv.status === 'draft') {
-                      <ui-josanz-button
-                        variant="ghost"
-                        size="sm"
-                        icon="pencil"
-                        (clicked)="editInvoice(inv)"
-                        title="Editar Borrador"
-                      ></ui-josanz-button>
-                      <ui-josanz-button
-                        variant="ghost"
-                        size="sm"
-                        icon="play"
-                        (clicked)="issueInvoice(inv)"
-                        [style.color]="currentTheme().success"
-                        title="Emitir Factura"
-                      ></ui-josanz-button>
-                    }
-
-                    @if (inv.status !== 'draft' && config.enableVerifactu) {
-                      @if (
-                        !inv.verifactuStatus ||
-                        inv.verifactuStatus === 'pending'
-                      ) {
-                        <ui-josanz-button
-                          variant="ghost"
-                          size="sm"
-                          icon="upload-cloud"
-                          (clicked)="sendToVerifactu(inv)"
-                          [style.color]="currentTheme().warning"
-                          title="Firmar y Enviar a AEAT"
-                        ></ui-josanz-button>
-                      }
-                      @if (inv.verifactuStatus === 'sent') {
-                        <ui-josanz-button
-                          variant="ghost"
-                          size="sm"
-                          icon="file-warning"
-                          (clicked)="rectifyInvoice(inv)"
-                          title="Rectificar Anulación AEAT"
-                        ></ui-josanz-button>
-                        <ui-josanz-button
-                          variant="ghost"
-                          size="sm"
-                          icon="qr-code"
-                          (clicked)="viewVerifactuQr(inv)"
-                          title="Ver Certificado Legal"
-                        ></ui-josanz-button>
-                      }
-                      @if (inv.verifactuStatus === 'error') {
-                        <ui-josanz-button
-                          variant="ghost"
-                          size="sm"
-                          icon="refresh-cw"
-                          (clicked)="sendToVerifactu(inv)"
-                          [style.color]="currentTheme().danger"
-                          title="Reintentar Envío AEAT"
-                        ></ui-josanz-button>
-                      }
-                    }
-                  </div>
+                      [icon]="
+                        inv.verifactuStatus === 'error'
+                          ? 'refresh-cw'
+                          : 'upload-cloud'
+                      "
+                      (click)="$event.stopPropagation(); sendToVerifactu(inv)"
+                      [class.text-warning]="inv.verifactuStatus !== 'error'"
+                      [class.text-danger]="inv.verifactuStatus === 'error'"
+                      title="Enviar AEAT"
+                    ></ui-button>
+                  }
+                  @if (inv.verifactuStatus === 'sent') {
+                    <ui-button
+                      variant="ghost"
+                      size="sm"
+                      icon="qr-code"
+                      (click)="$event.stopPropagation(); viewVerifactuQr(inv)"
+                      title="Ver Certificado"
+                    ></ui-button>
+                  }
                 }
-                @default {
-                  {{ inv[key] }}
-                }
-              }
-            </ng-template>
-          </ui-josanz-table>
+              </div>
+            </ui-feature-card>
+          } @empty {
+            @if (filterProducesNoResults()) {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="search-x"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>Sin resultados</h3>
+                <p>
+                  Ninguna factura coincide con la búsqueda, la pestaña o los
+                  filtros actuales.
+                </p>
+                <ui-button
+                  variant="ghost"
+                  icon="circle-x"
+                  (clicked)="clearFiltersAndSearch()"
+                >
+                  Limpiar búsqueda y filtros
+                </ui-button>
+              </div>
+            } @else {
+              <div class="feature-empty feature-empty--wide">
+                <lucide-icon
+                  name="banknote"
+                  size="56"
+                  class="feature-empty__icon"
+                  aria-hidden="true"
+                ></lucide-icon>
+                <h3>No hay facturas</h3>
+                <p>
+                  Comienza emitiendo una nueva factura o solicita un presupuesto
+                  origen.
+                </p>
+                <ui-button
+                  variant="solid"
+                  (clicked)="goToNewInvoice()"
+                  icon="CirclePlus"
+                  >Emitir factura</ui-button
+                >
+              </div>
+            }
+          }
+        </ui-feature-grid>
 
-          <footer
-            class="table-footer"
-            [style.background]="currentTheme().primary + '05'"
-          >
-            <div class="table-info uppercase">
-              {{ invoices().length }} DOCUMENTOS LEGALES EN VISTA
-            </div>
-            <ui-josanz-pagination
-              [currentPage]="currentPage()"
-              [totalPages]="totalPages()"
-              variant="default"
-              (pageChange)="onPageChange($event)"
-            ></ui-josanz-pagination>
-          </footer>
-        </ui-josanz-card>
+        <footer class="pagination-footer">
+          <ui-pagination
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          ></ui-pagination>
+        </footer>
       }
-    </div>
+    </ui-feature-page-shell>
 
-    <ui-josanz-modal
-      [isOpen]="isModalOpen()"
-      [title]="editingInvoice() ? 'EDITAR FACTURA' : 'EMITIR FACTURA'"
-      variant="dark"
-      (closed)="closeModal()"
-    >
-      <div class="invoice-form">
-        @if (!editingInvoice()) {
-          <p class="form-hint">
-            Selecciona un presupuesto aceptado o enviado; el importe y el
-            cliente salen del presupuesto.
-          </p>
-          <ui-josanz-select
-            label="Presupuesto origen"
-            placeholder="Elegir presupuesto…"
-            [options]="budgetSelectOptions()"
-            [(ngModel)]="formData.budgetId"
-          ></ui-josanz-select>
-        } @else {
-          <div class="readonly-client">
-            <span class="lbl">Cliente</span>
-            <span class="val">{{ editingInvoice()?.clientName }}</span>
-          </div>
-        }
-        <ui-josanz-input
-          label="Número de factura (opcional)"
-          [(ngModel)]="formData.invoiceNumber"
-          placeholder="F/2026/XXXX"
-        ></ui-josanz-input>
-        <div class="form-row-dates">
-          <ui-josanz-input
-            label="Emisión"
-            type="date"
-            [(ngModel)]="formData.issueDate"
-          ></ui-josanz-input>
-          <ui-josanz-input
-            label="Vencimiento"
-            type="date"
-            [(ngModel)]="formData.dueDate"
-          ></ui-josanz-input>
-        </div>
-      </div>
-      <div modal-footer class="modal-footer-actions">
-        <ui-josanz-button variant="ghost" (clicked)="closeModal()"
-          >CANCELAR</ui-josanz-button
-        >
-        <ui-josanz-button
-          variant="app"
-          (clicked)="saveInvoice()"
-          [disabled]="!editingInvoice() && !formData.budgetId"
-        >
-          {{ editingInvoice() ? 'GUARDAR' : 'CREAR BORRADOR' }}
-        </ui-josanz-button>
-      </div>
-    </ui-josanz-modal>
-
-    <!-- Verifactu QR Modal -->
-    <ui-josanz-modal
+    <ui-modal
       [isOpen]="isVerifactuQrModalOpen()"
-      title="SISTEMA CENTRAL: VERIFICACIÓN FISCAL"
-      variant="dark"
+      title="CERTIFICADO FISCAL AEAT"
+      variant="glass"
       [showFooter]="false"
       (closed)="closeVerifactuQrModal()"
     >
-      <div class="verifactu-container">
-        @if (verifactuStore.loading()) {
-          <ui-josanz-loader
-            message="Sincronizando con AEAT..."
-          ></ui-josanz-loader>
-        } @else if (verifactuStore.selectedInvoice(); as inv) {
-          <div class="vf-detail-premium">
-            <header
-              class="vf-header"
-              [style.border-bottom-color]="currentTheme().primary"
-            >
-              <div class="vf-title-group">
-                <span class="lbl text-uppercase">Garantía de Integridad</span>
-                <span class="val text-uppercase"
-                  >{{ inv.series }}{{ inv.number }}</span
-                >
-              </div>
-              <div
-                class="vf-status-tag"
-                [class.sent]="inv.verifactuStatus === 'sent'"
-              >
-                <span class="text-uppercase"
-                  >ESTADO: {{ inv.verifactuStatus }}</span
-                >
-              </div>
-            </header>
+      @if (verifactuStore.selectedInvoice(); as inv) {
+        <div class="qr-panel">
+          <div class="qr-header">
+            <h3>Garantía de Integridad</h3>
+            <span class="ref">{{ inv.series }}{{ inv.number }}</span>
+          </div>
 
-            <div class="vf-grid">
-              <section class="vf-info-card">
-                <h4
-                  class="section-title text-uppercase"
-                  [style.color]="currentTheme().primary"
-                >
-                  Liquidación Tributaria
-                </h4>
-                <div class="vf-line">
-                  <span class="lbl">TOTAL OPERACIÓN</span
-                  ><span class="val text-brand">{{
-                    formatCurrencyEu(inv.total)
-                  }}</span>
-                </div>
-              </section>
-            </div>
-
+          <div class="qr-display">
             @if (inv.qrCode) {
-              <section class="vf-qr-section">
-                <div class="qr-holder">
-                  <img [src]="inv.qrCode" alt="QR VeriFactu" />
-                </div>
-                <p class="qr-hint text-uppercase">
-                  Validación legal en sede electrónica de la AEAT.
-                </p>
-              </section>
+              <div class="qr-box animate-scale-in">
+                <img [src]="inv.qrCode" alt="Verifactu QR" />
+              </div>
+              <p>
+                Escanea este código para verificar la legalidad en la sede
+                electrónica.
+              </p>
+            } @else {
+              <ui-loader message="Generando certificado..."></ui-loader>
             }
           </div>
-        }
-      </div>
-    </ui-josanz-modal>
 
+          <div class="qr-footer">
+            <div class="stat">
+              <span class="lbl">TOTAL OPERACIÓN</span>
+              <span class="val">{{ formatCurrencyEu(inv.total) }}</span>
+            </div>
+            <ui-button variant="glass" (clicked)="closeVerifactuQrModal()"
+              >CERRAR</ui-button
+            >
+          </div>
+        </div>
+      }
+    </ui-modal>
+    }
   `,
   styles: [
     `
-      .page-container {
-        padding: 0;
-        max-width: 100%;
-        margin: 0 auto;
+      .flex-1 {
+        flex: 1;
       }
 
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      .fiscal-indicators {
+        margin-top: 1rem;
       }
-
-      .glow-text {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #fff;
-        margin: 0;
-        letter-spacing: 0.05em;
-        font-family: var(--font-main);
-      }
-
-      .breadcrumb {
-        display: flex;
-        gap: 8px;
+      .fiscal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
         font-size: 0.6rem;
-        font-weight: 700;
-        letter-spacing: 0.1em;
-        color: var(--text-muted);
-        margin-top: 0.5rem;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-      }
-
-      .navigation-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding: 0.25rem 1rem;
-        border-radius: 12px;
-        background: rgba(15, 15, 15, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-      }
-
-      .search-bar {
-        width: 320px;
-      }
-
-      /* Table Luxe Refinement */
-      .table-card {
-        border-radius: 16px;
-        overflow: hidden;
-      }
-      .neon-glow {
-        box-shadow:
-          0 0 40px rgba(0, 0, 0, 0.4),
-          inset 0 0 1px rgba(255, 255, 255, 0.1);
-      }
-
-      .invoice-link {
-        text-decoration: none;
-        font-weight: 800;
-        font-size: 0.8rem;
+        font-weight: 900;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
         letter-spacing: 0.05em;
-        transition: 0.2s;
       }
-      .invoice-link:hover {
-        color: #fff !important;
-        text-shadow: 0 0 10px var(--brand-glow);
+      .success-glow {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.2);
       }
-
-      .vf-status-cell {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .currency-value {
-        color: #fff;
-        font-weight: 700;
-        font-size: 0.8rem;
-      }
-      .row-actions {
-        display: flex;
-        gap: 4px;
+      .error-glow {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
       }
 
-      .table-footer {
+      .card-actions {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.75rem 1.25rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        gap: 0.25rem;
+      }
+      .text-success {
+        color: #10b981 !important;
+      }
+      .text-warning {
+        color: #f59e0b !important;
+      }
+      .text-danger {
+        color: #ef4444 !important;
       }
 
-      .invoice-form {
+      .pagination-footer {
+        margin-top: 3rem;
+        display: flex;
+        justify-content: center;
+      }
+
+      /* Form & QR Panel */
+      .form-grid {
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
-        padding: 0.25rem 0;
+        padding: 1rem 0;
       }
       .form-hint {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
         color: var(--text-muted);
-        line-height: 1.4;
-        margin: 0;
       }
-      .readonly-client {
+      .read-only-section {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 0.25rem;
       }
-      .readonly-client .lbl {
-        font-size: 0.55rem;
+      .read-only-section .label {
+        font-size: 0.6rem;
         font-weight: 800;
         color: var(--text-muted);
-        letter-spacing: 0.1em;
       }
-      .readonly-client .val {
-        font-size: 0.85rem;
+      .read-only-section .value {
+        font-size: 1rem;
         font-weight: 700;
-        color: #fff;
       }
-      .form-row-dates {
+      .row {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1rem;
       }
-      .modal-footer-actions {
+      .modal-actions {
         display: flex;
         justify-content: flex-end;
-        gap: 1rem;
-        width: 100%;
+        gap: 0.75rem;
+        margin-top: 2rem;
       }
 
-      /* QR Modal Modernization */
-      .vf-detail-premium {
+      .qr-panel {
         display: flex;
         flex-direction: column;
         gap: 2rem;
+        padding: 1rem 0;
       }
-      .vf-header {
-        display: flex;
-        justify-content: space-between;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid;
-      }
-      .vf-title-group .lbl {
-        font-size: 0.6rem;
+      .qr-header h3 {
+        font-size: 0.8rem;
         color: var(--text-muted);
-        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
       }
-      .vf-title-group .val {
+      .qr-header .ref {
         font-size: 1.5rem;
-        color: #fff;
         font-weight: 900;
       }
-
-      .vf-qr-section {
+      .qr-display {
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 1rem;
+        text-align: center;
       }
-      .qr-holder {
+      .qr-box {
         background: #fff;
         padding: 1rem;
         border-radius: 12px;
       }
-      .qr-holder img {
-        width: 180px;
-        height: 180px;
+      .qr-box img {
+        width: 200px;
+        height: 200px;
+      }
+      .qr-display p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        max-width: 250px;
+      }
+      .qr-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-soft);
+        padding-top: 1.5rem;
+      }
+      .qr-footer .stat {
+        display: flex;
+        flex-direction: column;
+      }
+      .qr-footer .lbl {
+        font-size: 0.6rem;
+        color: var(--text-muted);
+      }
+      .qr-footer .val {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #10b981;
       }
 
-      @media (max-width: 1024px) {
-        .page-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 1.5rem;
-        }
-        .stats-row {
+      /* Advanced Filters */
+      .advanced-filters {
+        margin: 1rem 0;
+        padding: 1.5rem;
+        background: var(--surface);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+      }
+      .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+      .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .filter-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .filter-select,
+      .filter-input {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+      }
+      .filter-select:focus,
+      .filter-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      /* Bulk Actions */
+      .bulk-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 1.5rem;
+        background: var(--warning-light);
+        border: 1px solid var(--warning);
+        border-radius: 12px;
+        margin: 1rem 0;
+      }
+      .bulk-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--warning-dark);
+      }
+      .bulk-buttons {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+      }
+      .bulk-status-select {
+        padding: 0.5rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 6px;
+        background: var(--background);
+        font-size: 0.875rem;
+      }
+
+      /* Selection */
+      .selection-header {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-soft);
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      .selection-checkbox {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+      }
+      .card-selection {
+        /* La posición la aplica ui-feature-card [card-extra]. */
+        position: static;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Form Enhancements */
+      .form-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .field-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .notes-textarea {
+        padding: 0.75rem;
+        border: 1px solid var(--border-soft);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--text);
+        font-size: 0.875rem;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+      }
+      .notes-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
+      }
+
+      :host ::ng-deep .feature-filter-bar ui-button.active {
+        background: var(--primary-light);
+        color: var(--primary);
+      }
+
+      @media (max-width: 900px) {
+        .row {
           grid-template-columns: 1fr;
-        }
-        .navigation-bar {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 1rem;
-          padding: 1rem;
-        }
-        .search-bar {
-          width: 100%;
         }
       }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BillingListComponent implements OnInit, OnDestroy, FilterableService<Invoice> {
+export class BillingListComponent
+  implements OnInit, OnDestroy, FilterableService<Invoice>
+{
   public readonly config = inject(BILLING_FEATURE_CONFIG);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
   private readonly masterFilter = inject(MasterFilterService);
+  private readonly toast = inject(ToastService);
   readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
+  private readonly authStore = inject(GlobalAuthStore);
+  readonly canAccess = rbacAllows(
+    this.authStore,
+    'invoices.view',
+    'billing.view',
+  );
 
-    currentTheme = this.themeService.currentThemeData;
+  currentTheme = this.themeService.currentThemeData;
   tabs = this.facade.tabs;
-  columns = this.config.defaultColumns;
 
   invoices = this.facade.invoices;
-  allInvoices = this.facade.allInvoices; // Signal or ReadonlySignal? In facade it's signal.asReadonly()
+  allInvoices = this.facade.allInvoices;
   isLoading = this.facade.isLoading;
+  error = this.facade.error;
   activeTab = this.facade.activeTab;
-  budgets = this.facade.budgets;
   currentPage = signal(1);
-  totalPages = signal(1);
+  sortField = signal<'issueDate' | 'total' | 'status'>('issueDate');
+  sortDirection = signal<1 | -1>(-1);
   searchTerm = '';
 
-  isModalOpen = signal(false);
+  // Advanced filtering
+  showAdvancedFilters = signal(false);
+  statusFilter = signal<string>('all');
+  dateFromFilter = signal<string>('');
+  dateToFilter = signal<string>('');
+  amountMinFilter = signal<number | null>(null);
+  amountMaxFilter = signal<number | null>(null);
+
+  // Bulk selection
+  selectedInvoices = signal<Set<string>>(new Set());
+
+  // QR modal
   isVerifactuQrModalOpen = signal(false);
-  editingInvoice = signal<Invoice | null>(null);
 
-  formData: Partial<Invoice> = {
-    budgetId: '',
-    invoiceNumber: '',
-    clientName: '',
-    type: 'normal',
-    status: 'draft',
-    total: 0,
-    issueDate: new Date().toISOString().split('T')[0],
-    dueDate: new Date().toISOString().split('T')[0],
-  };
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  budgetSelectOptions = computed(() => {
-    const eligible = this.budgets().filter(
-      (b) => b.status === 'ACCEPTED' || b.status === 'SENT',
-    );
-    return eligible.map((b) => ({
-      label: `#${b.id.slice(0, 8).toUpperCase()} · ${b.total.toFixed(2)} € · ${b.status}`,
-      value: b.id,
-    }));
-  });
+  onRowClick(inv: Invoice) {
+    this.router.navigate(['/billing', inv.id]);
+  }
+
+  goToNewInvoice(): void {
+    void this.router.navigate(['new'], { relativeTo: this.route });
+  }
+
+  goToEditInvoice(inv: Invoice): void {
+    void this.router.navigate([inv.id, 'edit'], { relativeTo: this.route });
+  }
+
+  onDuplicate(inv: Invoice) {
+    const { id, ...rest } = inv;
+    void id;
+    this.facade.createInvoice({
+      ...rest,
+      invoiceNumber: `${inv.invoiceNumber} (COPIA)`,
+    });
+  }
+
+  confirmDelete(inv: Invoice) {
+    if (
+      confirm(
+        `¿Estás seguro de que deseas eliminar la factura ${inv.invoiceNumber}?`,
+      )
+    ) {
+      this.facade.deleteInvoice(inv.id);
+    }
+  }
+
+  getInitials(num: string): string {
+    return num.split('/').slice(-1)[0].slice(0, 2).toUpperCase();
+  }
+
+  getFiscalGradient(status: string | undefined): string {
+    switch (status) {
+      case 'sent':
+        return 'linear-gradient(135deg, #10b981, #059669)';
+      case 'error':
+        return 'linear-gradient(135deg, #ef4444, #dc2626)';
+      case 'pending':
+        return 'linear-gradient(135deg, #f59e0b, #d97706)';
+      default:
+        return 'linear-gradient(135deg, #3b82f6, #1d4ed8)';
+    }
+  }
 
   ngOnInit() {
     this.masterFilter.registerProvider(this);
@@ -671,13 +927,53 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   /** Lógica de filtrado para el MasterFilterService */
   filter(query: string): Observable<Invoice[]> {
-    const term = query.toLowerCase();
-    const matches = this.allInvoices().filter((inv: Invoice) => 
-      inv.invoiceNumber.toLowerCase().includes(term) || 
-      inv.clientName.toLowerCase().includes(term) ||
-      (inv.nif ?? '').toLowerCase().includes(term)
-    );
+    const term = query.toLowerCase().trim();
+    if (!term) return of(this.allInvoices());
+
+    const matches = this.allInvoices().filter((inv: Invoice) => {
+      const searchableText = [
+        inv.invoiceNumber,
+        inv.clientName,
+        inv.nif || '',
+        inv.status,
+        inv.verifactuStatus || '',
+      ]
+        .join(' ')
+        .toLowerCase();
+
+      const normalizedTerm = this.normalizeSearchTerm(term);
+
+      return (
+        searchableText.includes(normalizedTerm) ||
+        this.hasKeywordMatch(searchableText, normalizedTerm)
+      );
+    });
     return of(matches);
+  }
+
+  private normalizeSearchTerm(term: string): string {
+    const synonyms: Record<string, string[]> = {
+      pagada: ['pagada', 'paid', 'pagado', 'cobrado'],
+      pendiente: ['pendiente', 'pending', 'impagada', 'pendiente'],
+      enviada: ['enviada', 'sent', 'remitida'],
+      borrador: ['borrador', 'draft', 'borradores'],
+      factura: ['factura', 'invoice', 'recibo'],
+      cliente: ['cliente', 'client', 'comprador'],
+    };
+
+    for (const [key, variants] of Object.entries(synonyms)) {
+      if (variants.some((v) => term.includes(v))) {
+        return key;
+      }
+    }
+    return term;
+  }
+
+  private hasKeywordMatch(text: string, term: string): boolean {
+    return (
+      text.includes(term) ||
+      term.split(' ').every((word) => text.includes(word))
+    );
   }
 
   loadInvoices() {
@@ -693,58 +989,19 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   }
   onPageChange(page: number) {
     this.currentPage.set(page);
-    this.loadInvoices();
   }
 
-  openCreateModal() {
-    this.editingInvoice.set(null);
-    const today = new Date().toISOString().split('T')[0];
-    this.formData = {
-      budgetId: '',
-      invoiceNumber: '',
-      clientName: '',
-      type: 'normal',
-      status: 'draft',
-      total: 0,
-      issueDate: today,
-      dueDate: today,
-    };
-    this.facade.loadBudgets();
-    this.isModalOpen.set(true);
-  }
-
-  editInvoice(invoice: Invoice) {
-    this.editingInvoice.set(invoice);
-    this.formData = { ...invoice };
-    this.isModalOpen.set(true);
-  }
-  closeModal() {
-    this.isModalOpen.set(false);
-    this.editingInvoice.set(null);
-  }
-
-  saveInvoice() {
-    const invToEdit = this.editingInvoice();
-    if (invToEdit) {
-      this.facade.updateInvoice(invToEdit.id, this.formData);
-    } else {
-      if (!this.formData.budgetId) return;
-      this.facade.createInvoice({
-        budgetId: this.formData.budgetId,
-        invoiceNumber:
-          this.formData.invoiceNumber?.trim() ||
-          `F/${new Date().getFullYear()}/${String(Date.now()).slice(-4)}`,
-        clientName: '—',
-        type: 'normal',
-        status: 'draft',
-        total: 0,
-        issueDate:
-          this.formData.issueDate || new Date().toISOString().split('T')[0],
-        dueDate:
-          this.formData.dueDate || new Date().toISOString().split('T')[0],
-      });
-    }
-    this.closeModal();
+  clearFiltersAndSearch(): void {
+    this.searchTerm = '';
+    this.masterFilter.search('');
+    this.facade.searchInvoices('');
+    this.facade.setTab('all');
+    this.statusFilter.set('all');
+    this.dateFromFilter.set('');
+    this.dateToFilter.set('');
+    this.amountMinFilter.set(null);
+    this.amountMaxFilter.set(null);
+    this.currentPage.set(1);
   }
 
   issueInvoice(inv: Invoice) {
@@ -782,13 +1039,13 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
 
   getStatusVariant(
     status: string,
-  ): 'success' | 'warning' | 'info' | 'error' | 'default' {
-    const s = status.toLowerCase();
+  ): 'success' | 'warning' | 'info' | 'danger' | 'secondary' | 'primary' {
+    const s = (status || '').toLowerCase();
     if (s === 'paid') return 'success';
     if (s === 'pending') return 'warning';
     if (s === 'sent') return 'info';
-    if (s === 'cancelled') return 'error';
-    return 'default';
+    if (s === 'cancelled') return 'danger';
+    return 'secondary';
   }
 
   getStatusLabel(status: string): string {
@@ -808,16 +1065,18 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
     }
   }
 
-  getVerifactuVariant(status: string | undefined): string {
+  getVerifactuVariant(
+    status: string | undefined,
+  ): 'success' | 'warning' | 'danger' | 'secondary' {
     switch (status) {
       case 'sent':
         return 'success';
       case 'pending':
         return 'warning';
       case 'error':
-        return 'error';
+        return 'danger';
       default:
-        return 'default';
+        return 'secondary';
     }
   }
 
@@ -848,12 +1107,172 @@ export class BillingListComponent implements OnInit, OnDestroy, FilterableServic
   }
 
   totalInvoiced = computed(() =>
-    this.allInvoices().reduce((acc, inv) => acc + (inv.total || 0), 0),
+    this.allInvoices().reduce(
+      (acc: number, inv: Invoice) => acc + (inv.total || 0),
+      0,
+    ),
   );
 
   totalPending = computed(() =>
     this.allInvoices()
-      .filter((i) => i.status === 'pending')
-      .reduce((acc, inv) => acc + (inv.total || 0), 0),
+      .filter((i: Invoice) => i.status === 'pending')
+      .reduce((acc: number, inv: Invoice) => acc + (inv.total || 0), 0),
   );
+
+  // Bulk actions computed
+  selectedCount = computed(() => this.selectedInvoices().size);
+  hasSelections = computed(() => this.selectedInvoices().size > 0);
+
+  /** Base: pestaña + búsqueda del facade; luego filtros avanzados y ordenación. */
+  filteredInvoices = computed(() => {
+    let filtered = [...this.invoices()];
+
+    if (this.statusFilter() !== 'all') {
+      filtered = filtered.filter((inv) => inv.status === this.statusFilter());
+    }
+
+    if (this.dateFromFilter()) {
+      const fromDate = new Date(this.dateFromFilter());
+      filtered = filtered.filter((inv) => new Date(inv.issueDate) >= fromDate);
+    }
+    if (this.dateToFilter()) {
+      const toDate = new Date(this.dateToFilter());
+      filtered = filtered.filter((inv) => new Date(inv.issueDate) <= toDate);
+    }
+
+    const amountMin = this.amountMinFilter();
+    if (amountMin !== null) {
+      filtered = filtered.filter((inv) => (inv.total || 0) >= amountMin);
+    }
+    const amountMax = this.amountMaxFilter();
+    if (amountMax !== null) {
+      filtered = filtered.filter((inv) => (inv.total || 0) <= amountMax);
+    }
+
+    const field = this.sortField();
+    const dir = this.sortDirection();
+    filtered.sort((a, b) => {
+      let cmp = 0;
+      if (field === 'issueDate') {
+        cmp =
+          new Date(a.issueDate).getTime() - new Date(b.issueDate).getTime();
+      } else if (field === 'total') {
+        cmp = (a.total || 0) - (b.total || 0);
+      } else {
+        cmp = (a.status || '').localeCompare(b.status || '', 'es', {
+          sensitivity: 'base',
+        });
+      }
+      return dir === 1 ? cmp : -cmp;
+    });
+
+    return filtered;
+  });
+
+  readonly filterProducesNoResults = computed(
+    () =>
+      this.allInvoices().length > 0 && this.filteredInvoices().length === 0,
+  );
+
+  paginatedInvoices = computed(() => {
+    const filtered = this.filteredInvoices();
+    const pageSize = 12; // Assuming 12 items per page
+    const start = (this.currentPage() - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  });
+
+  totalPages = computed(() => {
+    const filtered = this.filteredInvoices();
+    const pageSize = 12;
+    return Math.ceil(filtered.length / pageSize);
+  });
+
+  isAllSelected = computed(() => {
+    const paginated = this.paginatedInvoices();
+    return (
+      paginated.length > 0 &&
+      paginated.every((inv) => this.selectedInvoices().has(inv.id))
+    );
+  });
+
+  // Bulk actions methods
+  toggleSelectAll() {
+    const paginated = this.paginatedInvoices();
+    const currentSelected = this.selectedInvoices();
+
+    if (this.isAllSelected()) {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((inv) => newSelected.delete(inv.id));
+      this.selectedInvoices.set(newSelected);
+    } else {
+      const newSelected = new Set(currentSelected);
+      paginated.forEach((inv) => newSelected.add(inv.id));
+      this.selectedInvoices.set(newSelected);
+    }
+  }
+
+  toggleInvoiceSelection(invoiceId: string) {
+    const currentSelected = this.selectedInvoices();
+    const newSelected = new Set(currentSelected);
+
+    if (newSelected.has(invoiceId)) {
+      newSelected.delete(invoiceId);
+    } else {
+      newSelected.add(invoiceId);
+    }
+
+    this.selectedInvoices.set(newSelected);
+  }
+
+  bulkChangeStatus(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    this.bulkChangeStatusFromCustom(target.value);
+    target.value = '';
+  }
+
+  bulkChangeStatusFromCustom(newStatus: string) {
+    if (!newStatus) return;
+    const selectedIds = Array.from(this.selectedInvoices());
+    const status = newStatus as 'pending' | 'draft' | 'sent' | 'paid' | 'cancelled';
+    selectedIds.forEach((id) => this.facade.updateInvoice(id, { status }));
+    this.selectedInvoices.set(new Set());
+    this.toast.show(`${selectedIds.length} factura${selectedIds.length === 1 ? '' : 's'} actualizada${selectedIds.length === 1 ? '' : 's'}`, 'success');
+  }
+
+  bulkDelete() {
+    const selectedIds = Array.from(this.selectedInvoices());
+
+    if (confirm(`¿Estás seguro de eliminar ${selectedIds.length} facturas?`)) {
+      selectedIds.forEach((id) => this.facade.deleteInvoice(id));
+      this.selectedInvoices.set(new Set());
+      this.toast.show(`${selectedIds.length} facturas eliminadas`, 'success');
+    }
+  }
+
+  clearSelection() {
+    this.selectedInvoices.set(new Set());
+  }
+
+  // Advanced filtering methods
+  toggleAdvancedFilters() {
+    this.showAdvancedFilters.set(!this.showAdvancedFilters());
+  }
+
+  refreshInvoices() {
+    this.facade.loadInvoices(true);
+    this.toast.show('Facturas actualizadas', 'info');
+  }
+
+  toggleSort() {
+    if (this.sortField() === 'issueDate') {
+      this.sortField.set('total');
+      this.sortDirection.set(-1);
+    } else if (this.sortField() === 'total') {
+      this.sortField.set('status');
+    } else {
+      this.sortField.set('issueDate');
+      this.sortDirection.set(1);
+    }
+  }
 }

@@ -1,4 +1,4 @@
-export type BudgetStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED';
+export type BudgetStatus = 'DRAFT' | 'SENT' | 'ACCEPTED' | 'REJECTED' | 'APPROVED';
 
 export interface BudgetItem {
   id: string;

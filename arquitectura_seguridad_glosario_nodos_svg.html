@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glosario y desglose de nodos del SVG — Arquitectura de seguridad cloud</title>
+<style>
+  :root { --ink:#0f172a; --muted:#475569; --violet:#5b21b6; --line:#e2e8f0; --bg:#f8fafc; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, Segoe UI, sans-serif; margin: 0; color: var(--ink); background: var(--bg); line-height: 1.55; font-size: 15px; }
+  header { background: linear-gradient(135deg,#7c3aed,#4c1d95); color: #fff; padding: 28px 24px 32px; }
+  header h1 { margin: 0 0 8px; font-size: 1.45rem; }
+  header p { margin: 0; opacity: .92; max-width: 900px; font-size: 14px; }
+  header a { color: #e9d5ff; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 18px 64px; }
+  nav.toc { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; margin-bottom: 28px; }
+  nav.toc h2 { margin: 0 0 10px; font-size: 1rem; color: var(--violet); }
+  nav.toc ul { margin: 0; padding-left: 20px; columns: 2; gap: 8px; font-size: 13px; }
+  nav.toc a { color: #6d28d9; }
+  section { margin-bottom: 36px; }
+  section > h2 { font-size: 1.15rem; border-bottom: 2px solid #c4b5fd; padding-bottom: 6px; color: var(--violet); }
+  article.nodo { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+  article.nodo h3 { margin: 0 0 8px; font-size: 1.02rem; color: #1e293b; }
+  article.nodo .ctx { font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+  dl.gloss { margin: 0; }
+  dl.gloss dt { font-weight: 600; color: #334155; margin-top: 12px; font-size: 13px; }
+  dl.gloss dt:first-child { margin-top: 0; }
+  dl.gloss dd { margin: 4px 0 0 0; font-size: 13px; color: #1e293b; padding-left: 0; }
+  .nota-cap { font-size: 12px; color: var(--muted); margin: 0 0 14px; padding: 10px 12px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #64748b; }
+  .tag-opcional { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: #fce7f3; color: #9d174d; margin-left: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Glosario y explicación de cada nodo del diagrama SVG</h1>
+  <p>Documento complementario de <a href="arquitectura_seguridad_ultra_detallada.html">arquitectura_seguridad_ultra_detallada.html</a>. Para cada caja del SVG se listan los textos (título y «letra pequeña») con el significado de siglas y el contexto técnico en lenguaje claro.</p>
+</header>
+<main>
+<nav class="toc" aria-label="Índice">
+  <h2>Índice por capa</h2>
+  <ul>
+    <li><a href="#cabecera">Cabecera y leyenda</a></li>
+    <li><a href="#capa-1">Capa 1 — Edge</a></li>
+    <li><a href="#capa-2">Capa 2 — GraphQL</a></li>
+    <li><a href="#capa-3">Capa 3 — Identidad</a></li>
+    <li><a href="#capa-4">Capa 4 — Aplicación</a></li>
+    <li><a href="#capa-5">Capa 5 — Datos / RGPD</a></li>
+    <li><a href="#capa-6">Capa 6 — Claves</a></li>
+    <li><a href="#capa-7a">Capa 7A — Mesh (opcional)</a></li>
+    <li><a href="#capa-7b">Capa 7B — Eventos</a></li>
+    <li><a href="#capa-8a">Capa 8A — Observabilidad</a></li>
+    <li><a href="#capa-8b">Capa 8B — DevSecOps</a></li>
+    <li><a href="#hub-kv">Hub Key Vault</a></li>
+    <li><a href="#mermaid">Banda Mermaid opcional</a></li>
+  </ul>
+</nav>
+
+<section id="cabecera">
+  <h2>Cabecera del SVG y convenciones</h2>
+  <p class="nota-cap">En el diagrama original, el color <strong>rosa</strong> y borde discontinuo marcan componentes <strong>opcionales</strong> (capa 7A mesh, OpenTelemetry ampliado, banda Mermaid). El resto forma el baseline ISO 27001 / SGSI, RGPD operativo y prácticas DevSecOps descritas en el HTML principal.</p>
+  <article class="nodo">
+    <h3>Título: «Arquitectura de seguridad cloud»</h3>
+    <p class="ctx">Visión de controles de seguridad en la nube (Azure en este despliegue) desde el borde hasta datos, claves y pipeline.</p>
+  </article>
+  <article class="nodo">
+    <h3>Subtítulo de stack</h3>
+    <dl class="gloss">
+      <dt>Express (Node)</dt><dd><strong>Node.js</strong> es el runtime JavaScript del servidor. <strong>Express</strong> es el framework web minimalista sobre el que corre la API.</dd>
+      <dt>SQL Server</dt><dd>Base de datos relacional Microsoft; aquí como almacén principal de negocio.</dd>
+      <dt>Azure</dt><dd>Nube Microsoft donde viven Front Door, Entra ID, Key Vault, etc.</dd>
+      <dt>borde</dt><dd>Perímetro de entrada (CDN, WAF, gateway) antes de la aplicación.</dd>
+      <dt>GraphQL</dt><dd>API de consulta sobre HTTP con esquema tipado; en el diagrama va <strong>federada</strong> (varios servicios bajo un único gateway).</dd>
+      <dt>identidad / app / datos / claves</dt><dd>Capas lógicas: quién eres (IdP), lógica de negocio, persistencia, y gestión criptográfica centralizada.</dd>
+      <dt>mesh/eventos</dt><dd>Comunicación entre microservicios (service mesh opcional) y mensajería asíncrona (Kafka/Event Hubs).</dd>
+      <dt>observabilidad / DevSecOps</dt><dd>Logs, métricas, trazas y seguridad integrada en CI/CD (tests, SAST, SBOM, despliegue).</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-1">
+  <h2>Capa 1 — EDGE / ENTRYPOINT</h2>
+  <p class="nota-cap">Subtítulo del panel: <strong>Azure Front Door + WAF + API Management + OSS</strong>. <strong>WAF</strong> = Web Application Firewall. <strong>APIM</strong> = API Management (gateway de APIs). <strong>OSS</strong> = open source en paralelo (p. ej. Kong como alternativa a APIM).</p>
+
+  <article class="nodo"><h3>Usuarios</h3>
+    <dl class="gloss">
+      <dt>Browser / mobile</dt><dd>Clientes humanos: navegador web o aplicación nativa/híbrida.</dd>
+      <dt>REST / GraphQL / WS</dt><dd><strong>REST</strong>: HTTP con recursos y verbos. <strong>GraphQL</strong>: consultas tipadas a un endpoint. <strong>WS</strong> = WebSocket: canal bidireccional persistente para tiempo real.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>APIs externas</h3>
+    <dl class="gloss">
+      <dt>Partners / B2B</dt><dd>Integración negocio a negocio con terceros (no usuario final ocasional).</dd>
+      <dt>Webhooks / OAuth2</dt><dd><strong>Webhook</strong>: callback HTTP cuando ocurre un evento. <strong>OAuth 2.0</strong>: marco de autorización (tokens, clientes); suele ir con OIDC para identidad.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Azure Front Door</h3>
+    <dl class="gloss">
+      <dt>CDN Global</dt><dd><strong>CDN</strong> (Content Delivery Network): red de puntos de presencia que cachea y sirve contenido cerca del usuario.</dd>
+      <dt>Geo-routing</dt><dd>Enrutar tráfico según geografía (latencia, soberanía o reglas de negocio).</dd>
+      <dt>Anycast BGP</dt><dd><strong>BGP</strong> (Border Gateway Protocol): enrutamiento entre sistemas autónomos. <strong>Anycast</strong>: misma IP anunciada en varios sitios; el tráfico va al PoP «más cercano».</dd>
+      <dt>DDoS L3/L4 prot.</dt><dd><strong>DDoS</strong>: denegación de servicio distribuida. <strong>L3/L4</strong>: capas OSI red/transporte (volumen, SYN flood, etc.), frente a L7 que es aplicación.</dd>
+      <dt>PoP caching</dt><dd><strong>PoP</strong> (Point of Presence): edge donde se cachea contenido estático o respuestas acelerables.</dd>
+      <dt>Health probes</dt><dd>Comprobaciones periódicas a los orígenes para saber si están sanos.</dd>
+      <dt>Origin failover</dt><dd>Si un origen falla, conmutar a réplica u otro backend sin intervención manual.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Azure WAF</h3>
+    <dl class="gloss">
+      <dt>OWASP CRS 3.2</dt><dd><strong>OWASP</strong>: Open Web Application Security Project. <strong>CRS</strong>: Core Rule Set, conjunto de reglas contra ataques web comunes (versión 3.2).</dd>
+      <dt>SQLi / XSS / CSRF</dt><dd><strong>SQLi</strong>: inyección SQL. <strong>XSS</strong>: Cross-Site Scripting (inyección de script en páginas). <strong>CSRF</strong>: Cross-Site Request Forgery (forzar acciones en sesión ajena).</dd>
+      <dt>LFI / RFI / SSRF</dt><dd><strong>LFI/RFI</strong>: inclusión local/remota de ficheros. <strong>SSRF</strong>: Server-Side Request Forgery (el servidor es engañado para llamar a redes internas).</dd>
+      <dt>Bot fingerprinting</dt><dd>Detectar automatización maliciosa por huellas TLS, cabeceras, comportamiento.</dd>
+      <dt>Geo-blocking</dt><dd>Bloquear o permitir países/regiones por IP.</dd>
+      <dt>IP reputation feed</dt><dd>Listas de IPs maliciosas conocidas (feeds) para bloqueo o puntuación.</dd>
+      <dt>Custom rule sets</dt><dd>Reglas propias además del CRS (URLs, cabeceras, rate por ruta, etc.).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>TLS Termination</h3>
+    <dl class="gloss">
+      <dt>TLS</dt><dd>Transport Layer Security: cifrado y autenticación del canal HTTP. <strong>Termination</strong>: el TLS se descifra en el edge/balanceador y hacia dentro puede ir HTTP cifrado de nuevo o no, según diseño.</dd>
+      <dt>TLS 1.2 / 1.3 only</dt><dd>Versiones modernas; se excluyen protocolos obsoletos (SSL, TLS 1.0/1.1).</dd>
+      <dt>ECDHE key exchange</dt><dd>Intercambio efímero de claves con curvas elípticas; ofrece <strong>forward secrecy</strong> (comprometer la clave larga no revela sesiones pasadas).</dd>
+      <dt>AES-256-GCM</dt><dd>Cifrado simétrico robusto en modo <strong>GCM</strong> (AEAD: autenticación + confidencialidad).</dd>
+      <dt>HSTS preload</dt><dd><strong>HTTP Strict Transport Security</strong>: el navegador solo usa HTTPS durante un tiempo; «preload» entra en listas de navegadores.</dd>
+      <dt>OCSP stapling</dt><dd>El servidor adjunta estado de revocación del certificado en el handshake, acelerando validación.</dd>
+      <dt>Cert pinning</dt><dd>Asociar explícitamente una app a la huella de un certificado/CA esperada (reduce riesgo de CA comprometida).</dd>
+      <dt>mTLS for B2B</dt><dd><strong>mTLS</strong> (mutual TLS): cliente y servidor presentan certificado; típico en integraciones B2B.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Azure APIM / Kong</h3>
+    <dl class="gloss">
+      <dt>API Gateway</dt><dd>Punto único de entrada a APIs: enrutado, políticas, cuotas, transformación.</dd>
+      <dt>API key validation</dt><dd>Comprueba claves de API en cabecera o query para clientes programáticos.</dd>
+      <dt>OAuth2 scopes</dt><dd><strong>Scope</strong>: permiso granular dentro de un token OAuth (qué puede hacer el cliente).</dd>
+      <dt>JWT pre-validation</dt><dd><strong>JWT</strong> (JSON Web Token): token firmado. Validar firma, audiencia y expiración en el gateway antes de llegar al backend.</dd>
+      <dt>Versioning / routing</dt><dd>Enrutar <code>/v1</code> vs <code>/v2</code> o cabeceras de versión hacia distintos backends.</dd>
+      <dt>Request transform</dt><dd>Modificar cabeceras, cuerpo o query en tránsito (normalización, inyección de correlación).</dd>
+      <dt>Schema validation</dt><dd>Comprobar JSON/XML contra esquema (OpenAPI, JSON Schema) en el borde.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Rate Limiting</h3>
+    <dl class="gloss">
+      <dt>Redis cluster</dt><dd><strong>Redis</strong>: almacén clave-valor en memoria, aquí como contador distribuido para límites por IP/usuario.</dd>
+      <dt>Token bucket algo</dt><dd>Algoritmo clásico: «cubeta» de tokens que se repone a ritmo constante; cada petición consume tokens; evita ráfagas mayores al cupo.</dd>
+      <dt>Per IP / per user / per endpoint</dt><dd>Granularidad del límite: abuso por origen, por cuenta o por ruta crítica.</dd>
+      <dt>429 + Retry-After</dt><dd><strong>429</strong>: código HTTP «Too Many Requests». <strong>Retry-After</strong>: cabecera que indica cuándo reintentar.</dd>
+      <dt>IP allowlist/blocklist</dt><dd>Listas explícitas de permitir o denegar direcciones IP.</dd>
+      <dt>Circuit breaker</dt><dd>Patrón que deja de llamar a un servicio degradado para no empeorar la cascada; tras tiempo «half-open» prueba de nuevo.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Secuencia Edge (panel lateral)</h3>
+    <dl class="gloss">
+      <dt>① … ⑥</dt><dd>Orden lógico: Front Door → WAF → TLS → APIM → rate limit → tráfico hacia GraphQL/APIs internas con trazas correlacionadas.</dd>
+      <dt>AEAD</dt><dd>Authenticated Encryption with Associated Data (cifrado que garantiza integridad).</dd>
+      <dt>Key Vault</dt><dd>Azure Key Vault: almacén de secretos y claves (capa 6 del diagrama).</dd>
+      <dt>Norte-sur</dt><dd>Tráfico usuario↔datacenter (vs este-oeste entre servicios internos).</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-2">
+  <h2>Capa 2 — GRAPHQL FEDERATION</h2>
+  <p class="nota-cap">Subtítulo: <strong>Apollo Federation v2</strong> — varios <strong>subgraphs</strong> (servicios GraphQL) se unen en un <strong>supergraph</strong> único. El <strong>masking</strong> en resolvers alinea la salida con la capa 4 (API) y RGPD.</p>
+  <p class="nota-cap"><strong>Anti-exfiltración</strong>: evitar que un atacante extraiga masivamente datos vía GraphQL (profundidad, coste, consultas acotadas, cuotas de export).</p>
+
+  <article class="nodo"><h3>GraphQL Gateway</h3>
+    <dl class="gloss">
+      <dt>Apollo Router (Rust)</dt><dd>Implementación oficial de gateway en Rust para supergraphs federados; baja latencia y seguridad endurecida.</dd>
+      <dt>Query planning</dt><dd>El router calcula qué subgraphs invocar y en qué orden para satisfacer una query.</dd>
+      <dt>Schema composition</dt><dd>Unir esquemas parciales en un supergraph coherente (directivas <code>@key</code>, <code>@external</code>, etc.).</dd>
+      <dt>Persisted queries</dt><dd>Solo se aceptan hashes/IDs de queries pre-registradas (APQ); reduce superficie de ataques ad hoc.</dd>
+      <dt>Query depth limiting</dt><dd>Límite a la profundidad de anidación de campos para evitar queries «árbol» costosas.</dd>
+      <dt>Cost analysis</dt><dd>Asignar «coste» a campos y rechazar queries que superen presupuesto (anti-abuso).</dd>
+      <dt>Response caching</dt><dd>Cachear respuestas idempotentes en edge o gateway con clave de query+variables+usuario.</dd>
+      <dt>Mask PII en resolvers</dt><dd><strong>PII</strong> (Personally Identifiable Information): enmascarar DNI, email, teléfono en la respuesta según rol.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Auth subgraph</h3>
+    <dl class="gloss">
+      <dt>login / refresh / logout</dt><dd>Mutaciones o flujos que delegan en el IdP (capa 3) para sesión y tokens.</dd>
+      <dt>MFA challenge · session types</dt><dd>Desafío de segundo factor y distinción de sesiones (p. ej. larga vs elevada).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>User subgraph</h3>
+    <dl class="gloss">
+      <dt>User / Profile types</dt><dd>Tipos GraphQL de usuario y perfil expuestos solo con campos permitidos.</dd>
+      <dt>Roles / permissions</dt><dd>Autorización a nivel de tipos/campos o datos enlazados al rol del token.</dd>
+      <dt>Preferences</dt><dd>Preferencias de usuario no sensibles o filtradas según política.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Data subgraph</h3>
+    <dl class="gloss">
+      <dt>Entities + federated queries</dt><dd>Entidades con <code>@key</code> que otros subgraphs extienden; queries que el router reparte entre servicios.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Panel lateral Federación</h3>
+    <dl class="gloss">
+      <dt>IdP</dt><dd>Identity Provider (proveedor de identidad), p. ej. Entra ID.</dd>
+      <dt>RLS</dt><dd>Row-Level Security: filtrado de filas por tenant/usuario en base de datos.</dd>
+      <dt>OPA</dt><dd>Open Policy Agent (políticas declarativas en Rego); aquí en autorización fina junto a RLS.</dd>
+      <dt>Introspección / errores opacos</dt><dd>En producción suele deshabilitarse la introspección pública del esquema; errores sin detalles internos.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-3">
+  <h2>Capa 3 — IDENTITY / MFA</h2>
+  <p class="nota-cap">Subtítulo: <strong>Azure Entra ID + OPA + SPIFFE + Redis sessions</strong>. <strong>SPIFFE</strong> (Secure Production Identity Framework For Everyone) estandariza identidades de carga de trabajo (SVID); en el diagrama conecta con mTLS y capa 6. <strong>OPA</strong> ya detallado en ABAC.</p>
+
+  <article class="nodo"><h3>Azure Entra ID</h3>
+    <p class="ctx">Servicio de identidad Microsoft (antes Azure AD): usuarios, grupos, aplicaciones, tokens y políticas.</p>
+    <dl class="gloss">
+      <dt>OIDC / SAML2 / WS-Fed</dt><dd><strong>OIDC</strong> (OpenID Connect): capa de identidad sobre OAuth 2.0 (tokens <code>id_token</code>). <strong>SAML 2.0</strong>: XML firmado para SSO empresarial. <strong>WS-Federation</strong>: protocolo Microsoft/heredado para federación con ADFS y similares.</dd>
+      <dt>Authorization code + PKCE</dt><dd>Flujo OAuth para apps públicas: el navegador recibe un «code» canjeable por tokens; <strong>PKCE</strong> (Proof Key for Code Exchange, RFC 7636) evita robo del code sin el verificador criptográfico inicial.</dd>
+      <dt>Device code flow</dt><dd>Para dispositivos sin teclado/browser cómodo: muestra un código al usuario para autorizar en otro dispositivo.</dd>
+      <dt>Client credentials</dt><dd>Flujo OAuth máquina-a-máquina: el cliente se autentica con secreto o certificado y obtiene token sin usuario humano.</dd>
+      <dt>Conditional Access</dt><dd>Políticas «si condición entonces exigir acción»: MFA, dispositivo híbrido Azure AD, ubicación, riesgo, aplicación aprobada, etc.</dd>
+      <dt>PIM privileged roles</dt><dd><strong>PIM</strong> (Privileged Identity Management): roles administrativos a tiempo limitado con aprobación y auditoría (just-in-time admin).</dd>
+      <dt>Identity protection</dt><dd>Detección de riesgos (credenciales filtradas, ubicaciones imposibles, TOR) y respuestas automáticas o MFA escalonado.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>MFA</h3>
+    <dl class="gloss">
+      <dt>MFA</dt><dd>Multi-Factor Authentication: algo que sabes + algo que tienes + algo que eres.</dd>
+      <dt>TOTP / FIDO2 / WebAuthn</dt><dd><strong>TOTP</strong> (Time-based One-Time Password, RFC 6238): códigos de app autenticadora. <strong>FIDO2</strong> / <strong>WebAuthn</strong>: estándar W3C/FIDO para claves criptográficas en hardware o plataforma (passkeys).</dd>
+      <dt>Passkeys (resident key)</dt><dd>Credencial WebAuthn almacenada en el autenticador (residente), login sin contraseña tradicional.</dd>
+      <dt>SMS OTP (fallback)</dt><dd>Contraseña de un solo uso por SMS: más débil (SIM swap); solo como excepción auditada.</dd>
+      <dt>Recovery codes</dt><dd>Códigos de un solo uso para recuperar acceso si se pierde el segundo factor.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>JWT tokens</h3>
+    <dl class="gloss">
+      <dt>JWT</dt><dd>JSON Web Token: tres segmentos Base64 (cabecera, payload, firma); no cifra el payload por defecto.</dd>
+      <dt>RS256 / ES256</dt><dd>Algoritmos de firma: RSA (clave asimétrica) o ECDSA con curvas elípticas (ES256).</dd>
+      <dt>Access / Refresh</dt><dd>Access corto (p. ej. 15 min) para APIs; refresh largo (p. ej. 7 d) solo para obtener nuevos access con rotación.</dd>
+      <dt>Claims: sub, iat, jti</dt><dd><code>sub</code>: sujeto (usuario). <code>iat</code>: issued at. <code>jti</code>: ID único del token para revocación en lista.</dd>
+      <dt>JWKS endpoint</dt><dd>JSON Web Key Set: publica claves públicas para verificar firmas sin compartir la privada.</dd>
+      <dt>JTI revocation list</dt><dd>Conjunto de tokens revocados por su <code>jti</code> hasta expirar.</dd>
+      <dt>Token introspection</dt><dd>RFC 7662: endpoint que indica si un token sigue activo (útil para opaque tokens o validación central).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>RBAC</h3>
+    <dl class="gloss">
+      <dt>RBAC</dt><dd>Role-Based Access Control: permisos agrupados en roles asignados a usuarios o servicios.</dd>
+      <dt>service-account roles</dt><dd>Identidades no humanas (client credentials) con roles mínimos.</dd>
+      <dt>Least privilege / JIT / inheritance</dt><dd>Mínimo privilegio necesario; <strong>JIT</strong> (just-in-time) eleva temporalmente; herencia evita duplicar permisos.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>ABAC / OPA</h3>
+    <dl class="gloss">
+      <dt>ABAC</dt><dd>Attribute-Based Access Control: decisiones por atributos (tenant, sensibilidad del dato, horario, riesgo).</dd>
+      <dt>Rego</dt><dd>Lenguaje declarativo de políticas de OPA.</dd>
+      <dt>Data-aware policies</dt><dd>Políticas que consultan datos de contexto o microservicios antes de permitir.</dd>
+      <dt>Bundle OCI</dt><dd>Distribución versionada de bundles de políticas como artefacto OCI (Open Container Initiative).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Redis sessions</h3>
+    <dl class="gloss">
+      <dt>Session TTL / sliding</dt><dd><strong>TTL</strong> (time to live): caducidad de sesión; «sliding» renueva al actividad.</dd>
+      <dt>TLS in-transit / Encrypted at rest</dt><dd>Cifrado en red hacia Redis y cifrado de volúmenes/disco.</dd>
+      <dt>ACL per command</dt><dd>Redis 6+: listas de control de acceso por usuario de Redis y comandos permitidos.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Cadena IdP → sesión (panel lateral)</h3>
+    <dl class="gloss">
+      <dt>SVC accounts</dt><dd>Cuentas de servicio para workloads automatizados.</dd>
+      <dt>HSM</dt><dd>Hardware Security Module: módulo físico o cloud para claves no exportables (capa 6).</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-4">
+  <h2>Capa 4 — APPLICATION LAYER</h2>
+  <p class="nota-cap">Node.js + Express + Apollo/GraphQL; <strong>ORM</strong> Object-Relational Mapping (Sequelize/Prisma). <strong>CORS</strong> Cross-Origin Resource Sharing; <strong>CSP</strong> Content Security Policy.</p>
+
+  <article class="nodo"><h3>API Server</h3>
+    <dl class="gloss">
+      <dt>Node.js v20 LTS</dt><dd>Versión con soporte a largo plazo (Long-Term Support).</dd>
+      <dt>Helmet</dt><dd>Middleware que ajusta cabeceras HTTP de seguridad (CSP base, HSTS opcional, etc.).</dd>
+      <dt>express-rate-limit · Redis store</dt><dd>Límite de peticiones por IP/usuario persistido en Redis (coherente en varias réplicas).</dd>
+      <dt>Cluster PM2</dt><dd><strong>PM2</strong>: process manager; <strong>cluster</strong>: varios workers Node en un host para usar todos los cores.</dd>
+      <dt>graceful shutdown</dt><dd>Al recibir SIGTERM, dejar de aceptar conexiones nuevas y terminar peticiones en curso antes de salir.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Auth middleware</h3>
+    <dl class="gloss">
+      <dt>iat / exp / nbf</dt><dd>Claims de tiempo: emitido, expira, no antes de (validación temporal).</dd>
+      <dt>Context injection</dt><dd>Rellenar <code>req.user</code>, tenant, roles para capas inferiores.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Validation</h3>
+    <dl class="gloss">
+      <dt>Zod / Joi</dt><dd>Librerías de esquema TypeScript-first (Zod) o clásica (Joi) para validar entrada.</dd>
+      <dt>Out: mask PII (rol)</dt><dd>Salida filtrada según rol antes de serializar JSON/GraphQL.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Business logic</h3>
+    <dl class="gloss">
+      <dt>CQRS</dt><dd>Command Query Responsibility Segregation: separar modelos de lectura y escritura.</dd>
+      <dt>DTO</dt><dd>Data Transfer Object: objeto de capa de aplicación sin exponer entidad de persistencia.</dd>
+      <dt>Saga orchestration</dt><dd>Orquestación de transacciones largas con compensación entre servicios.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>ORM layer</h3>
+    <dl class="gloss">
+      <dt>Parameterized queries</dt><dd>Consultas con placeholders; mitiga inyección SQL al no concatenar SQL con entrada.</dd>
+      <dt>Multi-tenancy filter</dt><dd>Filtro automático por <code>tenant_id</code> en cada query.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Franja Data masking</h3>
+    <dl class="gloss">
+      <dt>DDM</dt><dd>Dynamic Data Masking en SQL Server: oculta dígitos de columnas según rol de base de datos.</dd>
+      <dt>Always Encrypted</dt><dd>Cifrado de columna donde el motor no ve texto claro; claves en Key Vault/HSM.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-5">
+  <h2>Capa 5 — DATA SECURITY / RGPD</h2>
+
+  <article class="nodo"><h3>SQL Server</h3>
+    <dl class="gloss">
+      <dt>Always Encrypted cols</dt><dd>Columnas cifradas de extremo a extremo con CMK/CEK (ver capa 6).</dd>
+      <dt>Row-level security</dt><dd>Políticas T-SQL que filtran filas por usuario de sesión.</dd>
+      <dt>SQL Server Audit</dt><dd>Registro de accesos y DML/DDL a destino (archivo, aplicación externa).</dd>
+      <dt>Defender for SQL</dt><dd>Capa de detección de amenazas de Microsoft Defender para bases SQL.</dd>
+      <dt>Always On / DR</dt><dd>Alta disponibilidad con grupos de disponibilidad; <strong>DR</strong> disaster recovery según RTO/RPO.</dd>
+      <dt>VNet / Express · Encrypt</dt><dd>Conectividad privada (Azure VNet, ExpressRoute) y cifrado de conexión (TLS/TDS encrypt).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>TDE encryption</h3>
+    <dl class="gloss">
+      <dt>TDE</dt><dd>Transparent Data Encryption: cifra archivos de datos y log en reposo con una DEK protegida por KEK.</dd>
+      <dt>DEK + KEK</dt><dd>Data Encryption Key (en BD) cifrada por Key Encryption Key (en Key Vault/HSM).</dd>
+      <dt>CMK</dt><dd>Customer-Managed Key: el cliente controla la KEK en su Key Vault.</dd>
+      <dt>FIPS 140-2 L3</dt><dd>Nivel de validación criptográfica federal (EE.UU.); L3 implica detección de manipulación física/lógica.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Field encrypt + app</h3>
+    <dl class="gloss">
+      <dt>AES-GCM</dt><dd>Cifrado simétrico autenticado a nivel aplicación para campos sensibles.</dd>
+      <dt>Per-tenant DEK</dt><dd>Clave de datos por inquilino para aislamiento criptográfico.</dd>
+      <dt>Deterministic / Randomized</dt><dd>Deterministic AE permite igualdad/búsqueda exacta cifrada; randomized es más seguro para lecturas puntuales.</dd>
+      <dt>HMAC</dt><dd>Hash Message Authentication Code: integridad/autenticación de mensaje con clave secreta.</dd>
+      <dt>Tokenization PAN</dt><dd>Sustituir número de tarjeta (<strong>PAN</strong>) por token sin valor fuera del vault de tokenización.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>PII / RGPD</h3>
+    <dl class="gloss">
+      <dt>RGPD</dt><dd>Reglamento (UE) 2016/679 de protección de datos personales.</dd>
+      <dt>Right to erasure</dt><dd>Derecho al olvido: mecanismo para borrar o anonimizar datos del interesado.</dd>
+      <dt>DPA</dt><dd>Data Processing Agreement: contrato con encargados del tratamiento (Art. 28 RGPD).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Backups cifrados</h3>
+    <dl class="gloss">
+      <dt>PITR / LTR</dt><dd><strong>Point-in-time restore</strong> (ventana corta, p. ej. 35 d). <strong>Long-term retention</strong> años para compliance.</dd>
+      <dt>WORM</dt><dd>Write Once Read Many / inmutabilidad: backups no modificables hasta expiración.</dd>
+      <dt>RTO / RPO</dt><dd><strong>Recovery Time Objective</strong>: tiempo máximo de caída. <strong>Recovery Point Objective</strong>: pérdida máxima de datos aceptable.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-6">
+  <h2>Capa 6 — KEY MANAGEMENT (hub crítico)</h2>
+
+  <article class="nodo"><h3>Azure Key Vault</h3>
+    <dl class="gloss">
+      <dt>Secrets / Keys / Certs</dt><dd>Tres tipos de objeto: cadenas secretas, claves criptográficas, certificados X.509.</dd>
+      <dt>Soft delete + purge protect</dt><dd>Borrado recuperable y protección contra purga definitiva accidental o maliciosa.</dd>
+      <dt>Private link VNet</dt><dd>Acceso al vault por IP privada dentro de la red virtual sin exponerlo a Internet.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Managed HSM</h3>
+    <dl class="gloss">
+      <dt>RSA-4096 / EC P-384</dt><dd>Tamaños de clave asimétrica; P-384 es curva NIST secp384r1.</dd>
+      <dt>m-of-n quorum</dt><dd>Se requieren m administradores de n totales para operaciones críticas (ceremonias de clave).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>Key rotation</h3>
+    <dl class="gloss">
+      <dt>Zero-downtime rotate</dt><dd>Superposición de versiones de clave (<code>kid</code>) para que verificadores acepten ambas durante la transición.</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>TLS / mTLS certs</h3>
+    <dl class="gloss">
+      <dt>CA</dt><dd>Certificate Authority: emisor de certificados.</dd>
+      <dt>SPIFFE SVID</dt><dd>SPIFFE Verifiable Identity Document: certificado corto que identifica el workload.</dd>
+      <dt>ACM</dt><dd>AWS Certificate Manager (referencia multi-nube) o gestión automática de renovación en cloud.</dd>
+      <dt>CRL / OCSP</dt><dd>Lista de revocación o estado en línea de certificados.</dd>
+      <dt>SAN</dt><dd>Subject Alternative Name: nombres adicionales en el certificado (servicios individuales).</dd>
+    </dl>
+  </article>
+
+  <article class="nodo"><h3>JWT signing keys / App secrets</h3>
+    <dl class="gloss">
+      <dt>Managed identity pull</dt><dd>La carga de trabajo obtiene token de Azure sin credencial en código y lee secretos del vault.</dd>
+      <dt>Secret scanning CI</dt><dd>Herramientas (gitleaks, etc.) que fallan el pipeline si detectan secretos en el repo.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-7a">
+  <h2>Capa 7A — SERVICE-TO-SERVICE (mTLS) <span class="tag-opcional">Opcional</span></h2>
+  <article class="nodo"><h3>Istio mesh</h3>
+    <dl class="gloss">
+      <dt>Istio</dt><dd>Service mesh para Kubernetes: políticas, observabilidad y mTLS entre pods.</dd>
+      <dt>Envoy sidecar</dt><dd>Proxy de datos colocado junto a cada pod; intercepta todo el tráfico saliente/entrante.</dd>
+      <dt>Canary releases</dt><dd>Despliegue gradual: un pequeño % de tráfico a la nueva versión.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>mTLS / OPA authz</h3>
+    <dl class="gloss">
+      <dt>Workload identity</dt><dd>Identidad de pod/servicio en la nube (Azure AD workload ID, IRSA en AWS, etc.).</dd>
+      <dt>Admission webhook</dt><dd>Webhook de admisión en Kubernetes que valida manifiestos contra políticas OPA/Gatekeeper.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-7b">
+  <h2>Capa 7B — EVENT SECURITY</h2>
+  <article class="nodo"><h3>Kafka / Event Hubs</h3>
+    <dl class="gloss">
+      <dt>SASL/SCRAM-SHA-512</dt><dd><strong>SASL</strong>: capa de autenticación. <strong>SCRAM</strong>: mecanismo resistente a replay con hash iterado (SHA-512).</dd>
+      <dt>Topic ACL / IAM</dt><dd>Control de quién produce/consume en qué topic; en cloud suele integrarse con IAM del proveedor.</dd>
+      <dt>Schema Registry</dt><dd>Repositorio de esquemas Avro/Protobuf/JSON Schema versionados para contratos de eventos.</dd>
+      <dt>Exactly-once semantics</dt><dd>Garantías de entrega sin duplicados ni pérdidas (combinando idempotencia, transacciones y offsets).</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>Message signing / DLQ</h3>
+    <dl class="gloss">
+      <dt>HMAC-SHA256</dt><dd>Firma simétrica del mensaje para integridad y autenticación entre productores/consumidores de confianza.</dd>
+      <dt>DLQ</dt><dd>Dead Letter Queue: cola de mensajes que fallaron tras reintentos, para inspección sin bloquear el flujo principal.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-8a">
+  <h2>Capa 8A — OBSERVABILIDAD / AUDIT</h2>
+  <article class="nodo"><h3>OpenTelemetry <span class="tag-opcional">Opcional</span></h3>
+    <dl class="gloss">
+      <dt>OTel</dt><dd>Estándar unificado de trazas, métricas y logs con SDKs y exportadores vendor-neutral.</dd>
+      <dt>Sampling policy</dt><dd>Reducir volumen de trazas (p. ej. 1% de peticiones) manteniendo representatividad.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>Logs centralizados</h3>
+    <dl class="gloss">
+      <dt>ELK</dt><dd>Elasticsearch + Logstash + Kibana; stack de búsqueda y visualización de logs.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>MS Sentinel SIEM</h3>
+    <dl class="gloss">
+      <dt>SIEM</dt><dd>Security Information and Event Management: correlación de eventos de seguridad.</dd>
+      <dt>SOAR</dt><dd>Security Orchestration, Automation and Response: playbooks automáticos ante incidentes.</dd>
+      <dt>KQL</dt><dd>Kusto Query Language: lenguaje de consulta de Log Analytics / Sentinel.</dd>
+      <dt>MITRE ATT&CK</dt><dd>Marco de tácticas y técnicas de adversarios; mapear detecciones a TTPs.</dd>
+      <dt>SOC</dt><dd>Security Operations Center: equipo que responde a alertas.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>Audit logs inmutables</h3>
+    <dl class="gloss">
+      <dt>WORM blob storage</dt><dd>Almacenamiento de objetos con política de inmutabilidad legal/compliance.</dd>
+      <dt>Cryptographic chaining</dt><dd>Cada entrada incluye hash de la anterior (cadena) para detectar alteraciones.</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="capa-8b">
+  <h2>Capa 8B — CI/CD DEVSECOPS PIPELINE</h2>
+  <article class="nodo"><h3>Lint & estático / Tests / E2E / Smoke</h3>
+    <dl class="gloss">
+      <dt>ESLint / Stylelint / Prettier</dt><dd>Lint JS/TS, lint CSS, formateador de código.</dd>
+      <dt>Nx</dt><dd>Herramienta de monorepo que orquesta lint/build/test por proyectos afectados.</dd>
+      <dt>tsc</dt><dd>TypeScript compiler: comprobación de tipos.</dd>
+      <dt>OIDC Azure · sin PAT</dt><dd>GitHub Actions/Azure DevOps federan identidad con Azure AD vía OpenID Connect en lugar de Personal Access Tokens.</dd>
+      <dt>GHA / ADO</dt><dd>GitHub Actions / Azure DevOps pipelines.</dd>
+      <dt>Jest / Vitest / Playwright / Cypress</dt><dd>Frameworks de test unitario y E2E en navegador.</dd>
+      <dt>MSW / supertest</dt><dd>Mock Service Worker (intercepta fetch); supertest (HTTP assertions sobre app Express).</dd>
+      <dt>Testcontainers</dt><dd>Levanta Docker reales (BD, Kafka) en CI para tests de integración.</dd>
+      <dt>Pact</dt><dd>Contract testing entre consumidor y proveedor de API.</dd>
+      <dt>K8s readiness</dt><dd>Probes de Kubernetes: el pod solo recibe tráfico cuando está listo.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>SAST + calidad</h3>
+    <dl class="gloss">
+      <dt>SAST</dt><dd>Static Application Security Testing: análisis de código fuente sin ejecutarlo.</dd>
+      <dt>CodeQL / SARIF</dt><dd>Análisis semántico de GitHub; <strong>SARIF</strong> formato estándar de resultados para PR.</dd>
+      <dt>Semgrep</dt><dd>Motor de reglas ligero para patrones inseguros multi-lenguaje.</dd>
+      <dt>Taint analysis</dt><dd>Rastrear datos no confiables hasta sinks peligrosos (SQL, shell).</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>SCA / dependencias</h3>
+    <dl class="gloss">
+      <dt>SCA</dt><dd>Software Composition Analysis: inventario y vulnerabilidades de dependencias de terceros.</dd>
+      <dt>CVE / NVD</dt><dd>Common Vulnerabilities and Exposures; <strong>NVD</strong> National Vulnerability Database.</dd>
+      <dt>Trivy</dt><dd>Escáner de imágenes OCI y repos en busca de CVE.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>DAST · SBOM · build · despliegue</h3>
+    <dl class="gloss">
+      <dt>DAST</dt><dd>Dynamic Application Security Testing: pruebas contra la app en ejecución (ZAP).</dd>
+      <dt>OWASP ZAP</dt><dd>Proxy y escáner DAST de código abierto.</dd>
+      <dt>IAST</dt><dd>Interactive AST: agente en runtime que combina cobertura y análisis.</dd>
+      <dt>CycloneDX / SPDX</dt><dd>Formatos estándar de <strong>SBOM</strong> (Software Bill of Materials).</dd>
+      <dt>cosign / Sigstore</dt><dd>Firma y verificación de imágenes OCI y artefactos con claves cortas o OIDC.</dd>
+      <dt>SLSA</dt><dd>Supply-chain Levels for Software Artifacts: marco de integridad de cadena de suministro (provenance).</dd>
+    </dl>
+  </article>
+</section>
+
+<section id="hub-kv">
+  <h2>Hub de material criptográfico (callout Key Vault)</h2>
+  <p class="nota-cap">Resume cómo Key Vault/HSM alimenta SQL (TDE, EKM, Always Encrypted), cadenas de conexión, APIM, firmas JWT, certificados mTLS/SPIFFE y CI/CD vía OIDC.</p>
+  <dl class="gloss">
+    <dt>EKM</dt><dd>Extensible Key Management: SQL Server usa módulo externo (Key Vault) para TDE/backup keys.</dd>
+  </dl>
+</section>
+
+<section id="mermaid">
+  <h2>Banda «REFERENCIA MERMAID (ELK)» — controles opcionales <span class="tag-opcional">Opcional</span></h2>
+  <p class="nota-cap">Diagramas Mermaid/ELK del cliente condensados en tarjetas; términos adicionales:</p>
+  <article class="nodo"><h3>Edge · contrato · contexto</h3>
+    <dl class="gloss">
+      <dt>Swagger / Stoplight / Redoc</dt><dd>Herramientas de documentación OpenAPI interactiva.</dd>
+      <dt>RCO</dt><dd>Request Context Object: objeto con userId, deviceId, riskScore, atributos ABAC propagados en la petición.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>IdP · PDP · riesgo</h3>
+    <dl class="gloss">
+      <dt>PDP</dt><dd>Policy Decision Point: motor que devuelve ALLOW/DENY (p. ej. Zero Trust centralizado).</dd>
+      <dt>Identity risk scoring</dt><dd>Puntuación de riesgo por señales de IdP o ML (anomalías, credenciales filtradas) que refuerza Conditional Access.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>App · frontera dura</h3>
+    <dl class="gloss">
+      <dt>Sanitizer</dt><dd>Librerías (p. ej. sanitize-html, express-validator) que limpian HTML y entradas antes/después de la frontera de aplicación.</dd>
+      <dt>Auth boundary</dt><dd>Límite explícito donde toda petición queda autenticada/autorizada antes de lógica sensible.</dd>
+      <dt>Risk engine</dt><dd>Componente opcional que combina telemetría + RCO y consulta al PDP para bloquear picos de extracción o patrones de abuso.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>Datos · linaje · acceso</h3>
+    <dl class="gloss">
+      <dt>DAL</dt><dd>Data Access Layer con políticas antes del ORM (purge, ABAC).</dd>
+      <dt>Purview / Macie</dt><dd>Clasificación de datos Microsoft / AWS.</dd>
+      <dt>OpenLineage</dt><dd>Estándar de linaje de datos (qué job produjo qué dataset).</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>Observabilidad pipeline</h3>
+    <dl class="gloss">
+      <dt>Mimir / Prometheus / Jaeger / Tempo</dt><dd>Métricas (Mimir almacén compatible Prometheus; Prometheus scrape); trazas distribuidas (Jaeger UI, Grafana Tempo como backend).</dd>
+      <dt>Redacción PII en logs</dt><dd>Enmascarar o eliminar datos personales antes de indexar en SIEM para minimizar tratamiento.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>DevSecOps · gobernanza</h3>
+    <dl class="gloss">
+      <dt>SBOM sync / policy gate</dt><dd>Comparar SBOM en runtime con el del build y fallar despliegues si aparecen componentes no aprobados.</dd>
+    </dl>
+  </article>
+  <article class="nodo"><h3>SIEM · UEBA / IA gateway (salida)</h3>
+    <dl class="gloss">
+      <dt>UEBA</dt><dd>User and Entity Behavior Analytics: detección de anomalías de comportamiento.</dd>
+      <dt>Prompt firewall / jailbreak</dt><dd>Controles sobre entradas/salidas de modelos LLM (inyecciones, contenido tóxico o PII).</dd>
+      <dt>ENS</dt><dd>Esquema Nacional de Seguridad (España): marco de referencia para sistemas del sector público; aquí alineado con políticas semánticas.</dd>
+    </dl>
+  </article>
+</section>
+
+</main>
+</body>
+</html>
