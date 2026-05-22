@@ -27,6 +27,7 @@ const meta: Meta<MainTemplateCardComponent> = {
   title: 'Josanz UI / Main Template Card',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
@@ -40,6 +41,8 @@ const meta: Meta<MainTemplateCardComponent> = {
     title: { control: 'text', description: 'Primera columna / título de la fila' },
     status: { control: 'text', description: 'Texto del badge' },
     statusVariant: sbRadio(STATUS_VARIANTS, 'Clave de pastilla o alias legacy'),
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Override de shape'),
+    customColor: { control: 'color', description: 'Color del badge/acento' },
     data: {
       control: 'object',
       description: 'Celdas adicionales (array de strings), en orden de columnas',
@@ -56,6 +59,8 @@ export const Playground: Story = {
     title: 'Facturación General',
     status: 'Pendiente',
     statusVariant: 'warning',
+    shape: 'rounded',
+    customColor: '',
     data: ['INV-2026-004', '12/05/2026', 'Empresa SA', '1.250 €', '30 días'],
   },
   render: (args) => ({
@@ -66,6 +71,8 @@ export const Playground: Story = {
           [title]="title"
           [status]="status"
           [statusVariant]="statusVariant"
+          [shape]="shape"
+          [customColor]="customColor"
           [data]="data"
         ></josanz-main-template-card>
       </div>
@@ -75,6 +82,7 @@ export const Playground: Story = {
 
 export const StatusGrid: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: { story: 'Alias legacy (`primary`…`error`) mapeados a la guía de pastillas.' },
     },

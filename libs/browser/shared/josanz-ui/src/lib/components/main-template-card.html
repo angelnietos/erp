@@ -1,9 +1,9 @@
 <div 
   [ngStyle]="getCardStyles()"
   class="josanz-list-card flex flex-col md:flex-row md:items-center w-full group border border-solid transition-all duration-300 gap-3 md:gap-0 relative overflow-hidden"
-  [class.rounded-2xl]="themeService.currentTheme().defaultShape === 'rounded'"
-  [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-  [class.rounded-[40px]]="themeService.currentTheme().defaultShape === 'pill'"
+  [class.rounded-2xl]="activeShape() === 'rounded'"
+  [class.rounded-none]="activeShape() === 'square'"
+  [class.rounded-[40px]]="activeShape() === 'pill'"
 >
 
   <!-- Accent left bar (desktop) / top bar (mobile) - atmosphere accent line -->
@@ -44,9 +44,9 @@
       <!-- Badge: mobile only -->
       <span 
         class="md:hidden px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm"
-        [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
-        [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-        [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
+        [class.rounded-xl]="activeShape() === 'rounded'"
+        [class.rounded-none]="activeShape() === 'square'"
+        [class.rounded-full]="activeShape() === 'pill'"
         [ngStyle]="getBadgeStyles()"
       >
         {{ status }}
@@ -85,9 +85,9 @@
       <span 
         [ngStyle]="getBadgeStyles()"
         class="px-4 py-1.5 text-[10px] font-black flex items-center justify-center uppercase tracking-widest shadow-md"
-        [class.rounded-xl]="themeService.currentTheme().defaultShape === 'rounded'"
-        [class.rounded-none]="themeService.currentTheme().defaultShape === 'square'"
-        [class.rounded-full]="themeService.currentTheme().defaultShape === 'pill'"
+        [class.rounded-xl]="activeShape() === 'rounded'"
+        [class.rounded-none]="activeShape() === 'square'"
+        [class.rounded-full]="activeShape() === 'pill'"
       >
         {{ status }}
       </span>

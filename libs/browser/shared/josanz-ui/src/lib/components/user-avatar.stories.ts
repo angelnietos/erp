@@ -43,6 +43,7 @@ export const Playground: Story = {
 
 export const Sizes: Story = {
   parameters: {
+    controls: { disable: true },
     docs: { description: { story: 'Comparación directa `sm` vs `lg`.' } },
   },
   render: () => ({

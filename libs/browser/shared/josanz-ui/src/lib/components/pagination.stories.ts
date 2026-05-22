@@ -77,6 +77,7 @@ export const ManyPages: Story = {
 
 export const Progression: Story = {
   parameters: {
+    controls: { disable: true },
     docs: { description: { story: 'Inicio, mitad y final de lista con el mismo total.' } },
   },
   render: () => ({

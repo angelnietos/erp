@@ -1,6 +1,7 @@
 import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
+import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzListViewSelection } from '../list-view/list-view-preferences';
 import { listViewStackClasses } from '../list-view/list-view-preferences';
 import { FilterTabsComponent, type JosanzFilterTabsVariant } from './filter-tabs';
@@ -51,6 +52,9 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() paginationPage = 1;
   @Input() paginationTotal = 0;
   @Input() paginationVariant?: JosanzPaginationVariant;
+  /** Override visual que se propaga a botones, filtros, busqueda y paginacion. */
+  @Input() shape?: JosanzControlShape;
+  @Input() customColor?: string;
 
   @Output() primaryAction = new EventEmitter<void>();
   @Output() secondaryAction = new EventEmitter<void>();

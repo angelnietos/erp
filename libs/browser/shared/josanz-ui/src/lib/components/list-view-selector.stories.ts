@@ -42,6 +42,9 @@ export const Playground: Story = {
 };
 
 export const InToolbar: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => ({
     template: `
       <div class="flex max-w-4xl flex-wrap items-center justify-between gap-4 rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">

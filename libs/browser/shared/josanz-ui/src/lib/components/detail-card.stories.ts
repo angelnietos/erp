@@ -7,6 +7,7 @@ const meta: Meta<DetailCardComponent> = {
   title: 'Josanz UI / Detail Card',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(

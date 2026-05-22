@@ -27,6 +27,8 @@
               class="josanz-main-list__figma-tabs"
               [options]="filterOptions"
               [variant]="typologyTabsVariant"
+              [shape]="shape"
+              [customColor]="customColor"
               (selectionChange)="onFilterChange($event)"
             ></josanz-filter-tabs>
             <div class="josanz-main-list__figma-actions">
@@ -35,21 +37,26 @@
                   [placeholder]="searchPlaceholder"
                   [value]="searchValue"
                   [ariaLabel]="searchAriaLabel"
+                  [shape]="shape"
                   (valueChange)="onSearchChange($event)"
                 ></josanz-list-search-field>
               }
-              <josanz-secondary-button label="Excel" (btnClick)="onExcelAction()"></josanz-secondary-button>
+              <josanz-secondary-button label="Excel" [shape]="shape" [customColor]="customColor" (btnClick)="onExcelAction()"></josanz-secondary-button>
               <ng-content select="[extra-actions]"></ng-content>
               @if (secondaryBtnLabel) {
                 <josanz-button
                   [label]="secondaryBtnLabel"
                   [showIcon]="true"
+                  [shape]="shape"
+                  [customColor]="customColor"
                   (btnClick)="onSecondaryAction()"
                 ></josanz-button>
               }
               <josanz-button
                 [label]="primaryBtnLabel"
                 [showIcon]="true"
+                [shape]="shape"
+                [customColor]="customColor"
                 (btnClick)="onPrimaryAction()"
               ></josanz-button>
             </div>
@@ -64,6 +71,8 @@
             class="min-w-0 w-full md:flex-1"
             [options]="filterOptions"
             [variant]="typologyTabsVariant"
+            [shape]="shape"
+            [customColor]="customColor"
             (selectionChange)="onFilterChange($event)"
           ></josanz-filter-tabs>
 
@@ -73,6 +82,8 @@
                 <josanz-secondary-button
                   label="Excel"
                   class="w-full"
+                  [shape]="shape"
+                  [customColor]="customColor"
                   (btnClick)="onExcelAction()"
                 ></josanz-secondary-button>
               </div>
@@ -83,6 +94,8 @@
                     [label]="secondaryBtnLabel"
                     [showIcon]="true"
                     [fullWidth]="true"
+                    [shape]="shape"
+                    [customColor]="customColor"
                     (btnClick)="onSecondaryAction()"
                   ></josanz-button>
                 </div>
@@ -92,6 +105,8 @@
                   [label]="primaryBtnLabel"
                   [showIcon]="true"
                   [fullWidth]="true"
+                  [shape]="shape"
+                  [customColor]="customColor"
                   (btnClick)="onPrimaryAction()"
                 ></josanz-button>
               </div>
@@ -102,6 +117,7 @@
                   [placeholder]="searchPlaceholder"
                   [value]="searchValue"
                   [ariaLabel]="searchAriaLabel"
+                  [shape]="shape"
                   (valueChange)="onSearchChange($event)"
                 ></josanz-list-search-field>
               </div>
@@ -119,6 +135,7 @@
                 [placeholder]="searchPlaceholder"
                 [value]="searchValue"
                 [ariaLabel]="searchAriaLabel"
+                [shape]="shape"
                 (valueChange)="onSearchChange($event)"
               ></josanz-list-search-field>
             </div>
@@ -157,6 +174,8 @@
             [current]="effectivePaginationPage"
             [total]="paginationTotal"
             [variant]="effectivePaginationVariant"
+            [shape]="shape"
+            [customColor]="customColor"
             (pageChange)="onPaginationPage($event)"
           ></josanz-pagination>
         </div>

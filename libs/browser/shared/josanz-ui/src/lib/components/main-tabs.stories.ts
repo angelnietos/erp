@@ -7,6 +7,7 @@ const meta: Meta<MainTabsComponent> = {
   title: 'Josanz UI / Main Tabs',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(

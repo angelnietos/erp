@@ -7,6 +7,7 @@ const meta: Meta<ListSearchFieldComponent> = {
   title: 'Josanz UI / List Search Field',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(

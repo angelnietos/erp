@@ -44,6 +44,9 @@ export const Playground: Story = {
 };
 
 export const DensityMatrix: Story = {
+  parameters: {
+    controls: { disable: true },
+  },
   render: () => ({
     template: `
       <div class="grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-3">

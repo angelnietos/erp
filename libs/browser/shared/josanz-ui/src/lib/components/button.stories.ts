@@ -7,6 +7,7 @@ const meta: Meta<ButtonComponent> = {
   title: 'Josanz UI / Button',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(

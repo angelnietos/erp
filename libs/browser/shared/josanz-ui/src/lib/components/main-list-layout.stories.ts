@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainListLayoutComponent } from './main-list-layout';
 
 const meta: Meta<MainListLayoutComponent> = {
@@ -25,6 +25,8 @@ const meta: Meta<MainListLayoutComponent> = {
     },
     paginationPage: { control: 'number', description: 'Página actual (1-based)' },
     paginationTotal: { control: 'number', description: 'Total de páginas (0 = sin paginación)' },
+    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Override de shape para controles internos'),
+    customColor: { control: 'color', description: 'Color de marca para botones, filtros y paginacion' },
     primaryAction: sbEmit('primaryAction', 'Click en botón principal'),
     excelAction: sbEmit('excelAction', 'Click en Excel'),
     filterChange: sbEmit('filterChange', 'Cambio de filtro'),
@@ -42,6 +44,8 @@ export const Playground: Story = {
     filterOptions: ['Todos', 'Activos', 'Potenciales', 'Baja'],
     paginationPage: 1,
     paginationTotal: 0,
+    shape: 'rounded',
+    customColor: '',
   },
   render: (args) => ({
     props: args,
@@ -53,6 +57,8 @@ export const Playground: Story = {
           [filterOptions]="filterOptions"
           [paginationPage]="paginationPage"
           [paginationTotal]="paginationTotal"
+          [shape]="shape"
+          [customColor]="customColor"
           (primaryAction)="primaryAction($event)"
           (excelAction)="excelAction($event)"
           (filterChange)="filterChange($event)"
@@ -90,6 +96,8 @@ export const WithPagination: Story = {
     filterOptions: ['Todas', 'Pendientes', 'Cobradas'],
     paginationPage: 5,
     paginationTotal: 17,
+    shape: 'rounded',
+    customColor: '',
   },
   render: (args) => ({
     props: args,
@@ -101,6 +109,8 @@ export const WithPagination: Story = {
           [filterOptions]="filterOptions"
           [paginationPage]="paginationPage"
           [paginationTotal]="paginationTotal"
+          [shape]="shape"
+          [customColor]="customColor"
           (paginationChange)="paginationChange($event)"
         >
           <p class="text-sm text-slate-500 p-4">Contenido de ejemplo: tabla o cards aquí.</p>

@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
+import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
@@ -24,6 +25,12 @@ export class MainTemplateCardComponent {
   /** Labels shown inline on mobile next to each data value. Should match data array length. */
   @Input() labels: string[] = [];
   @Input() leadingMark = '';
+  @Input() shape?: JosanzControlShape;
+  @Input() customColor?: string;
+
+  activeShape(): JosanzControlShape {
+    return this.shape ?? this.themeService.currentTheme().defaultShape;
+  }
 
   getCardStyles() {
     return {
@@ -51,6 +58,15 @@ export class MainTemplateCardComponent {
   }
 
   getBadgeStyles() {
+    if (this.customColor) {
+      return {
+        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
+        color: this.customColor,
+        'box-shadow': 'var(--josanz-shadow-sm)',
+        'text-transform': 'uppercase',
+        'letter-spacing': '0.05em',
+      };
+    }
     const key = this.resolvePillKey();
     return {
       'background-color': `var(--josanz-pill-${key}-bg)`,

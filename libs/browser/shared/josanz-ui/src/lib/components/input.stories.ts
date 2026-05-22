@@ -9,6 +9,7 @@ const meta: Meta<InputComponent> = {
   title: 'Josanz UI / Input',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(

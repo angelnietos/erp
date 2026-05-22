@@ -7,6 +7,7 @@ const meta: Meta<FilterTabsComponent> = {
   title: 'Josanz UI / Filter Tabs',
   tags: ['autodocs'],
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
