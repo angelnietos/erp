@@ -143,7 +143,7 @@ export default [
     },
   },
   {
-    files: ['libs/node/backend/billing/backend/**/*.ts'],
+    files: ['libs/node/backend/billing-backend/**/*.ts'],
     rules: {
       /**
        * Billing backend is buildable (rollup) and imports Verifactu adapter wiring from a lint-only lib

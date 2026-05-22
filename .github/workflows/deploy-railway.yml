@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - storybook-deploy
+      - test-deploy
+      - backend-deploy
   workflow_dispatch:
     inputs:
       environment:
@@ -48,28 +50,28 @@ jobs:
         include:
           - app: backend
             service_secret: RAILWAY_SERVICE_BACKEND
-            deploy_on_push: false
+            push_branch: backend-deploy
           - app: josanz-ui-storybook
             service_secret: RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK
-            deploy_on_push: true
+            push_branch: storybook-deploy
           - app: verifactu-api
             service_secret: RAILWAY_SERVICE_VERIFACTU_API
-            deploy_on_push: false
+            push_branch: ''
           - app: verifactu-worker
             service_secret: RAILWAY_SERVICE_VERIFACTU_WORKER
-            deploy_on_push: false
+            push_branch: ''
           - app: frontend
             service_secret: RAILWAY_SERVICE_FRONTEND
-            deploy_on_push: false
+            push_branch: ''
           - app: josanz-web-app
             service_secret: RAILWAY_SERVICE_JOSANZ_WEB_APP
-            deploy_on_push: true
+            push_branch: test-deploy
           - app: saas-platform
             service_secret: RAILWAY_SERVICE_SAAS_PLATFORM
-            deploy_on_push: false
+            push_branch: ''
           - app: document-generator
             service_secret: RAILWAY_SERVICE_DOCUMENT_GENERATOR
-            deploy_on_push: false
+            push_branch: ''
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
@@ -78,22 +80,36 @@ jobs:
       RAILWAY_DETACH: ${{ github.event_name == 'workflow_dispatch' && inputs.detach || false }}
     steps:
       - name: Checkout
-        if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        if: ${{ (github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup Node
-        if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        if: ${{ (github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         uses: actions/setup-node@v4
         with:
           node-version: 20
 
+      - name: Install backend dependencies
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate backend build
+        if: ${{ matrix.app == 'backend' && ((github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        run: pnpm exec nx run backend:build
+
       - name: Install Railway CLI
-        if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        if: ${{ (github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: npm install -g @railway/cli
 
       - name: Validate Railway configuration
         id: railway_config
-        if: ${{ (github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
+        if: ${{ (github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app)) }}
         run: |
           missing=""
           for key in RAILWAY_TOKEN RAILWAY_PROJECT_ID RAILWAY_SERVICE_ID; do
@@ -114,7 +130,7 @@ jobs:
           echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Deploy ${{ matrix.app }} to Railway
-        if: ${{ steps.railway_config.outputs.configured == 'true' && ((github.event_name == 'push' && matrix.deploy_on_push) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
+        if: ${{ steps.railway_config.outputs.configured == 'true' && ((github.event_name == 'push' && matrix.push_branch == github.ref_name) || (github.event_name == 'workflow_dispatch' && (inputs.app == 'all' || inputs.app == matrix.app))) }}
         run: |
           set -euo pipefail
           flags=(--ci --project "$RAILWAY_PROJECT_ID" --service "$RAILWAY_SERVICE_ID" --environment "$RAILWAY_ENVIRONMENT")
