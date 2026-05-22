@@ -35,6 +35,24 @@ Si **Chromatic** no está configurado (`CHROMATIC_PROJECT_TOKEN` vacío), el wor
 - Conecta el servicio Railway a la rama **`storybook-deploy`** (con guión), que es la que usa el workflow de deploy.
 - Evita mezclar `storybook_deploy` (guión bajo) en la conexión de Railway si no está en los watch paths del servicio.
 
+## Build falla con `npm ci` / `ERESOLVE` (Angular 21 vs Storybook)
+
+Railway está usando el **`Dockerfile` de la raíz** en lugar del de Storybook.
+
+En la rama `storybook-deploy`, commitea `railway.json`:
+
+```json
+{
+  "build": {
+    "dockerfilePath": "deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile"
+  }
+}
+```
+
+O en Railway → servicio → **Settings** → **Build** → Dockerfile path: `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`.
+
+El Dockerfile correcto usa **pnpm** (`pnpm install --frozen-lockfile`), no `npm ci`.
+
 ## Deploy manual sin esperar CI
 
 En GitHub → **Actions** → **Deploy — Railway** → **Run workflow**:

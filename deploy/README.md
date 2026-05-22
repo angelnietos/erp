@@ -79,7 +79,7 @@ También hay configuración para desplegar servicios individuales en Railway:
 - Workflow manual **Deploy — Railway** con selector de entorno y servicio.
 - Push a `test-deploy` despliega automáticamente `josanz-web-app` en Railway `staging`.
 - La rama `storybook-deploy` despliega el Storybook de `libs/browser/shared/josanz-ui`.
-- `railway.json` fuerza el Dockerfile del servicio de esta rama y evita el Railpack + `npm ci`.
+- `railway.json` (commiteado en cada rama de deploy) fuerza el Dockerfile del servicio y evita el `Dockerfile` raíz con `npm ci`.
 
 Lee `deploy/railway/README.md` para crear los servicios, apuntar cada uno a su Dockerfile y configurar secretos como `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`.
 
