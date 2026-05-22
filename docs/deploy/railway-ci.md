@@ -28,7 +28,7 @@ En el servicio **`josanz-ui-storybook`** (o el que uses para Storybook):
 | **Deploy — Railway** | Push a ramas configuradas en `.github/workflows/deploy-railway.yml` | Solo si el job de deploy corre |
 | **Storybook Visual Regression (Chromatic)** | Push a `storybook-deploy` | Requiere `CHROMATIC_PROJECT_TOKEN` en GitHub secrets |
 
-Si **Chromatic** no está configurado (`CHROMATIC_PROJECT_TOKEN` vacío), el workflow se salta sin fallar; no debería bloquear Railway. Si aun así falla, revisa en GitHub → **Actions** qué otro check del commit está en rojo.
+Si **Chromatic** no está configurado (`CHROMATIC_PROJECT_TOKEN` vacío), el workflow termina en verde con un aviso (no instala dependencias ni usa caché de pnpm). Antes fallaba en *Post Setup Node* al saltarse `pnpm install` con `cache: pnpm` activo; eso hacía que Railway viera **CI check suite failed**.
 
 ## Ramas y nombres
 

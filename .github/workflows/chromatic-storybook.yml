@@ -20,8 +20,18 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  chromatic-skipped:
+    name: Publish josanz-ui Storybook
+    if: ${{ secrets.CHROMATIC_PROJECT_TOKEN == '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chromatic not configured
+        run: |
+          echo "::notice::Chromatic skipped. Add CHROMATIC_PROJECT_TOKEN in GitHub repository secrets to enable visual regression."
+
   chromatic:
     name: Publish josanz-ui Storybook
+    if: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
     runs-on: ubuntu-latest
     env:
       CI: true
@@ -43,27 +53,13 @@ jobs:
           node-version: 22
           cache: pnpm
 
-      - name: Validate Chromatic token
-        id: chromatic_config
-        continue-on-error: true
-        run: |
-          if [ -z "$CHROMATIC_PROJECT_TOKEN" ]; then
-            echo "::warning::Chromatic was skipped because CHROMATIC_PROJECT_TOKEN is not configured."
-            echo "configured=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "configured=true" >> "$GITHUB_OUTPUT"
-
       - name: Install dependencies
-        if: steps.chromatic_config.outputs.configured == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Build josanz-ui Storybook
-        if: steps.chromatic_config.outputs.configured == 'true'
         run: pnpm exec nx run josanz-ui:build-storybook:ci
 
       - name: Publish to Chromatic
-        if: steps.chromatic_config.outputs.configured == 'true'
         continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
