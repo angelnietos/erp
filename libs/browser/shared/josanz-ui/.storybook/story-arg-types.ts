@@ -42,3 +42,14 @@ export const JOSANZ_STORYBOOK_THEME_DOCS =
 export function josanzStoryThemeDescription(extra?: string): string {
   return extra ? `${JOSANZ_STORYBOOK_THEME_DOCS}\n\n${extra}` : JOSANZ_STORYBOOK_THEME_DOCS;
 }
+
+export const JOSANZ_SHAPES = ['rounded', 'pill', 'square'] as const;
+
+/** ArgTypes compartidos para `shape` + `customColor` en playgrounds. */
+export const sbShapeArgTypes: ArgTypes = {
+  shape: sbRadio(JOSANZ_SHAPES, 'Forma de los controles (rounded, pill, square)'),
+  customColor: {
+    control: 'color',
+    description: 'Color de marca o acento local. Si se deja vacío, usa la toolbar Marca.',
+  },
+};

@@ -9,7 +9,6 @@ const meta: Meta<InputComponent> = {
   title: 'Josanz UI / Input',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
@@ -85,6 +84,7 @@ export const Playground: Story = {
 
 export const CommonTypes: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: { story: 'Formulario de registro con cuatro tipos de campo a la vez.' },
     },

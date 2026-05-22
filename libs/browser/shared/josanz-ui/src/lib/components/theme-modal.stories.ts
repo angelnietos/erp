@@ -10,7 +10,7 @@ const meta: Meta<ThemeModalComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Modal legacy de personalizacion. Se conserva para compatibilidad, aunque la experiencia preferida es `josanz-app-settings-page`.',
+          'Modal legacy de personalización. Se conserva para compatibilidad; la experiencia preferida es `josanz-app-settings-page`.',
         ),
       },
     },
@@ -25,11 +25,31 @@ export default meta;
 type Story = StoryObj<ThemeModalComponent>;
 
 export const Playground: Story = {
-  render: () => ({
+  parameters: {
+    docs: {
+      description: {
+        story: 'Modal a pantalla completa con panel de tema. Usa Actions para ver `modalClose`.',
+      },
+    },
+  },
+  render: (args) => ({
+    props: args,
     template: `
-      <div class="h-[820px] overflow-hidden rounded-3xl bg-slate-900 p-8">
+      <div class="h-[820px] overflow-hidden rounded-3xl p-8" style="background: var(--josanz-bg);">
         <josanz-theme-modal (modalClose)="modalClose($event)"></josanz-theme-modal>
       </div>
     `,
   }),
+};
+
+export const OnDarkCanvas: Story = {
+  parameters: {
+    globals: { theme: 'dark' },
+    docs: {
+      description: {
+        story: 'Comprueba legibilidad del modal sobre fondo oscuro.',
+      },
+    },
+  },
+  render: Playground.render,
 };

@@ -8,7 +8,13 @@ import { JosanzThemeService } from '../services/theme.service';
   standalone: true,
   imports: [NgClass],
   template: `
-    <div class="josanz-list-search" [ngClass]="cornerClass()" role="search">
+    <div
+      class="josanz-list-search"
+      [ngClass]="cornerClass()"
+      role="search"
+      [style.borderColor]="wrapperBorderColor()"
+      [style.boxShadow]="wrapperFocusRing()"
+    >
       <svg
         class="josanz-list-search__icon"
         viewBox="0 0 24 24"
@@ -31,6 +37,8 @@ import { JosanzThemeService } from '../services/theme.service';
         [value]="value"
         autocomplete="off"
         spellcheck="false"
+        (focus)="isFocused = true"
+        (blur)="isFocused = false"
         (input)="onInput($event)"
       />
     </div>
@@ -45,10 +53,43 @@ export class ListSearchFieldComponent {
   /** Override del shape; si no se pasa, usa el del tema activo. */
   @Input() shape?: JosanzControlShape;
 
+  @Input() customColor?: string;
+
   @Output() valueChange = new EventEmitter<string>();
+
+  isFocused = false;
 
   cornerClass(): string {
     return josanzCornerField(this.shape ?? this.themeService.currentTheme().defaultShape);
+  }
+
+  getAccentColor(): string {
+    if (this.customColor) {
+      return this.customColor;
+    }
+    if (typeof document !== 'undefined') {
+      const token = getComputedStyle(document.documentElement)
+        .getPropertyValue('--josanz-interactive')
+        .trim();
+      if (token) {
+        return token;
+      }
+    }
+    return this.themeService.currentTheme().primaryColor;
+  }
+
+  wrapperBorderColor(): string | undefined {
+    if (this.isFocused || this.customColor) {
+      return this.getAccentColor();
+    }
+    return undefined;
+  }
+
+  wrapperFocusRing(): string | undefined {
+    if (!this.isFocused) {
+      return undefined;
+    }
+    return `0 0 0 2px color-mix(in srgb, ${this.getAccentColor()} 28%, transparent)`;
   }
 
   onInput(event: Event): void {

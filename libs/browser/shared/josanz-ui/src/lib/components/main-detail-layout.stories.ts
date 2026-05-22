@@ -48,7 +48,7 @@ const meta: Meta<MainDetailLayoutComponent> = {
 export default meta;
 type Story = StoryObj<MainDetailLayoutComponent>;
 
-export const FormDetail: Story = {
+export const Playground: Story = {
   args: {
     title: 'Nuevo Cliente',
     tabs: ['Datos', 'Operadores', 'Documentos'],

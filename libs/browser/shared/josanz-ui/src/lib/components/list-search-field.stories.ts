@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { sbEmit, sbShapeArgTypes, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ListSearchFieldComponent } from './list-search-field';
 
 const meta: Meta<ListSearchFieldComponent> = {
@@ -7,11 +7,10 @@ const meta: Meta<ListSearchFieldComponent> = {
   title: 'Josanz UI / List Search Field',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Campo de busqueda para listados. Usa `role=search`, emite `valueChange` y hereda el shape del tema salvo que se fuerce con `shape`.',
+          'Campo de búsqueda para listados. Usa `role=search`, emite `valueChange` y hereda el shape del tema salvo override. `customColor` acentúa borde y foco.',
         ),
       },
     },
@@ -20,7 +19,7 @@ const meta: Meta<ListSearchFieldComponent> = {
     placeholder: { control: 'text', description: 'Texto placeholder' },
     value: { control: 'text', description: 'Valor controlado del input' },
     ariaLabel: { control: 'text', description: 'Etiqueta accesible del searchbox' },
-    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Override de esquinas'),
+    ...sbShapeArgTypes,
     valueChange: sbEmit('valueChange', 'Nuevo texto escrito'),
   },
 };
@@ -35,23 +34,40 @@ export const Playground: Story = {
     ariaLabel: 'Buscar clientes',
     shape: 'rounded',
   },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-md rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-list-search-field
+          [placeholder]="placeholder"
+          [value]="value"
+          [ariaLabel]="ariaLabel"
+          [shape]="shape"
+          [customColor]="customColor"
+          (valueChange)="valueChange($event)"
+        ></josanz-list-search-field>
+      </div>
+    `,
+  }),
 };
 
 export const SearchStates: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
-        story: 'Estados habituales: vacio, con busqueda activa y variaciones de shape.',
+        story: 'Estados habituales: vacío, con búsqueda activa y variaciones de shape.',
       },
     },
   },
   render: () => ({
     template: `
       <div class="grid max-w-4xl gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
-        <josanz-list-search-field placeholder="Buscar..." ariaLabel="Busqueda vacia"></josanz-list-search-field>
-        <josanz-list-search-field value="Novabyte" placeholder="Buscar cliente" ariaLabel="Busqueda con valor"></josanz-list-search-field>
-        <josanz-list-search-field shape="pill" placeholder="Busqueda pill"></josanz-list-search-field>
-        <josanz-list-search-field shape="square" placeholder="Busqueda square"></josanz-list-search-field>
+        <josanz-list-search-field placeholder="Buscar..." ariaLabel="Búsqueda vacía"></josanz-list-search-field>
+        <josanz-list-search-field value="Novabyte" placeholder="Buscar cliente" ariaLabel="Búsqueda con valor"></josanz-list-search-field>
+        <josanz-list-search-field shape="pill" placeholder="Búsqueda pill"></josanz-list-search-field>
+        <josanz-list-search-field shape="square" placeholder="Búsqueda square"></josanz-list-search-field>
+        <josanz-list-search-field value="Marca" customColor="#635BFF" placeholder="Acento personalizado"></josanz-list-search-field>
       </div>
     `,
   }),

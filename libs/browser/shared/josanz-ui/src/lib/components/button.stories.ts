@@ -7,7 +7,6 @@ const meta: Meta<ButtonComponent> = {
   title: 'Josanz UI / Button',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
@@ -65,6 +64,7 @@ export const Playground: Story = {
 
 export const CustomColors: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         story: 'Ejemplos de forma, colores personalizados y todas las variantes en una sola vista.',

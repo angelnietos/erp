@@ -7,7 +7,6 @@ const meta: Meta<MainTabsComponent> = {
   title: 'Josanz UI / Main Tabs',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
@@ -56,6 +55,7 @@ export const Playground: Story = {
 
 export const NavigationExamples: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: {
         story: 'Dos layouts típicos: ficha de cliente y configuración de flota.',

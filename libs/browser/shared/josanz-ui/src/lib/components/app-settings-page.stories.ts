@@ -4,28 +4,25 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { AppSettingsPageComponent } from './app-settings-page';
 
-const routeStub = {
-  snapshot: {
-    queryParamMap: {
-      get: () => 'personalizacion',
+function routeStub(tab: string) {
+  return {
+    snapshot: {
+      queryParamMap: {
+        get: (key: string) => (key === 'tab' ? tab : null),
+      },
     },
-  },
-};
+  };
+}
 
 const meta: Meta<AppSettingsPageComponent> = {
   component: AppSettingsPageComponent,
   title: 'Josanz UI / App Settings Page',
   tags: ['autodocs'],
-  decorators: [
-    moduleMetadata({
-      providers: [{ provide: ActivatedRoute, useValue: routeStub }],
-    }),
-  ],
   parameters: {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Pagina de ajustes completa con tabs y panel de personalizacion. Es la vista recomendada para configurar color de marca, atmosfera y preferencias de listados.',
+          'Página de ajustes completa con tabs y panel de personalización. Es la vista recomendada para configurar color de marca, atmósfera y preferencias de listados.',
         ),
       },
     },
@@ -36,7 +33,12 @@ const meta: Meta<AppSettingsPageComponent> = {
 export default meta;
 type Story = StoryObj<AppSettingsPageComponent>;
 
-export const Personalizacion: Story = {
+const settingsRender = (tab: string) => ({
+  decorators: [
+    moduleMetadata({
+      providers: [{ provide: ActivatedRoute, useValue: routeStub(tab) }],
+    }),
+  ],
   render: () => ({
     template: `
       <div class="min-h-[820px]" style="background: var(--josanz-bg);">
@@ -44,4 +46,26 @@ export const Personalizacion: Story = {
       </div>
     `,
   }),
+});
+
+export const Personalizacion: Story = {
+  ...settingsRender('personalizacion'),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pestaña de personalización: color de marca, atmósfera, shape y preferencias de listado.',
+      },
+    },
+  },
+};
+
+export const General: Story = {
+  ...settingsRender('general'),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pestaña general de ajustes de la aplicación.',
+      },
+    },
+  },
 };

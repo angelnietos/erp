@@ -1,15 +1,12 @@
+import {
+  JOSANZ_LIST_VIEW_MENU_OPTIONS,
+  type JosanzListViewSelection,
+} from '../list-view/list-view-preferences';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { sbEmit, sbSelect, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ListViewSelectorComponent } from './list-view-selector';
 
-const viewOptions = [
-  'tabla',
-  'tabla-compacta',
-  'tarjetas-lista',
-  'tarjetas-2',
-  'tarjetas-3',
-  'tarjetas-4',
-] as const;
+const viewOptions = JOSANZ_LIST_VIEW_MENU_OPTIONS.map((o) => o.id) as JosanzListViewSelection[];
 
 const meta: Meta<ListViewSelectorComponent> = {
   component: ListViewSelectorComponent,
@@ -36,14 +33,31 @@ type Story = StoryObj<ListViewSelectorComponent>;
 
 export const Playground: Story = {
   args: {
-    label: 'Eleccion de vista',
+    label: 'Elección de vista',
     selected: 'tarjetas-lista',
   },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="inline-block rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-list-view-selector
+          [label]="label"
+          [selected]="selected"
+          (selectionChange)="selectionChange($event)"
+        ></josanz-list-view-selector>
+      </div>
+    `,
+  }),
 };
 
 export const InToolbar: Story = {
   parameters: {
     controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Dos selectores como aparecen en la barra de herramientas de un listado.',
+      },
+    },
   },
   render: () => ({
     template: `
@@ -54,7 +68,7 @@ export const InToolbar: Story = {
         </div>
         <div class="flex items-center gap-3">
           <josanz-list-view-selector label="Vista" selected="tabla"></josanz-list-view-selector>
-          <josanz-list-view-selector label="Cards" selected="tarjetas-3"></josanz-list-view-selector>
+          <josanz-list-view-selector label="Cuadrícula" selected="tarjetas-grid"></josanz-list-view-selector>
         </div>
       </div>
     `,

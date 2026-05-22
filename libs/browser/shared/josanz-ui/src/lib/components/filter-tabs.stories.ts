@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { sbRadio, sbEmit, sbShapeArgTypes, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { FilterTabsComponent } from './filter-tabs';
 
 const meta: Meta<FilterTabsComponent> = {
@@ -7,11 +7,10 @@ const meta: Meta<FilterTabsComponent> = {
   title: 'Josanz UI / Filter Tabs',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Filtros horizontales: inactivos usan `surface` y `textMuted`; activos mezclan el color de marca con la superficie. `shape` y `customColor` siguen la convención de `josanz-button`.',
+          'Filtros horizontales con tres variantes: `figma` (chips), `underline` (tipografía eventos) y `brand` (color de marca). `shape` y `customColor` siguen la convención de `josanz-button`.',
         ),
       },
     },
@@ -23,8 +22,8 @@ const meta: Meta<FilterTabsComponent> = {
       description: 'Opciones del filtro (array de strings).',
     },
     selected: { control: 'text', description: 'Opción activa inicial' },
-    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas de cada pestaña'),
-    customColor: { control: 'color', description: 'Color activo (texto + fondo suave)' },
+    variant: sbRadio(['figma', 'underline', 'brand'] as const, 'Estilo visual de las pestañas'),
+    ...sbShapeArgTypes,
     selectionChange: sbEmit('selectionChange', 'Opción seleccionada'),
   },
 };
@@ -32,50 +31,80 @@ const meta: Meta<FilterTabsComponent> = {
 export default meta;
 type Story = StoryObj<FilterTabsComponent>;
 
+const filterTabsTemplate = `
+  <div class="max-w-3xl rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+    <josanz-filter-tabs
+      [options]="options"
+      [selected]="selected"
+      [variant]="variant"
+      [shape]="shape"
+      [customColor]="customColor"
+      (selectionChange)="selectionChange($event)"
+    ></josanz-filter-tabs>
+  </div>
+`;
+
 export const Playground: Story = {
   args: {
     options: ['Todas', 'Activas', 'Finalizadas', 'Borrador'],
     selected: 'Todas',
+    variant: 'figma',
     shape: 'rounded',
   },
-  render: (args) => ({
-    props: args,
-    template: `
-      <div class="p-6 bg-[#F8F9FA] rounded-2xl border border-slate-200 max-w-3xl">
-        <josanz-filter-tabs
-          [options]="options"
-          [selected]="selected"
-          [shape]="shape"
-          [customColor]="customColor"
-          (selectionChange)="selectionChange($event)"
-        ></josanz-filter-tabs>
-      </div>
-    `,
-  }),
+  render: (args) => ({ props: args, template: filterTabsTemplate }),
+};
+
+export const BrandVariant: Story = {
+  parameters: {
+    docs: { description: { story: 'Chips con acento de marca (ideal para Inicio / dashboard).' } },
+  },
+  args: {
+    options: ['Semana', 'Mes', 'Trimestre', 'Año'],
+    selected: 'Mes',
+    variant: 'brand',
+    shape: 'pill',
+  },
+  render: (args) => ({ props: args, template: filterTabsTemplate }),
+};
+
+export const UnderlineVariant: Story = {
+  parameters: {
+    docs: { description: { story: 'Pestañas con subrayado para tipología de eventos.' } },
+  },
+  args: {
+    options: ['Resumen', 'Presupuesto', 'Equipo', 'Documentos'],
+    selected: 'Resumen',
+    variant: 'underline',
+    shape: 'rounded',
+  },
+  render: (args) => ({ props: args, template: filterTabsTemplate }),
 };
 
 export const CommonScenarios: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: { story: 'Dos bloques de filtros con datos fijos (estados y periodos).' },
     },
   },
   render: () => ({
     template: `
-      <div class="flex flex-col gap-10 p-8 bg-[#F8F9FA] rounded-2xl border border-slate-200 max-w-4xl">
+      <div class="flex max-w-4xl flex-col gap-10 rounded-2xl border border-solid p-8" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
         <section>
-          <h4 class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Estados</h4>
+          <h4 class="mb-4 text-[10px] font-black uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted);">Estados (figma)</h4>
           <josanz-filter-tabs
             [options]="['Pendientes', 'Enviadas', 'Cobradas', 'Vencidas']"
             selected="Pendientes"
+            variant="figma"
           ></josanz-filter-tabs>
         </section>
-
         <section>
-          <h4 class="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">Periodos</h4>
+          <h4 class="mb-4 text-[10px] font-black uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted);">Periodos (brand)</h4>
           <josanz-filter-tabs
             [options]="['Semana', 'Mes', 'Trimestre', 'Año']"
             selected="Mes"
+            variant="brand"
+            shape="pill"
           ></josanz-filter-tabs>
         </section>
       </div>

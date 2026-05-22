@@ -7,7 +7,6 @@ const meta: Meta<SecondaryButtonComponent> = {
   title: 'Josanz UI / Secondary Button',
   tags: ['autodocs'],
   parameters: {
-    controls: { disable: true },
     docs: {
       description: {
         component: josanzStoryThemeDescription(
@@ -53,6 +52,7 @@ export const Playground: Story = {
 
 export const AllTypes: Story = {
   parameters: {
+    controls: { disable: true },
     docs: {
       description: { story: 'Los tres tipos lado a lado para comparar iconografía y estilo.' },
     },

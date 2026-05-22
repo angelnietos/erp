@@ -63,9 +63,32 @@ export const Playground: Story = {
 };
 
 export const EmptyState: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Estado vacío con CTA de subida visible.',
+      },
+    },
+  },
   args: {
     uploadLabel: 'Subir primer documento',
     showUpload: true,
     empty: true,
+    shape: 'rounded',
   },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-2xl">
+        <josanz-document-list
+          [uploadLabel]="uploadLabel"
+          [showUpload]="showUpload"
+          [empty]="empty"
+          [accentColor]="accentColor"
+          [shape]="shape"
+          (upload)="upload($event)"
+        ></josanz-document-list>
+      </div>
+    `,
+  }),
 };
