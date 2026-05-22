@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, inject } from '@angular/core';
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import {
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
   type JosanzListViewSelection,
@@ -217,4 +218,30 @@ export const EventsUseCase: Story = {
     defaultLabels: ['Cliente', 'Ciudad', 'Fecha'],
   },
   render: Playground.render,
+};
+
+export const InteractiveItemClick: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Valida que una fila accesible del listado emite `itemClick` al pulsar Enter.',
+      },
+    },
+  },
+  args: {
+    listView: 'tarjetas-lista',
+    items: SAMPLE_ITEMS,
+    defaultLabels: ['CIF', 'Ciudad', 'Email'],
+    itemClick: fn(),
+  },
+  render: Playground.render,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const firstItem = canvas.getByRole('button', { name: /abrir novabyte s\.l\./i });
+    firstItem.focus();
+    await userEvent.keyboard('{Enter}');
+    await expect(args.itemClick).toHaveBeenCalledWith(
+      expect.objectContaining({ id: '1', title: 'NovaByte S.L.' }),
+    );
+  },
 };

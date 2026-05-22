@@ -16,6 +16,7 @@ import type { JosanzControlShape } from '../josanz-control-styles';
           [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
           [style.borderColor]="accentColor || themeService.currentTheme().primaryColor"
           [style.color]="accentColor || themeService.currentTheme().primaryColor"
+          [attr.aria-label]="uploadLabel"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

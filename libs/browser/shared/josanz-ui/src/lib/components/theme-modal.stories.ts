@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ThemeModalComponent } from './theme-modal';
 
@@ -80,4 +81,23 @@ export const OnDarkCanvas: Story = {
     },
   },
   render: Playground.render,
+};
+
+export const InteractiveApply: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa “Aplicar Cambios” y valida que el modal legacy emite `modalClose`.',
+      },
+    },
+  },
+  args: {
+    modalClose: fn(),
+  },
+  render: Playground.render,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /aplicar cambios/i }));
+    await expect(args.modalClose).toHaveBeenCalledTimes(1);
+  },
 };
