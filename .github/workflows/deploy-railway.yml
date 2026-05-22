@@ -8,6 +8,7 @@ on:
       - storybook-deploy
       - test-deploy
       - backend-deploy
+      - frontend-deploy
   workflow_dispatch:
     inputs:
       environment:
@@ -73,7 +74,7 @@ jobs:
           - app: frontend
             service_secret: RAILWAY_SERVICE_FRONTEND
             dockerfile_path: deploy/railway/dockerfiles/frontend.Dockerfile
-            push_branch: ''
+            push_branch: frontend-deploy
             deploy_on_main: false
           - app: josanz-web-app
             service_secret: RAILWAY_SERVICE_JOSANZ_WEB_APP
