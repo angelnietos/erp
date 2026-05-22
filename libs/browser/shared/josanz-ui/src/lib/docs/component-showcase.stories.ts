@@ -11,6 +11,8 @@ import { DocumentListComponent } from '../components/document-list';
 import { DocumentItemComponent } from '../components/document-item';
 import { PaginationComponent } from '../components/pagination';
 import { MainTemplateCardComponent } from '../components/main-template-card';
+import { EmptyStateComponent } from '../components/empty-state';
+import { StatCardComponent } from '../components/stat-card';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -28,6 +30,8 @@ const meta: Meta = {
         DocumentItemComponent,
         PaginationComponent,
         MainTemplateCardComponent,
+        EmptyStateComponent,
+        StatCardComponent,
       ],
     }),
   ],
@@ -288,6 +292,22 @@ export const VisualRegressionMatrix: Story = {
             <josanz-grid-list-card title="NovaByte" status="Activo" statusVariant="confirmado" density="comfortable" [fieldLabels]="['CIF', 'Email', 'Total']" [previewLines]="['B-12345678', 'contacto@novabyte.es', '12.450 EUR']"></josanz-grid-list-card>
             <josanz-grid-list-card title="Auralux" status="Borrador" statusVariant="borrador" density="compact" [fieldLabels]="['Lead', 'Origen', 'Valor']" [previewLines]="['María', 'Web', '8.900 EUR']"></josanz-grid-list-card>
             <josanz-grid-list-card title="Eventos del Sur" status="Proceso" statusVariant="en-proceso" density="dense" [fieldLabels]="['Ciudad', 'Próximo', 'Equipo']" [previewLines]="['Sevilla', 'Gala', '4 técnicos']"></josanz-grid-list-card>
+          </div>
+
+          <div class="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_1.2fr]">
+            <div class="grid gap-5 sm:grid-cols-2">
+              <josanz-stat-card eyebrow="Clientes" title="Activos" value="128" caption="12 nuevos este mes" trendLabel="9%" trendDirection="up" tone="success" icon="users"></josanz-stat-card>
+              <josanz-stat-card eyebrow="Facturación" title="Pendiente" value="24.500 EUR" caption="8 facturas abiertas" trendLabel="12%" trendDirection="up" tone="primary" icon="invoice"></josanz-stat-card>
+            </div>
+            <josanz-empty-state
+              eyebrow="Baseline vacío"
+              title="Sin resultados"
+              description="Estado común para listados y búsquedas. Valida icono, CTAs, surface y tokens de texto."
+              icon="search"
+              primaryLabel="Crear registro"
+              secondaryLabel="Limpiar filtros"
+              customColor="#635BFF"
+            ></josanz-empty-state>
           </div>
         </div>
       </section>
