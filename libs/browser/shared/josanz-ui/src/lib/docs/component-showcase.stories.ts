@@ -212,3 +212,85 @@ export const BillingSlice: Story = {
     `,
   }),
 };
+
+export const VisualRegressionMatrix: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Matriz estable para Chromatic: compara acciones, filtros, tarjetas, documentos y paginación con varias marcas y shapes.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <section class="min-h-[920px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto grid max-w-7xl gap-6">
+          <header class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Chromatic baseline</p>
+            <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">Matriz visual Josanz UI</h1>
+            <p class="m-0 mt-2 max-w-3xl text-sm" style="color: var(--josanz-text-muted);">
+              Esta story reúne superficies críticas para detectar regresiones de contraste, color de marca, estados y radios.
+            </p>
+          </header>
+
+          <div class="grid gap-5 lg:grid-cols-3">
+            <section class="rounded-3xl border border-solid p-5" style="--josanz-primary: #0F1E2F; background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Marca base · Rounded</p>
+              <div class="mt-4 flex flex-wrap gap-3">
+                <josanz-button label="Nuevo cliente" [customColor]="'#0F1E2F'"></josanz-button>
+                <josanz-secondary-button label="Exportar" type="excel" customColor="#0F1E2F"></josanz-secondary-button>
+              </div>
+              <div class="mt-5">
+                <josanz-filter-tabs [options]="['Todos', 'Activos', 'Baja']" selected="Activos" variant="brand" customColor="#0F1E2F"></josanz-filter-tabs>
+              </div>
+            </section>
+
+            <section class="rounded-3xl border border-solid p-5" style="--josanz-primary: #635BFF; background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Marca evento · Pill</p>
+              <div class="mt-4 grid gap-3">
+                <josanz-list-search-field placeholder="Buscar evento..." shape="pill" customColor="#635BFF"></josanz-list-search-field>
+                <josanz-filter-tabs [options]="['Todos', 'Confirmados', 'Presupuesto']" selected="Confirmados" variant="figma" shape="pill" customColor="#635BFF"></josanz-filter-tabs>
+              </div>
+            </section>
+
+            <section class="rounded-3xl border border-solid p-5" style="--josanz-primary: #B91C1C; background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Acciones críticas · Square</p>
+              <div class="mt-4 flex flex-wrap gap-3">
+                <josanz-button label="Eliminar" variant="danger" shape="square" [showIcon]="false"></josanz-button>
+                <josanz-secondary-button label="Cancelar" type="cancel" shape="square" customColor="#B91C1C"></josanz-secondary-button>
+              </div>
+              <div class="mt-5">
+                <josanz-pagination [current]="7" [total]="12" variant="numbered" shape="square" customColor="#B91C1C"></josanz-pagination>
+              </div>
+            </section>
+          </div>
+
+          <div class="grid gap-5 lg:grid-cols-[1fr_360px]">
+            <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Estados de flujo</p>
+              <div class="mt-4 grid gap-3">
+                <josanz-main-template-card title="Gala Primavera 2026" status="Confirmado" statusVariant="confirmado" [labels]="['Cliente', 'Ciudad', 'Equipo', 'Total']" [data]="['NovaByte', 'Sevilla', '6 técnicos', '24.500 EUR']"></josanz-main-template-card>
+                <josanz-main-template-card title="Convención Retail Q3" status="En presupuesto" statusVariant="presupuesto" [labels]="['Cliente', 'Ciudad', 'Equipo', 'Total']" [data]="['Auralux', 'Madrid', '4 técnicos', '18.200 EUR']"></josanz-main-template-card>
+                <josanz-main-template-card title="Festival Sonido Sur" status="Incidencia" statusVariant="incidencia" [labels]="['Cliente', 'Ciudad', 'Equipo', 'Total']" [data]="['Eventos del Sur', 'Cádiz', '8 técnicos', '9.800 EUR']"></josanz-main-template-card>
+              </div>
+            </section>
+
+            <josanz-document-list uploadLabel="Subir contrato" accentColor="#635BFF">
+              <josanz-document-item name="Contrato NovaByte.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+              <josanz-document-item name="Presupuesto Q3.xlsx" statusColor="var(--josanz-warning)" [showDownload]="true"></josanz-document-item>
+              <josanz-document-item name="Anexo técnico.docx" statusColor="var(--josanz-primary)" [showView]="true" [showDownload]="true" [showDelete]="true"></josanz-document-item>
+            </josanz-document-list>
+          </div>
+
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <josanz-grid-list-card title="NovaByte" status="Activo" statusVariant="confirmado" density="comfortable" [fieldLabels]="['CIF', 'Email', 'Total']" [previewLines]="['B-12345678', 'contacto@novabyte.es', '12.450 EUR']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Auralux" status="Borrador" statusVariant="borrador" density="compact" [fieldLabels]="['Lead', 'Origen', 'Valor']" [previewLines]="['María', 'Web', '8.900 EUR']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Eventos del Sur" status="Proceso" statusVariant="en-proceso" density="dense" [fieldLabels]="['Ciudad', 'Próximo', 'Equipo']" [previewLines]="['Sevilla', 'Gala', '4 técnicos']"></josanz-grid-list-card>
+          </div>
+        </div>
+      </section>
+    `,
+  }),
+};

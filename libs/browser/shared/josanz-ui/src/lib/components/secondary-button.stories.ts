@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { SecondaryButtonComponent } from './secondary-button';
 
@@ -110,4 +111,39 @@ export const UseCases: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveExport: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa una acción secundaria de exportación y valida que emite `btnClick`.',
+      },
+    },
+  },
+  args: {
+    label: 'Exportar Excel',
+    type: 'excel',
+    shape: 'rounded',
+    btnClick: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="rounded-2xl border border-solid p-8" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-secondary-button
+          [label]="label"
+          [type]="type"
+          [shape]="shape"
+          [customColor]="customColor"
+          (btnClick)="btnClick($event)"
+        ></josanz-secondary-button>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /exportar excel/i }));
+    await expect(args.btnClick).toHaveBeenCalledTimes(1);
+  },
 };
