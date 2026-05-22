@@ -90,7 +90,6 @@ jobs:
             dockerfile_path: deploy/railway/dockerfiles/document-generator.Dockerfile
             push_branch: ''
             deploy_on_main: false
-            
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
