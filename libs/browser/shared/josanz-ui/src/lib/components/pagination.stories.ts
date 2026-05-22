@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import {
   sbEmit,
   sbPaginationArgTypes,
@@ -126,4 +127,81 @@ export const Progression: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveFigmaPicker: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: abre el selector compacto, elige página 5 y comprueba que `current` se actualiza en la story.',
+      },
+    },
+  },
+  args: {
+    current: 2,
+    total: 8,
+    variant: 'figma',
+    shape: 'rounded',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="inline-block min-w-[320px] rounded-xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-pagination
+          [current]="current"
+          [total]="total"
+          [variant]="variant"
+          [shape]="shape"
+          [customColor]="customColor"
+          (pageChange)="current = $event; pageChange($event)"
+        ></josanz-pagination>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText('2 / 8')).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole('button', { name: /ir a página/i }));
+    await userEvent.click(canvas.getByRole('option', { name: '5' }));
+    await expect(canvas.getByText('5 / 8')).toBeInTheDocument();
+  },
+};
+
+export const InteractiveNumberedNext: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: pulsa siguiente en la variante numerada y valida que la página activa pasa de 4 a 5.',
+      },
+    },
+  },
+  args: {
+    current: 4,
+    total: 10,
+    variant: 'numbered',
+    shape: 'pill',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="inline-block min-w-[320px] rounded-xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-pagination
+          [current]="current"
+          [total]="total"
+          [variant]="variant"
+          [shape]="shape"
+          [customColor]="customColor"
+          (pageChange)="current = $event; pageChange($event)"
+        ></josanz-pagination>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('button', { name: '4' })).toHaveAttribute('aria-current', 'page');
+    await userEvent.click(canvas.getByRole('button', { name: /página siguiente/i }));
+    await expect(canvas.getByRole('button', { name: '5' })).toHaveAttribute('aria-current', 'page');
+  },
 };

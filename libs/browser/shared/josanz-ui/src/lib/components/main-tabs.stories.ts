@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainTabsComponent } from './main-tabs';
 
@@ -83,4 +84,43 @@ export const NavigationExamples: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveSelection: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: al pulsar una pestaña, la story actualiza `selection` y muestra el contenido activo.',
+      },
+    },
+  },
+  args: {
+    options: ['General', 'Seguridad', 'Facturación', 'Usuarios'],
+    selection: 'General',
+    shape: 'rounded',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-3xl rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-main-tabs
+          [options]="options"
+          [selection]="selection"
+          [shape]="shape"
+          [customColor]="customColor"
+          (selectionChange)="selection = $event; selectionChange($event)"
+        ></josanz-main-tabs>
+        <p data-testid="active-tab" class="m-0 text-sm font-bold" style="color: var(--josanz-text);">
+          Activa: {{ selection }}
+        </p>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('active-tab')).toHaveTextContent('Activa: General');
+    await userEvent.click(canvas.getByRole('button', { name: 'Facturación' }));
+    await expect(canvas.getByTestId('active-tab')).toHaveTextContent('Activa: Facturación');
+  },
 };

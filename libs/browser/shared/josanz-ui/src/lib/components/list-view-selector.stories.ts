@@ -3,6 +3,7 @@ import {
   type JosanzListViewSelection,
 } from '../list-view/list-view-preferences';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbEmit, sbSelect, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ListViewSelectorComponent } from './list-view-selector';
 
@@ -73,4 +74,43 @@ export const InToolbar: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveDropdown: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: abre el desplegable, selecciona “Cuadrícula compacta” y actualiza `selected` en la story.',
+      },
+    },
+  },
+  args: {
+    label: 'Vista',
+    selected: 'tabla',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="inline-block rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-list-view-selector
+          [label]="label"
+          [selected]="selected"
+          (selectionChange)="selected = $event; selectionChange($event)"
+        ></josanz-list-view-selector>
+        <p data-testid="selected-view" class="m-0 mt-5 text-sm font-bold" style="color: var(--josanz-text);">
+          Vista seleccionada: {{ selected }}
+        </p>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('selected-view')).toHaveTextContent('Vista seleccionada: tabla');
+    await userEvent.click(canvas.getByRole('button', { name: /vista/i }));
+    await userEvent.click(canvas.getByRole('button', { name: 'Cuadrícula compacta' }));
+    await expect(canvas.getByTestId('selected-view')).toHaveTextContent(
+      'Vista seleccionada: tarjetas-grid-compact',
+    );
+  },
 };

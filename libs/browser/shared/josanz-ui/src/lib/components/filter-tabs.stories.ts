@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbRadio, sbEmit, sbShapeArgTypes, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { FilterTabsComponent } from './filter-tabs';
 
@@ -110,4 +111,45 @@ export const CommonScenarios: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveFilterChange: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interaction test: selecciona un filtro y actualiza el valor controlado `selected` en la story.',
+      },
+    },
+  },
+  args: {
+    options: ['Todos', 'Activos', 'Pendientes', 'Baja'],
+    selected: 'Todos',
+    variant: 'brand',
+    shape: 'pill',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-3xl rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-filter-tabs
+          [options]="options"
+          [selected]="selected"
+          [variant]="variant"
+          [shape]="shape"
+          [customColor]="customColor"
+          (selectionChange)="selected = $event; selectionChange($event)"
+        ></josanz-filter-tabs>
+        <p data-testid="active-filter" class="m-0 mt-5 text-sm font-bold" style="color: var(--josanz-text);">
+          Filtro activo: {{ selected }}
+        </p>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('active-filter')).toHaveTextContent('Filtro activo: Todos');
+    await userEvent.click(canvas.getByRole('button', { name: 'Pendientes' }));
+    await expect(canvas.getByTestId('active-filter')).toHaveTextContent('Filtro activo: Pendientes');
+  },
 };
