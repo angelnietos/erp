@@ -1,14 +1,6 @@
 name: Storybook Visual Regression (Chromatic)
 
 on:
-  push:
-    branches:
-      - storybook-deploy
-      - storybook_deploy
-  pull_request:
-    branches:
-      - storybook-deploy
-      - storybook_deploy
   workflow_dispatch:
 
 permissions:
@@ -20,22 +12,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  chromatic-skipped:
-    name: Publish josanz-ui Storybook
-    if: ${{ secrets.CHROMATIC_PROJECT_TOKEN == '' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Chromatic not configured
-        run: |
-          echo "::notice::Chromatic skipped. Add CHROMATIC_PROJECT_TOKEN in GitHub repository secrets to enable visual regression."
-
   chromatic:
     name: Publish josanz-ui Storybook
-    if: ${{ secrets.CHROMATIC_PROJECT_TOKEN != '' }}
     runs-on: ubuntu-latest
     env:
       CI: true
-      CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,12 +40,6 @@ jobs:
       - name: Build josanz-ui Storybook
         run: pnpm exec nx run josanz-ui:build-storybook:ci
 
-      - name: Publish to Chromatic
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Chromatic disabled
         run: |
-          pnpm exec chromatic \
-            --storybook-build-dir dist/storybook/josanz-ui \
-            --only-changed \
-            --exit-zero-on-changes
+          echo "::notice::Chromatic is disabled for automatic deploys. Add CHROMATIC_PROJECT_TOKEN and re-enable push triggers when visual regression is needed."
