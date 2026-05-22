@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainDetailLayoutComponent } from './main-detail-layout';
 import { DetailCardComponent } from './detail-card';
@@ -99,6 +100,54 @@ export const Playground: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveTabChange: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Cambia de pestaña y actualiza `activeTab` en la story.',
+      },
+    },
+  },
+  args: {
+    title: 'NovaByte S.L.',
+    tabs: ['Datos', 'Operadores', 'Documentos'],
+    activeTab: 'Datos',
+    saveLabel: 'Guardar cambios',
+    cancelLabel: 'Cancelar',
+    layoutVariant: 'default',
+    showFooterActions: true,
+    saveDisabled: false,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="h-[720px] overflow-hidden" style="background: var(--josanz-bg);">
+        <josanz-main-detail-layout
+          [title]="title"
+          [tabs]="tabs"
+          [activeTab]="activeTab"
+          [saveLabel]="saveLabel"
+          [cancelLabel]="cancelLabel"
+          [layoutVariant]="layoutVariant"
+          [showFooterActions]="showFooterActions"
+          [saveDisabled]="saveDisabled"
+          (tabChange)="activeTab = $event; tabChange($event)"
+        >
+          <p data-testid="active-tab" class="p-4 m-0 text-sm font-bold" style="color: var(--josanz-text);">
+            Pestaña activa: {{ activeTab }}
+          </p>
+        </josanz-main-detail-layout>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByTestId('active-tab')).toHaveTextContent('Pestaña activa: Datos');
+    await userEvent.click(canvas.getByRole('button', { name: 'Documentos' }));
+    await expect(canvas.getByTestId('active-tab')).toHaveTextContent('Pestaña activa: Documentos');
+  },
 };
 
 export const FigmaEventVariant: Story = {

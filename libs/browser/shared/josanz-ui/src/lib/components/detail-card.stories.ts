@@ -82,35 +82,42 @@ export const UseCases: Story = {
   parameters: {
     controls: { disable: true },
     docs: {
-      description: { story: 'Perfil con imagen y tarjeta mínima sin imagen, usando tokens del tema.' },
+      description: {
+        story:
+          'Fichas de detalle por dominio: cliente con imagen, evento sin imagen y contacto interno.',
+      },
     },
   },
   render: () => ({
     template: `
-      <div class="grid max-w-5xl grid-cols-1 gap-8 rounded-3xl p-6 md:grid-cols-2" style="background: var(--josanz-bg);">
-        <section class="flex flex-col gap-4">
-          <h4 class="text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Con imagen</h4>
-          <lib-detail-card
-            title="Soporte Técnico"
-            subtitle="Departamento Interno"
-            badgeText="SLA 99.9%"
-            description="Equipo responsable de la infraestructura crítica y mantenimiento de servidores."
-            [data]="['24/7']"
-            [tags]="['IT', 'Soporte', '24/7']"
-            imageUrl="https://i.pravatar.cc/150?u=tech"
-          ></lib-detail-card>
-        </section>
-        <section class="flex flex-col gap-4">
-          <h4 class="text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Sin imagen</h4>
-          <lib-detail-card
-            title="Gala Primavera 2026"
-            subtitle="Eventos del Sur"
-            badgeText="Confirmado"
-            description="Evento corporativo con montaje AV, catering y coordinación logística."
-            [data]="['Sevilla']"
-            [tags]="['Eventos', 'AV', 'Catering']"
-          ></lib-detail-card>
-        </section>
+      <div class="grid max-w-6xl grid-cols-1 gap-6 rounded-3xl p-6 lg:grid-cols-3" style="background: var(--josanz-bg);">
+        <lib-detail-card
+          title="NovaByte S.L."
+          subtitle="Cliente premium"
+          badgeText="Activo"
+          description="Empresa tecnológica con contrato marco y facturación recurrente."
+          [data]="['Madrid']"
+          [tags]="['Tecnología', 'VIP', 'Nacional']"
+          imageUrl="https://i.pravatar.cc/150?u=novabyte"
+        ></lib-detail-card>
+        <lib-detail-card
+          title="Gala Primavera 2026"
+          subtitle="Eventos del Sur"
+          badgeText="Confirmado"
+          description="Evento corporativo con montaje AV, catering y coordinación logística en Sevilla."
+          [data]="['Sevilla']"
+          [tags]="['Corporativo', 'AV', 'Catering']"
+          customColor="#635BFF"
+        ></lib-detail-card>
+        <lib-detail-card
+          title="Soporte Técnico"
+          subtitle="Departamento interno"
+          badgeText="SLA 99.9%"
+          description="Equipo de infraestructura y mantenimiento de servidores críticos."
+          [data]="['24/7']"
+          [tags]="['IT', 'Soporte']"
+          imageUrl="https://i.pravatar.cc/150?u=tech"
+        ></lib-detail-card>
       </div>
     `,
   }),

@@ -86,6 +86,48 @@ export const BrandAccent: Story = {
   render: (args) => ({ props: args, template: avatarTemplate }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Ubicaciones habituales: barra superior con enlace a ajustes, formulario de detalle y cabecera de evento.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-5 md:grid-cols-3">
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Listado / shell</p>
+          <div class="mt-4 flex items-center justify-between gap-3">
+            <h4 class="m-0 text-base font-black" style="color: var(--josanz-text);">Clientes</h4>
+            <josanz-user-avatar size="sm" link="/settings" ariaLabel="Cuenta y ajustes"></josanz-user-avatar>
+          </div>
+        </section>
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Formulario</p>
+          <div class="mt-4 flex flex-col items-center gap-3">
+            <josanz-user-avatar size="lg" shape="pill"></josanz-user-avatar>
+            <span class="text-sm font-bold" style="color: var(--josanz-text);">Foto de perfil</span>
+          </div>
+        </section>
+        <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Detalle evento</p>
+          <div class="mt-4 flex items-center gap-3">
+            <josanz-user-avatar size="sm" customColor="#635BFF" shape="rounded"></josanz-user-avatar>
+            <div>
+              <strong style="color: var(--josanz-text);">Lucía</strong>
+              <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">Responsable del evento</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const Sizes: Story = {
   parameters: {
     controls: { disable: true },

@@ -42,6 +42,34 @@ export const Playground: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Modal legacy frente a la página de ajustes: conservado para compatibilidad, no para nuevas pantallas.',
+      },
+    },
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="min-h-[640px] rounded-3xl p-8" style="background: var(--josanz-bg);">
+        <div class="mx-auto max-w-2xl rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Legacy</p>
+          <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Personalización (modal)</h3>
+          <p class="mt-3 text-sm leading-relaxed" style="color: var(--josanz-text-muted);">
+            Usa <code class="text-xs">josanz-theme-modal</code> solo si necesitas mantener flujos antiguos.
+            Para producto nuevo, prefiere <strong>josanz-app-settings-page</strong> con pestaña Personalización.
+          </p>
+          <p class="mt-4 text-xs" style="color: var(--josanz-text-muted);">Emite <code class="text-xs">modalClose</code> al cerrar.</p>
+        </div>
+      </div>
+    `,
+  }),
+};
+
 export const OnDarkCanvas: Story = {
   parameters: {
     globals: { theme: 'dark' },

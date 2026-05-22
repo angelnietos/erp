@@ -118,6 +118,38 @@ export const StatusGrid: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Listados reales: clientes con marca inicial y facturas con columnas de negocio.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="max-w-5xl space-y-8 rounded-3xl p-6" style="background: var(--josanz-bg);">
+        <section>
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Clientes</h4>
+          <div class="space-y-3">
+            <josanz-main-template-card title="NovaByte S.L." leadingMark="NB" status="Activo" statusVariant="confirmado" [labels]="['CIF', 'Ciudad', 'Email']" [data]="['B-12345678', 'Madrid', 'contacto@novabyte.es']"></josanz-main-template-card>
+            <josanz-main-template-card title="Eventos del Sur" leadingMark="ES" status="Potencial" statusVariant="en-proceso" [labels]="['CIF', 'Ciudad', 'Email']" [data]="['B-55443322', 'Sevilla', 'ops@eventosur.es']"></josanz-main-template-card>
+          </div>
+        </section>
+        <section>
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Facturación</h4>
+          <div class="space-y-3">
+            <josanz-main-template-card title="INV-2026-004" status="Pendiente" statusVariant="warning" [labels]="['Cliente', 'Importe', 'Vencimiento']" [data]="['NovaByte', '1.250 EUR', '12 días']"></josanz-main-template-card>
+            <josanz-main-template-card title="INV-2026-003" status="Cobrada" statusVariant="facturado" [labels]="['Cliente', 'Importe', 'Vencimiento']" [data]="['Auralux', '8.900 EUR', '0 días']"></josanz-main-template-card>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const EstadosFlujo: Story = {
   parameters: {
     controls: { disable: true },

@@ -172,3 +172,49 @@ export const GridDense: Story = {
   args: { listView: 'tarjetas-grid-dense', items: SAMPLE_ITEMS },
   render: Playground.render,
 };
+
+const EVENT_ITEMS: JosanzAdaptiveListItem[] = [
+  {
+    id: 'e1',
+    title: 'Gala Primavera 2026',
+    leadingMark: 'GP',
+    data: ['NovaByte', 'Madrid', '24/05/2026'],
+    labels: ['Cliente', 'Ciudad', 'Fecha'],
+    status: 'Confirmado',
+    statusVariant: 'confirmado',
+  },
+  {
+    id: 'e2',
+    title: 'Convención anual',
+    leadingMark: 'CA',
+    data: ['Auralux', 'Barcelona', '18/06/2026'],
+    labels: ['Cliente', 'Ciudad', 'Fecha'],
+    status: 'En proceso',
+    statusVariant: 'en-proceso',
+  },
+  {
+    id: 'e3',
+    title: 'Festival urbano',
+    leadingMark: 'FU',
+    data: ['Eventos Ruiz', 'Valencia', '02/07/2026'],
+    labels: ['Cliente', 'Ciudad', 'Fecha'],
+    status: 'Borrador',
+    statusVariant: 'borrador',
+  },
+];
+
+export const EventsUseCase: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Listado de eventos con datos de negocio y cambio de vista recomendado.',
+      },
+    },
+  },
+  args: {
+    listView: 'tarjetas-lista',
+    items: EVENT_ITEMS,
+    defaultLabels: ['Cliente', 'Ciudad', 'Fecha'],
+  },
+  render: Playground.render,
+};

@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ModalComponent } from './modal';
 import { ButtonComponent } from './button';
@@ -121,6 +122,37 @@ export const WithFooterActions: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveClose: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa el botón de cerrar (X) y valida que se emite `close`.',
+      },
+    },
+  },
+  args: {
+    title: 'Confirmar acción',
+    width: '480px',
+    shape: 'rounded',
+    close: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="flex h-[520px] items-center justify-center overflow-hidden rounded-3xl p-10" style="background: color-mix(in srgb, var(--josanz-bg) 20%, #000);">
+        <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
+          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Contenido de ejemplo para validar el cierre accesible del modal.</p>
+        </josanz-modal>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Cerrar modal' }));
+    await expect(args.close).toHaveBeenCalled();
+  },
 };
 
 export const UseCases: Story = {

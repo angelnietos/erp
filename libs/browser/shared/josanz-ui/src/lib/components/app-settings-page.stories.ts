@@ -69,3 +69,16 @@ export const General: Story = {
     },
   },
 };
+
+export const UseCases: Story = {
+  ...settingsRender('personalizacion'),
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Vista recomendada de producto: ajustes con pestaña Personalización activa (marca, atmósfera, shape y listados). Sustituye al modal legacy.',
+      },
+    },
+  },
+};

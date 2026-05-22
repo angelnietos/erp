@@ -81,6 +81,41 @@ export const DensityMatrix: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Cuadrícula de eventos y clientes: densidad comfortable para overview, compact para listados densos.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="max-w-6xl space-y-8 rounded-3xl p-6" style="background: var(--josanz-bg);">
+        <section>
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Eventos activos</h4>
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <josanz-grid-list-card title="Gala Primavera 2026" status="Confirmado" statusVariant="confirmado" density="comfortable" [fieldLabels]="['Cliente', 'Ciudad', 'Presupuesto']" [previewLines]="['NovaByte', 'Madrid', '24.500 EUR']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Convención anual" status="En proceso" statusVariant="en-proceso" density="comfortable" [fieldLabels]="['Cliente', 'Fecha', 'Equipo']" [previewLines]="['Auralux', '12/06/2026', '6 técnicos']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Boda Jardines" status="Borrador" statusVariant="borrador" density="comfortable" [fieldLabels]="['Cliente', 'Invitados', 'Estado']" [previewLines]="['Privado', '180', 'Pendiente']"></josanz-grid-list-card>
+          </div>
+        </section>
+        <section>
+          <h4 class="mb-4 mt-0 text-sm font-black" style="color: var(--josanz-text);">Clientes · vista compacta</h4>
+          <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <josanz-grid-list-card title="NovaByte" status="Activo" statusVariant="confirmado" density="compact" [fieldLabels]="['CIF', 'Total']" [previewLines]="['B-12345678', '12.450 EUR']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Eventos Ruiz" status="VIP" statusVariant="en-proceso" density="compact" [fieldLabels]="['Ciudad', 'Próximo']" [previewLines]="['Madrid', 'Gala']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Logística Norte" status="Baja" statusVariant="cancelado" density="compact" [fieldLabels]="['Lead', 'Origen']" [previewLines]="['Frío', 'Web']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Auralux" status="Lead" statusVariant="borrador" density="dense" [fieldLabels]="['Valor']" [previewLines]="['8.900 EUR']"></josanz-grid-list-card>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const SemanticStatuses: Story = {
   parameters: {
     controls: { disable: true },

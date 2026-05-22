@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ButtonComponent } from './button';
 
@@ -162,4 +163,47 @@ export const UseCases: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveClick: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa el botón primario y valida que se emite `btnClick`.',
+      },
+    },
+  },
+  args: {
+    label: 'Nuevo cliente',
+    variant: 'primary',
+    size: 'md',
+    shape: 'rounded',
+    disabled: false,
+    showIcon: true,
+    fullWidth: false,
+    btnClick: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="rounded-2xl border border-solid p-8" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-button
+          [label]="label"
+          [variant]="variant"
+          [size]="size"
+          [shape]="shape"
+          [disabled]="disabled"
+          [showIcon]="showIcon"
+          [fullWidth]="fullWidth"
+          [customColor]="customColor"
+          (btnClick)="btnClick($event)"
+        ></josanz-button>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /nuevo cliente/i }));
+    await expect(args.btnClick).toHaveBeenCalledTimes(1);
+  },
 };

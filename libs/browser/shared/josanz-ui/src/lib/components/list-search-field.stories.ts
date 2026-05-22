@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbEmit, sbShapeArgTypes, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { ListSearchFieldComponent } from './list-search-field';
 
@@ -71,6 +72,47 @@ export const SearchStates: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveSearch: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Escribe en el campo y valida que `valueChange` actualiza el valor mostrado.',
+      },
+    },
+  },
+  args: {
+    placeholder: 'Buscar clientes...',
+    value: '',
+    ariaLabel: 'Buscar clientes',
+    shape: 'rounded',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-md space-y-4 rounded-2xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-list-search-field
+          [placeholder]="placeholder"
+          [value]="value"
+          [ariaLabel]="ariaLabel"
+          [shape]="shape"
+          [customColor]="customColor"
+          (valueChange)="value = $event; valueChange($event)"
+        ></josanz-list-search-field>
+        <p data-testid="search-value" class="m-0 text-sm font-bold" style="color: var(--josanz-text);">
+          Búsqueda: "{{ value }}"
+        </p>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('searchbox');
+    await userEvent.click(input);
+    await userEvent.type(input, 'Nova', { delay: 10 });
+    await expect(canvas.getByTestId('search-value')).toHaveTextContent('Búsqueda: "Nova"');
+  },
 };
 
 export const UseCases: Story = {

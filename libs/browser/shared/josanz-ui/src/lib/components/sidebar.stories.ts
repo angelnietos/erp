@@ -2,6 +2,7 @@ import { moduleMetadata } from '@storybook/angular';
 import { RouterModule } from '@angular/router';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, userEvent, within } from '@storybook/test';
 import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { SidebarComponent } from './sidebar';
 
@@ -92,4 +93,77 @@ export const NeutralWhite: Story = {
     isOpen: true,
   },
   render: (args) => ({ props: args, template: shellTemplate }),
+};
+
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Shell de aplicación: sidebar expandida vs colapsada con área de contenido representativa.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid gap-6 p-4 lg:grid-cols-2" style="background: var(--josanz-bg);">
+        <div class="flex h-[520px] overflow-hidden rounded-3xl border border-solid" style="border-color: var(--josanz-border);">
+          <josanz-sidebar userName="Lucía Martín" userRole="Operaciones" [isOpen]="true"></josanz-sidebar>
+          <div class="flex-1 p-6">
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Expandida · 103px</p>
+            <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Inicio</h3>
+            <p class="mt-2 text-sm" style="color: var(--josanz-text-muted);">Navegación con etiquetas visibles.</p>
+          </div>
+        </div>
+        <div class="flex h-[520px] overflow-hidden rounded-3xl border border-solid" style="border-color: var(--josanz-border);">
+          <josanz-sidebar userName="Lucía Martín" userRole="Operaciones" [isOpen]="false"></josanz-sidebar>
+          <div class="flex-1 p-6">
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Colapsada · 36px</p>
+            <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Listado de clientes</h3>
+            <p class="mt-2 text-sm" style="color: var(--josanz-text-muted);">Más espacio para tablas y tarjetas.</p>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+};
+
+export const InteractiveToggle: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa el botón de expandir/contraer y valida el cambio de ancho de la sidebar.',
+      },
+    },
+  },
+  args: {
+    userName: 'Admin Josanz',
+    userRole: 'Administrador',
+    isOpen: false,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="flex h-[640px] w-full overflow-hidden rounded-3xl border border-solid" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+        <josanz-sidebar
+          [userName]="userName"
+          [userRole]="userRole"
+          [isOpen]="isOpen"
+          (logoutClick)="logoutClick($event)"
+        ></josanz-sidebar>
+        <div class="flex-1 p-8">
+          <p class="m-0 text-sm font-bold" style="color: var(--josanz-text);">Sidebar interactiva</p>
+          <p class="mt-2 text-sm" style="color: var(--josanz-text-muted);">Pulsa el chevron para expandir o contraer el menú.</p>
+        </div>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const toggle = canvas.getByRole('button', { name: /expandir menú/i });
+    await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(toggle);
+    await expect(canvas.getByRole('button', { name: /contraer menú/i })).toHaveAttribute('aria-expanded', 'true');
+  },
 };

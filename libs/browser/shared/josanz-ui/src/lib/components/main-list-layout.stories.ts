@@ -1,6 +1,8 @@
+import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainListLayoutComponent } from './main-list-layout';
+import { MainTemplateCardComponent } from './main-template-card';
 
 const meta: Meta<MainListLayoutComponent> = {
   component: MainListLayoutComponent,
@@ -176,6 +178,78 @@ export const ClientUseCase: Story = {
               </div>
               <span class="rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-en-proceso-bg); color: var(--josanz-pill-en-proceso-text);">Potencial</span>
             </div>
+          </div>
+        </josanz-main-list-layout>
+      </div>
+    `,
+  }),
+};
+
+export const EventsUseCase: Story = {
+  decorators: [
+    moduleMetadata({
+      imports: [MainTemplateCardComponent],
+    }),
+  ],
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Catálogo de eventos con layout Figma: tabs subrayados, búsqueda en toolbar y filas `main-template-card`.',
+      },
+    },
+  },
+  args: {
+    title: 'Eventos',
+    primaryBtnLabel: 'Nuevo evento',
+    filterOptions: ['Todos', 'Confirmados', 'En presupuesto', 'Cancelados'],
+    paginationPage: 2,
+    paginationTotal: 9,
+    shape: 'rounded',
+    customColor: '#635BFF',
+  },
+  render: (args) => ({
+    props: { ...args, figmaCatalogLayout: true, searchPlaceholder: 'Buscar evento o cliente...' },
+    template: `
+      <div class="min-h-[760px]" style="background: var(--josanz-bg);">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
+          [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          [shape]="shape"
+          [customColor]="customColor"
+          [figmaCatalogLayout]="figmaCatalogLayout"
+          [searchPlaceholder]="searchPlaceholder"
+          (primaryAction)="primaryAction($event)"
+          (excelAction)="excelAction($event)"
+          (filterChange)="filterChange($event)"
+          (paginationChange)="paginationChange($event)"
+        >
+          <div class="mt-2 space-y-3">
+            <josanz-main-template-card
+              title="Gala Primavera 2026"
+              status="Confirmado"
+              statusVariant="confirmado"
+              [labels]="['Cliente', 'Ciudad', 'Presupuesto', 'Equipo']"
+              [data]="['NovaByte', 'Sevilla', '24.500 EUR', '6 técnicos']"
+            ></josanz-main-template-card>
+            <josanz-main-template-card
+              title="Convención Retail Q3"
+              status="En presupuesto"
+              statusVariant="presupuesto"
+              [labels]="['Cliente', 'Ciudad', 'Presupuesto', 'Equipo']"
+              [data]="['Auralux', 'Madrid', '18.200 EUR', '4 técnicos']"
+            ></josanz-main-template-card>
+            <josanz-main-template-card
+              title="Festival Sonido Sur"
+              status="En proceso"
+              statusVariant="en-proceso"
+              [labels]="['Cliente', 'Ciudad', 'Presupuesto', 'Equipo']"
+              [data]="['Eventos del Sur', 'Cádiz', '9.800 EUR', '8 técnicos']"
+            ></josanz-main-template-card>
           </div>
         </josanz-main-list-layout>
       </div>
