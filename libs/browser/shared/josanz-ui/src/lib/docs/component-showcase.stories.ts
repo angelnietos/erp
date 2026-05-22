@@ -13,6 +13,11 @@ import { PaginationComponent } from '../components/pagination';
 import { MainTemplateCardComponent } from '../components/main-template-card';
 import { EmptyStateComponent } from '../components/empty-state';
 import { StatCardComponent } from '../components/stat-card';
+import { GalleryComponent } from '../components/gallery';
+import { CalendarComponent } from '../components/calendar';
+import { DateTimePickerComponent } from '../components/date-time-picker';
+import { TimePickerComponent } from '../components/time-picker';
+import { AlertComponent } from '../components/alert';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -32,6 +37,11 @@ const meta: Meta = {
         MainTemplateCardComponent,
         EmptyStateComponent,
         StatCardComponent,
+        GalleryComponent,
+        CalendarComponent,
+        DateTimePickerComponent,
+        TimePickerComponent,
+        AlertComponent,
       ],
     }),
   ],
@@ -211,6 +221,92 @@ export const BillingSlice: Story = {
           <footer class="flex justify-center rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
             <josanz-pagination [current]="3" [total]="12" [variant]="paginationVariant" [customColor]="brandColor"></josanz-pagination>
           </footer>
+        </div>
+      </section>
+    `,
+  }),
+};
+
+export const EventOperationsSuite: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Showcase compuesto: planificación de evento combinando KPIs, calendario, horarios, documentos y galería.',
+      },
+    },
+  },
+  render: () => ({
+    props: {
+      eventImages: [
+        {
+          id: 'stage',
+          src: 'https://picsum.photos/seed/josanz-suite-stage/720/520',
+          alt: 'Escenario preparado',
+          title: 'Escenario',
+          subtitle: 'Montaje principal',
+          badge: 'Foto',
+        },
+        {
+          id: 'audio',
+          src: 'https://picsum.photos/seed/josanz-suite-audio/720/520',
+          alt: 'Control de audio',
+          title: 'Audio',
+          subtitle: 'Prueba técnica',
+          badge: 'AV',
+        },
+      ],
+      eventDates: ['2026-05-18', '2026-05-24', '2026-05-29'],
+    },
+    template: `
+      <section class="min-h-[980px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto grid max-w-7xl gap-6">
+          <header class="flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <div>
+              <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Suite compuesta</p>
+              <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">Operación · Gala Primavera 2026</h1>
+              <p class="m-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">Componentes genéricos combinados en una vista de producto real.</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+              <josanz-secondary-button label="Exportar plan" type="pdf"></josanz-secondary-button>
+              <josanz-button label="Guardar cambios" [showIcon]="false" customColor="#635BFF"></josanz-button>
+            </div>
+          </header>
+
+          <div class="grid gap-5 md:grid-cols-3">
+            <josanz-stat-card eyebrow="Presupuesto" title="Total" value="24.500 EUR" caption="Margen 18%" trendLabel="OK" trendDirection="flat" icon="invoice" customColor="#635BFF"></josanz-stat-card>
+            <josanz-stat-card eyebrow="Equipo" title="Técnicos" value="6" caption="Sonido · luces · rigging" trendLabel="2" trendDirection="up" tone="success" icon="users"></josanz-stat-card>
+            <josanz-stat-card eyebrow="Logística" title="Vehículos" value="3/4" caption="Uno pendiente de asignación" trendLabel="1" trendDirection="flat" tone="warning" icon="truck"></josanz-stat-card>
+          </div>
+
+          <div class="grid gap-6 lg:grid-cols-[360px_1fr]">
+            <josanz-calendar eyebrow="Agenda" month="2026-05" selectedDate="2026-05-24" [eventDates]="eventDates" customColor="#635BFF"></josanz-calendar>
+
+            <div class="grid gap-6">
+              <josanz-alert
+                tone="warning"
+                title="Permisos pendientes"
+                description="Falta adjuntar la autorización municipal antes de cerrar la producción."
+                actionLabel="Completar"
+              ></josanz-alert>
+
+              <section class="grid gap-5 rounded-3xl border border-solid p-6 md:grid-cols-3" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+                <josanz-date-time-picker label="Inicio montaje" value="2026-05-24T08:00" customColor="#635BFF"></josanz-date-time-picker>
+                <josanz-time-picker label="Prueba sonido" value="12:00" customColor="var(--josanz-success)"></josanz-time-picker>
+                <josanz-time-picker label="Apertura puertas" value="19:30" customColor="var(--josanz-warning)" shape="pill"></josanz-time-picker>
+              </section>
+
+              <div class="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+                <josanz-gallery title="Galería técnica" description="Fotos asociadas al montaje" [items]="eventImages" selectedId="stage" [columns]="2" customColor="#635BFF"></josanz-gallery>
+                <josanz-document-list uploadLabel="Subir documento" accentColor="#635BFF">
+                  <josanz-document-item name="Contrato NovaByte.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+                  <josanz-document-item name="Rider técnico.pdf" statusColor="#635BFF" [showView]="true" [showDownload]="true"></josanz-document-item>
+                  <josanz-document-item name="Permisos ayuntamiento.pdf" statusColor="var(--josanz-warning)" [showDownload]="true" [showDelete]="true"></josanz-document-item>
+                </josanz-document-list>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     `,

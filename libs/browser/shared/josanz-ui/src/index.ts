@@ -57,3 +57,13 @@ export type {
 export * from './lib/components/empty-state';
 
 export * from './lib/components/stat-card';
+
+export * from './lib/components/gallery';
+
+export * from './lib/components/calendar';
+
+export * from './lib/components/date-time-picker';
+
+export * from './lib/components/time-picker';
+
+export * from './lib/components/alert';
