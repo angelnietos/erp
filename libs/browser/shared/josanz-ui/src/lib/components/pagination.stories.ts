@@ -1,5 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import {
+  sbEmit,
+  sbPaginationArgTypes,
+  sbShapeArgTypes,
+  josanzStoryThemeDescription,
+} from '../../../.storybook/story-arg-types';
 import { PaginationComponent } from './pagination';
 
 const meta: Meta<PaginationComponent> = {
@@ -10,7 +15,7 @@ const meta: Meta<PaginationComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Paginación numérica con elipsis, anterior/siguiente y `aria-label`. Botones usan `surface`, `border` y `text` del tema; la página activa usa el color de marca y texto con contraste automático. `shape` y `customColor` siguen la convención de `josanz-button`. Emite `pageChange`.',
+          'Paginación con variantes `figma` (selector compacto actual/total) y `numbered` (páginas 1…N con elipsis). La página activa usa color de marca; `shape` y `customColor` siguen la convención de `josanz-button`. Emite `pageChange`.',
         ),
       },
     },
@@ -19,8 +24,8 @@ const meta: Meta<PaginationComponent> = {
   argTypes: {
     current: { control: 'number', description: 'Página actual (1-based)' },
     total: { control: 'number', description: 'Total de páginas' },
-    shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Esquinas de los botones'),
-    customColor: { control: 'color', description: 'Color de la página activa (reemplaza el primario del tema)' },
+    ...sbPaginationArgTypes,
+    ...sbShapeArgTypes,
     pageChange: sbEmit('pageChange', 'Nueva página'),
   },
 };
@@ -28,74 +33,95 @@ const meta: Meta<PaginationComponent> = {
 export default meta;
 type Story = StoryObj<PaginationComponent>;
 
+const paginationTemplate = `
+  <div class="inline-block min-w-[320px] rounded-xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+    <josanz-pagination
+      [current]="current"
+      [total]="total"
+      [variant]="variant"
+      [shape]="shape"
+      [customColor]="customColor"
+      (pageChange)="pageChange($event)"
+    ></josanz-pagination>
+  </div>
+`;
+
 export const Playground: Story = {
   args: {
     current: 1,
     total: 12,
+    variant: 'figma',
     shape: 'rounded',
   },
-  render: (args) => ({
-    props: args,
-    template: `
-      <div class="p-6 bg-white rounded-xl border border-slate-100 shadow-sm inline-block min-w-[320px]">
-        <josanz-pagination
-          [current]="current"
-          [total]="total"
-          [shape]="shape"
-          [customColor]="customColor"
-          (pageChange)="pageChange($event)"
-        ></josanz-pagination>
-      </div>
-    `,
-  }),
+  render: (args) => ({ props: args, template: paginationTemplate }),
 };
 
-export const ManyPages: Story = {
+export const FigmaVariant: Story = {
   parameters: {
-    docs: { description: { story: 'Muchas páginas: comprueba elipsis y ventana alrededor de la actual.' } },
+    docs: {
+      description: {
+        story: 'Variante Figma: bloque compacto con selector desplegable de página.',
+      },
+    },
+  },
+  args: {
+    current: 3,
+    total: 18,
+    variant: 'figma',
+    shape: 'pill',
+  },
+  render: (args) => ({ props: args, template: paginationTemplate }),
+};
+
+export const NumberedVariant: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Variante numerada clásica con elipsis alrededor de la página activa.',
+      },
+    },
   },
   args: {
     current: 9,
     total: 24,
+    variant: 'numbered',
     shape: 'rounded',
   },
-  render: (args) => ({
-    props: args,
-    template: `
-      <div class="p-6 bg-white rounded-xl border border-slate-100">
-        <josanz-pagination
-          [current]="current"
-          [total]="total"
-          [shape]="shape"
-          [customColor]="customColor"
-          (pageChange)="pageChange($event)"
-        ></josanz-pagination>
-      </div>
-    `,
-  }),
+  render: (args) => ({ props: args, template: paginationTemplate }),
+};
+
+export const ManyPages: Story = {
+  parameters: {
+    docs: { description: { story: 'Muchas páginas en modo numerado.' } },
+  },
+  args: {
+    current: 9,
+    total: 24,
+    variant: 'numbered',
+    shape: 'rounded',
+  },
+  render: (args) => ({ props: args, template: paginationTemplate }),
 };
 
 export const Progression: Story = {
   parameters: {
     controls: { disable: true },
-    docs: { description: { story: 'Inicio, mitad y final de lista con el mismo total.' } },
+    docs: { description: { story: 'Inicio, mitad y final de lista (variante numbered).' } },
   },
   render: () => ({
     template: `
-      <div class="flex flex-col gap-10 p-10 bg-white rounded-3xl border border-slate-100 shadow-sm max-w-3xl">
+      <div class="flex max-w-3xl flex-col gap-10 rounded-3xl border border-solid p-10" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
         <section>
-          <h4 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">Inicio de lista</h4>
-          <josanz-pagination [current]="1" [total]="10"></josanz-pagination>
+          <h4 class="mb-4 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Inicio</h4>
+          <josanz-pagination variant="numbered" [current]="1" [total]="10"></josanz-pagination>
         </section>
-
         <section>
-          <h4 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">Mitad</h4>
-          <josanz-pagination [current]="5" [total]="10"></josanz-pagination>
+          <h4 class="mb-4 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Mitad</h4>
+          <josanz-pagination variant="numbered" [current]="5" [total]="10"></josanz-pagination>
         </section>
-
         <section>
-          <h4 class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-4">Final</h4>
-          <josanz-pagination [current]="10" [total]="10"></josanz-pagination>
+          <h4 class="mb-4 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Final</h4>
+          <josanz-pagination variant="numbered" [current]="10" [total]="10"></josanz-pagination>
         </section>
       </div>
     `,

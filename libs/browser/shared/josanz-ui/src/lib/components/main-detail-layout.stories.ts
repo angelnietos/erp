@@ -86,8 +86,9 @@ export const Playground: Story = {
               badgeText="Cliente premium"
               subtitle="contacto@novabyte.es"
               description="Ficha de cliente usada para validar layouts de detalle, documentos y acciones fijas."
-              [data]="['CIF B-12345678', 'Madrid', 'Facturacion anual 12.450 EUR']"
+              [data]="['Madrid']"
               [tags]="['Eventos', 'Tecnologia', 'Alta prioridad']"
+              imageUrl="https://i.pravatar.cc/150?u=novabyte"
             ></lib-detail-card>
             <josanz-document-list uploadLabel="Subir contrato">
               <josanz-document-item name="Contrato marco.pdf" [showView]="true" [showDownload]="true"></josanz-document-item>

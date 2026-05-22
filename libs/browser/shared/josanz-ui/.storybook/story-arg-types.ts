@@ -53,3 +53,9 @@ export const sbShapeArgTypes: ArgTypes = {
     description: 'Color de marca o acento local. Si se deja vacío, usa la toolbar Marca.',
   },
 };
+
+export const JOSANZ_PAGINATION_VARIANTS = ['figma', 'numbered'] as const;
+
+export const sbPaginationArgTypes: ArgTypes = {
+  variant: sbRadio(JOSANZ_PAGINATION_VARIANTS, 'figma = selector compacto; numbered = páginas 1…N'),
+};

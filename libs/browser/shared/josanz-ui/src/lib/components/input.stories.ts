@@ -1,5 +1,5 @@
 import { moduleMetadata } from '@storybook/angular';
-import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup, Validators } from '@angular/forms';
 import type { Meta, StoryObj } from '@storybook/angular';
 import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { InputComponent } from './input';
@@ -78,6 +78,43 @@ export const Playground: Story = {
         ></josanz-input>
       </div>
     `,
+    };
+  },
+};
+
+export const ValidationError: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Campo requerido marcado como inválido y touched para mostrar el mensaje "Requerido".',
+      },
+    },
+  },
+  render: () => {
+    const parentForm = new FormGroup({
+      company: new FormControl('', { validators: Validators.required }),
+    });
+    parentForm.get('company')?.markAsTouched();
+    return {
+      props: {
+        parentForm,
+        label: 'Razón social',
+        placeholder: 'Ej: NovaByte S.L.',
+        controlName: 'company',
+        shape: 'rounded' as const,
+      },
+      template: `
+        <div class="max-w-sm rounded-2xl border border-solid p-8" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <josanz-input
+            [label]="label"
+            [placeholder]="placeholder"
+            controlName="company"
+            [shape]="shape"
+            [parentForm]="parentForm"
+          ></josanz-input>
+        </div>
+      `,
     };
   },
 };

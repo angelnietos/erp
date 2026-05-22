@@ -50,7 +50,7 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="bg-slate-50 min-h-[520px]">
+      <div class="min-h-[520px]" style="background: var(--josanz-bg);">
         <josanz-main-list-layout
           [title]="title"
           [primaryBtnLabel]="primaryBtnLabel"
@@ -102,7 +102,7 @@ export const WithPagination: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="bg-slate-50 min-h-[520px]">
+      <div class="min-h-[520px]" style="background: var(--josanz-bg);">
         <josanz-main-list-layout
           [title]="title"
           [primaryBtnLabel]="primaryBtnLabel"

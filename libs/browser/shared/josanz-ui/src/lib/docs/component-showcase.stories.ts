@@ -42,6 +42,8 @@ const meta: Meta = {
   argTypes: {
     brandColor: { control: 'color', description: 'Color de marca aplicado al showcase' },
     activeFilter: { control: 'text', description: 'Filtro activo' },
+    filterVariant: sbRadio(['figma', 'underline', 'brand'] as const, 'Variante de filtros'),
+    searchShape: sbRadio(['rounded', 'pill', 'square'] as const, 'Shape del buscador'),
     cardDensity: sbRadio(['comfortable', 'compact', 'dense'] as const, 'Densidad de tarjetas'),
     paginationVariant: sbRadio(['figma', 'numbered'] as const, 'Variante de paginacion'),
   },
@@ -54,6 +56,8 @@ export const DashboardSlice: Story = {
   args: {
     brandColor: '#0F1E2F',
     activeFilter: 'Activos',
+    filterVariant: 'brand',
+    searchShape: 'rounded',
     cardDensity: 'comfortable',
     paginationVariant: 'figma',
   },
@@ -75,10 +79,15 @@ export const DashboardSlice: Story = {
 
           <div class="grid gap-4 rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
             <div class="flex flex-wrap items-center justify-between gap-4">
-              <josanz-list-search-field value="Nova" placeholder="Buscar cliente..."></josanz-list-search-field>
-              <josanz-list-view-selector label="Vista" selected="tarjetas-3"></josanz-list-view-selector>
+              <josanz-list-search-field value="Nova" placeholder="Buscar cliente..." [shape]="searchShape" [customColor]="brandColor"></josanz-list-search-field>
+              <josanz-list-view-selector label="Vista" selected="tarjetas-grid"></josanz-list-view-selector>
             </div>
-            <josanz-filter-tabs [options]="['Todos', 'Activos', 'Pendientes', 'Baja']" [selected]="activeFilter" [customColor]="brandColor"></josanz-filter-tabs>
+            <josanz-filter-tabs
+              [options]="['Todos', 'Activos', 'Pendientes', 'Baja']"
+              [selected]="activeFilter"
+              [variant]="filterVariant"
+              [customColor]="brandColor"
+            ></josanz-filter-tabs>
           </div>
 
           <div class="grid gap-5 md:grid-cols-[1fr_340px]">

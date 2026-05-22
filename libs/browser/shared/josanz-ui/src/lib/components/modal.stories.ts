@@ -44,7 +44,7 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="h-[600px] bg-slate-900 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
+      <div class="flex h-[600px] items-center justify-center overflow-hidden rounded-3xl p-10" style="background: color-mix(in srgb, var(--josanz-bg) 20%, #000);">
         <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <div class="p-8 flex flex-col gap-6">
             <div class="space-y-2">
@@ -77,7 +77,7 @@ export const SmallConfirmation: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="h-[400px] bg-slate-800 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
+      <div class="flex h-[400px] items-center justify-center overflow-hidden rounded-3xl p-10" style="background: color-mix(in srgb, var(--josanz-bg) 20%, #000);">
         <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <div class="p-10 text-center">
             <p class="text-slate-600 mb-8 font-medium">¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.</p>
@@ -108,7 +108,7 @@ export const WithFooterActions: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="h-[480px] bg-slate-900 flex items-center justify-center p-10 overflow-hidden rounded-3xl">
+      <div class="flex h-[480px] items-center justify-center overflow-hidden rounded-3xl p-10" style="background: color-mix(in srgb, var(--josanz-bg) 20%, #000);">
         <josanz-modal [title]="title" [width]="width" [shape]="shape" [customColor]="customColor" (close)="close($event)">
           <p class="text-slate-600 text-sm leading-relaxed">
             El pie del modal proyecta contenido con el atributo <code class="text-xs bg-slate-100 px-1 rounded">footer-actions</code>.
