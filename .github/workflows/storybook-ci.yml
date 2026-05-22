@@ -1,0 +1,44 @@
+name: Storybook CI
+
+on:
+  push:
+    branches:
+      - storybook-deploy
+      - storybook_deploy
+  pull_request:
+    branches:
+      - storybook-deploy
+      - storybook_deploy
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: storybook-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  storybook-ci:
+    name: Storybook CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Storybook
+        run: pnpm exec nx run josanz-ui:build-storybook:ci

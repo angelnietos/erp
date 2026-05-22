@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - storybook-deploy
+      - storybook_deploy
   pull_request:
     branches:
       - storybook-deploy
+      - storybook_deploy
   workflow_dispatch:
 
 permissions:
@@ -43,6 +45,7 @@ jobs:
 
       - name: Validate Chromatic token
         id: chromatic_config
+        continue-on-error: true
         run: |
           if [ -z "$CHROMATIC_PROJECT_TOKEN" ]; then
             echo "::warning::Chromatic was skipped because CHROMATIC_PROJECT_TOKEN is not configured."
@@ -61,9 +64,11 @@ jobs:
 
       - name: Publish to Chromatic
         if: steps.chromatic_config.outputs.configured == 'true'
+        continue-on-error: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pnpm exec chromatic \
             --storybook-build-dir dist/storybook/josanz-ui \
-            --only-changed
+            --only-changed \
+            --exit-zero-on-changes

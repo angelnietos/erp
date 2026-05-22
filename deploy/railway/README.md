@@ -49,6 +49,8 @@ Para publicar el Storybook de `josanz-ui`, usa la rama `storybook-deploy`:
 
 El workflow `.github/workflows/deploy-railway.yml` despliega manualmente con Railway CLI.
 
+Si Railway muestra **“CI check suite failed”** y el deploy queda en **Skipped** aunque GitHub Actions esté en verde, revisa [docs/deploy/railway-ci.md](../../docs/deploy/railway-ci.md) (opción **Wait for CI** en el servicio).
+
 También se ejecuta automáticamente al hacer `push` a la rama configurada. En `test-deploy` despliega `josanz-web-app`; en `storybook-deploy` despliega `josanz-ui-storybook`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
 
 El archivo `railway.json` de la raíz fuerza a Railway a usar `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` para este despliegue. Así Railway deja de usar Railpack + `npm ci` y pasa a usar `pnpm install --frozen-lockfile` con el Dockerfile del front.
