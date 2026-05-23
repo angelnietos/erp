@@ -1,0 +1,144 @@
+import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
+import { moduleMetadata } from '@storybook/angular';
+import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { AccordionComponent } from './accordion';
+import { TimelineComponent } from './timeline';
+import { DataTableComponent } from './data-table';
+import { SliderComponent } from './slider';
+
+const meta: Meta = {
+  title: 'Josanz UI / Data Display',
+  decorators: [
+    moduleMetadata({
+      imports: [
+        AccordionComponent,
+        TimelineComponent,
+        DataTableComponent,
+        SliderComponent,
+      ],
+    }),
+  ],
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: josanzStoryThemeDescription(
+          'Componentes de visualización: tabla, accordion, timeline y slider para filtros o ajustes de datos.',
+        ),
+      },
+    },
+    layout: 'padded',
+  },
+};
+
+export default meta;
+type Story = StoryObj;
+
+const columns = [
+  { key: 'client', label: 'Cliente' },
+  { key: 'status', label: 'Estado' },
+  { key: 'total', label: 'Total', align: 'right' as const },
+];
+
+const rows = [
+  { id: '1', client: 'NovaByte', status: 'Confirmado', total: '24.500 EUR' },
+  { id: '2', client: 'Auralux', status: 'En presupuesto', total: '18.200 EUR' },
+  {
+    id: '3',
+    client: 'Eventos del Sur',
+    status: 'Incidencia',
+    total: '9.800 EUR',
+  },
+];
+
+export const DataDisplaySuite: Story = {
+  args: {
+    rowClick: fn(),
+    valueChange: fn(),
+  },
+  render: (args) => ({
+    props: {
+      ...args,
+      columns,
+      rows,
+      accordionItems: [
+        {
+          id: 'docs',
+          eyebrow: 'Checklist',
+          title: 'Documentación',
+          content:
+            'Contrato, rider técnico, permisos municipales y anexos firmados.',
+        },
+        {
+          id: 'team',
+          eyebrow: 'Operación',
+          title: 'Equipo técnico',
+          content:
+            'Asignación de sonido, luces, rigging y coordinación de montaje.',
+        },
+        {
+          id: 'billing',
+          eyebrow: 'Finanzas',
+          title: 'Facturación',
+          content:
+            'Presupuesto aprobado, anticipo registrado y vencimientos pendientes.',
+        },
+      ],
+      timelineItems: [
+        {
+          id: 'brief',
+          title: 'Brief recibido',
+          timestamp: '09:00',
+          description: 'Cliente confirma aforo y necesidades principales.',
+          tone: 'success',
+        },
+        {
+          id: 'review',
+          title: 'Revisión técnica',
+          timestamp: '11:30',
+          description: 'Pendiente de confirmar punto de carga.',
+          tone: 'warning',
+        },
+        {
+          id: 'publish',
+          title: 'Publicación',
+          timestamp: '16:00',
+          description: 'Plan de producción listo para enviar.',
+          tone: 'primary',
+        },
+      ],
+    },
+    template: `
+      <section class="grid max-w-6xl gap-6">
+        <josanz-data-table title="Eventos recientes" description="Tabla base reutilizable para listados de negocio." [columns]="columns" [rows]="rows" (rowClick)="rowClick($event)"></josanz-data-table>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <josanz-accordion title="Detalle operativo" [items]="accordionItems" [openIds]="['docs']" customColor="#635BFF"></josanz-accordion>
+          <josanz-timeline title="Timeline del evento" [items]="timelineItems"></josanz-timeline>
+        </div>
+        <josanz-slider label="Probabilidad de cierre" [value]="72" suffix="%" hint="Slider básico para scoring, filtros y ajustes." customColor="#635BFF" (valueChange)="valueChange($event)"></josanz-slider>
+      </section>
+    `,
+  }),
+};
+
+export const InteractiveTableAndSlider: Story = {
+  args: {
+    rowClick: fn(),
+    valueChange: fn(),
+  },
+  render: (args) => ({
+    props: { ...args, columns, rows },
+    template: `
+      <div class="grid max-w-4xl gap-5">
+        <josanz-data-table [columns]="columns" [rows]="rows" (rowClick)="rowClick($event)"></josanz-data-table>
+        <josanz-slider label="Margen mínimo" [value]="20" suffix="%" (valueChange)="valueChange($event)"></josanz-slider>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/NovaByte/i));
+    await expect(args['rowClick']).toHaveBeenCalledTimes(1);
+  },
+};

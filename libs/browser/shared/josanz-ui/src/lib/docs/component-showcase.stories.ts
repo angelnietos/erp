@@ -35,6 +35,16 @@ import { SpinnerComponent } from '../components/spinner';
 import { DividerComponent } from '../components/divider';
 import { CarouselComponent } from '../components/carousel';
 import { TooltipComponent } from '../components/tooltip';
+import { SliderComponent } from '../components/slider';
+import { ToastComponent } from '../components/toast';
+import { AccordionComponent } from '../components/accordion';
+import { TimelineComponent } from '../components/timeline';
+import { DataTableComponent } from '../components/data-table';
+import { FileUploadComponent } from '../components/file-upload';
+import { AutocompleteComponent } from '../components/autocomplete';
+import { MultiSelectComponent } from '../components/multi-select';
+import { FloatingActionButtonComponent } from '../components/floating-action-button';
+import { NotificationsPanelComponent } from '../components/notifications-panel';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -73,6 +83,16 @@ const meta: Meta = {
         DividerComponent,
         CarouselComponent,
         TooltipComponent,
+        SliderComponent,
+        ToastComponent,
+        AccordionComponent,
+        TimelineComponent,
+        DataTableComponent,
+        FileUploadComponent,
+        AutocompleteComponent,
+        MultiSelectComponent,
+        FloatingActionButtonComponent,
+        NotificationsPanelComponent,
       ],
     }),
   ],
@@ -530,6 +550,154 @@ export const ProductSurfaceSuite: Story = {
             </div>
           </section>
         </div>
+      </section>
+    `,
+  }),
+};
+
+export const OperationsCommandCenter: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Centro operativo combinando tabla, timeline, accordion, autocomplete, multi-select, file upload, FAB, toast y notificaciones.',
+      },
+    },
+  },
+  render: () => ({
+    props: {
+      columns: [
+        { key: 'client', label: 'Cliente' },
+        { key: 'status', label: 'Estado' },
+        { key: 'total', label: 'Total', align: 'right' },
+      ],
+      rows: [
+        {
+          id: '1',
+          client: 'NovaByte',
+          status: 'Confirmado',
+          total: '24.500 EUR',
+        },
+        {
+          id: '2',
+          client: 'Auralux',
+          status: 'Presupuesto',
+          total: '18.200 EUR',
+        },
+        {
+          id: '3',
+          client: 'Eventos Sur',
+          status: 'Incidencia',
+          total: '9.800 EUR',
+        },
+      ],
+      clients: [
+        { label: 'NovaByte', value: 'novabyte', description: 'Cliente activo' },
+        { label: 'Auralux', value: 'auralux', description: 'Lead comercial' },
+        {
+          label: 'Eventos del Sur',
+          value: 'eventos-sur',
+          description: 'Producción',
+        },
+      ],
+      services: [
+        { label: 'Sonido', value: 'sonido' },
+        { label: 'Iluminación', value: 'iluminacion' },
+        { label: 'Streaming', value: 'streaming' },
+      ],
+      timelineItems: [
+        {
+          id: 'brief',
+          title: 'Brief recibido',
+          timestamp: '09:00',
+          description: 'Necesidades principales confirmadas.',
+          tone: 'success',
+        },
+        {
+          id: 'review',
+          title: 'Revisión técnica',
+          timestamp: '11:30',
+          description: 'Pendiente punto de carga.',
+          tone: 'warning',
+        },
+        {
+          id: 'publish',
+          title: 'Publicación',
+          timestamp: '16:00',
+          description: 'Plan listo para enviar.',
+          tone: 'primary',
+        },
+      ],
+      accordionItems: [
+        {
+          id: 'docs',
+          title: 'Documentación',
+          content: 'Contrato, rider técnico y permisos municipales.',
+        },
+        {
+          id: 'team',
+          title: 'Equipo',
+          content: 'Asignación por perfiles y turno de montaje.',
+        },
+      ],
+      notifications: [
+        {
+          id: 'n1',
+          title: 'Permiso pendiente',
+          description: 'Falta autorización municipal.',
+          time: '2 min',
+          unread: true,
+          tone: 'warning',
+        },
+        {
+          id: 'n2',
+          title: 'Contrato firmado',
+          description: 'NovaByte completó la firma.',
+          time: '15 min',
+          unread: true,
+          tone: 'success',
+        },
+      ],
+      toasts: [
+        {
+          id: 'saved',
+          title: 'Cambios guardados',
+          description: 'El panel se sincronizó correctamente.',
+          tone: 'success',
+        },
+      ],
+    },
+    template: `
+      <section class="min-h-[1100px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto grid max-w-7xl gap-6">
+          <header class="flex flex-wrap items-start justify-between gap-4 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <div>
+              <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Command center</p>
+              <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">Operaciones y eventos</h1>
+              <p class="m-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">Primitivas nuevas combinadas en una pantalla de producto.</p>
+            </div>
+            <josanz-floating-action-button label="Crear evento" icon="+" customColor="#635BFF"></josanz-floating-action-button>
+          </header>
+
+          <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+            <div class="grid gap-6">
+              <josanz-data-table title="Pipeline comercial" description="Tabla/data grid base" [columns]="columns" [rows]="rows"></josanz-data-table>
+              <section class="grid gap-5 rounded-3xl border border-solid p-6 md:grid-cols-2" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+                <josanz-autocomplete label="Cliente" [options]="clients" query="Nova" customColor="#635BFF"></josanz-autocomplete>
+                <josanz-multi-select label="Servicios" [options]="services" [values]="['sonido', 'streaming']" customColor="#635BFF"></josanz-multi-select>
+                <josanz-file-upload title="Subir contrato" description="PDF o imagen firmada" customColor="#635BFF"></josanz-file-upload>
+                <josanz-slider label="Probabilidad de cierre" [value]="72" suffix="%" customColor="#635BFF"></josanz-slider>
+              </section>
+            </div>
+            <div class="grid gap-6">
+              <josanz-notifications-panel [items]="notifications"></josanz-notifications-panel>
+              <josanz-timeline title="Actividad" [items]="timelineItems"></josanz-timeline>
+              <josanz-accordion title="Checklist" [items]="accordionItems" [openIds]="['docs']" customColor="#635BFF"></josanz-accordion>
+            </div>
+          </div>
+        </div>
+        <josanz-toast [toasts]="toasts" position="bottom-right"></josanz-toast>
       </section>
     `,
   }),

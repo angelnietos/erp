@@ -97,3 +97,25 @@ export * from './lib/components/carousel';
 export * from './lib/components/drawer';
 
 export * from './lib/components/tooltip';
+
+export * from './lib/components/slider';
+
+export * from './lib/components/toast';
+
+export * from './lib/components/accordion';
+
+export * from './lib/components/timeline';
+
+export * from './lib/components/data-table';
+
+export * from './lib/components/file-upload';
+
+export * from './lib/components/autocomplete';
+
+export * from './lib/components/multi-select';
+
+export * from './lib/components/floating-action-button';
+
+export * from './lib/components/command-palette';
+
+export * from './lib/components/notifications-panel';
