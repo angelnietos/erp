@@ -38,7 +38,8 @@ export type JosanzAtmosphereName =
   | 'sakura'
   | 'terracotta'
   | 'stargazer'
-  | 'emerald';
+  | 'emerald'
+  | 'orbitron';
 
 export interface JosanzAtmosphereConfig {
   name: JosanzAtmosphereName;
@@ -59,6 +60,8 @@ export interface JosanzAtmosphereConfig {
   fieldFill?: string;
   surfaceMuted?: string;
   strokeField?: string;
+  fontMain?: string;
+  fontDisplay?: string;
 }
 
 export interface JosanzAtmosphereCatalogEntry {
@@ -85,6 +88,7 @@ export const JOSANZ_ATMOSPHERE_CATALOG: readonly JosanzAtmosphereCatalogEntry[] 
   { name: 'easports', label: 'Arena Digital', description: 'Pizarra y cian eléctrico, deportivo premium.' },
   { name: 'midnight', label: 'Medianoche', description: 'Gris azulado GitHub, foco nocturno.' },
   { name: 'stargazer', label: 'Cielo Estrellado', description: 'Índigo cosmos con destellos suaves.' },
+  { name: 'orbitron', label: 'Orbitron', description: 'Interfaz sci-fi con tipografía Orbitron y acentos neón.' },
   { name: 'rosewood', label: 'Palo Rosa', description: 'Burdeos y rosa antiguo, íntimo.' },
   { name: 'rockstar', label: 'Oro Urbano', description: 'Carbón cálido y dorado tenue.' },
   { name: 'industrial', label: 'Grafito', description: 'Zinc cálido, estudio minimalista.' },
@@ -306,6 +310,24 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
     fieldFill: '#111733',
     surfaceMuted: '#182147',
     strokeField: '#4D5B94',
+  },
+  orbitron: {
+    name: 'orbitron',
+    background: 'radial-gradient(circle at 16% 12%, rgba(34, 211, 238, 0.26) 0%, transparent 24%), radial-gradient(circle at 84% 18%, rgba(168, 85, 247, 0.22) 0%, transparent 28%), linear-gradient(150deg, #050816 0%, #0A1024 46%, #111827 100%)',
+    surface: '#111A2E',
+    text: '#F8FBFF',
+    textMuted: '#A7F3D0',
+    border: '#2DD4BF',
+    shadow: '0 30px 70px rgba(0, 0, 0, 0.68)',
+    cardShadow: '0 20px 54px rgba(34, 211, 238, 0.24)',
+    accent: '#22D3EE',
+    glass: 'rgba(17, 26, 46, 0.88)',
+    isDark: true,
+    fieldFill: '#0A1324',
+    surfaceMuted: '#0F1A2D',
+    strokeField: '#275E69',
+    fontMain: "'Orbitron', 'DM Sans', sans-serif",
+    fontDisplay: "'Orbitron', 'DM Sans', sans-serif",
   },
   rosewood: {
     name: 'rosewood',
@@ -638,6 +660,10 @@ export function applyJosanzThemeCssVariables(params: {
   root.style.setProperty('--josanz-border', atmosphere.border);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
+  root.style.setProperty('--font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
+  root.style.setProperty('--font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
+  root.style.setProperty('--josanz-font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
+  root.style.setProperty('--josanz-font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
   root.style.setProperty(
     '--josanz-card-shadow',
     atmosphere.cardShadow ?? atmosphere.shadow,

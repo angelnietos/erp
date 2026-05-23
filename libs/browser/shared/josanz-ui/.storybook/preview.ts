@@ -11,7 +11,7 @@ import {
 import type { JosanzControlShape } from '../src/lib/josanz-control-styles';
 
 // ─── Google Fonts ────────────────────────────────────────────────────────────
-const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
+const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');`;
 
 const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
 const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
@@ -157,7 +157,7 @@ body.sb-show-main,
   background: var(--josanz-bg, #f8fafc) !important;
   min-height: 100%;
   padding: 2rem !important;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-main, 'Nunito', sans-serif);
   transition: background 0.3s ease;
 }
 
@@ -203,7 +203,7 @@ body.sb-show-main,
 }
 
 #storybook-root :where(h1, h2, h3, h4, h5, h6) {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-display, 'DM Sans', sans-serif);
   font-weight: 800;
   color: var(--josanz-text, #0f172a);
 }
