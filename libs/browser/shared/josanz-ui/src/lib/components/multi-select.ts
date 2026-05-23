@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { BadgeComponent } from './badge';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import type { JosanzSelectOption } from './select';
 
 @Component({
   selector: 'josanz-multi-select',
   standalone: true,
   imports: [CommonModule, BadgeComponent],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MultiSelectComponent),
+      multi: true,
+    },
+  ],
   template: `
     <section
       class="relative grid w-full gap-2"
@@ -24,7 +33,8 @@ import type { JosanzSelectOption } from './select';
         class="flex min-h-11 w-full flex-wrap items-center gap-2 rounded-[var(--josanz-radius-control)] border border-solid px-3 py-2 text-left"
         [style.backgroundColor]="'var(--josanz-field-fill)'"
         [style.borderColor]="open ? accentColor : 'var(--josanz-stroke-field)'"
-        (click)="open = !open"
+        [disabled]="disabled"
+        (click)="togglePanel()"
       >
         @if (selectedOptions().length) {
           @for (option of selectedOptions(); track option.value) {
@@ -55,7 +65,7 @@ import type { JosanzSelectOption } from './select';
               <input
                 type="checkbox"
                 [checked]="values.includes(option.value)"
-                [disabled]="option.disabled"
+                [disabled]="option.disabled || disabled"
                 (change)="toggleValue(option.value)"
               />
               <span
@@ -70,17 +80,22 @@ import type { JosanzSelectOption } from './select';
     </section>
   `,
 })
-export class MultiSelectComponent {
+export class MultiSelectComponent extends JosanzValueAccessorBase<string[]> {
   @Input() label = '';
   @Input() placeholder = 'Seleccionar...';
   @Input() options: JosanzSelectOption[] = [];
   @Input() values: string[] = [];
+  @Input() override disabled = false;
   @Input() customColor?: string;
   @Input() ariaLabel = '';
 
   @Output() valuesChange = new EventEmitter<string[]>();
 
   open = false;
+
+  override writeValue(value: string[] | null): void {
+    this.values = Array.isArray(value) ? value : [];
+  }
 
   get accentColor(): string {
     return this.customColor || 'var(--josanz-primary)';
@@ -90,10 +105,24 @@ export class MultiSelectComponent {
     return this.options.filter((option) => this.values.includes(option.value));
   }
 
+  togglePanel(): void {
+    if (this.disabled) {
+      return;
+    }
+    this.open = !this.open;
+    if (!this.open) {
+      this.markTouched();
+    }
+  }
+
   toggleValue(value: string): void {
+    if (this.disabled) {
+      return;
+    }
     this.values = this.values.includes(value)
       ? this.values.filter((item) => item !== value)
       : [...this.values, value];
+    this.emitChange(this.values);
     this.valuesChange.emit(this.values);
   }
 }

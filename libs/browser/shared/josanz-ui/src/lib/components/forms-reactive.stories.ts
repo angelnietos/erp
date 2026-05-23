@@ -14,6 +14,7 @@ import { SelectComponent } from './select';
 import { SwitchComponent } from './switch';
 import { TextareaComponent } from './textarea';
 import { ValidationMessageComponent } from './validation-message';
+import { MultiSelectComponent } from './multi-select';
 
 const meta: Meta = {
   title: 'Josanz UI / Forms / Reactive Example',
@@ -29,6 +30,7 @@ const meta: Meta = {
         CurrencyInputComponent,
         NumberInputComponent,
         SelectComponent,
+        MultiSelectComponent,
         CheckboxComponent,
         SwitchComponent,
         ValidationMessageComponent,
@@ -40,7 +42,7 @@ const meta: Meta = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'FormGroup con formControlName y CVA en textarea, date-picker, password, phone, currency, number, select, checkbox y switch.',
+          'FormGroup con formControlName y CVA en textarea, date-picker, password, phone, currency, number, select, multi-select, checkbox y switch.',
         ),
       },
     },
@@ -61,6 +63,7 @@ export const ReactiveWorkOrderForm: Story = {
       amount: new FormControl<number | null>(null, Validators.required),
       units: new FormControl(1, [Validators.required, Validators.min(1)]),
       branch: new FormControl('', Validators.required),
+      services: new FormControl<string[]>(['diagnosis']),
       urgent: new FormControl(false),
       notifyClient: new FormControl(true),
     });
@@ -102,6 +105,12 @@ export const ReactiveWorkOrderForm: Story = {
           { label: 'Barcelona', value: 'bcn' },
           { label: 'Valencia', value: 'vlc' },
         ],
+        serviceOptions: [
+          { label: 'Diagnóstico', value: 'diagnosis' },
+          { label: 'Cambio de aceite', value: 'oil' },
+          { label: 'Revisión frenos', value: 'brakes' },
+          { label: 'Alineación', value: 'alignment' },
+        ],
       },
       template: `
         <form class="grid max-w-lg gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);" [formGroup]="form" (ngSubmit)="submit()">
@@ -126,6 +135,9 @@ export const ReactiveWorkOrderForm: Story = {
           </josanz-form-field>
           <josanz-form-field label="Delegación" [required]="true" [error]="branchError()">
             <josanz-select formControlName="branch" placeholder="Elegir..." [options]="branchOptions"></josanz-select>
+          </josanz-form-field>
+          <josanz-form-field label="Servicios incluidos">
+            <josanz-multi-select formControlName="services" placeholder="Seleccionar servicios..." [options]="serviceOptions"></josanz-multi-select>
           </josanz-form-field>
           <josanz-checkbox formControlName="urgent" label="Orden urgente"></josanz-checkbox>
           <josanz-switch formControlName="notifyClient" label="Avisar al cliente por SMS"></josanz-switch>

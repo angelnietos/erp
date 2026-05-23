@@ -87,5 +87,6 @@ export class SwitchComponent extends JosanzValueAccessorBase<boolean> {
     this.checked = !this.checked;
     this.emitChange(this.checked);
     this.checkedChange.emit(this.checked);
+    this.markTouched();
   }
 }

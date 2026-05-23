@@ -1,5 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostListener,
+  Input,
+  Output,
+  ViewChild,
+  inject,
+} from '@angular/core';
+import {
+  josanzFocusFirst,
+  josanzHandleTabTrap,
+} from '../a11y/josanz-focus-trap';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 
@@ -19,7 +33,9 @@ import { JosanzThemeService } from '../services/theme.service';
           ></button>
         }
         <aside
-          class="absolute flex max-w-full flex-col border border-solid p-0 shadow-2xl"
+          #panel
+          tabindex="-1"
+          class="absolute flex max-w-full flex-col border border-solid p-0 shadow-2xl outline-none"
           [ngClass]="drawerClasses()"
           [ngStyle]="drawerStyles()"
           role="dialog"
@@ -74,8 +90,10 @@ import { JosanzThemeService } from '../services/theme.service';
     }
   `,
 })
-export class DrawerComponent {
+export class DrawerComponent implements AfterViewInit {
   readonly themeService = inject(JosanzThemeService);
+
+  @ViewChild('panel') panelRef?: ElementRef<HTMLElement>;
 
   @Input() open = false;
   @Input() title = 'Panel';
@@ -86,16 +104,30 @@ export class DrawerComponent {
   @Input() closable = true;
   @Input() showBackdrop = true;
   @Input() closeOnEscape = true;
+  @Input() trapFocus = true;
   @Input() shape?: JosanzControlShape;
   @Input() ariaLabel = '';
 
   @Output() openChange = new EventEmitter<boolean>();
   @Output() closed = new EventEmitter<void>();
 
+  ngAfterViewInit(): void {
+    if (this.open && this.trapFocus) {
+      queueMicrotask(() => josanzFocusFirst(this.panelRef?.nativeElement));
+    }
+  }
+
   @HostListener('document:keydown', ['$event'])
   onDocumentKeydown(event: KeyboardEvent): void {
-    if (this.open && this.closeOnEscape && event.key === 'Escape') {
+    if (!this.open) {
+      return;
+    }
+    if (this.closeOnEscape && event.key === 'Escape') {
       this.close();
+      return;
+    }
+    if (this.trapFocus && event.key === 'Tab') {
+      josanzHandleTabTrap(event, this.panelRef?.nativeElement);
     }
   }
 

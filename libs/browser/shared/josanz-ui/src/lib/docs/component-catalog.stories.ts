@@ -2,12 +2,57 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 
 const catalog = [
-  { group: 'Acciones', items: ['Button', 'Secondary Button', 'FAB', 'Copy Button'] },
-  { group: 'Formularios', items: ['Input', 'Textarea', 'Select', 'Checkbox', 'Switch', 'Form Field', 'Date Picker', 'Date Time Picker', 'OTP Input', 'Number Input', 'Password Input', 'Chip Input', 'Search Field', 'Validation Message', 'Reactive Example'] },
-  { group: 'Datos', items: ['Data Table', 'Data Grid', 'Accordion', 'Timeline', 'Tree View', 'Kanban'] },
-  { group: 'Overlay', items: ['Modal', 'Drawer', 'Bottom Sheet', 'Popover', 'Dropdown Menu', 'Context Menu', 'Tooltip', 'Command Palette'] },
-  { group: 'Layout', items: ['Sidebar', 'Navbar', 'Breadcrumb Nav', 'Main List Layout', 'Container', 'Grid', 'Stack', 'Flex', 'Spacer'] },
-  { group: 'Feedback', items: ['Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton', 'Skeleton List/Table', 'Progress Bar', 'Rich Text Editor', 'Media Player'] },
+  {
+    group: 'Acciones',
+    items: ['Button', 'Secondary Button', 'FAB', 'Copy Button', 'Keyboard Shortcut'],
+  },
+  {
+    group: 'Formularios',
+    items: [
+      'Input', 'Textarea', 'Select', 'Checkbox', 'Switch', 'Radio Group',
+      'Form Field', 'Date Picker', 'Date Time Picker', 'OTP Input',
+      'Number Input', 'Password Input', 'Phone Input', 'Currency Input',
+      'Chip Input', 'Multi Select', 'Autocomplete', 'File Upload',
+      'Search Field', 'Validation Message', 'Reactive Example',
+    ],
+  },
+  {
+    group: 'Datos',
+    items: [
+      'Data Table', 'Data Grid', 'Accordion', 'Timeline', 'Tree View',
+      'Kanban', 'Chart', 'Stat Card', 'Adaptive List Rows',
+    ],
+  },
+  {
+    group: 'Overlay',
+    items: [
+      'Modal', 'Drawer', 'Bottom Sheet', 'Confirm Dialog',
+      'Popover', 'Dropdown Menu', 'Context Menu', 'Tooltip', 'Command Palette',
+    ],
+  },
+  {
+    group: 'Layout',
+    items: [
+      'Sidebar', 'Navbar', 'Breadcrumb Nav', 'Breadcrumbs', 'Main Tabs',
+      'Main List Layout', 'Main Detail Layout', 'Layout Primitives',
+      'Container', 'Grid', 'Stack', 'Flex', 'Spacer', 'Pagination',
+    ],
+  },
+  {
+    group: 'Feedback',
+    items: [
+      'Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton',
+      'Progress Bar', 'Progress Steps', 'Empty State',
+      'Rich Text Editor', 'Media Player', 'Rating', 'Tag',
+    ],
+  },
+  {
+    group: 'Polish',
+    items: [
+      'Badge', 'Card', 'List Item', 'Segmented Control', 'Avatar Group',
+      'Color Picker', 'Divider', 'Slider', 'Gallery', 'Carousel',
+    ],
+  },
 ];
 
 const meta: Meta = {
@@ -17,7 +62,7 @@ const meta: Meta = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Índice rápido de cobertura del UI kit. Cada entrada enlaza con su story dedicada o suite agrupada.',
+          'Índice de cobertura Storybook. Cada componente exportado tiene story dedicada (Playground + variantes) o suite agrupada documentada en MDX por categoría.',
         ),
       },
     },
@@ -37,7 +82,7 @@ export const CoverageIndex: Story = {
         <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Josanz UI</p>
         <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">Catálogo de componentes</h1>
         <p class="m-0 mt-2 max-w-2xl text-sm" style="color: var(--josanz-text-muted);">
-          Referencia para diseño y desarrollo. Usa el panel lateral de Storybook para abrir Playground, Use Cases e interacciones.
+          Referencia para diseño y desarrollo. Consulta también Forms, Data, Layout, Overlays y Feedback en Documentación.
         </p>
         <div class="mt-8 grid gap-6 md:grid-cols-2">
           @for (section of catalog; track section.group) {

@@ -1,0 +1,34 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Layout" />
+
+# Layout
+
+Primitivas de composición, shells de listado/detalle y navegación principal del ERP.
+
+## Componentes incluidos
+
+| Área | Componentes |
+|------|-------------|
+| Primitivas | `josanz-container`, `josanz-stack`, `josanz-grid`, `josanz-flex`, `josanz-spacer` |
+| Shells | Main List Layout, Main Detail Layout, Main Template Card |
+| Navegación | Sidebar, Navbar, Breadcrumbs, Breadcrumb Nav, Mobile Tab Bar, Main Tabs |
+| Paginación | Pagination (figma / numbered) |
+
+## Patrones recomendados
+
+1. **Pantalla listado:** `main-list-layout` con slots para filtros, búsqueda y filas adaptativas.
+2. **Pantalla detalle:** `main-detail-layout` con `detail-card` en columnas.
+3. **Espaciado:** preferir `josanz-stack` / `josanz-flex` sobre márgenes ad-hoc.
+4. **Responsive:** combinar sidebar colapsable + `mobile-tab-bar` en viewports pequeños.
+
+## Story de referencia
+
+- `Josanz UI / Layout Primitives` — suite container/stack/grid/flex/spacer
+- `Josanz UI / Main List Layout` — composición listado completo
+- `Josanz UI / Sidebar` — navegación lateral
+
+## Ver también
+
+- [Overlays](./?path=/docs/josanz-ui-documentacion-overlays--docs)
+- [Guía del sistema](./?path=/docs/josanz-ui-documentacion-guia-del-sistema--docs)

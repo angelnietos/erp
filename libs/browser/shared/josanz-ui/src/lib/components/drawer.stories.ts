@@ -29,7 +29,7 @@ const meta: Meta<DrawerComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Panel lateral/bottom sheet para filtros, edición rápida, detalle contextual y acciones de segundo nivel.',
+          'Panel lateral/bottom sheet para filtros, edición rápida, detalle contextual y acciones de segundo nivel. Incluye focus trap y cierre con Escape.',
         ),
       },
     },
@@ -43,6 +43,7 @@ const meta: Meta<DrawerComponent> = {
     position: sbRadio(['left', 'right', 'bottom'] as const, 'Posición'),
     size: sbRadio(['sm', 'md', 'lg'] as const, 'Tamaño'),
     shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Shape'),
+    trapFocus: { control: 'boolean' },
     openChange: sbEmit('openChange', 'Cambio open'),
     closed: sbEmit('closed', 'Cerrado'),
   },
@@ -111,5 +112,34 @@ export const InteractiveClose: Story = {
     );
     await expect(args.openChange).toHaveBeenCalledWith(false);
     await expect(args.closed).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const FocusTrap: Story = {
+  args: {
+    open: true,
+    title: 'Asignar técnico',
+    trapFocus: true,
+    openChange: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="min-h-[480px]">
+        <josanz-drawer [open]="open" [title]="title" [trapFocus]="trapFocus" (openChange)="openChange($event)">
+          <div class="grid gap-3">
+            <button type="button" class="rounded-full border border-solid px-4 py-2 text-sm font-black" style="border-color: var(--josanz-border); color: var(--josanz-text);">Primer foco</button>
+            <button type="button" class="rounded-full border border-solid px-4 py-2 text-sm font-black" style="border-color: var(--josanz-border); color: var(--josanz-text);">Segundo botón</button>
+            <input type="text" class="h-10 rounded-xl border border-solid px-3 text-sm" style="border-color: var(--josanz-stroke-field); background: var(--josanz-field-fill); color: var(--josanz-text);" placeholder="Notas internas" />
+          </div>
+        </josanz-drawer>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('dialog')).toBeVisible();
+    await userEvent.keyboard('{Escape}');
+    await expect(args.openChange).toHaveBeenCalledWith(false);
   },
 };

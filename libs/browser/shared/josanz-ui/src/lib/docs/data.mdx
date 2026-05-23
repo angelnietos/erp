@@ -1,0 +1,37 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Data" />
+
+# Datos
+
+Tablas, grids, timelines y visualizaciones para listados ERP, dashboards y flujos operativos.
+
+## Componentes incluidos
+
+| Componente | Uso principal |
+|------------|---------------|
+| Data Table | Tablas simples con sort y selección |
+| Data Grid | Búsqueda, paginación, CSV, resize columnas |
+| Accordion / Timeline | Historial y secciones colapsables |
+| Tree View | Jerarquías con checkbox opcional |
+| Kanban Board | Flujos por columnas |
+| Chart | Gráficos CSS (bar/donut) |
+| Stat Card | KPIs en dashboard |
+
+## Patrones recomendados
+
+1. **Listados ERP:** `Main List Layout` + `Adaptive List Rows` o `Data Grid` según complejidad.
+2. **Loading:** usar `loading` + `loadingSkeleton` en Data Grid para skeleton animado.
+3. **Server-side:** activar `serverSide`, `paginated`, `totalRows` y escuchar `pageChange`.
+4. **Selección masiva:** `selectable` + `selectedIds` / `selectedIdsChange`.
+
+## Stories de referencia
+
+- `Josanz UI / Data Grid` — LoadingSkeleton, ServerSidePagination, Selectable
+- `Josanz UI / Data Table` — sort, select-all
+- `Josanz UI / Kanban Board` — columnas drag conceptual
+
+## Ver también
+
+- [Layout](./?path=/docs/josanz-ui-documentacion-layout--docs)
+- [Component Catalog](./?path=/story/josanz-ui-documentacion-component-catalog--coverage-index)

@@ -35,6 +35,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | A12 | CVA en number-input / chip-input | ✅ | Integrado con `formControlName` |
 | A13 | CVA en select / checkbox / switch | ✅ | Reactive Example ampliado |
 | A14 | `password-input` indicador de fortaleza | ✅ | `showStrength` |
+| A15 | CVA en multi-select | ✅ | spec + reactive story |
 
 ---
 
@@ -52,6 +53,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | B9 | `josanz-confirm-dialog` | ✅ | Story + export |
 | B10 | Command palette `openChange` + dismiss | ✅ | backdrop, Escape, cierra al seleccionar |
 | B8 | Modal focus trap y Escape | ✅ | trapFocus, Tab, Escape, backdrop |
+| B11 | Drawer focus trap (paridad modal) | ✅ | `trapFocus`, Tab cycle, FocusTrap story |
 
 ---
 
@@ -92,8 +94,9 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | E2 | Component Showcase suites | ✅ | Varias escenas compuestas |
 | E3 | `play` en stories críticas (forms, grid, command) | 🔄 | confirm-dialog, bottom-sheet, drawer |
 | E4 | Matriz Chromatic / Visual Regression | ✅ | En showcase |
-| E5 | MDX por categoría (Forms, Data, Layout) | ⬜ | |
-| E6 | Props table autodocs 100% componentes exportados | ⬜ | |
+| E5 | MDX por categoría (Forms, Data, Layout) | ✅ | + Overlays, Feedback |
+| E6 | Props table autodocs 100% componentes exportados | 🔄 | stories dedicadas con `tags: autodocs` |
+| E7 | Stories robustas 1:1 por export | ✅ | Playground + variantes + play en críticos |
 
 ---
 
@@ -103,7 +106,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 |----|----------|--------|-------|
 | F1 | Exportar todo en `src/index.ts` | 🔄 | Revisar tras cada lote; Flex exportado vía layout-primitives |
 | F2 | Unit tests smoke (selectores, outputs) | ✅ | specs legacy corregidos + nuevos CVA/grid |
-| F3 | Usar componentes en `josanz-web-app` piloto | ⬜ | 1 pantalla listado |
+| F3 | Usar componentes en `josanz-web-app` piloto | ✅ | `/export` con card + button |
 | F4 | Tokens Figma ↔ theme.service alineados | ⬜ | |
 | F5 | Modo oscuro en todos los componentes nuevos | ⬜ | Probar atmosphere dark |
 
@@ -135,4 +138,19 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 
 ---
 
-*Última actualización: generado en iteración de mejora continua del UI kit.*
+*Última actualización: iteración Storybook robusto — stories dedicadas, MDX categorías, multi-select CVA, drawer focus trap, piloto /export.*
+
+---
+
+## Inventario Storybook (exports públicos)
+
+| Categoría | Cobertura |
+|-----------|-----------|
+| Formularios | Stories dedicadas: textarea, select, checkbox, switch, radio, password, chip, multi-select, autocomplete, file-upload + suites |
+| Datos | data-table, data-grid, accordion, timeline, chart, kanban + suites |
+| Overlays | modal, drawer, bottom-sheet, confirm-dialog, popover, dropdown, context-menu, tooltip, command-palette |
+| Layout | layout-primitives, main-* layouts, sidebar, navbar, breadcrumbs |
+| Feedback | alert, inline-alert, toast, spinner, skeleton, progress-bar, rich-text, media-player |
+| Polish | tag, list-item, segmented-control, rating, color-picker, copy-button, keyboard-shortcut, FAB |
+
+**Patrón mínimo por story:** `Playground` + variantes/estados + `play()` en interacciones críticas.
