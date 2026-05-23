@@ -155,22 +155,46 @@ body.sb-show-main,
 
 .sbdocs-wrapper,
 .sbdocs-content {
-  background: var(--josanz-bg, #f8fafc) !important;
-  color: var(--josanz-text, #0f172a) !important;
-  transition: background 0.3s ease, color 0.3s ease;
+  background: #ffffff !important;
+  color: #1f2937 !important;
 }
 
-.docs-story,
-.sbdocs-preview,
-.sb-story {
-  background: var(--josanz-bg, #f8fafc) !important;
+.sbdocs-wrapper {
+  min-height: 100vh;
+}
+
+.sbdocs-content :where(h1, h2, h3, h4, h5, h6) {
+  color: #111827 !important;
+}
+
+.sbdocs-content :where(p, li, td, th, label, span:not([class*='token'])) {
+  color: #374151 !important;
+}
+
+.sbdocs-content :where(a) {
+  color: #2563eb !important;
+}
+
+.sbdocs-content :where(code) {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.05rem 0.35rem;
 }
 
 .sbdocs-preview {
+  background: #ffffff !important;
   border-color: var(--josanz-border, #e2e8f0) !important;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08) !important;
 }
 
-h1, h2, h3, h4, h5, h6 {
+.docs-story,
+.sb-story {
+  background: #ffffff !important;
+}
+
+#storybook-root :where(h1, h2, h3, h4, h5, h6) {
   font-family: 'DM Sans', sans-serif;
   font-weight: 800;
   color: var(--josanz-text, #0f172a);
