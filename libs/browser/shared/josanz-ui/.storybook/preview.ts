@@ -22,6 +22,7 @@ type StorybookThemeDetail = {
   primaryColor: string;
   shape: JosanzControlShape;
 };
+let lastGlobalsSyncKey = '';
 
 // ─── Design Tokens (CSS custom properties) ──────────────────────────────────
 // Light theme (default :root) + dark theme (data-theme="dark")
@@ -250,6 +251,11 @@ const applyStorybookThemeDetail = (detail: StorybookThemeDetail): void => {
 };
 
 const updateStorybookGlobalsFromService = (detail: StorybookThemeDetail): void => {
+  const syncKey = `${detail.atmosphereName}|${detail.primaryColor}|${detail.shape}`;
+  if (syncKey === lastGlobalsSyncKey) {
+    return;
+  }
+  lastGlobalsSyncKey = syncKey;
   const channel = (window as unknown as StorybookThemeWindow)['__STORYBOOK_ADDONS_CHANNEL__'];
   if (!channel || typeof (channel as { emit?: unknown }).emit !== 'function') {
     return;
