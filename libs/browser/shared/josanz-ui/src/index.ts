@@ -75,3 +75,25 @@ export * from './lib/components/skeleton';
 export * from './lib/components/breadcrumbs';
 
 export * from './lib/components/stepper';
+
+export * from './lib/components/textarea';
+
+export * from './lib/components/checkbox';
+
+export * from './lib/components/radio-group';
+
+export * from './lib/components/switch';
+
+export * from './lib/components/select';
+
+export * from './lib/components/progress-bar';
+
+export * from './lib/components/spinner';
+
+export * from './lib/components/divider';
+
+export * from './lib/components/carousel';
+
+export * from './lib/components/drawer';
+
+export * from './lib/components/tooltip';

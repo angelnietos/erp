@@ -25,6 +25,16 @@ import { BadgeComponent } from '../components/badge';
 import { SkeletonComponent } from '../components/skeleton';
 import { BreadcrumbsComponent } from '../components/breadcrumbs';
 import { StepperComponent } from '../components/stepper';
+import { TextareaComponent } from '../components/textarea';
+import { CheckboxComponent } from '../components/checkbox';
+import { RadioGroupComponent } from '../components/radio-group';
+import { SwitchComponent } from '../components/switch';
+import { SelectComponent } from '../components/select';
+import { ProgressBarComponent } from '../components/progress-bar';
+import { SpinnerComponent } from '../components/spinner';
+import { DividerComponent } from '../components/divider';
+import { CarouselComponent } from '../components/carousel';
+import { TooltipComponent } from '../components/tooltip';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -53,6 +63,16 @@ const meta: Meta = {
         SkeletonComponent,
         BreadcrumbsComponent,
         StepperComponent,
+        TextareaComponent,
+        CheckboxComponent,
+        RadioGroupComponent,
+        SwitchComponent,
+        SelectComponent,
+        ProgressBarComponent,
+        SpinnerComponent,
+        DividerComponent,
+        CarouselComponent,
+        TooltipComponent,
       ],
     }),
   ],
@@ -417,6 +437,98 @@ export const UiLibraryBasicsSuite: Story = {
               <josanz-stepper [items]="wizardSteps" activeId="event" orientation="vertical" shape="pill"></josanz-stepper>
             </section>
           </div>
+        </div>
+      </section>
+    `,
+  }),
+};
+
+export const ProductSurfaceSuite: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Showcase compuesto con componentes recién añadidos: carrusel, controles de formulario, progress, spinner, tooltip y divider.',
+      },
+    },
+  },
+  render: () => ({
+    props: {
+      carouselItems: [
+        {
+          id: 'hero',
+          src: 'https://picsum.photos/seed/josanz-product-hero/1200/675',
+          alt: 'Producción audiovisual',
+          eyebrow: 'Portfolio',
+          title: 'Producción audiovisual integral',
+          description:
+            'Hero/carrusel reutilizable para portfolios, campañas y módulos de media.',
+        },
+        {
+          id: 'crew',
+          src: 'https://picsum.photos/seed/josanz-product-crew/1200/675',
+          alt: 'Equipo técnico',
+          eyebrow: 'Equipo',
+          title: 'Coordinación técnica',
+          description:
+            'Operaciones, responsables y progreso en la misma superficie.',
+        },
+      ],
+      radioOptions: [
+        { label: 'Email', value: 'email', description: 'Resumen formal' },
+        { label: 'WhatsApp', value: 'whatsapp', description: 'Aviso rápido' },
+      ],
+      selectOptions: [
+        { label: 'Eventos', value: 'eventos' },
+        { label: 'Clientes', value: 'clientes' },
+        { label: 'Facturación', value: 'facturacion' },
+      ],
+    },
+    template: `
+      <section class="min-h-[980px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto grid max-w-7xl gap-6">
+          <header class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Surface moderna</p>
+            <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">UI kit operativo</h1>
+            <p class="m-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">Combina media, formularios, ayuda contextual y feedback de proceso.</p>
+          </header>
+
+          <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <josanz-carousel title="Carrusel destacado" description="Multimedia reutilizable en landing, detalle o dashboard." [items]="carouselItems" customColor="#635BFF"></josanz-carousel>
+
+            <section class="grid gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <josanz-select label="Módulo" [options]="selectOptions" value="eventos" customColor="#635BFF"></josanz-select>
+              <josanz-radio-group label="Canal preferido" [options]="radioOptions" value="email" orientation="horizontal" customColor="#635BFF"></josanz-radio-group>
+              <josanz-textarea label="Notas" value="Revisar permisos y checklist técnico antes de publicar." [maxLength]="160" customColor="#635BFF"></josanz-textarea>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <josanz-checkbox label="Contrato firmado" [checked]="true" customColor="#635BFF"></josanz-checkbox>
+                <josanz-switch label="Avisos activos" [checked]="true" customColor="#635BFF"></josanz-switch>
+              </div>
+            </section>
+          </div>
+
+          <section class="grid gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Feedback</p>
+                <h2 class="m-0 mt-1 text-xl font-black" style="color: var(--josanz-text);">Estado de publicación</h2>
+              </div>
+              <josanz-tooltip text="El evento se publica cuando documentos y permisos alcanzan el 100%.">
+                <josanz-button label="Ayuda" [showIcon]="false" customColor="#635BFF"></josanz-button>
+              </josanz-tooltip>
+            </div>
+            <josanz-divider label="Checklist"></josanz-divider>
+            <div class="grid gap-4 md:grid-cols-[1fr_220px]">
+              <div class="grid gap-4">
+                <josanz-progress-bar label="Documentación" [value]="82" tone="success"></josanz-progress-bar>
+                <josanz-progress-bar label="Permisos" [value]="48" tone="warning" [striped]="true"></josanz-progress-bar>
+              </div>
+              <div class="flex items-center justify-center rounded-3xl border border-solid p-5" style="border-color: var(--josanz-border);">
+                <josanz-spinner label="Sincronizando" size="md" customColor="#635BFF"></josanz-spinner>
+              </div>
+            </div>
+          </section>
         </div>
       </section>
     `,
