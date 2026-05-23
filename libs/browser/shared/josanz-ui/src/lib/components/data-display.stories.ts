@@ -42,13 +42,13 @@ const columns = [
 ];
 
 const rows = [
-  { id: '1', client: 'NovaByte', status: 'Confirmado', total: '24.500 EUR' },
-  { id: '2', client: 'Auralux', status: 'En presupuesto', total: '18.200 EUR' },
+  { id: '1', client: 'ORD-1042 · BMW X1', status: 'En diagnóstico', total: '842,50 EUR' },
+  { id: '2', client: 'ORD-1038 · VW Golf', status: 'Esperando pieza', total: '312,00 EUR' },
   {
     id: '3',
-    client: 'Eventos del Sur',
-    status: 'Incidencia',
-    total: '9.800 EUR',
+    client: 'ORD-1024 · Seat León',
+    status: 'Lista para entrega',
+    total: '1.019,43 EUR',
   },
 ];
 
@@ -68,55 +68,55 @@ export const DataDisplaySuite: Story = {
           eyebrow: 'Checklist',
           title: 'Documentación',
           content:
-            'Contrato, rider técnico, permisos municipales y anexos firmados.',
+            'Fotos de recepción, informe de diagnóstico y presupuesto firmado por el cliente.',
         },
         {
           id: 'team',
-          eyebrow: 'Operación',
-          title: 'Equipo técnico',
+          eyebrow: 'Taller',
+          title: 'Trabajos y piezas',
           content:
-            'Asignación de sonido, luces, rigging y coordinación de montaje.',
+            'Pastillas delanteras sustituidas. Discos revisados. Líquido de frenos OK.',
         },
         {
           id: 'billing',
           eyebrow: 'Finanzas',
           title: 'Facturación',
           content:
-            'Presupuesto aprobado, anticipo registrado y vencimientos pendientes.',
+            'Presupuesto aprobado. Anticipo del 40% cobrado. Factura pendiente de emisión.',
         },
       ],
       timelineItems: [
         {
-          id: 'brief',
-          title: 'Brief recibido',
-          timestamp: '09:00',
-          description: 'Cliente confirma aforo y necesidades principales.',
+          id: 'entry',
+          title: 'Vehículo recepcionado',
+          timestamp: '08:32',
+          description: 'BMW X1 · matrícula 4821 KLM. Kilometraje y daños registrados.',
           tone: 'success',
         },
         {
           id: 'review',
-          title: 'Revisión técnica',
-          timestamp: '11:30',
-          description: 'Pendiente de confirmar punto de carga.',
-          tone: 'warning',
+          title: 'Diagnóstico completado',
+          timestamp: '10:15',
+          description: 'Desgaste en pastillas y fuga menor en pastilla trasera.',
+          tone: 'primary',
         },
         {
-          id: 'publish',
-          title: 'Publicación',
-          timestamp: '16:00',
-          description: 'Plan de producción listo para enviar.',
-          tone: 'primary',
+          id: 'approval',
+          title: 'Presupuesto enviado',
+          timestamp: '11:05',
+          description: 'Cliente debe autorizar antes de continuar con el montaje.',
+          tone: 'warning',
         },
       ],
     },
     template: `
       <section class="grid max-w-6xl gap-6">
-        <josanz-data-table title="Eventos recientes" description="Tabla base reutilizable para listados de negocio." [columns]="columns" [rows]="rows" (rowClick)="rowClick($event)"></josanz-data-table>
+        <josanz-data-table title="Órdenes de taller" description="Listado operativo con cliente/vehículo, estado y importe estimado." [columns]="columns" [rows]="rows" (rowClick)="rowClick($event)"></josanz-data-table>
         <div class="grid gap-6 lg:grid-cols-2">
-          <josanz-accordion title="Detalle operativo" [items]="accordionItems" [openIds]="['docs']" customColor="#635BFF"></josanz-accordion>
-          <josanz-timeline title="Timeline del evento" [items]="timelineItems"></josanz-timeline>
+          <josanz-accordion title="Expediente ORD-1042" [items]="accordionItems" [openIds]="['docs']" customColor="#635BFF"></josanz-accordion>
+          <josanz-timeline title="Histórico de la orden" [items]="timelineItems"></josanz-timeline>
         </div>
-        <josanz-slider label="Probabilidad de cierre" [value]="72" suffix="%" hint="Slider básico para scoring, filtros y ajustes." customColor="#635BFF" (valueChange)="valueChange($event)"></josanz-slider>
+        <josanz-slider label="Probabilidad de cierre del presupuesto" [value]="72" suffix="%" hint="Scoring comercial para priorizar seguimiento." customColor="#635BFF" (valueChange)="valueChange($event)"></josanz-slider>
       </section>
     `,
   }),

@@ -50,6 +50,26 @@ export const StatesAndVariants: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Notas enriquecidas en parte de trabajo, presupuesto al cliente y comunicación interna.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-5xl gap-6 lg:grid-cols-3">
+        <josanz-rich-text-editor label="Trabajos realizados" value="<p>Pastillas delanteras sustituidas. Discos dentro de tolerancia.</p>"></josanz-rich-text-editor>
+        <josanz-rich-text-editor label="Texto para el cliente" value="<p>Estimado cliente, adjuntamos el <strong>presupuesto</strong> de la revisión. Validez 15 días.</p>"></josanz-rich-text-editor>
+        <josanz-rich-text-editor label="Nota interna (no visible)" value="<p>Cliente habitual. Aplicar tarifa acordada en contrato marco.</p>"></josanz-rich-text-editor>
+      </div>
+    `,
+  }),
+};
+
 export const InteractiveFormat: Story = {
   args: {
     label: 'Editor interactivo',

@@ -101,16 +101,23 @@ export const VariantStates: Story = {
       sparseColumns: [
         {
           id: 'inbox',
-          title: 'Inbox',
-          cards: [{ id: 'task-1', title: 'Llamar a cliente' }],
+          title: 'Recepción',
+          cards: [
+            {
+              id: 'task-1',
+              title: 'Llamar por presupuesto ORD-1042',
+              description: 'Cliente BMW X1 espera confirmación hoy.',
+              badge: 'Urgente',
+            },
+          ],
         },
-        { id: 'blocked', title: 'Bloqueado', cards: [] },
+        { id: 'blocked', title: 'Esperando pieza', cards: [] },
         {
           id: 'closed',
-          title: 'Cerrado',
+          title: 'Cerradas hoy',
           cards: [
-            { id: 'task-2', title: 'Enviar factura', badge: 'Admin' },
-            { id: 'task-3', title: 'Archivar fotos', assignee: 'Recepción' },
+            { id: 'task-2', title: 'Factura INV-2026-118', badge: 'Facturación', assignee: 'Admin' },
+            { id: 'task-3', title: 'Fotos de entrega archivadas', assignee: 'Recepción' },
           ],
         },
       ] satisfies JosanzKanbanColumn[],
@@ -118,7 +125,7 @@ export const VariantStates: Story = {
     template: `
       <div class="grid gap-8">
         <josanz-kanban-board title="Operativo completo" [columns]="columns"></josanz-kanban-board>
-        <josanz-kanban-board title="Estados mínimos" [columns]="sparseColumns"></josanz-kanban-board>
+        <josanz-kanban-board title="Recepción y cierre" [columns]="sparseColumns"></josanz-kanban-board>
       </div>
     `,
   }),

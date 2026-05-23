@@ -148,16 +148,16 @@ export const ShapeMatrix: Story = {
   render: () => ({
     props: {
       options: [
-        { label: 'Rounded', value: 'rounded' },
-        { label: 'Pill', value: 'pill' },
-        { label: 'Square', value: 'square' },
+        { label: 'Taller', value: 'taller' },
+        { label: 'CRM', value: 'crm' },
+        { label: 'Admin', value: 'admin' },
       ],
     },
     template: `
       <div class="grid max-w-5xl gap-5 md:grid-cols-3">
-        <josanz-select label="Rounded" [options]="options" value="rounded" shape="rounded"></josanz-select>
-        <josanz-select label="Pill" [options]="options" value="pill" shape="pill" customColor="#635BFF"></josanz-select>
-        <josanz-select label="Square" [options]="options" value="square" shape="square"></josanz-select>
+        <josanz-select label="Módulo (rounded)" [options]="options" value="taller" shape="rounded"></josanz-select>
+        <josanz-select label="Módulo (pill)" [options]="options" value="crm" shape="pill" customColor="#635BFF"></josanz-select>
+        <josanz-select label="Módulo (square)" [options]="options" value="admin" shape="square"></josanz-select>
       </div>
     `,
   }),

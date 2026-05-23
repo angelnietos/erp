@@ -78,19 +78,20 @@ export const LoadingStates: Story = {
     template: `
       <section class="grid max-w-4xl gap-6 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
         <div class="flex flex-wrap items-center gap-6">
-          <josanz-spinner label="Guardando" size="sm"></josanz-spinner>
-          <josanz-spinner label="Sincronizando" size="md" customColor="#635BFF"></josanz-spinner>
-          <josanz-spinner label="Publicando" size="lg" customColor="var(--josanz-success)"></josanz-spinner>
+          <josanz-spinner label="Guardando orden" size="sm"></josanz-spinner>
+          <josanz-spinner label="Sincronizando stock" size="md" customColor="#635BFF"></josanz-spinner>
+          <josanz-spinner label="Emitiendo factura" size="lg" customColor="var(--josanz-success)"></josanz-spinner>
         </div>
-        <josanz-divider label="Procesos"></josanz-divider>
+        <josanz-divider label="Cierre de orden"></josanz-divider>
         <div class="grid gap-4">
-          <josanz-progress-bar label="Contrato" [value]="100" tone="success"></josanz-progress-bar>
-          <josanz-progress-bar label="Permisos" [value]="48" tone="warning" [striped]="true"></josanz-progress-bar>
-          <josanz-progress-bar label="Publicación" [value]="18" tone="danger"></josanz-progress-bar>
+          <josanz-progress-bar label="Diagnóstico" [value]="100" tone="success"></josanz-progress-bar>
+          <josanz-progress-bar label="Presupuesto aprobado" [value]="100" tone="success"></josanz-progress-bar>
+          <josanz-progress-bar label="Firma del cliente" [value]="48" tone="warning" [striped]="true"></josanz-progress-bar>
+          <josanz-progress-bar label="Factura emitida" [value]="18" tone="danger"></josanz-progress-bar>
         </div>
         <div>
-          <josanz-tooltip text="Se publicará cuando permisos y contrato estén completados.">
-            <josanz-button label="Publicar evento" [showIcon]="false"></josanz-button>
+          <josanz-tooltip text="La orden se puede cerrar cuando el cliente firme y la factura esté emitida.">
+            <josanz-button label="Cerrar orden" [showIcon]="false"></josanz-button>
           </josanz-tooltip>
         </div>
       </section>

@@ -61,6 +61,26 @@ export const StatesAndVariants: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Ajustes típicos en ERP: prioridad de orden, margen de descuento y ocupación del taller.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-2xl gap-6 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-slider label="Prioridad de orden #1042" [value]="85" suffix="%" hint="Urgente: entrega hoy antes de las 18:00." customColor="var(--josanz-danger)"></josanz-slider>
+        <josanz-slider label="Descuento comercial" [value]="12" suffix="%" hint="Máximo autorizado para este cliente: 15%." customColor="#635BFF"></josanz-slider>
+        <josanz-slider label="Ocupación del taller" [value]="68" suffix="%" hint="Capacidad de elevadores y boxes esta semana."></josanz-slider>
+      </div>
+    `,
+  }),
+};
+
 export const InteractiveChange: Story = {
   args: {
     label: 'Cobertura',

@@ -63,6 +63,44 @@ export const StatesAndVariants: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Separadores en fichas reales: datos del cliente, bloque de acciones y división vertical en resumen de orden.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid max-w-3xl gap-8">
+        <section class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <h4 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Ficha de cliente</h4>
+          <p class="mb-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">NovaByte S.L. · B-12345678 · Madrid</p>
+          <josanz-divider label="contacto"></josanz-divider>
+          <p class="m-0 text-sm" style="color: var(--josanz-text);">contacto@novabyte.es · +34 600 112 233</p>
+          <josanz-divider label="acciones"></josanz-divider>
+          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Nueva orden · Historial · Documentos</p>
+        </section>
+
+        <section class="flex min-h-[7rem] items-stretch gap-4 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <div class="flex-1">
+            <p class="m-0 text-xs font-black uppercase tracking-wide" style="color: var(--josanz-text-muted);">Presupuesto</p>
+            <p class="m-0 mt-1 text-lg font-black" style="color: var(--josanz-text);">842,50 €</p>
+          </div>
+          <josanz-divider orientation="vertical" label="IVA"></josanz-divider>
+          <div class="flex-1">
+            <p class="m-0 text-xs font-black uppercase tracking-wide" style="color: var(--josanz-text-muted);">Total con IVA</p>
+            <p class="m-0 mt-1 text-lg font-black" style="color: var(--josanz-success);">1.019,43 €</p>
+          </div>
+        </section>
+      </div>
+    `,
+  }),
+};
+
 export const AccessibilityCheck: Story = {
   args: {
     label: 'contenido relacionado',

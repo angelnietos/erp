@@ -34,25 +34,25 @@ export default meta;
 type Story = StoryObj;
 
 const clients = [
-  { label: 'NovaByte', value: 'novabyte', description: 'Cliente activo' },
-  { label: 'Auralux', value: 'auralux', description: 'Lead comercial' },
+  { label: 'NovaByte S.L.', value: 'novabyte', description: '3 vehículos · contrato marco' },
+  { label: 'Romero Flota', value: 'romero', description: 'Lead B2B · 12 unidades' },
   {
-    label: 'Eventos del Sur',
-    value: 'eventos-sur',
-    description: 'Evento en producción',
+    label: 'Logística Norte',
+    value: 'logistica-norte',
+    description: 'Facturación pendiente',
   },
   {
-    label: 'Retail Max',
-    value: 'retail-max',
-    description: 'Facturación pendiente',
+    label: 'Particular · García López',
+    value: 'garcia',
+    description: 'ORD-1042 en curso',
   },
 ];
 
 const tags = [
-  { label: 'Sonido', value: 'sonido' },
-  { label: 'Iluminación', value: 'iluminacion' },
-  { label: 'Streaming', value: 'streaming' },
-  { label: 'Escenario', value: 'escenario' },
+  { label: 'Mecánica', value: 'mecanica' },
+  { label: 'Carrocería', value: 'carroceria' },
+  { label: 'Neumáticos', value: 'neumaticos' },
+  { label: 'Diagnóstico', value: 'diagnostico' },
 ];
 
 export const AdvancedFormSuite: Story = {
@@ -71,10 +71,10 @@ export const AdvancedFormSuite: Story = {
     template: `
       <section class="grid max-w-4xl gap-6 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
         <div class="grid gap-5 md:grid-cols-2">
-          <josanz-autocomplete label="Cliente" placeholder="Buscar cliente..." [options]="clients" customColor="#635BFF" (queryChange)="queryChange($event)" (optionSelect)="optionSelect($event)"></josanz-autocomplete>
-          <josanz-multi-select label="Servicios" [options]="tags" [values]="['sonido', 'streaming']" customColor="#635BFF" (valuesChange)="valuesChange($event)"></josanz-multi-select>
+          <josanz-autocomplete label="Cliente o matrícula" placeholder="Buscar cliente, CIF o matrícula..." [options]="clients" customColor="#635BFF" (queryChange)="queryChange($event)" (optionSelect)="optionSelect($event)"></josanz-autocomplete>
+          <josanz-multi-select label="Líneas de trabajo" [options]="tags" [values]="['mecanica', 'diagnostico']" customColor="#635BFF" (valuesChange)="valuesChange($event)"></josanz-multi-select>
         </div>
-        <josanz-file-upload title="Subir documentación" description="PDF, DOCX o imágenes del evento" accept=".pdf,.doc,.docx,image/*" [multiple]="true" customColor="#635BFF" (filesSelected)="filesSelected($event)"></josanz-file-upload>
+        <josanz-file-upload title="Adjuntos del parte" description="Fotos del vehículo, presupuesto firmado o informe de diagnóstico" accept=".pdf,.doc,.docx,image/*" [multiple]="true" customColor="#635BFF" (filesSelected)="filesSelected($event)"></josanz-file-upload>
       </section>
     `,
   }),

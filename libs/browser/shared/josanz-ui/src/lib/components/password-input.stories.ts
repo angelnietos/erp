@@ -112,6 +112,35 @@ export const ShowStrength: Story = {
   }),
 };
 
+export const UseCases: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Contraseñas en distintos flujos: acceso de usuario, clave API y PIN de supervisor.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="grid w-[min(900px,calc(100vw-2rem))] gap-5 md:grid-cols-3">
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-3 text-xs font-black uppercase tracking-wide" style="color: var(--josanz-text-muted);">Cuenta de usuario</p>
+          <josanz-password-input label="Contraseña" placeholder="Mínimo 8 caracteres" [showStrength]="true" hint="Acceso al ERP y apps móviles."></josanz-password-input>
+        </div>
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-3 text-xs font-black uppercase tracking-wide" style="color: var(--josanz-text-muted);">Integración API</p>
+          <josanz-password-input label="Clave API" value="josanz_live_••••••••" shape="pill" customColor="#8b5cf6" autocomplete="off"></josanz-password-input>
+        </div>
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-3 text-xs font-black uppercase tracking-wide" style="color: var(--josanz-text-muted);">Supervisor</p>
+          <josanz-password-input label="PIN de autorización" placeholder="4 dígitos" autocomplete="one-time-code" hint="Anular descuento o cerrar orden con incidencia."></josanz-password-input>
+        </div>
+      </div>
+    `,
+  }),
+};
+
 export const Interactive: Story = {
   args: {
     label: 'Contraseña temporal',

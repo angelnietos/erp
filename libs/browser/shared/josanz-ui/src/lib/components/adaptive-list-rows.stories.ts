@@ -60,9 +60,9 @@ const listViewIds = JOSANZ_LIST_VIEW_MENU_OPTIONS.map((o) => o.id);
     <div class="flex max-w-5xl flex-col gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h3 class="m-0 text-lg font-black" style="color: var(--josanz-text);">Listado adaptativo</h3>
+          <h3 class="m-0 text-lg font-black" style="color: var(--josanz-text);">Clientes activos</h3>
           <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">
-            Cambia la vista con el selector o el control <strong>listView</strong> de la story.
+            Mismo listado en tabla, tarjetas o cuadrícula. Usa el selector o el control <strong>listView</strong>.
           </p>
         </div>
         <josanz-list-view-selector
@@ -203,6 +203,52 @@ const EVENT_ITEMS: JosanzAdaptiveListItem[] = [
     statusVariant: 'borrador',
   },
 ];
+
+const WORKSHOP_ITEMS: JosanzAdaptiveListItem[] = [
+  {
+    id: 'w1',
+    title: 'ORD-1042 · BMW X1',
+    leadingMark: 'B1',
+    data: ['NovaByte', 'Diagnóstico', '842,50 €'],
+    labels: ['Cliente', 'Estado', 'Importe'],
+    status: 'En curso',
+    statusVariant: 'en-proceso',
+  },
+  {
+    id: 'w2',
+    title: 'ORD-1038 · VW Golf',
+    leadingMark: 'VW',
+    data: ['Particular García', 'Esperando pieza', '312,00 €'],
+    labels: ['Cliente', 'Estado', 'Importe'],
+    status: 'Bloqueada',
+    statusVariant: 'borrador',
+  },
+  {
+    id: 'w3',
+    title: 'ORD-1024 · Seat León',
+    leadingMark: 'SL',
+    data: ['Logística Norte', 'Lista entrega', '1.019,43 €'],
+    labels: ['Cliente', 'Estado', 'Importe'],
+    status: 'Confirmada',
+    statusVariant: 'confirmado',
+  },
+];
+
+export const WorkshopOrdersUseCase: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Listado de órdenes de taller con el mismo selector de vistas que clientes o eventos.',
+      },
+    },
+  },
+  args: {
+    listView: 'tabla',
+    items: WORKSHOP_ITEMS,
+    defaultLabels: ['Cliente', 'Estado', 'Importe'],
+  },
+  render: Playground.render,
+};
 
 export const EventsUseCase: Story = {
   parameters: {

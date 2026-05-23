@@ -8,15 +8,24 @@ import { NotificationsPanelComponent } from './notifications-panel';
 
 const notifications = [
   {
-    id: 'permit',
-    title: 'Permiso municipal pendiente',
-    description:
-      'Gala Primavera necesita autorización antes de publicar el plan.',
+    id: 'order',
+    title: 'Orden #1042 sin asignar',
+    description: 'BMW X1 en recepción. El cliente espera presupuesto antes de las 18:00.',
     time: '2 min',
     unread: true,
     tone: 'warning' as const,
-    category: 'Operaciones',
-    actionLabel: 'Completar',
+    category: 'Taller',
+    actionLabel: 'Asignar',
+  },
+  {
+    id: 'permit',
+    title: 'Pieza recibida en almacén',
+    description: 'Pastillas delanteras ORD-1038 listas para montaje.',
+    time: '8 min',
+    unread: true,
+    tone: 'info' as const,
+    category: 'Almacén',
+    actionLabel: 'Ver stock',
   },
   {
     id: 'signed',
@@ -100,6 +109,23 @@ export const EmptyState: Story = {
     items: notifications,
     activeFilter: 'RRHH',
     showFilters: false,
+  },
+};
+
+export const WorkshopUseCase: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story: 'Centro de actividad del taller: órdenes, almacén, facturación y avisos de sistema.',
+      },
+    },
+  },
+  args: {
+    title: 'Actividad del taller',
+    items: notifications,
+    activeFilter: 'Todas',
+    showFilters: true,
   },
 };
 

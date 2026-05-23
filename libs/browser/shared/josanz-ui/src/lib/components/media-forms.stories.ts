@@ -36,20 +36,29 @@ export default meta;
 type Story = StoryObj;
 
 export const MediaAndFormsSuite: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Ficha de orden de taller: vídeo de inspección, nota de voz del técnico, descripción del parte y validaciones del formulario.',
+      },
+    },
+  },
   render: () => ({
     template: `
       <section class="grid max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <josanz-video-player
-          title="Vídeo de montaje"
-          description="Player genérico para documentación audiovisual."
-          poster="https://picsum.photos/seed/josanz-video-poster/1200/675"
+          title="Inspección de frenos · ORD-1042"
+          description="Grabación del técnico en el elevador (BMW X1, matrícula 4821 KLM)."
+          poster="https://picsum.photos/seed/josanz-taller-frenos/1200/675"
           src=""
         ></josanz-video-player>
         <div class="grid gap-5">
-          <josanz-audio-player title="Brief de audio" description="Notas de voz o pistas asociadas al evento." src=""></josanz-audio-player>
-          <josanz-rich-text-editor label="Descripción enriquecida" value="<p>Incluye <strong>brief</strong>, condiciones técnicas y notas internas.</p>"></josanz-rich-text-editor>
-          <josanz-validation-message tone="error" message="El contrato firmado es obligatorio para publicar."></josanz-validation-message>
-          <josanz-validation-message tone="success" message="La documentación técnica está completa."></josanz-validation-message>
+          <josanz-audio-player title="Nota de voz del técnico" description="Cliente avisa de ruido al frenar en bajada." src=""></josanz-audio-player>
+          <josanz-rich-text-editor label="Trabajos realizados" value="<p>Sustitución de <strong>pastillas delanteras</strong>. Líquido de frenos dentro de tolerancia.</p>"></josanz-rich-text-editor>
+          <josanz-textarea label="Observaciones internas" value="Pieza OEM solicitada al proveedor; ETA mañana 10:00."></josanz-textarea>
+          <josanz-validation-message tone="error" message="La firma del cliente es obligatoria antes de cerrar la orden."></josanz-validation-message>
+          <josanz-validation-message tone="success" message="Checklist de seguridad completado y archivado."></josanz-validation-message>
         </div>
       </section>
     `,
