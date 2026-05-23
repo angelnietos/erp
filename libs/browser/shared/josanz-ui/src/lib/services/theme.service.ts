@@ -40,6 +40,7 @@ export type {
 
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
 const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
+const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
 const STORYBOOK_THEME_STATE_KEY = '__JOSANZ_STORYBOOK_THEME__';
 
 interface JosanzStoredPreferences {
@@ -158,13 +159,16 @@ export class JosanzThemeService {
     return 'luxe-rounded';
   }
 
-  private applyToDOM() {
+  private applyToDOM(notifyStorybook = true) {
     const theme = this.currentTheme();
     applyJosanzThemeCssVariables({
       atmosphere: theme.atmosphere,
       primaryColor: theme.primaryColor,
       themeName: theme.name,
     });
+    if (notifyStorybook) {
+      this.notifyStorybookThemeChange();
+    }
   }
 
   private setupStorybookBridge(): void {
@@ -196,7 +200,23 @@ export class JosanzThemeService {
         atmosphere,
       };
     });
-    this.applyToDOM();
+    this.applyToDOM(false);
+  }
+
+  private notifyStorybookThemeChange(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const theme = this.currentTheme();
+    window.dispatchEvent(
+      new CustomEvent<JosanzStorybookThemeDetail>(STORYBOOK_SERVICE_THEME_EVENT, {
+        detail: {
+          atmosphereName: theme.atmosphere.name,
+          primaryColor: theme.primaryColor,
+          shape: theme.defaultShape,
+        },
+      }),
+    );
   }
 
   private readStorybookThemeState(): JosanzStorybookThemeDetail | null {

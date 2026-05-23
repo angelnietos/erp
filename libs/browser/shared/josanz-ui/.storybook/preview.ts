@@ -1,6 +1,7 @@
 import { storybookRouterDecorator } from './storybook-providers';
 import { JOSANZ_FIGMA_APP, JOSANZ_FIGMA_DASHBOARD, JOSANZ_FIGMA_LOGIN, JOSANZ_FIGMA_SEMANTIC, JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
 import {
+  JOSANZ_ATMOSPHERE_CATALOG,
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
   applyJosanzStructuralCssVariables,
@@ -13,8 +14,14 @@ import type { JosanzControlShape } from '../src/lib/josanz-control-styles';
 const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
 
 const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
+const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
 const STORYBOOK_THEME_STATE_KEY = '__JOSANZ_STORYBOOK_THEME__';
 type StorybookThemeWindow = Window & Record<string, unknown>;
+type StorybookThemeDetail = {
+  atmosphereName: JosanzAtmosphereName;
+  primaryColor: string;
+  shape: JosanzControlShape;
+};
 
 // ─── Design Tokens (CSS custom properties) ──────────────────────────────────
 // Light theme (default :root) + dark theme (data-theme="dark")
@@ -201,16 +208,16 @@ body.sb-show-main,
 }
 `;
 
-const atmosphereToolbarItems = (Object.keys(JOSANZ_ATMOSPHERE_REGISTRY) as JosanzAtmosphereName[]).map(
-  (value) => ({
-    value,
-    title: value.charAt(0).toUpperCase() + value.slice(1),
-  }),
-);
+const atmosphereToolbarItems = JOSANZ_ATMOSPHERE_CATALOG.map(({ name, label, description }) => ({
+  value: name,
+  title: label,
+  right: description,
+}));
 
 const brandToolbarItems = [
   { value: JOSANZ_DEFAULT_PRIMARY, title: 'Josanz Negro' },
   { value: '#0F1E2F', title: 'Azul Noche' },
+  { value: '#222222', title: 'Grafito Josanz' },
   { value: '#635BFF', title: 'Rockstar' },
   { value: '#22C55E', title: 'Success' },
   { value: '#F59E0B', title: 'Warning' },
@@ -228,6 +235,33 @@ const shapeToolbarItems: Array<{ value: JosanzControlShape; title: string }> = [
 
 const isShape = (value: unknown): value is JosanzControlShape =>
   value === 'rounded' || value === 'pill' || value === 'square';
+
+const shapeToThemeName = (shape: JosanzControlShape) =>
+  shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded';
+
+const applyStorybookThemeDetail = (detail: StorybookThemeDetail): void => {
+  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[detail.atmosphereName] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
+  applyJosanzThemeCssVariables({
+    atmosphere,
+    primaryColor: detail.primaryColor,
+    themeName: shapeToThemeName(detail.shape),
+  });
+  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] = detail;
+};
+
+const updateStorybookGlobalsFromService = (detail: StorybookThemeDetail): void => {
+  const channel = (window as unknown as StorybookThemeWindow)['__STORYBOOK_ADDONS_CHANNEL__'];
+  if (!channel || typeof (channel as { emit?: unknown }).emit !== 'function') {
+    return;
+  }
+  (channel as { emit: (eventName: string, payload: unknown) => void }).emit('updateGlobals', {
+    globals: {
+      josanzAtmosphere: detail.atmosphereName,
+      josanzBrandColor: detail.primaryColor,
+      josanzShape: detail.shape,
+    },
+  });
+};
 
 // ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
 const atmosphereDecorator = (
@@ -252,12 +286,7 @@ const atmosphereDecorator = (
     shape,
   };
 
-  applyJosanzThemeCssVariables({
-    atmosphere,
-    primaryColor,
-    themeName: shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded',
-  });
-  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] = detail;
+  applyStorybookThemeDetail(detail);
   window.dispatchEvent(
     new CustomEvent(STORYBOOK_THEME_EVENT, {
       detail,
@@ -282,6 +311,14 @@ const injectStylesDecorator = (storyFn: () => unknown) => {
     style.id = 'josanz-design-system';
     style.textContent = googleFonts + designTokens + canvasStyles;
     document.head.appendChild(style);
+    window.addEventListener(STORYBOOK_SERVICE_THEME_EVENT, (event) => {
+      const detail = (event as CustomEvent<StorybookThemeDetail>).detail;
+      if (!detail) {
+        return;
+      }
+      applyStorybookThemeDetail(detail);
+      updateStorybookGlobalsFromService(detail);
+    });
     stylesInjected = true;
   }
   return storyFn();
