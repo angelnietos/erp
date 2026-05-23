@@ -46,6 +46,19 @@ import { JosanzThemeService } from '../services/theme.service';
           {{ visible ? 'Ocultar' : 'Mostrar' }}
         </button>
       </span>
+      @if (showStrength && value) {
+        <div class="grid gap-1.5" aria-live="polite">
+          <div class="flex gap-1">
+            @for (segment of strengthSegments(); track $index) {
+              <span
+                class="h-1 flex-1 rounded-full transition-colors"
+                [style.backgroundColor]="segment ? strengthColor() : 'color-mix(in srgb, var(--josanz-text-muted) 20%, transparent)'"
+              ></span>
+            }
+          </div>
+          <span class="text-[10px] font-black uppercase tracking-wider" [style.color]="strengthColor()">{{ strengthLabel() }}</span>
+        </div>
+      }
       @if (hint || error) {
         <span class="ml-1 text-xs font-semibold" [style.color]="error ? 'var(--josanz-danger)' : 'var(--josanz-text-muted)'">{{ error || hint }}</span>
       }
@@ -63,6 +76,7 @@ export class PasswordInputComponent extends JosanzValueAccessorBase<string> {
   @Input() autocomplete = 'current-password';
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
+  @Input() showStrength = false;
 
   @Output() valueChange = new EventEmitter<string>();
 
@@ -81,5 +95,44 @@ export class PasswordInputComponent extends JosanzValueAccessorBase<string> {
   cornerClass(): string {
     const shape = this.shape ?? this.themeService.currentTheme().defaultShape;
     return shape === 'square' ? 'rounded-none' : shape === 'pill' ? 'rounded-full' : 'rounded-[var(--josanz-radius-control)]';
+  }
+
+  strengthScore(): number {
+    const value = this.value;
+    let score = 0;
+    if (value.length >= 8) {
+      score += 1;
+    }
+    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) {
+      score += 1;
+    }
+    if (/\d/.test(value)) {
+      score += 1;
+    }
+    if (/[^A-Za-z0-9]/.test(value)) {
+      score += 1;
+    }
+    return score;
+  }
+
+  strengthSegments(): boolean[] {
+    const score = this.strengthScore();
+    return [1, 2, 3, 4].map((level) => score >= level);
+  }
+
+  strengthLabel(): string {
+    const labels = ['Muy débil', 'Débil', 'Aceptable', 'Fuerte', 'Muy fuerte'];
+    return labels[this.strengthScore()] ?? labels[0];
+  }
+
+  strengthColor(): string {
+    const score = this.strengthScore();
+    if (score <= 1) {
+      return 'var(--josanz-danger)';
+    }
+    if (score === 2) {
+      return 'var(--josanz-warning, #d97706)';
+    }
+    return 'var(--josanz-success, var(--josanz-primary))';
   }
 }

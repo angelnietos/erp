@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import { JosanzThemeService } from '../services/theme.service';
 
@@ -85,11 +85,19 @@ export class DrawerComponent {
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() closable = true;
   @Input() showBackdrop = true;
+  @Input() closeOnEscape = true;
   @Input() shape?: JosanzControlShape;
   @Input() ariaLabel = '';
 
   @Output() openChange = new EventEmitter<boolean>();
   @Output() closed = new EventEmitter<void>();
+
+  @HostListener('document:keydown', ['$event'])
+  onDocumentKeydown(event: KeyboardEvent): void {
+    if (this.open && this.closeOnEscape && event.key === 'Escape') {
+      this.close();
+    }
+  }
 
   close(): void {
     this.open = false;

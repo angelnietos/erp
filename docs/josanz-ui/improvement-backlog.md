@@ -33,6 +33,8 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | A10 | `josanz-currency-input` con sufijo EUR | ✅ | CVA + story |
 | A11 | CVA en textarea / date-picker / password | ✅ | `JosanzValueAccessorBase` |
 | A12 | CVA en number-input / chip-input | ✅ | Integrado con `formControlName` |
+| A13 | CVA en select / checkbox / switch | ✅ | Reactive Example ampliado |
+| A14 | `password-input` indicador de fortaleza | ✅ | `showStrength` |
 
 ---
 
@@ -46,7 +48,9 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | B4 | `josanz-flex` en layout-primitives | ✅ | selector `josanz-flex` |
 | B5 | Cerrar popover/menú al click fuera (HostListener) | ✅ | popover, dropdown, context-menu |
 | B6 | `josanz-breadcrumb-nav` con RouterLink opcional | ✅ | Story dedicada |
-| B7 | Bottom sheet + drawer unificar API `open`/`openChange` | ⬜ | |
+| B7 | Bottom sheet + drawer: backdrop, Escape, `openChange` | ✅ | bottom-sheet stories + drawer Escape |
+| B9 | `josanz-confirm-dialog` | ✅ | Story + export |
+| B10 | Command palette `openChange` + dismiss | ✅ | backdrop, Escape, cierra al seleccionar |
 | B8 | Modal focus trap y Escape | ✅ | trapFocus, Tab, Escape, backdrop |
 
 ---
@@ -74,6 +78,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | D3 | Paginación server-side story (mock) | ✅ | Data Grid / ServerSidePagination |
 | D4 | Data grid: export CSV | ✅ | Botón Exportar CSV |
 | D4b | Data grid: column resize | ✅ | `resizable`, `columnWidths`, `columnWidthsChange` |
+| D4c | Data grid: skeleton loading (`loadingSkeleton`) | ✅ | Usa `josanz-skeleton` variant table |
 | D5 | Tree view: checkbox multi-select | ✅ | checkable + checkedIds |
 | D6 | Integración charting lib (opcional, lazy) | ⬜ | Evaluar peso bundle |
 
@@ -85,7 +90,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 |----|----------|--------|-------|
 | E1 | Component Catalog (índice) | ✅ | Documentacion / Component Catalog |
 | E2 | Component Showcase suites | ✅ | Varias escenas compuestas |
-| E3 | `play` en stories críticas (forms, grid, command) | 🔄 | Ampliar cobertura |
+| E3 | `play` en stories críticas (forms, grid, command) | 🔄 | confirm-dialog, bottom-sheet, drawer |
 | E4 | Matriz Chromatic / Visual Regression | ✅ | En showcase |
 | E5 | MDX por categoría (Forms, Data, Layout) | ⬜ | |
 | E6 | Props table autodocs 100% componentes exportados | ⬜ | |

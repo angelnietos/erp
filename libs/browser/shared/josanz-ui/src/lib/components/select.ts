@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 export interface JosanzSelectOption {
@@ -13,6 +15,13 @@ export interface JosanzSelectOption {
   selector: 'josanz-select',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => SelectComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -38,7 +47,7 @@ export interface JosanzSelectOption {
           [disabled]="disabled"
           [attr.aria-label]="ariaLabel || label"
           (focus)="isFocused = true"
-          (blur)="isFocused = false"
+          (blur)="onBlur()"
           (change)="selectValue($event)"
         >
           @if (placeholder) {
@@ -69,7 +78,7 @@ export interface JosanzSelectOption {
     </label>
   `,
 })
-export class SelectComponent {
+export class SelectComponent extends JosanzValueAccessorBase<string> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = '';
@@ -79,7 +88,7 @@ export class SelectComponent {
   @Input() hint = '';
   @Input() error = '';
   @Input() required = false;
-  @Input() disabled = false;
+  @Input() override disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() ariaLabel = '';
@@ -88,12 +97,22 @@ export class SelectComponent {
 
   isFocused = false;
 
+  override writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+
   get accentColor(): string {
     return this.customColor || 'var(--josanz-interactive)';
   }
 
+  onBlur(): void {
+    this.isFocused = false;
+    this.markTouched();
+  }
+
   selectValue(event: Event): void {
     this.value = (event.target as HTMLSelectElement).value;
+    this.emitChange(this.value);
     this.valueChange.emit(this.value);
   }
 

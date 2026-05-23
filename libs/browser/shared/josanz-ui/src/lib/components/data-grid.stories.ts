@@ -64,6 +64,18 @@ export const LoadingState: Story = {
   },
 };
 
+export const LoadingSkeleton: Story = {
+  args: {
+    title: 'Cargando inventario',
+    columns,
+    rows: [],
+    loading: true,
+    loadingSkeleton: true,
+    skeletonRowCount: 5,
+    selectable: true,
+  },
+};
+
 const allOrders = Array.from({ length: 24 }, (_, index) => ({
   id: String(index + 1),
   order: `#${1000 + index}`,

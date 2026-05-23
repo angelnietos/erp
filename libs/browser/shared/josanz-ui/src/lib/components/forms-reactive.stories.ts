@@ -3,11 +3,15 @@ import { expect, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { CheckboxComponent } from './checkbox';
 import { CurrencyInputComponent } from './currency-input';
 import { DatePickerComponent } from './date-picker';
 import { FormFieldComponent } from './form-field';
+import { NumberInputComponent } from './number-input';
 import { PasswordInputComponent } from './password-input';
 import { PhoneInputComponent } from './phone-input';
+import { SelectComponent } from './select';
+import { SwitchComponent } from './switch';
 import { TextareaComponent } from './textarea';
 import { ValidationMessageComponent } from './validation-message';
 
@@ -23,6 +27,10 @@ const meta: Meta = {
         PasswordInputComponent,
         PhoneInputComponent,
         CurrencyInputComponent,
+        NumberInputComponent,
+        SelectComponent,
+        CheckboxComponent,
+        SwitchComponent,
         ValidationMessageComponent,
       ],
     }),
@@ -32,7 +40,7 @@ const meta: Meta = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'FormGroup con formControlName y ControlValueAccessor en textarea, date-picker, password, phone y currency.',
+          'FormGroup con formControlName y CVA en textarea, date-picker, password, phone, currency, number, select, checkbox y switch.',
         ),
       },
     },
@@ -51,6 +59,10 @@ export const ReactiveWorkOrderForm: Story = {
       pin: new FormControl('', [Validators.required, Validators.minLength(4)]),
       phone: new FormControl('+34'),
       amount: new FormControl<number | null>(null, Validators.required),
+      units: new FormControl(1, [Validators.required, Validators.min(1)]),
+      branch: new FormControl('', Validators.required),
+      urgent: new FormControl(false),
+      notifyClient: new FormControl(true),
     });
     return {
       props: {
@@ -81,6 +93,15 @@ export const ReactiveWorkOrderForm: Story = {
           const c = form.get('amount');
           return c?.touched && c.invalid ? 'Importe obligatorio.' : '';
         },
+        branchError(): string {
+          const c = form.get('branch');
+          return c?.touched && c.invalid ? 'Selecciona delegación.' : '';
+        },
+        branchOptions: [
+          { label: 'Madrid central', value: 'mad' },
+          { label: 'Barcelona', value: 'bcn' },
+          { label: 'Valencia', value: 'vlc' },
+        ],
       },
       template: `
         <form class="grid max-w-lg gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);" [formGroup]="form" (ngSubmit)="submit()">
@@ -98,8 +119,16 @@ export const ReactiveWorkOrderForm: Story = {
             <josanz-currency-input formControlName="amount"></josanz-currency-input>
           </josanz-form-field>
           <josanz-form-field label="PIN supervisor" [required]="true" [error]="pinError()">
-            <josanz-password-input formControlName="pin"></josanz-password-input>
+            <josanz-password-input formControlName="pin" [showStrength]="true"></josanz-password-input>
           </josanz-form-field>
+          <josanz-form-field label="Unidades" [required]="true">
+            <josanz-number-input formControlName="units" [min]="1" [max]="50"></josanz-number-input>
+          </josanz-form-field>
+          <josanz-form-field label="Delegación" [required]="true" [error]="branchError()">
+            <josanz-select formControlName="branch" placeholder="Elegir..." [options]="branchOptions"></josanz-select>
+          </josanz-form-field>
+          <josanz-checkbox formControlName="urgent" label="Orden urgente"></josanz-checkbox>
+          <josanz-switch formControlName="notifyClient" label="Avisar al cliente por SMS"></josanz-switch>
           @if (form.invalid && form.touched) {
             <josanz-validation-message tone="warning" message="Completa los campos obligatorios antes de guardar."></josanz-validation-message>
           }

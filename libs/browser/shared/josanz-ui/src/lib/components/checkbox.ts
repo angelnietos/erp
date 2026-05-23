@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-checkbox',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CheckboxComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label
       class="inline-flex cursor-pointer items-start gap-3"
@@ -24,6 +33,7 @@ import { JosanzThemeService } from '../services/theme.service';
           [disabled]="disabled"
           [attr.aria-label]="ariaLabel || label"
           (change)="toggle($event)"
+          (blur)="markTouched()"
         />
         @if (checked) {
           <svg
@@ -57,21 +67,29 @@ import { JosanzThemeService } from '../services/theme.service';
     </label>
   `,
 })
-export class CheckboxComponent {
+export class CheckboxComponent extends JosanzValueAccessorBase<boolean> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = 'Checkbox';
   @Input() description = '';
   @Input() checked = false;
-  @Input() disabled = false;
+  @Input() override disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() ariaLabel = '';
 
   @Output() checkedChange = new EventEmitter<boolean>();
 
+  override writeValue(value: boolean | null): void {
+    this.checked = !!value;
+  }
+
   toggle(event: Event): void {
+    if (this.disabled) {
+      return;
+    }
     this.checked = (event.target as HTMLInputElement).checked;
+    this.emitChange(this.checked);
     this.checkedChange.emit(this.checked);
   }
 

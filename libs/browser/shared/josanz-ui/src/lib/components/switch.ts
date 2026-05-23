@@ -1,10 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 
 @Component({
   selector: 'josanz-switch',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => SwitchComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label
       class="inline-flex cursor-pointer items-center gap-3"
@@ -53,15 +62,19 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     </label>
   `,
 })
-export class SwitchComponent {
+export class SwitchComponent extends JosanzValueAccessorBase<boolean> {
   @Input() label = 'Switch';
   @Input() description = '';
   @Input() checked = false;
-  @Input() disabled = false;
+  @Input() override disabled = false;
   @Input() customColor?: string;
   @Input() ariaLabel = '';
 
   @Output() checkedChange = new EventEmitter<boolean>();
+
+  override writeValue(value: boolean | null): void {
+    this.checked = !!value;
+  }
 
   get accentColor(): string {
     return this.customColor || 'var(--josanz-primary)';
@@ -72,6 +85,7 @@ export class SwitchComponent {
       return;
     }
     this.checked = !this.checked;
+    this.emitChange(this.checked);
     this.checkedChange.emit(this.checked);
   }
 }

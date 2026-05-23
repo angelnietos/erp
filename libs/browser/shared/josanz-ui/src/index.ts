@@ -187,3 +187,5 @@ export * from './lib/components/phone-input';
 export * from './lib/components/currency-input';
 
 export * from './lib/components/breadcrumb-nav';
+
+export * from './lib/components/confirm-dialog';

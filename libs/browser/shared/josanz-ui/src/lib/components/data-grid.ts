@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import type { JosanzTableColumn, JosanzTableRow } from './data-table';
 import { PaginationComponent } from './pagination';
+import { SkeletonComponent } from './skeleton';
 
 @Component({
   selector: 'josanz-data-grid',
   standalone: true,
-  imports: [CommonModule, PaginationComponent],
+  imports: [CommonModule, PaginationComponent, SkeletonComponent],
   template: `
     <section
       class="overflow-hidden border border-solid"
@@ -112,15 +113,23 @@ import { PaginationComponent } from './pagination';
           </thead>
           <tbody>
             @if (loading) {
-              @for (row of skeletonRows; track row) {
-                <tr class="border-t border-solid" [style.borderColor]="'var(--josanz-border)'">
-                  @if (selectable) {
-                    <td class="px-4 py-3"><span class="block h-4 w-4 rounded bg-black/10"></span></td>
-                  }
-                  @for (column of columns; track column.key) {
-                    <td class="px-4 py-3"><span class="block h-3.5 w-4/5 max-w-[180px] rounded bg-black/10"></span></td>
-                  }
+              @if (loadingSkeleton) {
+                <tr>
+                  <td class="p-4" [attr.colspan]="tableColSpan()">
+                    <josanz-skeleton variant="table" [lines]="skeletonRowCount"></josanz-skeleton>
+                  </td>
                 </tr>
+              } @else {
+                @for (row of skeletonRows; track row) {
+                  <tr class="border-t border-solid" [style.borderColor]="'var(--josanz-border)'">
+                    @if (selectable) {
+                      <td class="px-4 py-3"><span class="block h-4 w-4 rounded bg-black/10"></span></td>
+                    }
+                    @for (column of columns; track column.key) {
+                      <td class="px-4 py-3"><span class="block h-3.5 w-4/5 max-w-[180px] rounded bg-black/10"></span></td>
+                    }
+                  </tr>
+                }
               }
             } @else {
               @for (row of displayedRows(); track row.id) {
@@ -189,6 +198,8 @@ export class DataGridComponent {
   @Input() searchable = false;
   @Input() searchPlaceholder = 'Buscar...';
   @Input() loading = false;
+  @Input() loadingSkeleton = false;
+  @Input() skeletonRowCount = 4;
   @Input() density: 'comfortable' | 'compact' = 'comfortable';
   @Input() exportable = false;
   @Input() paginated = false;
@@ -213,6 +224,10 @@ export class DataGridComponent {
   private resizingColumnKey = '';
   private resizeStartX = 0;
   private resizeStartWidth = 0;
+
+  tableColSpan(): number {
+    return this.columns.length + (this.selectable ? 1 : 0);
+  }
 
   cornerClass(): string {
     return 'rounded-3xl';
