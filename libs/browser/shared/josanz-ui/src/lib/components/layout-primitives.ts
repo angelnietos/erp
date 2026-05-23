@@ -106,3 +106,40 @@ export class SpacerComponent {
   @Input() height = '1rem';
   @Input() block = true;
 }
+
+@Component({
+  selector: 'josanz-flex',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="flex" [ngClass]="flexClass()" [style.gap]="gap" [style.flexWrap]="wrap ? 'wrap' : 'nowrap'">
+      <ng-content></ng-content>
+    </div>
+  `,
+})
+export class FlexComponent {
+  @Input() direction: 'row' | 'column' = 'row';
+  @Input() gap = '0.75rem';
+  @Input() align: 'start' | 'center' | 'end' | 'stretch' | 'baseline' = 'stretch';
+  @Input() justify: 'start' | 'center' | 'between' | 'end' | 'around' = 'start';
+  @Input() wrap = true;
+
+  flexClass(): string {
+    const direction = this.direction === 'column' ? 'flex-col' : 'flex-row';
+    const align = {
+      start: 'items-start',
+      center: 'items-center',
+      end: 'items-end',
+      stretch: 'items-stretch',
+      baseline: 'items-baseline',
+    }[this.align];
+    const justify = {
+      start: 'justify-start',
+      center: 'justify-center',
+      between: 'justify-between',
+      end: 'justify-end',
+      around: 'justify-around',
+    }[this.justify];
+    return `${direction} ${align} ${justify}`;
+  }
+}

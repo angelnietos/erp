@@ -33,7 +33,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             class="rounded-full border border-solid bg-transparent px-3 py-1 text-xs font-black"
             [style.borderColor]="'var(--josanz-border)'"
             [style.color]="'var(--josanz-text)'"
-            (click)="format.emit(action.command)"
+            (click)="applyFormat(action.command)"
           >
             {{ action.label }}
           </button>
@@ -61,9 +61,23 @@ export class RichTextEditorComponent {
   readonly actions = [
     { label: 'B', command: 'bold' },
     { label: 'I', command: 'italic' },
+    { label: 'U', command: 'underline' },
     { label: 'Lista', command: 'insertUnorderedList' },
     { label: 'Link', command: 'createLink' },
+    { label: 'Quitar formato', command: 'removeFormat' },
   ];
+
+  applyFormat(command: string): void {
+    if (command === 'createLink') {
+      const url = typeof window !== 'undefined' ? window.prompt('URL del enlace') : null;
+      if (url) {
+        document.execCommand(command, false, url);
+      }
+    } else {
+      document.execCommand(command, false);
+    }
+    this.format.emit(command);
+  }
 
   updateValue(event: Event): void {
     this.value = (event.target as HTMLElement).innerHTML;

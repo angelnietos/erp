@@ -1,0 +1,130 @@
+# Josanz UI — Backlog de mejoras (iteración continua)
+
+Documento de subtareas para seguir ampliando el design system y Storybook en `libs/browser/shared/josanz-ui`.
+
+**Validación habitual:** `pnpm exec nx run josanz-ui:build-storybook:ci`  
+**Rama de despliegue Storybook:** `storybook-deploy` → Railway `josanz-ui-storybook`
+
+---
+
+## Leyenda
+
+| Estado | Significado |
+|--------|-------------|
+| ✅ | Hecho en repo |
+| 🔄 | En curso / parcial |
+| ⬜ | Pendiente |
+
+---
+
+## Fase A — Componentes base (formularios y datos)
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| A1 | `josanz-form-field` + validation-message | ✅ | Story: Forms / Field Wrapper |
+| A2 | `josanz-data-grid` (búsqueda, sort, select all, loading) | ✅ | Story dedicada + showcase |
+| A3 | `josanz-data-table` sort real + `sortChange` | ✅ | |
+| A4 | `josanz-number-input` / `password-input` | ✅ | |
+| A5 | `josanz-date-picker` standalone | ✅ | Story: Date Picker |
+| A6 | `josanz-otp-input` | ✅ | Story: OTP Input |
+| A7 | `josanz-search-field` genérico | ✅ | Story: Search Field |
+| A8 | Formulario reactivo ejemplo (FormGroup + form-field) | ✅ | Story Forms / Reactive Example |
+| A9 | `josanz-phone-input` con prefijo país | ⬜ | |
+| A10 | `josanz-currency-input` con sufijo EUR | ⬜ | |
+
+---
+
+## Fase B — Overlay, navegación y layout
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| B1 | popover, dropdown-menu, tag, chip-input | ✅ | |
+| B2 | card, list-item, progress-steps, inline-alert | ✅ | |
+| B3 | Navbar / Tree View / Context Menu stories | ✅ | |
+| B4 | `josanz-flex` en layout-primitives | ✅ | selector `josanz-flex` |
+| B5 | Cerrar popover/menú al click fuera (HostListener) | ⬜ | |
+| B6 | `josanz-breadcrumb-nav` con RouterLink opcional | ⬜ | breadcrumbs existe |
+| B7 | Bottom sheet + drawer unificar API `open`/`openChange` | ⬜ | |
+| B8 | Modal focus trap y Escape | ⬜ | a11y |
+
+---
+
+## Fase C — Feedback, media y editor
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| C1 | Stories: tooltip, divider, slider, spinner | ✅ | |
+| C2 | `josanz-inline-alert` | ✅ | |
+| C3 | Rich text: toolbar ampliada + `format` interno | ✅ | underline, removeFormat |
+| C4 | Rich text story dedicada + play | ✅ | |
+| C5 | Video/audio player stories dedicadas | ⬜ | En media-forms |
+| C6 | Toast queue + auto-dismiss configurable | ⬜ | |
+| C7 | Skeleton variants en tablas y cards | ⬜ | |
+
+---
+
+## Fase D — Datos avanzados y dashboards
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| D1 | Charts CSS (bar/donut) | ✅ | |
+| D2 | Kanban básico | ✅ | |
+| D3 | Paginación server-side story (mock) | ⬜ | |
+| D4 | Data grid: export CSV mock, column resize | ⬜ | |
+| D5 | Tree view: checkbox multi-select | ⬜ | |
+| D6 | Integración charting lib (opcional, lazy) | ⬜ | Evaluar peso bundle |
+
+---
+
+## Fase E — Storybook y documentación
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| E1 | Component Catalog (índice) | ✅ | Documentacion / Component Catalog |
+| E2 | Component Showcase suites | ✅ | Varias escenas compuestas |
+| E3 | `play` en stories críticas (forms, grid, command) | 🔄 | Ampliar cobertura |
+| E4 | Matriz Chromatic / Visual Regression | ✅ | En showcase |
+| E5 | MDX por categoría (Forms, Data, Layout) | ⬜ | |
+| E6 | Props table autodocs 100% componentes exportados | ⬜ | |
+
+---
+
+## Fase F — Calidad y consumo en ERP
+
+| ID | Subtarea | Estado | Notas |
+|----|----------|--------|-------|
+| F1 | Exportar todo en `src/index.ts` | 🔄 | Revisar tras cada lote; Flex exportado vía layout-primitives |
+| F2 | Unit tests smoke (selectores, outputs) | ⬜ | nx test josanz-ui |
+| F3 | Usar componentes en `josanz-web-app` piloto | ⬜ | 1 pantalla listado |
+| F4 | Tokens Figma ↔ theme.service alineados | ⬜ | |
+| F5 | Modo oscuro en todos los componentes nuevos | ⬜ | Probar atmosphere dark |
+
+---
+
+## Iteración recomendada (próximos 3 PRs)
+
+### PR-1 — Formularios
+- A5, A6, A8, A9  
+- E3 plays en form-field y date-picker  
+
+### PR-2 — Datos y tablas
+- A10, D3, D4, D5  
+- data-table select all en cabecera  
+
+### PR-3 — Polish y a11y
+- B5–B8, C6, F2  
+- MDX categoría Forms (E5)  
+
+---
+
+## Checklist antes de merge a `storybook-deploy`
+
+- [ ] `build-storybook:ci` verde  
+- [ ] Sin errores de lint en archivos tocados  
+- [ ] Nuevos componentes en `index.ts`  
+- [ ] Story mínima (Playground o Suite) por componente nuevo  
+- [ ] Showcase actualizado si el componente es “hero” de producto  
+
+---
+
+*Última actualización: generado en iteración de mejora continua del UI kit.*

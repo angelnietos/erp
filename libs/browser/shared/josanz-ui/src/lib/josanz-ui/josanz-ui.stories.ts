@@ -50,6 +50,10 @@ export const Welcome: Story = {
               <h3 class="mb-2 font-bold" style="color: var(--josanz-text);">Cómo usar</h3>
               <p class="text-sm" style="color: var(--josanz-text-muted);">Importa desde <code class="text-xs">@josanz-erp/josanz-ui</code> y revisa cada historia para props y eventos.</p>
             </div>
+            <div class="col-span-2 rounded-2xl p-6 text-left" style="background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface));">
+              <h3 class="mb-2 font-bold" style="color: var(--josanz-text);">Backlog de iteración</h3>
+              <p class="text-sm" style="color: var(--josanz-text-muted);">Subtareas por fases en el repo: <code class="text-xs">docs/josanz-ui/improvement-backlog.md</code>. Catálogo en Storybook: Documentacion / Component Catalog.</p>
+            </div>
           </div>
         </div>
       </div>

@@ -175,3 +175,9 @@ export * from './lib/components/number-input';
 export * from './lib/components/password-input';
 
 export * from './lib/components/inline-alert';
+
+export * from './lib/components/date-picker';
+
+export * from './lib/components/otp-input';
+
+export * from './lib/components/search-field';

@@ -9,6 +9,7 @@ import {
   GridComponent,
   SpacerComponent,
   StackComponent,
+  FlexComponent,
 } from './layout-primitives';
 import { ButtonComponent } from './button';
 import { StatCardComponent } from './stat-card';
@@ -24,6 +25,7 @@ const meta: Meta = {
         GridComponent,
         StackComponent,
         SpacerComponent,
+        FlexComponent,
         ButtonComponent,
         StatCardComponent,
       ],
@@ -77,8 +79,11 @@ export const NavigationLayoutSuite: Story = {
             <josanz-stat-card title="Eventos" value="12" caption="Esta semana" icon="calendar" customColor="#635BFF"></josanz-stat-card>
             <josanz-stat-card title="Facturas" value="8" caption="Pendientes" icon="invoice" tone="warning"></josanz-stat-card>
           </josanz-grid>
-          <josanz-spacer height="1.5rem"></josanz-spacer>
-          <josanz-button label="Acción principal" customColor="#635BFF"></josanz-button>
+          <josanz-flex justify="between" align="center" gap="1rem">
+            <josanz-button label="Acción principal" customColor="#635BFF"></josanz-button>
+            <josanz-button label="Secundaria" variant="secondary" [showIcon]="false"></josanz-button>
+          </josanz-flex>
+          <josanz-spacer height="0.5rem"></josanz-spacer>
         </josanz-stack>
       </josanz-container>
     `,

@@ -3,11 +3,11 @@ import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types
 
 const catalog = [
   { group: 'Acciones', items: ['Button', 'Secondary Button', 'FAB', 'Copy Button'] },
-  { group: 'Formularios', items: ['Input', 'Textarea', 'Select', 'Checkbox', 'Switch', 'Form Field', 'Number Input', 'Password Input', 'Chip Input', 'Validation Message'] },
+  { group: 'Formularios', items: ['Input', 'Textarea', 'Select', 'Checkbox', 'Switch', 'Form Field', 'Date Picker', 'Date Time Picker', 'OTP Input', 'Number Input', 'Password Input', 'Chip Input', 'Search Field', 'Validation Message', 'Reactive Example'] },
   { group: 'Datos', items: ['Data Table', 'Data Grid', 'Accordion', 'Timeline', 'Tree View', 'Kanban'] },
   { group: 'Overlay', items: ['Modal', 'Drawer', 'Bottom Sheet', 'Popover', 'Dropdown Menu', 'Context Menu', 'Tooltip', 'Command Palette'] },
-  { group: 'Layout', items: ['Sidebar', 'Navbar', 'Main List Layout', 'Container', 'Grid', 'Stack'] },
-  { group: 'Feedback', items: ['Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton', 'Progress Bar'] },
+  { group: 'Layout', items: ['Sidebar', 'Navbar', 'Main List Layout', 'Container', 'Grid', 'Stack', 'Flex', 'Spacer'] },
+  { group: 'Feedback', items: ['Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton', 'Progress Bar', 'Rich Text Editor'] },
 ];
 
 const meta: Meta = {

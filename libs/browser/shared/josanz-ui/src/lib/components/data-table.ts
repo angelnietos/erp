@@ -71,7 +71,14 @@ export interface JosanzTableRow {
             >
               @if (selectable) {
                 <th class="w-10 px-4 py-3" scope="col">
-                  <span class="sr-only">Seleccionar</span>
+                  <input
+                    type="checkbox"
+                    class="h-4 w-4 accent-[var(--josanz-primary)]"
+                    [checked]="allSelected()"
+                    [attr.aria-checked]="someSelected() ? 'mixed' : allSelected()"
+                    (click)="$event.stopPropagation()"
+                    (change)="toggleAll()"
+                  />
                 </th>
               }
               @for (column of columns; track column.key) {
@@ -169,6 +176,27 @@ export class DataTableComponent {
 
   isSelected(id: string): boolean {
     return this.selectedIds.includes(id);
+  }
+
+  allSelected(): boolean {
+    const visible = this.displayedRows();
+    return visible.length > 0 && visible.every((row) => this.isSelected(row.id));
+  }
+
+  someSelected(): boolean {
+    const visible = this.displayedRows();
+    const count = visible.filter((row) => this.isSelected(row.id)).length;
+    return count > 0 && count < visible.length;
+  }
+
+  toggleAll(): void {
+    const visibleIds = this.displayedRows().map((row) => row.id);
+    if (this.allSelected()) {
+      this.selectedIds = this.selectedIds.filter((id) => !visibleIds.includes(id));
+    } else {
+      this.selectedIds = [...new Set([...this.selectedIds, ...visibleIds])];
+    }
+    this.selectedIdsChange.emit(this.selectedIds);
   }
 
   toggleRow(id: string): void {
