@@ -51,6 +51,53 @@ const meta: Meta<FormFieldComponent> = {
 export default meta;
 type Story = StoryObj;
 
+export const Playground: Story = {
+  args: {
+    label: 'Nombre fiscal',
+    hint: 'Debe coincidir con la ficha de facturación.',
+    error: '',
+    required: true,
+    disabled: false,
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <section class="max-w-lg rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+        <josanz-form-field
+          [label]="label"
+          [hint]="hint"
+          [error]="error"
+          [required]="required"
+          [disabled]="disabled"
+        >
+          <josanz-textarea placeholder="Razón social o nombre comercial..."></josanz-textarea>
+        </josanz-form-field>
+      </section>
+    `,
+  }),
+};
+
+export const ValidationStates: Story = {
+  render: () => ({
+    template: `
+      <div class="grid max-w-4xl gap-5 md:grid-cols-2">
+        <josanz-form-field label="Importe presupuesto" required error="El importe debe ser superior a 0.">
+          <josanz-number-input [value]="0" [min]="1" [max]="50000"></josanz-number-input>
+        </josanz-form-field>
+        <josanz-form-field label="Fecha entrega" error="La fecha cae fuera del horario de almacén." errorTone="warning">
+          <josanz-textarea value="Viernes 21:00" placeholder="Fecha estimada"></josanz-textarea>
+        </josanz-form-field>
+        <josanz-form-field label="Notas internas" hint="Visible solo para taller y administración.">
+          <josanz-textarea value="Revisar documentación antes de facturar."></josanz-textarea>
+        </josanz-form-field>
+        <josanz-form-field label="PIN supervisor" hint="Campo deshabilitado hasta seleccionar responsable" [disabled]="true">
+          <josanz-password-input value="1234"></josanz-password-input>
+        </josanz-form-field>
+      </div>
+    `,
+  }),
+};
+
 export const FormFieldSuite: Story = {
   args: {
     valueChange: fn(),

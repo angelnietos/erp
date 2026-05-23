@@ -60,10 +60,10 @@ const columns = [
 ];
 
 const rows = [
-  { id: '1', order: '#1042', client: 'Ana Muñoz', status: 'En curso', total: '420 EUR' },
-  { id: '2', order: '#1038', client: 'Luis Romero', status: 'Pendiente', total: '180 EUR' },
-  { id: '3', order: '#1031', client: 'Sara Vega', status: 'Cerrada', total: '960 EUR' },
-  { id: '4', order: '#1024', client: 'Mario López', status: 'Incidencia', total: '310 EUR' },
+  { id: '1', order: '#1042', client: 'Ana Muñoz · NovaByte', status: 'En curso', total: '420 EUR' },
+  { id: '2', order: '#1038', client: 'Luis Romero · Eventos Sur', status: 'Pendiente', total: '180 EUR' },
+  { id: '3', order: '#1031', client: 'Sara Vega · Auralux', status: 'Cerrada', total: '960 EUR' },
+  { id: '4', order: '#1024', client: 'Mario López · Taller Norte', status: 'Incidencia', total: '310 EUR' },
 ];
 
 export const Playground: Story = {
@@ -75,11 +75,13 @@ export const Playground: Story = {
     searchable: true,
     selectable: true,
     resizable: true,
+    exportable: true,
     columnWidths: { order: 120, client: 220, total: 140 },
     selectedIds: ['2'],
     rowClick: fn(),
     selectedIdsChange: fn(),
     sortChange: fn(),
+    exportCsv: fn(),
     columnWidthsChange: fn(),
   },
 };
@@ -106,10 +108,21 @@ export const LoadingSkeleton: Story = {
   },
 };
 
+const clients = [
+  'NovaByte',
+  'Eventos del Sur',
+  'Auralux',
+  'Taller Norte',
+  'Construcciones ABC',
+  'Logística Prado',
+  'Hotel Miramar',
+  'Solaris Retail',
+];
+
 const allOrders = Array.from({ length: 24 }, (_, index) => ({
   id: String(index + 1),
   order: `#${1000 + index}`,
-  client: `Cliente ${index + 1}`,
+  client: clients[index % clients.length],
   status: index % 3 === 0 ? 'Cerrada' : 'En curso',
   total: `${(index + 1) * 120} EUR`,
 }));
@@ -172,9 +185,11 @@ export const InteractiveGrid: Story = {
     rows,
     searchable: true,
     selectable: true,
+    exportable: true,
     selectedIds: [],
     selectedIdsChange: fn(),
     sortChange: fn(),
+    exportCsv: fn(),
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -184,5 +199,32 @@ export const InteractiveGrid: Story = {
     const checkboxes = canvas.getAllByRole('checkbox');
     await userEvent.click(checkboxes[0]);
     await expect(args['selectedIdsChange']).toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole('button', { name: /Exportar CSV/i }));
+    await expect(args['exportCsv']).toHaveBeenCalled();
   },
+};
+
+export const EmptyAfterFilter: Story = {
+  args: {
+    title: 'Órdenes filtradas',
+    description: 'Estado vacío cuando la búsqueda no devuelve registros.',
+    columns,
+    rows: [],
+    searchable: true,
+    emptyLabel: 'No hay órdenes para ese cliente o referencia.',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <josanz-data-grid
+        [title]="title"
+        [description]="description"
+        [columns]="columns"
+        [rows]="rows"
+        [searchable]="searchable"
+        [emptyLabel]="emptyLabel"
+      ></josanz-data-grid>
+      <p class="mt-3 text-sm" style="color: var(--josanz-text-muted);">Usa este estado cuando backend responde sin coincidencias para los filtros activos.</p>
+    `,
+  }),
 };

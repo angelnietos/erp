@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MainListLayoutComponent } from './main-list-layout';
 import { MainTemplateCardComponent } from './main-template-card';
@@ -65,11 +66,19 @@ export const Playground: Story = {
   args: {
     title: 'Listado de Clientes',
     primaryBtnLabel: 'Nuevo Cliente',
+    secondaryBtnLabel: 'Importar',
     filterOptions: ['Todos', 'Activos', 'Potenciales', 'Baja'],
     paginationPage: 1,
-    paginationTotal: 0,
+    paginationTotal: 4,
+    searchPlaceholder: 'Buscar cliente o NIF...',
     shape: 'rounded',
     customColor: '',
+    primaryAction: fn(),
+    secondaryAction: fn(),
+    excelAction: fn(),
+    filterChange: fn(),
+    searchChange: fn(),
+    paginationChange: fn(),
   },
   render: (args) => ({
     props: args,
@@ -78,26 +87,30 @@ export const Playground: Story = {
         <josanz-main-list-layout
           [title]="title"
           [primaryBtnLabel]="primaryBtnLabel"
+          [secondaryBtnLabel]="secondaryBtnLabel"
           [filterOptions]="filterOptions"
           [paginationPage]="paginationPage"
           [paginationTotal]="paginationTotal"
+          [searchPlaceholder]="searchPlaceholder"
           [shape]="shape"
           [customColor]="customColor"
           (primaryAction)="primaryAction($event)"
+          (secondaryAction)="secondaryAction($event)"
           (excelAction)="excelAction($event)"
           (filterChange)="filterChange($event)"
+          (searchChange)="searchChange($event)"
           (paginationChange)="paginationChange($event)"
         >
           <div class="grid grid-cols-1 gap-4 mt-6">
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex justify-between items-center">
+            <div class="flex justify-between items-center rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-shadow-card);">
               <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">C1</div>
+                <div class="flex h-11 w-11 items-center justify-center rounded-full text-sm font-black" style="background: color-mix(in srgb, var(--josanz-primary) 14%, var(--josanz-surface)); color: var(--josanz-primary);">AB</div>
                 <div>
-                  <h5 class="font-bold text-slate-800 text-sm">Construcciones ABC</h5>
-                  <p class="text-xs text-slate-500">contacto@abc.com</p>
+                  <h5 class="m-0 text-sm font-black" style="color: var(--josanz-text);">Construcciones ABC</h5>
+                  <p class="m-0 text-xs" style="color: var(--josanz-text-muted);">B-99887766 · contacto@abc.com</p>
                 </div>
               </div>
-              <div class="px-3 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase">Activo</div>
+              <div class="rounded-full px-3 py-1 text-[10px] font-black uppercase" style="background: var(--josanz-pill-confirmado-bg); color: var(--josanz-pill-confirmado-text);">Activo</div>
             </div>
           </div>
         </josanz-main-list-layout>
@@ -137,11 +150,68 @@ export const WithPagination: Story = {
           [customColor]="customColor"
           (paginationChange)="paginationChange($event)"
         >
-          <p class="text-sm text-slate-500 p-4">Contenido de ejemplo: tabla o cards aquí.</p>
+          <div class="mt-6 grid gap-3">
+            <div class="rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border); color: var(--josanz-text);">INV-2026-004 · NovaByte · Pendiente · 1.250 EUR</div>
+            <div class="rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border); color: var(--josanz-text);">INV-2026-003 · Auralux · Cobrada · 8.900 EUR</div>
+          </div>
         </josanz-main-list-layout>
       </div>
     `,
   }),
+};
+
+export const InteractiveToolbar: Story = {
+  args: {
+    title: 'Órdenes',
+    primaryBtnLabel: 'Nueva orden',
+    secondaryBtnLabel: 'Asignar lote',
+    filterOptions: ['Todas', 'Urgentes', 'En taller', 'Facturables'],
+    paginationPage: 1,
+    paginationTotal: 3,
+    searchPlaceholder: 'Buscar orden o cliente...',
+    primaryAction: fn(),
+    secondaryAction: fn(),
+    excelAction: fn(),
+    filterChange: fn(),
+    searchChange: fn(),
+    paginationChange: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="min-h-[640px]" style="background: var(--josanz-bg);">
+        <josanz-main-list-layout
+          [title]="title"
+          [primaryBtnLabel]="primaryBtnLabel"
+          [secondaryBtnLabel]="secondaryBtnLabel"
+          [filterOptions]="filterOptions"
+          [paginationPage]="paginationPage"
+          [paginationTotal]="paginationTotal"
+          [searchPlaceholder]="searchPlaceholder"
+          (primaryAction)="primaryAction($event)"
+          (secondaryAction)="secondaryAction($event)"
+          (excelAction)="excelAction($event)"
+          (filterChange)="filterChange($event)"
+          (searchChange)="searchChange($event)"
+          (paginationChange)="paginationChange($event)"
+        >
+          <div class="mt-6 grid gap-3">
+            <div class="rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border); color: var(--josanz-text);">#1042 · Ana Muñoz · En taller</div>
+            <div class="rounded-2xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border); color: var(--josanz-text);">#1038 · Luis Romero · Facturable</div>
+          </div>
+        </josanz-main-list-layout>
+      </div>
+    `,
+  }),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /Urgentes/i }));
+    await expect(args['filterChange']).toHaveBeenCalledWith('Urgentes');
+    await userEvent.type(canvas.getByRole('searchbox'), 'Ana');
+    await expect(args['searchChange']).toHaveBeenLastCalledWith('Ana');
+    await userEvent.click(canvas.getByRole('button', { name: /Nueva orden/i }));
+    await expect(args['primaryAction']).toHaveBeenCalled();
+  },
 };
 
 export const ClientUseCase: Story = {

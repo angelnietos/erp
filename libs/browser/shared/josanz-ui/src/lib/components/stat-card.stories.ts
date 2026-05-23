@@ -123,7 +123,7 @@ export const UseCases: Story = {
           title="Vehículos"
           value="7/9"
           caption="Disponibilidad operativa"
-          trendLabel="OK"
+          trendLabel="Operativo"
           trendDirection="flat"
           tone="warning"
           icon="truck"
@@ -146,10 +146,11 @@ export const ShapeMatrix: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-5xl grid-cols-1 gap-5 p-4 md:grid-cols-3" style="background: var(--josanz-bg);">
-        <josanz-stat-card title="Rounded" value="36" caption="Shape por defecto" icon="trend" shape="rounded"></josanz-stat-card>
-        <josanz-stat-card title="Pill" value="24" caption="Dashboards suaves" icon="document" shape="pill" customColor="#635BFF"></josanz-stat-card>
-        <josanz-stat-card title="Square" value="12" caption="Backoffice denso" icon="invoice" shape="square" tone="neutral"></josanz-stat-card>
+        <josanz-stat-card title="Eventos activos" value="36" caption="Shape por defecto" icon="trend" shape="rounded"></josanz-stat-card>
+        <josanz-stat-card title="Clientes VIP" value="24" caption="Dashboards suaves" icon="document" shape="pill" customColor="#635BFF"></josanz-stat-card>
+        <josanz-stat-card title="Facturas vencidas" value="12" caption="Backoffice denso" icon="invoice" shape="square" tone="neutral"></josanz-stat-card>
       </div>
     `,
   }),
 };
+

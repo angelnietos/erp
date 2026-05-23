@@ -103,7 +103,7 @@ const columns = [
         id: 'k4',
         title: 'Presupuesto',
         description: 'Aprobado por cliente',
-        badge: 'OK',
+        badge: 'APR',
         assignee: 'Sara',
       },
     ],
@@ -163,3 +163,4 @@ export const InteractiveTreeAndKanban: Story = {
     await expect(args['cardClick']).toHaveBeenCalledTimes(1);
   },
 };
+

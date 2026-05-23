@@ -92,7 +92,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 |----|----------|--------|-------|
 | E1 | Component Catalog (índice) | ✅ | Documentacion / Component Catalog |
 | E2 | Component Showcase suites | ✅ | Varias escenas compuestas |
-| E3 | `play` en stories críticas (forms, grid, command) | 🔄 | confirm-dialog, bottom-sheet, drawer |
+| E3 | `play` en stories críticas (forms, grid, command) | ✅ | forms, grid, command, context, layout, spinner |
 | E4 | Matriz Chromatic / Visual Regression | ✅ | En showcase |
 | E5 | MDX por categoría (Forms, Data, Layout) | ✅ | + Overlays, Feedback |
 | E6 | Props table autodocs 100% componentes exportados | ✅ | argTypes reforzados en legacy shells, grid, forms y overlays |

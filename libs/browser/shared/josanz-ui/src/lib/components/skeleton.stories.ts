@@ -1,14 +1,21 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { moduleMetadata } from '@storybook/angular';
 import {
   sbRadio,
   josanzStoryThemeDescription,
 } from '../../../.storybook/story-arg-types';
+import { MainListLayoutComponent } from './main-list-layout';
 import { SkeletonComponent, type JosanzSkeletonVariant } from './skeleton';
 
 const meta: Meta<SkeletonComponent> = {
   component: SkeletonComponent,
   title: 'Josanz UI / Skeleton',
   tags: ['autodocs'],
+  decorators: [
+    moduleMetadata({
+      imports: [SkeletonComponent, MainListLayoutComponent],
+    }),
+  ],
   parameters: {
     docs: {
       description: {
@@ -105,6 +112,40 @@ export const TableAndListLoading: Story = {
           <josanz-skeleton variant="table" [lines]="6"></josanz-skeleton>
         </div>
       </section>
+    `,
+  }),
+};
+
+export const ListPageLoading: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Composición completa de listado mientras backend carga filtros y filas: mantiene estructura visual antes de montar Data Grid o Adaptive Rows.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="min-h-[680px]" style="background: var(--josanz-bg);">
+        <josanz-main-list-layout
+          title="Clientes"
+          primaryBtnLabel="Nuevo cliente"
+          [filterOptions]="['Todos', 'Activos', 'Potenciales']"
+          [showViewSelector]="false"
+          [showSearch]="false"
+        >
+          <div class="mt-6 grid gap-4">
+            <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <josanz-skeleton variant="list" [lines]="5"></josanz-skeleton>
+            </div>
+            <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <josanz-skeleton variant="table" [lines]="4"></josanz-skeleton>
+            </div>
+          </div>
+        </josanz-main-list-layout>
+      </div>
     `,
   }),
 };
