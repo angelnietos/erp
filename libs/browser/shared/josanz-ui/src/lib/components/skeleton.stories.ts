@@ -27,12 +27,14 @@ const meta: Meta<SkeletonComponent> = {
         'button',
         'card',
         'media',
+        'list',
+        'table',
       ] as readonly JosanzSkeletonVariant[],
       'Variante',
     ),
     lines: {
       control: { type: 'range', min: 1, max: 8, step: 1 },
-      description: 'Líneas en modo text',
+      description: 'Líneas en modo text/list/table',
     },
     shape: sbRadio(['rounded', 'pill', 'square'] as const, 'Override de shape'),
     animated: { control: 'boolean', description: 'Activa shimmer' },
@@ -79,10 +81,30 @@ export const Variants: Story = {
     template: `
       <div class="grid max-w-4xl gap-5 p-4 md:grid-cols-2" style="background: var(--josanz-bg);">
         <josanz-skeleton variant="text" [lines]="5"></josanz-skeleton>
+        <josanz-skeleton variant="list" [lines]="4"></josanz-skeleton>
+        <josanz-skeleton variant="table" [lines]="5"></josanz-skeleton>
         <josanz-skeleton variant="card"></josanz-skeleton>
         <josanz-skeleton variant="media" shape="square"></josanz-skeleton>
         <josanz-skeleton variant="button" shape="pill"></josanz-skeleton>
       </div>
+    `,
+  }),
+};
+
+export const TableAndListLoading: Story = {
+  parameters: { controls: { disable: true } },
+  render: () => ({
+    template: `
+      <section class="grid max-w-5xl gap-6 lg:grid-cols-2">
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-sm font-black" style="color: var(--josanz-text);">Listado cargando</p>
+          <josanz-skeleton variant="list" [lines]="5"></josanz-skeleton>
+        </div>
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 mb-4 text-sm font-black" style="color: var(--josanz-text);">Tabla cargando</p>
+          <josanz-skeleton variant="table" [lines]="6"></josanz-skeleton>
+        </div>
+      </section>
     `,
   }),
 };

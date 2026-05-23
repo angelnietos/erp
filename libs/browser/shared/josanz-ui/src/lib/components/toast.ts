@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
 
 export type JosanzToastTone = 'info' | 'success' | 'warning' | 'danger';
 export type JosanzToastPosition =
@@ -7,6 +7,16 @@ export type JosanzToastPosition =
   | 'top-left'
   | 'bottom-right'
   | 'bottom-left';
+
+export interface JosanzToastItem {
+  id: string;
+  title: string;
+  description?: string;
+  tone?: JosanzToastTone;
+  actionLabel?: string;
+  durationMs?: number;
+  persistent?: boolean;
+}
 
 @Component({
   selector: 'josanz-toast',
@@ -52,6 +62,17 @@ export type JosanzToastPosition =
                 >{{ toast.description }}</span
               >
             }
+            @if (toast.actionLabel) {
+              <button
+                type="button"
+                class="mt-3 rounded-full border border-solid bg-transparent px-3 py-1 text-xs font-black"
+                [style.borderColor]="'var(--josanz-border)'"
+                [style.color]="toneColor(toast.tone ?? 'info')"
+                (click)="action(toast)"
+              >
+                {{ toast.actionLabel }}
+              </button>
+            }
           </span>
           @if (dismissible) {
             <button
@@ -69,31 +90,41 @@ export type JosanzToastPosition =
     </aside>
   `,
 })
-export class ToastComponent {
-  @Input() toasts: Array<{
-    id: string;
-    title: string;
-    description?: string;
-    tone?: JosanzToastTone;
-  }> = [];
+export class ToastComponent implements OnChanges, OnDestroy {
+  @Input() toasts: JosanzToastItem[] = [];
   @Input() position: JosanzToastPosition = 'top-right';
   @Input() dismissible = true;
   @Input() limit = 4;
   @Input() ariaLabel = '';
+  @Input() autoDismiss = false;
+  @Input() defaultDurationMs = 5000;
 
   @Output() toastDismiss = new EventEmitter<string>();
+  @Output() toastAction = new EventEmitter<JosanzToastItem>();
 
-  visibleToasts(): Array<{
-    id: string;
-    title: string;
-    description?: string;
-    tone?: JosanzToastTone;
-  }> {
+  private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['toasts'] || changes['autoDismiss'] || changes['defaultDurationMs']) {
+      this.syncTimers();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.clearTimers();
+  }
+
+  visibleToasts(): JosanzToastItem[] {
     return this.toasts.slice(0, Math.max(1, this.limit));
   }
 
   dismiss(id: string): void {
+    this.clearTimer(id);
     this.toastDismiss.emit(id);
+  }
+
+  action(toast: JosanzToastItem): void {
+    this.toastAction.emit(toast);
   }
 
   positionClass(): string {
@@ -125,7 +156,7 @@ export class ToastComponent {
     };
   }
 
-  private toneColor(tone: JosanzToastTone): string {
+  toneColor(tone: JosanzToastTone): string {
     if (tone === 'success') {
       return 'var(--josanz-success)';
     }
@@ -136,5 +167,42 @@ export class ToastComponent {
       return 'var(--josanz-danger)';
     }
     return 'var(--josanz-primary)';
+  }
+
+  private syncTimers(): void {
+    if (!this.autoDismiss) {
+      this.clearTimers();
+      return;
+    }
+    const visibleIds = new Set(this.visibleToasts().map((toast) => toast.id));
+    for (const id of Array.from(this.timers.keys())) {
+      if (!visibleIds.has(id)) {
+        this.clearTimer(id);
+      }
+    }
+    for (const toast of this.visibleToasts()) {
+      if (toast.persistent || this.timers.has(toast.id)) {
+        continue;
+      }
+      const duration = Math.max(1000, toast.durationMs ?? this.defaultDurationMs);
+      this.timers.set(
+        toast.id,
+        setTimeout(() => this.dismiss(toast.id), duration),
+      );
+    }
+  }
+
+  private clearTimer(id: string): void {
+    const timer = this.timers.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      this.timers.delete(id);
+    }
+  }
+
+  private clearTimers(): void {
+    for (const id of Array.from(this.timers.keys())) {
+      this.clearTimer(id);
+    }
   }
 }

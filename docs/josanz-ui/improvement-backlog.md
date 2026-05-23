@@ -45,7 +45,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | B3 | Navbar / Tree View / Context Menu stories | ✅ | |
 | B4 | `josanz-flex` en layout-primitives | ✅ | selector `josanz-flex` |
 | B5 | Cerrar popover/menú al click fuera (HostListener) | ✅ | popover, dropdown, context-menu |
-| B6 | `josanz-breadcrumb-nav` con RouterLink opcional | ⬜ | breadcrumbs existe |
+| B6 | `josanz-breadcrumb-nav` con RouterLink opcional | ✅ | Story dedicada |
 | B7 | Bottom sheet + drawer unificar API `open`/`openChange` | ⬜ | |
 | B8 | Modal focus trap y Escape | ✅ | trapFocus, Tab, Escape, backdrop |
 
@@ -59,9 +59,9 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | C2 | `josanz-inline-alert` | ✅ | |
 | C3 | Rich text: toolbar ampliada + `format` interno | ✅ | underline, removeFormat |
 | C4 | Rich text story dedicada + play | ✅ | |
-| C5 | Video/audio player stories dedicadas | ⬜ | En media-forms |
-| C6 | Toast queue + auto-dismiss configurable | ⬜ | |
-| C7 | Skeleton variants en tablas y cards | ⬜ | |
+| C5 | Video/audio player stories dedicadas | ✅ | Media Player |
+| C6 | Toast queue + auto-dismiss configurable | ✅ | `autoDismiss`, acciones, persistentes |
+| C7 | Skeleton variants en tablas y cards | ✅ | `list` y `table` |
 
 ---
 

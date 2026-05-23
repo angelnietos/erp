@@ -6,8 +6,8 @@ const catalog = [
   { group: 'Formularios', items: ['Input', 'Textarea', 'Select', 'Checkbox', 'Switch', 'Form Field', 'Date Picker', 'Date Time Picker', 'OTP Input', 'Number Input', 'Password Input', 'Chip Input', 'Search Field', 'Validation Message', 'Reactive Example'] },
   { group: 'Datos', items: ['Data Table', 'Data Grid', 'Accordion', 'Timeline', 'Tree View', 'Kanban'] },
   { group: 'Overlay', items: ['Modal', 'Drawer', 'Bottom Sheet', 'Popover', 'Dropdown Menu', 'Context Menu', 'Tooltip', 'Command Palette'] },
-  { group: 'Layout', items: ['Sidebar', 'Navbar', 'Main List Layout', 'Container', 'Grid', 'Stack', 'Flex', 'Spacer'] },
-  { group: 'Feedback', items: ['Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton', 'Progress Bar', 'Rich Text Editor'] },
+  { group: 'Layout', items: ['Sidebar', 'Navbar', 'Breadcrumb Nav', 'Main List Layout', 'Container', 'Grid', 'Stack', 'Flex', 'Spacer'] },
+  { group: 'Feedback', items: ['Alert', 'Inline Alert', 'Toast', 'Spinner', 'Skeleton', 'Skeleton List/Table', 'Progress Bar', 'Rich Text Editor', 'Media Player'] },
 ];
 
 const meta: Meta = {

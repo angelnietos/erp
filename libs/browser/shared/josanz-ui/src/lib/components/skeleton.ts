@@ -8,7 +8,9 @@ export type JosanzSkeletonVariant =
   | 'avatar'
   | 'button'
   | 'card'
-  | 'media';
+  | 'media'
+  | 'list'
+  | 'table';
 
 @Component({
   selector: 'josanz-skeleton',
@@ -21,19 +23,57 @@ export type JosanzSkeletonVariant =
       [attr.aria-busy]="true"
       role="status"
     >
-      @for (_ of skeletonItems(); track $index) {
-        <div
-          class="relative overflow-hidden"
-          [ngClass]="skeletonClasses($index)"
-          [ngStyle]="skeletonStyles($index)"
-        >
-          @if (animated) {
-            <span
-              class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]"
-              [style.background]="shineGradient()"
-            ></span>
+      @if (variant === 'table') {
+        <div class="grid gap-2 rounded-2xl border border-solid p-3" [style.borderColor]="'var(--josanz-border)'">
+          @for (_ of skeletonItems(); track $index) {
+            <div class="grid grid-cols-[1.2fr_1fr_0.8fr] gap-3">
+              @for (cell of [1, 2, 3]; track cell) {
+                <span class="relative h-4 overflow-hidden rounded-lg" [ngStyle]="skeletonStyles($index)">
+                  @if (animated) {
+                    <span class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]" [style.background]="shineGradient()"></span>
+                  }
+                </span>
+              }
+            </div>
           }
         </div>
+      } @else if (variant === 'list') {
+        @for (_ of skeletonItems(); track $index) {
+          <div class="flex items-center gap-3">
+            <span class="relative h-10 w-10 shrink-0 overflow-hidden rounded-full" [ngStyle]="skeletonStyles($index)">
+              @if (animated) {
+                <span class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]" [style.background]="shineGradient()"></span>
+              }
+            </span>
+            <span class="grid flex-1 gap-2">
+              <span class="relative h-3 overflow-hidden rounded-lg" [ngStyle]="skeletonStyles($index)">
+                @if (animated) {
+                  <span class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]" [style.background]="shineGradient()"></span>
+                }
+              </span>
+              <span class="relative h-3 w-2/3 overflow-hidden rounded-lg" [ngStyle]="skeletonStyles($index)">
+                @if (animated) {
+                  <span class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]" [style.background]="shineGradient()"></span>
+                }
+              </span>
+            </span>
+          </div>
+        }
+      } @else {
+        @for (_ of skeletonItems(); track $index) {
+          <div
+            class="relative overflow-hidden"
+            [ngClass]="skeletonClasses($index)"
+            [ngStyle]="skeletonStyles($index)"
+          >
+            @if (animated) {
+              <span
+                class="absolute inset-0 -translate-x-full animate-[josanzSkeleton_1.6s_ease-in-out_infinite]"
+                [style.background]="shineGradient()"
+              ></span>
+            }
+          </div>
+          }
       }
       <span class="sr-only">{{ srText }}</span>
     </div>
@@ -63,7 +103,9 @@ export class SkeletonComponent {
   skeletonItems(): number[] {
     return Array.from({
       length:
-        this.variant === 'text' ? Math.max(1, Math.min(8, this.lines)) : 1,
+        this.variant === 'text' || this.variant === 'list' || this.variant === 'table'
+          ? Math.max(1, Math.min(8, this.lines))
+          : 1,
     });
   }
 
