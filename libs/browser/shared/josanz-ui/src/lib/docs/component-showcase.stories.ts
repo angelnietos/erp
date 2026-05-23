@@ -62,6 +62,12 @@ import { RichTextEditorComponent } from '../components/rich-text-editor';
 import { ValidationMessageComponent } from '../components/validation-message';
 import { BottomSheetComponent } from '../components/bottom-sheet';
 import { KanbanBoardComponent } from '../components/kanban-board';
+import { SegmentedControlComponent } from '../components/segmented-control';
+import { AvatarGroupComponent } from '../components/avatar-group';
+import { RatingComponent } from '../components/rating';
+import { ColorPickerComponent } from '../components/color-picker';
+import { CopyButtonComponent } from '../components/copy-button';
+import { KeyboardShortcutComponent } from '../components/keyboard-shortcut';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -123,6 +129,12 @@ const meta: Meta = {
         ValidationMessageComponent,
         BottomSheetComponent,
         KanbanBoardComponent,
+        SegmentedControlComponent,
+        AvatarGroupComponent,
+        RatingComponent,
+        ColorPickerComponent,
+        CopyButtonComponent,
+        KeyboardShortcutComponent,
       ],
     }),
   ],
@@ -817,6 +829,17 @@ export const FullUiKitCoverageSuite: Story = {
           ],
         },
       ],
+      people: [
+        { name: 'Ana Muñoz', color: '#635BFF' },
+        { name: 'Luis Romero', color: '#0F766E' },
+        { name: 'Sara Vega', color: '#B45309' },
+        { name: 'Mario López', color: '#BE123C' },
+      ],
+      segments: [
+        { label: 'Día', value: 'day' },
+        { label: 'Semana', value: 'week' },
+        { label: 'Mes', value: 'month' },
+      ],
     },
     template: `
       <section class="min-h-[1200px] p-6" style="background: var(--josanz-bg);">
@@ -839,6 +862,18 @@ export const FullUiKitCoverageSuite: Story = {
                 <josanz-video-player title="Vídeo" description="Player multimedia" poster="https://picsum.photos/seed/josanz-video-showcase/1200/675"></josanz-video-player>
                 <josanz-rich-text-editor label="Editor enriquecido" value="<p>Texto con <strong>formato</strong> para documentación interna.</p>"></josanz-rich-text-editor>
                 <josanz-validation-message tone="warning" message="Revisa los permisos antes de publicar."></josanz-validation-message>
+                <section class="grid gap-4 rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+                  <div class="flex flex-wrap items-center justify-between gap-4">
+                    <josanz-segmented-control [options]="segments" value="week" customColor="#635BFF"></josanz-segmented-control>
+                    <josanz-keyboard-shortcut [keys]="['Ctrl', 'K']"></josanz-keyboard-shortcut>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-5">
+                    <josanz-avatar-group [items]="people" [max]="3"></josanz-avatar-group>
+                    <josanz-rating label="Calidad" [value]="4"></josanz-rating>
+                    <josanz-copy-button text="erp-production-f06c.up.railway.app" label="Copiar URL"></josanz-copy-button>
+                  </div>
+                  <josanz-color-picker label="Color de campaña" value="#635BFF"></josanz-color-picker>
+                </section>
               </div>
               <div class="grid gap-6">
                 <josanz-audio-player title="Audio" description="Notas de voz o pistas de referencia."></josanz-audio-player>

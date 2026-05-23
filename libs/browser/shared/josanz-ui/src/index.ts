@@ -139,3 +139,15 @@ export * from './lib/components/validation-message';
 export * from './lib/components/bottom-sheet';
 
 export * from './lib/components/kanban-board';
+
+export * from './lib/components/segmented-control';
+
+export * from './lib/components/avatar-group';
+
+export * from './lib/components/rating';
+
+export * from './lib/components/color-picker';
+
+export * from './lib/components/copy-button';
+
+export * from './lib/components/keyboard-shortcut';
