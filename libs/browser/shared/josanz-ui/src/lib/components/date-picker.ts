@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-date-picker',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => DatePickerComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -23,6 +32,7 @@ import { JosanzThemeService } from '../services/theme.service';
         [attr.aria-label]="ariaLabel || label || 'Seleccionar fecha'"
         [ngStyle]="inputStyles()"
         (input)="onInput($event)"
+        (blur)="markTouched()"
       />
       @if (hint || error) {
         <span class="ml-1 text-xs font-semibold" [style.color]="error ? 'var(--josanz-danger)' : 'var(--josanz-text-muted)'">{{ error || hint }}</span>
@@ -30,7 +40,7 @@ import { JosanzThemeService } from '../services/theme.service';
     </label>
   `,
 })
-export class DatePickerComponent {
+export class DatePickerComponent extends JosanzValueAccessorBase<string> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = 'Fecha';
@@ -39,15 +49,19 @@ export class DatePickerComponent {
   @Input() max = '';
   @Input() hint = '';
   @Input() error = '';
-  @Input() disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() ariaLabel = '';
 
   @Output() valueChange = new EventEmitter<string>();
 
+  override writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+
   onInput(event: Event): void {
     this.value = (event.target as HTMLInputElement).value;
+    this.emitChange(this.value);
     this.valueChange.emit(this.value);
   }
 

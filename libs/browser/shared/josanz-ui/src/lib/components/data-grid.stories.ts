@@ -11,7 +11,7 @@ const meta: Meta<DataGridComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Cuadrícula avanzada: búsqueda local, ordenación, selección múltiple con “seleccionar todo” y estado de carga.',
+          'Cuadrícula avanzada: búsqueda, ordenación, selección, paginación server-side (mock), export CSV y loading.',
         ),
       },
     },
@@ -58,6 +58,31 @@ export const LoadingState: Story = {
     rows: [],
     loading: true,
     searchable: true,
+  },
+};
+
+const allOrders = Array.from({ length: 24 }, (_, index) => ({
+  id: String(index + 1),
+  order: `#${1000 + index}`,
+  client: `Cliente ${index + 1}`,
+  status: index % 3 === 0 ? 'Cerrada' : 'En curso',
+  total: `${(index + 1) * 120} EUR`,
+}));
+
+export const ServerSidePagination: Story = {
+  args: {
+    title: 'Órdenes (server-side mock)',
+    description: 'Página 1 de 24 registros simulados en backend.',
+    columns,
+    rows: allOrders.slice(0, 10),
+    serverSide: true,
+    paginated: true,
+    totalRows: 24,
+    page: 1,
+    pageSize: 10,
+    exportable: true,
+    pageChange: fn(),
+    exportCsv: fn(),
   },
 };
 

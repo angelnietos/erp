@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-password-input',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => PasswordInputComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -25,6 +34,7 @@ import { JosanzThemeService } from '../services/theme.service';
           [disabled]="disabled"
           [attr.autocomplete]="autocomplete"
           (input)="updateValue($event)"
+          (blur)="markTouched()"
         />
         <button
           type="button"
@@ -42,7 +52,7 @@ import { JosanzThemeService } from '../services/theme.service';
     </label>
   `,
 })
-export class PasswordInputComponent {
+export class PasswordInputComponent extends JosanzValueAccessorBase<string> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = 'Contraseña';
@@ -50,7 +60,6 @@ export class PasswordInputComponent {
   @Input() hint = '';
   @Input() error = '';
   @Input() value = '';
-  @Input() disabled = false;
   @Input() autocomplete = 'current-password';
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
@@ -59,8 +68,13 @@ export class PasswordInputComponent {
 
   visible = false;
 
+  override writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+
   updateValue(event: Event): void {
     this.value = (event.target as HTMLInputElement).value;
+    this.emitChange(this.value);
     this.valueChange.emit(this.value);
   }
 

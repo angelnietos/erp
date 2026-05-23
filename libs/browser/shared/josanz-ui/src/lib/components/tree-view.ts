@@ -38,11 +38,22 @@ export interface JosanzTreeNode {
         [attr.aria-expanded]="
           node.children?.length ? isExpanded(node.id) : null
         "
+        [attr.aria-checked]="checkable ? isChecked(node.id) : null"
       >
         <div
           class="flex items-start gap-2 rounded-xl px-2 py-2 hover:bg-black/[0.03]"
           [style.paddingLeft.px]="level * 20 + 8"
         >
+          @if (checkable) {
+            <input
+              type="checkbox"
+              class="mt-1 h-4 w-4 accent-[var(--josanz-primary)]"
+              [checked]="isChecked(node.id)"
+              [disabled]="node.disabled"
+              (click)="$event.stopPropagation()"
+              (change)="toggleCheck(node)"
+            />
+          }
           @if (node.children?.length) {
             <button
               type="button"
@@ -96,13 +107,20 @@ export class TreeViewComponent {
   @Input() title = '';
   @Input() nodes: JosanzTreeNode[] = [];
   @Input() expandedIds: string[] = [];
+  @Input() checkable = false;
+  @Input() checkedIds: string[] = [];
   @Input() ariaLabel = '';
 
   @Output() expandedIdsChange = new EventEmitter<string[]>();
+  @Output() checkedIdsChange = new EventEmitter<string[]>();
   @Output() nodeSelect = new EventEmitter<JosanzTreeNode>();
 
   isExpanded(id: string): boolean {
     return this.expandedIds.includes(id);
+  }
+
+  isChecked(id: string): boolean {
+    return this.checkedIds.includes(id);
   }
 
   toggle(node: JosanzTreeNode): void {
@@ -110,5 +128,21 @@ export class TreeViewComponent {
       ? this.expandedIds.filter((id) => id !== node.id)
       : [...this.expandedIds, node.id];
     this.expandedIdsChange.emit(this.expandedIds);
+  }
+
+  toggleCheck(node: JosanzTreeNode): void {
+    const ids = this.collectIds(node);
+    const allChecked = ids.every((id) => this.isChecked(id));
+    if (allChecked) {
+      this.checkedIds = this.checkedIds.filter((id) => !ids.includes(id));
+    } else {
+      this.checkedIds = [...new Set([...this.checkedIds, ...ids])];
+    }
+    this.checkedIdsChange.emit(this.checkedIds);
+  }
+
+  private collectIds(node: JosanzTreeNode): string[] {
+    const childIds = (node.children ?? []).flatMap((child) => this.collectIds(child));
+    return [node.id, ...childIds];
   }
 }

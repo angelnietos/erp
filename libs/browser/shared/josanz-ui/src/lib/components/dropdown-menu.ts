@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 import type { JosanzContextMenuItem } from './context-menu';
 
 @Component({
@@ -14,7 +14,7 @@ import type { JosanzContextMenuItem } from './context-menu';
         [style.borderColor]="'var(--josanz-border)'"
         [style.color]="'var(--josanz-text)'"
         [attr.aria-expanded]="open"
-        (click)="open = !open"
+        (click)="toggle($event)"
       >
         {{ label }}
         <span aria-hidden="true">⌄</span>
@@ -50,17 +50,39 @@ import type { JosanzContextMenuItem } from './context-menu';
   `,
 })
 export class DropdownMenuComponent {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   @Input() label = 'Opciones';
   @Input() items: JosanzContextMenuItem[] = [];
   @Input() open = false;
+  @Input() closeOnOutsideClick = true;
 
   @Output() itemSelect = new EventEmitter<JosanzContextMenuItem>();
+  @Output() openChange = new EventEmitter<boolean>();
+
+  toggle(event: MouseEvent): void {
+    event.stopPropagation();
+    this.open = !this.open;
+    this.openChange.emit(this.open);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.open || !this.closeOnOutsideClick) {
+      return;
+    }
+    if (!this.host.nativeElement.contains(event.target as Node)) {
+      this.open = false;
+      this.openChange.emit(false);
+    }
+  }
 
   select(item: JosanzContextMenuItem): void {
     if (item.disabled) {
       return;
     }
     this.open = false;
+    this.openChange.emit(false);
     this.itemSelect.emit(item);
   }
 }

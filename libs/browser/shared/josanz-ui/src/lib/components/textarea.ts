@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-textarea',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TextareaComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -27,11 +36,11 @@ import { JosanzThemeService } from '../services/theme.service';
         [placeholder]="placeholder"
         [value]="value"
         [rows]="rows"
-        [maxlength]="maxLength || null"
+        [attr.maxlength]="maxLength ?? null"
         [disabled]="disabled"
         [attr.aria-describedby]="hint || error ? hintId : null"
         (focus)="isFocused = true"
-        (blur)="isFocused = false"
+        (blur)="onBlur()"
         (input)="updateValue($event)"
       ></textarea>
       @if (hint || error || maxLength) {
@@ -52,7 +61,7 @@ import { JosanzThemeService } from '../services/theme.service';
     </label>
   `,
 })
-export class TextareaComponent {
+export class TextareaComponent extends JosanzValueAccessorBase<string> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = '';
@@ -62,7 +71,6 @@ export class TextareaComponent {
   @Input() maxLength?: number;
   @Input() hint = '';
   @Input() error = '';
-  @Input() disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
 
@@ -71,10 +79,20 @@ export class TextareaComponent {
   readonly hintId = `josanz-textarea-${Math.random().toString(36).slice(2)}`;
   isFocused = false;
 
+  override writeValue(value: string | null): void {
+    this.value = value ?? '';
+  }
+
   updateValue(event: Event): void {
     const next = (event.target as HTMLTextAreaElement).value;
     this.value = next;
+    this.emitChange(next);
     this.valueChange.emit(next);
+  }
+
+  onBlur(): void {
+    this.isFocused = false;
+    this.markTouched();
   }
 
   cornerClass(): string {

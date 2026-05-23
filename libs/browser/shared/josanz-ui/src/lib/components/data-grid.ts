@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import type { JosanzTableColumn, JosanzTableRow } from './data-table';
+import { PaginationComponent } from './pagination';
 
 @Component({
   selector: 'josanz-data-grid',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaginationComponent],
   template: `
     <section
       class="overflow-hidden border border-solid"
@@ -46,8 +47,19 @@ import type { JosanzTableColumn, JosanzTableRow } from './data-table';
               [style.backgroundColor]="'color-mix(in srgb, var(--josanz-primary) 12%, var(--josanz-surface))'"
               [style.color]="'var(--josanz-primary)'"
             >
-              {{ displayedRows().length }} / {{ rows.length }}
+              {{ rowCountLabel() }}
             </span>
+          }
+          @if (exportable && !loading) {
+            <button
+              type="button"
+              class="rounded-full border border-solid bg-transparent px-3 py-2 text-xs font-black"
+              [style.borderColor]="'var(--josanz-border)'"
+              [style.color]="'var(--josanz-text)'"
+              (click)="downloadCsv()"
+            >
+              Exportar CSV
+            </button>
           }
         </div>
       </header>
@@ -140,6 +152,17 @@ import type { JosanzTableColumn, JosanzTableRow } from './data-table';
           {{ emptyLabel }}
         </div>
       }
+
+      @if (paginated && totalPages() > 0) {
+        <footer class="flex justify-center border-t border-solid p-4" [style.borderColor]="'var(--josanz-border)'">
+          <josanz-pagination
+            [current]="page"
+            [total]="totalPages()"
+            variant="numbered"
+            (pageChange)="onPageChange($event)"
+          ></josanz-pagination>
+        </footer>
+      }
     </section>
   `,
 })
@@ -156,10 +179,18 @@ export class DataGridComponent {
   @Input() searchPlaceholder = 'Buscar...';
   @Input() loading = false;
   @Input() density: 'comfortable' | 'compact' = 'comfortable';
+  @Input() exportable = false;
+  @Input() paginated = false;
+  @Input() serverSide = false;
+  @Input() totalRows = 0;
+  @Input() page = 1;
+  @Input() pageSize = 10;
 
   @Output() rowClick = new EventEmitter<JosanzTableRow>();
   @Output() selectedIdsChange = new EventEmitter<string[]>();
   @Output() sortChange = new EventEmitter<{ key: string; direction: 'asc' | 'desc' }>();
+  @Output() pageChange = new EventEmitter<number>();
+  @Output() exportCsv = new EventEmitter<string>();
 
   searchQuery = '';
   sortKey = '';
@@ -178,7 +209,47 @@ export class DataGridComponent {
     this.searchQuery = (event.target as HTMLInputElement).value.trim().toLowerCase();
   }
 
+  rowCountLabel(): string {
+    if (this.serverSide) {
+      return `${this.displayedRows().length} en página · ${this.totalRows} total`;
+    }
+    return `${this.displayedRows().length} / ${this.rows.length}`;
+  }
+
+  totalPages(): number {
+    const total = this.serverSide ? this.totalRows : this.rows.length;
+    return Math.max(1, Math.ceil(total / Math.max(1, this.pageSize)));
+  }
+
+  onPageChange(page: number): void {
+    this.page = page;
+    this.pageChange.emit(page);
+  }
+
+  downloadCsv(): void {
+    const header = this.columns.map((column) => column.label).join(';');
+    const lines = this.displayedRows().map((row) =>
+      this.columns
+        .map((column) => `"${String(row[column.key] ?? '').replace(/"/g, '""')}"`)
+        .join(';'),
+    );
+    const csv = [header, ...lines].join('\n');
+    if (typeof document !== 'undefined') {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${(this.title || 'datos').replace(/\s+/g, '-').toLowerCase()}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+    this.exportCsv.emit(csv);
+  }
+
   displayedRows(): JosanzTableRow[] {
+    if (this.serverSide) {
+      return this.rows;
+    }
     let next = [...this.rows];
     if (this.searchQuery) {
       next = next.filter((row) =>

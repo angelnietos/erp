@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 
 @Component({
   selector: 'josanz-popover',
@@ -7,7 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule],
   template: `
     <div class="relative inline-block">
-      <button type="button" class="rounded-full border border-solid bg-transparent px-3 py-2 text-sm font-black" [style.borderColor]="'var(--josanz-border)'" [style.color]="'var(--josanz-text)'" [attr.aria-expanded]="open" (click)="toggle()">
+      <button type="button" class="rounded-full border border-solid bg-transparent px-3 py-2 text-sm font-black" [style.borderColor]="'var(--josanz-border)'" [style.color]="'var(--josanz-text)'" [attr.aria-expanded]="open" (click)="toggle($event)">
         <ng-content select="[popover-trigger]"></ng-content>
         @if (!hasTriggerContent) {
           {{ triggerLabel }}
@@ -36,18 +36,33 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   `,
 })
 export class PopoverComponent {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   @Input() triggerLabel = 'Abrir';
   @Input() title = '';
   @Input() description = '';
   @Input() open = false;
   @Input() placement: 'bottom' | 'top' | 'left' | 'right' = 'bottom';
   @Input() hasTriggerContent = false;
+  @Input() closeOnOutsideClick = true;
 
   @Output() openChange = new EventEmitter<boolean>();
 
-  toggle(): void {
+  toggle(event: MouseEvent): void {
+    event.stopPropagation();
     this.open = !this.open;
     this.openChange.emit(this.open);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.open || !this.closeOnOutsideClick) {
+      return;
+    }
+    if (!this.host.nativeElement.contains(event.target as Node)) {
+      this.open = false;
+      this.openChange.emit(false);
+    }
   }
 
   placementClass(): string {

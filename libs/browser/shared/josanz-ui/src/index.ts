@@ -181,3 +181,7 @@ export * from './lib/components/date-picker';
 export * from './lib/components/otp-input';
 
 export * from './lib/components/search-field';
+
+export * from './lib/components/phone-input';
+
+export * from './lib/components/currency-input';

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, inject } from '@angular/core';
 
 export type JosanzMenuItemTone = 'default' | 'danger';
 
@@ -25,7 +25,7 @@ export interface JosanzContextMenuItem {
         [style.color]="'var(--josanz-text)'"
         [attr.aria-expanded]="open"
         [attr.aria-label]="buttonLabel"
-        (click)="open = !open"
+        (click)="toggle($event)"
       >
         {{ buttonText }}
       </button>
@@ -72,18 +72,40 @@ export interface JosanzContextMenuItem {
   `,
 })
 export class ContextMenuComponent {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   @Input() buttonText = 'Acciones';
   @Input() buttonLabel = 'Abrir menú contextual';
   @Input() items: JosanzContextMenuItem[] = [];
   @Input() open = false;
+  @Input() closeOnOutsideClick = true;
 
   @Output() itemSelect = new EventEmitter<JosanzContextMenuItem>();
+  @Output() openChange = new EventEmitter<boolean>();
+
+  toggle(event: MouseEvent): void {
+    event.stopPropagation();
+    this.open = !this.open;
+    this.openChange.emit(this.open);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.open || !this.closeOnOutsideClick) {
+      return;
+    }
+    if (!this.host.nativeElement.contains(event.target as Node)) {
+      this.open = false;
+      this.openChange.emit(false);
+    }
+  }
 
   select(item: JosanzContextMenuItem): void {
     if (item.disabled) {
       return;
     }
     this.open = false;
+    this.openChange.emit(false);
     this.itemSelect.emit(item);
   }
 }

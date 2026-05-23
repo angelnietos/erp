@@ -29,8 +29,9 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | A6 | `josanz-otp-input` | ✅ | Story: OTP Input |
 | A7 | `josanz-search-field` genérico | ✅ | Story: Search Field |
 | A8 | Formulario reactivo ejemplo (FormGroup + form-field) | ✅ | Story Forms / Reactive Example |
-| A9 | `josanz-phone-input` con prefijo país | ⬜ | |
-| A10 | `josanz-currency-input` con sufijo EUR | ⬜ | |
+| A9 | `josanz-phone-input` con prefijo país | ✅ | CVA + story |
+| A10 | `josanz-currency-input` con sufijo EUR | ✅ | CVA + story |
+| A11 | CVA en textarea / date-picker / password | ✅ | `JosanzValueAccessorBase` |
 
 ---
 
@@ -42,10 +43,10 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | B2 | card, list-item, progress-steps, inline-alert | ✅ | |
 | B3 | Navbar / Tree View / Context Menu stories | ✅ | |
 | B4 | `josanz-flex` en layout-primitives | ✅ | selector `josanz-flex` |
-| B5 | Cerrar popover/menú al click fuera (HostListener) | ⬜ | |
+| B5 | Cerrar popover/menú al click fuera (HostListener) | ✅ | popover, dropdown, context-menu |
 | B6 | `josanz-breadcrumb-nav` con RouterLink opcional | ⬜ | breadcrumbs existe |
 | B7 | Bottom sheet + drawer unificar API `open`/`openChange` | ⬜ | |
-| B8 | Modal focus trap y Escape | ⬜ | a11y |
+| B8 | Modal focus trap y Escape | ✅ | trapFocus, Tab, Escape, backdrop |
 
 ---
 
@@ -69,9 +70,10 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 |----|----------|--------|-------|
 | D1 | Charts CSS (bar/donut) | ✅ | |
 | D2 | Kanban básico | ✅ | |
-| D3 | Paginación server-side story (mock) | ⬜ | |
-| D4 | Data grid: export CSV mock, column resize | ⬜ | |
-| D5 | Tree view: checkbox multi-select | ⬜ | |
+| D3 | Paginación server-side story (mock) | ✅ | Data Grid / ServerSidePagination |
+| D4 | Data grid: export CSV | ✅ | Botón Exportar CSV |
+| D4b | Data grid: column resize | ⬜ | |
+| D5 | Tree view: checkbox multi-select | ✅ | checkable + checkedIds |
 | D6 | Integración charting lib (opcional, lazy) | ⬜ | Evaluar peso bundle |
 
 ---
@@ -94,7 +96,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | ID | Subtarea | Estado | Notas |
 |----|----------|--------|-------|
 | F1 | Exportar todo en `src/index.ts` | 🔄 | Revisar tras cada lote; Flex exportado vía layout-primitives |
-| F2 | Unit tests smoke (selectores, outputs) | ⬜ | nx test josanz-ui |
+| F2 | Unit tests smoke (selectores, outputs) | ✅ | textarea, data-grid, form-field, phone, currency |
 | F3 | Usar componentes en `josanz-web-app` piloto | ⬜ | 1 pantalla listado |
 | F4 | Tokens Figma ↔ theme.service alineados | ⬜ | |
 | F5 | Modo oscuro en todos los componentes nuevos | ⬜ | Probar atmosphere dark |

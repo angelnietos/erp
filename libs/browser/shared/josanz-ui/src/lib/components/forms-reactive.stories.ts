@@ -3,9 +3,11 @@ import { expect, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { CurrencyInputComponent } from './currency-input';
 import { DatePickerComponent } from './date-picker';
 import { FormFieldComponent } from './form-field';
 import { PasswordInputComponent } from './password-input';
+import { PhoneInputComponent } from './phone-input';
 import { TextareaComponent } from './textarea';
 import { ValidationMessageComponent } from './validation-message';
 
@@ -19,6 +21,8 @@ const meta: Meta = {
         TextareaComponent,
         DatePickerComponent,
         PasswordInputComponent,
+        PhoneInputComponent,
+        CurrencyInputComponent,
         ValidationMessageComponent,
       ],
     }),
@@ -28,7 +32,7 @@ const meta: Meta = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Patrón recomendado: FormGroup de Angular + binding manual value/(valueChange) en controles Josanz hasta implementar ControlValueAccessor.',
+          'FormGroup con formControlName y ControlValueAccessor en textarea, date-picker, password, phone y currency.',
         ),
       },
     },
@@ -45,24 +49,14 @@ export const ReactiveWorkOrderForm: Story = {
       notes: new FormControl('', Validators.required),
       dueDate: new FormControl('', Validators.required),
       pin: new FormControl('', [Validators.required, Validators.minLength(4)]),
+      phone: new FormControl('+34'),
+      amount: new FormControl<number | null>(null, Validators.required),
     });
     return {
       props: {
         form,
         submit(): void {
           form.markAllAsTouched();
-        },
-        patchNotes(value: string): void {
-          form.get('notes')?.setValue(value);
-          form.get('notes')?.markAsTouched();
-        },
-        patchDate(value: string): void {
-          form.get('dueDate')?.setValue(value);
-          form.get('dueDate')?.markAsTouched();
-        },
-        patchPin(value: string): void {
-          form.get('pin')?.setValue(value);
-          form.get('pin')?.markAsTouched();
         },
         notesError(): string {
           const c = form.get('notes');
@@ -79,18 +73,32 @@ export const ReactiveWorkOrderForm: Story = {
           }
           return c.hasError('minlength') ? 'Mínimo 4 caracteres.' : 'PIN requerido.';
         },
+        phoneError(): string {
+          const c = form.get('phone');
+          return c?.touched && c.invalid ? 'Teléfono obligatorio.' : '';
+        },
+        amountError(): string {
+          const c = form.get('amount');
+          return c?.touched && c.invalid ? 'Importe obligatorio.' : '';
+        },
       },
       template: `
-        <form class="grid max-w-lg gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);" (ngSubmit)="submit()">
-          <h2 class="m-0 text-lg font-black" style="color: var(--josanz-text);">Orden de taller (reactive)</h2>
+        <form class="grid max-w-lg gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);" [formGroup]="form" (ngSubmit)="submit()">
+          <h2 class="m-0 text-lg font-black" style="color: var(--josanz-text);">Orden de taller (reactive + CVA)</h2>
           <josanz-form-field label="Notas" [required]="true" [error]="notesError()">
-            <josanz-textarea [value]="form.get('notes')?.value || ''" placeholder="Diagnóstico..." (valueChange)="patchNotes($event)"></josanz-textarea>
+            <josanz-textarea formControlName="notes" placeholder="Diagnóstico..."></josanz-textarea>
           </josanz-form-field>
           <josanz-form-field label="Fecha entrega" [required]="true" [error]="dateError()">
-            <josanz-date-picker [value]="form.get('dueDate')?.value || ''" (valueChange)="patchDate($event)"></josanz-date-picker>
+            <josanz-date-picker formControlName="dueDate"></josanz-date-picker>
+          </josanz-form-field>
+          <josanz-form-field label="Teléfono cliente" [error]="phoneError()">
+            <josanz-phone-input formControlName="phone"></josanz-phone-input>
+          </josanz-form-field>
+          <josanz-form-field label="Importe presupuesto" [required]="true" [error]="amountError()">
+            <josanz-currency-input formControlName="amount"></josanz-currency-input>
           </josanz-form-field>
           <josanz-form-field label="PIN supervisor" [required]="true" [error]="pinError()">
-            <josanz-password-input [value]="form.get('pin')?.value || ''" (valueChange)="patchPin($event)"></josanz-password-input>
+            <josanz-password-input formControlName="pin"></josanz-password-input>
           </josanz-form-field>
           @if (form.invalid && form.touched) {
             <josanz-validation-message tone="warning" message="Completa los campos obligatorios antes de guardar."></josanz-validation-message>
