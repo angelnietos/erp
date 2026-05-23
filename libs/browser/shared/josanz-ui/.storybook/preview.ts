@@ -12,6 +12,10 @@ import type { JosanzControlShape } from '../src/lib/josanz-control-styles';
 // ─── Google Fonts ────────────────────────────────────────────────────────────
 const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
 
+const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
+const STORYBOOK_THEME_STATE_KEY = '__JOSANZ_STORYBOOK_THEME__';
+type StorybookThemeWindow = Window & Record<string, unknown>;
+
 // ─── Design Tokens (CSS custom properties) ──────────────────────────────────
 // Light theme (default :root) + dark theme (data-theme="dark")
 const designTokens = `
@@ -149,6 +153,23 @@ body.sb-show-main,
   transition: background 0.3s ease;
 }
 
+.sbdocs-wrapper,
+.sbdocs-content {
+  background: var(--josanz-bg, #f8fafc) !important;
+  color: var(--josanz-text, #0f172a) !important;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.docs-story,
+.sbdocs-preview,
+.sb-story {
+  background: var(--josanz-bg, #f8fafc) !important;
+}
+
+.sbdocs-preview {
+  border-color: var(--josanz-border, #e2e8f0) !important;
+}
+
 h1, h2, h3, h4, h5, h6 {
   font-family: 'DM Sans', sans-serif;
   font-weight: 800;
@@ -201,18 +222,21 @@ const atmosphereDecorator = (
   const storyShape = context.args?.['shape'];
   const toolbarShape = context.globals?.josanzShape;
   const shape = isShape(storyShape) ? storyShape : isShape(toolbarShape) ? toolbarShape : 'rounded';
+  const detail = {
+    atmosphereName: atmosphere.name,
+    primaryColor,
+    shape,
+  };
+
   applyJosanzThemeCssVariables({
     atmosphere,
     primaryColor,
     themeName: shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded',
   });
+  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] = detail;
   window.dispatchEvent(
-    new CustomEvent('josanz-ui-storybook-theme-change', {
-      detail: {
-        atmosphereName: atmosphere.name,
-        primaryColor,
-        shape,
-      },
+    new CustomEvent(STORYBOOK_THEME_EVENT, {
+      detail,
     }),
   );
   return storyFn();
