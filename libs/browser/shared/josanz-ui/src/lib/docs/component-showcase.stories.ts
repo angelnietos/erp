@@ -1,6 +1,9 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import {
+  sbRadio,
+  josanzStoryThemeDescription,
+} from '../../../.storybook/story-arg-types';
 import { ButtonComponent } from '../components/button';
 import { SecondaryButtonComponent } from '../components/secondary-button';
 import { FilterTabsComponent } from '../components/filter-tabs';
@@ -18,6 +21,10 @@ import { CalendarComponent } from '../components/calendar';
 import { DateTimePickerComponent } from '../components/date-time-picker';
 import { TimePickerComponent } from '../components/time-picker';
 import { AlertComponent } from '../components/alert';
+import { BadgeComponent } from '../components/badge';
+import { SkeletonComponent } from '../components/skeleton';
+import { BreadcrumbsComponent } from '../components/breadcrumbs';
+import { StepperComponent } from '../components/stepper';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -42,6 +49,10 @@ const meta: Meta = {
         DateTimePickerComponent,
         TimePickerComponent,
         AlertComponent,
+        BadgeComponent,
+        SkeletonComponent,
+        BreadcrumbsComponent,
+        StepperComponent,
       ],
     }),
   ],
@@ -56,12 +67,27 @@ const meta: Meta = {
     layout: 'fullscreen',
   },
   argTypes: {
-    brandColor: { control: 'color', description: 'Color de marca aplicado al showcase' },
+    brandColor: {
+      control: 'color',
+      description: 'Color de marca aplicado al showcase',
+    },
     activeFilter: { control: 'text', description: 'Filtro activo' },
-    filterVariant: sbRadio(['figma', 'underline', 'brand'] as const, 'Variante de filtros'),
-    searchShape: sbRadio(['rounded', 'pill', 'square'] as const, 'Shape del buscador'),
-    cardDensity: sbRadio(['comfortable', 'compact', 'dense'] as const, 'Densidad de tarjetas'),
-    paginationVariant: sbRadio(['figma', 'numbered'] as const, 'Variante de paginacion'),
+    filterVariant: sbRadio(
+      ['figma', 'underline', 'brand'] as const,
+      'Variante de filtros',
+    ),
+    searchShape: sbRadio(
+      ['rounded', 'pill', 'square'] as const,
+      'Shape del buscador',
+    ),
+    cardDensity: sbRadio(
+      ['comfortable', 'compact', 'dense'] as const,
+      'Densidad de tarjetas',
+    ),
+    paginationVariant: sbRadio(
+      ['figma', 'numbered'] as const,
+      'Variante de paginacion',
+    ),
   },
 };
 
@@ -192,7 +218,8 @@ export const BillingSlice: Story = {
     controls: { disable: true },
     docs: {
       description: {
-        story: 'Recorte de facturación: tarjetas compactas, estados de cobro y paginación Figma.',
+        story:
+          'Recorte de facturación: tarjetas compactas, estados de cobro y paginación Figma.',
       },
     },
   },
@@ -306,6 +333,89 @@ export const EventOperationsSuite: Story = {
                 </josanz-document-list>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+    `,
+  }),
+};
+
+export const UiLibraryBasicsSuite: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Showcase de primitivas comunes en cualquier UI kit: navegación jerárquica, badges, stepper y skeletons de carga.',
+      },
+    },
+  },
+  render: () => ({
+    props: {
+      wizardSteps: [
+        { id: 'client', label: 'Cliente', description: 'Datos fiscales' },
+        { id: 'event', label: 'Evento', description: 'Fechas y equipo' },
+        { id: 'docs', label: 'Documentos', description: 'Contrato y permisos' },
+        {
+          id: 'publish',
+          label: 'Publicar',
+          description: 'Enviar a producción',
+        },
+      ],
+    },
+    template: `
+      <section class="min-h-[860px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto grid max-w-6xl gap-6">
+          <header class="grid gap-4 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <josanz-breadcrumbs
+              separator="›"
+              [items]="[
+                { label: 'ERP', href: '#' },
+                { label: 'Eventos', href: '#' },
+                { label: 'Gala Primavera 2026', current: true }
+              ]"
+            ></josanz-breadcrumbs>
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p class="m-0 text-xs font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Primitivas de UI</p>
+                <h1 class="m-0 mt-2 text-3xl font-black" style="color: var(--josanz-text);">Ficha de producción</h1>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <josanz-badge label="Confirmado" tone="success" [dot]="true"></josanz-badge>
+                <josanz-badge label="Permisos pendientes" tone="warning" variant="outline"></josanz-badge>
+                <josanz-badge label="VIP" tone="custom" customColor="#635BFF"></josanz-badge>
+              </div>
+            </div>
+          </header>
+
+          <josanz-stepper [items]="wizardSteps" activeId="docs" customColor="#635BFF"></josanz-stepper>
+
+          <div class="grid gap-6 lg:grid-cols-[1fr_360px]">
+            <section class="grid gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <div class="flex flex-wrap gap-2">
+                <josanz-badge label="Sonido" tone="primary" variant="soft"></josanz-badge>
+                <josanz-badge label="Iluminación" tone="custom" customColor="#8B5CF6" variant="soft"></josanz-badge>
+                <josanz-badge label="Escenario" tone="neutral" variant="outline"></josanz-badge>
+              </div>
+              <josanz-alert
+                tone="info"
+                title="Documentación en progreso"
+                description="Estos componentes cubren estados, navegación y carga para cualquier módulo del ERP."
+                actionLabel="Ver checklist"
+              ></josanz-alert>
+              <div class="grid gap-4 md:grid-cols-2">
+                <josanz-skeleton variant="card"></josanz-skeleton>
+                <div class="grid gap-4">
+                  <josanz-skeleton variant="text" [lines]="5"></josanz-skeleton>
+                  <josanz-skeleton variant="button" shape="pill"></josanz-skeleton>
+                </div>
+              </div>
+            </section>
+
+            <section class="grid gap-4 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Stepper vertical</p>
+              <josanz-stepper [items]="wizardSteps" activeId="event" orientation="vertical" shape="pill"></josanz-stepper>
+            </section>
           </div>
         </div>
       </section>

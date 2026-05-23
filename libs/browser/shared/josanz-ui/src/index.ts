@@ -67,3 +67,11 @@ export * from './lib/components/date-time-picker';
 export * from './lib/components/time-picker';
 
 export * from './lib/components/alert';
+
+export * from './lib/components/badge';
+
+export * from './lib/components/skeleton';
+
+export * from './lib/components/breadcrumbs';
+
+export * from './lib/components/stepper';
