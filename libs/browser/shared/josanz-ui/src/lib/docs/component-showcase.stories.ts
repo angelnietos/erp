@@ -75,6 +75,10 @@ import { ProgressStepsComponent } from '../components/progress-steps';
 import { PopoverComponent } from '../components/popover';
 import { DropdownMenuComponent } from '../components/dropdown-menu';
 import { TagComponent } from '../components/tag';
+import { DataGridComponent } from '../components/data-grid';
+import { FormFieldComponent } from '../components/form-field';
+import { InlineAlertComponent } from '../components/inline-alert';
+import { NumberInputComponent } from '../components/number-input';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -149,6 +153,10 @@ const meta: Meta = {
         PopoverComponent,
         DropdownMenuComponent,
         TagComponent,
+        DataGridComponent,
+        FormFieldComponent,
+        InlineAlertComponent,
+        NumberInputComponent,
       ],
     }),
   ],
@@ -624,9 +632,9 @@ export const OperationsCommandCenter: Story = {
   render: () => ({
     props: {
       columns: [
-        { key: 'client', label: 'Cliente' },
+        { key: 'client', label: 'Cliente', sortable: true },
         { key: 'status', label: 'Estado' },
-        { key: 'total', label: 'Total', align: 'right' },
+        { key: 'total', label: 'Total', align: 'right', sortable: true },
       ],
       rows: [
         {
@@ -738,8 +746,12 @@ export const OperationsCommandCenter: Story = {
 
           <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
             <div class="grid gap-6">
-              <josanz-data-table title="Pipeline comercial" description="Tabla/data grid base" [columns]="columns" [rows]="rows"></josanz-data-table>
+              <josanz-inline-alert title="Modo offline" message="Los cambios se sincronizarán al recuperar conexión." tone="warning" [dismissible]="true"></josanz-inline-alert>
+              <josanz-data-grid title="Pipeline comercial" description="Data grid con búsqueda, orden y selección" [columns]="columns" [rows]="rows" [searchable]="true" [selectable]="true" density="compact"></josanz-data-grid>
               <section class="grid gap-5 rounded-3xl border border-solid p-6 md:grid-cols-2" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+                <josanz-form-field label="Plazas extra" hint="Para personal de montaje">
+                  <josanz-number-input [value]="2" [min]="0" [max]="20" customColor="#635BFF"></josanz-number-input>
+                </josanz-form-field>
                 <josanz-autocomplete label="Cliente" [options]="clients" query="Nova" customColor="#635BFF"></josanz-autocomplete>
                 <josanz-multi-select label="Servicios" [options]="services" [values]="['sonido', 'streaming']" customColor="#635BFF"></josanz-multi-select>
                 <josanz-file-upload title="Subir contrato" description="PDF o imagen firmada" customColor="#635BFF"></josanz-file-upload>

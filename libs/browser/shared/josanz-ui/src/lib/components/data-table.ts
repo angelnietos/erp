@@ -94,7 +94,7 @@ export interface JosanzTableRow {
             </tr>
           </thead>
           <tbody>
-            @for (row of rows; track row.id) {
+            @for (row of displayedRows(); track row.id) {
               <tr
                 class="cursor-pointer border-t border-solid transition-colors hover:bg-black/[0.02]"
                 [class.bg-black/[0.03]]="isSelected(row.id)"
@@ -150,9 +150,22 @@ export class DataTableComponent {
 
   @Output() rowClick = new EventEmitter<JosanzTableRow>();
   @Output() selectedIdsChange = new EventEmitter<string[]>();
+  @Output() sortChange = new EventEmitter<{ key: string; direction: 'asc' | 'desc' }>();
 
   sortKey = '';
   sortDirection: 'asc' | 'desc' = 'asc';
+
+  displayedRows(): JosanzTableRow[] {
+    if (!this.sortKey) {
+      return this.rows;
+    }
+    const direction = this.sortDirection === 'asc' ? 1 : -1;
+    return [...this.rows].sort((a, b) => {
+      const left = String(a[this.sortKey] ?? '');
+      const right = String(b[this.sortKey] ?? '');
+      return left.localeCompare(right, 'es', { numeric: true }) * direction;
+    });
+  }
 
   isSelected(id: string): boolean {
     return this.selectedIds.includes(id);
@@ -169,9 +182,10 @@ export class DataTableComponent {
   sortBy(key: string): void {
     if (this.sortKey === key) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
-      return;
+    } else {
+      this.sortKey = key;
+      this.sortDirection = 'asc';
     }
-    this.sortKey = key;
-    this.sortDirection = 'asc';
+    this.sortChange.emit({ key: this.sortKey, direction: this.sortDirection });
   }
 }

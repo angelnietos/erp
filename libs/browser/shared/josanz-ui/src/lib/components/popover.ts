@@ -7,7 +7,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   imports: [CommonModule],
   template: `
     <div class="relative inline-block">
-      <button type="button" class="rounded-full border border-solid bg-transparent px-3 py-2 text-sm font-black" [style.borderColor]="'var(--josanz-border)'" [style.color]="'var(--josanz-text)'" [attr.aria-expanded]="open" (click)="open = !open">
+      <button type="button" class="rounded-full border border-solid bg-transparent px-3 py-2 text-sm font-black" [style.borderColor]="'var(--josanz-border)'" [style.color]="'var(--josanz-text)'" [attr.aria-expanded]="open" (click)="toggle()">
         <ng-content select="[popover-trigger]"></ng-content>
         @if (!hasTriggerContent) {
           {{ triggerLabel }}
@@ -44,6 +44,11 @@ export class PopoverComponent {
   @Input() hasTriggerContent = false;
 
   @Output() openChange = new EventEmitter<boolean>();
+
+  toggle(): void {
+    this.open = !this.open;
+    this.openChange.emit(this.open);
+  }
 
   placementClass(): string {
     if (this.placement === 'top') {

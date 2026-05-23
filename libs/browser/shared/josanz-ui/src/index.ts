@@ -165,3 +165,13 @@ export * from './lib/components/list-item';
 export * from './lib/components/progress-steps';
 
 export * from './lib/components/tag';
+
+export * from './lib/components/form-field';
+
+export * from './lib/components/data-grid';
+
+export * from './lib/components/number-input';
+
+export * from './lib/components/password-input';
+
+export * from './lib/components/inline-alert';
