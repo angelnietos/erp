@@ -95,7 +95,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | E3 | `play` en stories críticas (forms, grid, command) | 🔄 | confirm-dialog, bottom-sheet, drawer |
 | E4 | Matriz Chromatic / Visual Regression | ✅ | En showcase |
 | E5 | MDX por categoría (Forms, Data, Layout) | ✅ | + Overlays, Feedback |
-| E6 | Props table autodocs 100% componentes exportados | 🔄 | stories dedicadas con `tags: autodocs` |
+| E6 | Props table autodocs 100% componentes exportados | ✅ | argTypes reforzados en legacy shells, grid, forms y overlays |
 | E7 | Stories robustas 1:1 por export | ✅ | Playground + variantes + play en críticos |
 
 ---

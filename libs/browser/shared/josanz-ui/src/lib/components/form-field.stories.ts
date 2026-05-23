@@ -8,7 +8,8 @@ import { NumberInputComponent } from './number-input';
 import { PasswordInputComponent } from './password-input';
 import { TextareaComponent } from './textarea';
 
-const meta: Meta = {
+const meta: Meta<FormFieldComponent> = {
+  component: FormFieldComponent,
   title: 'Josanz UI / Forms / Field Wrapper',
   decorators: [
     moduleMetadata({
@@ -31,6 +32,19 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    label: { control: 'text', description: 'Etiqueta visible del campo' },
+    hint: { control: 'text', description: 'Ayuda contextual bajo el control' },
+    error: { control: 'text', description: 'Mensaje de error; tiene prioridad sobre `hint`' },
+    errorTone: {
+      control: 'inline-radio',
+      options: ['danger', 'warning'],
+      description: 'Tono visual del mensaje de error',
+    },
+    required: { control: 'boolean', description: 'Muestra indicador de campo obligatorio' },
+    disabled: { control: 'boolean', description: 'Estado visual deshabilitado del wrapper' },
+    fieldId: { control: 'text', description: 'ID usado para asociar etiqueta y control proyectado' },
   },
 };
 

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { DataGridComponent } from './data-grid';
 
 const meta: Meta<DataGridComponent> = {
@@ -16,6 +16,36 @@ const meta: Meta<DataGridComponent> = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    title: { control: 'text', description: 'Título del grid' },
+    description: { control: 'text', description: 'Texto descriptivo bajo el título' },
+    columns: { control: 'object', description: 'Columnas visibles y configuración de sort/alineación' },
+    rows: { control: 'object', description: 'Filas de datos con `id` único' },
+    emptyLabel: { control: 'text', description: 'Mensaje cuando no hay filas visibles' },
+    ariaLabel: { control: 'text', description: 'Etiqueta accesible del grid' },
+    selectable: { control: 'boolean', description: 'Habilita checkboxes de selección' },
+    selectedIds: { control: 'object', description: 'IDs seleccionados en modo controlado' },
+    searchable: { control: 'boolean', description: 'Muestra input de búsqueda local' },
+    searchPlaceholder: { control: 'text', description: 'Placeholder del buscador' },
+    loading: { control: 'boolean', description: 'Muestra estado de carga' },
+    loadingSkeleton: { control: 'boolean', description: 'Usa `josanz-skeleton` para tabla en loading' },
+    skeletonRowCount: { control: 'number', description: 'Número de filas skeleton' },
+    density: sbRadio(['comfortable', 'compact'] as const, 'Densidad de celdas'),
+    exportable: { control: 'boolean', description: 'Muestra botón Exportar CSV' },
+    paginated: { control: 'boolean', description: 'Muestra paginación inferior' },
+    serverSide: { control: 'boolean', description: 'Modo paginación delegada a backend' },
+    totalRows: { control: 'number', description: 'Total de filas server-side' },
+    page: { control: 'number', description: 'Página actual' },
+    pageSize: { control: 'number', description: 'Tamaño de página' },
+    resizable: { control: 'boolean', description: 'Activa resize de columnas' },
+    columnWidths: { control: 'object', description: 'Anchos de columna por key' },
+    rowClick: sbEmit('rowClick', 'Click en fila'),
+    selectedIdsChange: sbEmit('selectedIdsChange', 'Cambio de selección'),
+    sortChange: sbEmit('sortChange', 'Cambio de ordenación'),
+    pageChange: sbEmit('pageChange', 'Cambio de página'),
+    exportCsv: sbEmit('exportCsv', 'CSV generado'),
+    columnWidthsChange: sbEmit('columnWidthsChange', 'Cambio de anchos de columna'),
   },
 };
 

@@ -15,6 +15,10 @@ const meta: Meta<ThemePersonalizationPanelComponent> = {
       },
     },
     layout: 'fullscreen',
+    controls: { disable: true },
+  },
+  argTypes: {
+    // ThemePersonalizationPanel no expone @Input/@Output: opera directamente sobre JosanzThemeService.
   },
 };
 

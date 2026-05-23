@@ -16,6 +16,15 @@ const meta: Meta<CommandPaletteComponent> = {
     layout: 'fullscreen',
   },
   argTypes: {
+    open: { control: 'boolean', description: 'Estado visible de la paleta' },
+    query: { control: 'text', description: 'Texto de búsqueda controlado' },
+    placeholder: { control: 'text', description: 'Placeholder del input de comandos' },
+    commands: { control: 'object', description: 'Lista de comandos agrupados y atajos' },
+    ariaLabel: { control: 'text', description: 'Etiqueta accesible del diálogo' },
+    closeOnBackdrop: { control: 'boolean', description: 'Cierra al pulsar backdrop' },
+    closeOnEscape: { control: 'boolean', description: 'Cierra con tecla Escape' },
+    openChange: sbEmit('openChange', 'Cambio de apertura'),
+    queryChange: sbEmit('queryChange', 'Cambio de búsqueda'),
     commandSelect: sbEmit('commandSelect', 'Comando seleccionado'),
   },
 };

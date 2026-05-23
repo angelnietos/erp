@@ -28,6 +28,10 @@ const meta: Meta<MobileTabBarComponent> = {
     viewport: {
       defaultViewport: 'mobile1',
     },
+    controls: { disable: true },
+  },
+  argTypes: {
+    // MobileTabBar no expone API pública configurable; documenta rutas hard-coded del shell móvil.
   },
 };
 

@@ -27,6 +27,10 @@ const meta: Meta<AppSettingsPageComponent> = {
       },
     },
     layout: 'fullscreen',
+    controls: { disable: true },
+  },
+  argTypes: {
+    // AppSettingsPage no expone @Input/@Output: su estado inicial llega por ActivatedRoute.
   },
 };
 

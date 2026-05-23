@@ -16,6 +16,12 @@ const meta: Meta<ContextMenuComponent> = {
     layout: 'centered',
   },
   argTypes: {
+    buttonText: { control: 'text', description: 'Texto visible del trigger' },
+    buttonLabel: { control: 'text', description: 'Etiqueta accesible del trigger' },
+    items: { control: 'object', description: 'Elementos del menú, atajos, divisores y tono danger' },
+    open: { control: 'boolean', description: 'Estado abierto controlado' },
+    closeOnOutsideClick: { control: 'boolean', description: 'Cierra al hacer click fuera del host' },
+    openChange: sbEmit('openChange', 'Cambio de apertura'),
     itemSelect: sbEmit('itemSelect', 'Selección de ítem'),
   },
 };
