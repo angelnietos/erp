@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
 import {
+  sbEmit,
   sbRadio,
   josanzStoryThemeDescription,
 } from '../../../.storybook/story-arg-types';
@@ -33,6 +34,26 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    label: { control: 'text', description: 'Etiqueta visible de spinner, progress bar, divider o botón.' },
+    value: { control: { type: 'range', min: 0, max: 100, step: 1 }, description: 'Progreso de 0 a 100.' },
+    tone: sbRadio(
+      [
+        'primary',
+        'success',
+        'warning',
+        'danger',
+        'custom',
+      ] as readonly JosanzProgressTone[],
+      'Tono del progress bar',
+    ),
+    striped: { control: 'boolean', description: 'Activa patrón rayado en progress bar.' },
+    showValue: { control: 'boolean', description: 'Muestra el porcentaje junto a la etiqueta.' },
+    size: sbRadio(['sm', 'md', 'lg'] as readonly JosanzSpinnerSize[], 'Tamaño del spinner'),
+    text: { control: 'text', description: 'Contenido del tooltip.' },
+    customColor: { control: 'color', description: 'Color de acento local.' },
+    btnClick: sbEmit('btnClick', 'Click en botón auxiliar'),
   },
 };
 

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { AccordionComponent } from './accordion';
 import { TimelineComponent } from './timeline';
 import { DataTableComponent } from './data-table';
@@ -29,6 +29,15 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    columns: { control: 'object', description: 'Columnas de la tabla: key, label, sort y alineación.' },
+    rows: { control: 'object', description: 'Filas de datos del listado.' },
+    accordionItems: { control: 'object', description: 'Secciones plegables del expediente.' },
+    timelineItems: { control: 'object', description: 'Eventos cronológicos del seguimiento.' },
+    value: { control: { type: 'range', min: 0, max: 100, step: 1 }, description: 'Valor usado por el slider.' },
+    rowClick: sbEmit('rowClick', 'Fila de tabla seleccionada'),
+    valueChange: sbEmit('valueChange', 'Valor del slider actualizado'),
   },
 };
 

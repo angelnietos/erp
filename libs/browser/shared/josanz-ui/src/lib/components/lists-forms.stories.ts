@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { ChipInputComponent } from './chip-input';
 import { ListItemComponent } from './list-item';
 import { ProgressStepsComponent } from './progress-steps';
@@ -24,6 +24,13 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    tags: { control: 'object', description: 'Etiquetas visuales renderizadas como `josanz-tag`.' },
+    values: { control: 'object', description: 'Chips iniciales del `chip-input`.' },
+    steps: { control: 'object', description: 'Pasos del flujo vertical.' },
+    valuesChange: sbEmit('valuesChange', 'Cambio de chips'),
+    itemClick: sbEmit('itemClick', 'Fila de lista seleccionada'),
   },
 };
 

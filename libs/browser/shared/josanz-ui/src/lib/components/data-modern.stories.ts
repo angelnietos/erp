@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { BottomSheetComponent } from './bottom-sheet';
 import { ChartComponent } from './chart';
 import { KanbanBoardComponent } from './kanban-board';
@@ -31,6 +31,14 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    chartData: { control: 'object', description: 'Serie de datos para la gráfica.' },
+    treeNodes: { control: 'object', description: 'Nodos jerárquicos del árbol.' },
+    columns: { control: 'object', description: 'Columnas y tarjetas del kanban.' },
+    cardClick: sbEmit('cardClick', 'Tarjeta del kanban seleccionada'),
+    nodeSelect: sbEmit('nodeSelect', 'Nodo del árbol seleccionado'),
+    closed: sbEmit('closed', 'Bottom sheet cerrado'),
   },
 };
 

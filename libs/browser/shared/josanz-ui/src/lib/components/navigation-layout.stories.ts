@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { NavbarComponent } from './navbar';
 import { ContextMenuComponent } from './context-menu';
 import {
@@ -41,6 +41,12 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    navItems: { control: 'object', description: 'Items de navegación del shell.' },
+    menuItems: { control: 'object', description: 'Acciones del menú contextual anidado en navbar.' },
+    itemClick: sbEmit('itemClick', 'Item de navegación seleccionado'),
+    itemSelect: sbEmit('itemSelect', 'Acción del menú contextual seleccionada'),
   },
 };
 

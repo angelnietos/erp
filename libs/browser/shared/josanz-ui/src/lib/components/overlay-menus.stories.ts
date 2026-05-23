@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { DropdownMenuComponent } from './dropdown-menu';
 import { PopoverComponent } from './popover';
 import { TooltipComponent } from './tooltip';
@@ -23,6 +23,13 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    menuItems: {
+      control: 'object',
+      description: 'Opciones del menú desplegable; admite atajos, separadores y tono destructivo.',
+    },
+    menuSelect: sbEmit('menuSelect', 'Opción seleccionada desde dropdown/context menu'),
   },
 };
 

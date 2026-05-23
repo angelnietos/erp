@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit, sbRadio } from '../../../.storybook/story-arg-types';
 import { AudioPlayerComponent, VideoPlayerComponent } from './media-player';
 import { RichTextEditorComponent } from './rich-text-editor';
 import { ValidationMessageComponent } from './validation-message';
@@ -29,6 +29,17 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    title: { control: 'text', description: 'Título del bloque multimedia o formulario.' },
+    description: { control: 'text', description: 'Descripción auxiliar del recurso.' },
+    src: { control: 'text', description: 'URL del audio o vídeo.' },
+    poster: { control: 'text', description: 'Imagen previa del vídeo.' },
+    label: { control: 'text', description: 'Etiqueta de campos rich text / textarea.' },
+    value: { control: 'text', description: 'HTML o texto inicial del campo.' },
+    tone: sbRadio(['error', 'success', 'warning', 'info'] as const, 'Tono del mensaje de validación'),
+    valueChange: sbEmit('valueChange', 'Cambio de contenido del campo'),
+    format: sbEmit('format', 'Comando de formato del rich text'),
   },
 };
 

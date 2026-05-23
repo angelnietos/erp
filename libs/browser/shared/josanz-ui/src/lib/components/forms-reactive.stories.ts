@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { CheckboxComponent } from './checkbox';
 import { CurrencyInputComponent } from './currency-input';
 import { DatePickerComponent } from './date-picker';
@@ -47,6 +47,16 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    form: { control: false, description: 'FormGroup reactivo que conecta todos los CVA de la suite.' },
+    submit: sbEmit('submit', 'Submit del formulario'),
+    notesError: { control: false, description: 'Calcula el error de notas.' },
+    dateError: { control: false, description: 'Calcula el error de fecha.' },
+    pinError: { control: false, description: 'Calcula el error de PIN.' },
+    phoneError: { control: false, description: 'Calcula el error de teléfono.' },
+    amountError: { control: false, description: 'Calcula el error de importe.' },
+    branchError: { control: false, description: 'Calcula el error de sede.' },
   },
 };
 

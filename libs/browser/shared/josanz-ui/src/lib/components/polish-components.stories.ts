@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { AvatarGroupComponent } from './avatar-group';
 import { ColorPickerComponent } from './color-picker';
 import { CopyButtonComponent } from './copy-button';
@@ -33,6 +33,14 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    people: { control: 'object', description: 'Avatares del equipo asignado.' },
+    segments: { control: 'object', description: 'Opciones del segmented control.' },
+    segmentChange: sbEmit('segmentChange', 'Segmento seleccionado'),
+    ratingChange: sbEmit('ratingChange', 'Valor de rating actualizado'),
+    colorChange: sbEmit('colorChange', 'Color seleccionado'),
+    copiedText: sbEmit('copiedText', 'Texto copiado al portapapeles'),
   },
 };
 

@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
 import {
   josanzStoryThemeDescription,
+  sbEmit,
   sbRadio,
 } from '../../../.storybook/story-arg-types';
 import { ToastComponent, type JosanzToastPosition } from './toast';
@@ -32,6 +33,25 @@ const meta: Meta = {
       },
     },
     layout: 'fullscreen',
+  },
+  argTypes: {
+    commands: { control: 'object', description: 'Acciones agrupadas que consume command palette.' },
+    notifications: { control: 'object', description: 'Notificaciones del panel de actividad.' },
+    toasts: { control: 'object', description: 'Cola de toasts visible en el canvas.' },
+    position: sbRadio(
+      [
+        'top-right',
+        'top-left',
+        'bottom-right',
+        'bottom-left',
+      ] as readonly JosanzToastPosition[],
+      'Posición de la cola de toast',
+    ),
+    fabClick: sbEmit('fabClick', 'Click en floating action button'),
+    toastDismiss: sbEmit('toastDismiss', 'Toast cerrado'),
+    commandSelect: sbEmit('commandSelect', 'Comando seleccionado'),
+    markAllRead: sbEmit('markAllRead', 'Marcar notificaciones como leídas'),
+    notificationClick: sbEmit('notificationClick', 'Notificación seleccionada'),
   },
 };
 
@@ -99,15 +119,7 @@ export const ModernSuite: Story = {
     notificationClick: fn(),
   },
   argTypes: {
-    position: sbRadio(
-      [
-        'top-right',
-        'top-left',
-        'bottom-right',
-        'bottom-left',
-      ] as readonly JosanzToastPosition[],
-      'Toast position',
-    ),
+    position: meta.argTypes?.['position'],
   },
   render: (args) => ({
     props: {

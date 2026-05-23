@@ -36,6 +36,16 @@ const meta: Meta = {
     },
     layout: 'padded',
   },
+  argTypes: {
+    brandColor: { control: 'color', description: 'Color de marca local para los controles de la suite.' },
+    selectValue: { control: 'text', description: 'Valor seleccionado en `josanz-select`.' },
+    radioValue: { control: 'text', description: 'Valor activo en `josanz-radio-group`.' },
+    notes: { control: 'text', description: 'Texto inicial del textarea.' },
+    accepted: { control: 'boolean', description: 'Estado inicial del checkbox.' },
+    enabled: { control: 'boolean', description: 'Estado inicial del switch.' },
+    checkedChange: sbEmit('checkedChange', 'Checkbox cambiado'),
+    valueChange: sbEmit('valueChange', 'Select/radio/textarea actualizado'),
+  },
 };
 
 export default meta;
@@ -50,14 +60,6 @@ export const FormControlsSuite: Story = {
       'Cliente solicita refuerzo de iluminación y prueba de sonido a las 12:00.',
     accepted: true,
     enabled: true,
-  },
-  argTypes: {
-    brandColor: { control: 'color' },
-    selectValue: { control: 'text' },
-    radioValue: { control: 'text' },
-    notes: { control: 'text' },
-    accepted: { control: 'boolean' },
-    enabled: { control: 'boolean' },
   },
   render: (args) => ({
     props: {

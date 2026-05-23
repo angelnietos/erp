@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/angular';
 import { expect, fn, userEvent, within } from '@storybook/test';
 import { moduleMetadata } from '@storybook/angular';
-import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { josanzStoryThemeDescription, sbEmit } from '../../../.storybook/story-arg-types';
 import { FileUploadComponent } from './file-upload';
 import { AutocompleteComponent } from './autocomplete';
 import { MultiSelectComponent } from './multi-select';
@@ -27,6 +27,14 @@ const meta: Meta = {
       },
     },
     layout: 'padded',
+  },
+  argTypes: {
+    clients: { control: 'object', description: 'Opciones del autocomplete de cliente/matrícula.' },
+    tags: { control: 'object', description: 'Opciones del multi-select de líneas de trabajo.' },
+    queryChange: sbEmit('queryChange', 'Texto de búsqueda actualizado'),
+    optionSelect: sbEmit('optionSelect', 'Opción seleccionada en autocomplete'),
+    valuesChange: sbEmit('valuesChange', 'Valores seleccionados en multi-select'),
+    filesSelected: sbEmit('filesSelected', 'Archivos seleccionados para subida'),
   },
 };
 

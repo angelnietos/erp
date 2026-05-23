@@ -21,6 +21,12 @@ const meta: Meta = {
     },
     layout: 'padded',
   },
+  argTypes: {
+    title: { control: 'text', description: 'Título del player.' },
+    description: { control: 'text', description: 'Texto auxiliar bajo el título.' },
+    src: { control: 'text', description: 'URL del recurso multimedia.' },
+    poster: { control: 'text', description: 'Imagen de portada del vídeo.' },
+  },
 };
 
 export default meta;
