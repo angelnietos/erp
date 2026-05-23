@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
-import { JOSANZ_FIGMA_SHELL } from '../theme/josanz-figma-tokens';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
 export type JosanzStatusPillVariant = JosanzStatusPillKey | 'primary' | 'success' | 'warning' | 'error';
@@ -36,7 +35,7 @@ export class MainTemplateCardComponent {
     return {
       'background-color': 'var(--josanz-surface)',
       'border-color': 'var(--josanz-border)',
-      'box-shadow': JOSANZ_FIGMA_SHELL.cardShadow,
+      'box-shadow': 'var(--josanz-card-shadow)',
     };
   }
 

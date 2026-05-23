@@ -443,33 +443,6 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
 };
 
-/** HSL (h 0–360, s/l 0–1) para heurísticas de “on-color” sin confundir verdes con amarillos. */
-function rgbToHsl(r255: number, g255: number, b255: number): { h: number; s: number; l: number } {
-  const r = r255 / 255;
-  const g = g255 / 255;
-  const b = b255 / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const d = max - min;
-  let h = 0;
-  if (d !== 0) {
-    if (max === r) {
-      h = ((g - b) / d) % 6;
-    } else if (max === g) {
-      h = (b - r) / d + 2;
-    } else {
-      h = (r - g) / d + 4;
-    }
-    h *= 60;
-    if (h < 0) {
-      h += 360;
-    }
-  }
-  const l = (max + min) / 2;
-  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1) + 1e-12);
-  return { h, s, l };
-}
-
 function parseCssColorToRgb(input: string): [number, number, number] | null {
   const s = input.trim();
   const hex = s.match(/^#([\da-f]{3}|[\da-f]{6}|[\da-f]{8})$/i);
@@ -505,6 +478,36 @@ function relativeLuminanceFromRgb(rgb: [number, number, number]): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+function contrastRatioFromRgb(a: [number, number, number], b: [number, number, number]): number {
+  const l1 = relativeLuminanceFromRgb(a);
+  const l2 = relativeLuminanceFromRgb(b);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function contrastRatio(foreground: string, background: string): number | null {
+  const fg = parseCssColorToRgb(foreground);
+  const bg = parseCssColorToRgb(background);
+  if (!fg || !bg) {
+    return null;
+  }
+  return contrastRatioFromRgb(fg, bg);
+}
+
+function ensureContrast(
+  color: string,
+  background: string,
+  fallback: string,
+  minimumRatio: number,
+): string {
+  const ratio = contrastRatio(color, background);
+  if (ratio !== null && ratio >= minimumRatio) {
+    return color;
+  }
+  return fallback;
+}
+
 /**
  * Texto claro u oscuro sobre un color sólido (marca, badges, botones).
  * El criterio solo por ratio WCAG suele elegir **negro** sobre **verdes saturados** (#22c55e, etc.),
@@ -516,19 +519,9 @@ export function josanzReadableOnSolid(background: string): string {
   if (!rgb) {
     return '#FFFFFF';
   }
-  const [r255, g255, b255] = rgb;
-  const L = relativeLuminanceFromRgb(rgb);
-  const { h, s } = rgbToHsl(r255, g255, b255);
-
-  if (s < 0.12) {
-    return L > 0.56 ? '#0F172A' : '#FFFFFF';
-  }
-
-  if (h >= 38 && h <= 88 && s > 0.12 && L > 0.22) {
-    return '#0F172A';
-  }
-
-  return L > 0.72 ? '#0F172A' : '#FFFFFF';
+  const dark: [number, number, number] = [15, 23, 42];
+  const light: [number, number, number] = [255, 255, 255];
+  return contrastRatioFromRgb(dark, rgb) >= contrastRatioFromRgb(light, rgb) ? '#0F172A' : '#FFFFFF';
 }
 
 /**
@@ -649,15 +642,39 @@ export function applyJosanzThemeCssVariables(params: {
   const { atmosphere, primaryColor, themeName } = params;
   const root = document.documentElement;
   const isDark = josanzAtmosphereIsDark(atmosphere);
+  const effectiveText = ensureContrast(
+    atmosphere.text,
+    atmosphere.surface,
+    isDark ? '#F8FAFC' : '#111827',
+    7,
+  );
+  const effectiveTextMuted = ensureContrast(
+    atmosphere.textMuted,
+    atmosphere.surface,
+    isDark ? '#D8E3F0' : '#475569',
+    4.5,
+  );
+  const effectiveBorder = ensureContrast(
+    atmosphere.border,
+    atmosphere.surface,
+    isDark ? '#4B647D' : '#CBD5E1',
+    1.45,
+  );
+  const effectiveAtmosphere: JosanzAtmosphereConfig = {
+    ...atmosphere,
+    text: effectiveText,
+    textMuted: effectiveTextMuted,
+    border: effectiveBorder,
+  };
 
   root.style.setProperty('--josanz-primary', primaryColor);
   root.style.setProperty('--josanz-on-primary', josanzReadableOnSolid(primaryColor));
   root.style.setProperty('--josanz-on-danger', josanzReadableOnSolid('#EF4444'));
   root.style.setProperty('--josanz-bg', atmosphere.background);
   root.style.setProperty('--josanz-surface', atmosphere.surface);
-  root.style.setProperty('--josanz-text', atmosphere.text);
-  root.style.setProperty('--josanz-text-muted', atmosphere.textMuted);
-  root.style.setProperty('--josanz-border', atmosphere.border);
+  root.style.setProperty('--josanz-text', effectiveText);
+  root.style.setProperty('--josanz-text-muted', effectiveTextMuted);
+  root.style.setProperty('--josanz-border', effectiveBorder);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
   root.style.setProperty('--font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
@@ -680,10 +697,10 @@ export function applyJosanzThemeCssVariables(params: {
     document.body.style.backgroundColor = atmosphere.background;
     document.body.style.background = '';
   }
-  document.body.style.color = atmosphere.text;
+  document.body.style.color = effectiveText;
 
   applyJosanzStructuralCssVariables(root);
-  applyJosanzBrandCssVariables(root, primaryColor, atmosphere, isDark);
+  applyJosanzBrandCssVariables(root, primaryColor, effectiveAtmosphere, isDark);
 
   if (atmosphere.fieldFill) {
     root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
@@ -697,9 +714,9 @@ export function applyJosanzThemeCssVariables(params: {
     root.style.setProperty('--josanz-stroke-widget', atmosphere.strokeField);
   }
   if (isDark) {
-    root.style.setProperty('--josanz-text-heading', atmosphere.text);
-    root.style.setProperty('--josanz-label-muted', atmosphere.textMuted);
-    root.style.setProperty('--josanz-row-line', atmosphere.border);
+    root.style.setProperty('--josanz-text-heading', effectiveText);
+    root.style.setProperty('--josanz-label-muted', effectiveTextMuted);
+    root.style.setProperty('--josanz-row-line', effectiveBorder);
   } else if (atmosphere.name === 'neutral') {
     applyJosanzFigmaNeutralStructuralOverrides(root);
   }

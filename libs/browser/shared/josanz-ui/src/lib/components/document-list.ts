@@ -13,7 +13,7 @@ import type { JosanzControlShape } from '../josanz-control-styles';
           type="button"
           (click)="upload.emit()"
           class="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed rounded-xl transition-all hover:brightness-95 active:scale-[0.99]"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
+          [style.backgroundColor]="'var(--josanz-surface)'"
           [style.borderColor]="accentColor || themeService.currentTheme().primaryColor"
           [style.color]="accentColor || themeService.currentTheme().primaryColor"
           [attr.aria-label]="uploadLabel"
@@ -32,14 +32,14 @@ import type { JosanzControlShape } from '../josanz-control-styles';
         [class.rounded-2xl]="activeShape() === 'rounded'"
         [class.rounded-none]="activeShape() === 'square'"
         [class.rounded-[32px]]="activeShape() === 'pill'"
-        [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-        [style.borderColor]="themeService.currentTheme().atmosphere.border"
-        [style.boxShadow]="themeService.currentTheme().atmosphere.cardShadow || 'none'"
+        [style.backgroundColor]="'var(--josanz-surface)'"
+        [style.borderColor]="'var(--josanz-border)'"
+        [style.boxShadow]="'var(--josanz-card-shadow)'"
       >
         <ng-content></ng-content>
         
         @if (empty) {
-          <div class="p-8 text-center text-[13px] opacity-50" [style.color]="themeService.currentTheme().atmosphere.textMuted">
+          <div class="p-8 text-center text-[13px]" [style.color]="'var(--josanz-text-muted)'">
             No hay documentos disponibles.
           </div>
         }
