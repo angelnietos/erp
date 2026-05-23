@@ -36,9 +36,9 @@ export default meta;
 type Story = StoryObj;
 
 const columns = [
-  { key: 'client', label: 'Cliente' },
+  { key: 'client', label: 'Cliente', sortable: true },
   { key: 'status', label: 'Estado' },
-  { key: 'total', label: 'Total', align: 'right' as const },
+  { key: 'total', label: 'Total', align: 'right' as const, sortable: true },
 ];
 
 const rows = [
@@ -120,6 +120,34 @@ export const DataDisplaySuite: Story = {
       </section>
     `,
   }),
+};
+
+export const SelectableDataGrid: Story = {
+  args: {
+    rowClick: fn(),
+    selectedIdsChange: fn(),
+  },
+  render: (args) => ({
+    props: { ...args, columns, rows, selectedIds: ['2'] },
+    template: `
+      <josanz-data-table
+        title="Órdenes de taller"
+        description="Tabla con selección múltiple y columnas ordenables."
+        [columns]="columns"
+        [rows]="rows"
+        [selectable]="true"
+        [selectedIds]="selectedIds"
+        (rowClick)="rowClick($event)"
+        (selectedIdsChange)="selectedIdsChange($event)"
+      ></josanz-data-table>
+    `,
+  }),
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const checkboxes = canvas.getAllByRole('checkbox');
+    await userEvent.click(checkboxes[0]);
+    await expect(args['selectedIdsChange']).toHaveBeenCalled();
+  },
 };
 
 export const InteractiveTableAndSlider: Story = {

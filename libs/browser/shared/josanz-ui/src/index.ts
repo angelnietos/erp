@@ -151,3 +151,17 @@ export * from './lib/components/color-picker';
 export * from './lib/components/copy-button';
 
 export * from './lib/components/keyboard-shortcut';
+
+export * from './lib/components/card';
+
+export * from './lib/components/popover';
+
+export * from './lib/components/dropdown-menu';
+
+export * from './lib/components/chip-input';
+
+export * from './lib/components/list-item';
+
+export * from './lib/components/progress-steps';
+
+export * from './lib/components/tag';

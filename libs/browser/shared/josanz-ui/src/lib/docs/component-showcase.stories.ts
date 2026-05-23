@@ -68,6 +68,13 @@ import { RatingComponent } from '../components/rating';
 import { ColorPickerComponent } from '../components/color-picker';
 import { CopyButtonComponent } from '../components/copy-button';
 import { KeyboardShortcutComponent } from '../components/keyboard-shortcut';
+import { CardComponent } from '../components/card';
+import { ChipInputComponent } from '../components/chip-input';
+import { ListItemComponent } from '../components/list-item';
+import { ProgressStepsComponent } from '../components/progress-steps';
+import { PopoverComponent } from '../components/popover';
+import { DropdownMenuComponent } from '../components/dropdown-menu';
+import { TagComponent } from '../components/tag';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -135,6 +142,13 @@ const meta: Meta = {
         ColorPickerComponent,
         CopyButtonComponent,
         KeyboardShortcutComponent,
+        CardComponent,
+        ChipInputComponent,
+        ListItemComponent,
+        ProgressStepsComponent,
+        PopoverComponent,
+        DropdownMenuComponent,
+        TagComponent,
       ],
     }),
   ],
@@ -852,10 +866,25 @@ export const FullUiKitCoverageSuite: Story = {
             <josanz-grid minColumnWidth="260px" gap="1rem">
               <josanz-chart title="Ingresos" description="Chart bar" [data]="chartData" variant="bar" customColor="#635BFF"></josanz-chart>
               <josanz-chart title="Mix servicios" description="Donut CSS" [data]="chartData" variant="donut"></josanz-chart>
+              <josanz-card eyebrow="Nuevo" title="Tarjeta genérica" subtitle="Contenido libre" headerActionLabel="Abrir">
+                <div class="flex flex-wrap gap-2">
+                  <josanz-tag label="Urgente" tone="danger"></josanz-tag>
+                  <josanz-tag label="Taller" tone="primary"></josanz-tag>
+                </div>
+                <josanz-chip-input class="mt-4 block" label="Etiquetas" [values]="['Facturación']"></josanz-chip-input>
+              </josanz-card>
               <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
                 <josanz-tree-view title="Árbol" [nodes]="treeNodes" [expandedIds]="['events']"></josanz-tree-view>
               </section>
             </josanz-grid>
+
+            <div class="grid gap-4 lg:grid-cols-[1fr_auto_auto]">
+              <div class="overflow-hidden rounded-3xl border border-solid" style="border-color: var(--josanz-border);">
+                <josanz-list-item title="Orden #1042" description="Revisión frenos" meta="09:40" trailingLabel="Urgente" avatarName="Ana Muñoz" avatarColor="#635BFF"></josanz-list-item>
+              </div>
+              <josanz-popover triggerLabel="SLA" title="SLA taller" description="Cierre en 24 h." [open]="true"></josanz-popover>
+              <josanz-dropdown-menu label="Acciones" [items]="menuItems" [open]="true"></josanz-dropdown-menu>
+            </div>
 
             <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
               <div class="grid gap-6">
