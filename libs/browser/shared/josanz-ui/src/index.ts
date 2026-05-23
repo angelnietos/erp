@@ -119,3 +119,23 @@ export * from './lib/components/floating-action-button';
 export * from './lib/components/command-palette';
 
 export * from './lib/components/notifications-panel';
+
+export * from './lib/components/navbar';
+
+export * from './lib/components/context-menu';
+
+export * from './lib/components/tree-view';
+
+export * from './lib/components/chart';
+
+export * from './lib/components/layout-primitives';
+
+export * from './lib/components/media-player';
+
+export * from './lib/components/rich-text-editor';
+
+export * from './lib/components/validation-message';
+
+export * from './lib/components/bottom-sheet';
+
+export * from './lib/components/kanban-board';

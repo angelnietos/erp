@@ -45,6 +45,23 @@ import { AutocompleteComponent } from '../components/autocomplete';
 import { MultiSelectComponent } from '../components/multi-select';
 import { FloatingActionButtonComponent } from '../components/floating-action-button';
 import { NotificationsPanelComponent } from '../components/notifications-panel';
+import { NavbarComponent } from '../components/navbar';
+import { ContextMenuComponent } from '../components/context-menu';
+import { TreeViewComponent } from '../components/tree-view';
+import { ChartComponent } from '../components/chart';
+import {
+  ContainerComponent,
+  GridComponent,
+  StackComponent,
+} from '../components/layout-primitives';
+import {
+  AudioPlayerComponent,
+  VideoPlayerComponent,
+} from '../components/media-player';
+import { RichTextEditorComponent } from '../components/rich-text-editor';
+import { ValidationMessageComponent } from '../components/validation-message';
+import { BottomSheetComponent } from '../components/bottom-sheet';
+import { KanbanBoardComponent } from '../components/kanban-board';
 
 const meta: Meta = {
   title: 'Josanz UI / Documentacion / Component Showcase',
@@ -93,6 +110,19 @@ const meta: Meta = {
         MultiSelectComponent,
         FloatingActionButtonComponent,
         NotificationsPanelComponent,
+        NavbarComponent,
+        ContextMenuComponent,
+        TreeViewComponent,
+        ChartComponent,
+        ContainerComponent,
+        GridComponent,
+        StackComponent,
+        VideoPlayerComponent,
+        AudioPlayerComponent,
+        RichTextEditorComponent,
+        ValidationMessageComponent,
+        BottomSheetComponent,
+        KanbanBoardComponent,
       ],
     }),
   ],
@@ -698,6 +728,132 @@ export const OperationsCommandCenter: Story = {
           </div>
         </div>
         <josanz-toast [toasts]="toasts" position="bottom-right"></josanz-toast>
+      </section>
+    `,
+  }),
+};
+
+export const FullUiKitCoverageSuite: Story = {
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Cobertura amplia del UI kit: navbar, context menu, layout primitives, charts, tree view, media, rich text, validation, kanban y bottom sheet.',
+      },
+    },
+  },
+  render: () => ({
+    props: {
+      navItems: [
+        { id: 'home', label: 'Inicio', href: '#', active: true },
+        { id: 'events', label: 'Eventos', href: '#' },
+        { id: 'billing', label: 'Facturación', href: '#' },
+      ],
+      menuItems: [
+        { id: 'edit', label: 'Editar', shortcut: 'E' },
+        { id: 'duplicate', label: 'Duplicar', shortcut: 'D' },
+        {
+          id: 'delete',
+          label: 'Eliminar',
+          dividerBefore: true,
+          tone: 'danger',
+        },
+      ],
+      chartData: [
+        { label: 'Sonido', value: 42 },
+        { label: 'Luces', value: 28 },
+        { label: 'Streaming', value: 18 },
+      ],
+      treeNodes: [
+        {
+          id: 'events',
+          label: 'Eventos',
+          children: [
+            { id: 'gala', label: 'Gala Primavera', description: 'Confirmado' },
+            {
+              id: 'retail',
+              label: 'Convención Retail',
+              description: 'Presupuesto',
+            },
+          ],
+        },
+      ],
+      kanbanColumns: [
+        {
+          id: 'todo',
+          title: 'Por hacer',
+          cards: [
+            {
+              id: 'k1',
+              title: 'Revisar contrato',
+              description: 'Firma pendiente',
+              badge: 'Legal',
+            },
+          ],
+        },
+        {
+          id: 'doing',
+          title: 'En curso',
+          cards: [
+            {
+              id: 'k2',
+              title: 'Rider técnico',
+              description: 'Audio y luces',
+              badge: 'AV',
+            },
+          ],
+        },
+        {
+          id: 'done',
+          title: 'Hecho',
+          cards: [
+            {
+              id: 'k3',
+              title: 'Presupuesto',
+              description: 'Aprobado',
+              badge: 'OK',
+            },
+          ],
+        },
+      ],
+    },
+    template: `
+      <section class="min-h-[1200px] p-6" style="background: var(--josanz-bg);">
+        <josanz-container size="lg">
+          <josanz-stack gap="1.5rem">
+            <josanz-navbar brand="Josanz ERP" subtitle="Cobertura UI kit" [items]="navItems" customColor="#635BFF">
+              <josanz-context-menu [items]="menuItems"></josanz-context-menu>
+            </josanz-navbar>
+
+            <josanz-grid minColumnWidth="260px" gap="1rem">
+              <josanz-chart title="Ingresos" description="Chart bar" [data]="chartData" variant="bar" customColor="#635BFF"></josanz-chart>
+              <josanz-chart title="Mix servicios" description="Donut CSS" [data]="chartData" variant="donut"></josanz-chart>
+              <section class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+                <josanz-tree-view title="Árbol" [nodes]="treeNodes" [expandedIds]="['events']"></josanz-tree-view>
+              </section>
+            </josanz-grid>
+
+            <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
+              <div class="grid gap-6">
+                <josanz-video-player title="Vídeo" description="Player multimedia" poster="https://picsum.photos/seed/josanz-video-showcase/1200/675"></josanz-video-player>
+                <josanz-rich-text-editor label="Editor enriquecido" value="<p>Texto con <strong>formato</strong> para documentación interna.</p>"></josanz-rich-text-editor>
+                <josanz-validation-message tone="warning" message="Revisa los permisos antes de publicar."></josanz-validation-message>
+              </div>
+              <div class="grid gap-6">
+                <josanz-audio-player title="Audio" description="Notas de voz o pistas de referencia."></josanz-audio-player>
+                <josanz-kanban-board title="Kanban" [columns]="kanbanColumns"></josanz-kanban-board>
+              </div>
+            </div>
+
+            <josanz-bottom-sheet [open]="true" title="Bottom sheet" description="Acciones rápidas sobre móvil o tablet.">
+              <div class="grid gap-3">
+                <josanz-button label="Crear tarea" customColor="#635BFF"></josanz-button>
+                <josanz-button label="Cerrar evento" variant="secondary" [showIcon]="false"></josanz-button>
+              </div>
+            </josanz-bottom-sheet>
+          </josanz-stack>
+        </josanz-container>
       </section>
     `,
   }),
