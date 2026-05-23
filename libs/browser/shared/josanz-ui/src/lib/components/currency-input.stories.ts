@@ -67,8 +67,8 @@ export const StatesAndVariants: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-3xl gap-5 md:grid-cols-3">
-        <josanz-currency-input label="EUR" currency="EUR" hint="Rounded"></josanz-currency-input>
-        <josanz-currency-input label="USD" currency="USD" shape="pill" hint="Pill"></josanz-currency-input>
+        <josanz-currency-input label="Presupuesto EUR" currency="EUR" hint="Cliente nacional"></josanz-currency-input>
+        <josanz-currency-input label="Coste proveedor USD" currency="USD" shape="pill" hint="Importación"></josanz-currency-input>
         <josanz-currency-input label="Error" currency="EUR" error="Importe requerido" shape="square"></josanz-currency-input>
       </div>
     `,
@@ -87,3 +87,4 @@ export const InteractiveInput: Story = {
     await expect(args.valueChange).toHaveBeenLastCalledWith(123.45);
   },
 };
+

@@ -105,7 +105,7 @@ export const VariantStates: Story = {
         ></josanz-accordion>
 
         <josanz-accordion
-          title="Square"
+          title="Backoffice compacto"
           [items]="items.slice(0, 3)"
           [openIds]="['vehiculo']"
           shape="square"
@@ -183,3 +183,4 @@ export const InteractiveToggle: Story = {
     await expect(args.itemToggle).toHaveBeenCalledTimes(1);
   },
 };
+

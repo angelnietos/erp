@@ -61,7 +61,7 @@ export const Playground: Story = {
           [ariaLabel]="ariaLabel"
         >
           <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">
-            Contenido libre: graficos, tablas compactas, formularios cortos o listas.
+            Resumen operativo: próximos hitos, responsable, importe y estado de facturación.
           </p>
         </josanz-card>
       </div>
@@ -75,13 +75,13 @@ export const StatesAndVariants: Story = {
     template: `
       <div class="grid max-w-5xl gap-6 md:grid-cols-3" style="background: var(--josanz-bg);">
         <josanz-card eyebrow="Elevada" title="Con sombra" subtitle="Estado por defecto" footerLabel="Footer">
-          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Ideal para paneles principales.</p>
+          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Resumen de eventos activos y alertas de operación.</p>
         </josanz-card>
         <josanz-card eyebrow="Plano" title="Sin elevacion" subtitle="Bloque secundario" [elevated]="false" shape="pill">
-          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Agrupa contenido sin competir visualmente.</p>
+          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Agrupa notas internas y documentación secundaria.</p>
         </josanz-card>
         <josanz-card eyebrow="Accion" title="Con boton" headerActionLabel="Abrir" customColor="#0f766e" shape="square">
-          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Cabecera con accion contextual.</p>
+          <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Acción rápida para abrir el expediente completo.</p>
         </josanz-card>
       </div>
     `,
@@ -98,3 +98,4 @@ export const AccessibilityCheck: Story = {
     await expect(canvas.getByLabelText(/card accesible/i)).toBeInTheDocument();
   },
 };
+

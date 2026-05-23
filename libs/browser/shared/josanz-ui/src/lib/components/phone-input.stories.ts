@@ -49,8 +49,8 @@ export const StatesAndVariants: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-3xl gap-5 md:grid-cols-3">
-        <josanz-phone-input label="Rounded" hint="Por defecto"></josanz-phone-input>
-        <josanz-phone-input label="Pill" shape="pill" placeholder="700 000 000"></josanz-phone-input>
+        <josanz-phone-input label="Teléfono cliente" hint="Contacto facturación"></josanz-phone-input>
+        <josanz-phone-input label="Móvil técnico" shape="pill" placeholder="700 000 000"></josanz-phone-input>
         <josanz-phone-input label="Error" shape="square" error="Numero obligatorio"></josanz-phone-input>
       </div>
     `,
@@ -68,3 +68,4 @@ export const InteractiveInput: Story = {
     await expect(args.valueChange).toHaveBeenLastCalledWith('+34 612 345 678');
   },
 };
+

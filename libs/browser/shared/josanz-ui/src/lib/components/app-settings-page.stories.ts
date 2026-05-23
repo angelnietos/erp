@@ -86,3 +86,37 @@ export const UseCases: Story = {
     },
   },
 };
+
+export const ProductFrame: Story = {
+  ...settingsRender('personalizacion'),
+  parameters: {
+    controls: { disable: true },
+    docs: {
+      description: {
+        story:
+          'Ajustes dentro de un marco de producto con contexto de tenant y resumen de configuración activa.',
+      },
+    },
+  },
+  render: () => ({
+    template: `
+      <div class="min-h-[900px] p-6" style="background: var(--josanz-bg);">
+        <div class="mx-auto max-w-7xl">
+          <header class="mb-6 grid gap-4 rounded-3xl border border-solid p-6 lg:grid-cols-[1fr_auto]" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <div>
+              <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Josanz Eventos · Backoffice</p>
+              <h1 class="m-0 mt-1 text-3xl font-black" style="color: var(--josanz-text);">Configuración de experiencia</h1>
+              <p class="m-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">Personaliza marca, densidad y navegación para el equipo operativo.</p>
+            </div>
+            <div class="grid gap-2 text-xs font-bold" style="color: var(--josanz-text-muted);">
+              <span>Atmósfera: sincronizada</span>
+              <span>Listados: preferencia por usuario</span>
+              <span>Ruta: /settings?tab=personalizacion</span>
+            </div>
+          </header>
+          <josanz-app-settings-page></josanz-app-settings-page>
+        </div>
+      </div>
+    `,
+  }),
+};

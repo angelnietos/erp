@@ -47,16 +47,27 @@ export const Playground: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <div class="min-h-[520px] p-8" style="background: var(--josanz-bg);">
+      <div class="mx-auto min-h-[720px] max-w-[390px] overflow-hidden rounded-[32px] border border-solid p-6" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+        <div class="grid gap-4 pb-32">
+          <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Vehículo VH-204</p>
+          <h1 class="m-0 text-2xl font-black" style="color: var(--josanz-text);">Incidencia en ruta</h1>
+          <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Estado</p>
+            <strong style="color: var(--josanz-text);">Pendiente asignar técnico</strong>
+          </div>
+        </div>
         <josanz-bottom-sheet
           [open]="open"
           [title]="title"
           [description]="description"
         >
           <div class="grid gap-2">
-            <josanz-list-item title="Asignar técnico" subtitle="Taller principal"></josanz-list-item>
-            <josanz-list-item title="Registrar entrada" subtitle="Hoy 09:30"></josanz-list-item>
-            <josanz-list-item title="Enviar presupuesto" subtitle="Pendiente firma"></josanz-list-item>
+            <josanz-list-item title="Asignar técnico" subtitle="Taller principal · disponible ahora"></josanz-list-item>
+            <josanz-list-item title="Registrar entrada" subtitle="Hoy 09:30 · muelle 2"></josanz-list-item>
+            <josanz-list-item title="Enviar presupuesto" subtitle="Pendiente firma del cliente"></josanz-list-item>
+            <div class="pt-2">
+              <josanz-button label="Abrir parte completo" [showIcon]="false" [fullWidth]="true"></josanz-button>
+            </div>
           </div>
         </josanz-bottom-sheet>
       </div>
@@ -74,14 +85,17 @@ export const InteractiveClose: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <josanz-bottom-sheet
-        [open]="open"
-        [title]="title"
-        (openChange)="openChange($event)"
-        (closed)="closed()"
-      >
-        <p style="color: var(--josanz-text-muted);">Pulsa backdrop o × para cerrar.</p>
-      </josanz-bottom-sheet>
+      <div class="mx-auto min-h-[520px] max-w-[390px] rounded-[32px] border border-solid p-6" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+        <p class="m-0 text-sm" style="color: var(--josanz-text-muted);">Shell móvil de confirmación rápida.</p>
+        <josanz-bottom-sheet
+          [open]="open"
+          [title]="title"
+          (openChange)="openChange($event)"
+          (closed)="closed()"
+        >
+          <p style="color: var(--josanz-text-muted);">Pulsa backdrop o × para cerrar sin perder el borrador.</p>
+        </josanz-bottom-sheet>
+      </div>
     `,
   }),
   play: async ({ args, canvasElement }) => {
@@ -92,4 +106,31 @@ export const InteractiveClose: Story = {
     await expect(args.openChange).toHaveBeenCalledWith(false);
     await expect(args.closed).toHaveBeenCalledTimes(1);
   },
+};
+
+export const InvoiceQuickActions: Story = {
+  args: {
+    open: true,
+    title: 'Factura INV-2026-004',
+    description: 'Acciones rápidas para contabilidad desde móvil.',
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="mx-auto min-h-[720px] max-w-[390px] overflow-hidden rounded-[32px] border border-solid p-6" style="background: var(--josanz-bg); border-color: var(--josanz-border);">
+        <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">NovaByte</p>
+          <h2 class="m-0 mt-1 text-2xl font-black" style="color: var(--josanz-text);">1.250 EUR</h2>
+          <p class="m-0 mt-2 text-sm" style="color: var(--josanz-text-muted);">Vence en 12 días · pendiente de cobro</p>
+        </div>
+        <josanz-bottom-sheet [open]="open" [title]="title" [description]="description">
+          <div class="grid gap-2">
+            <josanz-list-item title="Enviar recordatorio" subtitle="Email + SMS al contacto fiscal"></josanz-list-item>
+            <josanz-list-item title="Marcar como cobrada" subtitle="Registrar fecha y forma de pago"></josanz-list-item>
+            <josanz-list-item title="Descargar PDF" subtitle="Documento listo para archivo"></josanz-list-item>
+          </div>
+        </josanz-bottom-sheet>
+      </div>
+    `,
+  }),
 };

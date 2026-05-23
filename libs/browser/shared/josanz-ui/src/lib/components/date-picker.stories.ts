@@ -54,7 +54,7 @@ export const StatesAndVariants: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-3xl gap-5 md:grid-cols-3">
-        <josanz-date-picker label="Entrega" value="2026-05-23" hint="Rounded"></josanz-date-picker>
+        <josanz-date-picker label="Entrega" value="2026-05-23" hint="Fecha comprometida"></josanz-date-picker>
         <josanz-date-picker label="Cita" value="2026-06-02" shape="pill" customColor="#0f766e"></josanz-date-picker>
         <josanz-date-picker label="Vencimiento" error="Fecha fuera de rango" value="2026-01-01" shape="square"></josanz-date-picker>
       </div>
@@ -76,3 +76,4 @@ export const InteractiveChange: Story = {
     await expect(args.valueChange).toHaveBeenLastCalledWith('2026-06-15');
   },
 };
+

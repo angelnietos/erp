@@ -56,9 +56,9 @@ export const StatesAndVariants: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-4xl gap-5 md:grid-cols-4">
-        <josanz-number-input label="Rounded" [value]="12" hint="Por defecto"></josanz-number-input>
-        <josanz-number-input label="Pill" [value]="4" shape="pill" customColor="#0f766e"></josanz-number-input>
-        <josanz-number-input label="Square" [value]="20" shape="square"></josanz-number-input>
+        <josanz-number-input label="Unidades reservadas" [value]="12" hint="Pedido NovaByte"></josanz-number-input>
+        <josanz-number-input label="Técnicos asignados" [value]="4" shape="pill" customColor="#0f766e"></josanz-number-input>
+        <josanz-number-input label="Stock mínimo" [value]="20" shape="square"></josanz-number-input>
         <josanz-number-input label="Error" [value]="150" [max]="100" error="Supera el maximo"></josanz-number-input>
       </div>
     `,
@@ -105,3 +105,4 @@ export const InteractiveStepper: Story = {
     await expect(canvas.getByRole('spinbutton')).toHaveValue(4);
   },
 };
+

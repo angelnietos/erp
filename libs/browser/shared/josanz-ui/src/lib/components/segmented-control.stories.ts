@@ -59,9 +59,9 @@ export const StatesAndVariants: Story = {
     props: { options },
     template: `
       <div class="grid gap-5 rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
-        <josanz-segmented-control label="Rounded" [options]="options" value="day" shape="rounded"></josanz-segmented-control>
-        <josanz-segmented-control label="Pill" [options]="options" value="month" shape="pill" customColor="#0f766e"></josanz-segmented-control>
-        <josanz-segmented-control label="Square" [options]="options" value="week" shape="square"></josanz-segmented-control>
+        <josanz-segmented-control label="Vista agenda" [options]="options" value="day" shape="rounded"></josanz-segmented-control>
+        <josanz-segmented-control label="Periodo facturación" [options]="options" value="month" shape="pill" customColor="#0f766e"></josanz-segmented-control>
+        <josanz-segmented-control label="Backoffice compacto" [options]="options" value="week" shape="square"></josanz-segmented-control>
       </div>
     `,
   }),
@@ -96,3 +96,4 @@ export const InteractiveSelect: Story = {
     await expect(canvas.getByRole('radio', { name: /mes/i })).toHaveAttribute('aria-checked', 'true');
   },
 };
+

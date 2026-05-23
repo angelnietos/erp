@@ -100,7 +100,7 @@ export const InteractiveClose: Story = {
     template: `
       <div class="min-h-[420px]">
         <josanz-drawer [open]="open" [title]="title" (openChange)="openChange($event)" (closed)="closed()">
-          <p style="color: var(--josanz-text-muted);">Contenido contextual del panel.</p>
+          <p style="color: var(--josanz-text-muted);">Historial, documentos y acciones del registro seleccionado.</p>
         </josanz-drawer>
       </div>
     `,
@@ -143,3 +143,4 @@ export const FocusTrap: Story = {
     await expect(args.openChange).toHaveBeenCalledWith(false);
   },
 };
+

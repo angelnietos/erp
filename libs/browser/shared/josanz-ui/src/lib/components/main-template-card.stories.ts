@@ -162,18 +162,19 @@ export const EstadosFlujo: Story = {
   render: () => ({
     template: `
       <div class="max-w-4xl space-y-3 rounded-2xl p-6" style="background: var(--josanz-bg);">
-        <josanz-main-template-card title="Ejemplo" status="Borrador" statusVariant="borrador" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="En presupuesto" statusVariant="presupuesto" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="En presupuesto" statusVariant="presupuesto-solid" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Confirmado" statusVariant="confirmado" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="En proceso" statusVariant="en-proceso" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Cancelado" statusVariant="cancelado" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Incidencia" statusVariant="incidencia" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Incidencia" statusVariant="incidencia-solid" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Pospuesto" statusVariant="pospuesto" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Facturado" statusVariant="facturado" [data]="['—','—','—','—']"></josanz-main-template-card>
-        <josanz-main-template-card title="Ejemplo" status="Facturado" statusVariant="facturado-muted" [data]="['—','—','—','—']"></josanz-main-template-card>
+        <josanz-main-template-card title="ORD-1001" status="Borrador" statusVariant="borrador" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['NovaByte','24.500 EUR','23/05','Taller']"></josanz-main-template-card>
+        <josanz-main-template-card title="PRE-2044" status="En presupuesto" statusVariant="presupuesto" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Auralux','18.200 EUR','24/05','Comercial']"></josanz-main-template-card>
+        <josanz-main-template-card title="PRE-2045" status="En presupuesto" statusVariant="presupuesto-solid" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Hotel Miramar','31.000 EUR','25/05','Ventas']"></josanz-main-template-card>
+        <josanz-main-template-card title="EVT-3301" status="Confirmado" statusVariant="confirmado" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['NovaByte','24.500 EUR','26/05','Eventos']"></josanz-main-template-card>
+        <josanz-main-template-card title="ALB-8842" status="En proceso" statusVariant="en-proceso" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Logística Prado','8.400 EUR','27/05','Almacén']"></josanz-main-template-card>
+        <josanz-main-template-card title="EVT-1900" status="Cancelado" statusVariant="cancelado" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Eventos Sur','0 EUR','28/05','Operaciones']"></josanz-main-template-card>
+        <josanz-main-template-card title="STK-0451" status="Incidencia" statusVariant="incidencia" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Taller Norte','310 EUR','29/05','Stock']"></josanz-main-template-card>
+        <josanz-main-template-card title="STK-0452" status="Incidencia" statusVariant="incidencia-solid" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Solaris Retail','1.200 EUR','30/05','Compras']"></josanz-main-template-card>
+        <josanz-main-template-card title="RUTA-22" status="Pospuesto" statusVariant="pospuesto" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Hotel Miramar','4.600 EUR','31/05','Flota']"></josanz-main-template-card>
+        <josanz-main-template-card title="INV-2026-004" status="Facturado" statusVariant="facturado" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['NovaByte','1.250 EUR','01/06','Admin']"></josanz-main-template-card>
+        <josanz-main-template-card title="INV-2026-005" status="Facturado" statusVariant="facturado-muted" [labels]="['Cliente','Importe','Fecha','Equipo']" [data]="['Auralux','8.900 EUR','02/06','Admin']"></josanz-main-template-card>
       </div>
     `,
   }),
 };
+

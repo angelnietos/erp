@@ -153,7 +153,7 @@ export const InteractiveOpen: Story = {
   args: {
     triggerLabel: 'Abrir popover',
     title: 'Detalle rápido',
-    description: 'Contenido mostrado tras pulsar el trigger.',
+    description: 'Resumen SLA, importe pendiente y responsable de la orden.',
     open: false,
     placement: 'bottom',
     closeOnOutsideClick: true,
@@ -167,3 +167,4 @@ export const InteractiveOpen: Story = {
     await expect(canvas.getByRole('dialog')).toBeVisible();
   },
 };
+

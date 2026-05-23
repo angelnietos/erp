@@ -56,7 +56,7 @@ export const UseCases: Story = {
         <josanz-date-time-picker label="Inicio montaje" value="2026-05-24T08:00" hint="Llegada de equipo técnico" customColor="#635BFF"></josanz-date-time-picker>
         <josanz-date-time-picker label="Fin desmontaje" value="2026-05-25T02:00" hint="Salida estimada del recinto" shape="pill" customColor="var(--josanz-success)"></josanz-date-time-picker>
         <josanz-date-time-picker label="Vencimiento presupuesto" value="2026-05-30T23:59" hint="Fecha límite de aceptación" customColor="var(--josanz-warning)"></josanz-date-time-picker>
-        <josanz-date-time-picker label="Bloqueado" value="2026-06-01T10:00" hint="Ejemplo deshabilitado" [disabled]="true"></josanz-date-time-picker>
+        <josanz-date-time-picker label="Bloqueado" value="2026-06-01T10:00" hint="Bloqueado por cierre de almac�n" [disabled]="true"></josanz-date-time-picker>
       </div>
     `,
   }),
@@ -75,3 +75,4 @@ export const InteractiveChange: Story = {
     await expect(args.valueChange).toHaveBeenCalledWith('2026-05-24T20:00');
   },
 };
+

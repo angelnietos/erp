@@ -37,6 +37,15 @@ export const Playground: Story = {
     props: args,
     template: `
       <div class="h-[820px] overflow-hidden rounded-3xl p-8" style="background: var(--josanz-bg);">
+        <section class="mx-auto max-w-5xl rounded-3xl border border-solid p-6 opacity-40" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+          <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Dashboard bloqueado por modal legacy</p>
+          <h1 class="m-0 mt-1 text-3xl font-black" style="color: var(--josanz-text);">Personalización visual</h1>
+          <div class="mt-6 grid gap-4 md:grid-cols-3">
+            <div class="rounded-2xl border border-solid p-4" style="border-color: var(--josanz-border);"><strong style="color: var(--josanz-text);">Marca</strong></div>
+            <div class="rounded-2xl border border-solid p-4" style="border-color: var(--josanz-border);"><strong style="color: var(--josanz-text);">Atmósfera</strong></div>
+            <div class="rounded-2xl border border-solid p-4" style="border-color: var(--josanz-border);"><strong style="color: var(--josanz-text);">Listados</strong></div>
+          </div>
+        </section>
         <josanz-theme-modal (modalClose)="modalClose($event)"></josanz-theme-modal>
       </div>
     `,
@@ -57,14 +66,26 @@ export const UseCases: Story = {
     props: args,
     template: `
       <div class="min-h-[640px] rounded-3xl p-8" style="background: var(--josanz-bg);">
-        <div class="mx-auto max-w-2xl rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
-          <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Legacy</p>
-          <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Personalización (modal)</h3>
-          <p class="mt-3 text-sm leading-relaxed" style="color: var(--josanz-text-muted);">
-            Usa <code class="text-xs">josanz-theme-modal</code> solo si necesitas mantener flujos antiguos.
-            Para producto nuevo, prefiere <strong>josanz-app-settings-page</strong> con pestaña Personalización.
-          </p>
-          <p class="mt-4 text-xs" style="color: var(--josanz-text-muted);">Emite <code class="text-xs">modalClose</code> al cerrar.</p>
+        <div class="mx-auto grid max-w-5xl gap-6 lg:grid-cols-2">
+          <div class="rounded-3xl border border-solid p-6" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Legacy</p>
+            <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Personalización en modal</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color: var(--josanz-text-muted);">
+              Úsalo para compatibilidad en flujos antiguos que todavía abren ajustes como overlay.
+            </p>
+            <div class="mt-5 rounded-2xl border border-dashed p-4" style="border-color: var(--josanz-border); color: var(--josanz-text-muted);">Bloquea el dashboard y concentra el cambio de tema.</div>
+          </div>
+          <div class="rounded-3xl border border-solid p-6" style="background: color-mix(in srgb, var(--josanz-primary) 7%, var(--josanz-surface)); border-color: var(--josanz-border);">
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-primary);">Recomendado</p>
+            <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Ajustes como página</h3>
+            <p class="mt-3 text-sm leading-relaxed" style="color: var(--josanz-text-muted);">
+              Para nuevas pantallas, josanz-app-settings-page ofrece navegación, deep-link por pestaña y más espacio para previews.
+            </p>
+            <div class="mt-5 grid gap-2">
+              <span class="rounded-full px-3 py-2 text-xs font-black" style="background: var(--josanz-surface); color: var(--josanz-text);">/settings?tab=personalizacion</span>
+              <span class="rounded-full px-3 py-2 text-xs font-black" style="background: var(--josanz-surface); color: var(--josanz-text);">Sin bloquear navegación lateral</span>
+            </div>
+          </div>
         </div>
       </div>
     `,
