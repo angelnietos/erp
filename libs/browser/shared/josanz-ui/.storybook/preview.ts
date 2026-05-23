@@ -171,11 +171,13 @@ body.sb-show-main,
   min-height: 100vh;
 }
 
-.sbdocs-content :where(h1, h2, h3, h4, h5, h6) {
+.sbdocs-content > :where(h1, h2, h3, h4, h5, h6),
+.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(h1, h2, h3, h4, h5, h6) {
   color: #111827 !important;
 }
 
-.sbdocs-content :where(p, li, td, th, label, span:not([class*='token'])) {
+.sbdocs-content > :where(p, ul, ol, blockquote),
+.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(p, li, label) {
   color: #374151 !important;
 }
 
@@ -193,13 +195,29 @@ body.sb-show-main,
 
 .sbdocs-preview {
   background: #ffffff !important;
-  border-color: var(--josanz-border, #e2e8f0) !important;
-  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08) !important;
+  border-color: #e5e7eb !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10) !important;
+  overflow: hidden !important;
 }
 
 .docs-story,
 .sb-story {
-  background: #ffffff !important;
+  background: var(--josanz-bg, #f8fafc) !important;
+  color: var(--josanz-text, #0f172a) !important;
+  font-family: var(--font-main, 'Nunito', sans-serif) !important;
+  padding: 2rem !important;
+}
+
+.docs-story :where(h1, h2, h3, h4, h5, h6),
+.sb-story :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--josanz-text, #0f172a) !important;
+  font-family: var(--font-display, 'DM Sans', sans-serif) !important;
+}
+
+.docs-story :where(p, li, label, span),
+.sb-story :where(p, li, label, span) {
+  color: inherit;
 }
 
 #storybook-root :where(h1, h2, h3, h4, h5, h6) {
