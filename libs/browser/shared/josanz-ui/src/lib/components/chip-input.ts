@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-chip-input',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => ChipInputComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -21,7 +30,7 @@ import { JosanzThemeService } from '../services/theme.service';
         @for (chip of values; track chip) {
           <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black" [style.backgroundColor]="chipBackground()" [style.color]="accentColor()">
             {{ chip }}
-            <button type="button" class="border-0 bg-transparent p-0 text-current opacity-70" aria-label="Quitar" (click)="remove(chip)">×</button>
+            <button type="button" class="border-0 bg-transparent p-0 text-current opacity-70" aria-label="Quitar" [disabled]="disabled" (click)="remove(chip)">×</button>
           </span>
         }
         <input
@@ -29,19 +38,22 @@ import { JosanzThemeService } from '../services/theme.service';
           [style.color]="'var(--josanz-text)'"
           [placeholder]="placeholder"
           [value]="draft"
+          [disabled]="disabled"
           (keydown.enter)="addFromDraft()"
           (input)="draft = $any($event.target).value"
+          (blur)="markTouched()"
         />
       </span>
     </label>
   `,
 })
-export class ChipInputComponent {
+export class ChipInputComponent extends JosanzValueAccessorBase<string[]> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = 'Etiquetas';
   @Input() placeholder = 'Añadir etiqueta...';
   @Input() values: string[] = [];
+  @Input() override disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
 
@@ -49,8 +61,13 @@ export class ChipInputComponent {
 
   draft = '';
 
+  override writeValue(value: string[] | null): void {
+    this.values = Array.isArray(value) ? value : [];
+  }
+
   remove(chip: string): void {
     this.values = this.values.filter((value) => value !== chip);
+    this.emitChange(this.values);
     this.valuesChange.emit(this.values);
   }
 
@@ -61,6 +78,7 @@ export class ChipInputComponent {
     }
     this.values = [...this.values, next];
     this.draft = '';
+    this.emitChange(this.values);
     this.valuesChange.emit(this.values);
   }
 

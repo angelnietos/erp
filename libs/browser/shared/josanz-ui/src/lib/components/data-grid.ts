@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import type { JosanzTableColumn, JosanzTableRow } from './data-table';
 import { PaginationComponent } from './pagination';
 
@@ -82,11 +82,12 @@ import { PaginationComponent } from './pagination';
               @for (column of columns; track column.key) {
                 <th
                   scope="col"
-                  class="px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em]"
+                  class="relative px-4 py-3 text-[10px] font-black uppercase tracking-[0.16em]"
                   [class.text-center]="column.align === 'center'"
                   [class.text-right]="column.align === 'right'"
                   [class.cursor-pointer]="column.sortable"
                   [style.color]="'var(--josanz-text-muted)'"
+                  [style.width.px]="columnWidth(column.key)"
                   (click)="column.sortable && sortBy(column.key)"
                 >
                   <span class="inline-flex items-center gap-1">
@@ -95,6 +96,16 @@ import { PaginationComponent } from './pagination';
                       <span aria-hidden="true">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
                     }
                   </span>
+                  @if (resizable) {
+                    <button
+                      type="button"
+                      class="absolute bottom-2 right-0 top-2 w-2 cursor-col-resize border-0 border-r border-solid bg-transparent p-0"
+                      [style.borderColor]="'color-mix(in srgb, var(--josanz-border) 70%, transparent)'"
+                      [attr.aria-label]="'Redimensionar ' + column.label"
+                      (click)="$event.stopPropagation()"
+                      (mousedown)="startColumnResize(column.key, $event)"
+                    ></button>
+                  }
                 </th>
               }
             </tr>
@@ -185,17 +196,23 @@ export class DataGridComponent {
   @Input() totalRows = 0;
   @Input() page = 1;
   @Input() pageSize = 10;
+  @Input() resizable = false;
+  @Input() columnWidths: Record<string, number> = {};
 
   @Output() rowClick = new EventEmitter<JosanzTableRow>();
   @Output() selectedIdsChange = new EventEmitter<string[]>();
   @Output() sortChange = new EventEmitter<{ key: string; direction: 'asc' | 'desc' }>();
   @Output() pageChange = new EventEmitter<number>();
   @Output() exportCsv = new EventEmitter<string>();
+  @Output() columnWidthsChange = new EventEmitter<Record<string, number>>();
 
   searchQuery = '';
   sortKey = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   skeletonRows = [1, 2, 3, 4];
+  private resizingColumnKey = '';
+  private resizeStartX = 0;
+  private resizeStartWidth = 0;
 
   cornerClass(): string {
     return 'rounded-3xl';
@@ -207,6 +224,9 @@ export class DataGridComponent {
 
   updateSearch(event: Event): void {
     this.searchQuery = (event.target as HTMLInputElement).value.trim().toLowerCase();
+    if (this.paginated && !this.serverSide) {
+      this.page = 1;
+    }
   }
 
   rowCountLabel(): string {
@@ -224,6 +244,41 @@ export class DataGridComponent {
   onPageChange(page: number): void {
     this.page = page;
     this.pageChange.emit(page);
+  }
+
+  columnWidth(key: string): number | null {
+    return this.columnWidths[key] ?? null;
+  }
+
+  startColumnResize(key: string, event: MouseEvent): void {
+    if (!this.resizable) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const header = (event.currentTarget as HTMLElement).parentElement;
+    this.resizingColumnKey = key;
+    this.resizeStartX = event.clientX;
+    this.resizeStartWidth = header?.getBoundingClientRect().width ?? this.columnWidths[key] ?? 160;
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(event: MouseEvent): void {
+    if (!this.resizingColumnKey) {
+      return;
+    }
+    const delta = event.clientX - this.resizeStartX;
+    const width = Math.max(96, Math.round(this.resizeStartWidth + delta));
+    this.columnWidths = {
+      ...this.columnWidths,
+      [this.resizingColumnKey]: width,
+    };
+    this.columnWidthsChange.emit(this.columnWidths);
+  }
+
+  @HostListener('document:mouseup')
+  onDocumentMouseUp(): void {
+    this.resizingColumnKey = '';
   }
 
   downloadCsv(): void {
@@ -267,6 +322,10 @@ export class DataGridComponent {
         const right = String(b[this.sortKey] ?? '');
         return left.localeCompare(right, 'es', { numeric: true }) * direction;
       });
+    }
+    if (this.paginated) {
+      const start = (Math.max(1, this.page) - 1) * Math.max(1, this.pageSize);
+      return next.slice(start, start + Math.max(1, this.pageSize));
     }
     return next;
   }

@@ -32,6 +32,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | A9 | `josanz-phone-input` con prefijo país | ✅ | CVA + story |
 | A10 | `josanz-currency-input` con sufijo EUR | ✅ | CVA + story |
 | A11 | CVA en textarea / date-picker / password | ✅ | `JosanzValueAccessorBase` |
+| A12 | CVA en number-input / chip-input | ✅ | Integrado con `formControlName` |
 
 ---
 
@@ -72,7 +73,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | D2 | Kanban básico | ✅ | |
 | D3 | Paginación server-side story (mock) | ✅ | Data Grid / ServerSidePagination |
 | D4 | Data grid: export CSV | ✅ | Botón Exportar CSV |
-| D4b | Data grid: column resize | ⬜ | |
+| D4b | Data grid: column resize | ✅ | `resizable`, `columnWidths`, `columnWidthsChange` |
 | D5 | Tree view: checkbox multi-select | ✅ | checkable + checkedIds |
 | D6 | Integración charting lib (opcional, lazy) | ⬜ | Evaluar peso bundle |
 
@@ -96,7 +97,7 @@ Documento de subtareas para seguir ampliando el design system y Storybook en `li
 | ID | Subtarea | Estado | Notas |
 |----|----------|--------|-------|
 | F1 | Exportar todo en `src/index.ts` | 🔄 | Revisar tras cada lote; Flex exportado vía layout-primitives |
-| F2 | Unit tests smoke (selectores, outputs) | ✅ | textarea, data-grid, form-field, phone, currency |
+| F2 | Unit tests smoke (selectores, outputs) | ✅ | specs legacy corregidos + nuevos CVA/grid |
 | F3 | Usar componentes en `josanz-web-app` piloto | ⬜ | 1 pantalla listado |
 | F4 | Tokens Figma ↔ theme.service alineados | ⬜ | |
 | F5 | Modo oscuro en todos los componentes nuevos | ⬜ | Probar atmosphere dark |

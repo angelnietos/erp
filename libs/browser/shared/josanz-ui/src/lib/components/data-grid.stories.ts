@@ -39,15 +39,18 @@ const rows = [
 export const Playground: Story = {
   args: {
     title: 'Órdenes de taller',
-    description: 'Filtra, ordena y selecciona filas visibles.',
+    description: 'Filtra, ordena, selecciona y redimensiona columnas.',
     columns,
     rows,
     searchable: true,
     selectable: true,
+    resizable: true,
+    columnWidths: { order: 120, client: 220, total: 140 },
     selectedIds: ['2'],
     rowClick: fn(),
     selectedIdsChange: fn(),
     sortChange: fn(),
+    columnWidthsChange: fn(),
   },
 };
 
@@ -83,6 +86,40 @@ export const ServerSidePagination: Story = {
     exportable: true,
     pageChange: fn(),
     exportCsv: fn(),
+  },
+  render: (args) => {
+    const state = {
+      ...args,
+      page: args.page ?? 1,
+      rows: allOrders.slice(0, args.pageSize ?? 10),
+      onPageChange(next: number): void {
+        state.page = next;
+        const pageSize = state.pageSize ?? 10;
+        const start = (next - 1) * pageSize;
+        state.rows = allOrders.slice(start, start + pageSize);
+        args['pageChange']?.(next);
+      },
+    };
+
+    return {
+      props: state,
+      template: `
+        <josanz-data-grid
+          [title]="title"
+          [description]="description"
+          [columns]="columns"
+          [rows]="rows"
+          [serverSide]="serverSide"
+          [paginated]="paginated"
+          [totalRows]="totalRows"
+          [page]="page"
+          [pageSize]="pageSize"
+          [exportable]="exportable"
+          (pageChange)="onPageChange($event)"
+          (exportCsv)="exportCsv($event)"
+        ></josanz-data-grid>
+      `,
+    };
   },
 };
 

@@ -1,12 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
+import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-number-input',
   standalone: true,
   imports: [CommonModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => NumberInputComponent),
+      multi: true,
+    },
+  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
@@ -38,6 +47,7 @@ import { JosanzThemeService } from '../services/theme.service';
           [value]="value"
           [disabled]="disabled"
           (input)="updateValue($event)"
+          (blur)="markTouched()"
         />
         <button
           type="button"
@@ -56,7 +66,7 @@ import { JosanzThemeService } from '../services/theme.service';
     </label>
   `,
 })
-export class NumberInputComponent {
+export class NumberInputComponent extends JosanzValueAccessorBase<number> {
   readonly themeService = inject(JosanzThemeService);
 
   @Input() label = '';
@@ -66,15 +76,20 @@ export class NumberInputComponent {
   @Input() min = 0;
   @Input() max = 100;
   @Input() step = 1;
-  @Input() disabled = false;
+  @Input() override disabled = false;
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
 
   @Output() valueChange = new EventEmitter<number>();
 
+  override writeValue(value: number | null): void {
+    this.value = value ?? this.min;
+  }
+
   applyStep(delta: number): void {
     const next = Math.min(this.max, Math.max(this.min, this.value + delta * this.step));
     this.value = next;
+    this.emitChange(next);
     this.valueChange.emit(next);
   }
 
@@ -84,6 +99,7 @@ export class NumberInputComponent {
       return;
     }
     this.value = Math.min(this.max, Math.max(this.min, next));
+    this.emitChange(this.value);
     this.valueChange.emit(this.value);
   }
 
