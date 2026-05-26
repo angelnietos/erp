@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'inventory-feature',
-  preset: '../../../../../../../jest.preset.js',
+  preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../../../coverage/libs/browser/feature/inventory/feature',
+  coverageDirectory: '../../../../../coverage/libs/browser/feature/inventory/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,9 +19,3 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
-
-
-
-
-
-

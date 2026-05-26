@@ -1,13 +1,10 @@
 import { Route } from '@angular/router';
-import { InventoryListComponent } from './inventory-list/inventory-list.component';
-import { InventoryDetailComponent } from './inventory-detail/inventory-detail.component';
-import { InventoryEditComponent } from './inventory-edit/inventory-edit.component';
+import { InventoryFeature } from './inventory-feature/inventory-feature';
 
 export const inventoryFeatureRoutes: Route[] = [
-  { path: '', component: InventoryListComponent },
-  { path: 'new', component: InventoryEditComponent },
-  { path: ':id/edit', component: InventoryEditComponent },
-  { path: ':id', component: InventoryDetailComponent },
+  { path: '', component: InventoryFeature },
+  { path: 'new', component: InventoryFeature },
+  { path: ':id', component: InventoryFeature },
 ];
 
-export * from './inventory-list/inventory-list.component';
+export * from './inventory-feature/inventory-feature';

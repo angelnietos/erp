@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import { InventoryFeature } from './inventory-feature';
 
 describe('InventoryFeature', () => {
@@ -8,6 +9,18 @@ describe('InventoryFeature', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [InventoryFeature],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: {
+                get: () => null,
+              },
+            },
+          },
+        },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(InventoryFeature);

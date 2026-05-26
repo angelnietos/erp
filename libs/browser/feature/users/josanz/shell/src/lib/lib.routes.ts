@@ -1,25 +1,8 @@
 import { Route } from '@angular/router';
+import { JosanzUsersShell } from './josanz-users-shell/josanz-users-shell';
 
 export const josanzUsersRoutes: Route[] = [
-  {
-    path: '',
-    loadComponent: () =>
-      import('@josanz-erp/josanz-users-feature-list').then(
-        (m) => m.JosanzUsersListComponent
-      ),
-  },
-  {
-    path: 'new',
-    loadComponent: () =>
-      import('@josanz-erp/josanz-users-feature-list').then(
-        (m) => m.JosanzUserCreateComponent
-      ),
-  },
-  {
-    path: ':id',
-    loadComponent: () =>
-      import('@josanz-erp/josanz-users-feature-list').then(
-        (m) => m.JosanzUserDetailComponent
-      ),
-  },
+  { path: '', component: JosanzUsersShell },
+  { path: 'new', component: JosanzUsersShell },
+  { path: ':id', component: JosanzUsersShell },
 ];
