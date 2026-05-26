@@ -1,6 +1,7 @@
 import { storybookRouterDecorator } from './storybook-providers';
 import { JOSANZ_FIGMA_APP, JOSANZ_FIGMA_DASHBOARD, JOSANZ_FIGMA_LOGIN, JOSANZ_FIGMA_SEMANTIC, JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
 import {
+  JOSANZ_ATMOSPHERE_CATALOG,
   JOSANZ_ATMOSPHERE_REGISTRY,
   JOSANZ_DEFAULT_PRIMARY,
   applyJosanzStructuralCssVariables,
@@ -10,7 +11,18 @@ import {
 import type { JosanzControlShape } from '../src/lib/josanz-control-styles';
 
 // ─── Google Fonts ────────────────────────────────────────────────────────────
-const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap');`;
+const googleFonts = `@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;0,9..40,800;0,9..40,900&family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800&family=Orbitron:wght@400;500;600;700;800;900&display=swap');`;
+
+const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
+const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
+const STORYBOOK_THEME_STATE_KEY = '__JOSANZ_STORYBOOK_THEME__';
+type StorybookThemeWindow = Window & Record<string, unknown>;
+type StorybookThemeDetail = {
+  atmosphereName: JosanzAtmosphereName;
+  primaryColor: string;
+  shape: JosanzControlShape;
+};
+let lastGlobalsSyncKey = '';
 
 // ─── Design Tokens (CSS custom properties) ──────────────────────────────────
 // Light theme (default :root) + dark theme (data-theme="dark")
@@ -145,27 +157,86 @@ body.sb-show-main,
   background: var(--josanz-bg, #f8fafc) !important;
   min-height: 100%;
   padding: 2rem !important;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--font-main, 'Nunito', sans-serif);
   transition: background 0.3s ease;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'DM Sans', sans-serif;
+.sbdocs-wrapper,
+.sbdocs-content {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+.sbdocs-wrapper {
+  min-height: 100vh;
+}
+
+.sbdocs-content > :where(h1, h2, h3, h4, h5, h6),
+.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(h1, h2, h3, h4, h5, h6) {
+  color: #111827 !important;
+}
+
+.sbdocs-content > :where(p, ul, ol, blockquote),
+.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(p, li, label) {
+  color: #374151 !important;
+}
+
+.sbdocs-content :where(a) {
+  color: #2563eb !important;
+}
+
+.sbdocs-content :where(code) {
+  background: #f3f4f6 !important;
+  color: #111827 !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.05rem 0.35rem;
+}
+
+.sbdocs-preview {
+  background: #ffffff !important;
+  border-color: #e5e7eb !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10) !important;
+  overflow: hidden !important;
+}
+
+.docs-story,
+.sb-story {
+  background: var(--josanz-bg, #f8fafc) !important;
+  color: var(--josanz-text, #0f172a) !important;
+  font-family: var(--font-main, 'Nunito', sans-serif) !important;
+  padding: 2rem !important;
+}
+
+.docs-story :where(h1, h2, h3, h4, h5, h6),
+.sb-story :where(h1, h2, h3, h4, h5, h6) {
+  color: var(--josanz-text, #0f172a) !important;
+  font-family: var(--font-display, 'DM Sans', sans-serif) !important;
+}
+
+.docs-story :where(p, li, label, span),
+.sb-story :where(p, li, label, span) {
+  color: inherit;
+}
+
+#storybook-root :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-display, 'DM Sans', sans-serif);
   font-weight: 800;
   color: var(--josanz-text, #0f172a);
 }
 `;
 
-const atmosphereToolbarItems = (Object.keys(JOSANZ_ATMOSPHERE_REGISTRY) as JosanzAtmosphereName[]).map(
-  (value) => ({
-    value,
-    title: value.charAt(0).toUpperCase() + value.slice(1),
-  }),
-);
+const atmosphereToolbarItems = JOSANZ_ATMOSPHERE_CATALOG.map(({ name, label, description }) => ({
+  value: name,
+  title: label,
+  right: description,
+}));
 
 const brandToolbarItems = [
   { value: JOSANZ_DEFAULT_PRIMARY, title: 'Josanz Negro' },
   { value: '#0F1E2F', title: 'Azul Noche' },
+  { value: '#222222', title: 'Grafito Josanz' },
   { value: '#635BFF', title: 'Rockstar' },
   { value: '#22C55E', title: 'Success' },
   { value: '#F59E0B', title: 'Warning' },
@@ -184,6 +255,38 @@ const shapeToolbarItems: Array<{ value: JosanzControlShape; title: string }> = [
 const isShape = (value: unknown): value is JosanzControlShape =>
   value === 'rounded' || value === 'pill' || value === 'square';
 
+const shapeToThemeName = (shape: JosanzControlShape) =>
+  shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded';
+
+const applyStorybookThemeDetail = (detail: StorybookThemeDetail): void => {
+  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[detail.atmosphereName] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
+  applyJosanzThemeCssVariables({
+    atmosphere,
+    primaryColor: detail.primaryColor,
+    themeName: shapeToThemeName(detail.shape),
+  });
+  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] = detail;
+};
+
+const updateStorybookGlobalsFromService = (detail: StorybookThemeDetail): void => {
+  const syncKey = `${detail.atmosphereName}|${detail.primaryColor}|${detail.shape}`;
+  if (syncKey === lastGlobalsSyncKey) {
+    return;
+  }
+  lastGlobalsSyncKey = syncKey;
+  const channel = (window as unknown as StorybookThemeWindow)['__STORYBOOK_ADDONS_CHANNEL__'];
+  if (!channel || typeof (channel as { emit?: unknown }).emit !== 'function') {
+    return;
+  }
+  (channel as { emit: (eventName: string, payload: unknown) => void }).emit('updateGlobals', {
+    globals: {
+      josanzAtmosphere: detail.atmosphereName,
+      josanzBrandColor: detail.primaryColor,
+      josanzShape: detail.shape,
+    },
+  });
+};
+
 // ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
 const atmosphereDecorator = (
   storyFn: () => unknown,
@@ -201,18 +304,16 @@ const atmosphereDecorator = (
   const storyShape = context.args?.['shape'];
   const toolbarShape = context.globals?.josanzShape;
   const shape = isShape(storyShape) ? storyShape : isShape(toolbarShape) ? toolbarShape : 'rounded';
-  applyJosanzThemeCssVariables({
-    atmosphere,
+  const detail = {
+    atmosphereName: atmosphere.name,
     primaryColor,
-    themeName: shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded',
-  });
+    shape,
+  };
+
+  applyStorybookThemeDetail(detail);
   window.dispatchEvent(
-    new CustomEvent('josanz-ui-storybook-theme-change', {
-      detail: {
-        atmosphereName: atmosphere.name,
-        primaryColor,
-        shape,
-      },
+    new CustomEvent(STORYBOOK_THEME_EVENT, {
+      detail,
     }),
   );
   return storyFn();
@@ -234,6 +335,14 @@ const injectStylesDecorator = (storyFn: () => unknown) => {
     style.id = 'josanz-design-system';
     style.textContent = googleFonts + designTokens + canvasStyles;
     document.head.appendChild(style);
+    window.addEventListener(STORYBOOK_SERVICE_THEME_EVENT, (event) => {
+      const detail = (event as CustomEvent<StorybookThemeDetail>).detail;
+      if (!detail) {
+        return;
+      }
+      applyStorybookThemeDetail(detail);
+      updateStorybookGlobalsFromService(detail);
+    });
     stylesInjected = true;
   }
   return storyFn();

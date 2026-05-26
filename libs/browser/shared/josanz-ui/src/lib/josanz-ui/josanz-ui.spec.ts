@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { JosanzUi } from './josanz-ui';
+import { JosanzUiComponent } from './josanz-ui';
 
 describe('JosanzUi', () => {
-  let component: JosanzUi;
-  let fixture: ComponentFixture<JosanzUi>;
+  let component: JosanzUiComponent;
+  let fixture: ComponentFixture<JosanzUiComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [JosanzUi],
+      imports: [JosanzUiComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(JosanzUi);
+    fixture = TestBed.createComponent(JosanzUiComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

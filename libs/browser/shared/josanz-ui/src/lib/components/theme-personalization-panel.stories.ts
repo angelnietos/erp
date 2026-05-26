@@ -1,10 +1,26 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { moduleMetadata } from '@storybook/angular';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
+import { ButtonComponent } from './button';
+import { GridListCardComponent } from './grid-list-card';
+import { PaginationComponent } from './pagination';
+import { StatCardComponent } from './stat-card';
 import { ThemePersonalizationPanelComponent } from './theme-personalization-panel';
 
 const meta: Meta<ThemePersonalizationPanelComponent> = {
   component: ThemePersonalizationPanelComponent,
   title: 'Josanz UI / Theme Personalization Panel',
+  decorators: [
+    moduleMetadata({
+      imports: [
+        ButtonComponent,
+        GridListCardComponent,
+        PaginationComponent,
+        StatCardComponent,
+        ThemePersonalizationPanelComponent,
+      ],
+    }),
+  ],
   tags: ['autodocs'],
   parameters: {
     docs: {
@@ -15,6 +31,10 @@ const meta: Meta<ThemePersonalizationPanelComponent> = {
       },
     },
     layout: 'fullscreen',
+    controls: { disable: true },
+  },
+  argTypes: {
+    // ThemePersonalizationPanel no expone @Input/@Output: opera directamente sobre JosanzThemeService.
   },
 };
 
@@ -59,16 +79,19 @@ export const UseCases: Story = {
           </div>
           <div class="space-y-4">
             <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
-              <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Preview botón</p>
+              <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Preview acciones</p>
               <div class="mt-4 flex gap-3">
-                <div class="rounded-xl px-4 py-2 text-sm font-bold text-white" style="background: var(--josanz-primary);">Primario</div>
-                <div class="rounded-xl border border-solid px-4 py-2 text-sm font-bold" style="border-color: var(--josanz-border); color: var(--josanz-text);">Secundario</div>
+                <josanz-button label="Guardar ajustes" [showIcon]="false"></josanz-button>
+                <josanz-button label="Vista previa" variant="outline" [showIcon]="false"></josanz-button>
               </div>
             </div>
             <div class="rounded-3xl border border-solid p-5" style="background: var(--josanz-surface); border-color: var(--josanz-border);">
-              <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Preview listado</p>
-              <div class="mt-4 h-10 rounded-xl" style="background: var(--josanz-surface-muted, var(--josanz-bg)); border: 1px solid var(--josanz-border);"></div>
-              <div class="mt-2 h-10 rounded-xl" style="background: var(--josanz-surface-muted, var(--josanz-bg)); border: 1px solid var(--josanz-border);"></div>
+              <p class="m-0 text-xs font-bold uppercase tracking-widest" style="color: var(--josanz-text-muted);">Preview dashboard</p>
+              <div class="mt-4 grid gap-3">
+                <josanz-stat-card title="Órdenes activas" value="36" caption="3 urgentes" tone="primary" icon="trend"></josanz-stat-card>
+                <josanz-grid-list-card title="Gala Primavera" status="Confirmado" statusVariant="confirmado" density="compact" [fieldLabels]="['Cliente', 'Ciudad']" [previewLines]="['NovaByte', 'Madrid']"></josanz-grid-list-card>
+                <div class="flex justify-end"><josanz-pagination [current]="2" [total]="6" variant="numbered"></josanz-pagination></div>
+              </div>
             </div>
           </div>
         </div>

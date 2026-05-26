@@ -11,7 +11,7 @@
     [class.rounded-xl]="activeShape() === 'rounded'"
     [class.rounded-none]="activeShape() === 'square'"
     [class.rounded-[28px]]="activeShape() === 'pill'"
-    [style.backgroundColor]="themeService.currentTheme().atmosphere.border"
+    [style.backgroundColor]="'var(--josanz-border)'"
   >
     <img [src]="imageUrl" alt="Event image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
   </div>
@@ -22,7 +22,7 @@
       <div class="flex items-center justify-between">
         <h3
           class="text-[18px] font-semibold tracking-tight"
-          [style.color]="themeService.currentTheme().atmosphere.text"
+          [style.color]="'var(--josanz-text)'"
         >
           {{ title }}
         </h3>
@@ -39,14 +39,14 @@
 
       <div
         class="flex gap-4 text-[13px] font-medium"
-        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+        [style.color]="'var(--josanz-text-muted)'"
       >
         <span>{{ subtitle }}</span>
         @if (data && data[0]) {
           <span class="flex items-center gap-1">
             <span
               class="w-1 h-1 rounded-full"
-              [style.backgroundColor]="themeService.currentTheme().atmosphere.textMuted"
+              [style.backgroundColor]="'var(--josanz-text-muted)'"
             ></span>
             {{ data[0] }}
           </span>
@@ -55,7 +55,7 @@
 
       <p
         class="text-[14px] leading-relaxed line-clamp-3"
-        [style.color]="themeService.currentTheme().atmosphere.textMuted"
+        [style.color]="'var(--josanz-text-muted)'"
       >
         {{ description }}
       </p>
@@ -69,9 +69,9 @@
           [class.rounded-xl]="activeShape() === 'rounded'"
           [class.rounded-none]="activeShape() === 'square'"
           [class.rounded-full]="activeShape() === 'pill'"
-          [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-          [style.borderColor]="themeService.currentTheme().atmosphere.border"
-          [style.color]="themeService.currentTheme().atmosphere.textMuted"
+          [style.backgroundColor]="'var(--josanz-surface)'"
+          [style.borderColor]="'var(--josanz-border)'"
+          [style.color]="'var(--josanz-text-muted)'"
         >
           {{ tag }}
         </span>
