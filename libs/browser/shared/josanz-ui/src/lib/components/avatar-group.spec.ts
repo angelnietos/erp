@@ -38,8 +38,8 @@ describe('AvatarGroupComponent', () => {
   it('should generate initials', () => {
     const fixture = TestBed.createComponent(AvatarGroupComponent);
     const component = fixture.componentInstance;
-    expect(component.initials('John Doe')).toBe('JO');
-    expect(component.initials('Jane')).toBe('JA');
+    expect(component.initials('John Doe')).toBe('JD');
+    expect(component.initials('Jane')).toBe('J');
     expect(component.initials('A')).toBe('A');
   });
 

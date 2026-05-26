@@ -1,4 +1,4 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { ModalComponent } from './modal';
 import { JosanzThemeService } from '../services/theme.service';
 
@@ -34,7 +34,7 @@ describe('ModalComponent', () => {
   it('should emit close event on onClose', () => {
     const fixture = TestBed.createComponent(ModalComponent);
     const component = fixture.componentInstance;
-    const spy = jasmine.createSpy('close');
+    const spy = jest.fn('close');
     component.close.subscribe(spy);
     component.onClose();
     expect(spy).toHaveBeenCalled();
