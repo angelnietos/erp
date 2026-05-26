@@ -1,16 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MainListLayout } from './main-list-layout';
+import { provideRouter } from '@angular/router';
+import { MainListLayoutComponent } from './main-list-layout';
 
 describe('MainListLayout', () => {
-  let component: MainListLayout;
-  let fixture: ComponentFixture<MainListLayout>;
+  let component: MainListLayoutComponent;
+  let fixture: ComponentFixture<MainListLayoutComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MainListLayout],
+      imports: [MainListLayoutComponent],
+      providers: [provideRouter([])],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MainListLayout);
+    fixture = TestBed.createComponent(MainListLayoutComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

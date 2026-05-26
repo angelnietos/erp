@@ -1,0 +1,36 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Overlays" />
+
+# Overlays
+
+Modales, paneles laterales, menús flotantes y paletas de comandos. Todos comparten API `open` / `openChange` donde aplica.
+
+## Componentes incluidos
+
+| Componente | Cierre | Focus trap |
+|------------|--------|------------|
+| Modal | Escape, backdrop | ✅ |
+| Drawer | Escape, backdrop | ✅ |
+| Bottom Sheet | Escape, backdrop | — |
+| Confirm Dialog | Escape, backdrop, acciones | — |
+| Popover / Dropdown / Context Menu | click outside | — |
+| Command Palette | Escape, backdrop, selección | — |
+| Tooltip | hover / toggle | — |
+
+## Patrones recomendados
+
+1. **Confirmación destructiva:** `josanz-confirm-dialog` antes de eliminar registros.
+2. **Edición rápida:** `josanz-drawer` posición `right` con formulario corto.
+3. **Móvil:** `josanz-bottom-sheet` para acciones contextuales.
+4. **Accesibilidad:** probar Escape, foco inicial y ciclo Tab en drawer/modal.
+
+## Stories con `play`
+
+- `Josanz UI / Drawer` — InteractiveClose, FocusTrap
+- `Josanz UI / Modal` — cierre y acciones footer
+- `Josanz UI / Confirm Dialog` — confirmación interactiva
+
+## Ver también
+
+- [Feedback](./?path=/docs/josanz-ui-documentacion-feedback--docs)

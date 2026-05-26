@@ -1,5 +1,6 @@
 import { moduleMetadata } from '@storybook/angular';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbEmit, sbRadio, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { DocumentListComponent } from './document-list';
 import { DocumentItemComponent } from './document-item';
@@ -126,4 +127,44 @@ export const UseCases: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveUpload: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa la zona de subida y valida que se emite `upload`.',
+      },
+    },
+  },
+  args: {
+    uploadLabel: 'Subir contrato',
+    showUpload: true,
+    empty: false,
+    accentColor: '#635BFF',
+    shape: 'rounded',
+    upload: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-2xl">
+        <josanz-document-list
+          [uploadLabel]="uploadLabel"
+          [showUpload]="showUpload"
+          [empty]="empty"
+          [accentColor]="accentColor"
+          [shape]="shape"
+          (upload)="upload($event)"
+        >
+          <josanz-document-item name="Contrato marco.pdf" statusColor="var(--josanz-success)" [showView]="true" [showDownload]="true"></josanz-document-item>
+        </josanz-document-list>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /subir contrato/i }));
+    await expect(args.upload).toHaveBeenCalledTimes(1);
+  },
 };

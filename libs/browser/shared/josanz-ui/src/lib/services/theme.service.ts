@@ -40,6 +40,8 @@ export type {
 
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
 const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
+const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
+const STORYBOOK_THEME_STATE_KEY = '__JOSANZ_STORYBOOK_THEME__';
 
 interface JosanzStoredPreferences {
   themeName?: JosanzThemeName;
@@ -57,6 +59,8 @@ interface JosanzStorybookThemeDetail {
   primaryColor?: string;
   shape?: JosanzControlShape;
 }
+
+type StorybookThemeWindow = Window & Record<string, unknown>;
 
 @Injectable({
   providedIn: 'root',
@@ -80,7 +84,7 @@ export class JosanzThemeService {
 
   constructor() {
     this.restorePreferences();
-    this.applyToDOM();
+    this.applyToDOM(false);
     this.setupStorybookBridge();
   }
 
@@ -155,37 +159,72 @@ export class JosanzThemeService {
     return 'luxe-rounded';
   }
 
-  private applyToDOM() {
+  private applyToDOM(notifyStorybook = true) {
     const theme = this.currentTheme();
     applyJosanzThemeCssVariables({
       atmosphere: theme.atmosphere,
       primaryColor: theme.primaryColor,
       themeName: theme.name,
     });
+    if (notifyStorybook) {
+      this.notifyStorybookThemeChange();
+    }
   }
 
   private setupStorybookBridge(): void {
     if (typeof window === 'undefined') {
       return;
     }
+    this.applyStorybookThemeDetail(this.readStorybookThemeState());
     window.addEventListener(STORYBOOK_THEME_EVENT, (event) => {
       const detail = (event as CustomEvent<JosanzStorybookThemeDetail>).detail ?? {};
-      this.currentTheme.update((theme) => {
-        const shape = detail.shape ?? theme.defaultShape;
-        const atmosphere =
-          detail.atmosphereName && this.atmospheres[detail.atmosphereName]
-            ? this.atmospheres[detail.atmosphereName]
-            : theme.atmosphere;
-        return {
-          ...theme,
-          name: this.getThemeNameFromShape(shape),
-          defaultShape: shape,
-          primaryColor: detail.primaryColor || theme.primaryColor,
-          atmosphere,
-        };
-      });
-      this.applyToDOM();
+      this.applyStorybookThemeDetail(detail);
     });
+  }
+
+  private applyStorybookThemeDetail(detail: JosanzStorybookThemeDetail | null | undefined): void {
+    if (!detail) {
+      return;
+    }
+    this.currentTheme.update((theme) => {
+      const shape = detail.shape ?? theme.defaultShape;
+      const atmosphere =
+        detail.atmosphereName && this.atmospheres[detail.atmosphereName]
+          ? this.atmospheres[detail.atmosphereName]
+          : theme.atmosphere;
+      return {
+        ...theme,
+        name: this.getThemeNameFromShape(shape),
+        defaultShape: shape,
+        primaryColor: detail.primaryColor || theme.primaryColor,
+        atmosphere,
+      };
+    });
+    this.applyToDOM(false);
+  }
+
+  private notifyStorybookThemeChange(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const theme = this.currentTheme();
+    window.dispatchEvent(
+      new CustomEvent<JosanzStorybookThemeDetail>(STORYBOOK_SERVICE_THEME_EVENT, {
+        detail: {
+          atmosphereName: theme.atmosphere.name,
+          primaryColor: theme.primaryColor,
+          shape: theme.defaultShape,
+        },
+      }),
+    );
+  }
+
+  private readStorybookThemeState(): JosanzStorybookThemeDetail | null {
+    const state = (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY];
+    if (!state || typeof state !== 'object') {
+      return null;
+    }
+    return state as JosanzStorybookThemeDetail;
   }
 
   private restorePreferences(): void {

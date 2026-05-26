@@ -39,8 +39,10 @@ Para publicar el Storybook de `josanz-ui`, usa la rama `storybook-deploy`:
 
 - Source: repo de GitHub.
 - Branch: `storybook-deploy`.
-- Builder: Dockerfile o config-as-code desde `railway.json`.
-- Dockerfile: `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`.
+- **Commit `railway.json` en la rama** apuntando a `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`.
+  Sin este archivo, Railway usa el `Dockerfile` de la raíz (`npm ci`) y falla con `ERESOLVE` (Angular 21 vs Storybook 8).
+- En el servicio Railway, Builder: **Dockerfile** (no Railpack/Nixpacks).
+- Dockerfile path (si no usas `railway.json`): `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`.
 - Custom Build Command: vacío.
 - Custom Start Command: vacío.
 - Variables del servicio: ninguna obligatoria. Railway inyecta `PORT` automáticamente.
@@ -48,6 +50,8 @@ Para publicar el Storybook de `josanz-ui`, usa la rama `storybook-deploy`:
 ## GitHub Actions
 
 El workflow `.github/workflows/deploy-railway.yml` despliega manualmente con Railway CLI.
+
+Si Railway muestra **“CI check suite failed”** y el deploy queda en **Skipped** aunque GitHub Actions esté en verde, revisa [docs/deploy/railway-ci.md](../../docs/deploy/railway-ci.md) (opción **Wait for CI** en el servicio).
 
 También se ejecuta automáticamente al hacer `push` a la rama configurada. En `test-deploy` despliega `josanz-web-app`; en `storybook-deploy` despliega `josanz-ui-storybook`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
 

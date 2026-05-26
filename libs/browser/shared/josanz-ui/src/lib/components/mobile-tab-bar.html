@@ -18,6 +18,8 @@
           class="prominent-tab transition-all duration-200 active:scale-90"
           [style.backgroundColor]="'var(--josanz-primary)'"
           [style.boxShadow]="'0 8px 20px -4px var(--josanz-primary)'"
+          [attr.aria-label]="tab.label"
+          [attr.title]="tab.label"
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 5v14M5 12h14"/>
@@ -30,6 +32,8 @@
           [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
           class="tab-link flex flex-col items-center gap-1 transition-all duration-200 active:scale-95 group"
           [style.color]="'var(--josanz-text-muted)'"
+          [attr.aria-label]="tab.label"
+          [attr.title]="tab.label"
         >
           <div class="icon-container group-[.active]:text-[var(--josanz-accent)] group-[.active]:scale-110 transition-all">
             @if (tab.path === '/dashboard') {

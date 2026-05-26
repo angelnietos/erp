@@ -1,0 +1,42 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Forms" />
+
+# Formularios
+
+Controles de entrada, validación y composición con `josanz-form-field`. Todos los inputs reactivos implementan `ControlValueAccessor` vía `JosanzValueAccessorBase`.
+
+## Componentes incluidos
+
+| Componente | Story | CVA |
+|------------|-------|-----|
+| Input | `Josanz UI / Input` | — |
+| Textarea | `Josanz UI / Textarea` | ✅ |
+| Select | `Josanz UI / Select` | ✅ |
+| Checkbox / Switch / Radio | stories dedicadas | ✅ |
+| Number / Phone / Currency | stories dedicadas | ✅ |
+| Password | `Josanz UI / Password Input` | ✅ + `showStrength` |
+| Date Picker / OTP / Search | stories dedicadas | ✅ |
+| Chip Input / Multi Select | stories dedicadas | ✅ |
+| Autocomplete / File Upload | stories dedicadas | — |
+| Form Field + Validation Message | `Forms / Field Wrapper` | wrapper |
+
+## Patrones recomendados
+
+1. **Siempre envolver** controles en `josanz-form-field` con `label`, `required`, `error` e `hint`.
+2. **Formularios reactivos:** ver `Forms / Reactive Example` — `FormGroup` + `formControlName`.
+3. **Estados obligatorios en stories:** default, disabled, error, hint-only.
+4. **Shape:** usar toolbar Shape o `@Input() shape` para probar `rounded`, `pill`, `square`.
+
+## Checklist al añadir un control
+
+- [ ] Story `Playground` con controls
+- [ ] Story `States` (disabled, error)
+- [ ] Story `Interactive` con `play()` si emite eventos
+- [ ] Integración en Reactive Example si tiene CVA
+- [ ] Smoke spec si implementa CVA
+
+## Ver también
+
+- [Guía del sistema](./?path=/docs/josanz-ui-documentacion-guia-del-sistema--docs)
+- [Component Catalog](./?path=/story/josanz-ui-documentacion-component-catalog--coverage-index)

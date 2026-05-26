@@ -123,11 +123,12 @@ export const SemanticStatuses: Story = {
   render: () => ({
     template: `
       <div class="grid max-w-5xl grid-cols-1 gap-4 p-6 sm:grid-cols-2 lg:grid-cols-4" style="background: var(--josanz-bg);">
-        <josanz-grid-list-card title="OK" status="OK" statusVariant="success" density="compact" [previewLines]="['Sin incidencias']" [fieldLabels]="['Estado']"></josanz-grid-list-card>
+        <josanz-grid-list-card title="Orden validada" status="Sin incidencias" statusVariant="success" density="compact" [previewLines]="['Sin incidencias']" [fieldLabels]="['Estado']"></josanz-grid-list-card>
         <josanz-grid-list-card title="Alerta" status="Riesgo" statusVariant="warning" density="compact" [previewLines]="['Stock bajo']" [fieldLabels]="['Inventario']"></josanz-grid-list-card>
         <josanz-grid-list-card title="Error" status="Fallo" statusVariant="error" density="compact" [previewLines]="['Sync fallida']" [fieldLabels]="['Integración']"></josanz-grid-list-card>
-        <josanz-grid-list-card title="Borrador" status="Draft" statusVariant="borrador" density="compact" [previewLines]="['Sin publicar']" [fieldLabels]="['Workflow']"></josanz-grid-list-card>
+        <josanz-grid-list-card title="Borrador" status="Borrador" statusVariant="borrador" density="compact" [previewLines]="['Sin publicar']" [fieldLabels]="['Flujo']"></josanz-grid-list-card>
       </div>
     `,
   }),
 };
+
