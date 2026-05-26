@@ -26,17 +26,17 @@
   [title]="title"
   [primaryBtnLabel]="primaryBtnLabel"
   [filterOptions]="filterOptions"
+  [paginationPage]="currentPage"
+  [paginationTotal]="totalPages"
   [figmaCatalogLayout]="true"
   typologyTabsVariant="figma"
   [showViewSelector]="true"
   searchPlaceholder="Buscar"
-  [paginationTotal]="10"
-  [paginationPage]="1"
-  [searchValue]="searchQuery"
-  (searchChange)="onSearch($event)"
+  (searchChange)="searchQuery = $event"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()"
+  (paginationChange)="onPageChange($event)"
 >
   <div class="josanz-list-thead">
     <div class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0">
@@ -51,7 +51,7 @@
   </div>
 
   <josanz-adaptive-list-rows
-    [items]="filteredClientItems"
+    [items]="paginatedItems"
     [defaultLabels]="clientLabels"
     (itemClick)="openDetail($event)"
   ></josanz-adaptive-list-rows>

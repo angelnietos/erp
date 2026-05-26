@@ -44,8 +44,19 @@ describe('JosanzClientsListComponent integration', () => {
   it('filters client cards by typology pill', () => {
     component.onFilter('Tipo cliente 2');
 
-    expect(component.filteredClientItems).toHaveLength(1);
-    expect(component.filteredClientItems[0]?.statusVariant).toBe('cliente-tipo-green');
+    expect(component.filteredClientItems).toHaveLength(2);
+    expect(component.filteredClientItems.every(item => item.statusVariant === 'cliente-tipo-green')).toBe(true);
+  });
+
+  it('paginates client items correctly', () => {
+    component.currentPage = 1;
+    fixture.detectChanges();
+    expect(component.paginatedItems).toHaveLength(7); // All 7 items fit in page 1 (pageSize=10)
+
+    // Test with filter
+    component.onFilter('Tipo cliente 2');
+    fixture.detectChanges();
+    expect(component.paginatedItems).toHaveLength(2); // 2 items filtered, fit in page 1
   });
 
   it('navigates to create and detail routes from list actions', () => {

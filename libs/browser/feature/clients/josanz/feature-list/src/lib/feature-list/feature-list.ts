@@ -12,7 +12,7 @@ import {
 } from '@josanz-erp/josanz-ui';
 
 @Component({
-  selector: 'josanz-clients-list',
+  selector: 'lib-clients-list',
   standalone: true,
   imports: [
     CommonModule,
@@ -31,6 +31,8 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
   activeTypology = 'Todos';
   showSuccessToast = false;
   showSuccessModal = false;
+  currentPage = 1;
+  readonly pageSize = 10;
 
   override readonly filterOptions = [
     'Todos',
@@ -87,6 +89,24 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
       status: 'Tipo cliente',
       statusVariant: 'cliente-tipo-pink',
     },
+    {
+      id: '6',
+      title: 'Cliente ejemplo 6',
+      leadingMark: 'CL',
+      data: ['000000001', 'cliente@ejemplo.com', 'Operador D'],
+      labels: this.clientLabels,
+      status: 'Activo',
+      statusVariant: 'cliente-tipo-green',
+    },
+    {
+      id: '7',
+      title: 'Cliente ejemplo 7',
+      leadingMark: 'TE',
+      data: ['000000002', 'test@demo.com', 'Operador E'],
+      labels: this.clientLabels,
+      status: 'Borrador',
+      statusVariant: 'cliente-tipo-yellow',
+    },
   ];
 
   constructor() {
@@ -115,6 +135,20 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
     return items;
   }
 
+  // Paginación
+  get totalPages(): number {
+    return Math.ceil(this.filteredClientItems.length / this.pageSize);
+  }
+
+  get paginatedItems(): JosanzAdaptiveListItem[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredClientItems.slice(start, start + this.pageSize);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+  }
+
   typologyPillKey(tab: string): JosanzStatusPillKey | undefined {
     const map: Record<string, JosanzStatusPillKey> = {
       'Tipo cliente 1': 'cliente-tipo-pink',
@@ -127,6 +161,7 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
 
   override onFilter(option: string): void {
     this.activeTypology = option;
+    this.currentPage = 1;
     super.onFilter(option);
   }
 
@@ -144,5 +179,10 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
 
   closeSuccessModal(): void {
     this.showSuccessModal = false;
+  }
+
+  // Excel export placeholder
+  override onExcel(): void {
+    console.log('Exportando clientes a Excel...');
   }
 }
