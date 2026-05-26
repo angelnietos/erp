@@ -8,3 +8,4 @@
 /scripts/**
 /deploy/railway/dockerfiles/backend.Dockerfile
 /deploy/railway/config/backend.railway.json
+
