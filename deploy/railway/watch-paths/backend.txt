@@ -1,0 +1,10 @@
+/apps/backend/**
+/libs/node/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/scripts/**
+/deploy/railway/dockerfiles/backend.Dockerfile
+/deploy/railway/config/backend.railway.json

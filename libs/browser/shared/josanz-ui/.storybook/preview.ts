@@ -163,8 +163,8 @@ body.sb-show-main,
 
 .sbdocs-wrapper,
 .sbdocs-content {
-  background: #ffffff !important;
-  color: #1f2937 !important;
+  background: var(--josanz-bg, #f8fafc) !important;
+  color: var(--josanz-text, #0f172a) !important;
 }
 
 .sbdocs-wrapper {
@@ -173,29 +173,30 @@ body.sb-show-main,
 
 .sbdocs-content > :where(h1, h2, h3, h4, h5, h6),
 .sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(h1, h2, h3, h4, h5, h6) {
-  color: #111827 !important;
-}
-
-.sbdocs-content > :where(p, ul, ol, blockquote),
-.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(p, li, label) {
-  color: #374151 !important;
+  color: var(--josanz-text, #0f172a) !important;
 }
 
 .sbdocs-content :where(a) {
-  color: #2563eb !important;
+  color: var(--josanz-primary, #2563eb) !important;
 }
 
 .sbdocs-content :where(code) {
   background: #f3f4f6 !important;
   color: #111827 !important;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--josanz-border, #e5e7eb) !important;
   border-radius: 0.375rem;
   padding: 0.05rem 0.35rem;
 }
 
+.sbdocs-content > :where(p, ul, ol, blockquote),
+.sbdocs-content > div:not(.sbdocs-preview):not(.docs-story) :where(p, li, label) {
+  color: var(--josanz-text-muted, #64748b) !important;
+}
+
 .sbdocs-preview {
-  background: #ffffff !important;
-  border-color: #e5e7eb !important;
+  background: var(--josanz-surface, #ffffff) !important;
+  border-color: var(--josanz-border, #e2e8f0) !important;
+  color: var(--josanz-text, #0f172a) !important;
   border-radius: 18px !important;
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10) !important;
   overflow: hidden !important;

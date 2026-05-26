@@ -1,0 +1,13 @@
+/apps/josanz-web-app/**
+/libs/browser/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/tailwind.config.*
+/postcss.config.*
+/scripts/**
+/deploy/railway/dockerfiles/josanz-web-app.Dockerfile
+/deploy/railway/config/josanz-web-app.railway.json
+/deploy/railway/nginx/**

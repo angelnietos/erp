@@ -1,0 +1,11 @@
+/libs/browser/shared/josanz-ui/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/tailwind.config.*
+/postcss.config.*
+/scripts/**
+/deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile
+/deploy/railway/config/josanz-ui-storybook.railway.json
+/deploy/railway/nginx/**

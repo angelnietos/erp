@@ -2,6 +2,20 @@
 
 Esta carpeta contiene la configuración para desplegar los servicios del monorepo en Railway sin depender de `--build-arg` en CI. Cada servicio Railway debe apuntar al Dockerfile específico de su app.
 
+## Rama `dev` — backend + front + Storybook
+
+Guía paso a paso (3 servicios, misma rama, Watch Paths): **[DEV-3-SERVICES.md](./DEV-3-SERVICES.md)**
+
+Config as code por servicio:
+
+| Servicio | Archivo |
+|----------|---------|
+| backend | `deploy/railway/config/backend.railway.json` |
+| josanz-web-app | `deploy/railway/config/josanz-web-app.railway.json` |
+| josanz-ui-storybook | `deploy/railway/config/josanz-ui-storybook.railway.json` |
+
+Watch Paths (copiar en Railway): `deploy/railway/watch-paths/*.txt`
+
 ## Servicios
 
 | App Nx | Dockerfile Railway | Notas |
@@ -25,6 +39,8 @@ Esta carpeta contiene la configuración para desplegar los servicios del monorep
 3. Añade las variables de entorno de cada app en Railway.
 4. Si despliegas `frontend`, define `BACKEND_PROXY_URL` con la URL interna o pública del servicio `backend`.
 5. Para servicios backend con Prisma, usa la `DATABASE_URL` de la base de datos Railway y ejecuta migraciones antes de promover el entorno.
+
+Para el stack **`dev`** (backend + `josanz-web-app` + Storybook), sigue **[DEV-3-SERVICES.md](./DEV-3-SERVICES.md)**.
 
 Para publicar solo `josanz-web-app`, puedes dejar Railway así:
 
@@ -55,7 +71,7 @@ Si Railway muestra **“CI check suite failed”** y el deploy queda en **Skippe
 
 También se ejecuta automáticamente al hacer `push` a la rama configurada. En `test-deploy` despliega `josanz-web-app`; en `storybook-deploy` despliega `josanz-ui-storybook`. Si faltan secretos en un push automático, el deploy se omite con warning para no dejar la rama roja durante la configuración inicial. El despliegue manual sigue permitiendo elegir cualquier servicio y entorno, y falla si falta configuración.
 
-El archivo `railway.json` de la raíz fuerza a Railway a usar `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` para este despliegue. Así Railway deja de usar Railpack + `npm ci` y pasa a usar `pnpm install --frozen-lockfile` con el Dockerfile del front.
+El `railway.json` de la raíz solo define política de reinicio. **Cada servicio** debe usar su config en `deploy/railway/config/<servicio>.railway.json` (o el Dockerfile path de la tabla). Así Railway deja de usar Railpack + `npm ci` del `Dockerfile` legacy de la raíz.
 
 Los Dockerfiles copian `scripts/` y `apps/backend/prisma/` antes de `pnpm install`, porque el `postinstall` del monorepo ejecuta Prisma y scripts de enlace.
 
@@ -70,6 +86,7 @@ Secretos necesarios:
 | `RAILWAY_SERVICE_VERIFACTU_WORKER` | ID o nombre exacto del servicio `verifactu-worker` |
 | `RAILWAY_SERVICE_FRONTEND` | ID o nombre exacto del servicio `frontend` |
 | `RAILWAY_SERVICE_JOSANZ_WEB_APP` | ID o nombre exacto del servicio `josanz-web-app` |
+| `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK` | ID o nombre exacto del servicio `josanz-ui-storybook` |
 | `RAILWAY_SERVICE_SAAS_PLATFORM` | ID o nombre exacto del servicio `saas-platform` |
 | `RAILWAY_SERVICE_DOCUMENT_GENERATOR` | ID o nombre exacto del servicio `document-generator` |
 

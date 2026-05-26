@@ -22,7 +22,7 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   /** Por defecto chips Figma (neutro y listados de producto). */
   @Input() variant: JosanzFilterTabsVariant = 'figma';
 
-  @Input() shape: JosanzControlShape = 'rounded';
+  @Input() shape?: JosanzControlShape;
 
   @Input() customColor?: string;
 
