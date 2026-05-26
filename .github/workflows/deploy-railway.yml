@@ -1,5 +1,9 @@
 name: Deploy — Railway
 
+# Railway puede esperar checks de CI del commit antes de desplegar.
+# Si el deploy queda en "Skipped" con "CI check suite failed", revisa docs/deploy/railway-ci.md
+# y configura el servicio Storybook en Railway (Wait for CI / filtros de checks).
+
 on:
   push:
     branches:

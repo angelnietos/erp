@@ -2,7 +2,7 @@ import { moduleMetadata } from '@storybook/angular';
 import { RouterModule } from '@angular/router';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import type { Meta, StoryObj } from '@storybook/angular';
-import { expect, userEvent, within } from '@storybook/test';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { SidebarComponent } from './sidebar';
 
@@ -165,5 +165,27 @@ export const InteractiveToggle: Story = {
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await userEvent.click(toggle);
     await expect(canvas.getByRole('button', { name: /contraer menú/i })).toHaveAttribute('aria-expanded', 'true');
+  },
+};
+
+export const InteractiveLogout: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pulsa la acción de salir y valida que la sidebar emite `logoutClick`.',
+      },
+    },
+  },
+  args: {
+    userName: 'Admin Josanz',
+    userRole: 'Administrador',
+    isOpen: true,
+    logoutClick: fn(),
+  },
+  render: (args) => ({ props: args, template: shellTemplate }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Salir' }));
+    await expect(args.logoutClick).toHaveBeenCalledTimes(1);
   },
 };

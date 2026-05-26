@@ -1,0 +1,37 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Josanz UI / Documentacion / Feedback" />
+
+# Feedback
+
+Alertas, progreso, carga y notificaciones para comunicar estado al usuario del ERP.
+
+## Componentes incluidos
+
+| Componente | Cuándo usarlo |
+|------------|---------------|
+| Alert / Inline Alert | Mensajes persistentes en página |
+| Toast | Confirmaciones efímeras con auto-dismiss |
+| Spinner / Skeleton | Carga inline y placeholders |
+| Progress Bar / Progress Steps | Progreso de tarea o wizard |
+| Validation Message | Errores de formulario |
+| Empty State | Listados sin datos |
+| Rich Text Editor | Notas con formato |
+| Media Player | Video/audio embebido |
+
+## Patrones recomendados
+
+1. **Errores de formulario:** `validation-message` dentro de `form-field`.
+2. **Operación async:** skeleton en tabla + toast al completar.
+3. **Toasts:** `autoDismiss`, `actionLabel` para deshacer.
+4. **Empty states:** icono + CTA hacia acción primaria (crear registro).
+
+## Stories de referencia
+
+- `Josanz UI / Toast` — AutoDismissQueue
+- `Josanz UI / Skeleton` — variants list/table
+- `Josanz UI / Inline Alert` — tonos y dismiss
+
+## Ver también
+
+- [Forms](./?path=/docs/josanz-ui-documentacion-forms--docs)

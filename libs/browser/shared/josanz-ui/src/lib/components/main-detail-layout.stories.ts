@@ -183,7 +183,7 @@ export const FigmaEventVariant: Story = {
           (save)="save($event)"
         >
           <div class="grid gap-4 p-4 md:grid-cols-3">
-            <josanz-grid-list-card title="Presupuesto" status="OK" statusVariant="confirmado" [previewLines]="['24.500 EUR', 'Margen 18%']" [fieldLabels]="['Total', 'Rentabilidad']"></josanz-grid-list-card>
+            <josanz-grid-list-card title="Presupuesto" status="Aprobado" statusVariant="confirmado" [previewLines]="['24.500 EUR', 'Margen 18%']" [fieldLabels]="['Total', 'Rentabilidad']"></josanz-grid-list-card>
             <josanz-grid-list-card title="Tecnicos" status="4" statusVariant="en-proceso" [previewLines]="['Sonido', 'Iluminacion']" [fieldLabels]="['Equipo', 'Areas']"></josanz-grid-list-card>
             <josanz-grid-list-card title="Cliente" status="VIP" statusVariant="borrador" [previewLines]="['NovaByte', 'Madrid']" [fieldLabels]="['Empresa', 'Ciudad']"></josanz-grid-list-card>
           </div>
@@ -192,3 +192,4 @@ export const FigmaEventVariant: Story = {
     `,
   }),
 };
+

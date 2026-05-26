@@ -38,7 +38,8 @@ export type JosanzAtmosphereName =
   | 'sakura'
   | 'terracotta'
   | 'stargazer'
-  | 'emerald';
+  | 'emerald'
+  | 'orbitron';
 
 export interface JosanzAtmosphereConfig {
   name: JosanzAtmosphereName;
@@ -59,6 +60,8 @@ export interface JosanzAtmosphereConfig {
   fieldFill?: string;
   surfaceMuted?: string;
   strokeField?: string;
+  fontMain?: string;
+  fontDisplay?: string;
 }
 
 export interface JosanzAtmosphereCatalogEntry {
@@ -85,6 +88,7 @@ export const JOSANZ_ATMOSPHERE_CATALOG: readonly JosanzAtmosphereCatalogEntry[] 
   { name: 'easports', label: 'Arena Digital', description: 'Pizarra y cian eléctrico, deportivo premium.' },
   { name: 'midnight', label: 'Medianoche', description: 'Gris azulado GitHub, foco nocturno.' },
   { name: 'stargazer', label: 'Cielo Estrellado', description: 'Índigo cosmos con destellos suaves.' },
+  { name: 'orbitron', label: 'Orbitron', description: 'Interfaz sci-fi con tipografía Orbitron y acentos neón.' },
   { name: 'rosewood', label: 'Palo Rosa', description: 'Burdeos y rosa antiguo, íntimo.' },
   { name: 'rockstar', label: 'Oro Urbano', description: 'Carbón cálido y dorado tenue.' },
   { name: 'industrial', label: 'Grafito', description: 'Zinc cálido, estudio minimalista.' },
@@ -117,336 +121,327 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   lavender: {
     name: 'lavender',
-    background: 'linear-gradient(145deg, #F3EBFF 0%, #E4D4FF 42%, #D8C4FF 100%)',
-    surface: '#FFFFFF',
-    text: '#3B0764',
+    background: 'radial-gradient(circle at 15% 10%, #FFFFFF 0%, transparent 28%), linear-gradient(145deg, #F8F3FF 0%, #E9DDFF 46%, #D9C7FF 100%)',
+    surface: '#FFFCFF',
+    text: '#2E1065',
     textMuted: '#6D28D9',
-    border: '#C4B5FD',
-    shadow: '0 10px 28px rgba(109, 40, 217, 0.14)',
-    cardShadow: '0 14px 36px rgba(139, 92, 246, 0.2)',
+    border: '#D8B4FE',
+    shadow: '0 18px 42px rgba(109, 40, 217, 0.16)',
+    cardShadow: '0 18px 44px rgba(124, 58, 237, 0.2)',
     accent: '#7C3AED',
-    glass: 'rgba(255, 255, 255, 0.72)',
+    glass: 'rgba(255, 252, 255, 0.82)',
     isDark: false,
-    fieldFill: '#F8F5FF',
-    surfaceMuted: '#F3EDFF',
-    strokeField: '#D4C4F5',
+    fieldFill: '#F6F0FF',
+    surfaceMuted: '#F1E8FF',
+    strokeField: '#CDB7F5',
   },
   sakura: {
     name: 'sakura',
-    background: 'linear-gradient(165deg, #FFF5F7 0%, #FFE8EE 55%, #FFDCE6 100%)',
-    surface: '#FFFBFC',
-    text: '#4A1D32',
-    textMuted: '#9D6B82',
-    border: '#F5C4D4',
-    shadow: '0 8px 22px rgba(236, 72, 153, 0.1)',
-    cardShadow: '0 14px 36px rgba(244, 114, 182, 0.14)',
-    accent: '#EC4899',
-    glass: 'rgba(255, 251, 252, 0.78)',
+    background: 'radial-gradient(circle at 82% 12%, #FFFFFF 0%, transparent 30%), linear-gradient(160deg, #FFF8FA 0%, #FFE7EF 52%, #FFD3E2 100%)',
+    surface: '#FFFBFD',
+    text: '#4A102A',
+    textMuted: '#9D174D',
+    border: '#F9A8D4',
+    shadow: '0 18px 40px rgba(190, 24, 93, 0.13)',
+    cardShadow: '0 18px 44px rgba(236, 72, 153, 0.16)',
+    accent: '#DB2777',
+    glass: 'rgba(255, 251, 253, 0.84)',
     isDark: false,
-    fieldFill: '#FFF0F4',
-    surfaceMuted: '#FFE8F0',
-    strokeField: '#F0B8CC',
+    fieldFill: '#FFF1F6',
+    surfaceMuted: '#FFE4EE',
+    strokeField: '#F3B6CC',
   },
   cafe: {
     name: 'cafe',
-    background: 'linear-gradient(155deg, #FAF6F1 0%, #F3EBE0 50%, #EBE0D2 100%)',
-    surface: '#FFFCF8',
-    text: '#3D2E24',
-    textMuted: '#8B7355',
-    border: '#E0D0BE',
-    shadow: '0 10px 28px rgba(120, 84, 48, 0.1)',
-    cardShadow: '0 12px 30px rgba(146, 98, 57, 0.12)',
-    accent: '#B45309',
-    glass: 'rgba(255, 252, 248, 0.8)',
+    background: 'radial-gradient(circle at 8% 12%, #FFFDF8 0%, transparent 32%), linear-gradient(150deg, #FBF6EF 0%, #F0E3D3 50%, #E2D0BC 100%)',
+    surface: '#FFFDF9',
+    text: '#3A271A',
+    textMuted: '#7C5F42',
+    border: '#D7BFA6',
+    shadow: '0 18px 40px rgba(92, 64, 39, 0.13)',
+    cardShadow: '0 16px 38px rgba(146, 98, 57, 0.15)',
+    accent: '#A16207',
+    glass: 'rgba(255, 253, 249, 0.84)',
     isDark: false,
-    fieldFill: '#F5EDE3',
-    surfaceMuted: '#EFE5D8',
-    strokeField: '#D9C9B5',
+    fieldFill: '#F6EDE2',
+    surfaceMuted: '#EFE2D1',
+    strokeField: '#D6C0A8',
   },
   terracotta: {
     name: 'terracotta',
-    background: 'linear-gradient(150deg, #FFF7F0 0%, #FFEDE0 45%, #FFE2CF 100%)',
-    surface: '#FFFFFF',
+    background: 'radial-gradient(circle at 88% 8%, #FFF7ED 0%, transparent 30%), linear-gradient(145deg, #FFF4E8 0%, #FFDCC4 48%, #F7B78D 100%)',
+    surface: '#FFFDF9',
     text: '#431407',
-    textMuted: '#9A5B3C',
-    border: '#F5C9A8',
-    shadow: '0 10px 26px rgba(234, 88, 12, 0.1)',
-    cardShadow: '0 14px 34px rgba(249, 115, 22, 0.15)',
+    textMuted: '#9A3412',
+    border: '#FDBA74',
+    shadow: '0 18px 40px rgba(194, 65, 12, 0.14)',
+    cardShadow: '0 18px 42px rgba(234, 88, 12, 0.18)',
     accent: '#EA580C',
-    glass: 'rgba(255, 255, 255, 0.75)',
+    glass: 'rgba(255, 253, 249, 0.84)',
     isDark: false,
     fieldFill: '#FFF3E8',
-    surfaceMuted: '#FFEDD5',
-    strokeField: '#FDBA74',
+    surfaceMuted: '#FFE7D1',
+    strokeField: '#F4A261',
   },
   nintendo: {
     name: 'nintendo',
-    background: 'linear-gradient(180deg, #FFFBEB 0%, #FEE2E2 55%, #FECACA 100%)',
+    background: 'radial-gradient(circle at 18% 0%, #FFFFFF 0%, transparent 28%), linear-gradient(160deg, #FFF8F1 0%, #FFE3E3 48%, #FFB4B4 100%)',
     surface: '#FFFFFF',
-    text: '#450A0A',
+    text: '#4A0B0B',
     textMuted: '#B91C1C',
     border: '#FCA5A5',
-    shadow: '0 10px 28px rgba(220, 38, 38, 0.15)',
-    cardShadow: '0 14px 34px rgba(239, 68, 68, 0.22)',
+    shadow: '0 18px 42px rgba(185, 28, 28, 0.16)',
+    cardShadow: '0 18px 42px rgba(239, 68, 68, 0.22)',
     accent: '#DC2626',
     glass: 'rgba(255, 255, 255, 0.88)',
     isDark: false,
     fieldFill: '#FFF5F5',
-    surfaceMuted: '#FFEBEB',
+    surfaceMuted: '#FFE8E8',
     strokeField: '#FECACA',
   },
   emerald: {
     name: 'emerald',
-    background: 'linear-gradient(150deg, #D1FAE5 0%, #A7F3D0 45%, #6EE7B7 100%)',
-    surface: '#FFFFFF',
-    text: '#022C22',
+    background: 'radial-gradient(circle at 85% 12%, #ECFDF5 0%, transparent 28%), linear-gradient(150deg, #DDFBEA 0%, #9EEEC8 45%, #5FD6A2 100%)',
+    surface: '#FBFFFD',
+    text: '#052E24',
     textMuted: '#047857',
     border: '#6EE7B7',
-    shadow: '0 12px 32px rgba(5, 150, 105, 0.18)',
-    cardShadow: '0 16px 40px rgba(16, 185, 129, 0.22)',
-    accent: '#047857',
-    glass: 'rgba(255, 255, 255, 0.76)',
+    shadow: '0 18px 42px rgba(5, 150, 105, 0.16)',
+    cardShadow: '0 18px 44px rgba(16, 185, 129, 0.22)',
+    accent: '#059669',
+    glass: 'rgba(251, 255, 253, 0.82)',
     isDark: false,
-    fieldFill: '#F0FDF4',
-    surfaceMuted: '#DCFCE7',
+    fieldFill: '#F0FDF6',
+    surfaceMuted: '#DDFBEA',
     strokeField: '#86EFAC',
   },
   ubisoft: {
     name: 'ubisoft',
-    background: 'linear-gradient(165deg, #0B1224 0%, #101B38 45%, #152347 100%)',
-    surface: '#1A2744',
-    text: '#E8EEF9',
-    textMuted: '#94A8C9',
-    border: '#2A3F66',
-    shadow: '0 20px 48px rgba(0, 0, 0, 0.45)',
-    cardShadow: '0 12px 40px rgba(37, 99, 235, 0.22)',
-    accent: '#3B82F6',
-    glass: 'rgba(26, 39, 68, 0.82)',
+    background: 'radial-gradient(circle at 18% 12%, rgba(96, 165, 250, 0.28) 0%, transparent 28%), linear-gradient(155deg, #07111F 0%, #0D1B33 48%, #142B4D 100%)',
+    surface: '#16243D',
+    text: '#F3F8FF',
+    textMuted: '#AFC4E8',
+    border: '#31527F',
+    shadow: '0 26px 60px rgba(2, 6, 23, 0.58)',
+    cardShadow: '0 18px 48px rgba(59, 130, 246, 0.24)',
+    accent: '#60A5FA',
+    glass: 'rgba(22, 36, 61, 0.86)',
     isDark: true,
-    fieldFill: '#121C33',
-    surfaceMuted: '#152038',
-    strokeField: '#334A72',
+    fieldFill: '#0D1A2E',
+    surfaceMuted: '#12223A',
+    strokeField: '#3B5F91',
   },
   rayman: {
     name: 'rayman',
-    background: 'linear-gradient(145deg, #1E1B4B 0%, #312E81 42%, #4338CA 100%)',
-    surface: '#3D3894',
-    text: '#F8FAFF',
-    textMuted: '#C7D2FE',
-    border: '#5B56C9',
-    shadow: '0 18px 42px rgba(30, 27, 75, 0.55)',
-    cardShadow: '0 10px 36px rgba(250, 204, 21, 0.18)',
+    background: 'radial-gradient(circle at 78% 14%, rgba(251, 191, 36, 0.28) 0%, transparent 24%), linear-gradient(145deg, #171346 0%, #27206F 44%, #3C2EA8 100%)',
+    surface: '#332A86',
+    text: '#FBFCFF',
+    textMuted: '#D9D7FF',
+    border: '#6D63D9',
+    shadow: '0 26px 58px rgba(17, 13, 64, 0.62)',
+    cardShadow: '0 18px 46px rgba(251, 191, 36, 0.2)',
     accent: '#FBBF24',
-    glass: 'rgba(61, 56, 148, 0.78)',
+    glass: 'rgba(51, 42, 134, 0.82)',
     isDark: true,
-    fieldFill: '#2A2670',
-    surfaceMuted: '#332F7A',
-    strokeField: '#6B65D4',
+    fieldFill: '#241F66',
+    surfaceMuted: '#2D2874',
+    strokeField: '#756CE0',
   },
   easports: {
     name: 'easports',
-    background: 'linear-gradient(160deg, #0C1222 0%, #111B32 50%, #0F172A 100%)',
-    surface: '#1A2438',
-    text: '#F1F5F9',
-    textMuted: '#8BA3C7',
-    border: '#2D3F5C',
-    shadow: '0 22px 50px rgba(0, 0, 0, 0.5)',
-    cardShadow: '0 8px 36px rgba(56, 189, 248, 0.2)',
-    accent: '#38BDF8',
-    glass: 'rgba(26, 36, 56, 0.85)',
+    background: 'radial-gradient(circle at 80% 8%, rgba(34, 211, 238, 0.22) 0%, transparent 26%), linear-gradient(160deg, #07111F 0%, #0D182B 50%, #101C33 100%)',
+    surface: '#16243A',
+    text: '#F4F9FF',
+    textMuted: '#A4BCD9',
+    border: '#31506E',
+    shadow: '0 26px 58px rgba(0, 0, 0, 0.56)',
+    cardShadow: '0 16px 44px rgba(56, 189, 248, 0.22)',
+    accent: '#22D3EE',
+    glass: 'rgba(22, 36, 58, 0.88)',
     isDark: true,
-    fieldFill: '#0F1729',
-    surfaceMuted: '#152238',
-    strokeField: '#3B5278',
+    fieldFill: '#0D1728',
+    surfaceMuted: '#122038',
+    strokeField: '#3A5A7B',
   },
   cyberpunk: {
     name: 'cyberpunk',
-    background: 'linear-gradient(155deg, #120818 0%, #1A0F24 50%, #0F1419 100%)',
-    surface: '#1E1528',
-    text: '#E2FDF4',
-    textMuted: '#C4A8E8',
-    border: '#3D2E52',
-    shadow: '0 20px 44px rgba(0, 0, 0, 0.55)',
-    cardShadow: '0 8px 32px rgba(167, 139, 250, 0.2)',
-    accent: '#A78BFA',
-    glass: 'rgba(30, 21, 40, 0.88)',
+    background: 'radial-gradient(circle at 15% 10%, rgba(236, 72, 153, 0.24) 0%, transparent 25%), radial-gradient(circle at 86% 80%, rgba(45, 212, 191, 0.16) 0%, transparent 28%), linear-gradient(155deg, #12081A 0%, #1A1027 48%, #0D1720 100%)',
+    surface: '#21172D',
+    text: '#F8F5FF',
+    textMuted: '#D8B4FE',
+    border: '#4C3764',
+    shadow: '0 26px 58px rgba(0, 0, 0, 0.62)',
+    cardShadow: '0 18px 48px rgba(167, 139, 250, 0.22)',
+    accent: '#C084FC',
+    glass: 'rgba(33, 23, 45, 0.9)',
     isDark: true,
-    fieldFill: '#160F20',
-    surfaceMuted: '#221830',
-    strokeField: '#4A3860',
+    fieldFill: '#171020',
+    surfaceMuted: '#21162E',
+    strokeField: '#5B4172',
   },
   midnight: {
     name: 'midnight',
-    background: 'linear-gradient(180deg, #0D1117 0%, #161B22 100%)',
-    surface: '#21262D',
-    text: '#F0F6FC',
-    textMuted: '#9BA7B5',
-    border: '#373E47',
-    shadow: '0 16px 40px rgba(0, 0, 0, 0.45)',
-    cardShadow: '0 8px 28px rgba(88, 166, 255, 0.12)',
-    accent: '#58A6FF',
-    glass: 'rgba(33, 38, 45, 0.9)',
+    background: 'radial-gradient(circle at 70% 4%, rgba(88, 166, 255, 0.16) 0%, transparent 28%), linear-gradient(180deg, #090D13 0%, #111827 100%)',
+    surface: '#1A2230',
+    text: '#F4F8FF',
+    textMuted: '#A8B3C3',
+    border: '#344054',
+    shadow: '0 24px 54px rgba(0, 0, 0, 0.58)',
+    cardShadow: '0 16px 42px rgba(88, 166, 255, 0.16)',
+    accent: '#60A5FA',
+    glass: 'rgba(26, 34, 48, 0.9)',
     isDark: true,
-    fieldFill: '#0D1117',
-    surfaceMuted: '#1A2028',
-    strokeField: '#444C56',
+    fieldFill: '#0D1118',
+    surfaceMuted: '#151D2B',
+    strokeField: '#3F4B60',
   },
   stargazer: {
     name: 'stargazer',
-    background: 'linear-gradient(165deg, #0B1026 0%, #151B3D 40%, #1A1040 100%)',
-    surface: '#222B52',
-    text: '#E8ECFF',
-    textMuted: '#A5B4E8',
-    border: '#35406E',
-    shadow: '0 22px 50px rgba(8, 12, 40, 0.6)',
-    cardShadow: '0 10px 36px rgba(129, 140, 248, 0.2)',
-    accent: '#818CF8',
-    glass: 'rgba(34, 43, 82, 0.84)',
+    background: 'radial-gradient(circle at 22% 14%, rgba(129, 140, 248, 0.26) 0%, transparent 24%), radial-gradient(circle at 82% 72%, rgba(217, 70, 239, 0.12) 0%, transparent 30%), linear-gradient(160deg, #070B20 0%, #12183A 44%, #1B1240 100%)',
+    surface: '#202A4F',
+    text: '#F4F6FF',
+    textMuted: '#B8C3F7',
+    border: '#455188',
+    shadow: '0 28px 62px rgba(8, 12, 40, 0.66)',
+    cardShadow: '0 18px 46px rgba(129, 140, 248, 0.22)',
+    accent: '#A5B4FC',
+    glass: 'rgba(32, 42, 79, 0.86)',
     isDark: true,
-    fieldFill: '#121830',
-    surfaceMuted: '#1A2248',
-    strokeField: '#3F4D7A',
+    fieldFill: '#111733',
+    surfaceMuted: '#182147',
+    strokeField: '#4D5B94',
+  },
+  orbitron: {
+    name: 'orbitron',
+    background: 'radial-gradient(circle at 16% 12%, rgba(34, 211, 238, 0.26) 0%, transparent 24%), radial-gradient(circle at 84% 18%, rgba(168, 85, 247, 0.22) 0%, transparent 28%), linear-gradient(150deg, #050816 0%, #0A1024 46%, #111827 100%)',
+    surface: '#111A2E',
+    text: '#F8FBFF',
+    textMuted: '#A7F3D0',
+    border: '#2DD4BF',
+    shadow: '0 30px 70px rgba(0, 0, 0, 0.68)',
+    cardShadow: '0 20px 54px rgba(34, 211, 238, 0.24)',
+    accent: '#22D3EE',
+    glass: 'rgba(17, 26, 46, 0.88)',
+    isDark: true,
+    fieldFill: '#0A1324',
+    surfaceMuted: '#0F1A2D',
+    strokeField: '#275E69',
+    fontMain: "'Orbitron', 'DM Sans', sans-serif",
+    fontDisplay: "'Orbitron', 'DM Sans', sans-serif",
   },
   rosewood: {
     name: 'rosewood',
-    background: 'linear-gradient(150deg, #2A1218 0%, #3D1824 50%, #2E1420 100%)',
-    surface: '#4A2430',
-    text: '#FCE7F3',
-    textMuted: '#E8B4C8',
-    border: '#6B3A4A',
-    shadow: '0 20px 44px rgba(0, 0, 0, 0.5)',
-    cardShadow: '0 10px 34px rgba(244, 114, 182, 0.18)',
-    accent: '#F472B6',
-    glass: 'rgba(74, 36, 48, 0.86)',
+    background: 'radial-gradient(circle at 18% 12%, rgba(244, 114, 182, 0.18) 0%, transparent 25%), linear-gradient(150deg, #210D13 0%, #361522 50%, #26101B 100%)',
+    surface: '#432130',
+    text: '#FFF1F7',
+    textMuted: '#F2B8CF',
+    border: '#744154',
+    shadow: '0 26px 58px rgba(0, 0, 0, 0.58)',
+    cardShadow: '0 18px 46px rgba(244, 114, 182, 0.2)',
+    accent: '#FB7185',
+    glass: 'rgba(67, 33, 48, 0.88)',
     isDark: true,
-    fieldFill: '#32141C',
-    surfaceMuted: '#3E1C28',
-    strokeField: '#7A4458',
+    fieldFill: '#2B121B',
+    surfaceMuted: '#371927',
+    strokeField: '#7E4A5C',
   },
   rockstar: {
     name: 'rockstar',
-    background: 'linear-gradient(160deg, #141210 0%, #1C1916 50%, #12100E 100%)',
-    surface: '#262220',
-    text: '#F5E6C8',
-    textMuted: '#B8A898',
-    border: '#3D3832',
-    shadow: '0 24px 50px rgba(0, 0, 0, 0.55)',
-    cardShadow: '0 8px 30px rgba(217, 180, 90, 0.12)',
-    accent: '#D9B45A',
-    glass: 'rgba(38, 34, 32, 0.92)',
+    background: 'radial-gradient(circle at 72% 10%, rgba(245, 158, 11, 0.18) 0%, transparent 24%), linear-gradient(160deg, #100E0B 0%, #1C1711 50%, #0F0D0A 100%)',
+    surface: '#29231C',
+    text: '#FFF2D6',
+    textMuted: '#D6C2A2',
+    border: '#514535',
+    shadow: '0 28px 60px rgba(0, 0, 0, 0.62)',
+    cardShadow: '0 18px 44px rgba(217, 180, 90, 0.16)',
+    accent: '#F59E0B',
+    glass: 'rgba(41, 35, 28, 0.92)',
     isDark: true,
-    fieldFill: '#1A1816',
-    surfaceMuted: '#201E1C',
-    strokeField: '#4A4540',
+    fieldFill: '#17130F',
+    surfaceMuted: '#211B15',
+    strokeField: '#5D503C',
   },
   industrial: {
     name: 'industrial',
-    background: 'linear-gradient(180deg, #18181B 0%, #27272A 100%)',
-    surface: '#323238',
+    background: 'radial-gradient(circle at 18% 0%, rgba(212, 212, 216, 0.12) 0%, transparent 28%), linear-gradient(180deg, #121214 0%, #232327 100%)',
+    surface: '#303036',
     text: '#FAFAFA',
-    textMuted: '#A8A8B0',
-    border: '#45454D',
-    shadow: '0 14px 36px rgba(0, 0, 0, 0.4)',
-    cardShadow: '0 8px 24px rgba(0, 0, 0, 0.35)',
-    accent: '#D4D4D8',
-    glass: 'rgba(50, 50, 56, 0.88)',
+    textMuted: '#B9B9C0',
+    border: '#4B4B55',
+    shadow: '0 22px 48px rgba(0, 0, 0, 0.5)',
+    cardShadow: '0 14px 34px rgba(0, 0, 0, 0.38)',
+    accent: '#E4E4E7',
+    glass: 'rgba(48, 48, 54, 0.9)',
     isDark: true,
-    fieldFill: '#1F1F23',
-    surfaceMuted: '#2A2A30',
-    strokeField: '#52525B',
+    fieldFill: '#1C1C20',
+    surfaceMuted: '#28282E',
+    strokeField: '#5B5B66',
   },
   sunset: {
     name: 'sunset',
-    background: 'linear-gradient(150deg, #431407 0%, #9A3412 38%, #4C0519 100%)',
-    surface: '#7C2D12',
+    background: 'radial-gradient(circle at 22% 10%, rgba(251, 146, 60, 0.24) 0%, transparent 26%), radial-gradient(circle at 85% 72%, rgba(244, 63, 94, 0.18) 0%, transparent 30%), linear-gradient(150deg, #331106 0%, #7C2D12 42%, #3A0A1A 100%)',
+    surface: '#5F2517',
     text: '#FFF7ED',
-    textMuted: '#FDBA74',
-    border: '#FB923C',
-    shadow: '0 22px 48px rgba(67, 20, 7, 0.55)',
-    cardShadow: '0 14px 40px rgba(251, 146, 60, 0.28)',
+    textMuted: '#FED7AA',
+    border: '#D97706',
+    shadow: '0 28px 60px rgba(67, 20, 7, 0.6)',
+    cardShadow: '0 18px 48px rgba(251, 146, 60, 0.26)',
     accent: '#FB923C',
-    glass: 'rgba(61, 42, 36, 0.85)',
+    glass: 'rgba(95, 37, 23, 0.86)',
     isDark: true,
-    fieldFill: '#2A1C16',
-    surfaceMuted: '#342420',
-    strokeField: '#6B4E44',
+    fieldFill: '#2A140E',
+    surfaceMuted: '#3B1B13',
+    strokeField: '#8A4A2D',
   },
   ocean: {
     name: 'ocean',
-    background: 'linear-gradient(160deg, #082F49 0%, #0C4A6E 40%, #0369A1 100%)',
-    surface: '#0E4F72',
-    text: '#F0F9FF',
-    textMuted: '#BAE6FD',
+    background: 'radial-gradient(circle at 20% 12%, rgba(125, 211, 252, 0.22) 0%, transparent 26%), linear-gradient(160deg, #06283D 0%, #0B4568 42%, #075985 100%)',
+    surface: '#0D4A66',
+    text: '#F0FAFF',
+    textMuted: '#C7ECFF',
     border: '#38BDF8',
-    shadow: '0 20px 48px rgba(3, 105, 161, 0.45)',
-    cardShadow: '0 12px 40px rgba(56, 189, 248, 0.28)',
+    shadow: '0 26px 58px rgba(3, 105, 161, 0.48)',
+    cardShadow: '0 18px 48px rgba(56, 189, 248, 0.28)',
     accent: '#38BDF8',
-    glass: 'rgba(19, 74, 110, 0.82)',
+    glass: 'rgba(13, 74, 102, 0.84)',
     isDark: true,
-    fieldFill: '#0A2238',
-    surfaceMuted: '#0F3250',
-    strokeField: '#256892',
+    fieldFill: '#08263A',
+    surfaceMuted: '#0B3551',
+    strokeField: '#2D759A',
   },
   forest: {
     name: 'forest',
-    background: 'linear-gradient(155deg, #052E16 0%, #14532D 45%, #166534 100%)',
-    surface: '#15803D',
-    text: '#ECFDF5',
-    textMuted: '#BBF7D0',
-    border: '#4ADE80',
-    shadow: '0 20px 44px rgba(5, 46, 22, 0.5)',
-    cardShadow: '0 12px 36px rgba(74, 222, 128, 0.2)',
-    accent: '#4ADE80',
-    glass: 'rgba(26, 92, 69, 0.8)',
+    background: 'radial-gradient(circle at 78% 8%, rgba(134, 239, 172, 0.18) 0%, transparent 26%), linear-gradient(155deg, #041F13 0%, #0B3B25 46%, #14532D 100%)',
+    surface: '#123F2C',
+    text: '#F0FDF4',
+    textMuted: '#BDECCF',
+    border: '#2F7A51',
+    shadow: '0 26px 56px rgba(5, 46, 22, 0.58)',
+    cardShadow: '0 18px 44px rgba(74, 222, 128, 0.18)',
+    accent: '#86EFAC',
+    glass: 'rgba(18, 63, 44, 0.86)',
     isDark: true,
-    fieldFill: '#0F2920',
-    surfaceMuted: '#143828',
-    strokeField: '#2F6B52',
+    fieldFill: '#0A2519',
+    surfaceMuted: '#0F3323',
+    strokeField: '#3A8460',
   },
   aurora: {
     name: 'aurora',
-    background: 'linear-gradient(135deg, #0F172A 0%, #134E4A 35%, #4C1D95 70%, #0E7490 100%)',
-    surface: '#1E293B',
+    background: 'radial-gradient(circle at 18% 12%, rgba(45, 212, 191, 0.26) 0%, transparent 25%), radial-gradient(circle at 82% 76%, rgba(167, 139, 250, 0.2) 0%, transparent 30%), linear-gradient(135deg, #08111F 0%, #0E3C3B 36%, #3B1A78 72%, #0B5F73 100%)',
+    surface: '#1A3142',
     text: '#F0FDFA',
-    textMuted: '#A5F3FC',
+    textMuted: '#B6F2EA',
     border: '#2DD4BF',
-    shadow: '0 24px 52px rgba(15, 23, 42, 0.55)',
-    cardShadow: '0 14px 42px rgba(45, 212, 191, 0.25)',
-    accent: '#2DD4BF',
-    glass: 'rgba(30, 58, 82, 0.84)',
+    shadow: '0 28px 62px rgba(15, 23, 42, 0.62)',
+    cardShadow: '0 18px 48px rgba(45, 212, 191, 0.25)',
+    accent: '#5EEAD4',
+    glass: 'rgba(26, 49, 66, 0.86)',
     isDark: true,
-    fieldFill: '#0F2430',
-    surfaceMuted: '#163040',
-    strokeField: '#3A6880',
+    fieldFill: '#0D2430',
+    surfaceMuted: '#143244',
+    strokeField: '#3B7488',
   },
 };
-
-/** HSL (h 0–360, s/l 0–1) para heurísticas de “on-color” sin confundir verdes con amarillos. */
-function rgbToHsl(r255: number, g255: number, b255: number): { h: number; s: number; l: number } {
-  const r = r255 / 255;
-  const g = g255 / 255;
-  const b = b255 / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const d = max - min;
-  let h = 0;
-  if (d !== 0) {
-    if (max === r) {
-      h = ((g - b) / d) % 6;
-    } else if (max === g) {
-      h = (b - r) / d + 2;
-    } else {
-      h = (r - g) / d + 4;
-    }
-    h *= 60;
-    if (h < 0) {
-      h += 360;
-    }
-  }
-  const l = (max + min) / 2;
-  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1) + 1e-12);
-  return { h, s, l };
-}
 
 function parseCssColorToRgb(input: string): [number, number, number] | null {
   const s = input.trim();
@@ -483,6 +478,36 @@ function relativeLuminanceFromRgb(rgb: [number, number, number]): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
+function contrastRatioFromRgb(a: [number, number, number], b: [number, number, number]): number {
+  const l1 = relativeLuminanceFromRgb(a);
+  const l2 = relativeLuminanceFromRgb(b);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function contrastRatio(foreground: string, background: string): number | null {
+  const fg = parseCssColorToRgb(foreground);
+  const bg = parseCssColorToRgb(background);
+  if (!fg || !bg) {
+    return null;
+  }
+  return contrastRatioFromRgb(fg, bg);
+}
+
+function ensureContrast(
+  color: string,
+  background: string,
+  fallback: string,
+  minimumRatio: number,
+): string {
+  const ratio = contrastRatio(color, background);
+  if (ratio !== null && ratio >= minimumRatio) {
+    return color;
+  }
+  return fallback;
+}
+
 /**
  * Texto claro u oscuro sobre un color sólido (marca, badges, botones).
  * El criterio solo por ratio WCAG suele elegir **negro** sobre **verdes saturados** (#22c55e, etc.),
@@ -494,19 +519,9 @@ export function josanzReadableOnSolid(background: string): string {
   if (!rgb) {
     return '#FFFFFF';
   }
-  const [r255, g255, b255] = rgb;
-  const L = relativeLuminanceFromRgb(rgb);
-  const { h, s } = rgbToHsl(r255, g255, b255);
-
-  if (s < 0.12) {
-    return L > 0.56 ? '#0F172A' : '#FFFFFF';
-  }
-
-  if (h >= 38 && h <= 88 && s > 0.12 && L > 0.22) {
-    return '#0F172A';
-  }
-
-  return L > 0.72 ? '#0F172A' : '#FFFFFF';
+  const dark: [number, number, number] = [15, 23, 42];
+  const light: [number, number, number] = [255, 255, 255];
+  return contrastRatioFromRgb(dark, rgb) >= contrastRatioFromRgb(light, rgb) ? '#0F172A' : '#FFFFFF';
 }
 
 /**
@@ -627,17 +642,45 @@ export function applyJosanzThemeCssVariables(params: {
   const { atmosphere, primaryColor, themeName } = params;
   const root = document.documentElement;
   const isDark = josanzAtmosphereIsDark(atmosphere);
+  const effectiveText = ensureContrast(
+    atmosphere.text,
+    atmosphere.surface,
+    isDark ? '#F8FAFC' : '#111827',
+    7,
+  );
+  const effectiveTextMuted = ensureContrast(
+    atmosphere.textMuted,
+    atmosphere.surface,
+    isDark ? '#D8E3F0' : '#475569',
+    4.5,
+  );
+  const effectiveBorder = ensureContrast(
+    atmosphere.border,
+    atmosphere.surface,
+    isDark ? '#4B647D' : '#CBD5E1',
+    1.45,
+  );
+  const effectiveAtmosphere: JosanzAtmosphereConfig = {
+    ...atmosphere,
+    text: effectiveText,
+    textMuted: effectiveTextMuted,
+    border: effectiveBorder,
+  };
 
   root.style.setProperty('--josanz-primary', primaryColor);
   root.style.setProperty('--josanz-on-primary', josanzReadableOnSolid(primaryColor));
   root.style.setProperty('--josanz-on-danger', josanzReadableOnSolid('#EF4444'));
   root.style.setProperty('--josanz-bg', atmosphere.background);
   root.style.setProperty('--josanz-surface', atmosphere.surface);
-  root.style.setProperty('--josanz-text', atmosphere.text);
-  root.style.setProperty('--josanz-text-muted', atmosphere.textMuted);
-  root.style.setProperty('--josanz-border', atmosphere.border);
+  root.style.setProperty('--josanz-text', effectiveText);
+  root.style.setProperty('--josanz-text-muted', effectiveTextMuted);
+  root.style.setProperty('--josanz-border', effectiveBorder);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
+  root.style.setProperty('--font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
+  root.style.setProperty('--font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
+  root.style.setProperty('--josanz-font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
+  root.style.setProperty('--josanz-font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
   root.style.setProperty(
     '--josanz-card-shadow',
     atmosphere.cardShadow ?? atmosphere.shadow,
@@ -654,10 +697,10 @@ export function applyJosanzThemeCssVariables(params: {
     document.body.style.backgroundColor = atmosphere.background;
     document.body.style.background = '';
   }
-  document.body.style.color = atmosphere.text;
+  document.body.style.color = effectiveText;
 
   applyJosanzStructuralCssVariables(root);
-  applyJosanzBrandCssVariables(root, primaryColor, atmosphere, isDark);
+  applyJosanzBrandCssVariables(root, primaryColor, effectiveAtmosphere, isDark);
 
   if (atmosphere.fieldFill) {
     root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
@@ -671,9 +714,9 @@ export function applyJosanzThemeCssVariables(params: {
     root.style.setProperty('--josanz-stroke-widget', atmosphere.strokeField);
   }
   if (isDark) {
-    root.style.setProperty('--josanz-text-heading', atmosphere.text);
-    root.style.setProperty('--josanz-label-muted', atmosphere.textMuted);
-    root.style.setProperty('--josanz-row-line', atmosphere.border);
+    root.style.setProperty('--josanz-text-heading', effectiveText);
+    root.style.setProperty('--josanz-label-muted', effectiveTextMuted);
+    root.style.setProperty('--josanz-row-line', effectiveBorder);
   } else if (atmosphere.name === 'neutral') {
     applyJosanzFigmaNeutralStructuralOverrides(root);
   }

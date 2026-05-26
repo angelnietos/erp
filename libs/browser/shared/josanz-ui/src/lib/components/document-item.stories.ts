@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, fn, userEvent, within } from '@storybook/test';
 import { sbEmit, josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { DocumentItemComponent } from './document-item';
 
@@ -110,4 +111,50 @@ export const UseCases: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractiveActions: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: 'Valida las tres acciones accesibles del documento: ver, descargar y eliminar.',
+      },
+    },
+  },
+  args: {
+    name: 'Contrato marco firmado.pdf',
+    statusColor: '#22c55e',
+    showView: true,
+    showDownload: true,
+    showDelete: true,
+    view: fn(),
+    download: fn(),
+    delete: fn(),
+  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <div class="max-w-xl overflow-hidden rounded-2xl border border-solid" style="border-color: var(--josanz-stroke-widget); background: var(--josanz-surface);">
+        <josanz-document-item
+          [name]="name"
+          [statusColor]="statusColor"
+          [showView]="showView"
+          [showDownload]="showDownload"
+          [showDelete]="showDelete"
+          (view)="view($event)"
+          (download)="download($event)"
+          (delete)="delete($event)"
+        ></josanz-document-item>
+      </div>
+    `,
+  }),
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /ver documento contrato marco firmado\.pdf/i }));
+    await userEvent.click(canvas.getByRole('button', { name: /descargar documento contrato marco firmado\.pdf/i }));
+    await userEvent.click(canvas.getByRole('button', { name: /eliminar documento contrato marco firmado\.pdf/i }));
+    await expect(args.view).toHaveBeenCalledTimes(1);
+    await expect(args.download).toHaveBeenCalledTimes(1);
+    await expect(args.delete).toHaveBeenCalledTimes(1);
+  },
 };

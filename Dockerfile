@@ -1,4 +1,5 @@
-# Josanz Audiovisuales ERP - Master Dockerfile (High performance & Layered)
+# Josanz Audiovisuales ERP - legacy multi-app Dockerfile (npm ci).
+# Railway: do NOT use this file. Use deploy/railway/dockerfiles/*.Dockerfile via railway.json on each deploy branch.
 # Usage: docker build --build-arg APP_NAME=verifactu-api -t josanz-verifactu .
 
 # Stage 1: Install dependencies

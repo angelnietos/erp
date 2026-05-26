@@ -28,11 +28,10 @@ export class DetailCardComponent {
   }
 
   shellStyle(): Record<string, string> {
-    const a = this.themeService.currentTheme().atmosphere;
     return {
-      backgroundColor: a.surface,
-      borderColor: a.border,
-      boxShadow: a.shadow,
+      backgroundColor: 'var(--josanz-surface)',
+      borderColor: 'var(--josanz-border)',
+      boxShadow: 'var(--josanz-card-shadow)',
     };
   }
 

@@ -2,6 +2,7 @@ import { moduleMetadata } from '@storybook/angular';
 import { RouterModule } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';
 import type { Meta, StoryObj } from '@storybook/angular';
+import { expect, within } from '@storybook/test';
 import { josanzStoryThemeDescription } from '../../../.storybook/story-arg-types';
 import { MobileTabBarComponent } from './mobile-tab-bar';
 
@@ -27,6 +28,10 @@ const meta: Meta<MobileTabBarComponent> = {
     viewport: {
       defaultViewport: 'mobile1',
     },
+    controls: { disable: true },
+  },
+  argTypes: {
+    // MobileTabBar no expone API pública configurable; documenta rutas hard-coded del shell móvil.
   },
 };
 
@@ -99,4 +104,23 @@ export const UseCases: Story = {
     },
   },
   render: () => ({ template: dashboardShellTemplate }),
+};
+
+export const InteractiveNavigationLabels: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Valida los enlaces accesibles de la navegación inferior, incluida la acción central de informe.',
+      },
+    },
+  },
+  render: () => ({ template: dashboardShellTemplate }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole('navigation', { name: /navegación principal/i })).toBeInTheDocument();
+    await expect(canvas.getByRole('link', { name: 'Clientes' })).toHaveAttribute('href', '/clients');
+    await expect(canvas.getByRole('link', { name: 'Informe' })).toHaveAttribute('href', '/reports/new');
+    await expect(canvas.getByRole('link', { name: 'Ajustes' })).toHaveAttribute('href', '/settings');
+  },
 };

@@ -32,7 +32,11 @@ export interface JosanzAdaptiveListItem {
         @for (item of items; track item.id) {
           <josanz-main-template-card
             style="cursor: pointer; display: block"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'Abrir ' + item.title"
             (click)="onItemClick(item)"
+            (keydown)="onItemKeydown($event, item)"
             [title]="item.title"
             [data]="item.data"
             [labels]="item.labels ?? defaultLabels"
@@ -53,6 +57,7 @@ export interface JosanzAdaptiveListItem {
           <button
             type="button"
             class="josanz-list-grid__cell m-0 cursor-pointer border-0 bg-transparent p-0 text-left"
+            [attr.aria-label]="'Abrir ' + item.title"
             (click)="onItemClick(item)"
           >
             <josanz-grid-list-card
@@ -120,5 +125,12 @@ export class AdaptiveListRowsComponent {
 
   onItemClick(item: JosanzAdaptiveListItem): void {
     this.itemClick.emit(item);
+  }
+
+  onItemKeydown(event: KeyboardEvent, item: JosanzAdaptiveListItem): void {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      this.onItemClick(item);
+    }
   }
 }

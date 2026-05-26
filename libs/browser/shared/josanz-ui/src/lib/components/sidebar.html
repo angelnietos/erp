@@ -99,7 +99,13 @@
       <span class="josanz-sidebar__label">Ajustes</span>
     </a>
 
-    <button type="button" title="Salir" class="josanz-sidebar__item josanz-sidebar__button" (click)="onLogoutClick()">
+    <button
+      type="button"
+      title="Salir"
+      aria-label="Salir"
+      class="josanz-sidebar__item josanz-sidebar__button"
+      (click)="onLogoutClick()"
+    >
       <span class="nav-icon-container" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
           <path d="M15 8a5 5 0 1 1 0 8" />
