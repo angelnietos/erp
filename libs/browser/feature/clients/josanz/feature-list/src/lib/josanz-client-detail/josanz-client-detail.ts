@@ -6,7 +6,9 @@ import {
   MainTemplateCardComponent,
   MainDetailLayoutComponent,
   DocumentItemComponent,
-  DocumentListComponent
+  DocumentListComponent,
+  EmptyStateComponent,
+  type JosanzEmptyStateIcon,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -18,7 +20,8 @@ import {
     MainTemplateCardComponent,
     MainDetailLayoutComponent,
     DocumentItemComponent,
-    DocumentListComponent
+    DocumentListComponent,
+    EmptyStateComponent,
   ],
   templateUrl: './josanz-client-detail.html',
 })
@@ -27,60 +30,43 @@ export class JosanzClientDetailComponent {
   @Output() modalClose = new EventEmitter<void>();
 
   activeTab = signal<string>('Datos cliente');
-  tabs = ['Datos cliente', 'Operadores', 'Presupuestos', 'Proveedores', 'Facturas', 'Productos/eventos', 'Informes / reportes'];
+  readonly tabs = ['Datos cliente', 'Operadores', 'Presupuestos', 'Proveedores', 'Facturas', 'Productos/eventos', 'Informes / reportes'];
 
+  // Empty state icons based on tab
+  getEmptyStateIcon(tab: string): JosanzEmptyStateIcon {
+    const icons: Partial<Record<string, JosanzEmptyStateIcon>> = {
+      Operadores: 'users',
+      Presupuestos: 'documents',
+      Proveedores: 'inbox',
+      Facturas: 'documents',
+      'Productos/eventos': 'search',
+      'Informes / reportes': 'calendar',
+    };
+    return icons[tab] ?? 'inbox';
+  }
 
   // Archivos para Presupuestos
-  presupuestosPropios = [
-    'Presupuesto01.pdf',
-    'Presupuesto02.pdf',
-    'Presupuesto03.pdf'
-  ];
-  presupuestosExternos = [
-    'Presupuesto01.pdf',
-    'Presupuesto02.pdf',
-    'Presupuesto03.pdf'
-  ];
+  presupuestosPropios: string[] = [];
+  presupuestosExternos: string[] = [];
 
   // Archivos para Facturas
-  facturas = [
-    'Factura01.pdf',
-    'Factura02.pdf',
-    'Factura03.pdf'
-  ];
+  facturas: string[] = [];
 
   // Datos para Eventos (Cards enriquecidas)
-  eventos = [
-    {
-      imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=186&h=186',
-      title: 'Evento: Nombre evento',
-      badgeText: 'Nuevo',
-      subtitle: 'dd/mm/aaaa',
-      description: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      tags: ['Cliente', 'Operadores', 'Materiales', 'Proveedores', 'Presupuestos', 'Albarán', 'Factura']
-    },
-    {
-      imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=186&h=186',
-      title: 'Evento: Nombre evento',
-      badgeText: 'Nuevo',
-      subtitle: 'dd/mm/aaaa',
-      description: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-      tags: ['Cliente', 'Operadores', 'Materiales', 'Proveedores', 'Presupuestos', 'Albarán', 'Factura']
-    }
-  ];
+  eventos: Array<{
+    imageUrl: string;
+    title: string;
+    badgeText: string;
+    subtitle: string;
+    description: string;
+    tags: string[];
+  }> = [];
 
   // Datos para Operadores
-  operadores = [
-    { name: 'Juan Pérez', role: 'Jefe de Equipo', status: 'Activo' },
-    { name: 'Ana Belén', role: 'Técnico Senior', status: 'Activo' },
-    { name: 'Carlos Ruiz', role: 'Instalador', status: 'Ausente' }
-  ];
+  operadores: Array<{ name: string; role: string; status: string }> = [];
 
-  // Datos para Proveedores (reemplazando Albaranes)
-  proveedores = [
-    { id: 'PROV-001', name: 'Suministros Industriales S.A.', status: 'Activo' },
-    { id: 'PROV-002', name: 'Mantenimiento Logístico', status: 'Inactivo' }
-  ];
+  // Datos para Proveedores
+  proveedores: Array<{ id: string; name: string; status: string }> = [];
 
   readonly generalInfoRows = [
     { label: 'Razón social', value: 'Construcciones S.A.' },

@@ -3,6 +3,7 @@
   [tabs]="tabs"
   [activeTab]="activeTab"
   saveLabel="Añadir"
+  [showFooterActions]="true"
   [saveDisabled]="form.invalid"
   (back)="onBack()"
   (save)="onSubmit()"
@@ -11,12 +12,12 @@
   <div class="josanz-client-create__body py-2 md:py-4">
     <article
       class="josanz-client-create__card rounded-2xl border border-solid p-6 md:p-8"
-      style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
+      style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-shadow);"
     >
       <div class="josanz-client-create__grid">
         <div class="josanz-client-create__brand" aria-hidden="true">
-          <span class="josanz-client-create__brand-initials">NB</span>
-          <span class="josanz-client-create__brand-name">NOVABYTE</span>
+          <span class="josanz-client-create__brand-initials" style="background: var(--josanz-primary); color: var(--josanz-on-primary);">NB</span>
+          <span class="josanz-client-create__brand-name" style="color: var(--josanz-text-muted);">NOVABYTE</span>
         </div>
 
         <form class="josanz-client-create__fields" [formGroup]="form" (ngSubmit)="onSubmit()">
@@ -44,7 +45,9 @@
           ></josanz-input>
 
           <div class="josanz-client-type-select">
-            <label class="josanz-client-type-select__label" for="tipo-cliente">Tipo de cliente</label>
+            <label class="josanz-client-type-select__label" for="tipo-cliente" style="color: var(--josanz-text-muted);">
+              Tipo de cliente
+            </label>
             <div class="josanz-client-type-select__trigger">
               <span class="josanz-client-type-chip" [ngStyle]="pillStyle(selectedTypePillKey())">
                 {{ selectedTypeLabel() }}
@@ -73,9 +76,11 @@
       </div>
     </article>
 
-    <section class="josanz-client-operadores" aria-label="Operadores">
-      <h3>Operadores</h3>
-      <josanz-secondary-button label="Añadir +" type="cancel"></josanz-secondary-button>
-    </section>
+    @if (false) {
+      <section class="josanz-client-operadores" aria-label="Operadores del cliente">
+        <h3 style="color: var(--josanz-text);">Operadores</h3>
+        <josanz-secondary-button label="Añadir operador" type="cancel" [showIcon]="false"></josanz-secondary-button>
+      </section>
+    }
   </div>
 </josanz-main-detail-layout>
