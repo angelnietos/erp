@@ -50,10 +50,14 @@ describe('JosanzDashboardInicioComponent', () => {
   it('should have days', () => {
     const fixture = TestBed.createComponent(JosanzDashboardInicioComponent);
     const component = fixture.componentInstance;
-    expect(component.days.length).toBe(3);
+    expect(component.days.length).toBe(7);
     expect(component.days).toContain('Lunes');
     expect(component.days).toContain('Martes');
     expect(component.days).toContain('Miércoles');
+    expect(component.days).toContain('Jueves');
+    expect(component.days).toContain('Viernes');
+    expect(component.days).toContain('Sábado');
+    expect(component.days).toContain('Domingo');
   });
 
   it('should find cell correctly', () => {

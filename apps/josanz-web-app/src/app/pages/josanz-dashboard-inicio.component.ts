@@ -52,7 +52,7 @@ export class JosanzDashboardInicioComponent {
     { id: 't5', initials: 'DV' },
   ];
 
-  readonly days = ['Lunes', 'Martes', 'Miércoles'];
+  readonly days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
   readonly sampleEvent: JosanzHomeEventCard = {
     title: 'Evento X',
