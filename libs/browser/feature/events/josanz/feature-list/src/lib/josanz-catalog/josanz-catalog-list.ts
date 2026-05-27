@@ -19,12 +19,16 @@ export interface JosanzCatalogListConfig {
   title: string;
   primaryBtnLabel: string;
   secondaryBtnLabel?: string;
+  idColumnLabel?: string;
+  rowLabels?: string[];
   statusColumnLabel: 'Estado' | 'Tipo';
   rows?: JosanzCatalogListRow[];
   addRoute?: string;
   detailRoute?: string;
   summaryLine?: string;
+  summaryStats?: { label: string; count: number }[];
   filterOptions?: string[];
+  statusFilterOptions?: string[];
 }
 
 @Component({
@@ -45,11 +49,11 @@ export class JosanzCatalogListComponent {
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
   searchQuery = '';
-  activeStatusFilter = 'Todos (80)';
+  activeStatusFilter = '';
 
-  readonly rowLabels = ['Nombre evento', 'Fecha', 'Cliente', 'Operador'];
+  readonly defaultRowLabels = ['Nombre evento', 'Fecha', 'Cliente', 'Operador'];
 
-  readonly summaryStats = [
+  readonly defaultSummaryStats = [
     { label: 'Borrador', count: 1 },
     { label: 'En presupuesto', count: 3 },
     { label: 'Confirmado', count: 12 },
@@ -59,7 +63,23 @@ export class JosanzCatalogListComponent {
     return this.config.filterOptions ?? JOSANZ_CATALOG_WAREHOUSE_TABS;
   }
 
-  readonly statusFilterOptions = JOSANZ_CATALOG_STATUS_FILTERS;
+  get statusFilterOptions(): string[] {
+    return this.config.statusFilterOptions ?? JOSANZ_CATALOG_STATUS_FILTERS;
+  }
+
+  get selectedStatusFilter(): string {
+    return this.statusFilterOptions.includes(this.activeStatusFilter)
+      ? this.activeStatusFilter
+      : (this.statusFilterOptions[0] ?? '');
+  }
+
+  get rowLabels(): string[] {
+    return this.config.rowLabels ?? this.defaultRowLabels;
+  }
+
+  get summaryStats(): { label: string; count: number }[] {
+    return this.config.summaryStats ?? this.defaultSummaryStats;
+  }
 
   get rows(): JosanzCatalogListRow[] {
     return this.config.rows ?? JOSANZ_CATALOG_EVENT_STATUS_ROWS;
@@ -69,7 +89,7 @@ export class JosanzCatalogListComponent {
     return this.filteredRows.map((row) => ({
       id: row.id,
       title: row.id,
-      data: [row.eventName, row.date, row.client, row.operator],
+      data: this.rowValues(row),
       labels: this.rowLabels,
       status: row.pillLabel,
       statusVariant: row.pillVariant,
@@ -84,10 +104,23 @@ export class JosanzCatalogListComponent {
     return this.rows.filter(
       (r) =>
         r.id.toLowerCase().includes(q) ||
-        r.eventName.toLowerCase().includes(q) ||
-        r.client.toLowerCase().includes(q) ||
-        r.operator.toLowerCase().includes(q),
+        this.rowValues(r).some((value) => value.toLowerCase().includes(q)) ||
+        r.pillLabel.toLowerCase().includes(q),
     );
+  }
+
+  rowValues(row: JosanzCatalogListRow): string[] {
+    return row.values ?? [row.eventName ?? '', row.date ?? '', row.client ?? '', row.operator ?? ''];
+  }
+
+  columnWidthClass(index: number): string {
+    if (index === 0) {
+      return 'josanz-list-template-row__field--w220';
+    }
+    if (index === 1 || index === 2) {
+      return 'josanz-list-template-row__field--w160';
+    }
+    return 'josanz-list-template-row__field--grow';
   }
 
   onAdd(): void {
@@ -117,7 +150,7 @@ export class JosanzCatalogListComponent {
     // TODO: exportar cuando exista API
   }
 
-  onTypologyFilter(_value: string): void {
+  onTypologyFilter(): void {
     // TODO: filtrar por almacén / tipología
   }
 }

@@ -2,10 +2,11 @@ import type { JosanzStatusPillVariant } from '@josanz-erp/josanz-ui';
 
 export interface JosanzCatalogListRow {
   id: string;
-  eventName: string;
-  date: string;
-  client: string;
-  operator: string;
+  eventName?: string;
+  date?: string;
+  client?: string;
+  operator?: string;
+  values?: string[];
   pillLabel: string;
   pillVariant: JosanzStatusPillVariant;
 }

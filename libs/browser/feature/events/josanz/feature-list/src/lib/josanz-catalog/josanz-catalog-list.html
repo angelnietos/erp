@@ -13,7 +13,7 @@
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
-  (filterChange)="onTypologyFilter($event)"
+  (filterChange)="onTypologyFilter()"
   (excelAction)="onExcel()"
 >
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
@@ -35,7 +35,7 @@
       <josanz-filter-tabs
         class="min-w-0 flex-1"
         [options]="statusFilterOptions"
-        [selected]="activeStatusFilter"
+        [selected]="selectedStatusFilter"
         (selectionChange)="onStatusFilter($event)"
       ></josanz-filter-tabs>
     </div>
@@ -45,16 +45,16 @@
     <div
       class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0"
     >
-      <div class="josanz-list-template-row__title truncate">ID</div>
+      <div class="josanz-list-template-row__title truncate">{{ config.idColumnLabel ?? 'ID' }}</div>
       <div class="josanz-list-template-row__fields">
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">
-          Nombre evento
-        </div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Fecha</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Cliente</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">
-          Operador
-        </div>
+        @for (label of rowLabels; track label; let i = $index) {
+          <div
+            class="josanz-list-template-row__field truncate"
+            [ngClass]="columnWidthClass(i)"
+          >
+            {{ label }}
+          </div>
+        }
       </div>
       <div class="josanz-list-template-row__status">
         <span class="truncate">{{ config.statusColumnLabel }}</span>
