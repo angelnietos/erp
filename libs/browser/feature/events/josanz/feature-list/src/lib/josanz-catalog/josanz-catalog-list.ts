@@ -114,13 +114,23 @@ export class JosanzCatalogListComponent {
   }
 
   columnWidthClass(index: number): string {
+    if (this.rowLabels.length === 3) {
+      if (index === 0) {
+        return 'josanz-list-template-row__field--w160';
+      }
+      if (index === 1) {
+        return 'josanz-list-template-row__field--w220';
+      }
+      return 'josanz-list-template-row__field--grow';
+    }
+
     if (index === 0) {
       return 'josanz-list-template-row__field--w220';
     }
-    if (index === 1 || index === 2) {
-      return 'josanz-list-template-row__field--w160';
+    if (index === this.rowLabels.length - 1) {
+      return 'josanz-list-template-row__field--grow';
     }
-    return 'josanz-list-template-row__field--grow';
+    return 'josanz-list-template-row__field--w160';
   }
 
   onAdd(): void {

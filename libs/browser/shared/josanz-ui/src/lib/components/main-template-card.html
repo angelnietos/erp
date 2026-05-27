@@ -59,11 +59,7 @@
       @for (item of data; track item; let i = $index) {
         <div
           class="josanz-list-template-row__field text-[12px] md:text-[13px] font-medium md:truncate"
-          [ngClass]="{
-            'josanz-list-template-row__field--w220': i === 0,
-            'josanz-list-template-row__field--w160': i === 1 || i === 2,
-            'josanz-list-template-row__field--grow': i === 3
-          }"
+          [ngClass]="fieldWidthClass(i)"
           [style.color]="'var(--josanz-text-muted)'"
         >
           @if (labels[i]) {

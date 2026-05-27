@@ -75,4 +75,24 @@ export class MainTemplateCardComponent {
       'letter-spacing': '0.05em',
     };
   }
+
+  fieldWidthClass(index: number): string {
+    if (this.data.length === 3) {
+      if (index === 0) {
+        return 'josanz-list-template-row__field--w160';
+      }
+      if (index === 1) {
+        return 'josanz-list-template-row__field--w220';
+      }
+      return 'josanz-list-template-row__field--grow';
+    }
+
+    if (index === 0) {
+      return 'josanz-list-template-row__field--w220';
+    }
+    if (index === this.data.length - 1) {
+      return 'josanz-list-template-row__field--grow';
+    }
+    return 'josanz-list-template-row__field--w160';
+  }
 }
