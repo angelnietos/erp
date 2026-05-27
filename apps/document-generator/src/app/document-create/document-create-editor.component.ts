@@ -80,24 +80,9 @@ interface DocumentType {
         background: linear-gradient(135deg, var(--brand), var(--brand-surface));
       }
 
-      /* Tarjeta seleccionada: fondo claro (gradiente) → texto siempre oscuro legible */
-      .selected-doc-type-light h3 {
-        color: #0f172a !important;
-      }
+      /* Tarjeta seleccionada: se apoya en variables de tema heredadas de forma natural */
 
-      .selected-doc-type-light p {
-        color: #334155 !important;
-      }
-
-      .selected-doc-type-light svg {
-        color: #475569 !important;
-      }
-
-      .selected-doc-type-light .check-icon {
-        color: #ffffff !important;
-      }
-
-      /* CTA principal: fondo claro + texto oscuro (contraste alto en cualquier tema) */
+      /* CTA principal: fondo de marca vibrante + texto blanco (contraste premium y garantizado en cualquier tema) */
       .footer-cta-primary {
         display: inline-flex;
         align-items: center;
@@ -108,43 +93,37 @@ interface DocumentType {
         border-radius: 0.75rem;
         font-weight: 600;
         font-size: 0.875rem;
-        line-height: 1.35;
-        color: #0f172a !important;
-        border: 1px solid rgba(15, 23, 42, 0.12);
+        line-height: 1.3;
+        color: #ffffff !important;
+        border: none;
         cursor: pointer;
         background: linear-gradient(
-          145deg,
-          #ffe4e6 0%,
-          #fecdd3 40%,
-          #fda4af 100%
+          135deg,
+          var(--brand) 0%,
+          color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
         );
-        box-shadow:
-          0 4px 14px rgba(244, 63, 94, 0.25),
-          inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand) 38%, transparent);
         transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
       }
 
       .footer-cta-primary:hover:not(:disabled) {
-        filter: brightness(1.02);
+        filter: brightness(1.06);
         transform: translateY(-1px);
-        box-shadow:
-          0 8px 22px rgba(244, 63, 94, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.95);
       }
 
       .footer-cta-primary:disabled {
         opacity: 0.55;
         cursor: not-allowed;
         transform: none;
-        filter: grayscale(0.15);
         box-shadow: none;
       }
 
       .footer-cta-primary svg {
-        color: #0f172a !important;
-        stroke: #0f172a !important;
+        color: #ffffff !important;
+        stroke: #ffffff !important;
       }
 
+      /* Guardar borrador: botón secundario adaptativo */
       .footer-save-draft {
         display: inline-flex;
         align-items: center;
@@ -156,21 +135,21 @@ interface DocumentType {
         font-weight: 600;
         font-size: 0.875rem;
         line-height: 1.3;
-        color: #0f172a !important;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+        color: var(--text-primary) !important;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-sm);
         cursor: pointer;
         transition:
-          background 0.15s ease,
-          border-color 0.15s ease,
-          box-shadow 0.15s ease;
+          background var(--transition-fast),
+          border-color var(--transition-fast),
+          box-shadow var(--transition-fast);
       }
 
       .footer-save-draft:hover:not(:disabled) {
-        background: #f8fafc;
-        border-color: #94a3b8;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+        background: var(--surface-hover);
+        border-color: var(--border-vibrant);
+        box-shadow: var(--shadow-md);
       }
 
       .footer-save-draft:disabled {
@@ -179,7 +158,7 @@ interface DocumentType {
       }
 
       .action-bar-panel {
-        box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65);
+        box-shadow: none;
       }
     `,
   ],
@@ -304,7 +283,7 @@ interface DocumentType {
                 <div class="space-y-2">
                   <label
                     for="title"
-                    class="block text-sm font-medium text-slate-700"
+                    class="block text-sm font-medium text-secondary"
                     >Título del Documento</label
                   >
                   <input
@@ -317,7 +296,7 @@ interface DocumentType {
                 </div>
 
                 <div
-                  class="rounded-2xl border border-violet-200/90 dark:border-violet-800/60 bg-gradient-to-br from-violet-50/90 via-white to-slate-50/80 dark:from-violet-950/40 dark:via-slate-950 dark:to-slate-900 p-6 space-y-4 shadow-md shadow-slate-900/5 ring-1 ring-violet-100/70 dark:ring-violet-900/40"
+                  class="rounded-2xl border border-violet-200/90 dark:border-violet-800/60 bg-gradient-to-br from-violet-50/90 via-white to-slate-50/80 dark:from-violet-950/40 dark:via-slate-900 dark:to-slate-950 p-6 space-y-4 shadow-md shadow-slate-900/5 ring-1 ring-violet-100/70 dark:ring-violet-900/40"
                 >
                   <div class="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -361,7 +340,7 @@ interface DocumentType {
                   <div class="space-y-2">
                     <label
                       for="aiBrief"
-                      class="block text-sm font-medium text-slate-700"
+                      class="block text-sm font-medium text-secondary"
                       >Consigna para generar borrador</label
                     >
                     <textarea
@@ -411,7 +390,7 @@ interface DocumentType {
                   <div class="border-t border-violet-200/70 dark:border-violet-900/40 pt-4 space-y-2">
                     <label
                       for="aiInstruction"
-                      class="block text-sm font-medium text-slate-700"
+                      class="block text-sm font-medium text-secondary"
                       >Reformular el documento actual</label
                     >
                     <textarea
@@ -426,7 +405,7 @@ interface DocumentType {
                       type="button"
                       (click)="transformWithAi()"
                       [disabled]="isGenerating || isAiGenerating"
-                      class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-doc-ink hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       Aplicar instrucción al texto
                     </button>
@@ -438,7 +417,7 @@ interface DocumentType {
                     <div class="space-y-2">
                       <label
                         for="projectName"
-                        class="block text-sm font-medium text-slate-700"
+                        class="block text-sm font-medium text-secondary"
                         >Proyecto</label
                       >
                       <input
@@ -452,7 +431,7 @@ interface DocumentType {
                     <div class="space-y-2">
                       <label
                         for="totalAmount"
-                        class="block text-sm font-medium text-slate-700"
+                        class="block text-sm font-medium text-secondary"
                         >Monto Total (€)</label
                       >
                       <input
@@ -469,7 +448,7 @@ interface DocumentType {
 
                 <!-- Plantillas Rápidas -->
                 <div class="space-y-3">
-                  <div class="block text-sm font-medium text-slate-700">
+                  <div class="block text-sm font-medium text-secondary">
                     Plantillas predefinidas para {{ selectedType.name }}
                   </div>
                   <div
@@ -613,7 +592,7 @@ interface DocumentType {
                   <div class="flex items-center justify-between">
                     <label
                       for="content"
-                      class="block text-sm font-medium text-slate-700"
+                      class="block text-sm font-medium text-secondary"
                     >
                       Contenido Universal (Markdown, Texto, HTML)
                     </label>
@@ -674,7 +653,7 @@ interface DocumentType {
                     <div class="space-y-2">
                       <label
                         for="architectureDiagram"
-                        class="block text-sm font-medium text-slate-700"
+                        class="block text-sm font-medium text-secondary"
                         >Diagrama de Arquitectura (Mermaid)</label
                       >
                       <textarea
@@ -693,7 +672,7 @@ interface DocumentType {
                 <button
                   type="button"
                   (click)="goBack()"
-                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-surface text-doc-ink hover:bg-slate-50 hover:border-slate-400 transition-colors shadow-sm"
+                  class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                 >
                   <svg
                     class="w-4 h-4 shrink-0"
@@ -712,14 +691,14 @@ interface DocumentType {
                 </button>
 
                 <div
-                  class="rounded-2xl border border-soft bg-[#f1f5f9] p-4 sm:p-5 action-bar-panel"
+                  class="rounded-2xl border border-soft bg-surface p-4 sm:p-5"
                 >
                   <div
                     class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
                   >
                     <div class="min-w-0 space-y-3">
                       <p
-                        class="text-xs font-semibold uppercase tracking-wider text-doc-muted-on-light"
+                        class="text-xs font-semibold uppercase tracking-wider text-secondary"
                       >
                         Importar y exportar
                       </p>
@@ -741,35 +720,35 @@ interface DocumentType {
                         <button
                           type="button"
                           (click)="exportDocument('markdown')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
                           📑 MD
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('pdf')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
                           📄 PDF
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('xlsx')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
                           📊 Excel
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('html')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
                           🌐 HTML
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('txt')"
-                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-slate-200 bg-white text-doc-ink shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                          class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
                           📃 TXT
                         </button>
@@ -782,7 +761,7 @@ interface DocumentType {
                       <button
                         type="button"
                         (click)="openFloatingAssistant()"
-                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
+                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                       >
                         <svg
                           class="w-4 h-4 shrink-0 text-slate-600"
@@ -841,7 +820,7 @@ interface DocumentType {
                       </button>
                       <a
                         routerLink="/documents/analysis"
-                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-slate-300 bg-white text-doc-ink hover:bg-slate-50 transition-colors shadow-sm"
+                        class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                       >
                         <svg
                           class="w-4 h-4 shrink-0 text-emerald-600"

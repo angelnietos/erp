@@ -49,22 +49,7 @@ interface DocumentType {
         background: linear-gradient(135deg, var(--brand), var(--brand-surface));
       }
 
-      /* Tarjeta seleccionada: fondo claro (gradiente) → texto siempre oscuro legible */
-      .selected-doc-type-light h3 {
-        color: #0f172a !important;
-      }
-
-      .selected-doc-type-light p {
-        color: #334155 !important;
-      }
-
-      .selected-doc-type-light svg {
-        color: #475569 !important;
-      }
-
-      .selected-doc-type-light .check-icon {
-        color: #ffffff !important;
-      }
+      /* Tarjeta seleccionada: se apoya en variables de tema heredadas de forma natural */
 
       /* Barra inferior: CTA siempre legible sobre gradiente / tema */
       .footer-cta-primary {
@@ -208,7 +193,6 @@ interface DocumentType {
                 selectedType?.id === type.id ? 'true' : null
               "
               class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
-              [class.selected-doc-type-light]="selectedType?.id === type.id"
               [class.border-blue-500]="selectedType?.id === type.id"
               [class.bg-gradient-to-br]="selectedType?.id === type.id"
               [class.from-blue-50]="selectedType?.id === type.id"

@@ -192,17 +192,14 @@ svg:not([width]):not([height]) {
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background-color: var(--bg-primary) !important;
+  background-color: var(--bg-primary);
   min-height: 100vh;
   margin: 0;
   padding: 0;
 }
 
-/* No forzar --text-primary sobre bloques de lectura/chat con papel claro */
-body
-  *:not(.markdown-preview):not(.markdown-preview *):not(.doc-chat-bubble-bot):not(
-    .doc-chat-bubble-bot *
-  ) {
+/* Color de texto base heredable */
+body {
   color: var(--text-primary);
 }
 
@@ -229,21 +226,21 @@ body
 input,
 textarea,
 select {
-  color: var(--text-primary) !important;
-  background-color: var(--bg-secondary) !important;
-  border-color: var(--border-soft) !important;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  border-color: var(--border-soft);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 /* Better contrast for buttons and interactive elements */
 button,
 .btn {
-  color: var(--text-primary) !important;
-  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
 }
 
 /* Selector de temas: colores vienen del propio componente (no forzar tokens globales) */
@@ -251,8 +248,8 @@ app-theme-selector .theme-fab,
 app-theme-selector .theme-card,
 app-theme-selector .theme-close,
 app-theme-selector .variant-btn {
-  color: revert-layer !important;
-  background-color: revert-layer !important;
+  color: inherit;
+  background-color: inherit;
 }
 
 /* Ensure links have good contrast */

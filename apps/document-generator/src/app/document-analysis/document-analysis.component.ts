@@ -138,18 +138,18 @@ type AnalysisResult = DocumentAnalysisCheckResult;
         </h2>
         <div class="grid gap-4 md:grid-cols-2 md:gap-6">
           <div class="space-y-2">
-            <label class="block text-sm font-medium text-doc-ink" for="doc-select"
+            <label class="block text-sm font-medium text-primary" for="doc-select"
               >Historial en este navegador</label
             >
             <select
               id="doc-select"
-              class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-doc-ink focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary focus:ring-2 focus:ring-brand focus:outline-none"
               [value]="selectedDocId"
               (change)="onSelectSavedDocument($any($event.target).value)"
             >
-              <option value="">— Selecciona un documento guardado —</option>
+              <option value="" class="bg-secondary text-primary">— Selecciona un documento guardado —</option>
               @for (d of savedDocuments; track d.id) {
-                <option [value]="d.id">
+                <option [value]="d.id" class="bg-secondary text-primary">
                   {{ d.title || 'Sin título' }} · {{ getTypeLabel(d.type) }}
                   @if (d.isDraft) {
                     (borrador)
@@ -158,11 +158,11 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               }
             </select>
             @if (savedDocuments.length === 0 && !listLoadError) {
-              <p class="text-sm text-doc-muted-on-light">
+              <p class="text-sm text-secondary">
                 No hay documentos guardados.
                 <a
                   routerLink="/documents/create"
-                  class="text-blue-600 hover:underline font-medium"
+                  class="text-brand hover:underline font-medium"
                   >Crear uno</a
                 >
                 y usa «Guardar borrador» o genera el PDF para que aparezca en el
@@ -177,23 +177,23 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             class="rounded-xl border border-soft bg-slate-50/80 dark:bg-slate-900/30 p-4 text-sm"
           >
             @if (selectedSummary) {
-              <p class="font-medium text-doc-ink">{{ selectedSummary.title }}</p>
-              <p class="text-doc-muted-on-light mt-1">
+              <p class="font-medium text-primary">{{ selectedSummary.title }}</p>
+              <p class="text-secondary mt-1">
                 {{ selectedSummary.client }} ·
                 {{ selectedSummary.date | date: 'medium' }}
               </p>
             } @else {
-              <p class="text-doc-muted-on-light">
+              <p class="text-secondary">
                 Elige un documento o usa el área de texto abajo.
               </p>
             }
-            <p class="mt-3 text-doc-ink">
+            <p class="mt-3 text-primary">
               <span class="font-semibold">{{ effectiveTextLength }}</span>
               caracteres en el texto de análisis
             </p>
             <a
               routerLink="/documents/settings/ai"
-              class="inline-block mt-2 text-blue-600 hover:underline text-sm"
+              class="inline-block mt-2 text-brand hover:underline text-sm"
               >Configuración IA</a
             >
           </div>
@@ -201,7 +201,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
 
         <details class="mt-6 group">
           <summary
-            class="cursor-pointer text-sm font-medium text-blue-700 hover:text-blue-800 list-none flex items-center gap-2"
+            class="cursor-pointer text-sm font-medium text-primary hover:text-brand list-none flex items-center gap-2"
           >
             <span
               class="inline-block transition-transform group-open:rotate-90"
@@ -210,7 +210,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             >
             Pegar o editar texto manualmente (opcional)
           </summary>
-          <p class="text-xs text-doc-muted-on-light mt-2 mb-2">
+          <p class="text-xs text-secondary mt-2 mb-2">
             Si rellenas esto, tendrá prioridad sobre el documento cargado del
             historial.
           </p>
@@ -219,7 +219,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             (ngModelChange)="onManualTextChange()"
             rows="8"
             placeholder="Pega aquí Markdown o texto de la propuesta…"
-            class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-doc-ink font-mono text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary font-mono text-sm focus:ring-2 focus:ring-brand focus:outline-none"
           ></textarea>
         </details>
 
@@ -276,7 +276,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @for (category of getCategories(); track category) {
                   <div class="border border-soft rounded-xl p-4">
-                    <h3 class="font-semibold text-slate-800 mb-3">
+                    <h3 class="font-semibold text-primary mb-3">
                       {{ category }}
                     </h3>
                     <div class="space-y-2">
@@ -285,22 +285,22 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                         track check.id
                       ) {
                         <label
-                          class="flex items-start space-x-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer"
+                          class="flex items-start space-x-3 p-2 rounded-lg hover:bg-surface-hover cursor-pointer"
                         >
                           <input
                             type="checkbox"
                             [checked]="check.enabled"
                             (change)="toggleCheck(check.id)"
-                            class="mt-1 w-4 h-4 text-blue-600 rounded"
+                            class="mt-1 w-4 h-4 text-brand rounded"
                           />
                           <div class="flex-1">
                             <div class="flex items-center">
                               <span class="mr-2">{{ check.icon }}</span>
-                              <span class="font-medium text-slate-800">{{
+                              <span class="font-medium text-primary">{{
                                 check.name
                               }}</span>
                             </div>
-                            <p class="text-sm text-doc-muted-on-light">
+                            <p class="text-sm text-secondary">
                               {{ check.description }}
                             </p>
                           </div>
@@ -399,12 +399,12 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   <div class="text-sm text-red-600">Errores</div>
                 </div>
                 <div
-                  class="bg-slate-50 rounded-xl p-4 text-center border border-slate-200"
+                  class="bg-secondary rounded-xl p-4 text-center border border-soft"
                 >
-                  <div class="text-2xl font-bold text-doc-ink">
+                  <div class="text-2xl font-bold text-primary">
                     {{ pendingCount }}
                   </div>
-                  <div class="text-sm text-doc-muted-on-light">Pendientes</div>
+                  <div class="text-sm text-secondary">Pendientes</div>
                 </div>
               </div>
 
@@ -422,19 +422,19 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                         >
                           {{ result.status.toUpperCase() }}
                         </span>
-                        <span class="font-medium text-doc-ink">{{
+                        <span class="font-medium text-primary">{{
                           getCheckName(result.checkId)
                         }}</span>
                       </div>
                     </div>
-                    <p class="mt-2 text-doc-muted-on-light">{{ result.message }}</p>
+                    <p class="mt-2 text-secondary">{{ result.message }}</p>
 
                     @if (result.suggestions.length > 0) {
-                      <div class="mt-3 pl-4 border-l-2 border-blue-300">
-                        <p class="text-sm font-medium text-blue-700 mb-2">
+                      <div class="mt-3 pl-4 border-l-2 border-brand">
+                        <p class="text-sm font-semibold text-primary mb-2">
                           💡 Sugerencias:
                         </p>
-                        <ul class="text-sm text-doc-muted-on-light space-y-1">
+                        <ul class="text-sm text-secondary space-y-1">
                           @for (
                             suggestion of result.suggestions;
                             track $index + ':' + suggestion
@@ -493,7 +493,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                 role="log"
                 aria-label="Conversación con el asistente de análisis"
                 aria-live="polite"
-                class="space-y-4 h-96 overflow-y-auto p-4 bg-slate-50 rounded-xl"
+                class="space-y-4 h-96 overflow-y-auto p-4 bg-secondary border border-soft rounded-xl"
               >
                 @for (msg of chatMessages; track msg.id) {
                   <div
@@ -515,7 +515,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   </div>
                 }
                 @if (isChatSending) {
-                  <p class="text-sm text-doc-muted-on-light px-1" role="status">
+                  <p class="text-sm text-secondary px-1" role="status">
                     Generando respuesta con IA…
                   </p>
                 }
@@ -530,7 +530,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                     'Escribe tu pregunta al asistente de análisis de propuestas'
                   "
                   placeholder="Pregunta al asistente sobre tu propuesta..."
-                  class="flex-1 px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  class="flex-1 px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand bg-secondary text-primary"
                 />
                 <button
                   type="button"
@@ -565,7 +565,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                       type="button"
                       (click)="executeQuickAction(quickAction)"
                       [disabled]="isChatSending || effectiveTextLength === 0"
-                      class="px-4 py-2 bg-slate-100 hover:bg-blue-100 hover:text-blue-700 rounded-lg text-sm transition-colors disabled:opacity-50"
+                      class="px-4 py-2 border border-soft bg-secondary text-primary hover:bg-surface-hover rounded-lg text-sm transition-colors disabled:opacity-50"
                     >
                       {{ quickAction }}
                     </button>
