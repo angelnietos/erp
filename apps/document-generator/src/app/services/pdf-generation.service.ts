@@ -158,14 +158,9 @@ export class PdfGenerationService {
             box-sizing: border-box;
           }
           body {
-            font-family:
-              'Segoe UI',
-              system-ui,
-              -apple-system,
-              'Helvetica Neue',
-              sans-serif;
-            line-height: 1.62;
-            color: #1e293b;
+            font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            line-height: 1.68;
+            color: #0f172a;
             font-size: 11.5pt;
             letter-spacing: 0.01em;
           }

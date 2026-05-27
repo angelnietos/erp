@@ -326,6 +326,235 @@ a svg,
   color: #1e293b;
 }
 
+/* Editor tab styling - modern design */
+.editor-tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 1rem;
+  background: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: var(--radius-lg);
+}
+
+.editor-tab-button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: calc(var(--radius-lg) - 4px);
+  transition: all var(--transition-fast);
+}
+
+.editor-tab-button.active {
+  background: var(--surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.editor-tab-button:hover:not(.active) {
+  background: color-mix(in srgb, var(--bg-secondary) 50%, transparent);
+}
+
+/* Modern editor container */
+.editor-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  height: 70vh;
+}
+
+@media (max-width: 1024px) {
+  .editor-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+.editor-panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.editor-panel-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.editor-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.fullscreen .editor-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: var(--bg-primary);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.fullscreen-editor,
+.fullscreen-preview {
+  position: relative;
+}
+
+.fullscreen-editor textarea,
+.fullscreen-preview .markdown-preview {
+  min-height: calc(100vh - 8rem) !important;
+  height: auto !important;
+}
+
+.fullscreen-hidden {
+  display: none;
+}
+
+/* Enhanced markdown preview for better visual */
+.markdown-preview h1 {
+  font-size: 1.875rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  color: #0f172a;
+  position: relative;
+}
+
+.markdown-preview h1::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+}
+
+.markdown-preview h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.75rem 0;
+  color: #1e293b;
+}
+
+.markdown-preview h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  color: #334155;
+}
+
+.markdown-preview p {
+  margin: 0.75rem 0;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.markdown-preview li {
+  margin: 0.375rem 0;
+}
+
+.markdown-preview blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #3b82f6;
+  background-color: #eff6ff;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #1e40af;
+}
+
+.markdown-preview code {
+  background-color: #f1f5f9;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.markdown-preview pre {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #0f172a;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.markdown-preview pre code {
+  background-color: transparent;
+  color: #e2e8f0;
+  padding: 0;
+}
+
+.markdown-preview strong {
+  font-weight: 700;
+}
+
+.markdown-preview em {
+  font-style: italic;
+}
+
+.markdown-preview hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+}
+
+.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.markdown-preview th,
+.markdown-preview td {
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.markdown-preview th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.markdown-preview td {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.markdown-preview a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.markdown-preview a:hover {
+  color: #1d4ed8;
+}
+
 .markdown-preview h1 {
   font-size: 1.875rem;
   font-weight: 800;

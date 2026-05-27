@@ -12,12 +12,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, debounceTime, interval } from 'rxjs';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import {
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { AssistantContextService } from '../services/assistant-context.service';
@@ -163,7 +158,7 @@ interface DocumentType {
   ],
   selector: 'app-document-create-editor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="space-y-8">
       <nav
@@ -587,65 +582,108 @@ interface DocumentType {
                   </div>
                 </div>
 
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <label
-                      for="content"
-                      class="block text-sm font-medium text-secondary"
-                    >
-                      Contenido Universal (Markdown, Texto, HTML)
-                    </label>
-                    <div class="flex items-center gap-2 text-xs text-muted">
-                      <span class="px-2 py-1 bg-slate-100 rounded"
-                        >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
+<div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <label
+                        for="content"
+                        class="block text-sm font-medium text-secondary"
+                        >Contenido Universal (Markdown, Texto, HTML)</label
                       >
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    <!-- Editor Markdown -->
-                    <div class="space-y-2">
-                      <div
-                        class="text-xs font-medium text-muted flex justify-between"
-                      >
-                        <span>Editor</span>
-                        <button
-                          type="button"
-                          (click)="toggleFullscreen()"
-                          class="hover:text-blue-600"
+                      <div class="flex items-center gap-2 text-xs text-muted">
+                        <span class="px-2 py-1 bg-slate-100 rounded"
+                          >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
                         >
-                          {{
-                            fullscreenMode
-                              ? 'Salir pantalla completa'
-                              : 'Pantalla completa'
-                          }}
-                        </button>
                       </div>
-                      <textarea
-                        #editor
-                        formControlName="content"
-                        [placeholder]="getContentPlaceholder()"
-                        rows="18"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
-                        (input)="updatePreview()"
-                        (keydown)="handleKeydown($event)"
-                        [class.h-screen]="fullscreenMode"
-                      ></textarea>
                     </div>
-
-                    <!-- Vista Previa Live -->
+ 
+                    <!-- Custom CSS Input -->
                     <div class="space-y-2">
-                      <div class="text-xs font-medium text-muted">
-                        Vista Previa
+                      <label
+                        for="customCss"
+                        class="block text-sm font-medium text-secondary flex items-center gap-2"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h14a2 2 0 002-2v-7a2 2 0 00-2-2h-5l-2-2-2 2H7a2 2 0 00-2 2v7a2 2 0 002 2z"></path>
+                        </svg>
+                        Estilos CSS personalizados (opcional)
+                      </label>
+                      <textarea
+                        id="customCss"
+                        [(ngModel)]="customCss"
+                        rows="2"
+                        placeholder=".markdown-preview { font-family: 'Georgia', serif; --brand: #custom; }"
+                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
+                        (input)="applyCustomCss()"
+                      ></textarea>
+                      <p class="text-xs text-muted">Aplica estilos CSS personalizados al preview del documento</p>
+                    </div>
+ 
+<div [class.fullscreen]="fullscreenMode" class="space-y-3">
+                       @if (fullscreenMode) {
+                         <div class="editor-tabs">
+                           <button
+                             type="button"
+                             class="editor-tab-button"
+                             [class.active]="fullscreenTab === 'editor'"
+                             (click)="fullscreenTab = 'editor'"
+                           >
+                             Editor
+                           </button>
+                           <button
+                             type="button"
+                             class="editor-tab-button"
+                             [class.active]="fullscreenTab === 'preview'"
+                             (click)="fullscreenTab = 'preview'"
+                           >
+                             Vista Previa
+                           </button>
+                         </div>
+                       }
+ 
+                      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" [class.fullscreen-hidden]="fullscreenMode && fullscreenTab !== 'editor'">
+                        <!-- Editor Markdown -->
+                        <div class="space-y-2" [class.fullscreen-editor]="fullscreenMode && fullscreenTab === 'editor'">
+                          <div
+                            class="text-xs font-medium text-muted flex justify-between"
+                          >
+                            <span>Editor Markdown</span>
+                            <button
+                              type="button"
+                              (click)="toggleFullscreen()"
+                              class="hover:text-brand transition-colors"
+                            >
+                              {{ fullscreenMode ? 'Salir pantalla completa' : 'Pantalla completa' }}
+                            </button>
+                          </div>
+                          <textarea
+                            #editor
+                            formControlName="content"
+                            [placeholder]="getContentPlaceholder()"
+                            rows="18"
+                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
+                            (input)="updatePreview()"
+                            (keydown)="handleKeydown($event)"
+                          ></textarea>
+                        </div>
+ 
+                        <!-- Vista Previa Live -->
+                        <div class="space-y-2" [class.fullscreen-preview]="fullscreenMode && fullscreenTab === 'preview'">
+                          <div class="text-xs font-medium text-muted flex items-center">
+                            Vista Previa
+                            @if (fullscreenMode) {
+                              <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">
+                                {{ wordCount }} palabras • {{ characterCount }} caracteres
+                              </span>
+                            }
+                          </div>
+                          <div
+                            class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]"
+                            [innerHTML]="previewHtml"
+                          ></div>
+                        </div>
                       </div>
-                      <div
-                        class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]"
-                        [innerHTML]="previewHtml"
-                        [class.h-screen]="fullscreenMode"
-                      ></div>
                     </div>
                   </div>
-                </div>
 
                 @if (selectedType.id === 'architecture') {
                   <div class="space-y-4">
@@ -928,6 +966,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   /** Feedback breve tras copiar Markdown al portapapeles. */
   copyMarkdownFeedback = false;
   fullscreenMode = false;
+  fullscreenTab: 'editor' | 'preview' = 'editor';
+  customCss = '';
 
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
@@ -1443,6 +1483,23 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   toggleFullscreen() {
     this.fullscreenMode = !this.fullscreenMode;
+    if (this.fullscreenMode) {
+      this.fullscreenTab = 'editor';
+    }
+  }
+ 
+  applyCustomCss(): void {
+    if (!this.customCss.trim()) return;
+    const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
+    styleEl.textContent = this.customCss;
+  }
+ 
+  private createCustomStyleEl(): HTMLStyleElement {
+    const el = document.createElement('style');
+    el.id = 'custom-editor-css';
+    el.setAttribute('data-custom-css', 'true');
+    document.head.appendChild(el);
+    return el;
   }
 
   async exportDocument(format: string) {
