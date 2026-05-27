@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { DocumentPersistenceService } from '../services/document-persistence.service';
+import { PdfGenerationService } from '../services/pdf-generation.service';
 import mermaid from 'mermaid';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
 
@@ -40,6 +41,8 @@ interface DocumentPreviewPayload {
   technologies?: string;
   apis?: string;
   deployment?: string;
+  customCss?: string;
+  pdfBytes?: number[];
 }
 
 @Component({
@@ -190,6 +193,18 @@ interface DocumentPreviewPayload {
 
           <!-- Contenido del documento -->
           <div class="prose max-w-none">
+            @if (documentContentHtml) {
+              <section class="space-y-3">
+                <h3 class="text-lg font-medium text-primary">
+                  Contenido del Documento
+                </h3>
+                <div
+                  class="document-preview-render markdown-preview rounded-2xl border border-soft bg-[#f8fafc] px-6 py-5 shadow-inner"
+                  [innerHTML]="documentContentHtml"
+                ></div>
+              </section>
+            }
+
             <!-- Presupuesto -->
             <div *ngIf="document?.type === 'quote'" class="space-y-6">
               <div>
@@ -320,7 +335,7 @@ interface DocumentPreviewPayload {
             </div>
 
             <!-- Documentación Técnica -->
-            <div *ngIf="document?.type === 'documentation'" class="space-y-6">
+            <div *ngIf="document?.type === 'documentation' && !documentContentHtml" class="space-y-6">
               <div>
                 <h3 class="text-lg font-medium text-primary mb-3">
                   Contenido del Documento
@@ -470,6 +485,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly persistence = inject(DocumentPersistenceService);
+  private readonly pdfService = inject(PdfGenerationService);
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.params['id'];
@@ -478,6 +494,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
       const payload = await this.persistence.getPayload(id);
       if (payload) {
         this.document = payload;
+        this.applyDocumentCss();
         return;
       }
     } catch {
@@ -490,6 +507,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     if (legacy) {
       try {
         this.document = JSON.parse(legacy);
+        this.applyDocumentCss();
         return;
       } catch {
         /* corrupto */
@@ -506,6 +524,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
       description: 'Descripción del presupuesto...',
       content: '<p>Contenido del documento...</p>',
     };
+    this.applyDocumentCss();
   }
 
   /** Markdown guardado → HTML para vista previa (GFM: tablas, listas, etc.). */
@@ -526,6 +545,22 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
       return marked.parse(raw, { gfm: true, breaks: true });
     } catch {
       return '';
+    }
+  }
+
+  get documentContentHtml(): string {
+    const raw = this.document?.content;
+    if (typeof raw !== 'string' || !raw.trim()) {
+      return '';
+    }
+    if (/<[a-z][\s\S]*>/i.test(raw.trim())) {
+      return raw;
+    }
+    try {
+      marked.setOptions?.({ gfm: true, breaks: true });
+      return marked.parse(raw, { gfm: true, breaks: true });
+    } catch {
+      return raw;
     }
   }
 
@@ -620,9 +655,30 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     }
   }
 
-  downloadDocument() {
+  async downloadDocument(): Promise<void> {
     const d = this.document;
     if (!d?.id) return;
+    if (Array.isArray(d.pdfBytes) && d.pdfBytes.length > 0) {
+      const blob = new Blob([new Uint8Array(d.pdfBytes)], {
+        type: 'application/pdf',
+      });
+      this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
+      return;
+    }
+
+    if (typeof d.content === 'string' && d.content.trim()) {
+      const blob = await this.pdfService.generateMarkdownPdf({
+        content: d.content,
+        title: d.title || 'Documento',
+        date: d.date ? String(d.date) : undefined,
+        client: d.client,
+        subtitle: d.client,
+        customCss: d.customCss,
+      });
+      this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
+      return;
+    }
+
     void this.router.navigate(['/documents/preview-download', d.id], {
       state: { document: d },
     });
@@ -630,5 +686,29 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
 
   goBack() {
     this.router.navigate(['/documents/list']);
+  }
+
+  private applyDocumentCss(): void {
+    const styleEl =
+      document.getElementById('document-preview-custom-css') ??
+      this.createPreviewStyleEl();
+    styleEl.textContent = this.document?.customCss ?? '';
+  }
+
+  private createPreviewStyleEl(): HTMLStyleElement {
+    const el = document.createElement('style');
+    el.id = 'document-preview-custom-css';
+    el.setAttribute('data-document-preview-css', 'true');
+    document.head.appendChild(el);
+    return el;
+  }
+
+  private downloadBlob(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename.replace(/[\\/:*?"<>|]+/g, '-');
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
