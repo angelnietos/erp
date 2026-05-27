@@ -144,6 +144,37 @@ Tras guardar, **Redeploy**. El log debe mostrar `pnpm install --frozen-lockfile`
 
 > El `Dockerfile` de la raíz del repo también usa pnpm (fallback), pero backend y Storybook **deben** tener su propio config file path; no uses el de la raíz para todos los servicios.
 
+## Error `host not found in upstream "backend"`
+
+Si el front falla al arrancar con:
+
+```txt
+host not found in upstream "backend"
+```
+
+significa que `BACKEND_PROXY_URL` está usando `http://backend:3000`, pero Railway no ha creado un DNS llamado exactamente `backend`.
+
+En Railway → servicio `josanz-web-app` → **Variables**, configura:
+
+```env
+BACKEND_PROXY_URL=http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:3000
+NGINX_RESOLVER=127.0.0.11
+```
+
+Sustituye `backend` por el nombre exacto del servicio backend en Railway si se llama distinto, por ejemplo:
+
+```env
+BACKEND_PROXY_URL=http://${{josanz-backend.RAILWAY_PRIVATE_DOMAIN}}:3000
+```
+
+También puedes usar temporalmente la URL pública del backend:
+
+```env
+BACKEND_PROXY_URL=https://<backend-publico>.up.railway.app
+```
+
+No pongas barra final en `BACKEND_PROXY_URL`.
+
 ## Checklist rápido
 
 - [ ] 3 servicios creados en un proyecto Railway
