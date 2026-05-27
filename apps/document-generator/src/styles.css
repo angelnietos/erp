@@ -392,15 +392,17 @@ a svg,
 .document-css-panel {
   display: grid;
   gap: 0.5rem;
-  padding: 0.875rem;
+  padding: 1rem;
   border: 1px dashed color-mix(in srgb, var(--border-vibrant) 75%, transparent);
   border-radius: 1rem;
   background: color-mix(in srgb, var(--bg-tertiary) 62%, transparent);
 }
 
 .document-css-panel__textarea {
-  min-height: 4.5rem;
-  max-height: 12rem;
+  min-height: 13rem;
+  max-height: 28rem;
+  line-height: 1.6;
+  tab-size: 2;
 }
 
 .editor-container {

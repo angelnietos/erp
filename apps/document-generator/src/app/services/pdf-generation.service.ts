@@ -32,6 +32,7 @@ interface DocumentData {
   timeline?: string;
   pricing?: string;
   terms?: string;
+  customCss?: string;
 }
 
 @Injectable({
@@ -381,6 +382,7 @@ export class PdfGenerationService {
             border-radius: 2px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
+          ${data.customCss ?? ''}
         </style>
       </head>
       <body>
@@ -393,7 +395,7 @@ export class PdfGenerationService {
           </div>
         </div>
 
-        <div class="pdf-body-content">
+        <div class="pdf-body-content markdown-preview">
         ${htmlContent}
         </div>
 
@@ -819,6 +821,7 @@ export class PdfGenerationService {
             border-radius: 2px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
+          ${data.customCss ?? ''}
         </style>
       </head>
       <body>
@@ -830,7 +833,7 @@ export class PdfGenerationService {
           </div>
         </div>
 
-        <div class="pdf-body-content">
+        <div class="pdf-body-content markdown-preview">
         ${bodyHtml}
         </div>
 

@@ -38,6 +38,33 @@ interface DocumentType {
   description: string;
 }
 
+const DEFAULT_DOCUMENT_PREVIEW_CSS = `
+.markdown-preview {
+  font-size: 1.05rem;
+  line-height: 1.72;
+  color: #1f2937;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3 {
+  letter-spacing: -0.025em;
+}
+
+.markdown-preview h1 {
+  font-size: clamp(2rem, 3vw, 2.75rem);
+}
+
+.markdown-preview h2 {
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+}
+
+.markdown-preview p,
+.markdown-preview li {
+  font-size: inherit;
+}
+`;
+
 @Component({
   styles: [
     `
@@ -616,12 +643,12 @@ interface DocumentType {
                         id="customCss"
                         [(ngModel)]="customCss"
                         [ngModelOptions]="{ standalone: true }"
-                        rows="2"
-                        placeholder=".markdown-preview { font-family: 'Georgia', serif; --brand: #custom; }"
+                        rows="8"
+                        placeholder="font-size: 1.4em;&#10;color: #455a64;&#10;&#10;/* O reglas completas: .markdown-preview h2 { color: #2563eb; } */"
                         class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                         (input)="applyCustomCss()"
                       ></textarea>
-<p class="text-xs text-muted">Aplica estilos CSS personalizados al preview del documento</p>
+<p class="text-xs text-muted">Puedes escribir propiedades sueltas o reglas completas. Se aplican sobre los estilos base del documento.</p>
                     </div>
  
 <div class="editor-container" [class.fullscreen]="fullscreenMode">
@@ -1251,6 +1278,7 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   ngOnInit() {
     this.assistantService.setActiveTab('create');
+    this.applyCustomCss();
     this.bindFormHooksOnce();
     combineLatest([this.route.paramMap, this.route.queryParamMap])
       .pipe(debounceTime(0), takeUntilDestroyed(this.destroyRef))
@@ -1395,6 +1423,10 @@ export class DocumentCreateEditorComponent implements OnInit {
       }
     }
     this.savedDraftId = draftId;
+    if (typeof p['customCss'] === 'string') {
+      this.customCss = p['customCss'];
+      this.applyCustomCss();
+    }
     this.documentForm.patchValue(patch);
     this.syncAssistantFromFormNow();
   }
@@ -1473,6 +1505,7 @@ export class DocumentCreateEditorComponent implements OnInit {
         ...formValue,
         client: client?.name || 'Cliente',
         type: this.selectedType.id,
+        customCss: this.customCss,
         isDraft: true,
         pdfBytes: [] as number[],
       };
@@ -1518,7 +1551,103 @@ export class DocumentCreateEditorComponent implements OnInit {
  
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
-    styleEl.textContent = this.customCss;
+    styleEl.textContent = this.documentPreviewCss();
+  }
+
+  private documentPreviewCss(): string {
+    return [DEFAULT_DOCUMENT_PREVIEW_CSS, this.normalizeUserCss(this.customCss)]
+      .filter(Boolean)
+      .join('\n\n');
+  }
+
+  private normalizeUserCss(css: string): string {
+    const trimmed = css.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    if (trimmed.includes('{')) {
+      return this.scopeCssToMarkdownPreview(trimmed);
+    }
+
+    const declarations = trimmed.replace(/[{}]/g, '').trim();
+    if (!declarations) {
+      return '';
+    }
+
+    return `.markdown-preview {\n${declarations}\n}`;
+  }
+
+  private scopeCssToMarkdownPreview(css: string): string {
+    return css.replace(/(^|})\s*([^@{}][^{}]*)\{/g, (match, boundary: string, selectorText: string) => {
+      const scopedSelectors = selectorText
+        .split(',')
+        .map((selector) => this.scopeSingleSelector(selector.trim()))
+        .join(', ');
+
+      return `${boundary}\n${scopedSelectors} {`;
+    });
+  }
+
+  private scopeSingleSelector(selector: string): string {
+    if (
+      !selector ||
+      selector.includes('.markdown-preview') ||
+      selector.startsWith(':root') ||
+      selector.startsWith('html') ||
+      selector.startsWith('body')
+    ) {
+      return selector;
+    }
+
+    return `.markdown-preview ${selector}`;
+  }
+
+  private exportStyledHtml(title: string): void {
+    const safeTitle = this.escapeHtml(title || 'Documento');
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${safeTitle}</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 48px 24px;
+      background: #f8fafc;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .markdown-preview {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 48px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+    }
+    ${this.documentPreviewCss()}
+  </style>
+</head>
+<body>
+  <main class="markdown-preview">
+    ${this.previewHtml}
+  </main>
+</body>
+</html>`;
+
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    this.universalDocument.download(blob, `${title || 'documento'}.html`);
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
  
   private createCustomStyleEl(): HTMLStyleElement {
@@ -1546,6 +1675,7 @@ export class DocumentCreateEditorComponent implements OnInit {
           date: dateStr,
           client: client?.name || 'Josanz ERP',
           subtitle: client?.name || 'Josanz ERP',
+          customCss: this.documentPreviewCss(),
         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
@@ -1554,6 +1684,11 @@ export class DocumentCreateEditorComponent implements OnInit {
           'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
         );
       }
+      return;
+    }
+
+    if (format === 'html') {
+      this.exportStyledHtml(title);
       return;
     }
 
@@ -1570,7 +1705,6 @@ export class DocumentCreateEditorComponent implements OnInit {
     const formatMap: Record<string, DocumentFormat> = {
       markdown: DocumentFormat.MARKDOWN,
       xlsx: DocumentFormat.XLSX,
-      html: DocumentFormat.HTML,
       txt: DocumentFormat.PLAINTEXT,
     };
 
@@ -1621,6 +1755,7 @@ export class DocumentCreateEditorComponent implements OnInit {
           ...formValue,
           client: client?.name || 'Cliente',
           type: this.selectedType?.id,
+        customCss: this.documentPreviewCss(),
         };
 
         let pdfBytes: Blob;
