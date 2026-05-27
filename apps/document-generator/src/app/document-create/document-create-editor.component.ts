@@ -160,7 +160,7 @@ interface DocumentType {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   template: `
-    <div class="space-y-8">
+    <div class="document-create-page space-y-6">
       <nav
         class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-secondary"
         aria-label="Migas de pan"
@@ -181,7 +181,7 @@ interface DocumentType {
       </nav>
 
       @if (selectedType) {
-          <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
+          <div class="document-create-shell bg-surface rounded-2xl shadow-xl border border-soft">
             <div class="mb-8">
               <div class="flex items-center space-x-3 mb-4">
                 <div
@@ -582,13 +582,18 @@ interface DocumentType {
                   </div>
                 </div>
 
-<div class="space-y-4">
-                    <div class="flex items-center justify-between">
+<div class="document-editor-panel">
+                    <div class="document-editor-panel__header">
+                      <div>
                       <label
                         for="content"
-                        class="block text-sm font-medium text-secondary"
+                        class="block text-sm font-semibold text-primary"
                         >Contenido Universal (Markdown, Texto, HTML)</label
                       >
+                        <p class="text-xs text-muted mt-1">
+                          Escribe a la izquierda y revisa el resultado final a la derecha.
+                        </p>
+                      </div>
                       <div class="flex items-center gap-2 text-xs text-muted">
                         <span class="px-2 py-1 bg-slate-100 rounded"
                           >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
@@ -597,7 +602,7 @@ interface DocumentType {
                     </div>
  
                     <!-- Custom CSS Input -->
-                    <div class="space-y-2">
+                    <div class="document-css-panel">
                       <label
                         for="customCss"
                         class="block text-sm font-medium text-secondary flex items-center gap-2"
@@ -610,9 +615,10 @@ interface DocumentType {
                       <textarea
                         id="customCss"
                         [(ngModel)]="customCss"
+                        [ngModelOptions]="{ standalone: true }"
                         rows="2"
                         placeholder=".markdown-preview { font-family: 'Georgia', serif; --brand: #custom; }"
-                        class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
+                        class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                         (input)="applyCustomCss()"
                       ></textarea>
 <p class="text-xs text-muted">Aplica estilos CSS personalizados al preview del documento</p>
@@ -641,10 +647,10 @@ interface DocumentType {
                       }
  
                       @if (!fullscreenMode) {
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div class="document-editor-split">
                           <!-- Editor Markdown -->
-                          <div class="space-y-2">
-                            <div class="text-xs font-medium text-muted flex justify-between">
+                          <div class="document-editor-column">
+                            <div class="document-editor-column__bar">
                               <span>Editor Markdown</span>
                               <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">
                                 Pantalla completa
@@ -654,27 +660,30 @@ interface DocumentType {
                               #editor
                               formControlName="content"
                               [placeholder]="getContentPlaceholder()"
-                              rows="18"
-                              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
+                              rows="24"
+                              class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
                               (input)="updatePreview()"
                               (keydown)="handleKeydown($event)"
                             ></textarea>
                           </div>
  
                           <!-- Vista Previa Live -->
-                          <div class="space-y-2">
-                            <div class="text-xs font-medium text-muted">Vista Previa</div>
-                            <div class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                          <div class="document-editor-column document-editor-column--preview">
+                            <div class="document-editor-column__bar">
+                              <span>Vista Previa</span>
+                              <span class="font-mono">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
+                            </div>
+                            <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
                           </div>
                         </div>
                       }
  
                       @if (fullscreenMode) {
-                        <div class="grid flex-1 flex-col">
+                        <div class="document-fullscreen-body">
                           <!-- Editor Markdown (Fullscreen) -->
                           @if (fullscreenTab === 'editor') {
-                            <div class="space-y-2 fullscreen-editor">
-                              <div class="text-xs font-medium text-muted flex justify-between">
+                            <div class="document-editor-column fullscreen-editor">
+                              <div class="document-editor-column__bar">
                                 <span>Editor Markdown</span>
                                 <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">Salir pantalla completa</button>
                               </div>
@@ -682,7 +691,7 @@ interface DocumentType {
                                 #editor
                                 formControlName="content"
                                 [placeholder]="getContentPlaceholder()"
-                                class="w-full flex-1 bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                class="document-editor-textarea w-full flex-1 bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 (input)="updatePreview()"
                                 (keydown)="handleKeydown($event)"
                               ></textarea>
@@ -691,12 +700,12 @@ interface DocumentType {
  
                           <!-- Vista Previa (Fullscreen) -->
                           @if (fullscreenTab === 'preview') {
-                            <div class="space-y-2 fullscreen-preview">
-                              <div class="text-xs font-medium text-muted flex items-center">
+                            <div class="document-editor-column fullscreen-preview">
+                              <div class="document-editor-column__bar">
                                 Vista Previa
                                 <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
                               </div>
-                              <div class="w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                              <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
                             </div>
                           }
                         </div>
@@ -1508,7 +1517,6 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
  
   applyCustomCss(): void {
-    if (!this.customCss.trim()) return;
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
     styleEl.textContent = this.customCss;
   }
