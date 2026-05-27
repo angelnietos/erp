@@ -1,0 +1,25 @@
+# LEGACY — no usar en Railway. Ver deploy/railway/dockerfiles/
+# Uso local: docker build --build-arg APP_NAME=backend -f Dockerfile.legacy .
+
+FROM node:20-alpine AS deps
+WORKDIR /app
+RUN apk add --no-cache python3 make g++ openjdk17-jre
+COPY package*.json ./
+RUN npm ci
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+ARG APP_NAME
+RUN npx nx build ${APP_NAME} --production --skip-nx-cache
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ARG APP_NAME
+ENV APP_NAME_ENV=${APP_NAME}
+COPY --from=builder /app/dist/apps/${APP_NAME} ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+EXPOSE 3000
+CMD node dist/main.js

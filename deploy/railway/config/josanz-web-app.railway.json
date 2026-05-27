@@ -1,7 +1,14 @@
 {
   "$schema": "https://railway.com/railway.schema.json",
   "build": {
-    "dockerfilePath": "deploy/railway/dockerfiles/josanz-web-app.Dockerfile"
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "deploy/railway/dockerfiles/josanz-web-app.Dockerfile",
+    "watchPatterns": [
+      "/apps/josanz-web-app/**",
+      "/libs/browser/**",
+      "/package.json",
+      "/pnpm-lock.yaml"
+    ]
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",

@@ -1,39 +1,29 @@
-# Josanz Audiovisuales ERP - legacy multi-app Dockerfile (npm ci).
-# Railway: do NOT use this file. Use deploy/railway/dockerfiles/*.Dockerfile via railway.json on each deploy branch.
-# Usage: docker build --build-arg APP_NAME=verifactu-api -t josanz-verifactu .
+# Fallback cuando Railway usa el Dockerfile de la raíz (sin config-as-code).
+# Servicios recomendados: deploy/railway/config/josanz-web-app.railway.json
+# Mismo contenido que deploy/railway/dockerfiles/josanz-web-app.Dockerfile (pnpm, no npm ci).
 
-# Stage 1: Install dependencies
-FROM node:20-alpine AS deps
+FROM node:20-bookworm-slim AS builder
+RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
-# Check for native modules
-RUN apk add --no-cache python3 make g++ openjdk17-jre
-COPY package*.json ./
-RUN npm ci
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
-# Stage 2: Build the specific Nx project
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json pnpm-lock.yaml ./
+COPY scripts ./scripts
+COPY apps/backend/prisma ./apps/backend/prisma
+RUN pnpm install --frozen-lockfile
+
 COPY . .
-ARG APP_NAME
-RUN npx nx build ${APP_NAME} --production --skip-nx-cache
+ENV NX_DAEMON=false
+ENV CI=true
+ENV NODE_OPTIONS=--max-old-space-size=8192
+RUN pnpm exec nx run josanz-web-app:build:production
 
-# Stage 3: Runner
-FROM node:20-alpine AS runner
-WORKDIR /app
-ARG APP_NAME
-ENV APP_NAME_ENV=${APP_NAME}
-
-# Copy built package and node_modules
-# Note: For real monorepos, use @nx/js:prune to extract selective node_modules
-# but for simplicity in this V2 roadmap, we copy the necessary dist.
-
-COPY --from=builder /app/dist/apps/${APP_NAME} ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-EXPOSE 3000
-
-# Custom logic if it's a frontend or backend
-# Frontends usually output to browser/, Backends to main.js
-CMD node dist/main.js
+FROM nginx:1.27-alpine
+ENV PORT=80
+ENV BACKEND_PROXY_URL=http://backend:3000
+COPY deploy/railway/nginx/frontend.conf.template /etc/nginx/templates/default.conf.template
+COPY --from=builder /app/dist/apps/josanz-web-app/browser /usr/share/nginx/html
+EXPOSE 80
+CMD ["sh", "-c", "envsubst '$PORT $BACKEND_PROXY_URL' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

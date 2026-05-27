@@ -127,6 +127,23 @@ pnpm run docker:build:railway:josanz-web-app
 pnpm run docker:build:railway:josanz-ui-storybook
 ```
 
+## Error `npm ci` / `ERESOLVE` (Angular 21 vs Storybook)
+
+Si el log de build muestra `RUN npm ci` y conflictos entre `@angular/compiler-cli@21` y `@storybook/angular@8`, Railway **no** está usando el Dockerfile de pnpm.
+
+**Arreglo en Railway → servicio `josanz-web-app` → Settings → Build:**
+
+| Campo | Valor correcto |
+|-------|----------------|
+| Builder | **Dockerfile** (no Railpack / Nixpacks) |
+| Dockerfile path | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` |
+| Config file path | `deploy/railway/config/josanz-web-app.railway.json` |
+| Custom Build Command | *(vacío)* |
+
+Tras guardar, **Redeploy**. El log debe mostrar `pnpm install --frozen-lockfile`, no `npm ci`.
+
+> El `Dockerfile` de la raíz del repo también usa pnpm (fallback), pero backend y Storybook **deben** tener su propio config file path; no uses el de la raíz para todos los servicios.
+
 ## Checklist rápido
 
 - [ ] 3 servicios creados en un proyecto Railway
