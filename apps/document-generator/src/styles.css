@@ -1353,8 +1353,8 @@ main .content a:not(.nav-link):not(.theme-option):not(.menu-item):hover {
 }
 
 /* =====================================================
-   LIGHT THEME GLOBAL SUPPORT
-   ===================================================== */
+    LIGHT THEME GLOBAL SUPPORT
+    ===================================================== */
 html[data-theme='pearl'],
 html[data-theme='sky-day'],
 html[data-theme='rose-quartz'],
@@ -1372,6 +1372,7 @@ html[data-theme='light'] {
   --border-soft: rgba(0, 0, 0, 0.08);
   --border-vibrant: rgba(0, 0, 0, 0.12);
   --surface: rgba(255, 255, 255, 0.94);
+  --surface-hover: rgba(255, 255, 255, 0.98);
 }
 
 /* Quitar scanline oscuro en temas claros */
@@ -1635,4 +1636,47 @@ tr:hover .row-actions,
 button:focus:not(:focus-visible),
 a:focus:not(:focus-visible) {
   outline: none;
+}
+
+/* =====================================================
+   CONTRASTE MEJORADO PARA TEMAS OSCUROS Y COLORIDOS
+   ===================================================== */
+
+/* Asegurar bordes visibles en temas coloridos con fondos oscuros */
+html[data-theme='sunset'],
+html[data-theme='forest'],
+html[data-theme='ocean'],
+html[data-theme='aurora'],
+html[data-theme='lavender'],
+html[data-theme='rose'] {
+  --border-soft: rgba(255, 255, 255, 0.12);
+  --border-vibrant: rgba(255, 255, 255, 0.18);
+}
+
+/* Mejorar contraste en tarjetas de tema (theme-selector) */
+html[data-theme='sunset'] .theme-card,
+html[data-theme='forest'] .theme-card,
+html[data-theme='ocean'] .theme-card,
+html[data-theme='aurora'] .theme-card,
+html[data-theme='lavender'] .theme-card,
+html[data-theme='rose'] .theme-card {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Contraste mejorado para tarjetas de tema en modo glass */
+[data-ui-variant='glass'] .theme-card {
+  border: 1px solid var(--border-vibrant) !important;
+}
+
+/* Asegurar texto legible en botones ghost/ghost-effect */
+.ui-ghost,
+.ghost-effect {
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent) !important;
+  border: 1px solid var(--border-soft) !important;
+}
+
+.ui-ghost:hover,
+.ghost-effect:hover {
+  background: color-mix(in srgb, var(--text-primary) 10%, transparent) !important;
+  color: var(--text-primary) !important;
 }
