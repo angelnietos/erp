@@ -78,7 +78,9 @@ CORS_ORIGIN=https://<josanz-web-app>.up.railway.app,https://<storybook>.up.railw
 
 ### Proxy API (front)
 
-El front sirve estáticos y reenvía `/api/*` al backend:
+Si todavía no tienes backend creado en Railway, **no definas `BACKEND_PROXY_URL`** en el servicio `josanz-web-app`. El contenedor arrancará como SPA estática sin proxy `/api`.
+
+Cuando exista backend, el front sirve estáticos y reenvía `/api/*` al backend:
 
 ```env
 BACKEND_PROXY_URL=http://<nombre-servicio-backend>.railway.internal:3000
@@ -154,7 +156,9 @@ host not found in upstream "backend"
 
 significa que `BACKEND_PROXY_URL` está usando `http://backend:3000`, pero Railway no ha creado un DNS llamado exactamente `backend`.
 
-En Railway → servicio `josanz-web-app` → **Variables**, configura:
+Si aún no tienes backend, elimina `BACKEND_PROXY_URL` del servicio `josanz-web-app` y haz redeploy. El front arrancará sin backend.
+
+Si ya tienes backend, en Railway → servicio `josanz-web-app` → **Variables**, configura:
 
 ```env
 BACKEND_PROXY_URL=http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:3000
