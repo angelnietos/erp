@@ -15,6 +15,7 @@ export class JosanzStaffListComponent {
     secondaryBtnLabel: 'Añadir Equipo +',
     statusColumnLabel: 'Estado',
     addRoute: '/users',
+    detailRoute: '/staff',
     summaryLine: '100 personas · 12 en evento activo',
   };
 }

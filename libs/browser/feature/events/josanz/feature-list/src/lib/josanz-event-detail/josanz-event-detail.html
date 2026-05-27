@@ -1,9 +1,9 @@
 <josanz-main-detail-layout
-  title="Evento X"
+  [title]="pageTitle()"
   layoutVariant="figma-event"
   statusLabel="Confirmado"
   statusPillKey="confirmado"
-  [tabs]="tabs"
+  [tabs]="pageTabs()"
   [activeTab]="activeTab()"
   [showFooterActions]="false"
   [saveDisabled]="true"

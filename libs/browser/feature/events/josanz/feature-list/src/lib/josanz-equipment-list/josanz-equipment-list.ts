@@ -29,6 +29,7 @@ export class JosanzEquipmentListComponent {
     statusColumnLabel: 'Tipo',
     rows: EQUIPMENT_ROWS,
     addRoute: '/stock',
+    detailRoute: '/equipment',
     summaryLine: '180 equipos · 8 activos esta semana',
   };
 }

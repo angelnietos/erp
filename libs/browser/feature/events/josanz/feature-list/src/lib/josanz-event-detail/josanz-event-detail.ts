@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -59,8 +59,11 @@ interface JosanzEventEmail {
   ],
   templateUrl: './josanz-event-detail.html',
 })
-export class JosanzEventDetailComponent {
+export class JosanzEventDetailComponent implements OnInit {
   private readonly router = inject(Router);
+
+  pageTitle = signal('Evento X');
+  pageTabs = signal<string[]>([]);
 
   activeTab = signal('Resumen');
   showStaffComposer = signal(false);
@@ -73,7 +76,7 @@ export class JosanzEventDetailComponent {
   showEmailComposer = signal(false);
   emailForm = { date: '-', subject: '-', body: '-' };
 
-  readonly tabs = [
+  readonly eventTabs = [
     'Resumen',
     'Cliente',
     'Staff',
@@ -181,6 +184,26 @@ export class JosanzEventDetailComponent {
     { label: 'Teléfono', value: '+34 600 111 222' },
   ];
 
+  ngOnInit() {
+    const url = this.router.url;
+    if (url.startsWith('/equipment')) {
+      this.pageTitle.set('Equipo Audiovisual');
+      this.pageTabs.set(['Resumen', 'Stock', 'Mantenimiento', 'Historial']);
+    } else if (url.startsWith('/vehicles')) {
+      this.pageTitle.set('Vehículo X');
+      this.pageTabs.set(['Resumen', 'Mantenimiento', 'Historial', 'Multas']);
+    } else if (url.startsWith('/staff')) {
+      this.pageTitle.set('Personal: Nombre Apellido');
+      this.pageTabs.set(['Resumen', 'Contratos', 'Nóminas', 'Ausencias']);
+    } else if (url.startsWith('/billing')) {
+      this.pageTitle.set('Factura / Albarán X');
+      this.pageTabs.set(['Resumen', 'Líneas', 'Cobros', 'Emails']);
+    } else {
+      this.pageTitle.set('Evento X');
+      this.pageTabs.set(this.eventTabs);
+    }
+  }
+
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
@@ -200,7 +223,18 @@ export class JosanzEventDetailComponent {
   }
 
   onBack(): void {
-    void this.router.navigate(['/events']);
+    const url = this.router.url;
+    if (url.startsWith('/equipment')) {
+      void this.router.navigate(['/equipment']);
+    } else if (url.startsWith('/vehicles')) {
+      void this.router.navigate(['/vehicles']);
+    } else if (url.startsWith('/staff')) {
+      void this.router.navigate(['/staff']);
+    } else if (url.startsWith('/billing')) {
+      void this.router.navigate(['/billing']);
+    } else {
+      void this.router.navigate(['/events']);
+    }
   }
 
   onSave(): void {

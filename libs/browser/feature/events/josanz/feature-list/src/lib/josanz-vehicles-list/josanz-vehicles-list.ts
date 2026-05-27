@@ -15,6 +15,7 @@ export class JosanzVehiclesListComponent {
     secondaryBtnLabel: 'Añadir Almacén +',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
+    detailRoute: '/vehicles',
     summaryLine: '42 vehículos · 3 en ruta hoy',
   };
 }

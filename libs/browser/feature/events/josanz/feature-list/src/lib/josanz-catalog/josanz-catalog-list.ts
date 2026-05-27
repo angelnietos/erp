@@ -22,6 +22,7 @@ export interface JosanzCatalogListConfig {
   statusColumnLabel: 'Estado' | 'Tipo';
   rows?: JosanzCatalogListRow[];
   addRoute?: string;
+  detailRoute?: string;
   summaryLine?: string;
   filterOptions?: string[];
 }
@@ -100,7 +101,8 @@ export class JosanzCatalogListComponent {
   }
 
   onRowClick(item: JosanzAdaptiveListItem): void {
-    void this.router.navigate(['/events', item.id.replace(/^0+/, '') || '1']);
+    const base = this.config.detailRoute ?? '/events';
+    void this.router.navigate([base, item.id.replace(/^0+/, '') || '1']);
   }
 
   onStatusFilter(option: string): void {

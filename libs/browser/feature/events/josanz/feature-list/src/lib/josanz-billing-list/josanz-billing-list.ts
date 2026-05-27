@@ -14,6 +14,7 @@ export class JosanzBillingListComponent {
     primaryBtnLabel: 'Añadir factura +',
     secondaryBtnLabel: 'Añadir Almacén +',
     statusColumnLabel: 'Estado',
+    detailRoute: '/billing',
     summaryLine: '180 documentos · 24 pendientes de cobro',
   };
 }
