@@ -359,45 +359,14 @@ a svg,
   background: color-mix(in srgb, var(--bg-secondary) 50%, transparent);
 }
 
-/* Modern editor container */
+/* Fullscreen editor container */
 .editor-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
-  height: 70vh;
 }
 
-@media (max-width: 1024px) {
-  .editor-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-}
-
-.editor-panel {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.editor-panel-header {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-soft);
-  background: var(--bg-secondary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.editor-content {
-  flex: 1;
-  overflow: auto;
-}
-
-.fullscreen .editor-container {
+.editor-container.fullscreen {
   position: fixed;
   top: 0;
   left: 0;
@@ -406,22 +375,28 @@ a svg,
   z-index: 9999;
   background: var(--bg-primary);
   padding: 2rem;
-  box-sizing: border-box;
+  gap: 1rem;
 }
 
-.fullscreen-editor,
-.fullscreen-preview {
-  position: relative;
+.editor-container.fullscreen .editor-tabs {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1rem;
+  background: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: var(--radius-lg);
 }
 
 .fullscreen-editor textarea,
 .fullscreen-preview .markdown-preview {
-  min-height: calc(100vh - 8rem) !important;
-  height: auto !important;
+  min-height: calc(100vh - 10rem) !important;
 }
 
-.fullscreen-hidden {
-  display: none;
+@media (max-width: 1024px) {
+  .editor-container {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Enhanced markdown preview for better visual */

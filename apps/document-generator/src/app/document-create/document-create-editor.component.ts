@@ -615,73 +615,92 @@ interface DocumentType {
                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                         (input)="applyCustomCss()"
                       ></textarea>
-                      <p class="text-xs text-muted">Aplica estilos CSS personalizados al preview del documento</p>
+<p class="text-xs text-muted">Aplica estilos CSS personalizados al preview del documento</p>
                     </div>
  
-<div [class.fullscreen]="fullscreenMode" class="space-y-3">
-                       @if (fullscreenMode) {
-                         <div class="editor-tabs">
-                           <button
-                             type="button"
-                             class="editor-tab-button"
-                             [class.active]="fullscreenTab === 'editor'"
-                             (click)="fullscreenTab = 'editor'"
-                           >
-                             Editor
-                           </button>
-                           <button
-                             type="button"
-                             class="editor-tab-button"
-                             [class.active]="fullscreenTab === 'preview'"
-                             (click)="fullscreenTab = 'preview'"
-                           >
-                             Vista Previa
-                           </button>
-                         </div>
-                       }
- 
-                      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4" [class.fullscreen-hidden]="fullscreenMode && fullscreenTab !== 'editor'">
-                        <!-- Editor Markdown -->
-                        <div class="space-y-2" [class.fullscreen-editor]="fullscreenMode && fullscreenTab === 'editor'">
-                          <div
-                            class="text-xs font-medium text-muted flex justify-between"
+<div class="editor-container" [class.fullscreen]="fullscreenMode">
+                      @if (fullscreenMode) {
+                        <div class="editor-tabs">
+                          <button
+                            type="button"
+                            class="editor-tab-button"
+                            [class.active]="fullscreenTab === 'editor'"
+                            (click)="fullscreenTab = 'editor'"
                           >
-                            <span>Editor Markdown</span>
-                            <button
-                              type="button"
-                              (click)="toggleFullscreen()"
-                              class="hover:text-brand transition-colors"
-                            >
-                              {{ fullscreenMode ? 'Salir pantalla completa' : 'Pantalla completa' }}
-                            </button>
-                          </div>
-                          <textarea
-                            #editor
-                            formControlName="content"
-                            [placeholder]="getContentPlaceholder()"
-                            rows="18"
-                            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
-                            (input)="updatePreview()"
-                            (keydown)="handleKeydown($event)"
-                          ></textarea>
-                        </div>
- 
-                        <!-- Vista Previa Live -->
-                        <div class="space-y-2" [class.fullscreen-preview]="fullscreenMode && fullscreenTab === 'preview'">
-                          <div class="text-xs font-medium text-muted flex items-center">
+                            Editor
+                          </button>
+                          <button
+                            type="button"
+                            class="editor-tab-button"
+                            [class.active]="fullscreenTab === 'preview'"
+                            (click)="fullscreenTab = 'preview'"
+                          >
                             Vista Previa
-                            @if (fullscreenMode) {
-                              <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">
-                                {{ wordCount }} palabras • {{ characterCount }} caracteres
-                              </span>
-                            }
-                          </div>
-                          <div
-                            class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]"
-                            [innerHTML]="previewHtml"
-                          ></div>
+                          </button>
                         </div>
-                      </div>
+                      }
+ 
+                      @if (!fullscreenMode) {
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                          <!-- Editor Markdown -->
+                          <div class="space-y-2">
+                            <div class="text-xs font-medium text-muted flex justify-between">
+                              <span>Editor Markdown</span>
+                              <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">
+                                Pantalla completa
+                              </button>
+                            </div>
+                            <textarea
+                              #editor
+                              formControlName="content"
+                              [placeholder]="getContentPlaceholder()"
+                              rows="18"
+                              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
+                              (input)="updatePreview()"
+                              (keydown)="handleKeydown($event)"
+                            ></textarea>
+                          </div>
+ 
+                          <!-- Vista Previa Live -->
+                          <div class="space-y-2">
+                            <div class="text-xs font-medium text-muted">Vista Previa</div>
+                            <div class="w-full px-4 py-3 border border-[#e2e8f0] rounded-xl min-h-[350px] max-h-[500px] overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                          </div>
+                        </div>
+                      }
+ 
+                      @if (fullscreenMode) {
+                        <div class="grid flex-1 flex-col">
+                          <!-- Editor Markdown (Fullscreen) -->
+                          @if (fullscreenTab === 'editor') {
+                            <div class="space-y-2 fullscreen-editor">
+                              <div class="text-xs font-medium text-muted flex justify-between">
+                                <span>Editor Markdown</span>
+                                <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">Salir pantalla completa</button>
+                              </div>
+                              <textarea
+                                #editor
+                                formControlName="content"
+                                [placeholder]="getContentPlaceholder()"
+                                class="w-full flex-1 bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                (input)="updatePreview()"
+                                (keydown)="handleKeydown($event)"
+                              ></textarea>
+                            </div>
+                          }
+ 
+                          <!-- Vista Previa (Fullscreen) -->
+                          @if (fullscreenTab === 'preview') {
+                            <div class="space-y-2 fullscreen-preview">
+                              <div class="text-xs font-medium text-muted flex items-center">
+                                Vista Previa
+                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
+                              </div>
+                              <div class="w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                            </div>
+                          }
+                        </div>
+                      }
                     </div>
                   </div>
 
