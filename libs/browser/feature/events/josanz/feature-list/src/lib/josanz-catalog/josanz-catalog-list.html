@@ -41,26 +41,11 @@
     </div>
   </div>
 
-  <div class="josanz-list-thead">
-    <div
-      class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0"
-    >
-      <div class="josanz-list-template-row__title truncate">{{ config.idColumnLabel ?? 'ID' }}</div>
-      <div class="josanz-list-template-row__fields">
-        @for (label of rowLabels; track label; let i = $index) {
-          <div
-            class="josanz-list-template-row__field truncate"
-            [ngClass]="columnWidthClass(i)"
-          >
-            {{ label }}
-          </div>
-        }
-      </div>
-      <div class="josanz-list-template-row__status">
-        <span class="truncate">{{ config.statusColumnLabel }}</span>
-      </div>
-    </div>
-  </div>
+  <josanz-list-template-header-row
+    [titleLabel]="config.idColumnLabel ?? 'ID'"
+    [fieldLabels]="rowLabels"
+    [statusLabel]="config.statusColumnLabel"
+  ></josanz-list-template-header-row>
 
   <josanz-adaptive-list-rows
     [items]="adaptiveItems"

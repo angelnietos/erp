@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
+import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
 export type JosanzStatusPillVariant = JosanzStatusPillKey | 'primary' | 'success' | 'warning' | 'error';
@@ -77,22 +78,6 @@ export class MainTemplateCardComponent {
   }
 
   fieldWidthClass(index: number): string {
-    if (this.data.length === 3) {
-      if (index === 0) {
-        return 'josanz-list-template-row__field--w160';
-      }
-      if (index === 1) {
-        return 'josanz-list-template-row__field--w220';
-      }
-      return 'josanz-list-template-row__field--grow';
-    }
-
-    if (index === 0) {
-      return 'josanz-list-template-row__field--w220';
-    }
-    if (index === this.data.length - 1) {
-      return 'josanz-list-template-row__field--grow';
-    }
-    return 'josanz-list-template-row__field--w160';
+    return josanzListFieldWidthClass(index, this.data.length);
   }
 }

@@ -38,17 +38,12 @@
   (excelAction)="onExcel()"
   (paginationChange)="onPageChange($event)"
 >
-  <div class="josanz-list-thead">
-    <div class="josanz-list-template-row-wrap w-full min-w-0 px-1 py-0 md:px-1 md:py-0">
-      <div class="josanz-list-template-row__title truncate">Nombre cliente</div>
-      <div class="josanz-list-template-row__fields">
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w160 truncate">Teléfono</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--w220 truncate">Email</div>
-        <div class="josanz-list-template-row__field josanz-list-template-row__field--grow truncate">Operador</div>
-      </div>
-      <div class="josanz-list-template-row__status"><span class="truncate">Tipo</span></div>
-    </div>
-  </div>
+  <josanz-list-template-header-row
+    titleLabel="Nombre cliente"
+    [fieldLabels]="clientFieldLabels"
+    statusLabel="Tipo"
+    [withLeadingMark]="true"
+  ></josanz-list-template-header-row>
 
   <josanz-adaptive-list-rows
     [items]="paginatedItems"

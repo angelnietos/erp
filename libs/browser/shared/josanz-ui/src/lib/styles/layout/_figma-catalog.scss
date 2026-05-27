@@ -116,8 +116,6 @@
 
   .josanz-list-thead {
     margin-bottom: 0.5rem;
-    padding-left: 0.25rem;
-    padding-right: 0.25rem;
   }
 
   .josanz-main-list__stack.josanz-list-view--cards-list,
@@ -150,7 +148,7 @@
     color: var(--josanz-text-muted) !important;
   }
 
-  .josanz-list-template-row__status span {
+  .josanz-list-card .josanz-list-template-row__status span {
     font-size: 10px;
     font-weight: 800;
     letter-spacing: 0.05em;

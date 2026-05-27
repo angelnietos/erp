@@ -10,6 +10,8 @@ export {
   josanzCornerButton,
 } from './lib/josanz-control-styles';
 export * from './lib/components/main-template-card';
+export * from './lib/components/list-template-header-row';
+export * from './lib/list-view/list-template-row-layout';
 export * from './lib/components/button';
 export * from './lib/components/secondary-button';
 export * from './lib/components/filter-tabs';

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   FilterTabsComponent,
+  ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
   SecondaryButtonComponent,
   type JosanzAdaptiveListItem,
@@ -39,6 +40,7 @@ export interface JosanzCatalogListConfig {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     FilterTabsComponent,
+    ListTemplateHeaderRowComponent,
     SecondaryButtonComponent,
   ],
   templateUrl: './josanz-catalog-list.html',
@@ -111,26 +113,6 @@ export class JosanzCatalogListComponent {
 
   rowValues(row: JosanzCatalogListRow): string[] {
     return row.values ?? [row.eventName ?? '', row.date ?? '', row.client ?? '', row.operator ?? ''];
-  }
-
-  columnWidthClass(index: number): string {
-    if (this.rowLabels.length === 3) {
-      if (index === 0) {
-        return 'josanz-list-template-row__field--w160';
-      }
-      if (index === 1) {
-        return 'josanz-list-template-row__field--w220';
-      }
-      return 'josanz-list-template-row__field--grow';
-    }
-
-    if (index === 0) {
-      return 'josanz-list-template-row__field--w220';
-    }
-    if (index === this.rowLabels.length - 1) {
-      return 'josanz-list-template-row__field--grow';
-    }
-    return 'josanz-list-template-row__field--w160';
   }
 
   onAdd(): void {

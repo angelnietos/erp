@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
+  ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
   BaseListComponent,
   ButtonComponent,
@@ -18,6 +19,7 @@ import {
     CommonModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
     ButtonComponent,
     MainTabsComponent,
     FilterTabsComponent,

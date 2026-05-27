@@ -91,9 +91,37 @@ $josanz-list-template-status: 140px;
     justify-content: flex-end;
   }
 
-  /* Cabecera: mismas celdas que la card pero sin bullet; compensar para alinear texto con el span.truncate */
-  .josanz-list-thead .josanz-list-template-row__field {
-    padding-left: 0.75rem; // w-1.5 (0.375rem) + gap del bullet (0.375rem) en __field
+  /* Cabecera: marcadores invisibles con la misma caja que avatar / bullet / pastilla en la fila */
+  .josanz-list-thead__leading-spacer {
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .josanz-list-thead__field-bullet {
+    display: inline-flex;
+    flex-shrink: 0;
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    opacity: 0;
+  }
+
+  .josanz-list-thead__label {
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+    text-transform: inherit;
+    color: inherit;
+  }
+
+  .josanz-list-thead__status-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     box-sizing: border-box;
+    color: var(--josanz-text-muted);
+    background: transparent;
+    box-shadow: none;
   }
 }

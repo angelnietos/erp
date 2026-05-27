@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import {
   MainListLayoutComponent,
   AdaptiveListRowsComponent,
+  ListTemplateHeaderRowComponent,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
@@ -14,6 +15,7 @@ import {
     CommonModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
   ],
   template: `
     <josanz-main-list-layout
@@ -30,16 +32,12 @@ import {
       (filterChange)="onFilter($event)"
       (paginationChange)="onPageChange($event)"
     >
-      <div class="list-header">
-        <div class="list-header__row w-full min-w-0 px-1 py-0 md:px-1 md:py-0">
-          <div class="list-header__title truncate">Usuario / Nombre</div>
-          <div class="list-header__fields">
-            <div class="list-header__field truncate">Email</div>
-            <div class="list-header__field truncate">Rol</div>
-          </div>
-          <div class="list-header__status"><span class="truncate">Estado</span></div>
-        </div>
-      </div>
+      <josanz-list-template-header-row
+        titleLabel="Usuario / Nombre"
+        [fieldLabels]="['Email', 'Rol']"
+        statusLabel="Estado"
+        [withLeadingMark]="true"
+      ></josanz-list-template-header-row>
 
       <josanz-adaptive-list-rows
         [items]="paginatedItems"
@@ -52,19 +50,6 @@ import {
     `
       :host {
         display: block;
-      }
-      .list-header {
-        padding: 8px 0;
-      }
-      .list-header__row {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--josanz-text-muted);
       }
     `,
   ],

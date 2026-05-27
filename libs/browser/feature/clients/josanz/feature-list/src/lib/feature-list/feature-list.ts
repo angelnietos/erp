@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
   ButtonComponent,
+  ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
   ModalComponent,
   BaseListComponent,
@@ -18,6 +19,7 @@ import {
     CommonModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
     ModalComponent,
     ButtonComponent,
   ],
@@ -42,7 +44,8 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
     'Tipo cliente 4',
   ];
 
-  readonly clientLabels = ['Teléfono', 'Email', 'Operador', 'Tipo'];
+  readonly clientFieldLabels = ['Teléfono', 'Email', 'Operador'];
+  readonly clientLabels = [...this.clientFieldLabels, 'Tipo'];
 
   readonly clientItems: JosanzAdaptiveListItem[] = [
     {
