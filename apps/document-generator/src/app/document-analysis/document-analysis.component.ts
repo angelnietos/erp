@@ -36,29 +36,33 @@ type AnalysisResult = DocumentAnalysisCheckResult;
   styles: [
     `
       .tab-active {
-        border-bottom: 2px solid #2563eb;
-        color: #2563eb;
+        border-bottom: 2px solid var(--brand);
+        color: var(--brand);
         font-weight: 600;
       }
 
       .status-pass {
-        background-color: #dcfce7;
-        color: #166534;
+        background-color: color-mix(in srgb, #22c55e 18%, var(--bg-secondary));
+        color: #4ade80;
+        border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
       }
 
       .status-warning {
-        background-color: #fef3c7;
-        color: #92400e;
+        background-color: color-mix(in srgb, #f59e0b 18%, var(--bg-secondary));
+        color: #fbbf24;
+        border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
       }
 
       .status-error {
-        background-color: #fee2e2;
-        color: #991b1b;
+        background-color: color-mix(in srgb, #ef4444 18%, var(--bg-secondary));
+        color: #f87171;
+        border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
       }
 
       .status-pending {
-        background-color: #f1f5f9;
-        color: #475569;
+        background-color: var(--bg-tertiary);
+        color: var(--text-muted);
+        border: 1px solid var(--border-soft);
       }
 
       .ai-message {
@@ -66,6 +70,60 @@ type AnalysisResult = DocumentAnalysisCheckResult;
         color: white;
         border-radius: 1rem;
         padding: 1rem;
+      }
+
+      .stat-card-pass {
+        background-color: color-mix(in srgb, #22c55e 12%, var(--bg-secondary));
+        border: 1px solid color-mix(in srgb, #22c55e 25%, transparent);
+      }
+      .stat-card-pass .stat-num { color: #4ade80; }
+      .stat-card-pass .stat-label { color: color-mix(in srgb, #4ade80 80%, var(--text-muted)); }
+
+      .stat-card-warn {
+        background-color: color-mix(in srgb, #f59e0b 12%, var(--bg-secondary));
+        border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
+      }
+      .stat-card-warn .stat-num { color: #fbbf24; }
+      .stat-card-warn .stat-label { color: color-mix(in srgb, #fbbf24 80%, var(--text-muted)); }
+
+      .stat-card-err {
+        background-color: color-mix(in srgb, #ef4444 12%, var(--bg-secondary));
+        border: 1px solid color-mix(in srgb, #ef4444 25%, transparent);
+      }
+      .stat-card-err .stat-num { color: #f87171; }
+      .stat-card-err .stat-label { color: color-mix(in srgb, #f87171 80%, var(--text-muted)); }
+
+      .stat-card-pending {
+        background-color: var(--bg-tertiary);
+        border: 1px solid var(--border-soft);
+      }
+      .stat-card-pending .stat-num { color: var(--text-primary); }
+      .stat-card-pending .stat-label { color: var(--text-secondary); }
+
+      .info-summary-panel {
+        background-color: var(--bg-tertiary);
+        border: 1px solid var(--border-soft);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        font-size: 0.875rem;
+      }
+
+      .banner-warning {
+        background-color: color-mix(in srgb, #f59e0b 12%, var(--bg-secondary));
+        color: var(--text-primary);
+        border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+
+      .banner-error {
+        background-color: color-mix(in srgb, #ef4444 12%, var(--bg-secondary));
+        color: var(--text-primary);
+        border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
       }
     `,
   ],
@@ -118,7 +176,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             </svg>
           </div>
           <h1
-            class="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent mb-3"
+            class="text-3xl font-bold text-primary mb-3"
           >
             Analizador de Propuestas
           </h1>
@@ -170,30 +228,26 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               </p>
             }
             @if (listLoadError) {
-              <p class="text-sm text-amber-700" role="alert">{{ listLoadError }}</p>
+              <p class="text-sm text-warning" role="alert">{{ listLoadError }}</p>
             }
           </div>
-          <div
-            class="rounded-xl border border-soft bg-slate-50/80 dark:bg-slate-900/30 p-4 text-sm"
-          >
+          <div class="rounded-xl border border-soft bg-secondary p-4 text-sm space-y-2">
             @if (selectedSummary) {
-              <p class="font-medium text-primary">{{ selectedSummary.title }}</p>
-              <p class="text-secondary mt-1">
+              <p class="font-semibold text-primary">{{ selectedSummary.title }}</p>
+              <p class="text-secondary">
                 {{ selectedSummary.client }} ·
                 {{ selectedSummary.date | date: 'medium' }}
               </p>
             } @else {
-              <p class="text-secondary">
-                Elige un documento o usa el área de texto abajo.
-              </p>
+              <p class="text-secondary">Elige un documento o usa el área de texto abajo.</p>
             }
-            <p class="mt-3 text-primary">
-              <span class="font-semibold">{{ effectiveTextLength }}</span>
+            <p class="text-primary">
+              <span class="font-bold">{{ effectiveTextLength }}</span>
               caracteres en el texto de análisis
             </p>
             <a
               routerLink="/documents/settings/ai"
-              class="inline-block mt-2 text-brand hover:underline text-sm"
+              class="inline-block text-brand hover:underline text-sm font-medium"
               >Configuración IA</a
             >
           </div>
@@ -225,7 +279,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
 
         @if (analysisBanner) {
           <p
-            class="mt-4 text-sm rounded-lg px-4 py-3 bg-amber-50 text-amber-900 border border-amber-200"
+            class="mt-4 banner-warning"
             role="status"
           >
             {{ analysisBanner }}
@@ -367,44 +421,28 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             >
               @if (analysisRunError) {
                 <div
-                  class="rounded-xl border border-red-200 bg-red-50 text-red-900 px-4 py-3 text-sm"
+                  class="banner-error"
                   role="alert"
                 >
                   {{ analysisRunError }}
                 </div>
               }
               <div class="grid grid-cols-4 gap-4 mb-6">
-                <div
-                  class="bg-green-50 rounded-xl p-4 text-center border border-green-200"
-                >
-                  <div class="text-2xl font-bold text-green-700">
-                    {{ passCount }}
-                  </div>
-                  <div class="text-sm text-green-600">Correctos</div>
+                <div class="stat-card-pass rounded-xl p-4 text-center">
+                  <div class="text-2xl font-bold stat-num">{{ passCount }}</div>
+                  <div class="text-sm stat-label">Correctos</div>
                 </div>
-                <div
-                  class="bg-yellow-50 rounded-xl p-4 text-center border border-yellow-200"
-                >
-                  <div class="text-2xl font-bold text-yellow-700">
-                    {{ warningCount }}
-                  </div>
-                  <div class="text-sm text-yellow-600">Advertencias</div>
+                <div class="stat-card-warn rounded-xl p-4 text-center">
+                  <div class="text-2xl font-bold stat-num">{{ warningCount }}</div>
+                  <div class="text-sm stat-label">Advertencias</div>
                 </div>
-                <div
-                  class="bg-red-50 rounded-xl p-4 text-center border border-red-200"
-                >
-                  <div class="text-2xl font-bold text-red-700">
-                    {{ errorCount }}
-                  </div>
-                  <div class="text-sm text-red-600">Errores</div>
+                <div class="stat-card-err rounded-xl p-4 text-center">
+                  <div class="text-2xl font-bold stat-num">{{ errorCount }}</div>
+                  <div class="text-sm stat-label">Errores</div>
                 </div>
-                <div
-                  class="bg-secondary rounded-xl p-4 text-center border border-soft"
-                >
-                  <div class="text-2xl font-bold text-primary">
-                    {{ pendingCount }}
-                  </div>
-                  <div class="text-sm text-secondary">Pendientes</div>
+                <div class="stat-card-pending rounded-xl p-4 text-center">
+                  <div class="text-2xl font-bold stat-num">{{ pendingCount }}</div>
+                  <div class="text-sm stat-label">Pendientes</div>
                 </div>
               </div>
 
