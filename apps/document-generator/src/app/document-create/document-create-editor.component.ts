@@ -14,7 +14,6 @@ import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import {
   ReactiveFormsModule,
-  FormsModule,
   FormBuilder,
   FormGroup,
   Validators,
@@ -164,7 +163,7 @@ interface DocumentType {
   ],
   selector: 'app-document-create-editor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   template: `
     <div class="space-y-8">
       <nav
@@ -343,14 +342,14 @@ interface DocumentType {
                       class="block text-sm font-medium text-secondary"
                       >Consigna para generar borrador</label
                     >
-                    <textarea
-                      id="aiBrief"
-                      [(ngModel)]="aiBrief"
-                      rows="3"
-                      placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
-                      class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
-                      [disabled]="isGenerating || isAiGenerating"
-                    ></textarea>
+<textarea
+                       id="aiBrief"
+                       formControlName="aiBrief"
+                       rows="3"
+                       placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
+                       class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
+                       [disabled]="isGenerating || isAiGenerating"
+                     ></textarea>
                   </div>
 
                   <div class="flex flex-wrap gap-2">
@@ -393,14 +392,14 @@ interface DocumentType {
                       class="block text-sm font-medium text-secondary"
                       >Reformular el documento actual</label
                     >
-                    <textarea
-                      id="aiInstruction"
-                      [(ngModel)]="aiInstruction"
-                      rows="2"
-                      placeholder="Ej.: Acorta a una página, tono más formal, añade sección de riesgos y mitigación."
-                      class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
-                      [disabled]="isGenerating || isAiGenerating"
-                    ></textarea>
+<textarea
+                       id="aiInstruction"
+                       formControlName="aiInstruction"
+                       rows="2"
+                       placeholder="Ej.: Acorta a una página, tono más formal, añade sección de riesgos y mitigación."
+                       class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
+                       [disabled]="isGenerating || isAiGenerating"
+                     ></textarea>
                     <button
                       type="button"
                       (click)="transformWithAi()"
@@ -914,8 +913,6 @@ export class DocumentCreateEditorComponent implements OnInit {
   isGenerating = false;
   /** Plantilla elegida en la URL (solo contexto para IA). */
   private queryTemplateId: string | null = null;
-  aiBrief = '';
-  aiInstruction = '';
   isAiGenerating = false;
   aiError: string | null = null;
   previewHtml = '';
@@ -1020,6 +1017,8 @@ export class DocumentCreateEditorComponent implements OnInit {
       apis: [''],
       technologies: [''],
       deployment: [''],
+      aiBrief: [''],
+      aiInstruction: [''],
     });
   }
 
@@ -1084,7 +1083,7 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   async generateDraftWithAi(mode: 'replace' | 'append'): Promise<void> {
     if (!this.selectedType) return;
-    const brief = this.aiBrief.trim();
+    const brief = this.documentForm.get('aiBrief')?.value?.trim();
     if (!brief) {
       this.aiError = 'Describe qué debe contener el documento.';
       return;
@@ -1113,7 +1112,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   async transformWithAi(): Promise<void> {
-    const instruction = this.aiInstruction.trim();
+    const instruction = this.documentForm.get('aiInstruction')?.value?.trim();
     if (!instruction || !this.selectedType) {
       this.aiError =
         'Escribe una instrucción (por ejemplo: más formal, acortar, añadir tabla de costes).';
