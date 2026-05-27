@@ -791,7 +791,7 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
   root.style.setProperty('--josanz-warning', JOSANZ_FIGMA_SEMANTIC.warning);
   root.style.setProperty('--josanz-badge-neutral', JOSANZ_FIGMA_SEMANTIC.badgeNeutral);
   root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
-  root.style.setProperty('--josanz-content-max', '1280px');
+  root.style.setProperty('--josanz-content-max', '1440px');
   root.style.setProperty('--josanz-sidebar-width', '36px');
   root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
   root.style.setProperty('--josanz-shell-pad-x', '1.5rem');

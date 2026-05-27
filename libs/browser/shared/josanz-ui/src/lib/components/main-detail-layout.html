@@ -4,7 +4,7 @@
   [style.backgroundColor]="'var(--josanz-bg)'"
 >
   @if (layoutVariant === 'figma-event') {
-    <header class="josanz-detail-figma__top">
+    <header class="josanz-detail-figma__top max-w-[var(--josanz-content-max)] mx-auto w-full px-6 md:px-12">
       <div class="josanz-detail-figma__title-row">
 
         <!-- Back button — larger tap target, subtle ring on hover -->
@@ -57,27 +57,29 @@
     </header>
 
     <!-- Tabs row + Save button — with a bottom separator -->
-    <div class="josanz-detail-figma__tabs-row" style="border-bottom:1px solid var(--josanz-border);">
-      <josanz-main-tabs
-        class="josanz-detail-figma__tabs"
-        [options]="tabs"
-        [selection]="activeTab"
-        variant="figma"
-        (selectionChange)="tabChange.emit($event)"
-      ></josanz-main-tabs>
-      <div class="josanz-detail-figma__save">
-        <josanz-button
-          [label]="saveLabel"
-          [showIcon]="false"
-          [fullWidth]="true"
-          [disabled]="saveDisabled"
-          [customColor]="saveDisabled ? undefined : '#0F1E2F'"
-          (btnClick)="save.emit()"
-        ></josanz-button>
+    <div style="border-bottom:1px solid var(--josanz-border); width: 100%;">
+      <div class="josanz-detail-figma__tabs-row max-w-[var(--josanz-content-max)] mx-auto w-full px-6 md:px-12">
+        <josanz-main-tabs
+          class="josanz-detail-figma__tabs"
+          [options]="tabs"
+          [selection]="activeTab"
+          variant="figma"
+          (selectionChange)="tabChange.emit($event)"
+        ></josanz-main-tabs>
+        <div class="josanz-detail-figma__save">
+          <josanz-button
+            [label]="saveLabel"
+            [showIcon]="false"
+            [fullWidth]="true"
+            [disabled]="saveDisabled"
+            [customColor]="saveDisabled ? undefined : '#0F1E2F'"
+            (btnClick)="save.emit()"
+          ></josanz-button>
+        </div>
       </div>
     </div>
   } @else {
-    <div class="pb-6 flex flex-col gap-5 shrink-0">
+    <div class="pb-6 flex flex-col gap-5 shrink-0 max-w-[var(--josanz-content-max)] mx-auto w-full px-6 md:px-12">
       <div class="flex items-center gap-4">
         <button
           type="button"
@@ -120,7 +122,7 @@
     [class.josanz-detail-figma__content]="layoutVariant === 'figma-event'"
     [ngClass]="layoutVariant === 'figma-event' ? '' : (showFooterActions ? 'pb-40 md:pb-32' : 'pb-8 md:pb-12')"
   >
-    <div [class.mx-auto]="layoutVariant !== 'figma-event'" [class.w-full]="layoutVariant !== 'figma-event'" [class.max-w-\[1200px\]]="layoutVariant !== 'figma-event'">
+    <div class="mx-auto w-full max-w-[var(--josanz-content-max)] px-6 md:px-12">
       <ng-content></ng-content>
     </div>
   </div>
