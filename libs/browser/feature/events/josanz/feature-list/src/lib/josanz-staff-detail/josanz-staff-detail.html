@@ -1,0 +1,48 @@
+<josanz-main-detail-layout
+  title="Perfil Staff"
+  layoutVariant="figma-event"
+  statusLabel="Activo"
+  statusPillKey="staff-tecnico"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  [showFooterActions]="false"
+  [saveDisabled]="true"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+>
+  <div class="josanz-event-detail-body">
+  @if (activeTab() === 'Resumen') {
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>Juan Pérez</h2>
+        </div>
+        <p class="josanz-event-hero__meta">
+          Especialidad: Sonido · Contrato indefinido
+        </p>
+        <p class="josanz-event-hero__desc">
+          Este es el panel de detalle específico para miembros del Staff y RRHH.
+        </p>
+      </div>
+    </article>
+
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Datos personales</h3>
+      <div class="josanz-event-note-row">
+        <p>Teléfono: +34 600 000 000</p>
+      </div>
+      <div class="josanz-event-note-row">
+        <p>Email: juan.perez&#64;ejemplo.com</p>
+      </div>
+    </section>
+  }
+  @if (activeTab() === 'Contratos' || activeTab() === 'Nóminas' || activeTab() === 'Ausencias') {
+    <section class="josanz-event-section">
+      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
+        Contenido de {{ activeTab() }} — específico para el Staff.
+      </p>
+    </section>
+  }
+  </div>
+</josanz-main-detail-layout>

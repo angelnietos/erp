@@ -1,0 +1,48 @@
+<josanz-main-detail-layout
+  title="Detalle de Equipo"
+  layoutVariant="figma-event"
+  statusLabel="Confirmado"
+  statusPillKey="confirmado"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  [showFooterActions]="false"
+  [saveDisabled]="true"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+>
+  <div class="josanz-event-detail-body">
+  @if (activeTab() === 'Resumen') {
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>Equipo Audiovisual X</h2>
+        </div>
+        <p class="josanz-event-hero__meta">
+          Almacén principal · Categoría: Sonido
+        </p>
+        <p class="josanz-event-hero__desc">
+          Este es el panel de detalle específico para el equipo audiovisual.
+        </p>
+      </div>
+    </article>
+
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Características</h3>
+      <div class="josanz-event-note-row">
+        <p>Número de serie: SN-123456</p>
+      </div>
+      <div class="josanz-event-note-row">
+        <p>Marca: Genérica</p>
+      </div>
+    </section>
+  }
+  @if (activeTab() === 'Stock' || activeTab() === 'Mantenimiento' || activeTab() === 'Historial') {
+    <section class="josanz-event-section">
+      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
+        Contenido de {{ activeTab() }} — específico para Equipo Audiovisual.
+      </p>
+    </section>
+  }
+  </div>
+</josanz-main-detail-layout>

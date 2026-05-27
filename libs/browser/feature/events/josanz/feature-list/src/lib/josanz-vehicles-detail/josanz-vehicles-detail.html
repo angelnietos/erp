@@ -1,0 +1,48 @@
+<josanz-main-detail-layout
+  title="Detalle del Vehículo"
+  layoutVariant="figma-event"
+  statusLabel="Disponible"
+  statusPillKey="confirmado"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  [showFooterActions]="false"
+  [saveDisabled]="true"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+>
+  <div class="josanz-event-detail-body">
+  @if (activeTab() === 'Resumen') {
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>Furgoneta 01 (1234-ABC)</h2>
+        </div>
+        <p class="josanz-event-hero__meta">
+          Base principal · Próxima ITV: 12/12/2026
+        </p>
+        <p class="josanz-event-hero__desc">
+          Este es el panel de detalle específico para vehículos de la flota.
+        </p>
+      </div>
+    </article>
+
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Datos del vehículo</h3>
+      <div class="josanz-event-note-row">
+        <p>Marca: Mercedes</p>
+      </div>
+      <div class="josanz-event-note-row">
+        <p>Modelo: Sprinter</p>
+      </div>
+    </section>
+  }
+  @if (activeTab() === 'Mantenimiento' || activeTab() === 'Historial' || activeTab() === 'Multas') {
+    <section class="josanz-event-section">
+      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
+        Contenido de {{ activeTab() }} — específico para Vehículos.
+      </p>
+    </section>
+  }
+  </div>
+</josanz-main-detail-layout>

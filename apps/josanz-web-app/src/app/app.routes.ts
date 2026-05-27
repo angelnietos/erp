@@ -91,7 +91,7 @@ export const appRoutes: Route[] = [
               path: ':id',
               loadComponent: () =>
                 import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEventDetailComponent,
+                  (m) => m.JosanzEquipmentDetailComponent,
                 ),
             },
           ]),
@@ -111,7 +111,7 @@ export const appRoutes: Route[] = [
               path: ':id',
               loadComponent: () =>
                 import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEventDetailComponent,
+                  (m) => m.JosanzVehiclesDetailComponent,
                 ),
             },
           ]),
@@ -131,7 +131,7 @@ export const appRoutes: Route[] = [
               path: ':id',
               loadComponent: () =>
                 import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEventDetailComponent,
+                  (m) => m.JosanzStaffDetailComponent,
                 ),
             },
           ]),
@@ -151,7 +151,7 @@ export const appRoutes: Route[] = [
               path: ':id',
               loadComponent: () =>
                 import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEventDetailComponent,
+                  (m) => m.JosanzBillingDetailComponent,
                 ),
             },
           ]),
