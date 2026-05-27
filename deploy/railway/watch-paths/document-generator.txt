@@ -1,0 +1,13 @@
+/apps/document-generator/**
+/libs/browser/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/scripts/**
+/deploy/railway/dockerfiles/document-generator.Dockerfile
+/deploy/railway/config/document-generator.railway.json
+/tailwind.config.*
+/postcss.config.*
+/deploy/railway/nginx/**

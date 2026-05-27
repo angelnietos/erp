@@ -1,0 +1,13 @@
+/apps/frontend/**
+/libs/browser/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/scripts/**
+/deploy/railway/dockerfiles/frontend.Dockerfile
+/deploy/railway/config/frontend.railway.json
+/tailwind.config.*
+/postcss.config.*
+/deploy/railway/nginx/**

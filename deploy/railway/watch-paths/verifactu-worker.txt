@@ -1,0 +1,10 @@
+/apps/verifactu-worker/**
+/libs/node/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/scripts/**
+/deploy/railway/dockerfiles/verifactu-worker.Dockerfile
+/deploy/railway/config/verifactu-worker.railway.json

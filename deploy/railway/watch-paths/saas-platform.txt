@@ -1,0 +1,13 @@
+/apps/saas-platform/**
+/libs/browser/**
+/libs/shared/**
+/package.json
+/pnpm-lock.yaml
+/nx.json
+/tsconfig.base.json
+/tailwind.config.*
+/postcss.config.*
+/scripts/**
+/deploy/railway/dockerfiles/saas-platform.Dockerfile
+/deploy/railway/config/saas-platform.railway.json
+/deploy/railway/nginx/**
