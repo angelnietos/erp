@@ -5,10 +5,55 @@
   max-width: var(--josanz-content-max);
   margin-left: auto;
   margin-right: auto;
-  /* Evita que hijos con min-content ancho (filas de filtros) ensanchen el host en contextos flex */
   min-width: 0;
 }
 
+/* ─── Header section ─────────────────────────────────────── */
+.josanz-main-list__header {
+  padding-bottom: 4px;
+}
+
+/* Accent bar bajo el título */
+.josanz-main-list__title-accent {
+  margin-top: 6px;
+  opacity: 0.85;
+}
+
+/* ─── Figma Catalog toolbar ─────────────────────────────── */
+.josanz-main-list__figma-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.josanz-main-list__figma-toolbar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.josanz-main-list__figma-tabs {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.josanz-main-list__figma-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ─── Content stack (rows) ───────────────────────────────── */
+.josanz-main-list__stack {
+  /* Slight gap between header and rows area */
+  gap: 0;
+}
+
+/* ─── Bottom bar (pagination / view selector) ─────────────── */
 .josanz-main-list__actions {
   max-width: 100%;
 }
@@ -18,3 +63,63 @@
     min-width: min(100%, 20rem);
   }
 }
+
+/* ─── Row hover polish – applied to adaptive list rows ───── */
+/*
+ * These selectors target the rendered row wrappers inside
+ * <josanz-adaptive-list-rows>. The component renders them as
+ * .josanz-list-template-row-wrap elements.
+ */
+
+/* ─── Summary pill row ──────────────────────────────────── */
+.josanz-catalog-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.josanz-catalog-summary__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--josanz-text-muted, #6B7280);
+  background: transparent;
+  border: 1px solid var(--josanz-border, #E5E7EB);
+  transition: background 0.15s, color 0.15s;
+}
+
+.josanz-catalog-summary__item strong {
+  font-weight: 700;
+  color: var(--josanz-text, #111827);
+}
+
+.josanz-catalog-summary__item--active {
+  background: var(--josanz-interactive, #0F1E2F);
+  color: #fff;
+  border-color: transparent;
+}
+
+.josanz-catalog-summary__item--active strong {
+  color: #fff;
+}
+
+/* ─── Filter row separator ──────────────────────────────── */
+.josanz-catalog-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.josanz-catalog-filters-row__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--josanz-border, #E5E7EB);
+  flex-shrink: 0;
+}
+

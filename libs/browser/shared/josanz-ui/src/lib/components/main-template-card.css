@@ -1,18 +1,28 @@
-/* Card hover glow + lift effect */
+/* ── Card base ────────────────────────────────────────────── */
 .josanz-list-card {
   cursor: default;
+  will-change: transform, box-shadow;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
-/* Base row shadow = JOSANZ_FIGMA_SHELL.cardShadow; hover añade capas sin sustituir el token. */
+/*
+ * Hover: llévalo hacia arriba con una sombra difusa multicapa.
+ * La primera capa replica el cardShadow del Figma token;
+ * la segunda añade profundidad y la tercera el accent de color.
+ */
 .josanz-list-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.002);
   box-shadow:
-    var(--josanz-card-shadow, 0 10px 24px rgba(189, 189, 189, 0.35)),
-    0 12px 28px color-mix(in srgb, var(--josanz-text) 12%, transparent),
-    0 0 0 1px color-mix(in srgb, var(--josanz-primary) 35%, transparent),
-    4px 0 16px -4px var(--josanz-card-hover-glow) !important;
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1.5px color-mix(in srgb, var(--josanz-primary) 20%, transparent);
 }
 
 .josanz-list-card:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.999);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition-duration: 0.08s;
 }
