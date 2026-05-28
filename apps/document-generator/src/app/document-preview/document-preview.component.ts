@@ -42,6 +42,7 @@ interface DocumentPreviewPayload {
   apis?: string;
   deployment?: string;
   customCss?: string;
+  pdfStyleId?: string;
   pdfBytes?: number[];
 }
 
@@ -673,7 +674,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
         date: d.date ? String(d.date) : undefined,
         client: d.client,
         subtitle: d.client,
-        customCss: d.customCss,
+        pdfStyleId: d.pdfStyleId,
       });
       this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
       return;

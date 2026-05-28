@@ -23,6 +23,7 @@ import {
 import {
   TemplatesRegistryService,
   DocumentTemplate,
+  PdfStyle,
 } from '../services/templates-registry.service';
 import {
   DocumentAiService,
@@ -646,11 +647,33 @@ const DEFAULT_DOCUMENT_PREVIEW_CSS = `
                         rows="8"
                         placeholder="font-size: 1.4em;&#10;color: #455a64;&#10;&#10;/* O reglas completas: .markdown-preview h2 { color: #2563eb; } */"
                         class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
-                        (input)="applyCustomCss()"
+(input)="applyCustomCss()"
                       ></textarea>
 <p class="text-xs text-muted">Puedes escribir propiedades sueltas o reglas completas. Se aplican sobre los estilos base del documento.</p>
                     </div>
- 
+
+                    <!-- PDF Style Selector -->
+                    @if (pdfStyles.length > 0) {
+                      <div class="document-css-panel">
+                        <label for="pdfStyleSelector" class="block text-sm font-medium text-secondary mb-2">
+                          Estilo del PDF
+                        </label>
+                        <select
+                          id="pdfStyleSelector"
+                          [(ngModel)]="selectedPdfStyle"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface text-sm"
+                        >
+                          @for (style of pdfStyles; track style.id) {
+                            <option [value]="style.id">{{ style.name }}</option>
+                          }
+                        </select>
+                        <p class="text-xs text-muted mt-1">
+                          El estilo se aplica al generar el PDF final.
+                        </p>
+                      </div>
+                    }
+
 <div class="editor-container" [class.fullscreen]="fullscreenMode">
                       @if (fullscreenMode) {
                         <div class="editor-tabs">
@@ -1023,6 +1046,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   fullscreenMode = false;
   fullscreenTab: 'editor' | 'preview' = 'editor';
   customCss = '';
+  selectedPdfStyle = 'modern';
+  pdfStyles: PdfStyle[] = [];
 
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
@@ -1279,6 +1304,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   ngOnInit() {
     this.assistantService.setActiveTab('create');
     this.applyCustomCss();
+    this.pdfStyles = this.templatesService.getPdfStyles();
     this.bindFormHooksOnce();
     combineLatest([this.route.paramMap, this.route.queryParamMap])
       .pipe(debounceTime(0), takeUntilDestroyed(this.destroyRef))
@@ -1669,14 +1695,14 @@ export class DocumentCreateEditorComponent implements OnInit {
         const dateStr = formValue.date
           ? String(formValue.date)
           : new Date().toISOString().split('T')[0];
-        const pdfBlob = await this.pdfService.generateMarkdownPdf({
-          content: content,
-          title: title,
-          date: dateStr,
-          client: client?.name || 'Josanz ERP',
-          subtitle: client?.name || 'Josanz ERP',
-          customCss: this.documentPreviewCss(),
-        });
+const pdfBlob = await this.pdfService.generateMarkdownPdf({
+           content: content,
+           title: title,
+           date: dateStr,
+           client: client?.name || 'Josanz ERP',
+           subtitle: client?.name || 'Josanz ERP',
+           pdfStyleId: this.selectedPdfStyle,
+         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
         console.error('Error generating PDF:', error);

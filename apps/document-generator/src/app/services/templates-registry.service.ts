@@ -12,6 +12,13 @@ export interface DocumentTemplate {
   autoFillFields?: string[];
 }
 
+export interface PdfStyle {
+  id: string;
+  name: string;
+  description: string;
+  css: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TemplatesRegistryService {
   private readonly templates = signal<DocumentTemplate[]>([
@@ -1633,5 +1640,66 @@ _______________________________
   addTemplate(template: Omit<DocumentTemplate, 'id'>): void {
     const newTemplate = { ...template, id: crypto.randomUUID() };
     this.templates.update((t) => [...t, newTemplate as DocumentTemplate]);
+  }
+
+  private readonly pdfStyles = signal<PdfStyle[]>([
+    {
+      id: 'modern',
+      name: 'Moderno',
+      description: 'Diseño limpio con acentos coloridos y tipografía contemporánea',
+      css: `
+        body { font-family: 'Inter', system-ui, sans-serif; color: #0f172a; }
+        h1 { color: #0ea5e9; border-bottom: 3px solid #0ea5e9; }
+        h2 { color: #1e293b; }
+        .pdf-header { background: linear-gradient(165deg, #f0fdf4 0%, #dcfce7 100%); }
+        .pdf-header::before { background: linear-gradient(90deg, #22c55e, #0ea5e9); }
+        blockquote { border-left-color: #22c55e; background-color: #f0fdf4; }
+      `,
+    },
+    {
+      id: 'classic',
+      name: 'Clásico',
+      description: 'Estilo tradicional con tipografía serif y elegante',
+      css: `
+        body { font-family: 'Georgia', 'Times New Roman', serif; color: #1e293b; line-height: 1.7; }
+        h1 { color: #7c3aed; font-family: 'Georgia', serif; border-bottom: 2px solid #e2e8f0; }
+        h2 { color: #475569; font-family: 'Georgia', serif; }
+        .pdf-header { background: linear-gradient(165deg, #faf5ff 0%, #f3e8ff 100%); }
+        .pdf-header::before { background: linear-gradient(90deg, #7c3aed, #a855f7); }
+      `,
+    },
+    {
+      id: 'minimal',
+      name: 'Minimalista',
+      description: 'Diseño ultralimpio con máximo espacio en blanco',
+      css: `
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; color: #334155; line-height: 1.8; }
+        h1 { color: #0f172a; border-bottom: 1px solid #e2e8f0; }
+        h2 { color: #475569; }
+        .pdf-header { background: #ffffff; border: 1px solid #f1f5f9; }
+        .pdf-header::before { background: #94a3b8; }
+      `,
+    },
+    {
+      id: 'corporate',
+      name: 'Corporativo',
+      description: 'Estilo profesional corporativo con azul institucional',
+      css: `
+        body { font-family: 'Segoe UI', 'Roboto', sans-serif; color: #1e293b; }
+        h1 { color: #1d4ed8; border-bottom: 3px solid #3b82f6; }
+        h2 { color: #1e40af; }
+        .pdf-header { background: linear-gradient(165deg, #eff6ff 0%, #dbeafe 100%); }
+        .pdf-header::before { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+        blockquote { border-left-color: #1d4ed8; background-color: #eff6ff; }
+      `,
+    },
+  ]);
+
+  getPdfStyles(): PdfStyle[] {
+    return this.pdfStyles();
+  }
+
+  getPdfStyleCss(styleId: string): string {
+    return this.pdfStyles().find((s) => s.id === styleId)?.css ?? '';
   }
 }

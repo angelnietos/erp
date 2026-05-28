@@ -1,5 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
+import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
   MarkedGlobal,
@@ -33,12 +34,15 @@ interface DocumentData {
   pricing?: string;
   terms?: string;
   customCss?: string;
+  pdfStyleId?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class PdfGenerationService {
+  private readonly templates = inject(TemplatesRegistryService);
+
   /** Fecha legible en español (ISO u otros formatos parseables por Date). */
   private formatDisplayDate(value?: string): string {
     if (!value?.trim()) {
@@ -144,6 +148,11 @@ export class PdfGenerationService {
       data.subtitle || data.client || 'Josanz ERP',
     );
     const formatLabel = isHtml ? 'HTML' : 'Markdown (GFM)';
+
+    // Get PDF style CSS
+    const styleCss = data.pdfStyleId
+      ? this.templates.getPdfStyleCss(data.pdfStyleId)
+      : '';
 
     // Plantilla PDF (html2canvas no aplica @page ni running(); pie simple al final)
     const pdfTemplate = `
@@ -382,6 +391,7 @@ export class PdfGenerationService {
             border-radius: 2px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
+          ${styleCss}
           ${data.customCss ?? ''}
         </style>
       </head>
@@ -675,6 +685,11 @@ export class PdfGenerationService {
       data.subtitle || data.client || 'Josanz ERP',
     );
 
+    // Get PDF style CSS
+    const styleCss = data.pdfStyleId
+      ? this.templates.getPdfStyleCss(data.pdfStyleId)
+      : '';
+
     const pdfTemplate = `
       <!DOCTYPE html>
       <html>
@@ -821,6 +836,7 @@ export class PdfGenerationService {
             border-radius: 2px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
+          ${styleCss}
           ${data.customCss ?? ''}
         </style>
       </head>
