@@ -34,7 +34,7 @@ declare const marked: MarkedGlobal;
         height: 70px;
         border-radius: 50%;
         cursor: pointer;
-        z-index: 9999;
+        z-index: 10610;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -67,7 +67,7 @@ declare const marked: MarkedGlobal;
           radial-gradient(circle at 20px 20px, rgba(255,255,255,0.65) 0 2px, transparent 3px) 0 0 / 18px 18px,
           linear-gradient(180deg, #fff7ed 0%, #fffaf2 42%, #eef6ff 100%);
         border-radius: 24px;
-        z-index: 9999;
+        z-index: 10620;
         display: flex;
         flex-direction: column;
         overflow: hidden;
