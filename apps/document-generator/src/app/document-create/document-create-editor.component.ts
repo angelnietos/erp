@@ -1999,7 +1999,7 @@ blockquote {
         css += `.markdown-preview { background: transparent !important; box-shadow: none !important; border: none !important; }\n`;
       } else if (this.pdfBackgroundMode === 'corporate' && this.pdfBackgroundImageUrl) {
         const url = this.pdfBackgroundImageUrl.replace(/"/g, '%22');
-          css += `\nbody { background-image: url("${url}"); background-size: cover; background-position: center; background-repeat: no-repeat; }\n`;
+          css += `\nbody { background-image: url('${url}'); background-size: cover; background-position: center; background-repeat: no-repeat; }\n`;
         css += `.markdown-preview { background: rgba(255,255,255,0.85) !important; }\n`;
       }
     } catch (e) {
