@@ -582,15 +582,15 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           El estilo se aplica al generar el PDF final.
                         </p>
                         <div class="mt-3">
-                          <label class="block text-sm font-medium text-secondary mb-2">Fondo del PDF</label>
+                          <label for="pdfBackgroundMode" class="block text-sm font-medium text-secondary mb-2">Fondo del PDF</label>
                           <div class="flex gap-2 items-center">
-                            <select [(ngModel)]="pdfBackgroundMode" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
+                            <select id="pdfBackgroundMode" [(ngModel)]="pdfBackgroundMode" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
                               <option value="theme">Usar tema</option>
                               <option value="color">Color sólido</option>
                               <option value="corporate">Imagen corporativa</option>
                             </select>
-                            <input *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
-                            <input *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
+                            <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
+                            <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
                           <p class="text-xs text-muted mt-2">Selecciona cómo se renderizará el fondo del PDF.</p>
                         </div>
@@ -656,8 +656,8 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             </div>
                             <div class="divider"></div>
                             <div>
-                              <label class="block text-sm font-medium text-secondary">Estilos rápidos</label>
-                              <select class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" (change)="applyStylePreset($any($event.target).value)">
+                              <label for="stylePresetSelect" class="block text-sm font-medium text-secondary">Estilos rápidos</label>
+                              <select id="stylePresetSelect" class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" (change)="applyStylePreset($any($event.target).value)">
                                 <option value="">Seleccionar estilo...</option>
                                 <option value="default">Predeterminado</option>
                                 <option value="corporate">Corporativo</option>
@@ -1917,7 +1917,7 @@ blockquote {
       const match = rootRe.exec(raw);
       if (match) {
         let body = match[1];
-        const varRe = new RegExp(varName.replace(/[-\[\]\\/\^$*+?.()|{}]/g, '\\$&') + '\\s*:\\s*[^;]+;');
+        const varRe = new RegExp(varName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*:\\s*[^;]+;');
         if (varRe.test(body)) {
           body = body.replace(varRe, `${varName}: ${value};`);
         } else {
@@ -1973,10 +1973,10 @@ blockquote {
         const body = match[1];
         const varMatch = /--markdown-font-size\s*:\s*([0-9.]+)rem\s*;/.exec(body);
         if (varMatch) {
-          current = parseFloat(varMatch[1]);
+          current = Number.parseFloat(varMatch[1]);
         }
       }
-      let next = Math.max(0.6, Math.min(3, +(current + deltaRem).toFixed(2)));
+      const next = Math.max(0.6, Math.min(3, +(current + deltaRem).toFixed(2)));
       this.baseFontSize = next;
       this.upsertRootVariable('--markdown-font-size', `${next}rem`);
       this.applyCustomCss();
@@ -1999,7 +1999,7 @@ blockquote {
         css += `.markdown-preview { background: transparent !important; box-shadow: none !important; border: none !important; }\n`;
       } else if (this.pdfBackgroundMode === 'corporate' && this.pdfBackgroundImageUrl) {
         const url = this.pdfBackgroundImageUrl.replace(/"/g, '%22');
-        css += `\nbody { background-image: url(\"${url}\"); background-size: cover; background-position: center; background-repeat: no-repeat; }\n`;
+          css += `\nbody { background-image: url("${url}"); background-size: cover; background-position: center; background-repeat: no-repeat; }\n`;
         css += `.markdown-preview { background: rgba(255,255,255,0.85) !important; }\n`;
       }
     } catch (e) {
