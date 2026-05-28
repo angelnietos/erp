@@ -58,11 +58,29 @@ type EditorBlockTemplateId =
   | 'callout'
   | 'signatures';
 
+type SelectedTextFormatId =
+  | 'paragraph'
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'bold'
+  | 'italic'
+  | 'quote'
+  | 'list'
+  | 'numbered-list'
+  | 'inline-code'
+  | 'callout';
+
 interface EditorBlockTemplate {
   id: EditorBlockTemplateId;
   label: string;
   markdown: string;
   html: string;
+}
+
+interface SelectedTextFormat {
+  id: SelectedTextFormatId;
+  label: string;
 }
 
 interface DocumentType {
@@ -698,6 +716,33 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <button type="button" (click)="insertCode()" title="Código">&lt;&gt;</button>
                             <button type="button" (click)="insertCodeBlock()" title="Bloque de código">{{ '{}' }}</button>
                             <div class="divider"></div>
+                            <div class="space-y-2">
+                              <label for="selectedTextFormat" class="block text-sm font-medium text-secondary">Formato selección</label>
+                              <select
+                                id="selectedTextFormat"
+                                [(ngModel)]="selectedTextFormat"
+                                [ngModelOptions]="{ standalone: true }"
+                                class="w-full px-3 py-2 rounded border border-soft bg-secondary text-primary text-sm"
+                                title="Formato que se aplicará al texto seleccionado"
+                              >
+                                @for (format of selectedTextFormats; track format.id) {
+                                  <option [value]="format.id">{{ format.label }}</option>
+                                }
+                              </select>
+                              <button
+                                type="button"
+                                class="w-full"
+                                (click)="applySelectedTextFormat()"
+                                [disabled]="contentEditorMode === 'plain'"
+                                title="Aplicar el formato elegido al texto seleccionado"
+                              >
+                                Aplicar formato
+                              </button>
+                              <p class="text-[11px] text-muted leading-snug">
+                                Selecciona texto existente y aplica el formato elegido.
+                              </p>
+                            </div>
+                            <div class="divider"></div>
                             <label for="editorBlockTemplate" class="block text-sm font-medium text-secondary">Bloques</label>
                             <select
                               id="editorBlockTemplate"
@@ -1190,6 +1235,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   selectedPdfStyle = 'default';
   selectedQuickStylePreset = '';
   selectedTextColor = '#7a0000';
+  selectedTextFormat: SelectedTextFormatId = 'paragraph';
   pdfStyles: PdfStyle[] = [];
   // PDF background options
   pdfBackgroundMode: 'theme' | 'color' | 'corporate' = 'theme';
@@ -1200,6 +1246,19 @@ export class DocumentCreateEditorComponent implements OnInit {
   documentMutedColor = '#475569';
   documentAccentColor = '#2563eb';
   documentBorderColor = '#e2e8f0';
+  readonly selectedTextFormats: SelectedTextFormat[] = [
+    { id: 'paragraph', label: 'Párrafo normal' },
+    { id: 'h1', label: 'Título H1' },
+    { id: 'h2', label: 'Título H2' },
+    { id: 'h3', label: 'Título H3' },
+    { id: 'bold', label: 'Negrita' },
+    { id: 'italic', label: 'Cursiva' },
+    { id: 'quote', label: 'Cita' },
+    { id: 'list', label: 'Lista' },
+    { id: 'numbered-list', label: 'Lista numerada' },
+    { id: 'inline-code', label: 'Código' },
+    { id: 'callout', label: 'Nota destacada' },
+  ];
   readonly editorBlockTemplates: EditorBlockTemplate[] = [
     {
       id: 'paragraph',
@@ -2185,6 +2244,132 @@ ${html}
       textarea.selectionEnd = cursor;
       this.updatePreview();
     }, 0);
+  }
+
+  applySelectedTextFormat(): void {
+    if (this.contentEditorMode === 'plain') {
+      return;
+    }
+
+    const textarea = document.querySelector(
+      'textarea[formControlName="content"]',
+    ) as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const content = String(this.documentForm.get('content')?.value ?? '');
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    if (start === end) {
+      const range = this.getCurrentMarkdownBlockRange(content, start);
+      start = range.start;
+      end = range.end;
+    }
+
+    const selectedText = content.substring(start, end);
+    if (!selectedText.trim()) {
+      return;
+    }
+
+    const formatted =
+      this.contentEditorMode === 'html'
+        ? this.formatSelectedTextAsHtml(selectedText, this.selectedTextFormat)
+        : this.formatSelectedTextAsMarkdown(selectedText, this.selectedTextFormat);
+
+    this.documentForm.patchValue({
+      content: `${content.substring(0, start)}${formatted}${content.substring(end)}`,
+    });
+    this.syncAssistantFromFormNow();
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + formatted.length;
+      this.updatePreview();
+    }, 0);
+  }
+
+  private formatSelectedTextAsMarkdown(
+    text: string,
+    format: SelectedTextFormatId,
+  ): string {
+    const trimmed = text.trim();
+    const cleanLines = text
+      .split('\n')
+      .map((line) => this.stripMarkdownLinePrefix(line));
+
+    switch (format) {
+      case 'h1':
+        return cleanLines.map((line) => `# ${line.trim()}`).join('\n');
+      case 'h2':
+        return cleanLines.map((line) => `## ${line.trim()}`).join('\n');
+      case 'h3':
+        return cleanLines.map((line) => `### ${line.trim()}`).join('\n');
+      case 'bold':
+        return `**${trimmed}**`;
+      case 'italic':
+        return `*${trimmed}*`;
+      case 'quote':
+        return cleanLines.map((line) => `> ${line.trim()}`).join('\n');
+      case 'list':
+        return cleanLines.map((line) => `- ${line.trim()}`).join('\n');
+      case 'numbered-list':
+        return cleanLines
+          .map((line, index) => `${index + 1}. ${line.trim()}`)
+          .join('\n');
+      case 'inline-code':
+        return text.includes('\n') ? `\`\`\`\n${trimmed}\n\`\`\`` : `\`${trimmed}\``;
+      case 'callout':
+        return `> **Nota:** ${cleanLines.map((line) => line.trim()).join('\n> ')}`;
+      case 'paragraph':
+      default:
+        return cleanLines.map((line) => line.trim()).join('\n');
+    }
+  }
+
+  private formatSelectedTextAsHtml(
+    text: string,
+    format: SelectedTextFormatId,
+  ): string {
+    const escaped = this.escapeHtml(text.trim());
+    const lines = text
+      .split('\n')
+      .map((line) => this.escapeHtml(line.trim()))
+      .filter(Boolean);
+
+    switch (format) {
+      case 'h1':
+        return `<h1>${escaped}</h1>`;
+      case 'h2':
+        return `<h2>${escaped}</h2>`;
+      case 'h3':
+        return `<h3>${escaped}</h3>`;
+      case 'bold':
+        return `<strong>${escaped}</strong>`;
+      case 'italic':
+        return `<em>${escaped}</em>`;
+      case 'quote':
+        return `<blockquote>${escaped}</blockquote>`;
+      case 'list':
+        return `<ul>\n${lines.map((line) => `  <li>${line}</li>`).join('\n')}\n</ul>`;
+      case 'numbered-list':
+        return `<ol>\n${lines.map((line) => `  <li>${line}</li>`).join('\n')}\n</ol>`;
+      case 'inline-code':
+        return text.includes('\n')
+          ? `<pre><code>${escaped}</code></pre>`
+          : `<code>${escaped}</code>`;
+      case 'callout':
+        return `<aside class="callout"><strong>Nota:</strong> ${escaped}</aside>`;
+      case 'paragraph':
+      default:
+        return `<p>${escaped}</p>`;
+    }
+  }
+
+  private stripMarkdownLinePrefix(line: string): string {
+    return line
+      .replace(/^\s{0,3}#{1,6}\s+/, '')
+      .replace(/^\s{0,3}>\s?/, '')
+      .replace(/^\s{0,3}(?:[-*+]|\d+\.)\s+/, '');
   }
 
   insertMarkdown(before: string, after: string) {
