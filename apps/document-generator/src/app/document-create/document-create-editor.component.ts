@@ -3021,7 +3021,7 @@ blockquote {
     // Quick preset first (lower priority), then user CSS last (higher priority).
     return [
       this.stylePresetCss(this.selectedQuickStylePreset),
-      prioritizeUserCss(this.cleanUserCustomCss()),
+      prioritizeUserCss(normalizeUserCss(this.cleanUserCustomCss())),
     ]
       .filter((part) => part.trim())
       .join('\n\n');

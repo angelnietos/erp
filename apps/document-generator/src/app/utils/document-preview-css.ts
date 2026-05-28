@@ -45,38 +45,57 @@ export const DEFAULT_DOCUMENT_PREVIEW_CSS = `
 }
 `;
 
-const USER_CSS_SCOPE = '.document-create-shell .document-preview-pane.markdown-preview';
+/** Scopes for user/AI CSS — must match or beat document color isolation rules. */
+const USER_CSS_SCOPES = [
+  '.document-create-shell .document-preview-pane--isolated.markdown-preview',
+  '.document-create-shell .document-preview-pane.markdown-preview',
+] as const;
+
+function joinUserCssScopes(selectorSuffix = ''): string {
+  const suffix = selectorSuffix.trim();
+  return USER_CSS_SCOPES.map((scope) => (suffix ? `${scope} ${suffix}` : scope)).join(
+    ',\n',
+  );
+}
 
 export function scopeSingleSelector(selector: string): string {
   if (!selector) {
     return selector;
   }
 
-  if (selector.includes('.document-preview-pane.markdown-preview')) {
+  if (selector.includes('document-create-shell') && selector.includes('document-preview-pane')) {
     return selector;
   }
 
   if (selector.includes('.markdown-preview')) {
-    return selector.replace(/\.markdown-preview\b/g, USER_CSS_SCOPE);
+    const withoutRoot = selector
+      .replace(/^\s*\.markdown-preview\s+/, '')
+      .replace(/^\s*\.markdown-preview/, '');
+    if (withoutRoot !== selector.trim()) {
+      return joinUserCssScopes(withoutRoot);
+    }
+    return USER_CSS_SCOPES.map((scope) =>
+      selector.replace(/\.markdown-preview\b/g, scope),
+    ).join(',\n');
   }
 
   if (selector === ':root' || selector === 'html' || selector === 'body') {
-    return USER_CSS_SCOPE;
+    return joinUserCssScopes();
   }
 
   if (selector.startsWith('body.')) {
-    return `${USER_CSS_SCOPE}${selector.slice('body'.length)}`;
+    return joinUserCssScopes(selector.slice('body'.length).trim());
   }
 
   if (selector.startsWith('html ')) {
-    return `${USER_CSS_SCOPE} ${selector.slice('html '.length)}`;
+    return joinUserCssScopes(selector.slice('html '.length));
   }
 
   if (selector.startsWith('body ')) {
-    return `${USER_CSS_SCOPE} ${selector.slice('body '.length)}`;
+    return joinUserCssScopes(selector.slice('body '.length));
   }
 
-  return `${USER_CSS_SCOPE} ${selector}`;
+  return joinUserCssScopes(selector);
 }
 
 export function scopeCssToMarkdownPreview(css: string): string {
@@ -86,7 +105,7 @@ export function scopeCssToMarkdownPreview(css: string): string {
   }
 
   if (!trimmed.includes('{')) {
-    return `${USER_CSS_SCOPE} {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
+    return `${joinUserCssScopes()} {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
   }
 
   return trimmed.replace(
@@ -133,15 +152,42 @@ export function normalizeUserCss(css: string): string {
     return '';
   }
 
-  return `${USER_CSS_SCOPE} {\n${declarations}\n}`;
+  return `${joinUserCssScopes()} {\n${declarations}\n}`;
 }
 
 export function prioritizeUserCss(css: string): string {
-  return css.replace(
+  const prioritized = css.replace(
     /(^|[{\s;])(color\s*:\s*[^;!}]+)(;?)/gi,
     (_match, prefix: string, declaration: string, suffix: string) =>
       `${prefix}${declaration.trim()} !important${suffix || ';'}`,
   );
+
+  return prioritized.replace(
+    /(^|})\s*([^@{}][^{}]*)\{([^{}]*\bcolor\s*:\s*[^;!}]+(?:\s*!important)?[^{}]*)\}/gi,
+    (match, boundary: string, selectorText: string, body: string) => {
+      const colorDeclaration = /\bcolor\s*:\s*[^;!}]+(?:\s*!important)?/i.test(body);
+      if (!colorDeclaration) return match;
+      const selectors = selectorText
+        .split(',')
+        .map((selector) => addNoInlineColorGuard(selector.trim()))
+        .join(', ');
+      return `${boundary}\n${selectors} {${body}}`;
+    },
+  );
+}
+
+function addNoInlineColorGuard(selector: string): string {
+  if (!selector || selector.includes('[style*=')) {
+    return selector;
+  }
+  if (selector.includes('::')) {
+    return selector;
+  }
+  const pseudoMatch = selector.match(/(:[a-z-]+(?:\([^)]*\))?)$/i);
+  if (pseudoMatch) {
+    return `${selector.slice(0, -pseudoMatch[0].length)}:not([style*='color:'])${pseudoMatch[0]}`;
+  }
+  return `${selector}:not([style*='color:'])`;
 }
 
 function addClasses(element: Element | null, ...classes: string[]): void {
