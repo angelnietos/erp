@@ -640,6 +640,13 @@ const DEFAULT_DOCUMENT_PREVIEW_CSS = `
                         </svg>
                         Estilos CSS personalizados (opcional)
                       </label>
+                      <button
+                        type="button"
+                        (click)="insertDefaultCssTemplate()"
+                        class="ml-auto text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
+                      >
+                        Usar plantilla corporativa
+                      </button>
                       <textarea
                         id="customCss"
                         [(ngModel)]="customCss"
@@ -1046,7 +1053,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   fullscreenMode = false;
   fullscreenTab: 'editor' | 'preview' = 'editor';
   customCss = '';
-  selectedPdfStyle = 'modern';
+  selectedPdfStyle = 'default';
   pdfStyles: PdfStyle[] = [];
 
   templates: DocumentTemplate[] = [];
@@ -1558,6 +1565,324 @@ export class DocumentCreateEditorComponent implements OnInit {
     this.documentForm.patchValue({ content: template.content });
     this.updatePreview();
     this.syncAssistantFromFormNow();
+  }
+
+  insertDefaultCssTemplate() {
+    this.customCss = `:root {
+	--brand-dark: #5b0000;
+	--brand-primary: #7a0000;
+	--brand-accent: #ff3131;
+
+	--text: #111827;
+	--text-soft: #4b5563;
+
+	--bg: #ffffff;
+	--bg-soft: #f8f9fb;
+
+	--border: #e5e7eb;
+
+	--code-bg: #020617;
+	--code-text: #f8fafc;
+}
+
+body {
+	font-family: Inter, Barlow, sans-serif;
+	background: var(--bg);
+	color: var(--text);
+	line-height: 1.75;
+	font-size: 16px;
+
+	margin: 0;
+	padding: 56px 72px;
+}
+
+/* ---------- TITULOS ---------- */
+
+h1 {
+	font-size: 3rem;
+	font-weight: 800;
+	line-height: 1.1;
+
+	color: var(--text);
+
+	margin-top: 2rem;
+	margin-bottom: 2.5rem;
+
+	padding-bottom: 1rem;
+
+	border-bottom: 3px solid var(--brand-accent);
+
+	letter-spacing: -1px;
+}
+
+h2 {
+	font-size: 2rem;
+	font-weight: 750;
+
+	color: var(--text);
+
+	margin-top: 3rem;
+	margin-bottom: 1.25rem;
+
+	padding-left: 1rem;
+
+	border-left: 5px solid var(--brand-accent);
+}
+
+h3 {
+	font-size: 1.45rem;
+	font-weight: 700;
+
+	color: var(--text);
+
+	margin-top: 2rem;
+	margin-bottom: 1rem;
+}
+
+/* ---------- TEXTO ---------- */
+
+p {
+	color: var(--text-soft);
+	margin: 1rem 0;
+}
+
+strong {
+	color: var(--text);
+	font-weight: 700;
+}
+
+/* ---------- LINKS ---------- */
+
+a {
+	color: var(--brand-primary);
+	text-decoration: none;
+	font-weight: 600;
+}
+
+a:hover {
+	color: var(--brand-accent);
+}
+
+/* ---------- CODIGO ---------- */
+
+pre {
+	background: var(--code-bg);
+
+	color: var(--code-text);
+
+	padding: 18px 22px;
+
+	border-radius: 8px;
+
+	overflow-x: auto;
+
+	margin: 1.75rem 0;
+
+	border-left: 5px solid var(--brand-accent);
+
+	box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+code {
+	font-family: 'Fira Code', Consolas, monospace;
+	font-size: 0.95em;
+}
+
+:not(pre)>code {
+	background: #f3f4f6;
+
+	color: #374151;
+
+	padding: 3px 7px;
+
+	border-radius: 5px;
+}
+
+/* ---------- TABLAS ---------- */
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+
+	margin: 2rem 0;
+
+	background: white;
+}
+
+th {
+	background: var(--brand-primary);
+
+	color: white;
+
+	text-align: left;
+
+	padding: 14px;
+
+	font-size: 0.95rem;
+
+	font-weight: 700;
+}
+
+td {
+	padding: 14px;
+
+	border-bottom: 1px solid var(--border);
+
+	color: var(--text-soft);
+}
+
+tr:nth-child(even) {
+	background: #fafafa;
+}
+
+/* ---------- BLOCKQUOTE ---------- */
+
+blockquote {
+	margin: 2rem 0;
+
+	padding: 1rem 1.5rem;
+
+	background: var(--bg-soft);
+
+	border-left: 5px solid var(--brand-accent);
+
+	border-radius: 6px;
+
+	color: var(--text-soft);
+}
+
+/* ---------- LISTAS ---------- */
+
+ul,
+ol {
+	padding-left: 1.5rem;
+	color: var(--text-soft);
+}
+
+li {
+	margin: 0.5rem 0;
+}
+
+/* ---------- IMAGENES ---------- */
+
+img {
+	max-width: 100%;
+
+	border-radius: 10px;
+
+	margin: 2rem 0;
+}
+
+/* ---------- SEPARADORES ---------- */
+
+hr {
+	border: none;
+
+	height: 2px;
+
+	background: var(--border);
+
+	margin: 3rem 0;
+}
+
+/* ---------- PORTADA ---------- */
+
+.cover {
+	height: 100vh;
+
+	background:
+		radial-gradient(
+			circle at top right,
+			rgba(255,49,49,0.15) 0%,
+			transparent 30%
+		),
+		linear-gradient(
+			135deg,
+			#420000 0%,
+			#5b0000 40%,
+			#7a0000 100%
+		);
+
+	color: white;
+
+	padding: 80px;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.cover .eyebrow {
+	font-size: 0.9rem;
+
+	letter-spacing: 4px;
+
+	text-transform: uppercase;
+
+	color: rgba(255,255,255,0.7);
+
+	margin-bottom: 3rem;
+}
+
+.cover h1 {
+	font-size: 4.5rem;
+
+	font-weight: 800;
+
+	line-height: 1;
+
+	color: white;
+
+	border: none;
+
+	padding: 0;
+
+	margin: 0 0 2rem 0;
+
+	max-width: 850px;
+}
+
+.cover .accent-line {
+	width: 140px;
+	height: 6px;
+
+	background: var(--brand-accent);
+
+	border-radius: 999px;
+
+	margin: 2rem 0;
+}
+
+.cover .subtitle {
+	font-size: 1.3rem;
+
+	line-height: 1.7;
+
+	color: rgba(255,255,255,0.82);
+
+	max-width: 720px;
+}
+
+/* ---------- PAGINACION ---------- */
+
+@page {
+	margin: 2cm;
+}
+
+/* ---------- PAGE BREAKS ---------- */
+
+h1,
+h2,
+h3 {
+	page-break-after: avoid;
+}
+
+pre,
+table,
+blockquote {
+	page-break-inside: avoid;
+}`;
+    this.applyCustomCss();
   }
 
   insertCode() {

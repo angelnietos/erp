@@ -1644,6 +1644,142 @@ _______________________________
 
   private readonly pdfStyles = signal<PdfStyle[]>([
     {
+      id: 'default',
+      name: 'Predeterminado (Corporativo)',
+      description: 'Estilo corporativo con tema rojo-institucional y tipografía Inter',
+      css: `
+        body {
+          font-family: Inter, Barlow, sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          line-height: 1.75;
+          font-size: 16px;
+        }
+        h1 {
+          font-size: 3rem;
+          font-weight: 800;
+          line-height: 1.1;
+          color: var(--text);
+          margin-top: 2rem;
+          margin-bottom: 2.5rem;
+          padding-bottom: 1rem;
+          border-bottom: 3px solid var(--brand-accent);
+          letter-spacing: -1px;
+        }
+        h2 {
+          font-size: 2rem;
+          font-weight: 750;
+          color: var(--text);
+          margin-top: 3rem;
+          margin-bottom: 1.25rem;
+          padding-left: 1rem;
+          border-left: 5px solid var(--brand-accent);
+        }
+        h3 {
+          font-size: 1.45rem;
+          font-weight: 700;
+          color: var(--text);
+          margin-top: 2rem;
+          margin-bottom: 1rem;
+        }
+        p { color: var(--text-soft); margin: 1rem 0; }
+        strong { color: var(--text); font-weight: 700; }
+        a { color: var(--brand-primary); text-decoration: none; font-weight: 600; }
+        a:hover { color: var(--brand-accent); }
+        pre {
+          background: var(--code-bg);
+          color: var(--code-text);
+          padding: 18px 22px;
+          border-radius: 8px;
+          overflow-x: auto;
+          margin: 1.75rem 0;
+          border-left: 5px solid var(--brand-accent);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+        code { font-family: 'Fira Code', Consolas, monospace; font-size: 0.95em; }
+        :not(pre)>code {
+          background: #f3f4f6;
+          color: #374151;
+          padding: 3px 7px;
+          border-radius: 5px;
+        }
+        table { width: 100%; border-collapse: collapse; margin: 2rem 0; background: white; }
+        th {
+          background: var(--brand-primary);
+          color: white;
+          text-align: left;
+          padding: 14px;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+        td {
+          padding: 14px;
+          border-bottom: 1px solid var(--border);
+          color: var(--text-soft);
+        }
+        tr:nth-child(even) { background: #fafafa; }
+        blockquote {
+          margin: 2rem 0;
+          padding: 1rem 1.5rem;
+          background: var(--bg-soft);
+          border-left: 5px solid var(--brand-accent);
+          border-radius: 6px;
+          color: var(--text-soft);
+        }
+        ul, ol { padding-left: 1.5rem; color: var(--text-soft); }
+        li { margin: 0.5rem 0; }
+        img { max-width: 100%; border-radius: 10px; margin: 2rem 0; }
+        hr {
+          border: none;
+          height: 2px;
+          background: var(--border);
+          margin: 3rem 0;
+        }
+        .pdf-header {
+          text-align: center;
+          margin-bottom: 1.75rem;
+          padding: 1.35rem 1.25rem 1.25rem;
+          border-radius: 12px;
+          background: linear-gradient(135deg, #420000 0%, #5b0000 40%, #7a0000 100%);
+          border: 1px solid var(--border);
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+        }
+        .pdf-header::before {
+          content: '';
+          display: block;
+          height: 4px;
+          margin: -1.35rem -1.25rem 1rem -1.25rem;
+          border-radius: 12px 12px 0 0;
+          background: var(--brand-accent);
+        }
+        .pdf-header h1 {
+          border: none;
+          margin: 0;
+          padding: 0;
+          font-size: 22pt;
+          color: white;
+          letter-spacing: -0.02em;
+        }
+        .pdf-meta {
+          font-size: 9.5pt;
+          color: rgba(255,255,255,0.8);
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem 0.65rem;
+          justify-content: center;
+          margin-top: 0.85rem;
+        }
+        .pdf-meta span {
+          display: inline-block;
+          padding: 0.25rem 0.65rem;
+          background: rgba(255,255,255,0.2);
+          border: 1px solid rgba(255,255,255,0.3);
+          border-radius: 999px;
+          color: white;
+        }
+      `,
+    },
+    {
       id: 'modern',
       name: 'Moderno',
       description: 'Diseño limpio con acentos coloridos y tipografía contemporánea',
@@ -1678,19 +1814,6 @@ _______________________________
         h2 { color: #475569; }
         .pdf-header { background: #ffffff; border: 1px solid #f1f5f9; }
         .pdf-header::before { background: #94a3b8; }
-      `,
-    },
-    {
-      id: 'corporate',
-      name: 'Corporativo',
-      description: 'Estilo profesional corporativo con azul institucional',
-      css: `
-        body { font-family: 'Segoe UI', 'Roboto', sans-serif; color: #1e293b; }
-        h1 { color: #1d4ed8; border-bottom: 3px solid #3b82f6; }
-        h2 { color: #1e40af; }
-        .pdf-header { background: linear-gradient(165deg, #eff6ff 0%, #dbeafe 100%); }
-        .pdf-header::before { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
-        blockquote { border-left-color: #1d4ed8; background-color: #eff6ff; }
       `,
     },
   ]);
