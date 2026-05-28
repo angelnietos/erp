@@ -36,6 +36,7 @@ import {
   buildPreviewBackgroundOverrideCss,
   buildDocumentPreviewCss,
   buildPreviewPaneStyle,
+  normalizeUserCss,
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
@@ -2339,7 +2340,8 @@ blockquote {
   }
 
   private customCssForDocument(): string {
-    return [this.cleanUserCustomCss(), this.stylePresetCss(this.selectedQuickStylePreset)]
+    // Quick preset first (lower priority), then user CSS last (higher priority).
+    return [this.stylePresetCss(this.selectedQuickStylePreset), this.cleanUserCustomCss()]
       .filter((part) => part.trim())
       .join('\n\n');
   }
@@ -2357,11 +2359,16 @@ blockquote {
       pdfBackgroundColor: this.pdfBackgroundColor,
       pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
     };
+    // Cascade (lowest → highest priority):
+    //   defaults → PDF style template → quick style preset → user/AI CSS → background override.
+    // User CSS is always last so it wins over any built-in template.
     return [
-      buildDocumentPreviewCss(this.customCssForDocument()),
+      buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(),
+      normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
+      normalizeUserCss(this.cleanUserCustomCss()),
       buildPreviewBackgroundOverrideCss(background),
-    ].join('\n\n');
+    ].filter(Boolean).join('\n\n');
   }
 
   onPdfBackgroundChange(): void {
