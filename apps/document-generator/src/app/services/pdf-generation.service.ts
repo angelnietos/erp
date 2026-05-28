@@ -229,12 +229,6 @@ export class PdfGenerationService {
     htmlContent = this.applyPdfSectionBreaks(htmlContent);
 
     const title = escapeHtml(data.title || 'Documento');
-    const metaDate = escapeHtml(this.formatDisplayDate(data.date));
-    const metaClient = escapeHtml(
-      data.subtitle || data.client || 'Josanz ERP',
-    );
-    const formatLabel = isHtml ? 'HTML' : 'Markdown (GFM)';
-
     const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
 
     // Get PDF style CSS
@@ -248,6 +242,7 @@ export class PdfGenerationService {
       <html>
       <head>
         <meta charset="UTF-8">
+        <title>${title}</title>
         <style>
           @page {
             margin: 22mm 18mm 24mm 18mm;
@@ -406,78 +401,12 @@ export class PdfGenerationService {
             height: auto;
             page-break-inside: avoid;
           }
-          .pdf-header {
-            text-align: center;
-            margin-bottom: 1.75rem;
-            padding: 1.35rem 1.25rem 1.25rem;
-            border-radius: 12px;
-            background: linear-gradient(
-              165deg,
-              #f8fafc 0%,
-              #f1f5f9 45%,
-              #eef2f7 100%
-            );
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
-          }
-          .pdf-header::before {
-            content: '';
-            display: block;
-            height: 4px;
-            margin: -1.35rem -1.25rem 1rem -1.25rem;
-            border-radius: 12px 12px 0 0;
-            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 50%, #0ea5e9 100%);
-          }
-          .pdf-header h1 {
-            border: none;
-            margin: 0;
-            padding: 0;
-            font-size: 22pt;
-            color: #0f172a;
-            letter-spacing: -0.02em;
-          }
-          .pdf-meta {
-            font-size: 9.5pt;
-            color: #64748b;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem 0.65rem;
-            justify-content: center;
-            margin-top: 0.85rem;
-          }
-          .pdf-meta span {
-            display: inline-block;
-            padding: 0.25rem 0.65rem;
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid #e2e8f0;
-            border-radius: 999px;
-            color: #475569;
-          }
           .pdf-body-content {
-            margin-top: 0.25rem;
+            margin-top: 0;
           }
           .pdf-body-content > h1:first-child,
           .pdf-body-content > h2:first-child {
             margin-top: 0;
-          }
-          .pdf-doc-footer {
-            margin-top: 2.25rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e2e8f0;
-            text-align: center;
-            font-size: 8.5pt;
-            color: #94a3b8;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-          }
-          .pdf-doc-footer::before {
-            content: '';
-            display: block;
-            width: 48px;
-            height: 3px;
-            margin: 0 auto 0.65rem;
-            border-radius: 2px;
-            background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
           ${styleCss}
           ${mergedCss}
@@ -485,20 +414,9 @@ export class PdfGenerationService {
       </head>
       <body>
         <div class="pdf-canvas-root">
-          <div class="pdf-header">
-            <h1>${title}</h1>
-            <div class="pdf-meta">
-              <span>Fecha: ${metaDate}</span>
-              <span>${metaClient}</span>
-              <span>${formatLabel}</span>
-            </div>
-          </div>
-
-          <div class="pdf-body-content markdown-preview">
+          <div class="pdf-body-content document-preview-render markdown-preview">
           ${htmlContent}
           </div>
-
-          <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
         </div>
       </body>
       </html>
