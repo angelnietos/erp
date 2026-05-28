@@ -1444,7 +1444,37 @@ export class DocumentCreateEditorComponent implements OnInit {
     const end = textarea.selectionEnd;
     const content = this.documentForm.get('content')?.value || '';
     const selectedText = content.substring(start, end);
+    // If the action is a heading (before starts with '#'), apply it per-line
+    // and remove any existing leading heading markers to avoid stacking (###).
+    if (before.trim().startsWith('#')) {
+      const lineStart = content.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
+      let lineEnd = content.indexOf('\n', end);
+      if (lineEnd === -1) lineEnd = content.length;
+      const block = content.substring(lineStart, lineEnd);
+      const lines = block.split('\n');
+      const newLines = lines.map((ln) => {
+        // remove up to 3 leading spaces and any leading 1-6 #'s plus following space
+        return before + ln.replace(/^\s{0,3}#{1,6}\s*/, '');
+      });
+      const newContent =
+        content.substring(0, lineStart) +
+        newLines.join('\n') +
+        content.substring(lineEnd);
+      this.documentForm.patchValue({ content: newContent });
 
+      setTimeout(() => {
+        textarea.focus();
+        // place cursor at start of first modified line content (after the heading)
+        const newSelectionStart = lineStart + before.length;
+        textarea.selectionStart = newSelectionStart;
+        textarea.selectionEnd = newSelectionStart + (selectedText.length || 0);
+        this.updatePreview();
+      }, 0);
+      this.syncAssistantFromFormNow();
+      return;
+    }
+
+    // Default behaviour for inline wrappers (bold, italic, link, code...)
     const newContent =
       content.substring(0, start) +
       before +

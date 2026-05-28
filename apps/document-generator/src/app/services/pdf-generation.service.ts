@@ -104,6 +104,9 @@ export class PdfGenerationService {
         letterRendering: true,
         scrollY: 0,
         logging: false,
+        // Allow html2canvas to render element background styles instead of
+        // forcing a white canvas background. `null` preserves CSS backgrounds.
+        backgroundColor: null,
       },
       jsPDF: {
         unit: 'mm' as const,
