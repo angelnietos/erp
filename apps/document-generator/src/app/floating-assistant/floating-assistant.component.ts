@@ -1178,6 +1178,14 @@ interface AssistantReferenceAttachment {
                 <div class="action-group">
                   <div class="action-group__label">IA al documento</div>
                   <div class="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      class="agent-action-btn accent"
+                      (click)="transformMarkdownToVisualHtml()"
+                      [disabled]="isAiReplyLoading"
+                    >
+                      Markdown → HTML visual
+                    </button>
                     <button type="button" class="agent-action-btn secondary" (click)="applyLastCssBlock()">
                       Aplicar CSS IA
                     </button>
@@ -1668,6 +1676,74 @@ export class FloatingAssistantComponent implements OnInit {
     });
   }
 
+  async transformMarkdownToVisualHtml(): Promise<void> {
+    if (this.isAiReplyLoading) return;
+
+    const ctx = this.assistantService.context$();
+    const markdown = (ctx.documentContent || '').trim();
+    const mode = String(ctx.formData?.['contentEditorMode'] ?? 'markdown');
+
+    if (!markdown) {
+      this.assistantService.addMessage(
+        'No hay contenido en el editor para convertir a HTML.',
+        'assistant',
+      );
+      return;
+    }
+
+    const instruction = [
+      'Convierte el contenido actual del editor a un documento HTML visual, moderno y autocontenido.',
+      'Devuelve SOLO un bloque ```html con el documento completo.',
+      'Incluye <!doctype html>, <html lang="es">, <head>, <meta charset="utf-8"> y un <style> interno.',
+      'Respeta todo el contenido y la estructura semántica del Markdown: títulos, secciones, listas, tablas, llamadas de atención y firmas.',
+      'No dejes marcadores Markdown visibles si se pueden representar mejor en HTML.',
+      'Crea clases útiles y semánticas para las secciones: .hero, .section, .card, .metadata-grid, .table-wrap, .callout, .signature-grid, etc.',
+      'Diseña una versión más bonita que el Markdown base: buena jerarquía, espaciado, colores coherentes, tablas limpias y portada/cabecera si encaja.',
+      'No inventes datos: conserva placeholders como [rellenar] o [Fecha actual] cuando falten datos.',
+      mode !== 'markdown'
+        ? `Nota: el editor está en modo ${mode}, pero debes convertir el contenido actual a HTML autocontenido.`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    this.assistantService.addMessage(
+      'Convertir Markdown actual a HTML visual',
+      'user',
+    );
+    this.isAiReplyLoading = true;
+    this.scrollToBottom();
+
+    try {
+      const system = `${this.buildFloatingSystemPrompt()}\n\nMODO ACCIÓN: conversión de Markdown a HTML visual autocontenido. La respuesta debe ser únicamente un bloque \`\`\`html completo.`;
+      const reply = await this.inference.generateResponse(instruction, system, {
+        maxOutputTokens: 8192,
+        attachments: this.aiReferenceAttachments(),
+      });
+      const text = (reply || '').trim();
+      const appliedOrWarning = this.applyAssistantReplyToPage(
+        text,
+        'reemplaza todo: convertir markdown a html visual autocontenido',
+      );
+      this.assistantService.addMessage(
+        appliedOrWarning ||
+          this.compactAssistantReplyForChat(text) ||
+          '(Sin respuesta del modelo.)',
+        'assistant',
+      );
+    } catch (err: unknown) {
+      const hint =
+        err instanceof Error ? err.message : 'Error al contactar con el modelo.';
+      this.assistantService.addMessage(
+        `No he podido convertir el Markdown a HTML visual.\n\n${hint}`,
+        'assistant',
+      );
+    } finally {
+      this.isAiReplyLoading = false;
+      setTimeout(() => this.scrollToBottom(), 80);
+    }
+  }
+
   insertLastAssistantText(): void {
     const text = this.latestAssistantMessageContent();
     if (!text) {
@@ -1909,6 +1985,13 @@ export class FloatingAssistantComponent implements OnInit {
       }
 
       if (block.language === 'html') {
+        if (this.shouldReplaceDocument(userMessage)) {
+          this.assistantService.runDocumentCommand({
+            type: 'replace-css',
+            value: '',
+            description: 'CSS externo limpiado para usar los estilos internos del HTML.',
+          });
+        }
         this.assistantService.runDocumentCommand({
           type: 'set-editor-mode',
           value: 'html',
