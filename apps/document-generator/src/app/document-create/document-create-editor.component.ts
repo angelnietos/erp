@@ -664,6 +664,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                   class="h-9 w-11 rounded border border-soft bg-transparent p-1"
                                   aria-label="Color de texto seleccionado"
                                 />
+                                
                                 <button
                                   type="button"
                                   class="flex-1"
