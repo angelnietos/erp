@@ -1830,7 +1830,11 @@ export class FloatingAssistantComponent implements OnInit {
     this.scrollToBottom();
 
     if (this.inference.selectedProvider() === 'free') {
-      this.assistantService.addMessage(this.getResponse(message), 'assistant');
+      const local = this.getResponse(message);
+      this.assistantService.addMessage(
+        this.applyAssistantReplyToPage(local, message) ?? local,
+        'assistant',
+      );
       this.scrollToBottom();
       return;
     }
@@ -1844,7 +1848,9 @@ export class FloatingAssistantComponent implements OnInit {
       });
       const text = (reply || '').trim();
       this.assistantService.addMessage(
-        text || '(Sin respuesta del modelo.)',
+        this.applyAssistantReplyToPage(text, message) ||
+          text ||
+          '(Sin respuesta del modelo.)',
         'assistant',
       );
     } catch (err: unknown) {
@@ -1864,6 +1870,108 @@ export class FloatingAssistantComponent implements OnInit {
   sendQuickAction(action: string): void {
     this.messageInput.setValue(action);
     void this.sendMessage();
+  }
+
+  private applyAssistantReplyToPage(
+    reply: string,
+    userMessage: string,
+  ): string | null {
+    const codeBlocks = this.extractCodeBlocks(reply);
+    const applied: string[] = [];
+
+    for (const block of codeBlocks) {
+      if (block.language === 'css' || block.language === 'scss') {
+        this.assistantService.runDocumentCommand({
+          type: 'append-css',
+          value: block.code,
+          description: 'CSS generado por IA aplicado al documento.',
+        });
+        applied.push('estilos CSS');
+        continue;
+      }
+
+      if (block.language === 'html') {
+        this.assistantService.runDocumentCommand({
+          type: 'set-editor-mode',
+          value: 'html',
+          description: 'Editor cambiado a HTML para aplicar contenido generado.',
+        });
+        this.assistantService.runDocumentCommand({
+          type: 'replace-content',
+          value: block.code,
+          description: 'HTML generado por IA aplicado al documento.',
+        });
+        applied.push('HTML del documento');
+        continue;
+      }
+
+      if (block.language === 'markdown' || block.language === 'md') {
+        this.assistantService.runDocumentCommand({
+          type: 'set-editor-mode',
+          value: 'markdown',
+          description: 'Editor cambiado a Markdown para aplicar contenido generado.',
+        });
+        this.assistantService.runDocumentCommand({
+          type: this.shouldReplaceDocument(userMessage)
+            ? 'replace-content'
+            : 'append-content',
+          value: block.code,
+          description: 'Markdown generado por IA aplicado al documento.',
+        });
+        applied.push('contenido Markdown');
+      }
+    }
+
+    if (applied.length === 0) {
+      const css = this.extractLooseCss(reply);
+      if (css) {
+        this.assistantService.runDocumentCommand({
+          type: 'append-css',
+          value: css,
+          description: 'CSS generado por IA aplicado al documento.',
+        });
+        applied.push('estilos CSS');
+      }
+    }
+
+    if (applied.length === 0) {
+      return null;
+    }
+
+    const unique = [...new Set(applied)];
+    return `Listo. He aplicado ${unique.join(' y ')} directamente en la página. Revisa el editor y la vista previa.`;
+  }
+
+  private extractCodeBlocks(reply: string): Array<{
+    language: string;
+    code: string;
+  }> {
+    const blocks: Array<{ language: string; code: string }> = [];
+    const regex = /```([\w-]*)\s*([\s\S]*?)```/g;
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(reply)) !== null) {
+      const language = (match[1] || '').trim().toLowerCase();
+      const code = (match[2] || '').trim();
+      if (code) {
+        blocks.push({ language, code });
+      }
+    }
+    return blocks;
+  }
+
+  private extractLooseCss(reply: string): string {
+    const trimmed = reply.trim();
+    const looksLikeCss =
+      /(^|\n)\s*(?:@media|@page|:root|body|\.markdown-preview|\.document-preview-render|[.#][\w-]+|h[1-6]|p|table|th|td)\b[\s\S]*\{[\s\S]*\}/.test(
+        trimmed,
+      ) && !/<\/?[a-z][\s\S]*>/i.test(trimmed);
+    return looksLikeCss ? trimmed : '';
+  }
+
+  private shouldReplaceDocument(userMessage: string): boolean {
+    return /\b(reemplaza|sustituye|reescribe|cambia todo|nuevo documento|desde cero|replace|rewrite)\b/i.test(
+      userMessage,
+    );
   }
 
   async onReferenceFilesSelected(event: Event): Promise<void> {
@@ -2041,8 +2149,9 @@ export class FloatingAssistantComponent implements OnInit {
       this.referenceAttachments.length > 0
         ? 'Usa los adjuntos como referencia visual/documental para proponer CSS, HTML, paletas, espaciados, tipografías y jerarquía visual. Si ves imágenes/PDF adjuntos y el proveedor lo permite, analiza su estilo visual.'
         : '',
-      'Si el usuario pide estilos visuales, puedes responder con un bloque ```css. El usuario podrá aplicarlo con el botón "Aplicar CSS último".',
-      'Si el usuario pide HTML, puedes responder con un bloque ```html completo o parcial. No envuelvas explicaciones dentro del código.',
+      'IMPORTANTE: Si el usuario pide estilos visuales, responde con un único bloque ```css. La app lo aplicará automáticamente al documento, así que no incluyas instrucciones de copia/pegado.',
+      'IMPORTANTE: Si el usuario pide crear o reemplazar documento HTML, responde con un único bloque ```html. La app lo aplicará automáticamente.',
+      'IMPORTANTE: Si el usuario pide crear contenido Markdown, responde con un único bloque ```markdown. La app lo insertará o reemplazará automáticamente.',
       'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
     ]
       .filter(Boolean)
