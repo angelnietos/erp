@@ -422,23 +422,29 @@ a svg,
    that set pale text on pale backgrounds. Remove or narrow these after
    auditing specific components. */
 :root:not([data-theme*='light']) .document-create-shell,
-:root:not([data-theme*='light']) .document-create-shell *,
+:root:not([data-theme*='light']) .document-create-shell *:not(
+  .document-preview-pane,
+  .document-preview-pane *,
+  .document-preview-pane-shell,
+  .document-preview-pane-shell *,
+  .document-preview-render,
+  .document-preview-render *,
+  .document-preview-pane--isolated,
+  .document-preview-pane--isolated *
+),
 :root:not([data-theme*='light']) .document-editor-panel,
 :root:not([data-theme*='light']) .document-editor-panel *,
 :root:not([data-theme*='light']) .document-css-panel,
 :root:not([data-theme*='light']) .document-css-panel *,
 :root:not([data-theme*='light']) .document-editor-column:not(.document-editor-column--preview):not(.fullscreen-preview),
-:root:not([data-theme*='light']) .document-editor-column:not(.document-editor-column--preview):not(.fullscreen-preview) *,
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated),
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) *:not([style*='color:']) {
+:root:not([data-theme*='light']) .document-editor-column:not(.document-editor-column--preview):not(.fullscreen-preview) * {
   color: var(--text-primary) !important;
 }
 
 /* Keep secondary/muted semantics but readable */
 :root:not([data-theme*='light']) .document-create-shell .text-muted,
 :root:not([data-theme*='light']) .document-editor-panel .text-muted,
-:root:not([data-theme*='light']) .document-css-panel .text-muted,
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) .text-muted {
+:root:not([data-theme*='light']) .document-css-panel .text-muted {
   color: var(--text-secondary) !important;
 }
 
@@ -481,14 +487,6 @@ a svg,
 :root:not([data-theme*='light']) [class*="text-slate-"],
 :root:not([data-theme*='light']) [class*="text-gray-"],
 :root:not([data-theme*='light']) [class*="text-white"] {
-  color: var(--text-primary) !important;
-}
-
-/* If users paste custom CSS that forces light backgrounds inside the preview,
-   prefer the theme surface so preview remains readable */
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated),
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) *:not([style*='color:']) {
-  background: transparent !important;
   color: var(--text-primary) !important;
 }
 

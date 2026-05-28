@@ -45,28 +45,46 @@ export const DEFAULT_DOCUMENT_PREVIEW_CSS = `
 }
 `;
 
+/**
+ * Prefix used when scoping user CSS rules.
+ * Using two classes (.document-preview-pane.markdown-preview) gives specificity (0,2,x)
+ * which beats the dark-mode emergency rules in styles.css that use
+ * `.document-create-shell *` (also 0,2,1). When both have !important the later
+ * rule in the cascade wins, and our dynamic <style> tag is appended at the end
+ * of <head>, so it always comes after the static stylesheet.
+ */
+const USER_CSS_SCOPE = '.document-preview-pane.markdown-preview';
+
 export function scopeSingleSelector(selector: string): string {
-  if (!selector || selector.includes('.markdown-preview')) {
+  if (!selector) return selector;
+
+  // Already scoped to the high-specificity prefix — leave untouched.
+  if (selector.includes('document-preview-pane')) {
     return selector;
   }
 
+  // AI or user wrote ".markdown-preview h1" — upgrade to higher-specificity scope.
+  if (selector.includes('.markdown-preview')) {
+    return selector.replace(/\.markdown-preview\b/g, USER_CSS_SCOPE);
+  }
+
   if (selector === ':root' || selector === 'html' || selector === 'body') {
-    return '.markdown-preview';
+    return USER_CSS_SCOPE;
   }
 
   if (selector.startsWith('body.')) {
-    return `.markdown-preview${selector.slice('body'.length)}`;
+    return `${USER_CSS_SCOPE}${selector.slice('body'.length)}`;
   }
 
   if (selector.startsWith('html ')) {
-    return `.markdown-preview ${selector.slice('html '.length)}`;
+    return `${USER_CSS_SCOPE} ${selector.slice('html '.length)}`;
   }
 
   if (selector.startsWith('body ')) {
-    return `.markdown-preview ${selector.slice('body '.length)}`;
+    return `${USER_CSS_SCOPE} ${selector.slice('body '.length)}`;
   }
 
-  return `.markdown-preview ${selector}`;
+  return `${USER_CSS_SCOPE} ${selector}`;
 }
 
 export function scopeCssToMarkdownPreview(css: string): string {
@@ -76,7 +94,7 @@ export function scopeCssToMarkdownPreview(css: string): string {
   }
 
   if (!trimmed.includes('{')) {
-    return `.markdown-preview {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
+    return `${USER_CSS_SCOPE} {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
   }
 
   return trimmed.replace(
@@ -123,7 +141,29 @@ export function normalizeUserCss(css: string): string {
     return '';
   }
 
-  return `.markdown-preview {\n${declarations}\n}`;
+  return `${USER_CSS_SCOPE} {\n${declarations}\n}`;
+}
+
+/** User-authored CSS must win over theme rescue rules that still use !important. */
+export function prioritizeUserCss(css: string): string {
+  const prioritized = css.replace(
+    /(^|[{\s;])(color\s*:\s*[^;!}]+)(;?)/gi,
+    (_match, prefix: string, declaration: string, suffix: string) =>
+      `${prefix}${declaration.trim()} !important${suffix || ';'}`,
+  );
+
+  return prioritized.replace(
+    /(^|})\s*([^@{}][^{}]*)\{([^{}]*color\s*:\s*[^;!}]+(?:\s*!important)?[^{}]*)\}/gi,
+    (match, boundary: string, selectorText: string, body: string) => {
+      const colorMatch = /color\s*:\s*([^;!}]+)(?:\s*!important)?/i.exec(body);
+      if (!colorMatch) return match;
+      const childSelectors = selectorText
+        .split(',')
+        .map((selector) => `${selector.trim()} *`)
+        .join(', ');
+      return `${boundary}${selectorText}{${body}}\n${childSelectors} { color: ${colorMatch[1].trim()} !important; }`;
+    },
+  );
 }
 
 function addClasses(element: Element | null, ...classes: string[]): void {
