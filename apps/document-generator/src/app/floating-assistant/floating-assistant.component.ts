@@ -63,22 +63,26 @@ declare const marked: MarkedGlobal;
         position: fixed;
         min-width: 320px;
         min-height: 360px;
-        background: #ffffff;
-        border-radius: 20px;
+        background:
+          radial-gradient(circle at 20px 20px, rgba(255,255,255,0.65) 0 2px, transparent 3px) 0 0 / 18px 18px,
+          linear-gradient(180deg, #fff7ed 0%, #fffaf2 42%, #eef6ff 100%);
+        border-radius: 24px;
         z-index: 9999;
         display: flex;
         flex-direction: column;
         overflow: hidden;
         max-width: calc(100vw - 8px);
         max-height: calc(100vh - 8px);
+        color: #182230;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       }
 
       .assistant-window:not(.minimized) {
-        border: 1px solid color-mix(in srgb, var(--pet-color, #667eea) 22%, #e2e8f0);
+        border: 3px solid #1f2937;
         box-shadow:
-          0 0 0 1px rgba(15, 23, 42, 0.04),
-          0 25px 50px -12px rgba(15, 23, 42, 0.28),
-          0 12px 24px -8px rgba(15, 23, 42, 0.12);
+          0 0 0 5px rgba(255, 255, 255, 0.82),
+          0 24px 0 -12px rgba(31, 41, 55, 0.28),
+          0 28px 55px rgba(15, 23, 42, 0.35);
       }
 
       .assistant-window.minimized {
@@ -126,18 +130,19 @@ declare const marked: MarkedGlobal;
       }
 
       .window-header {
-        background: linear-gradient(
-          135deg,
-          var(--pet-color, #667eea) 0%,
-          #764ba2 100%
-        );
+        background:
+          radial-gradient(circle at 16px 16px, rgba(255,255,255,0.22) 0 4px, transparent 5px),
+          linear-gradient(135deg, #22c55e 0%, #16a34a 36%, #7c3aed 100%);
         color: white;
-        padding: 14px 18px;
+        padding: 11px 13px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+        box-shadow:
+          inset 0 -3px 0 rgba(15, 23, 42, 0.22),
+          0 2px 0 rgba(255,255,255,0.3);
         cursor: grab;
+        border-bottom: 3px solid #1f2937;
       }
 
       .window-header:active {
@@ -162,8 +167,11 @@ declare const marked: MarkedGlobal;
       .messages-container {
         flex: 1;
         overflow-y: auto;
-        padding: 16px;
-        background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+        padding: 14px;
+        background:
+          linear-gradient(90deg, rgba(15,23,42,0.04) 1px, transparent 1px),
+          linear-gradient(180deg, #fffdf7 0%, #f0f9ff 100%);
+        background-size: 18px 18px, auto;
         scroll-behavior: smooth;
       }
 
@@ -178,19 +186,21 @@ declare const marked: MarkedGlobal;
 
       .message.user {
         margin-left: auto;
-        background: #2563eb;
+        background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
         color: white;
-        border-bottom-right-radius: 4px;
+        border: 2px solid #172554;
+        border-bottom-right-radius: 7px;
+        box-shadow: 0 4px 0 rgba(30, 64, 175, 0.3);
       }
 
       .message.assistant {
         margin-right: auto;
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-bottom-left-radius: 4px;
+        background: #ffffff;
+        border: 2px solid #1f2937;
+        border-bottom-left-radius: 7px;
         color: #0f172a;
         word-break: break-word;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+        box-shadow: 0 4px 0 rgba(15, 23, 42, 0.12);
       }
 
       .assistant-bubble-md {
@@ -226,38 +236,95 @@ declare const marked: MarkedGlobal;
 
       .message.system {
         margin: 0 auto;
-        background: #f1f5f9;
-        color: #64748b;
+        background: #fff7ed;
+        color: #9a3412;
+        border: 1px dashed #fdba74;
         font-size: 12px;
         text-align: center;
         padding: 6px 12px;
       }
 
       .input-area {
-        padding: 12px;
-        border-top: 1px solid #e2e8f0;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        padding: 11px;
+        border-top: 3px solid #1f2937;
+        background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+      }
+
+      .input-area input {
+        border: 2px solid #1f2937 !important;
+        border-radius: 15px !important;
+        background: #fffdf7 !important;
+        box-shadow: inset 0 2px 0 rgba(15, 23, 42, 0.05);
+      }
+
+      .input-area input:focus {
+        box-shadow:
+          0 0 0 3px rgba(251, 191, 36, 0.35),
+          inset 0 2px 0 rgba(15, 23, 42, 0.05) !important;
+      }
+
+      .input-area button {
+        border: 2px solid #1f2937;
+        border-radius: 15px !important;
+        background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
+        box-shadow: 0 4px 0 rgba(127, 29, 29, 0.55);
+      }
+
+      .input-area button:hover {
+        transform: translateY(-1px);
       }
 
       .context-badge {
         font-size: 10px;
-        padding: 2px 6px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 4px;
+        padding: 3px 7px;
+        background: rgba(255, 255, 255, 0.24);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        border-radius: 999px;
+        font-weight: 800;
       }
 
       .workspace-actions {
-        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-        border-bottom: 1px solid #e2e8f0;
-        padding: 10px 12px;
+        background:
+          radial-gradient(circle at top right, rgba(239,68,68,0.12), transparent 38%),
+          linear-gradient(180deg, #fffaf0 0%, #ffffff 100%);
+        border-bottom: 3px solid #1f2937;
+        padding: 9px 11px;
+      }
+
+      .collapsible-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border: none;
+        background: transparent;
+        padding: 0;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .collapse-pill {
+        border: 2px solid #1f2937;
+        background: linear-gradient(180deg, #fef3c7 0%, #f59e0b 100%);
+        border-radius: 999px;
+        color: #111827;
+        font-size: 11px;
+        font-weight: 900;
+        padding: 4px 9px;
+        box-shadow: 0 3px 0 rgba(120, 53, 15, 0.35);
+        white-space: nowrap;
       }
 
       .workspace-actions__title {
-        color: #0f172a;
+        color: #111827;
         font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
+        font-weight: 900;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
 
       .workspace-actions__subtitle {
@@ -267,46 +334,89 @@ declare const marked: MarkedGlobal;
         margin-top: 2px;
       }
 
+      .action-stage {
+        margin-top: 10px;
+        display: grid;
+        gap: 8px;
+        max-height: min(42vh, 360px);
+        overflow-y: auto;
+        padding-right: 2px;
+      }
+
+      .action-group {
+        background: rgba(255, 255, 255, 0.86);
+        border: 2px solid rgba(31, 41, 55, 0.12);
+        border-radius: 16px;
+        padding: 8px;
+        box-shadow: inset 0 -2px 0 rgba(15, 23, 42, 0.04);
+      }
+
+      .action-group__label {
+        color: #475569;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+      }
+
       .agent-action-btn {
-        border: 1px solid #dbeafe;
-        background: #eff6ff;
-        color: #1d4ed8;
-        border-radius: 999px;
+        border: 2px solid #1f2937;
+        background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
+        color: #1e3a8a;
+        border-radius: 14px;
         font-size: 11px;
-        font-weight: 700;
-        padding: 6px 9px;
+        font-weight: 900;
+        padding: 7px 10px;
+        box-shadow: 0 3px 0 rgba(30, 64, 175, 0.25);
         transition:
+          transform 0.12s ease,
+          box-shadow 0.12s ease,
           background-color 0.15s ease,
           border-color 0.15s ease,
           color 0.15s ease;
       }
 
       .agent-action-btn:hover {
-        background: #dbeafe;
-        border-color: #93c5fd;
+        transform: translateY(-1px);
+        background: linear-gradient(180deg, #eff6ff 0%, #bfdbfe 100%);
         color: #1e40af;
+        box-shadow: 0 5px 0 rgba(30, 64, 175, 0.22);
+      }
+
+      .agent-action-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 1px 0 rgba(30, 64, 175, 0.2);
       }
 
       .agent-action-btn.secondary {
-        background: #f8fafc;
-        border-color: #e2e8f0;
-        color: #475569;
+        background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
+        color: #334155;
+        box-shadow: 0 3px 0 rgba(71, 85, 105, 0.18);
       }
 
       .agent-action-btn.accent {
-        background: #fff1f2;
-        border-color: #fecdd3;
-        color: #be123c;
+        background: linear-gradient(180deg, #fff7ed 0%, #fecaca 100%);
+        color: #991b1b;
+        box-shadow: 0 3px 0 rgba(153, 27, 27, 0.22);
       }
 
       .dock-btn {
-        border: 1px solid rgba(255,255,255,0.28);
-        background: rgba(255,255,255,0.14);
+        border: 2px solid rgba(31, 41, 55, 0.65);
+        background: rgba(255,255,255,0.24);
         color: white;
-        border-radius: 8px;
-        padding: 3px 6px;
+        border-radius: 10px;
+        padding: 2px 6px;
         font-size: 11px;
-        font-weight: 700;
+        font-weight: 900;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
+      }
+
+      .quick-dock {
+        padding: 9px 11px;
+        border-top: 3px solid #1f2937;
+        background: linear-gradient(180deg, #ffffff 0%, #111827 100%);
+        color: #111827;
       }
 
       @keyframes pet-bounce {
@@ -394,34 +504,35 @@ declare const marked: MarkedGlobal;
 
       .view-tabs {
         display: flex;
-        gap: 0;
-        background: #f1f5f9;
-        border-bottom: 1px solid #e2e8f0;
-        padding: 0;
+        gap: 8px;
+        background: #111827;
+        border-bottom: 3px solid #1f2937;
+        padding: 8px;
       }
 
       .view-tab {
         flex: 1;
         padding: 8px 12px;
-        border: none;
-        background: transparent;
+        border: 2px solid rgba(255,255,255,0.12);
+        border-radius: 13px;
+        background: rgba(255,255,255,0.08);
         cursor: pointer;
         font-size: 12px;
-        font-weight: 500;
+        font-weight: 900;
         text-align: center;
-        color: #64748b;
-        border-bottom: 2px solid transparent;
+        color: #d1d5db;
         transition: all 0.2s;
       }
 
       .view-tab:hover {
-        background: #e2e8f0;
+        background: rgba(255,255,255,0.16);
       }
 
       .view-tab.active {
-        color: #2563eb;
-        background: white;
-        border-bottom-color: #2563eb;
+        color: #111827;
+        background: linear-gradient(180deg, #fef3c7 0%, #fbbf24 100%);
+        border-color: #fef9c3;
+        box-shadow: 0 3px 0 rgba(120, 53, 15, 0.45);
       }
 
       .history-container {
@@ -794,11 +905,31 @@ declare const marked: MarkedGlobal;
 
           <!-- Config Panel -->
           @if (showConfig) {
-            <div class="config-panel">
-              <h4 class="font-semibold text-slate-800 mb-3">
-                ⚙️ Configuración de {{ assistantService.petConfig$().name }}
-              </h4>
+            <div class="workspace-actions">
+              <button
+                type="button"
+                class="collapsible-toggle"
+                (click)="showConfigContent = !showConfigContent"
+                [attr.aria-expanded]="showConfigContent"
+              >
+                <span>
+                  <span class="workspace-actions__title">
+                    <span aria-hidden="true">⚙</span>
+                    Ajustes
+                  </span>
+                  <span class="workspace-actions__subtitle block">
+                    Apariencia, personalidad y motor de IA.
+                  </span>
+                </span>
+                <span class="collapse-pill">
+                  {{ showConfigContent ? 'Cerrar' : 'Abrir' }}
+                </span>
+              </button>
+            </div>
+          }
 
+          @if (showConfig && showConfigContent) {
+            <div class="config-panel">
               <div class="config-row">
                 <label for="animation-speed" class="text-sm text-secondary"
                   >Velocidad animación</label
@@ -915,37 +1046,65 @@ declare const marked: MarkedGlobal;
 
           @if (currentView === 'chat') {
             <div class="workspace-actions">
-              <div class="flex items-start justify-between gap-3">
-                <div>
-                  <div class="workspace-actions__title">Acciones sobre el documento</div>
+              <button
+                type="button"
+                class="collapsible-toggle"
+                (click)="showPowerCenter = !showPowerCenter"
+                [attr.aria-expanded]="showPowerCenter"
+              >
+                <span>
+                  <div class="workspace-actions__title">
+                    <span aria-hidden="true">✦</span>
+                    Centro de poderes
+                  </div>
                   <div class="workspace-actions__subtitle">
-                    El agente puede escribir contenido, cambiar de editor y aplicar CSS al documento actual.
+                    Acciones rápidas para escribir, vestir y preparar el documento sin salir del editor.
+                  </div>
+                </span>
+                <span class="collapse-pill">
+                  {{ showPowerCenter ? 'Cerrar' : 'Abrir' }}
+                </span>
+              </button>
+              @if (showPowerCenter) {
+                <div class="action-stage">
+                <div class="action-group">
+                  <div class="action-group__label">Estilo</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('readable')">
+                      Lectura +
+                    </button>
+                    <button type="button" class="agent-action-btn accent" (click)="applyStyleRecipe('corporate')">
+                      Corporativo
+                    </button>
+                    <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('print')">
+                      PDF Pro
+                    </button>
                   </div>
                 </div>
-              </div>
-              <div class="mt-2 flex flex-wrap gap-1.5">
-                <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('readable')">
-                  Mejorar lectura
-                </button>
-                <button type="button" class="agent-action-btn accent" (click)="applyStyleRecipe('corporate')">
-                  CSS corporativo
-                </button>
-                <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('print')">
-                  Preparar PDF
-                </button>
-                <button type="button" class="agent-action-btn secondary" (click)="applyLastCssBlock()">
-                  Aplicar CSS último
-                </button>
-                <button type="button" class="agent-action-btn secondary" (click)="insertLastAssistantText()">
-                  Insertar respuesta
-                </button>
-                <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('html')">
-                  Modo HTML
-                </button>
-                <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('markdown')">
-                  Modo Markdown
-                </button>
-              </div>
+                <div class="action-group">
+                  <div class="action-group__label">IA al documento</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button type="button" class="agent-action-btn secondary" (click)="applyLastCssBlock()">
+                      Aplicar CSS IA
+                    </button>
+                    <button type="button" class="agent-action-btn secondary" (click)="insertLastAssistantText()">
+                      Insertar texto IA
+                    </button>
+                  </div>
+                </div>
+                <div class="action-group">
+                  <div class="action-group__label">Modo editor</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('html')">
+                      HTML
+                    </button>
+                    <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('markdown')">
+                      Markdown
+                    </button>
+                  </div>
+                </div>
+                </div>
+              }
             </div>
           }
         }
@@ -1001,10 +1160,23 @@ declare const marked: MarkedGlobal;
               }
             </div>
 
-            <div
-              class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light space-y-2"
-            >
-              <div class="flex flex-wrap gap-1">
+            <div class="quick-dock">
+              <button
+                type="button"
+                class="collapsible-toggle"
+                (click)="showQuickDock = !showQuickDock"
+                [attr.aria-expanded]="showQuickDock"
+              >
+                <span class="workspace-actions__title">
+                  <span aria-hidden="true">☰</span>
+                  Atajos rápidos
+                </span>
+                <span class="collapse-pill">
+                  {{ showQuickDock ? 'Cerrar' : 'Abrir' }}
+                </span>
+              </button>
+              @if (showQuickDock) {
+              <div class="mt-2 flex flex-wrap gap-1">
                 <button
                   type="button"
                   (click)="saveCurrentConversation()"
@@ -1064,6 +1236,7 @@ declare const marked: MarkedGlobal;
                   >Motor de IA</a
                 >
               </div>
+              }
             </div>
 
             <div class="input-area flex space-x-2">
@@ -1191,6 +1364,9 @@ export class FloatingAssistantComponent implements OnInit {
   isDragging = false;
   isResizing = false;
   showConfig = false;
+  showConfigContent = false;
+  showPowerCenter = false;
+  showQuickDock = false;
   isMinimized = false;
   showExtraQuick = false;
   /** Respuesta del modelo en curso (Gemini, OpenAI, Ollama…). */
@@ -1513,6 +1689,9 @@ export class FloatingAssistantComponent implements OnInit {
   toggleConfig(event: MouseEvent): void {
     event.preventDefault();
     this.showConfig = !this.showConfig;
+    if (this.showConfig) {
+      this.showConfigContent = true;
+    }
   }
 
   clearConversation(): void {
