@@ -149,7 +149,9 @@ export class PdfGenerationService {
   private getPdfPaginationCss(): string {
     return `
       .pdf-canvas-root {
-        padding: 0.15rem 0;
+        min-height: 100%;
+        padding: 14mm 10mm;
+        box-sizing: border-box;
       }
       .pdf-body-content {
         margin-top: 0;
@@ -277,7 +279,7 @@ export class PdfGenerationService {
     canvasBackground: string | null = null,
   ) {
     return {
-      margin: [14, 10, 14, 10] as [number, number, number, number],
+      margin: [0, 0, 0, 0] as [number, number, number, number],
       filename,
       image: { type: 'jpeg' as const, quality: 0.92 },
       html2canvas: {
@@ -358,12 +360,16 @@ export class PdfGenerationService {
         <title>${title}</title>
         <style>
           @page {
-            margin: 22mm 18mm 24mm 18mm;
+            margin: 0;
           }
           * {
             box-sizing: border-box;
           }
+          html,
           body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
             font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
             line-height: 1.68;
             color: #0f172a;
@@ -832,12 +838,16 @@ export class PdfGenerationService {
         <meta charset="UTF-8">
         <style>
           @page {
-            margin: 22mm 18mm 24mm 18mm;
+            margin: 0;
           }
           * {
             box-sizing: border-box;
           }
+          html,
           body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
             font-family:
               'Segoe UI',
               system-ui,
