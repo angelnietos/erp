@@ -643,7 +643,7 @@ const DEFAULT_DOCUMENT_PREVIEW_CSS = `
                       <button
                         type="button"
                         (click)="insertDefaultCssTemplate()"
-                        class="ml-auto text-xs px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded transition-colors"
+                        class="ml-auto text-xs px-3 py-1.5 bg-[#7a0000] hover:bg-[#5b0000] text-white rounded-lg transition-colors shadow-sm"
                       >
                         Usar plantilla corporativa
                       </button>
