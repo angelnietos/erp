@@ -173,6 +173,7 @@ declare const marked: MarkedGlobal;
           linear-gradient(180deg, #fffdf7 0%, #f0f9ff 100%);
         background-size: 18px 18px, auto;
         scroll-behavior: smooth;
+        min-height: 0;
       }
 
       .message {
@@ -245,15 +246,17 @@ declare const marked: MarkedGlobal;
       }
 
       .input-area {
-        padding: 11px;
+        padding: 12px;
         border-top: 3px solid #1f2937;
         background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
+        align-items: center;
       }
 
       .input-area input {
         border: 2px solid #1f2937 !important;
         border-radius: 15px !important;
         background: #fffdf7 !important;
+        min-height: 42px;
         box-shadow: inset 0 2px 0 rgba(15, 23, 42, 0.05);
       }
 
@@ -410,13 +413,6 @@ declare const marked: MarkedGlobal;
         font-size: 11px;
         font-weight: 900;
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.3);
-      }
-
-      .quick-dock {
-        padding: 9px 11px;
-        border-top: 3px solid #1f2937;
-        background: linear-gradient(180deg, #ffffff 0%, #111827 100%);
-        color: #111827;
       }
 
       @keyframes pet-bounce {
@@ -1103,6 +1099,55 @@ declare const marked: MarkedGlobal;
                     </button>
                   </div>
                 </div>
+                <div class="action-group">
+                  <div class="action-group__label">Preguntar al agente</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button
+                      type="button"
+                      (click)="saveCurrentConversation()"
+                      class="agent-action-btn secondary"
+                      [disabled]="isAiReplyLoading"
+                    >
+                      Guardar chat
+                    </button>
+                    @for (action of quickActionsPrimary; track action) {
+                      <button
+                        type="button"
+                        (click)="sendQuickAction(action)"
+                        [disabled]="isAiReplyLoading"
+                        class="agent-action-btn secondary"
+                      >
+                        {{ action }}
+                      </button>
+                    }
+                    <button
+                      type="button"
+                      class="agent-action-btn secondary"
+                      (click)="showExtraQuick = !showExtraQuick"
+                    >
+                      {{ showExtraQuick ? 'Menos' : 'Más' }}
+                    </button>
+                  </div>
+                  @if (showExtraQuick) {
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                      @for (action of quickActionsExtra; track action) {
+                        <button
+                          type="button"
+                          (click)="sendQuickAction(action)"
+                          [disabled]="isAiReplyLoading"
+                          class="agent-action-btn secondary"
+                        >
+                          {{ action }}
+                        </button>
+                      }
+                    </div>
+                  }
+                  <div class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px]">
+                    <a routerLink="/documents/analysis" class="text-slate-600 hover:text-blue-700 font-bold">Análisis</a>
+                    <a routerLink="/documents/list" class="text-slate-600 hover:text-blue-700 font-bold">Documentos</a>
+                    <a routerLink="/documents/settings/ai" class="text-slate-600 hover:text-blue-700 font-bold">Motor IA</a>
+                  </div>
+                </div>
                 </div>
               }
             </div>
@@ -1160,85 +1205,6 @@ declare const marked: MarkedGlobal;
               }
             </div>
 
-            <div class="quick-dock">
-              <button
-                type="button"
-                class="collapsible-toggle"
-                (click)="showQuickDock = !showQuickDock"
-                [attr.aria-expanded]="showQuickDock"
-              >
-                <span class="workspace-actions__title">
-                  <span aria-hidden="true">☰</span>
-                  Atajos rápidos
-                </span>
-                <span class="collapse-pill">
-                  {{ showQuickDock ? 'Cerrar' : 'Abrir' }}
-                </span>
-              </button>
-              @if (showQuickDock) {
-              <div class="mt-2 flex flex-wrap gap-1">
-                <button
-                  type="button"
-                  (click)="saveCurrentConversation()"
-                  class="save-conversation-btn"
-                  [disabled]="isAiReplyLoading"
-                >
-                  💾 Guardar
-                </button>
-                @for (action of quickActionsPrimary; track action) {
-                  <button
-                    type="button"
-                    (click)="sendQuickAction(action)"
-                    [disabled]="isAiReplyLoading"
-                    class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors disabled:opacity-50"
-                  >
-                    {{ action }}
-                  </button>
-                }
-              </div>
-              <button
-                type="button"
-                (click)="showExtraQuick = !showExtraQuick"
-                class="text-[11px] font-medium text-blue-700 hover:text-blue-900 underline-offset-2 hover:underline"
-              >
-                {{ showExtraQuick ? 'Ocultar más acciones' : 'Más acciones (resumen, tono, CTA…)' }}
-              </button>
-              @if (showExtraQuick) {
-                <div class="flex flex-wrap gap-1">
-                  @for (action of quickActionsExtra; track action) {
-                    <button
-                      type="button"
-                      (click)="sendQuickAction(action)"
-                      [disabled]="isAiReplyLoading"
-                      class="px-2 py-1 text-xs bg-violet-50 border border-violet-200 rounded text-violet-900 hover:bg-violet-100 hover:border-violet-400 transition-colors disabled:opacity-50"
-                    >
-                      {{ action }}
-                    </button>
-                  }
-                </div>
-              }
-              <div
-                class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] border-t border-slate-200/80 pt-2"
-              >
-                <a
-                  routerLink="/documents/analysis"
-                  class="text-slate-600 hover:text-blue-700 font-medium"
-                  >Análisis de propuestas</a
-                >
-                <a
-                  routerLink="/documents/list"
-                  class="text-slate-600 hover:text-blue-700 font-medium"
-                  >Mis documentos</a
-                >
-                <a
-                  routerLink="/documents/settings/ai"
-                  class="text-slate-600 hover:text-blue-700 font-medium"
-                  >Motor de IA</a
-                >
-              </div>
-              }
-            </div>
-
             <div class="input-area flex space-x-2">
               <input
                 type="text"
@@ -1250,7 +1216,7 @@ declare const marked: MarkedGlobal;
                 "
                 placeholder="Pregunta cualquier cosa a {{
                   assistantService.petConfig$().name
-                }}..."
+                }} o pídele cambios de estilo..."
                 class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50"
               />
               <button
@@ -1366,7 +1332,6 @@ export class FloatingAssistantComponent implements OnInit {
   showConfig = false;
   showConfigContent = false;
   showPowerCenter = false;
-  showQuickDock = false;
   isMinimized = false;
   showExtraQuick = false;
   /** Respuesta del modelo en curso (Gemini, OpenAI, Ollama…). */
