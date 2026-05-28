@@ -156,6 +156,48 @@ interface DocumentType {
       .action-bar-panel {
         box-shadow: none;
       }
+
+      /* Editor split and left sidebar for toolbar */
+      .document-editor-split {
+        display: grid;
+        grid-template-columns: 14rem 1fr 1fr;
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .document-editor-sidebar {
+        background: var(--bg-secondary, #f8fafc);
+        border: 1px solid var(--border-soft, #e6e6e6);
+        padding: 0.75rem;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-height: 240px;
+      }
+
+      .document-editor-sidebar button {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.12s ease;
+      }
+
+      .document-editor-sidebar button:hover {
+        background: var(--surface-hover, #f1f5f9);
+      }
+
+      .document-editor-sidebar .divider {
+        height: 1px;
+        background: var(--border-soft, #e6e6e6);
+        margin: 0.25rem 0;
+      }
     `,
   ],
   selector: 'app-document-create-editor',
@@ -469,120 +511,7 @@ interface DocumentType {
                   </div>
                 </div>
 
-                <!-- Barra de Herramientas Markdown -->
-                <div
-                  class="bg-slate-100 rounded-xl p-2 flex flex-wrap gap-1 border border-soft"
-                >
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('**', '**')"
-                    title="Negrita (Ctrl+B)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-bold"
-                  >
-                    B
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('*', '*')"
-                    title="Cursiva (Ctrl+I)"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all italic"
-                  >
-                    I
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('# ', '')"
-                    title="Encabezado 1"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H1
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('## ', '')"
-                    title="Encabezado 2"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H2
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('### ', '')"
-                    title="Encabezado 3"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    H3
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('- ', '')"
-                    title="Lista"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    • Lista
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('> ', '')"
-                    title="Cita"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    " Cita
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertCode()"
-                    title="Código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
-                  >
-                    &lt;&gt;
-                  </button>
-                  <button
-                    type="button"
-                    (click)="insertCodeBlock()"
-                    title="Bloque de código"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all font-mono text-xs"
-                  >
-                    {{ '{}' }}
-                  </button>
-                  <div class="w-px bg-slate-300 mx-1"></div>
-                  <button
-                    type="button"
-                    (click)="insertMarkdown('[', '](url)')"
-                    title="Enlace"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all"
-                  >
-                    🔗
-                  </button>
-                  <button
-                    type="button"
-                    (click)="copyMarkdownToClipboard()"
-                    title="Copiar Markdown al portapapeles"
-                    class="px-3 py-1.5 rounded-lg hover:bg-surface transition-all text-sm"
-                  >
-                    Copiar
-                  </button>
-
-                  <div
-                    class="ml-auto flex items-center gap-3 text-xs text-muted"
-                  >
-                    @if (copyMarkdownFeedback) {
-                      <span class="text-violet-600 font-medium">Copiado</span>
-                    }
-                    @if (autoSaved) {
-                      <span class="text-green-600 flex items-center gap-1">
-                        <span
-                          class="w-1.5 h-1.5 bg-green-500 rounded-full"
-                        ></span>
-                        Guardado automático
-                      </span>
-                    }
-                    <span>{{ wordCount }} palabras</span>
-                    <span>{{ characterCount }} caracteres</span>
-                  </div>
-                </div>
+                <!-- Toolbar relocated to left sidebar in editor split -->
 
 <div class="document-editor-panel">
                     <div class="document-editor-panel__header">
@@ -679,6 +608,40 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
  
                       @if (!fullscreenMode) {
                         <div class="document-editor-split">
+                          <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
+                            <button type="button" (click)="insertMarkdown('**', '**')" title="Negrita (Ctrl+B)">
+                              <strong>B</strong>
+                              <span class="ml-2">Negrita</span>
+                            </button>
+                            <button type="button" (click)="insertMarkdown('*', '*')" title="Cursiva (Ctrl+I)">
+                              <em>I</em>
+                              <span class="ml-2">Cursiva</span>
+                            </button>
+                            <div class="divider"></div>
+                            <button type="button" (click)="insertMarkdown('# ', '')" title="Encabezado 1">H1</button>
+                            <button type="button" (click)="insertMarkdown('## ', '')" title="Encabezado 2">H2</button>
+                            <button type="button" (click)="insertMarkdown('### ', '')" title="Encabezado 3">H3</button>
+                            <div class="divider"></div>
+                            <button type="button" (click)="insertMarkdown('- ', '')" title="Lista">• Lista</button>
+                            <button type="button" (click)="insertMarkdown('> ', '')" title="Cita">" Cita</button>
+                            <button type="button" (click)="insertCode()" title="Código">&lt;&gt;</button>
+                            <button type="button" (click)="insertCodeBlock()" title="Bloque de código">{{ '{}' }}</button>
+                            <div class="divider"></div>
+                            <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace">🔗 Enlace</button>
+                            <button type="button" (click)="copyMarkdownToClipboard()" title="Copiar Markdown al portapapeles">Copiar</button>
+
+                            <div class="divider"></div>
+                            <div class="text-xs text-muted">
+                              @if (copyMarkdownFeedback) {
+                                <div class="text-violet-600 font-medium">Copiado</div>
+                              }
+                              @if (autoSaved) {
+                                <div class="text-green-600">Guardado automático</div>
+                              }
+                              <div>{{ wordCount }} palabras</div>
+                              <div>{{ characterCount }} caracteres</div>
+                            </div>
+                          </div>
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
                             <div class="document-editor-column__bar">
