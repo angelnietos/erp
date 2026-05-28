@@ -86,6 +86,20 @@ export function scopeCssToMarkdownPreview(css: string): string {
   );
 }
 
+/** Strip any leading bare declarations that appear before the first selector (malformed AI output). */
+function stripLeadingBareDeclarations(css: string): string {
+  const firstBrace = css.indexOf('{');
+  if (firstBrace <= 0) return css;
+  const beforeBrace = css.slice(0, firstBrace);
+  // If the text before the first { contains a }, the opening brace is inside a broken block
+  // (e.g. "color: red;\n} body {" — strip everything up to and including the first })
+  const firstClose = beforeBrace.indexOf('}');
+  if (firstClose !== -1) {
+    return css.slice(firstClose + 1).trim();
+  }
+  return css;
+}
+
 export function normalizeUserCss(css: string): string {
   const trimmed = css.trim();
   if (!trimmed) {
@@ -93,7 +107,9 @@ export function normalizeUserCss(css: string): string {
   }
 
   if (trimmed.includes('{')) {
-    return scopeCssToMarkdownPreview(trimmed);
+    const cleaned = stripLeadingBareDeclarations(trimmed);
+    if (!cleaned) return '';
+    return scopeCssToMarkdownPreview(cleaned);
   }
 
   const declarations = trimmed.replace(/[{}]/g, '').trim();

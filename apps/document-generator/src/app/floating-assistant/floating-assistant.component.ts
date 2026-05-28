@@ -1885,12 +1885,24 @@ export class FloatingAssistantComponent implements OnInit {
     const codeBlocks = this.extractCodeBlocks(reply);
     const applied: string[] = [];
 
+    // If the reply is essentially only a CSS block (no meaningful surrounding text),
+    // replace the existing CSS to avoid stacking broken or duplicate styles.
+    const replyWithoutFences = this.stripFencedCodeBlocks(reply).trim();
+    const isCssOnlyReply =
+      codeBlocks.length === 1 &&
+      (codeBlocks[0].language === 'css' || codeBlocks[0].language === 'scss') &&
+      replyWithoutFences.length < 80;
+
+    const cssCommandType = isCssOnlyReply ? 'replace-css' : 'append-css';
+
     for (const block of codeBlocks) {
       if (block.language === 'css' || block.language === 'scss') {
         this.assistantService.runDocumentCommand({
-          type: 'append-css',
+          type: cssCommandType,
           value: block.code,
-          description: 'CSS generado por IA aplicado al documento.',
+          description: isCssOnlyReply
+            ? 'Estilos CSS reemplazados por IA.'
+            : 'CSS generado por IA aplicado al documento.',
         });
         applied.push('estilos CSS');
         continue;
@@ -2149,6 +2161,9 @@ export class FloatingAssistantComponent implements OnInit {
   private buildFloatingSystemPrompt(): string {
     const ctx = this.assistantService.context$();
     const pet = this.assistantService.petConfig$();
+    const formData = (ctx.formData ?? {}) as Record<string, unknown>;
+    const currentCss = typeof formData['customCss'] === 'string' ? formData['customCss'].trim() : '';
+    const editorMode = typeof formData['contentEditorMode'] === 'string' ? formData['contentEditorMode'] : 'markdown';
     const personalityHints: Record<string, string> = {
       friendly: 'Tono cercano y claro, puedes usar emojis con moderación.',
       professional: 'Tono formal y directo, sin emojis salvo que el usuario los use.',
@@ -2159,20 +2174,42 @@ export class FloatingAssistantComponent implements OnInit {
     const attachmentContext = this.referenceAttachmentPromptContext();
     const tone =
       personalityHints[pet.personality] ?? personalityHints['friendly'];
+
+    const hasTextAttachments = this.referenceAttachments.some(
+      (a) => a.kind === 'text' && !!a.textPreview,
+    );
+    const hasVisualAttachments = this.referenceAttachments.some(
+      (a) => a.kind === 'image' || a.kind === 'pdf',
+    );
+
     return [
       `Eres "${pet.name}", asistente del Generador de Documentos Josanz ERP.`,
       tone,
-      `Pestaña o vista: ${ctx.activeTab}. Tipo de documento: ${ctx.documentType || 'no indicado'}.`,
+      `Pestaña o vista: ${ctx.activeTab}. Tipo de documento: ${ctx.documentType || 'no indicado'}. Modo del editor: ${editorMode}.`,
       snippet
         ? `Contenido actual del documento (recortado):\n---\n${snippet}\n---`
         : 'Aún no hay texto de documento en contexto.',
-      attachmentContext,
-      this.referenceAttachments.length > 0
-        ? 'Usa los adjuntos como referencia visual/documental para proponer CSS, HTML, paletas, espaciados, tipografías y jerarquía visual. Si ves imágenes/PDF adjuntos y el proveedor lo permite, analiza su estilo visual.'
+      currentCss
+        ? `CSS personalizado ya aplicado al documento:\n---\n${currentCss.slice(0, 3000)}\n---`
         : '',
-      'IMPORTANTE: Si el usuario pide estilos visuales, responde con un único bloque ```css. La app lo aplicará automáticamente al documento, así que no incluyas instrucciones de copia/pegado.',
+      attachmentContext,
+      hasTextAttachments
+        ? 'Los adjuntos de texto (HTML/CSS/Markdown) contienen el documento de referencia completo. Úsalos activamente: extrae su estructura, contenido real, secciones, títulos y datos para generar o mejorar el documento actual. Si el usuario pide "crear un documento similar" o "mejorar el contenido", usa ese texto como base.'
+        : '',
+      hasVisualAttachments
+        ? 'Los adjuntos visuales (imágenes/PDF) son referencias de estilo. Analiza colores, tipografías, espaciados y jerarquía visual para proponer CSS que replique ese estilo en el documento.'
+        : '',
+      [
+        'REGLAS CSS (síguelas siempre que generes CSS):',
+        '- Responde con un único bloque ```css que la app aplicará directamente, sin instrucciones de copia.',
+        '- SIEMPRE usa selectores completos. NUNCA empieces el bloque con propiedades sueltas sin selector.',
+        '- El contenedor del documento es `.markdown-preview`. Usa ese selector (o descendientes) para estilizar.',
+        '- Variables CSS disponibles: --markdown-font-size, --markdown-line-height, --markdown-color, --markdown-bg, --markdown-border, --markdown-radius, --brand-primary (#7a0000), --brand-accent (#ff3131).',
+        '- NO uses variables inventadas como var(--text), var(--bg), var(--muted). Usa valores concretos (#hex, rgb()) o las variables listadas.',
+        '- Para redefinir variables, usa :root { --markdown-color: #111; } (no usar body o html para variables).',
+      ].join('\n'),
       'IMPORTANTE: No reescribas un HTML completo si el usuario solo pide estilos o mejoras visuales. En ese caso devuelve solo CSS. Solo devuelve ```html si el usuario pide explícitamente reemplazar todo el documento.',
-      'IMPORTANTE: Si el usuario pide crear contenido Markdown, responde con un único bloque ```markdown. La app lo insertará o reemplazará automáticamente.',
+      'IMPORTANTE: Si el usuario pide crear o mejorar contenido (no estilos), responde con un único bloque ```markdown (o ```html si el modo es html). La app lo insertará automáticamente.',
       'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
     ]
       .filter(Boolean)
