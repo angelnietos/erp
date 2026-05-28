@@ -653,10 +653,10 @@ const DEFAULT_DOCUMENT_PREVIEW_CSS = `
                         [ngModelOptions]="{ standalone: true }"
                         rows="8"
                         placeholder="font-size: 1.4em;&#10;color: #455a64;&#10;&#10;/* O reglas completas: .markdown-preview h2 { color: #2563eb; } */"
-                        class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
-(input)="applyCustomCss()"
-                      ></textarea>
-<p class="text-xs text-muted">Puedes escribir propiedades sueltas o reglas completas. Se aplican sobre los estilos base del documento.</p>
+class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
+                         (input)="applyCustomCss()"
+                       ></textarea>
+                      <p class="text-xs text-muted">Puedes escribir propiedades sueltas o reglas completas. Se aplican sobre los estilos base del documento.</p>
                     </div>
 
                     <!-- PDF Style Selector -->
@@ -681,7 +681,7 @@ const DEFAULT_DOCUMENT_PREVIEW_CSS = `
                       </div>
                     }
 
-<div class="editor-container" [class.fullscreen]="fullscreenMode">
+                    <div class="editor-container" [class.fullscreen]="fullscreenMode">
                       @if (fullscreenMode) {
                         <div class="editor-tabs">
                           <button

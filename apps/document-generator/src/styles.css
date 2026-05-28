@@ -203,15 +203,28 @@ body {
   color: var(--text-primary);
 }
 
-/* Utilidades: texto fijo legible sobre slate-50 / gradientes claros / “papel” */
-.text-doc-ink {
+/* Utilidades: texto específico para fondos CLAROS. 
+   Se aplican solo cuando el tema es claro; en modo oscuro
+   se usan tokens de texto para garantizar contraste. */
+[data-theme*='light'] .text-doc-ink {
   color: #0f172a !important;
 }
-.text-doc-muted-on-light {
+[data-theme*='light'] .text-doc-muted-on-light {
   color: #475569 !important;
 }
-.text-doc-subtle-on-light {
+[data-theme*='light'] .text-doc-subtle-on-light {
   color: #64748b !important;
+}
+
+/* Valores por defecto (modo oscuro / no claro): usar tokens globales */
+.text-doc-ink {
+  color: var(--text-primary) !important;
+}
+.text-doc-muted-on-light {
+  color: var(--text-secondary) !important;
+}
+.text-doc-subtle-on-light {
+  color: var(--text-muted) !important;
 }
 
 /* Burbuja asistente sobre fondo claro (evita texto blanco con bg-surface translúcido) */
@@ -323,6 +336,11 @@ a svg,
     -apple-system,
     sans-serif;
   line-height: 1.6;
+  color: var(--text-primary);
+}
+
+/* Markdown colors intended for light themes only */
+[data-theme*='light'] .markdown-preview {
   color: #1e293b;
 }
 
@@ -396,6 +414,82 @@ a svg,
   border: 1px dashed color-mix(in srgb, var(--border-vibrant) 75%, transparent);
   border-radius: 1rem;
   background: color-mix(in srgb, var(--bg-tertiary) 62%, transparent);
+}
+
+/* Emergency contrast fixes for dark theme: force readable text inside panels
+   These rules are intentionally high-specificity and use !important so they
+   take precedence over component-level inline styles or Tailwind utilities
+   that set pale text on pale backgrounds. Remove or narrow these after
+   auditing specific components. */
+:root:not([data-theme*='light']) .document-create-shell,
+:root:not([data-theme*='light']) .document-create-shell *,
+:root:not([data-theme*='light']) .document-editor-panel,
+:root:not([data-theme*='light']) .document-editor-panel *,
+:root:not([data-theme*='light']) .document-css-panel,
+:root:not([data-theme*='light']) .document-css-panel *,
+:root:not([data-theme*='light']) .document-editor-column,
+:root:not([data-theme*='light']) .document-editor-column *,
+:root:not([data-theme*='light']) .document-preview-pane,
+:root:not([data-theme*='light']) .document-preview-pane * {
+  color: var(--text-primary) !important;
+}
+
+/* Keep secondary/muted semantics but readable */
+:root:not([data-theme*='light']) .document-create-shell .text-muted,
+:root:not([data-theme*='light']) .document-editor-panel .text-muted,
+:root:not([data-theme*='light']) .document-css-panel .text-muted,
+:root:not([data-theme*='light']) .document-preview-pane .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+/* Make placeholder/inactive small text readable */
+:root:not([data-theme*='light']) .document-create-shell .text-xs,
+:root:not([data-theme*='light']) .document-editor-panel .text-xs,
+:root:not([data-theme*='light']) .document-css-panel .text-xs {
+  color: var(--text-muted) !important;
+}
+
+/* MORE aggressive emergency fixes: replace common light utility backgrounds
+   with dark surface tokens when the active theme is NOT a light theme.
+   This targets common Tailwind-generated class names used across components
+   (e.g. bg-white, bg-slate-100, bg-slate-50 and opacity modifiers like /90).
+   These selectors are broad on purpose to quickly restore contrast. */
+:root:not([data-theme*='light']) [class*="bg-white"],
+:root:not([data-theme*='light']) [class*="bg-slate-100"],
+:root:not([data-theme*='light']) [class*="bg-slate-50"],
+:root:not([data-theme*='light']) [class*="bg-gray-100"],
+:root:not([data-theme*='light']) [class*="bg-gray-50"],
+:root:not([data-theme*='light']) [class*="bg-neutral-"],
+:root:not([data-theme*='light']) [class*="/90"],
+:root:not([data-theme*='light']) [class*="/80"],
+:root:not([data-theme*='light']) [class*="/70"] {
+  background-color: color-mix(in srgb, var(--surface) 92%, var(--bg-secondary)) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+}
+
+/* Borders for those replaced panels */
+:root:not([data-theme*='light']) [class*="border-slate"],
+:root:not([data-theme*='light']) [class*="border-gray"],
+:root:not([data-theme*='light']) [class*="border-white"],
+:root:not([data-theme*='light']) [class*="border-" ] {
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Buttons and interactive elements that used pale text on pale backgrounds */
+:root:not([data-theme*='light']) [class*="text-violet-"],
+:root:not([data-theme*='light']) [class*="text-slate-"],
+:root:not([data-theme*='light']) [class*="text-gray-"],
+:root:not([data-theme*='light']) [class*="text-white"] {
+  color: var(--text-primary) !important;
+}
+
+/* If users paste custom CSS that forces light backgrounds inside the preview,
+   prefer the theme surface so preview remains readable */
+:root:not([data-theme*='light']) .document-preview-pane,
+:root:not([data-theme*='light']) .document-preview-pane * {
+  background: transparent !important;
+  color: var(--text-primary) !important;
 }
 
 .document-css-panel__textarea {
