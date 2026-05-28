@@ -769,7 +769,15 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               <span>Vista Previa</span>
                               <span class="font-mono">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
                             </div>
-                            <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                            @if (contentEditorMode === 'html') {
+                              <iframe
+                                title="Vista previa HTML"
+                                class="document-preview-pane w-full min-h-[70vh] border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
+                                [srcdoc]="htmlPreviewSrcdoc"
+                              ></iframe>
+                            } @else {
+                              <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                            }
                           </div>
                         </div>
                       }
@@ -808,7 +816,15 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 Vista Previa
                                 <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
                               </div>
-                              <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                              @if (contentEditorMode === 'html') {
+                                <iframe
+                                  title="Vista previa HTML"
+                                  class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
+                                  [srcdoc]="htmlPreviewSrcdoc"
+                                ></iframe>
+                              } @else {
+                                <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                              }
                             </div>
                           }
                         </div>
@@ -1085,6 +1101,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   isAiGenerating = false;
   aiError: string | null = null;
   previewHtml: SafeHtml = '';
+  htmlPreviewSrcdoc: SafeHtml = '';
   private previewHtmlMarkup = '';
   wordCount = 0;
   characterCount = 0;
@@ -1582,9 +1599,14 @@ export class DocumentCreateEditorComponent implements OnInit {
     try {
       if (this.contentEditorMode === 'html') {
         this.previewHtmlMarkup = this.prepareHtmlContentForRendering(content);
+        this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
+          this.previewHtmlMarkup,
+        );
       } else if (this.contentEditorMode === 'plain') {
+        this.htmlPreviewSrcdoc = '';
         this.previewHtmlMarkup = this.plainTextToHtml(content);
       } else {
+        this.htmlPreviewSrcdoc = '';
         marked.setOptions?.(mdOpts);
         const parsed = marked.parse(content, mdOpts);
         this.previewHtmlMarkup =
@@ -1626,7 +1648,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   private prepareHtmlContentForRendering(content: string): string {
-    return this.applyCorporateCoverVisibility(this.stripWrappingHtmlFence(content));
+    return this.stripWrappingHtmlFence(content);
   }
 
   private stripWrappingHtmlFence(content: string): string {

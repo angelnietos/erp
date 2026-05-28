@@ -244,16 +244,18 @@ export class PdfGenerationService {
     host.style.overflow = 'visible';
 
     const parsed = new DOMParser().parseFromString(fullHtml, 'text/html');
+    const headLinks = Array.from(
+      parsed.head.querySelectorAll('link[rel="stylesheet"], link[rel="preconnect"]'),
+    ).map((node) => node.cloneNode(true) as HTMLLinkElement);
     const styleEl = document.createElement('style');
     styleEl.textContent = Array.from(parsed.head.querySelectorAll('style'))
       .map((node) => node.textContent ?? '')
       .join('\n');
 
-    const page = document.createElement('div');
-    page.className = 'pdf-canvas-root';
-    page.innerHTML = parsed.body.innerHTML;
+    const page = parsed.body.cloneNode(true) as HTMLElement;
+    page.classList.add('pdf-canvas-root');
 
-    host.append(styleEl, page);
+    host.append(...headLinks, styleEl, page);
     document.body.appendChild(host);
 
     try {
@@ -513,6 +515,10 @@ export class PdfGenerationService {
   }
 
   private prepareHtmlContentForPdf(content: string, data: DocumentData): string {
+    if (data.contentEditorMode === 'html') {
+      return this.stripWrappingHtmlFence(content);
+    }
+
     return this.applyCorporateCoverVisibility(
       this.stripWrappingHtmlFence(content),
       data,
