@@ -252,6 +252,11 @@ export interface PdfBackgroundSettings {
   pdfBackgroundMode?: PdfBackgroundMode;
   pdfBackgroundColor?: string;
   pdfBackgroundImageUrl?: string;
+  documentPaperColor?: string;
+  documentTextColor?: string;
+  documentMutedColor?: string;
+  documentAccentColor?: string;
+  documentBorderColor?: string;
 }
 
 export function readPdfBackgroundSettings(
@@ -274,6 +279,26 @@ export function readPdfBackgroundSettings(
       typeof doc['pdfBackgroundImageUrl'] === 'string'
         ? doc['pdfBackgroundImageUrl']
         : undefined,
+    documentPaperColor:
+      typeof doc['documentPaperColor'] === 'string'
+        ? doc['documentPaperColor']
+        : undefined,
+    documentTextColor:
+      typeof doc['documentTextColor'] === 'string'
+        ? doc['documentTextColor']
+        : undefined,
+    documentMutedColor:
+      typeof doc['documentMutedColor'] === 'string'
+        ? doc['documentMutedColor']
+        : undefined,
+    documentAccentColor:
+      typeof doc['documentAccentColor'] === 'string'
+        ? doc['documentAccentColor']
+        : undefined,
+    documentBorderColor:
+      typeof doc['documentBorderColor'] === 'string'
+        ? doc['documentBorderColor']
+        : undefined,
   };
 }
 
@@ -291,6 +316,11 @@ function sanitizePdfColor(color: string): string {
 /** CSS de fondo para el documento PDF (html/body + contenedor). */
 export function buildPdfBackgroundCss(settings: PdfBackgroundSettings): string {
   const mode = settings.pdfBackgroundMode ?? 'theme';
+  const paper = sanitizePdfColor(settings.documentPaperColor ?? '#ffffff');
+  const text = sanitizePdfColor(settings.documentTextColor ?? '#1f2937');
+  const muted = sanitizePdfColor(settings.documentMutedColor ?? '#475569');
+  const accent = sanitizePdfColor(settings.documentAccentColor ?? '#2563eb');
+  const border = sanitizePdfColor(settings.documentBorderColor ?? '#e2e8f0');
 
   if (mode === 'color' && settings.pdfBackgroundColor) {
     const color = sanitizePdfColor(settings.pdfBackgroundColor);
@@ -306,9 +336,19 @@ html, body {
   padding: 0;
 }
 .pdf-body-content.markdown-preview {
-  background: transparent !important;
+  --markdown-bg: ${paper};
+  --markdown-color: ${text};
+  --brand-primary: ${accent};
+  --brand-accent: ${accent};
+  background: ${paper} !important;
+  color: ${text} !important;
   box-shadow: none !important;
-  border: none !important;
+  border: 1px solid ${border} !important;
+}
+.pdf-body-content.markdown-preview p,
+.pdf-body-content.markdown-preview li,
+.pdf-body-content.markdown-preview td {
+  color: ${muted};
 }
 `;
   }
@@ -330,7 +370,18 @@ html, body {
   min-height: 100%;
 }
 .pdf-body-content.markdown-preview {
-  background: rgba(255, 255, 255, 0.88) !important;
+  --markdown-bg: ${paper};
+  --markdown-color: ${text};
+  --brand-primary: ${accent};
+  --brand-accent: ${accent};
+  background: color-mix(in srgb, ${paper} 88%, transparent) !important;
+  color: ${text} !important;
+  border-color: ${border} !important;
+}
+.pdf-body-content.markdown-preview p,
+.pdf-body-content.markdown-preview li,
+.pdf-body-content.markdown-preview td {
+  color: ${muted};
 }
 `;
   }
@@ -365,8 +416,12 @@ export function buildPreviewPaneStyle(
   settings: PdfBackgroundSettings,
 ): Record<string, string> {
   const mode = settings.pdfBackgroundMode ?? 'theme';
+  const paper = sanitizePdfColor(settings.documentPaperColor ?? '#ffffff');
   if (mode === 'color' && settings.pdfBackgroundColor) {
-    return { background: sanitizePdfColor(settings.pdfBackgroundColor) };
+    return {
+      background: sanitizePdfColor(settings.pdfBackgroundColor),
+      color: sanitizePdfColor(settings.documentTextColor ?? '#1f2937'),
+    };
   }
   if (mode === 'corporate' && settings.pdfBackgroundImageUrl?.trim()) {
     const url = settings.pdfBackgroundImageUrl.trim();
@@ -374,9 +429,12 @@ export function buildPreviewPaneStyle(
       backgroundImage: `url("${url.replace(/"/g, '%22')}")`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      color: sanitizePdfColor(settings.documentTextColor ?? '#1f2937'),
     };
   }
-  return { background: '#f8fafc' };
+  return paper === '#ffffff'
+    ? { background: '#f8fafc', color: '#1f2937' }
+    : { background: '#f8fafc' };
 }
 
 /** Regla final para que el fondo elegido gane al tema y a plantillas con !important. */
@@ -384,6 +442,11 @@ export function buildPreviewBackgroundOverrideCss(
   settings: PdfBackgroundSettings,
 ): string {
   const mode = settings.pdfBackgroundMode ?? 'theme';
+  const paper = sanitizePdfColor(settings.documentPaperColor ?? '#ffffff');
+  const text = sanitizePdfColor(settings.documentTextColor ?? '#1f2937');
+  const muted = sanitizePdfColor(settings.documentMutedColor ?? '#475569');
+  const accent = sanitizePdfColor(settings.documentAccentColor ?? '#2563eb');
+  const border = sanitizePdfColor(settings.documentBorderColor ?? '#e2e8f0');
 
   if (mode === 'color' && settings.pdfBackgroundColor) {
     const color = sanitizePdfColor(settings.pdfBackgroundColor);
@@ -394,14 +457,29 @@ export function buildPreviewBackgroundOverrideCss(
 :root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
-  background: ${color} !important;
-  background-color: ${color} !important;
+  --markdown-bg: ${paper};
+  --markdown-color: ${text};
+  --brand-primary: ${accent};
+  --brand-accent: ${accent};
+  --markdown-border: ${border};
+  background: ${paper};
+  background-color: ${paper};
   background-image: none !important;
+  color: ${text};
+  border-color: ${border};
 }
 
-:root:not([data-theme*='light']) .document-preview-pane.markdown-preview,
-:root:not([data-theme*='light']) .document-preview-render.markdown-preview {
-  color: var(--text-primary) !important;
+.document-preview-pane.markdown-preview p,
+.document-preview-pane.markdown-preview li,
+.document-preview-pane.markdown-preview td,
+.document-preview-render.markdown-preview p,
+.document-preview-render.markdown-preview li,
+.document-preview-render.markdown-preview td {
+  color: ${muted};
+}
+
+.document-preview-pane-shell {
+  background: ${color};
 }
 `;
   }
@@ -418,10 +496,26 @@ export function buildPreviewBackgroundOverrideCss(
 :root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
+  --markdown-bg: ${paper};
+  --markdown-color: ${text};
+  --brand-primary: ${accent};
+  --brand-accent: ${accent};
+  --markdown-border: ${border};
   background-image: url("${url}") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  color: ${text};
+  border-color: ${border};
+}
+
+.document-preview-pane.markdown-preview p,
+.document-preview-pane.markdown-preview li,
+.document-preview-pane.markdown-preview td,
+.document-preview-render.markdown-preview p,
+.document-preview-render.markdown-preview li,
+.document-preview-render.markdown-preview td {
+  color: ${muted};
 }
 `;
   }

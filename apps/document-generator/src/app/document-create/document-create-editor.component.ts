@@ -607,6 +607,31 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
                           <p class="text-xs text-muted mt-2">Selecciona cómo se renderizará el fondo del PDF.</p>
+                          @if (pdfBackgroundMode !== 'theme') {
+                            <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3">
+                              <label class="text-xs font-medium text-secondary">
+                                Papel
+                                <input type="color" [(ngModel)]="documentPaperColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="mt-1 w-full h-9 p-0 rounded border" />
+                              </label>
+                              <label class="text-xs font-medium text-secondary">
+                                Texto
+                                <input type="color" [(ngModel)]="documentTextColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="mt-1 w-full h-9 p-0 rounded border" />
+                              </label>
+                              <label class="text-xs font-medium text-secondary">
+                                Secundario
+                                <input type="color" [(ngModel)]="documentMutedColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="mt-1 w-full h-9 p-0 rounded border" />
+                              </label>
+                              <label class="text-xs font-medium text-secondary">
+                                Acento
+                                <input type="color" [(ngModel)]="documentAccentColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="mt-1 w-full h-9 p-0 rounded border" />
+                              </label>
+                              <label class="text-xs font-medium text-secondary">
+                                Bordes
+                                <input type="color" [(ngModel)]="documentBorderColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="mt-1 w-full h-9 p-0 rounded border" />
+                              </label>
+                            </div>
+                            <p class="text-xs text-muted mt-2">Al no usar tema, la preview y el PDF usan estos colores del documento, no los de la interfaz.</p>
+                          }
                         </div>
                       </div>
                     }
@@ -788,7 +813,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 [srcdoc]="htmlPreviewSrcdoc"
                               ></iframe>
                             } @else {
-                              <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                              <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [class.document-preview-pane--isolated]="pdfBackgroundMode !== 'theme'" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
                             }
                           </div>
                         </div>
@@ -835,7 +860,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                   [srcdoc]="htmlPreviewSrcdoc"
                                 ></iframe>
                               } @else {
-                                <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                                <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [class.document-preview-pane--isolated]="pdfBackgroundMode !== 'theme'" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
                               }
                             </div>
                           }
@@ -1138,6 +1163,11 @@ export class DocumentCreateEditorComponent implements OnInit {
   pdfBackgroundMode: 'theme' | 'color' | 'corporate' = 'theme';
   pdfBackgroundColor = '#ffffff';
   pdfBackgroundImageUrl = '';
+  documentPaperColor = '#ffffff';
+  documentTextColor = '#1f2937';
+  documentMutedColor = '#475569';
+  documentAccentColor = '#2563eb';
+  documentBorderColor = '#e2e8f0';
 
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
@@ -1666,6 +1696,21 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (typeof p['pdfBackgroundImageUrl'] === 'string') {
       this.pdfBackgroundImageUrl = p['pdfBackgroundImageUrl'];
     }
+    if (typeof p['documentPaperColor'] === 'string') {
+      this.documentPaperColor = p['documentPaperColor'];
+    }
+    if (typeof p['documentTextColor'] === 'string') {
+      this.documentTextColor = p['documentTextColor'];
+    }
+    if (typeof p['documentMutedColor'] === 'string') {
+      this.documentMutedColor = p['documentMutedColor'];
+    }
+    if (typeof p['documentAccentColor'] === 'string') {
+      this.documentAccentColor = p['documentAccentColor'];
+    }
+    if (typeof p['documentBorderColor'] === 'string') {
+      this.documentBorderColor = p['documentBorderColor'];
+    }
     this.applyCustomCss();
     this.documentForm.patchValue(patch);
     this.syncAssistantFromFormNow();
@@ -2067,6 +2112,11 @@ ${html}
         pdfBackgroundMode: this.pdfBackgroundMode,
         pdfBackgroundColor: this.pdfBackgroundColor,
         pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+        documentPaperColor: this.documentPaperColor,
+        documentTextColor: this.documentTextColor,
+        documentMutedColor: this.documentMutedColor,
+        documentAccentColor: this.documentAccentColor,
+        documentBorderColor: this.documentBorderColor,
         isDraft: true,
         pdfBytes: [] as number[],
       };
@@ -2434,11 +2484,20 @@ blockquote {
   }
 
   private pdfExportCustomCss(): string {
-    return resolvePdfGenerationCss(this.customCssForDocument(), {
+    return resolvePdfGenerationCss(this.customCssForDocument(), this.documentBackgroundSettings());
+  }
+
+  private documentBackgroundSettings() {
+    return {
       pdfBackgroundMode: this.pdfBackgroundMode,
       pdfBackgroundColor: this.pdfBackgroundColor,
       pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-    });
+      documentPaperColor: this.documentPaperColor,
+      documentTextColor: this.documentTextColor,
+      documentMutedColor: this.documentMutedColor,
+      documentAccentColor: this.documentAccentColor,
+      documentBorderColor: this.documentBorderColor,
+    };
   }
 
   private cleanUserCustomCss(): string {
@@ -2464,20 +2523,16 @@ blockquote {
   }
 
   private documentPreviewCss(): string {
-    const background = {
-      pdfBackgroundMode: this.pdfBackgroundMode,
-      pdfBackgroundColor: this.pdfBackgroundColor,
-      pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-    };
+    const background = this.documentBackgroundSettings();
     // Cascade (lowest → highest priority):
-    //   defaults → PDF style template → quick style preset → user/AI CSS → background override.
-    // User CSS is always last so it wins over any built-in template.
+    //   defaults → PDF style template → quick style preset → document colors → user/AI CSS.
+    // User CSS remains last so it can still override the document color config.
     return [
       buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(),
       normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
-      normalizeUserCss(this.cleanUserCustomCss()),
       buildPreviewBackgroundOverrideCss(background),
+      normalizeUserCss(this.cleanUserCustomCss()),
     ].filter(Boolean).join('\n\n');
   }
 
@@ -2486,11 +2541,7 @@ blockquote {
   }
 
   get previewPaneStyle(): Record<string, string> {
-    return buildPreviewPaneStyle({
-      pdfBackgroundMode: this.pdfBackgroundMode,
-      pdfBackgroundColor: this.pdfBackgroundColor,
-      pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-    });
+    return buildPreviewPaneStyle(this.documentBackgroundSettings());
   }
 
   /** Base font size used for quick adjustments (in rem). */
@@ -2780,6 +2831,11 @@ td {
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,
           pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+          documentPaperColor: this.documentPaperColor,
+          documentTextColor: this.documentTextColor,
+          documentMutedColor: this.documentMutedColor,
+          documentAccentColor: this.documentAccentColor,
+          documentBorderColor: this.documentBorderColor,
         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
@@ -2887,6 +2943,11 @@ td {
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,
           pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+          documentPaperColor: this.documentPaperColor,
+          documentTextColor: this.documentTextColor,
+          documentMutedColor: this.documentMutedColor,
+          documentAccentColor: this.documentAccentColor,
+          documentBorderColor: this.documentBorderColor,
         };
 
         let pdfBytes: Blob;

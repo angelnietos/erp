@@ -47,6 +47,11 @@ interface DocumentData {
   pdfBackgroundMode?: PdfBackgroundSettings['pdfBackgroundMode'];
   pdfBackgroundColor?: string;
   pdfBackgroundImageUrl?: string;
+  documentPaperColor?: string;
+  documentTextColor?: string;
+  documentMutedColor?: string;
+  documentAccentColor?: string;
+  documentBorderColor?: string;
 }
 
 @Injectable({

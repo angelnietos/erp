@@ -56,6 +56,11 @@ interface DocumentPreviewPayload {
   pdfBackgroundMode?: 'theme' | 'color' | 'corporate';
   pdfBackgroundColor?: string;
   pdfBackgroundImageUrl?: string;
+  documentPaperColor?: string;
+  documentTextColor?: string;
+  documentMutedColor?: string;
+  documentAccentColor?: string;
+  documentBorderColor?: string;
   pdfBytes?: number[];
 }
 
@@ -714,6 +719,11 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
           pdfBackgroundMode: background.pdfBackgroundMode,
           pdfBackgroundColor: background.pdfBackgroundColor,
           pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
+          documentPaperColor: background.documentPaperColor,
+          documentTextColor: background.documentTextColor,
+          documentMutedColor: background.documentMutedColor,
+          documentAccentColor: background.documentAccentColor,
+          documentBorderColor: background.documentBorderColor,
         });
         downloadPdfBlob(blob, `${d.title || 'documento'}.pdf`);
         return;

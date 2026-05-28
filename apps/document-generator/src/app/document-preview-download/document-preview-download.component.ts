@@ -80,6 +80,11 @@ export class DocumentPreviewDownloadComponent implements OnInit {
         pdfBackgroundMode: background.pdfBackgroundMode,
         pdfBackgroundColor: background.pdfBackgroundColor,
         pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
+        documentPaperColor: background.documentPaperColor,
+        documentTextColor: background.documentTextColor,
+        documentMutedColor: background.documentMutedColor,
+        documentAccentColor: background.documentAccentColor,
+        documentBorderColor: background.documentBorderColor,
       };
       let pdfBlob: Blob;
       const kind = typeof doc.type === 'string' ? doc.type : 'documentation';

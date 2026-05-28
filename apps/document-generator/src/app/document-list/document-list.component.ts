@@ -527,6 +527,11 @@ export class DocumentListComponent implements OnInit {
           pdfBackgroundMode: background.pdfBackgroundMode,
           pdfBackgroundColor: background.pdfBackgroundColor,
           pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
+          documentPaperColor: background.documentPaperColor,
+          documentTextColor: background.documentTextColor,
+          documentMutedColor: background.documentMutedColor,
+          documentAccentColor: background.documentAccentColor,
+          documentBorderColor: background.documentBorderColor,
         });
         downloadPdfBlob(blob, `${title}.pdf`);
         return;
