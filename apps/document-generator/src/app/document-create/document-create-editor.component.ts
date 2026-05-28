@@ -1987,21 +1987,12 @@ export class DocumentCreateEditorComponent implements OnInit {
         );
       }
     }
-    this.previewHtmlMarkup = this.normalizeLegacyInlineColorPriority(
-      this.previewHtmlMarkup,
-    );
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
 
     this.wordCount = content
       .split(/\s+/)
       .filter((w: string) => w.length > 0).length;
     this.characterCount = content.length;
-  }
-
-  private normalizeLegacyInlineColorPriority(html: string): string {
-    return html
-      .replace(/(style="[^"]*color\s*:[^"]*?)\s*!important([^"]*")/gi, '$1$2')
-      .replace(/(style='[^']*color\s*:[^']*?)\s*!important([^']*')/gi, '$1$2');
   }
 
   private plainTextToHtml(content: string): string {
@@ -2144,7 +2135,6 @@ h2::after {
   }
 
   private buildHtmlPreviewSrcdoc(html: string): string {
-    html = this.normalizeLegacyInlineColorPriority(html);
     const css = this.wrapLooseHtmlCss(this.htmlModeCss());
     if (!css) {
       return html;
@@ -2558,7 +2548,7 @@ ${html}
   }
 
   private colorSpan(value: string, color: string): string {
-    return `<span style="color: ${color};">${value}</span>`;
+    return `<span style="color: ${color} !important;">${value}</span>`;
   }
 
   private isMarkdownTableSeparator(line: string): boolean {

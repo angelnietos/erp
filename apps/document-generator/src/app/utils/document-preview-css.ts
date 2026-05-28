@@ -45,25 +45,17 @@ export const DEFAULT_DOCUMENT_PREVIEW_CSS = `
 }
 `;
 
-/**
- * Prefix used when scoping user CSS rules.
- * Using two classes (.document-preview-pane.markdown-preview) gives specificity (0,2,x)
- * which beats the dark-mode emergency rules in styles.css that use
- * `.document-create-shell *` (also 0,2,1). When both have !important the later
- * rule in the cascade wins, and our dynamic <style> tag is appended at the end
- * of <head>, so it always comes after the static stylesheet.
- */
-const USER_CSS_SCOPE = '.document-preview-pane.markdown-preview';
+const USER_CSS_SCOPE = '.document-create-shell .document-preview-pane.markdown-preview';
 
 export function scopeSingleSelector(selector: string): string {
-  if (!selector) return selector;
-
-  // Already scoped to the high-specificity prefix — leave untouched.
-  if (selector.includes('document-preview-pane')) {
+  if (!selector) {
     return selector;
   }
 
-  // AI or user wrote ".markdown-preview h1" — upgrade to higher-specificity scope.
+  if (selector.includes('.document-preview-pane.markdown-preview')) {
+    return selector;
+  }
+
   if (selector.includes('.markdown-preview')) {
     return selector.replace(/\.markdown-preview\b/g, USER_CSS_SCOPE);
   }
@@ -144,25 +136,11 @@ export function normalizeUserCss(css: string): string {
   return `${USER_CSS_SCOPE} {\n${declarations}\n}`;
 }
 
-/** User-authored CSS must win over theme rescue rules that still use !important. */
 export function prioritizeUserCss(css: string): string {
-  const prioritized = css.replace(
+  return css.replace(
     /(^|[{\s;])(color\s*:\s*[^;!}]+)(;?)/gi,
     (_match, prefix: string, declaration: string, suffix: string) =>
       `${prefix}${declaration.trim()} !important${suffix || ';'}`,
-  );
-
-  return prioritized.replace(
-    /(^|})\s*([^@{}][^{}]*)\{([^{}]*color\s*:\s*[^;!}]+(?:\s*!important)?[^{}]*)\}/gi,
-    (match, boundary: string, selectorText: string, body: string) => {
-      const colorMatch = /color\s*:\s*([^;!}]+)(?:\s*!important)?/i.exec(body);
-      if (!colorMatch) return match;
-      const childSelectors = selectorText
-        .split(',')
-        .map((selector) => `${selector.trim()} *`)
-        .join(', ');
-      return `${boundary}${selectorText}{${body}}\n${childSelectors} { color: ${colorMatch[1].trim()} !important; }`;
-    },
   );
 }
 
@@ -531,6 +509,48 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.document-preview-render) tr:nth-child(odd) td,
 :where(.pdf-body-content.markdown-preview) tr:nth-child(odd) td {
   background: ${tableOddBg};
+}
+
+.document-create-shell .document-preview-pane--isolated.markdown-preview,
+.document-create-shell .document-preview-pane--isolated.document-preview-render {
+  background-color: ${paper} !important;
+  color: ${text} !important;
+  border-color: ${border} !important;
+}
+
+.document-create-shell .document-preview-pane--isolated.markdown-preview *:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render *:not([style*='color:']) {
+  color: ${text} !important;
+}
+
+.document-create-shell .document-preview-pane--isolated.markdown-preview p:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview li:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview td:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview .doc-paragraph:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render p:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render li:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render td:not([style*='color:']) {
+  color: ${muted} !important;
+}
+
+.document-create-shell .document-preview-pane--isolated.markdown-preview h1:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview h2:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview h3:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview h4:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview h5:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview h6:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview strong:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render h1:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render h2:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render h3:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render strong:not([style*='color:']) {
+  color: ${text} !important;
+}
+
+.document-create-shell .document-preview-pane--isolated.markdown-preview a:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.markdown-preview .doc-callout:not([style*='color:']),
+.document-create-shell .document-preview-pane--isolated.document-preview-render a:not([style*='color:']) {
+  color: ${accent} !important;
 }
 `;
 }
