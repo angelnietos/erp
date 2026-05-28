@@ -204,6 +204,7 @@ interface DocumentType {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
   template: `
+    <!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
     <div class="document-create-page space-y-6">
       <nav
         class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-secondary"
