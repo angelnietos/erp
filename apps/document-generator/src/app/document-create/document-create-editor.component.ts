@@ -1805,10 +1805,57 @@ export class DocumentCreateEditorComponent implements OnInit {
       this.selectedPdfStyleRawCss(),
       this.stylePresetCss(this.selectedQuickStylePreset),
       this.cleanUserCustomCss(),
+      this.htmlDocumentColorCss(),
     ]
       .filter((part) => part.trim())
       .join('\n\n');
     return this.adaptMarkdownScopedCssForHtml(css);
+  }
+
+  private htmlDocumentColorCss(): string {
+    if (this.pdfBackgroundMode === 'theme') {
+      return '';
+    }
+    return `
+body {
+  background: ${this.documentPaperColor} !important;
+  color: ${this.documentTextColor} !important;
+}
+
+body *:not([style*='color:']) {
+  color: ${this.documentTextColor} !important;
+}
+
+p:not([style*='color:']),
+li:not([style*='color:']),
+td:not([style*='color:']) {
+  color: ${this.documentMutedColor} !important;
+}
+
+h1:not([style*='color:']),
+h2:not([style*='color:']),
+h3:not([style*='color:']),
+h4:not([style*='color:']),
+h5:not([style*='color:']),
+h6:not([style*='color:']),
+strong:not([style*='color:']) {
+  color: ${this.documentTextColor} !important;
+}
+
+a:not([style*='color:']) {
+  color: ${this.documentAccentColor} !important;
+}
+
+h1, h2, blockquote, hr, th, td {
+  border-color: ${this.documentBorderColor} !important;
+}
+
+h1::before,
+h2::before,
+h2::after {
+  background: ${this.documentAccentColor} !important;
+}
+`;
   }
 
   private adaptMarkdownScopedCssForHtml(css: string): string {
@@ -2525,14 +2572,14 @@ blockquote {
   private documentPreviewCss(): string {
     const background = this.documentBackgroundSettings();
     // Cascade (lowest → highest priority):
-    //   defaults → PDF style template → quick style preset → document colors → user/AI CSS.
-    // User CSS remains last so it can still override the document color config.
+    //   defaults → PDF style template → quick style preset → user/AI CSS → document colors.
+    // When "Usar tema" is off, document colors are the final source of truth.
     return [
       buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(),
       normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
-      buildPreviewBackgroundOverrideCss(background),
       normalizeUserCss(this.cleanUserCustomCss()),
+      buildPreviewBackgroundOverrideCss(background),
     ].filter(Boolean).join('\n\n');
   }
 

@@ -313,6 +313,108 @@ function sanitizePdfColor(color: string): string {
   return '#ffffff';
 }
 
+function buildDocumentColorIsolationCss(colors: {
+  paper: string;
+  text: string;
+  muted: string;
+  accent: string;
+  border: string;
+}): string {
+  const { paper, text, muted, accent, border } = colors;
+  return `
+.document-preview-pane--isolated.markdown-preview,
+.document-preview-pane--isolated.document-preview-render,
+.pdf-body-content.markdown-preview {
+  --markdown-bg: ${paper} !important;
+  --markdown-color: ${text} !important;
+  --brand-primary: ${accent} !important;
+  --brand-accent: ${accent} !important;
+  --markdown-border: ${border} !important;
+  background-color: ${paper} !important;
+  color: ${text} !important;
+  border-color: ${border} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview *:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render *:not([style*='color:']),
+.pdf-body-content.markdown-preview *:not([style*='color:']) {
+  color: ${text} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview p:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview li:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview td:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview .doc-paragraph:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render p:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render li:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render td:not([style*='color:']),
+.pdf-body-content.markdown-preview p:not([style*='color:']),
+.pdf-body-content.markdown-preview li:not([style*='color:']),
+.pdf-body-content.markdown-preview td:not([style*='color:']) {
+  color: ${muted} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview h1:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview h2:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview h3:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview h4:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview h5:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview h6:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview strong:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render h1:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render h2:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render h3:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render strong:not([style*='color:']),
+.pdf-body-content.markdown-preview h1:not([style*='color:']),
+.pdf-body-content.markdown-preview h2:not([style*='color:']),
+.pdf-body-content.markdown-preview h3:not([style*='color:']),
+.pdf-body-content.markdown-preview strong:not([style*='color:']) {
+  color: ${text} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview a:not([style*='color:']),
+.document-preview-pane--isolated.markdown-preview .doc-callout:not([style*='color:']),
+.document-preview-pane--isolated.document-preview-render a:not([style*='color:']),
+.pdf-body-content.markdown-preview a:not([style*='color:']) {
+  color: ${accent} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview h1,
+.document-preview-pane--isolated.markdown-preview h2,
+.document-preview-pane--isolated.markdown-preview blockquote,
+.document-preview-pane--isolated.markdown-preview .doc-callout,
+.document-preview-pane--isolated.markdown-preview hr,
+.document-preview-pane--isolated.markdown-preview th,
+.document-preview-pane--isolated.markdown-preview td,
+.document-preview-pane--isolated.document-preview-render h1,
+.document-preview-pane--isolated.document-preview-render h2,
+.document-preview-pane--isolated.document-preview-render blockquote,
+.document-preview-pane--isolated.document-preview-render hr,
+.document-preview-pane--isolated.document-preview-render th,
+.document-preview-pane--isolated.document-preview-render td,
+.pdf-body-content.markdown-preview h1,
+.pdf-body-content.markdown-preview h2,
+.pdf-body-content.markdown-preview blockquote,
+.pdf-body-content.markdown-preview hr,
+.pdf-body-content.markdown-preview th,
+.pdf-body-content.markdown-preview td {
+  border-color: ${border} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview h1::before,
+.document-preview-pane--isolated.markdown-preview h2::before,
+.document-preview-pane--isolated.markdown-preview h2::after,
+.document-preview-pane--isolated.document-preview-render h1::before,
+.document-preview-pane--isolated.document-preview-render h2::before,
+.document-preview-pane--isolated.document-preview-render h2::after,
+.pdf-body-content.markdown-preview h1::before,
+.pdf-body-content.markdown-preview h2::before,
+.pdf-body-content.markdown-preview h2::after {
+  background: ${accent} !important;
+}
+`;
+}
+
 /** CSS de fondo para el documento PDF (html/body + contenedor). */
 export function buildPdfBackgroundCss(settings: PdfBackgroundSettings): string {
   const mode = settings.pdfBackgroundMode ?? 'theme';
@@ -336,20 +438,10 @@ html, body {
   padding: 0;
 }
 .pdf-body-content.markdown-preview {
-  --markdown-bg: ${paper};
-  --markdown-color: ${text};
-  --brand-primary: ${accent};
-  --brand-accent: ${accent};
   background: ${paper} !important;
-  color: ${text} !important;
   box-shadow: none !important;
-  border: 1px solid ${border} !important;
 }
-.pdf-body-content.markdown-preview p,
-.pdf-body-content.markdown-preview li,
-.pdf-body-content.markdown-preview td {
-  color: ${muted};
-}
+${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
   }
 
@@ -370,19 +462,9 @@ html, body {
   min-height: 100%;
 }
 .pdf-body-content.markdown-preview {
-  --markdown-bg: ${paper};
-  --markdown-color: ${text};
-  --brand-primary: ${accent};
-  --brand-accent: ${accent};
   background: color-mix(in srgb, ${paper} 88%, transparent) !important;
-  color: ${text} !important;
-  border-color: ${border} !important;
 }
-.pdf-body-content.markdown-preview p,
-.pdf-body-content.markdown-preview li,
-.pdf-body-content.markdown-preview td {
-  color: ${muted};
-}
+${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
   }
 
@@ -457,30 +539,16 @@ export function buildPreviewBackgroundOverrideCss(
 :root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
-  --markdown-bg: ${paper};
-  --markdown-color: ${text};
-  --brand-primary: ${accent};
-  --brand-accent: ${accent};
-  --markdown-border: ${border};
   background: ${paper};
   background-color: ${paper};
   background-image: none !important;
-  color: ${text};
-  border-color: ${border};
-}
-
-.document-preview-pane.markdown-preview p,
-.document-preview-pane.markdown-preview li,
-.document-preview-pane.markdown-preview td,
-.document-preview-render.markdown-preview p,
-.document-preview-render.markdown-preview li,
-.document-preview-render.markdown-preview td {
-  color: ${muted};
 }
 
 .document-preview-pane-shell {
   background: ${color};
 }
+
+${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
   }
 
@@ -496,27 +564,13 @@ export function buildPreviewBackgroundOverrideCss(
 :root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
-  --markdown-bg: ${paper};
-  --markdown-color: ${text};
-  --brand-primary: ${accent};
-  --brand-accent: ${accent};
-  --markdown-border: ${border};
   background-image: url("${url}") !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  color: ${text};
-  border-color: ${border};
 }
 
-.document-preview-pane.markdown-preview p,
-.document-preview-pane.markdown-preview li,
-.document-preview-pane.markdown-preview td,
-.document-preview-render.markdown-preview p,
-.document-preview-render.markdown-preview li,
-.document-preview-render.markdown-preview td {
-  color: ${muted};
-}
+${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
   }
 
