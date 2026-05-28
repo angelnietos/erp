@@ -270,10 +270,20 @@ export function buildPreviewBackgroundOverrideCss(
   if (mode === 'color' && settings.pdfBackgroundColor) {
     const color = sanitizePdfColor(settings.pdfBackgroundColor);
     return `
+:root .document-preview-pane.markdown-preview,
+:root .document-preview-render.markdown-preview,
+:root:not([data-theme*='light']) .document-preview-pane.markdown-preview,
+:root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
   background: ${color} !important;
   background-color: ${color} !important;
+  background-image: none !important;
+}
+
+:root:not([data-theme*='light']) .document-preview-pane.markdown-preview,
+:root:not([data-theme*='light']) .document-preview-render.markdown-preview {
+  color: var(--text-primary) !important;
 }
 `;
   }
@@ -284,6 +294,10 @@ export function buildPreviewBackgroundOverrideCss(
       .replace(/"/g, '%22')
       .replace(/'/g, '%27');
     return `
+:root .document-preview-pane.markdown-preview,
+:root .document-preview-render.markdown-preview,
+:root:not([data-theme*='light']) .document-preview-pane.markdown-preview,
+:root:not([data-theme*='light']) .document-preview-render.markdown-preview,
 .document-preview-pane.markdown-preview,
 .document-preview-render.markdown-preview {
   background-image: url("${url}") !important;
