@@ -13,9 +13,11 @@ import {
   AssistantContextService,
   AssistantPetConfig,
 } from '../services/assistant-context.service';
+import { AgentPersonaService } from '../services/agent-persona.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { escapeHtml } from '../utils/html-escape';
+import type { ConversationRow } from '../db/agent-memory-dexie';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
 
 declare const marked: MarkedGlobal;
@@ -327,6 +329,140 @@ declare const marked: MarkedGlobal;
         pointer-events: none;
       }
 
+      .view-tabs {
+        display: flex;
+        gap: 0;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 0;
+      }
+
+      .view-tab {
+        flex: 1;
+        padding: 8px 12px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 500;
+        text-align: center;
+        color: #64748b;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .view-tab:hover {
+        background: #e2e8f0;
+      }
+
+      .view-tab.active {
+        color: #2563eb;
+        background: white;
+        border-bottom-color: #2563eb;
+      }
+
+      .history-container {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        background: #f8fafc;
+      }
+
+      .history-list {
+        padding: 8px;
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .history-item {
+        padding: 12px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .history-item:hover {
+        border-color: #2563eb;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.1);
+      }
+
+      .history-item.selected {
+        background: #dbeafe;
+        border-color: #2563eb;
+      }
+
+      .history-item-title {
+        font-weight: 500;
+        font-size: 13px;
+        color: #1e293b;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .history-item-time {
+        font-size: 11px;
+        color: #94a3b8;
+        margin-bottom: 8px;
+      }
+
+      .history-item-actions {
+        display: flex;
+        gap: 6px;
+      }
+
+      .history-btn {
+        padding: 4px 8px;
+        border: none;
+        background: #e2e8f0;
+        border-radius: 4px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: #475569;
+      }
+
+      .history-btn:hover {
+        background: #cbd5e1;
+      }
+
+      .history-btn.delete {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      .history-btn.delete:hover {
+        background: #fecaca;
+      }
+
+      .history-empty {
+        padding: 32px 16px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 12px;
+      }
+
+      .save-conversation-btn {
+        padding: 6px 12px;
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin: 0 2px;
+      }
+
+      .save-conversation-btn:hover {
+        background: #059669;
+      }
+
     `,
   ],
   template: `
@@ -546,6 +682,26 @@ declare const marked: MarkedGlobal;
         </div>
 
         @if (!isMinimized) {
+          <!-- View Tabs -->
+          <div class="view-tabs">
+            <button
+              type="button"
+              class="view-tab"
+              [class.active]="currentView === 'chat'"
+              (click)="switchToChatView()"
+            >
+              💬 Chat
+            </button>
+            <button
+              type="button"
+              class="view-tab"
+              [class.active]="currentView === 'history'"
+              (click)="switchToHistoryView()"
+            >
+              📚 Historial
+            </button>
+          </div>
+
           <!-- Config Panel -->
           @if (showConfig) {
             <div class="config-panel">
@@ -669,150 +825,220 @@ declare const marked: MarkedGlobal;
         }
 
         @if (!isMinimized) {
-          <div
-            class="messages-container"
-            #messagesContainer
-            role="log"
-            aria-live="polite"
-            [attr.aria-label]="
-              'Historial de chat con ' + assistantService.petConfig$().name
-            "
-            [attr.aria-busy]="isAiReplyLoading"
-          >
-            @for (msg of assistantService.messages$(); track msg.id) {
-              <div class="message" [class]="msg.type">
-                @if (msg.context && msg.type !== 'system') {
-                  <span class="text-xs opacity-60 block mb-1"
-                    >[{{ msg.context }}]</span
-                  >
-                }
-                @switch (msg.type) {
-                  @case ('assistant') {
-                    <div
-                      class="assistant-bubble-md markdown-preview"
-                      [innerHTML]="assistantBubbleHtml(msg.content)"
-                    ></div>
+          <!-- CHAT VIEW -->
+          @if (currentView === 'chat') {
+            <div
+              class="messages-container"
+              #messagesContainer
+              role="log"
+              aria-live="polite"
+              [attr.aria-label]="
+                'Historial de chat con ' + assistantService.petConfig$().name
+              "
+              [attr.aria-busy]="isAiReplyLoading"
+            >
+              @for (msg of assistantService.messages$(); track msg.id) {
+                <div class="message" [class]="msg.type">
+                  @if (msg.context && msg.type !== 'system') {
+                    <span class="text-xs opacity-60 block mb-1"
+                      >[{{ msg.context }}]</span
+                    >
                   }
-                  @case ('user') {
-                    <div
-                      class="user-bubble-md"
-                      [innerHTML]="userBubbleHtml(msg.content)"
-                    ></div>
+                  @switch (msg.type) {
+                    @case ('assistant') {
+                      <div
+                        class="assistant-bubble-md markdown-preview"
+                        [innerHTML]="assistantBubbleHtml(msg.content)"
+                      ></div>
+                    }
+                    @case ('user') {
+                      <div
+                        class="user-bubble-md"
+                        [innerHTML]="userBubbleHtml(msg.content)"
+                      ></div>
+                    }
+                    @default {
+                      <span class="block whitespace-pre-wrap">{{ msg.content }}</span>
+                    }
                   }
-                  @default {
-                    <span class="block whitespace-pre-wrap">{{ msg.content }}</span>
-                  }
-                }
-              </div>
-            }
-            @if (isAiReplyLoading) {
-              <div class="message assistant opacity-90">
-                <span class="inline-flex items-center gap-2 text-slate-500">
-                  <span
-                    class="inline-block w-2 h-2 rounded-full bg-violet-500 animate-pulse"
-                  ></span>
-                  Pensando…
-                </span>
-              </div>
-            }
-          </div>
-
-          <div
-            class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light space-y-2"
-          >
-            <div class="flex flex-wrap gap-1">
-              @for (action of quickActionsPrimary; track action) {
-                <button
-                  type="button"
-                  (click)="sendQuickAction(action)"
-                  [disabled]="isAiReplyLoading"
-                  class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors disabled:opacity-50"
-                >
-                  {{ action }}
-                </button>
+                </div>
+              }
+              @if (isAiReplyLoading) {
+                <div class="message assistant opacity-90">
+                  <span class="inline-flex items-center gap-2 text-slate-500">
+                    <span
+                      class="inline-block w-2 h-2 rounded-full bg-violet-500 animate-pulse"
+                    ></span>
+                    Pensando…
+                  </span>
+                </div>
               }
             </div>
-            <button
-              type="button"
-              (click)="showExtraQuick = !showExtraQuick"
-              class="text-[11px] font-medium text-blue-700 hover:text-blue-900 underline-offset-2 hover:underline"
+
+            <div
+              class="px-4 py-2 bg-slate-50 border-t border-slate-200 text-doc-muted-on-light space-y-2"
             >
-              {{ showExtraQuick ? 'Ocultar más acciones' : 'Más acciones (resumen, tono, CTA…)' }}
-            </button>
-            @if (showExtraQuick) {
               <div class="flex flex-wrap gap-1">
-                @for (action of quickActionsExtra; track action) {
+                <button
+                  type="button"
+                  (click)="saveCurrentConversation()"
+                  class="save-conversation-btn"
+                  [disabled]="isAiReplyLoading"
+                >
+                  💾 Guardar
+                </button>
+                @for (action of quickActionsPrimary; track action) {
                   <button
                     type="button"
                     (click)="sendQuickAction(action)"
                     [disabled]="isAiReplyLoading"
-                    class="px-2 py-1 text-xs bg-violet-50 border border-violet-200 rounded text-violet-900 hover:bg-violet-100 hover:border-violet-400 transition-colors disabled:opacity-50"
+                    class="px-2 py-1 text-xs bg-white border border-slate-200 rounded text-doc-ink hover:bg-blue-50 hover:border-blue-300 hover:text-blue-800 transition-colors disabled:opacity-50"
                   >
                     {{ action }}
                   </button>
                 }
               </div>
-            }
-            <div
-              class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] border-t border-slate-200/80 pt-2"
-            >
-              <a
-                routerLink="/documents/analysis"
-                class="text-slate-600 hover:text-blue-700 font-medium"
-                >Análisis de propuestas</a
+              <button
+                type="button"
+                (click)="showExtraQuick = !showExtraQuick"
+                class="text-[11px] font-medium text-blue-700 hover:text-blue-900 underline-offset-2 hover:underline"
               >
-              <a
-                routerLink="/documents/list"
-                class="text-slate-600 hover:text-blue-700 font-medium"
-                >Mis documentos</a
+                {{ showExtraQuick ? 'Ocultar más acciones' : 'Más acciones (resumen, tono, CTA…)' }}
+              </button>
+              @if (showExtraQuick) {
+                <div class="flex flex-wrap gap-1">
+                  @for (action of quickActionsExtra; track action) {
+                    <button
+                      type="button"
+                      (click)="sendQuickAction(action)"
+                      [disabled]="isAiReplyLoading"
+                      class="px-2 py-1 text-xs bg-violet-50 border border-violet-200 rounded text-violet-900 hover:bg-violet-100 hover:border-violet-400 transition-colors disabled:opacity-50"
+                    >
+                      {{ action }}
+                    </button>
+                  }
+                </div>
+              }
+              <div
+                class="flex flex-wrap gap-x-3 gap-y-1 text-[11px] border-t border-slate-200/80 pt-2"
               >
-              <a
-                routerLink="/documents/settings/ai"
-                class="text-slate-600 hover:text-blue-700 font-medium"
-                >Motor de IA</a
-              >
+                <a
+                  routerLink="/documents/analysis"
+                  class="text-slate-600 hover:text-blue-700 font-medium"
+                  >Análisis de propuestas</a
+                >
+                <a
+                  routerLink="/documents/list"
+                  class="text-slate-600 hover:text-blue-700 font-medium"
+                  >Mis documentos</a
+                >
+                <a
+                  routerLink="/documents/settings/ai"
+                  class="text-slate-600 hover:text-blue-700 font-medium"
+                  >Motor de IA</a
+                >
+              </div>
             </div>
-          </div>
 
-          <div class="input-area flex space-x-2">
-            <input
-              type="text"
-              [formControl]="messageInput"
-              (keydown.enter)="onChatEnter($event)"
-              [disabled]="isAiReplyLoading"
-              [attr.aria-label]="
-                'Mensaje para ' + assistantService.petConfig$().name
-              "
-              placeholder="Pregunta cualquier cosa a {{
-                assistantService.petConfig$().name
-              }}..."
-              class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50"
-            />
-            <button
-              type="button"
-              (click)="sendMessage()"
-              [disabled]="isAiReplyLoading"
-              class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              title="Enviar"
-              aria-label="Enviar mensaje"
-            >
-              <svg
-                class="w-4 h-4"
-                aria-hidden="true"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div class="input-area flex space-x-2">
+              <input
+                type="text"
+                [formControl]="messageInput"
+                (keydown.enter)="onChatEnter($event)"
+                [disabled]="isAiReplyLoading"
+                [attr.aria-label]="
+                  'Mensaje para ' + assistantService.petConfig$().name
+                "
+                placeholder="Pregunta cualquier cosa a {{
+                  assistantService.petConfig$().name
+                }}..."
+                class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:opacity-50"
+              />
+              <button
+                type="button"
+                (click)="sendMessage()"
+                [disabled]="isAiReplyLoading"
+                class="px-4 py-2 bg-gradient-to-r from-brand to-brand text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                title="Enviar"
+                aria-label="Enviar mensaje"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-                />
-              </svg>
-            </button>
-          </div>
+                <svg
+                  class="w-4 h-4"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                  />
+                </svg>
+              </button>
+            </div>
+          }
 
+          <!-- HISTORY VIEW -->
+          @if (currentView === 'history') {
+            <div class="history-container">
+              <div class="px-4 py-3 border-b border-slate-200 bg-white flex items-center justify-between gap-3">
+                <div>
+                  <div class="text-sm font-semibold text-slate-900">Historial de conversaciones</div>
+                  <div class="text-xs text-slate-500">{{ conversations.length }} conversación(es) guardada(s)</div>
+                </div>
+                <button
+                  type="button"
+                  class="save-conversation-btn"
+                  (click)="switchToChatView()"
+                >
+                  Volver al chat
+                </button>
+              </div>
+
+              @if (loadingConversations) {
+                <div class="flex items-center justify-center h-full">
+                  <span class="text-slate-500 text-sm">Cargando historial…</span>
+                </div>
+              } @else if (conversations.length === 0) {
+                <div class="history-empty">
+                  <p>📭 No hay conversaciones guardadas</p>
+                  <p class="mt-2 text-xs">Vuelve al chat y guarda una conversación para verla aquí.</p>
+                </div>
+              } @else {
+                <div class="history-list">
+                  @for (conv of conversations; track conv.id) {
+                    <div
+                      class="history-item"
+                      [class.selected]="selectedConversationId === conv.id"
+                    >
+                      <div class="history-item-title">{{ conv.title }}</div>
+                      <div class="history-item-time">
+                        {{ conv.createdAt | date: 'dd/MM HH:mm' }}
+                      </div>
+                      <div class="history-item-actions">
+                        <button
+                          type="button"
+                          class="history-btn"
+                          (click)="loadConversation(conv.id)"
+                        >
+                          Cargar
+                        </button>
+                        <button
+                          type="button"
+                          class="history-btn delete"
+                          (click)="deleteConversation(conv.id)"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
           <button
             type="button"
             class="resize-handle"
@@ -830,6 +1056,7 @@ declare const marked: MarkedGlobal;
 export class FloatingAssistantComponent implements OnInit {
   readonly assistantService = inject(AssistantContextService);
   private readonly inference = inject(AIInferenceService);
+  private readonly persona = inject(AgentPersonaService);
   private readonly sanitizer = inject(DomSanitizer);
   readonly messageInput = new FormControl('');
 
@@ -842,6 +1069,12 @@ export class FloatingAssistantComponent implements OnInit {
   showExtraQuick = false;
   /** Respuesta del modelo en curso (Gemini, OpenAI, Ollama…). */
   isAiReplyLoading = false;
+  
+  /* Conversation history management */
+  currentView: 'chat' | 'history' = 'chat';
+  conversations: ConversationRow[] = [];
+  loadingConversations = false;
+  selectedConversationId: string | null = null;
   private dragOffset = { x: 0, y: 0 };
   private resizeStart = { x: 0, y: 0, w: 0, h: 0 };
 
@@ -878,6 +1111,7 @@ export class FloatingAssistantComponent implements OnInit {
   ngOnInit(): void {
     this.assistantService.loadSavedConfig();
     void this.inference.autoSelectProvider();
+    void this.loadConversations();
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -1059,6 +1293,99 @@ export class FloatingAssistantComponent implements OnInit {
   sendQuickAction(action: string): void {
     this.messageInput.setValue(action);
     void this.sendMessage();
+  }
+
+  /* Conversation Management Methods */
+
+  async loadConversations(): Promise<void> {
+    this.loadingConversations = true;
+    try {
+      this.conversations = await this.persona.listConversations(50);
+    } catch (err: unknown) {
+      console.error('Error loading conversations:', err);
+      this.conversations = [];
+    } finally {
+      this.loadingConversations = false;
+    }
+  }
+
+  async saveCurrentConversation(): Promise<void> {
+    const messages = this.assistantService.messages$();
+    if (!messages || messages.length === 0) {
+      console.warn('No messages to save');
+      return;
+    }
+
+    try {
+      const conversationTitle = `Chat ${new Date().toLocaleString()}`;
+      const conversationId = await this.persona.saveConversation(
+        messages.map(m => ({
+          type: m.type,
+          content: m.content,
+          id: m.id,
+          timestamp: m.timestamp,
+          context: m.context,
+        })),
+        conversationTitle,
+      );
+      console.log('Conversation saved with ID:', conversationId);
+      // Reload conversations list
+      await this.loadConversations();
+    } catch (err: unknown) {
+      console.error('Error saving conversation:', err);
+    }
+  }
+
+  async loadConversation(id: string): Promise<void> {
+    if (this.loadingConversations) return;
+
+    this.loadingConversations = true;
+    try {
+      const conversation = await this.persona.getConversation(id);
+      if (!conversation) {
+        console.warn('Conversation not found');
+        return;
+      }
+
+      // Parse messages from the conversation
+      const messages = JSON.parse(conversation.messagesJson || '[]');
+      
+      // Clear current chat and load the conversation
+      this.assistantService.resetChatToWelcome();
+      for (const msg of messages) {
+        this.assistantService.addMessage(msg.content, msg.type);
+      }
+
+      this.selectedConversationId = id;
+      this.scrollToBottom();
+    } catch (err: unknown) {
+      console.error('Error loading conversation:', err);
+    } finally {
+      this.loadingConversations = false;
+    }
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    try {
+      await this.persona.deleteConversation(id);
+      if (this.selectedConversationId === id) {
+        this.selectedConversationId = null;
+      }
+      // Reload conversations list
+      await this.loadConversations();
+    } catch (err: unknown) {
+      console.error('Error deleting conversation:', err);
+    }
+  }
+
+  switchToChatView(): void {
+    this.currentView = 'chat';
+    this.selectedConversationId = null;
+  }
+
+  switchToHistoryView(): void {
+    this.currentView = 'history';
+    void this.loadConversations();
   }
 
   /** Contexto de sistema: personalidad del pet + fragmento de documento. */
