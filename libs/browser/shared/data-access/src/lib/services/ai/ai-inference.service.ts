@@ -260,7 +260,12 @@ export class AIInferenceService {
           console.info(`✅ [AI Recovery] Recuperado exitosamente usando modelo de backup: ${model}`);
         }
 
-        return data.candidates[0].content.parts[0].text;
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+        const finishReason = data.candidates?.[0]?.finishReason;
+        if (finishReason === 'MAX_TOKENS') {
+          return `${text}\n\n[RESPUESTA_CORTADA_POR_MAX_TOKENS]`;
+        }
+        return text;
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         lastError = errorMessage;

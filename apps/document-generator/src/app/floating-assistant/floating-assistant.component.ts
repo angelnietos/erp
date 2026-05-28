@@ -1843,14 +1843,13 @@ export class FloatingAssistantComponent implements OnInit {
     try {
       const system = this.buildFloatingSystemPrompt();
       const reply = await this.inference.generateResponse(message, system, {
-        maxOutputTokens: 2048,
+        maxOutputTokens: 8192,
         attachments: this.aiReferenceAttachments(),
       });
       const text = (reply || '').trim();
+      const appliedOrWarning = this.applyAssistantReplyToPage(text, message);
       this.assistantService.addMessage(
-        this.applyAssistantReplyToPage(text, message) ||
-          text ||
-          '(Sin respuesta del modelo.)',
+        appliedOrWarning || this.compactAssistantReplyForChat(text) || '(Sin respuesta del modelo.)',
         'assistant',
       );
     } catch (err: unknown) {
@@ -1876,6 +1875,13 @@ export class FloatingAssistantComponent implements OnInit {
     reply: string,
     userMessage: string,
   ): string | null {
+    if (
+      this.hasUnclosedCodeFence(reply) ||
+      reply.includes('[RESPUESTA_CORTADA_POR_MAX_TOKENS]')
+    ) {
+      return 'La respuesta llegó cortada por el límite del modelo y no la he aplicado para no romper el documento. He aumentado el límite para los próximos intentos. Pídeme de nuevo el cambio, idealmente como CSS o HTML final.';
+    }
+
     const codeBlocks = this.extractCodeBlocks(reply);
     const applied: string[] = [];
 
@@ -1942,6 +1948,16 @@ export class FloatingAssistantComponent implements OnInit {
     return `Listo. He aplicado ${unique.join(' y ')} directamente en la página. Revisa el editor y la vista previa.`;
   }
 
+  private compactAssistantReplyForChat(reply: string): string {
+    const withoutCode = this.stripFencedCodeBlocks(reply).trim();
+    if (!withoutCode) {
+      return '';
+    }
+    return withoutCode.length > 1200
+      ? `${withoutCode.slice(0, 1200).trim()}…`
+      : withoutCode;
+  }
+
   private extractCodeBlocks(reply: string): Array<{
     language: string;
     code: string;
@@ -1957,6 +1973,11 @@ export class FloatingAssistantComponent implements OnInit {
       }
     }
     return blocks;
+  }
+
+  private hasUnclosedCodeFence(reply: string): boolean {
+    const fenceCount = reply.match(/```/g)?.length ?? 0;
+    return fenceCount % 2 === 1;
   }
 
   private extractLooseCss(reply: string): string {
@@ -2150,7 +2171,7 @@ export class FloatingAssistantComponent implements OnInit {
         ? 'Usa los adjuntos como referencia visual/documental para proponer CSS, HTML, paletas, espaciados, tipografías y jerarquía visual. Si ves imágenes/PDF adjuntos y el proveedor lo permite, analiza su estilo visual.'
         : '',
       'IMPORTANTE: Si el usuario pide estilos visuales, responde con un único bloque ```css. La app lo aplicará automáticamente al documento, así que no incluyas instrucciones de copia/pegado.',
-      'IMPORTANTE: Si el usuario pide crear o reemplazar documento HTML, responde con un único bloque ```html. La app lo aplicará automáticamente.',
+      'IMPORTANTE: No reescribas un HTML completo si el usuario solo pide estilos o mejoras visuales. En ese caso devuelve solo CSS. Solo devuelve ```html si el usuario pide explícitamente reemplazar todo el documento.',
       'IMPORTANTE: Si el usuario pide crear contenido Markdown, responde con un único bloque ```markdown. La app lo insertará o reemplazará automáticamente.',
       'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
     ]
