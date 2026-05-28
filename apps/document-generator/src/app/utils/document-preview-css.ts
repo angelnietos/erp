@@ -355,17 +355,17 @@ function buildDocumentColorIsolationCss(colors: {
   const tableEvenBg = mixColor(paper, text, 0.04);
   const tableOddBg = paper;
   return `
-.document-preview-pane--isolated.markdown-preview,
-.document-preview-pane--isolated.document-preview-render,
-.pdf-body-content.markdown-preview {
+:where(.document-preview-pane--isolated.markdown-preview),
+:where(.document-preview-pane--isolated.document-preview-render),
+:where(.pdf-body-content.markdown-preview) {
   --markdown-bg: ${paper} !important;
   --markdown-color: ${text} !important;
   --brand-primary: ${accent} !important;
   --brand-accent: ${accent} !important;
   --markdown-border: ${border} !important;
-  background-color: ${paper} !important;
-  color: ${text} !important;
-  border-color: ${border} !important;
+  background-color: ${paper};
+  color: ${text};
+  border-color: ${border};
   --bg: ${paper} !important;
   --text: ${text} !important;
   --text-soft: ${muted} !important;
@@ -374,123 +374,123 @@ function buildDocumentColorIsolationCss(colors: {
   --code-text: #f8fafc !important;
 }
 
-.document-preview-pane--isolated.markdown-preview *:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render *:not([style*='color:']),
-.pdf-body-content.markdown-preview *:not([style*='color:']) {
-  color: ${text} !important;
+:where(.document-preview-pane--isolated.markdown-preview) *:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) *:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) *:not([style*='color:']) {
+  color: ${text};
 }
 
-.document-preview-pane--isolated.markdown-preview p:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview li:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview td:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview .doc-paragraph:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render p:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render li:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render td:not([style*='color:']),
-.pdf-body-content.markdown-preview p:not([style*='color:']),
-.pdf-body-content.markdown-preview li:not([style*='color:']),
-.pdf-body-content.markdown-preview td:not([style*='color:']) {
-  color: ${muted} !important;
+:where(.document-preview-pane--isolated.markdown-preview) p:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) li:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) td:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) .doc-paragraph:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) p:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) li:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) td:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) p:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) li:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) td:not([style*='color:']) {
+  color: ${muted};
 }
 
-.document-preview-pane--isolated.markdown-preview h1:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview h2:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview h3:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview h4:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview h5:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview h6:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview strong:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render h1:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render h2:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render h3:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render strong:not([style*='color:']),
-.pdf-body-content.markdown-preview h1:not([style*='color:']),
-.pdf-body-content.markdown-preview h2:not([style*='color:']),
-.pdf-body-content.markdown-preview h3:not([style*='color:']),
-.pdf-body-content.markdown-preview strong:not([style*='color:']) {
-  color: ${text} !important;
+:where(.document-preview-pane--isolated.markdown-preview) h1:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) h2:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) h3:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) h4:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) h5:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) h6:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) strong:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) h1:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) h2:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) h3:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) strong:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) h1:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) h2:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) h3:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) strong:not([style*='color:']) {
+  color: ${text};
 }
 
-.document-preview-pane--isolated.markdown-preview a:not([style*='color:']),
-.document-preview-pane--isolated.markdown-preview .doc-callout:not([style*='color:']),
-.document-preview-pane--isolated.document-preview-render a:not([style*='color:']),
-.pdf-body-content.markdown-preview a:not([style*='color:']) {
-  color: ${accent} !important;
+:where(.document-preview-pane--isolated.markdown-preview) a:not([style*='color:']),
+:where(.document-preview-pane--isolated.markdown-preview) .doc-callout:not([style*='color:']),
+:where(.document-preview-pane--isolated.document-preview-render) a:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) a:not([style*='color:']) {
+  color: ${accent};
 }
 
-.document-preview-pane--isolated.markdown-preview h1,
-.document-preview-pane--isolated.markdown-preview h2,
-.document-preview-pane--isolated.markdown-preview blockquote,
-.document-preview-pane--isolated.markdown-preview .doc-callout,
-.document-preview-pane--isolated.markdown-preview hr,
-.document-preview-pane--isolated.markdown-preview th,
-.document-preview-pane--isolated.markdown-preview td,
-.document-preview-pane--isolated.document-preview-render h1,
-.document-preview-pane--isolated.document-preview-render h2,
-.document-preview-pane--isolated.document-preview-render blockquote,
-.document-preview-pane--isolated.document-preview-render hr,
-.document-preview-pane--isolated.document-preview-render th,
-.document-preview-pane--isolated.document-preview-render td,
-.pdf-body-content.markdown-preview h1,
-.pdf-body-content.markdown-preview h2,
-.pdf-body-content.markdown-preview blockquote,
-.pdf-body-content.markdown-preview hr,
-.pdf-body-content.markdown-preview th,
-.pdf-body-content.markdown-preview td {
-  border-color: ${border} !important;
+:where(.document-preview-pane--isolated.markdown-preview) h1,
+:where(.document-preview-pane--isolated.markdown-preview) h2,
+:where(.document-preview-pane--isolated.markdown-preview) blockquote,
+:where(.document-preview-pane--isolated.markdown-preview) .doc-callout,
+:where(.document-preview-pane--isolated.markdown-preview) hr,
+:where(.document-preview-pane--isolated.markdown-preview) th,
+:where(.document-preview-pane--isolated.markdown-preview) td,
+:where(.document-preview-pane--isolated.document-preview-render) h1,
+:where(.document-preview-pane--isolated.document-preview-render) h2,
+:where(.document-preview-pane--isolated.document-preview-render) blockquote,
+:where(.document-preview-pane--isolated.document-preview-render) hr,
+:where(.document-preview-pane--isolated.document-preview-render) th,
+:where(.document-preview-pane--isolated.document-preview-render) td,
+:where(.pdf-body-content.markdown-preview) h1,
+:where(.pdf-body-content.markdown-preview) h2,
+:where(.pdf-body-content.markdown-preview) blockquote,
+:where(.pdf-body-content.markdown-preview) hr,
+:where(.pdf-body-content.markdown-preview) th,
+:where(.pdf-body-content.markdown-preview) td {
+  border-color: ${border};
 }
 
-.document-preview-pane--isolated.markdown-preview h1::before,
-.document-preview-pane--isolated.markdown-preview h2::before,
-.document-preview-pane--isolated.markdown-preview h2::after,
-.document-preview-pane--isolated.document-preview-render h1::before,
-.document-preview-pane--isolated.document-preview-render h2::before,
-.document-preview-pane--isolated.document-preview-render h2::after,
-.pdf-body-content.markdown-preview h1::before,
-.pdf-body-content.markdown-preview h2::before,
-.pdf-body-content.markdown-preview h2::after {
-  background: ${accent} !important;
+:where(.document-preview-pane--isolated.markdown-preview) h1::before,
+:where(.document-preview-pane--isolated.markdown-preview) h2::before,
+:where(.document-preview-pane--isolated.markdown-preview) h2::after,
+:where(.document-preview-pane--isolated.document-preview-render) h1::before,
+:where(.document-preview-pane--isolated.document-preview-render) h2::before,
+:where(.document-preview-pane--isolated.document-preview-render) h2::after,
+:where(.pdf-body-content.markdown-preview) h1::before,
+:where(.pdf-body-content.markdown-preview) h2::before,
+:where(.pdf-body-content.markdown-preview) h2::after {
+  background: ${accent};
 }
 
-.document-preview-pane--isolated.markdown-preview table,
-.document-preview-pane--isolated.document-preview-render table,
-.pdf-body-content.markdown-preview table {
-  background: ${paper} !important;
-  border-color: ${border} !important;
+:where(.document-preview-pane--isolated.markdown-preview) table,
+:where(.document-preview-pane--isolated.document-preview-render) table,
+:where(.pdf-body-content.markdown-preview) table {
+  background: ${paper};
+  border-color: ${border};
 }
 
-.document-preview-pane--isolated.markdown-preview thead,
-.document-preview-pane--isolated.document-preview-render thead,
-.pdf-body-content.markdown-preview thead {
-  background: transparent !important;
+:where(.document-preview-pane--isolated.markdown-preview) thead,
+:where(.document-preview-pane--isolated.document-preview-render) thead,
+:where(.pdf-body-content.markdown-preview) thead {
+  background: transparent;
 }
 
-.document-preview-pane--isolated.markdown-preview th,
-.document-preview-pane--isolated.document-preview-render th,
-.pdf-body-content.markdown-preview th {
-  background: ${tableHeaderBg} !important;
-  color: ${text} !important;
-  border-color: ${border} !important;
+:where(.document-preview-pane--isolated.markdown-preview) th,
+:where(.document-preview-pane--isolated.document-preview-render) th,
+:where(.pdf-body-content.markdown-preview) th {
+  background: ${tableHeaderBg};
+  color: ${text};
+  border-color: ${border};
 }
 
-.document-preview-pane--isolated.markdown-preview td,
-.document-preview-pane--isolated.document-preview-render td,
-.pdf-body-content.markdown-preview td {
-  background: transparent !important;
-  color: ${muted} !important;
-  border-color: ${border} !important;
+:where(.document-preview-pane--isolated.markdown-preview) td,
+:where(.document-preview-pane--isolated.document-preview-render) td,
+:where(.pdf-body-content.markdown-preview) td {
+  background: transparent;
+  color: ${muted};
+  border-color: ${border};
 }
 
-.document-preview-pane--isolated.markdown-preview tr:nth-child(even) td,
-.document-preview-pane--isolated.document-preview-render tr:nth-child(even) td,
-.pdf-body-content.markdown-preview tr:nth-child(even) td {
-  background: ${tableEvenBg} !important;
+:where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(even) td,
+:where(.document-preview-pane--isolated.document-preview-render) tr:nth-child(even) td,
+:where(.pdf-body-content.markdown-preview) tr:nth-child(even) td {
+  background: ${tableEvenBg};
 }
 
-.document-preview-pane--isolated.markdown-preview tr:nth-child(odd) td,
-.document-preview-pane--isolated.document-preview-render tr:nth-child(odd) td,
-.pdf-body-content.markdown-preview tr:nth-child(odd) td {
-  background: ${tableOddBg} !important;
+:where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(odd) td,
+:where(.document-preview-pane--isolated.document-preview-render) tr:nth-child(odd) td,
+:where(.pdf-body-content.markdown-preview) tr:nth-child(odd) td {
+  background: ${tableOddBg};
 }
 `;
 }

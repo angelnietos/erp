@@ -2027,8 +2027,8 @@ export class DocumentCreateEditorComponent implements OnInit {
     const css = [
       this.selectedPdfStyleRawCss(),
       this.stylePresetCss(this.selectedQuickStylePreset),
-      this.cleanUserCustomCss(),
       this.htmlDocumentColorCss(),
+      this.cleanUserCustomCss(),
     ]
       .filter((part) => part.trim())
       .join('\n\n');
@@ -2080,17 +2080,17 @@ ${backgroundCss}
 }
 
 body {
-  color: ${text} !important;
+  color: ${text};
 }
 
 body *:not([style*='color:']) {
-  color: ${text} !important;
+  color: ${text};
 }
 
 p:not([style*='color:']),
 li:not([style*='color:']),
 td:not([style*='color:']) {
-  color: ${muted} !important;
+  color: ${muted};
 }
 
 h1:not([style*='color:']),
@@ -2100,21 +2100,21 @@ h4:not([style*='color:']),
 h5:not([style*='color:']),
 h6:not([style*='color:']),
 strong:not([style*='color:']) {
-  color: ${text} !important;
+  color: ${text};
 }
 
 a:not([style*='color:']) {
-  color: ${accent} !important;
+  color: ${accent};
 }
 
 h1, h2, blockquote, hr, th, td {
-  border-color: ${border} !important;
+  border-color: ${border};
 }
 
 h1::before,
 h2::before,
 h2::after {
-  background: ${accent} !important;
+  background: ${accent};
 }
 `;
   }
@@ -3033,14 +3033,14 @@ blockquote {
   private documentPreviewCss(): string {
     const background = this.documentBackgroundSettings();
     // Cascade (lowest → highest priority):
-    //   defaults → PDF style template → quick style preset → user/AI CSS → document colors.
-    // When "Usar tema" is off, document colors are the final source of truth.
+    //   defaults → PDF style template → quick style preset → document colors → user/AI CSS.
+    // Custom CSS is last so examples like `h1 { color: ... }` always work.
     return [
       buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(),
       normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
-      normalizeUserCss(this.cleanUserCustomCss()),
       buildPreviewBackgroundOverrideCss(background),
+      normalizeUserCss(this.cleanUserCustomCss()),
     ].filter(Boolean).join('\n\n');
   }
 
