@@ -65,10 +65,10 @@ export class PdfGenerationService {
   }
 
   /**
-   * Apartados tipo "1. Título", "2) Intro" en h1/h2 → salto de página desde el 2.º
-   * (el 1.º sigue bajo la cabecera del PDF para no dejar portada en blanco).
+   * Agrupa cada título (h1–h4) con el contenido que le sigue para que html2pdf
+   * no corte un encabezado por la mitad al trocear el lienzo.
    */
-  private applyPdfSectionBreaks(html: string): string {
+  private prepareHtmlForPdfPagination(html: string): string {
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(
@@ -80,26 +80,113 @@ export class PdfGenerationService {
         return html;
       }
 
-      const isNumberedSectionTitle = (text: string): boolean =>
-        /^\s*\d+[.)]\s+\S/.test(text);
+      const nodes = Array.from(root.childNodes);
+      const out = doc.createElement('div');
+      out.className = 'pdf-parse-root';
 
-      const headings = root.querySelectorAll('h1, h2, h3');
-      let numberedIndex = 0;
-      headings.forEach((el) => {
-        const text = el.textContent ?? '';
-        if (!isNumberedSectionTitle(text)) {
-          return;
-        }
-        if (numberedIndex > 0) {
-          el.classList.add('pdf-major-section');
-        }
-        numberedIndex += 1;
-      });
+      let section: HTMLDivElement | null = null;
 
-      return root.innerHTML;
+      const flushSection = (): void => {
+        if (section) {
+          out.appendChild(section);
+          section = null;
+        }
+      };
+
+      for (const node of nodes) {
+        if (node.nodeType !== Node.ELEMENT_NODE) {
+          if (!section) {
+            section = doc.createElement('div');
+            section.className = 'pdf-section-block';
+          }
+          section.appendChild(node.cloneNode(true));
+          continue;
+        }
+
+        const el = node as Element;
+        const tag = el.tagName.toUpperCase();
+
+        if (tag === 'H1') {
+          flushSection();
+          const titleBlock = doc.createElement('div');
+          titleBlock.className = 'pdf-section-block pdf-section-block--title';
+          titleBlock.appendChild(node.cloneNode(true));
+          out.appendChild(titleBlock);
+          continue;
+        }
+
+        if (/^H[2-4]$/.test(tag)) {
+          flushSection();
+          section = doc.createElement('div');
+          section.className = 'pdf-section-block';
+          section.appendChild(node.cloneNode(true));
+          continue;
+        }
+
+        if (!section) {
+          section = doc.createElement('div');
+          section.className = 'pdf-section-block';
+        }
+        section.appendChild(node.cloneNode(true));
+      }
+
+      flushSection();
+      return out.innerHTML;
     } catch {
       return html;
     }
+  }
+
+  /** Reglas de paginación compartidas (html2pdf + CSS). */
+  private getPdfPaginationCss(): string {
+    return `
+      .pdf-canvas-root {
+        padding: 0.15rem 0;
+      }
+      .pdf-body-content {
+        margin-top: 0;
+      }
+      .pdf-body-content > h1:first-child,
+      .pdf-body-content > h2:first-child,
+      .pdf-section-block:first-child h1,
+      .pdf-section-block:first-child h2 {
+        margin-top: 0;
+      }
+      .pdf-section-block {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+        -webkit-column-break-inside: avoid;
+        margin-bottom: 0.85rem;
+      }
+      h1, h2, h3, h4 {
+        page-break-after: avoid;
+        break-after: avoid-page;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      h1 + p, h2 + p, h3 + p, h4 + p,
+      h1 + ul, h2 + ul, h3 + ul, h4 + ul,
+      h1 + ol, h2 + ol, h3 + ol, h4 + ol,
+      h1 + table, h2 + table, h3 + table, h4 + table {
+        page-break-before: avoid;
+        break-before: avoid-page;
+      }
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+      blockquote, pre, img, svg, table {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+      }
+      thead {
+        display: table-header-group;
+      }
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid-page;
+      }
+    `;
   }
 
   private resolvePdfStyles(data: DocumentData): {
@@ -180,7 +267,7 @@ export class PdfGenerationService {
     canvasBackground: string | null = null,
   ) {
     return {
-      margin: [18, 12, 18, 12] as [number, number, number, number],
+      margin: [14, 10, 14, 10] as [number, number, number, number],
       filename,
       image: { type: 'jpeg' as const, quality: 0.92 },
       html2canvas: {
@@ -199,9 +286,20 @@ export class PdfGenerationService {
       },
       pagebreak: {
         mode: ['css', 'legacy'],
-        before: '.pdf-major-section',
-        /** Sin h1/h2/h3 aquí: html2pdf deja páginas casi vacías al intentar no separar títulos del cuerpo. */
-        avoid: ['pre', 'blockquote', 'img', 'svg'],
+        avoid: [
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          '.pdf-section-block',
+          'tr',
+          'thead',
+          'blockquote',
+          'pre',
+          'img',
+          'svg',
+          'table',
+        ],
       },
     };
   }
@@ -226,7 +324,7 @@ export class PdfGenerationService {
       htmlContent = marked.parse(data.content || '', markedOpts);
     }
 
-    htmlContent = this.applyPdfSectionBreaks(htmlContent);
+    htmlContent = this.prepareHtmlForPdfPagination(htmlContent);
 
     const title = escapeHtml(data.title || 'Documento');
     const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
@@ -265,39 +363,24 @@ export class PdfGenerationService {
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
             letter-spacing: -0.02em;
-            page-break-after: auto;
-            break-after: auto;
           }
           h2 {
             font-size: 18pt;
             font-weight: 700;
             margin: 1rem 0 0.5rem 0;
             color: #1e293b;
-            page-break-after: auto;
-            break-after: auto;
-          }
-          h1.pdf-major-section,
-          h2.pdf-major-section,
-          h3.pdf-major-section {
-            page-break-before: always;
-            break-before: page;
-            margin-top: 0.35rem;
           }
           h3 {
             font-size: 15pt;
             font-weight: 600;
             margin: 0.85rem 0 0.45rem 0;
             color: #334155;
-            page-break-after: auto;
-            break-after: auto;
           }
           h4 {
             font-size: 14pt;
             font-weight: 600;
             margin: 0.65rem 0 0.35rem 0;
             color: #475569;
-            page-break-after: auto;
-            break-after: auto;
           }
           p {
             margin: 0.5rem 0;
@@ -401,13 +484,7 @@ export class PdfGenerationService {
             height: auto;
             page-break-inside: avoid;
           }
-          .pdf-body-content {
-            margin-top: 0;
-          }
-          .pdf-body-content > h1:first-child,
-          .pdf-body-content > h2:first-child {
-            margin-top: 0;
-          }
+          ${this.getPdfPaginationCss()}
           ${styleCss}
           ${mergedCss}
         </style>
@@ -684,7 +761,7 @@ export class PdfGenerationService {
     htmlContent: string,
     data: DocumentData,
   ): Promise<Blob> {
-    const bodyHtml = this.applyPdfSectionBreaks(htmlContent);
+    const bodyHtml = this.prepareHtmlForPdfPagination(htmlContent);
 
     const title = escapeHtml(data.title || 'Documento');
     const metaDate = escapeHtml(this.formatDisplayDate(data.date));
@@ -730,28 +807,18 @@ export class PdfGenerationService {
             border-bottom: 2px solid #e2e8f0;
             color: #0f172a;
             letter-spacing: -0.02em;
-            page-break-after: auto;
           }
           h2 {
             font-size: 18pt;
             font-weight: 700;
             margin: 1rem 0 0.5rem 0;
             color: #1e293b;
-            page-break-after: auto;
-          }
-          h1.pdf-major-section,
-          h2.pdf-major-section,
-          h3.pdf-major-section {
-            page-break-before: always;
-            break-before: page;
-            margin-top: 0.35rem;
           }
           h3 {
             font-size: 15pt;
             font-weight: 600;
             margin: 0.85rem 0 0.45rem 0;
             color: #334155;
-            page-break-after: auto;
           }
           p {
             margin: 0.5rem 0;
@@ -818,13 +885,7 @@ export class PdfGenerationService {
             border-radius: 999px;
             color: #475569;
           }
-          .pdf-body-content {
-            margin-top: 0.25rem;
-          }
-          .pdf-body-content > h1:first-child,
-          .pdf-body-content > h2:first-child {
-            margin-top: 0;
-          }
+          ${this.getPdfPaginationCss()}
           .pdf-doc-footer {
             margin-top: 2.25rem;
             padding-top: 1rem;
