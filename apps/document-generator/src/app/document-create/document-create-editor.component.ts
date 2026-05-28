@@ -641,6 +641,23 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               <div>{{ wordCount }} palabras</div>
                               <div>{{ characterCount }} caracteres</div>
                             </div>
+                            <div class="divider"></div>
+                            <div>
+                              <label class="block text-sm font-medium text-secondary">Estilos rápidos</label>
+                              <select class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" (change)="applyStylePreset($event.target.value)">
+                                <option value="">Seleccionar estilo...</option>
+                                <option value="default">Predeterminado</option>
+                                <option value="corporate">Corporativo</option>
+                                <option value="compact">Compacto</option>
+                                <option value="large">Texto grande</option>
+                              </select>
+
+                              <div class="mt-2 flex items-center gap-2">
+                                <button type="button" class="px-2 py-1 rounded border" (click)="adjustBaseFontSize(-0.05)">A-</button>
+                                <div class="text-xs text-muted text-center flex-1">Ajustar tamaño base</div>
+                                <button type="button" class="px-2 py-1 rounded border" (click)="adjustBaseFontSize(0.05)">A+</button>
+                              </div>
+                            </div>
                           </div>
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
@@ -1840,6 +1857,85 @@ blockquote {
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
     styleEl.textContent = this.documentPreviewCss();
+  }
+
+  /** Base font size used for quick adjustments (in rem). */
+  baseFontSize = 1.05;
+
+  /** Ensure a CSS :root variable is present or updated in customCss. */
+  upsertRootVariable(varName: string, value: string): void {
+    try {
+      const raw = this.customCss || '';
+      const rootRe = /:root\s*\{([\s\S]*?)\}/m;
+      const match = rootRe.exec(raw);
+      if (match) {
+        let body = match[1];
+        const varRe = new RegExp(varName.replace(/[-\[\]\\/\^$*+?.()|{}]/g, '\\$&') + '\\s*:\\s*[^;]+;');
+        if (varRe.test(body)) {
+          body = body.replace(varRe, `${varName}: ${value};`);
+        } else {
+          body = `${body.trim()}\n  ${varName}: ${value};\n`;
+        }
+        const newRoot = `:root {\n${body}\n}`;
+        this.customCss = raw.replace(rootRe, newRoot);
+      } else {
+        // Prepend a :root block
+        this.customCss = `:root {\n  ${varName}: ${value};\n}\n\n${raw}`;
+      }
+      this.applyCustomCss();
+    } catch (e) {
+      console.warn('upsertRootVariable failed', e);
+    }
+  }
+
+  applyStylePreset(preset: string | null | undefined): void {
+    if (!preset || preset === 'default') {
+      // remove preset-managed variables if present
+      // keep user's other rules
+      this.customCss = (this.customCss || '').replace(/:root\s*\{[\s\S]*?\}/m, '');
+      this.applyCustomCss();
+      return;
+    }
+    switch (preset) {
+      case 'corporate':
+        this.upsertRootVariable('--brand-primary', '#7a0000');
+        this.upsertRootVariable('--brand-accent', '#ff3131');
+        this.upsertRootVariable('--markdown-font-size', '1.05rem');
+        break;
+      case 'compact':
+        this.upsertRootVariable('--markdown-font-size', '0.95rem');
+        this.upsertRootVariable('--markdown-padding', '24px');
+        break;
+      case 'large':
+        this.upsertRootVariable('--markdown-font-size', '1.25rem');
+        break;
+      default:
+        break;
+    }
+    this.applyCustomCss();
+  }
+
+  adjustBaseFontSize(deltaRem: number): void {
+    try {
+      // look for existing --markdown-font-size in customCss
+      const raw = this.customCss || '';
+      const rootRe = /:root\s*\{([\s\S]*?)\}/m;
+      const match = rootRe.exec(raw);
+      let current = this.baseFontSize;
+      if (match) {
+        const body = match[1];
+        const varMatch = /--markdown-font-size\s*:\s*([0-9.]+)rem\s*;/.exec(body);
+        if (varMatch) {
+          current = parseFloat(varMatch[1]);
+        }
+      }
+      let next = Math.max(0.6, Math.min(3, +(current + deltaRem).toFixed(2)));
+      this.baseFontSize = next;
+      this.upsertRootVariable('--markdown-font-size', `${next}rem`);
+      this.applyCustomCss();
+    } catch (e) {
+      console.warn('adjustBaseFontSize failed', e);
+    }
   }
 
   private documentPreviewCss(): string {
