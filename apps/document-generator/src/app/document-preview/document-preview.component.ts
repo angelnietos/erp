@@ -51,6 +51,8 @@ interface DocumentPreviewPayload {
   deployment?: string;
   customCss?: string;
   pdfStyleId?: string;
+  quickStylePreset?: string;
+  contentEditorMode?: 'markdown' | 'html' | 'plain';
   pdfBackgroundMode?: 'theme' | 'color' | 'corporate';
   pdfBackgroundColor?: string;
   pdfBackgroundImageUrl?: string;
@@ -706,6 +708,8 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
           client: d.client,
           subtitle: d.client,
           pdfStyleId: d.pdfStyleId,
+          quickStylePreset: d.quickStylePreset,
+          contentEditorMode: d.contentEditorMode,
           customCss: d.customCss,
           pdfBackgroundMode: background.pdfBackgroundMode,
           pdfBackgroundColor: background.pdfBackgroundColor,

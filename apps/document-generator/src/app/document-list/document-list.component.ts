@@ -512,6 +512,16 @@ export class DocumentListComponent implements OnInit {
           client: data['client'] as string | undefined,
           subtitle: data['client'] as string | undefined,
           pdfStyleId: data['pdfStyleId'] as string | undefined,
+          quickStylePreset:
+            typeof data['quickStylePreset'] === 'string'
+              ? data['quickStylePreset']
+              : undefined,
+          contentEditorMode:
+            data['contentEditorMode'] === 'markdown' ||
+            data['contentEditorMode'] === 'html' ||
+            data['contentEditorMode'] === 'plain'
+              ? data['contentEditorMode']
+              : undefined,
           customCss:
             typeof data['customCss'] === 'string' ? data['customCss'] : undefined,
           pdfBackgroundMode: background.pdfBackgroundMode,

@@ -1581,7 +1581,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     const mdOpts = { gfm: true, breaks: true };
     try {
       if (this.contentEditorMode === 'html') {
-        this.previewHtmlMarkup = content;
+        this.previewHtmlMarkup = this.prepareHtmlContentForRendering(content);
       } else if (this.contentEditorMode === 'plain') {
         this.previewHtmlMarkup = this.plainTextToHtml(content);
       } else {
@@ -1589,12 +1589,15 @@ export class DocumentCreateEditorComponent implements OnInit {
         const parsed = marked.parse(content, mdOpts);
         this.previewHtmlMarkup =
           typeof parsed === 'string' ? parsed : String(parsed);
+        this.previewHtmlMarkup = this.applyCorporateCoverVisibility(
+          this.previewHtmlMarkup,
+        );
       }
     } catch {
       this.previewHtmlMarkup =
         this.contentEditorMode === 'plain'
           ? this.plainTextToHtml(content)
-          : content;
+          : this.prepareHtmlContentForRendering(content);
     }
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
 
@@ -1620,6 +1623,42 @@ export class DocumentCreateEditorComponent implements OnInit {
           `<p style="white-space: pre-wrap;">${this.escapeHtml(paragraph)}</p>`,
       )
       .join('\n');
+  }
+
+  private prepareHtmlContentForRendering(content: string): string {
+    return this.applyCorporateCoverVisibility(this.stripWrappingHtmlFence(content));
+  }
+
+  private stripWrappingHtmlFence(content: string): string {
+    const trimmed = content.trim();
+    const match = /^```(?:html)?\s*([\s\S]*?)\s*```$/i.exec(trimmed);
+    return match ? match[1].trim() : content;
+  }
+
+  private applyCorporateCoverVisibility(html: string): string {
+    if (this.isCorporateCoverEnabled()) {
+      return html;
+    }
+
+    if (!/class\s*=\s*["'][^"']*\bcover\b/i.test(html)) {
+      return html;
+    }
+
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      doc.querySelectorAll('.cover').forEach((cover) => cover.remove());
+      return doc.body.innerHTML || html;
+    } catch {
+      return html.replace(
+        /<([a-z][\w:-]*)\b[^>]*class=(["'])[^"']*\bcover\b[^"']*\2[^>]*>[\s\S]*?<\/\1>/gi,
+        '',
+      );
+    }
+  }
+
+  private isCorporateCoverEnabled(): boolean {
+    return this.selectedQuickStylePreset === 'corporate';
   }
 
   insertMarkdown(before: string, after: string) {
@@ -2498,10 +2537,13 @@ td {
   }
 
   private getRenderableContentForPdf(content: string): string {
-    if (this.contentEditorMode === 'plain') {
-      return this.plainTextToHtml(content);
+    if (this.contentEditorMode === 'html') {
+      return this.prepareHtmlContentForRendering(content);
     }
-    return content;
+    if (this.contentEditorMode === 'plain') {
+      return this.applyCorporateCoverVisibility(this.plainTextToHtml(content));
+    }
+    return this.applyCorporateCoverVisibility(content);
   }
 
   private getPlainContentForExport(content: string): string {
@@ -2551,6 +2593,7 @@ td {
           subtitle: client?.name || 'Josanz ERP',
           pdfStyleId: this.selectedPdfStyle,
           contentEditorMode: this.contentEditorMode,
+          quickStylePreset: this.selectedQuickStylePreset,
           customCss: this.pdfExportCustomCss(),
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,

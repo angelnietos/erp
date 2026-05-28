@@ -41,6 +41,7 @@ interface DocumentData {
   terms?: string;
   customCss?: string;
   pdfStyleId?: string;
+  quickStylePreset?: string;
   contentEditorMode?: 'markdown' | 'html' | 'plain';
   pdfBackgroundMode?: PdfBackgroundSettings['pdfBackgroundMode'];
   pdfBackgroundColor?: string;
@@ -323,9 +324,10 @@ export class PdfGenerationService {
     }
 
     if (isHtml) {
-      htmlContent = data.content || '';
+      htmlContent = this.prepareHtmlContentForPdf(data.content || '', data);
     } else {
       htmlContent = marked.parse(data.content || '', markedOpts);
+      htmlContent = this.applyCorporateCoverVisibility(htmlContent, data);
     }
 
     htmlContent = this.prepareHtmlForPdfPagination(htmlContent);
@@ -508,6 +510,37 @@ export class PdfGenerationService {
       data.title || 'documento',
       canvasBackground,
     );
+  }
+
+  private prepareHtmlContentForPdf(content: string, data: DocumentData): string {
+    return this.applyCorporateCoverVisibility(
+      this.stripWrappingHtmlFence(content),
+      data,
+    );
+  }
+
+  private stripWrappingHtmlFence(content: string): string {
+    const trimmed = content.trim();
+    const match = /^```(?:html)?\s*([\s\S]*?)\s*```$/i.exec(trimmed);
+    return match ? match[1].trim() : content;
+  }
+
+  private applyCorporateCoverVisibility(
+    html: string,
+    data: DocumentData,
+  ): string {
+    if (data.quickStylePreset === 'corporate') {
+      return html;
+    }
+
+    if (!/class\s*=\s*["'][^"']*\bcover\b/i.test(html)) {
+      return html;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    wrapper.querySelectorAll('.cover').forEach((cover) => cover.remove());
+    return wrapper.innerHTML;
   }
 
   async generateQuotePdf(data: DocumentData): Promise<Blob> {
