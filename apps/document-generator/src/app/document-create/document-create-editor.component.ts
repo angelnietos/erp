@@ -1941,14 +1941,24 @@ blockquote {
   }
 
   private scopeSingleSelector(selector: string): string {
-    if (
-      !selector ||
-      selector.includes('.markdown-preview') ||
-      selector.startsWith(':root') ||
-      selector.startsWith('html') ||
-      selector.startsWith('body')
-    ) {
+    if (!selector || selector.includes('.markdown-preview')) {
       return selector;
+    }
+
+    if (selector === ':root' || selector === 'html' || selector === 'body') {
+      return '.markdown-preview';
+    }
+
+    if (selector.startsWith('body.')) {
+      return `.markdown-preview${selector.slice('body'.length)}`;
+    }
+
+    if (selector.startsWith('html ')) {
+      return `.markdown-preview ${selector.slice('html '.length)}`;
+    }
+
+    if (selector.startsWith('body ')) {
+      return `.markdown-preview ${selector.slice('body '.length)}`;
     }
 
     return `.markdown-preview ${selector}`;

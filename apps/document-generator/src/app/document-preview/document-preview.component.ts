@@ -675,6 +675,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
         client: d.client,
         subtitle: d.client,
         pdfStyleId: d.pdfStyleId,
+        customCss: this.scopeCssToMarkdownPreview(d.customCss ?? ''),
       });
       this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
       return;
@@ -693,7 +694,56 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     const styleEl =
       document.getElementById('document-preview-custom-css') ??
       this.createPreviewStyleEl();
-    styleEl.textContent = this.document?.customCss ?? '';
+    styleEl.textContent = this.scopeCssToMarkdownPreview(
+      this.document?.customCss ?? '',
+    );
+  }
+
+  private scopeCssToMarkdownPreview(css: string): string {
+    const trimmed = css.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    if (!trimmed.includes('{')) {
+      return `.markdown-preview {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
+    }
+
+    return trimmed.replace(
+      /(^|})\s*([^@{}][^{}]*)\{/g,
+      (match, boundary: string, selectorText: string) => {
+        const scopedSelectors = selectorText
+          .split(',')
+          .map((selector) => this.scopeSingleSelector(selector.trim()))
+          .join(', ');
+
+        return `${boundary}\n${scopedSelectors} {`;
+      },
+    );
+  }
+
+  private scopeSingleSelector(selector: string): string {
+    if (!selector || selector.includes('.markdown-preview')) {
+      return selector;
+    }
+
+    if (selector === ':root' || selector === 'html' || selector === 'body') {
+      return '.markdown-preview';
+    }
+
+    if (selector.startsWith('body.')) {
+      return `.markdown-preview${selector.slice('body'.length)}`;
+    }
+
+    if (selector.startsWith('html ')) {
+      return `.markdown-preview ${selector.slice('html '.length)}`;
+    }
+
+    if (selector.startsWith('body ')) {
+      return `.markdown-preview ${selector.slice('body '.length)}`;
+    }
+
+    return `.markdown-preview ${selector}`;
   }
 
   private createPreviewStyleEl(): HTMLStyleElement {
