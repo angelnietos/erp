@@ -120,6 +120,108 @@ export function normalizeUserCss(css: string): string {
   return `.markdown-preview {\n${declarations}\n}`;
 }
 
+function addClasses(element: Element | null, ...classes: string[]): void {
+  if (!element) return;
+  element.classList.add(...classes.filter(Boolean));
+}
+
+/**
+ * Marked genera HTML muy genérico. Estas clases dan al asistente puntos de apoyo
+ * estables para crear diseños ricos sin depender de la plantilla corporativa.
+ */
+export function enrichDocumentHtmlForStyling(html: string): string {
+  if (!html.trim() || typeof DOMParser === 'undefined') {
+    return html;
+  }
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<main>${html}</main>`, 'text/html');
+    const root = doc.body.querySelector('main');
+    if (!root) return html;
+
+    Array.from(root.children).forEach((element, index) => {
+      const tagName = element.tagName.toLowerCase();
+      addClasses(element, 'doc-block', `doc-block--${tagName}`);
+      (element as HTMLElement).dataset['docIndex'] = String(index + 1);
+    });
+
+    root.querySelectorAll('h1').forEach((heading, index) => {
+      addClasses(
+        heading,
+        'doc-heading',
+        'doc-heading--1',
+        index === 0 ? 'doc-title' : 'doc-title-secondary',
+      );
+    });
+    root.querySelectorAll('h2').forEach((heading) =>
+      addClasses(heading, 'doc-heading', 'doc-heading--2', 'doc-section-title'),
+    );
+    root.querySelectorAll('h3').forEach((heading) =>
+      addClasses(heading, 'doc-heading', 'doc-heading--3', 'doc-subsection-title'),
+    );
+    root.querySelectorAll('h4,h5,h6').forEach((heading) =>
+      addClasses(heading, 'doc-heading', 'doc-heading--minor'),
+    );
+
+    const headings = Array.from(root.querySelectorAll('h1,h2,h3,h4,h5,h6'));
+    headings.forEach((heading) => {
+      const next = heading.nextElementSibling;
+      if (next?.tagName.toLowerCase() === 'p') {
+        addClasses(next, 'doc-lead');
+      }
+    });
+
+    root.querySelectorAll('p').forEach((paragraph) =>
+      addClasses(paragraph, 'doc-paragraph'),
+    );
+    root.querySelectorAll('ul').forEach((list) =>
+      addClasses(list, 'doc-list', 'doc-list--unordered'),
+    );
+    root.querySelectorAll('ol').forEach((list) =>
+      addClasses(list, 'doc-list', 'doc-list--ordered'),
+    );
+    root.querySelectorAll('li').forEach((item) =>
+      addClasses(item, 'doc-list-item'),
+    );
+    root.querySelectorAll('blockquote').forEach((quote) =>
+      addClasses(quote, 'doc-callout'),
+    );
+    root.querySelectorAll('table').forEach((table, index) => {
+      addClasses(table, 'doc-table', `doc-table--${index + 1}`);
+    });
+    root.querySelectorAll('thead').forEach((thead) =>
+      addClasses(thead, 'doc-table-head'),
+    );
+    root.querySelectorAll('tbody').forEach((tbody) =>
+      addClasses(tbody, 'doc-table-body'),
+    );
+    root.querySelectorAll('tr').forEach((row) => addClasses(row, 'doc-table-row'));
+    root.querySelectorAll('th').forEach((cell) =>
+      addClasses(cell, 'doc-table-header'),
+    );
+    root.querySelectorAll('td').forEach((cell) =>
+      addClasses(cell, 'doc-table-cell'),
+    );
+    root.querySelectorAll('hr').forEach((divider) =>
+      addClasses(divider, 'doc-divider'),
+    );
+    root.querySelectorAll('pre').forEach((code) =>
+      addClasses(code, 'doc-code-block'),
+    );
+    root.querySelectorAll('code').forEach((code) =>
+      addClasses(code, 'doc-code'),
+    );
+    root.querySelectorAll('img').forEach((image) =>
+      addClasses(image, 'doc-image'),
+    );
+
+    return root.innerHTML || html;
+  } catch {
+    return html;
+  }
+}
+
 /** CSS completo para vista previa y PDF (base + personalizado acotado). */
 export function buildDocumentPreviewCss(userCss: string): string {
   // Ensure default variables are present first, then base CSS, then user CSS (scoped)

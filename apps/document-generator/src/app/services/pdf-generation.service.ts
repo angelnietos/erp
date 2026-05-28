@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
 import {
+  enrichDocumentHtmlForStyling,
   getHtml2CanvasBackground,
   readPdfBackgroundSettings,
   resolvePdfGenerationCss,
@@ -330,6 +331,7 @@ export class PdfGenerationService {
     } else {
       htmlContent = marked.parse(data.content || '', markedOpts);
       htmlContent = this.applyCorporateCoverVisibility(htmlContent, data);
+      htmlContent = enrichDocumentHtmlForStyling(htmlContent);
     }
 
     htmlContent = this.prepareHtmlForPdfPagination(htmlContent);
@@ -493,8 +495,8 @@ export class PdfGenerationService {
             page-break-inside: avoid;
           }
           ${this.getPdfPaginationCss()}
-          ${mergedCss}
           ${styleCss}
+          ${mergedCss}
         </style>
       </head>
       <body>

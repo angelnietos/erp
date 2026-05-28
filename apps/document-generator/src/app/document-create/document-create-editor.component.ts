@@ -36,6 +36,7 @@ import {
   buildPreviewBackgroundOverrideCss,
   buildDocumentPreviewCss,
   buildPreviewPaneStyle,
+  enrichDocumentHtmlForStyling,
   normalizeUserCss,
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
@@ -567,7 +568,7 @@ interface DocumentType {
                         [(ngModel)]="customCss"
                         [ngModelOptions]="{ standalone: true }"
                         rows="8"
-                        placeholder="font-size: 1.4em;&#10;color: #455a64;&#10;&#10;/* O reglas completas: .markdown-preview h2 { color: #2563eb; } */"
+                        placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota automáticamente a la vista previa. */"
 class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                          (input)="applyCustomCss()"
                        ></textarea>
@@ -1645,11 +1646,13 @@ export class DocumentCreateEditorComponent implements OnInit {
       if (this.contentEditorMode === 'html') {
         this.previewHtmlMarkup = this.prepareHtmlContentForRendering(content);
         this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
-          this.previewHtmlMarkup,
+          this.buildHtmlPreviewSrcdoc(this.previewHtmlMarkup),
         );
       } else if (this.contentEditorMode === 'plain') {
         this.htmlPreviewSrcdoc = '';
-        this.previewHtmlMarkup = this.plainTextToHtml(content);
+        this.previewHtmlMarkup = enrichDocumentHtmlForStyling(
+          this.plainTextToHtml(content),
+        );
       } else {
         this.htmlPreviewSrcdoc = '';
         marked.setOptions?.(mdOpts);
@@ -1659,12 +1662,20 @@ export class DocumentCreateEditorComponent implements OnInit {
         this.previewHtmlMarkup = this.applyCorporateCoverVisibility(
           this.previewHtmlMarkup,
         );
+        this.previewHtmlMarkup = enrichDocumentHtmlForStyling(
+          this.previewHtmlMarkup,
+        );
       }
     } catch {
       this.previewHtmlMarkup =
         this.contentEditorMode === 'plain'
-          ? this.plainTextToHtml(content)
+          ? enrichDocumentHtmlForStyling(this.plainTextToHtml(content))
           : this.prepareHtmlContentForRendering(content);
+      if (this.contentEditorMode === 'html') {
+        this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
+          this.buildHtmlPreviewSrcdoc(this.previewHtmlMarkup),
+        );
+      }
     }
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
 
@@ -1694,6 +1705,63 @@ export class DocumentCreateEditorComponent implements OnInit {
 
   private prepareHtmlContentForRendering(content: string): string {
     return this.stripWrappingHtmlFence(content);
+  }
+
+  private selectedPdfStyleRawCss(): string {
+    return (
+      this.pdfStyles.find((style) => style.id === this.selectedPdfStyle)?.css ??
+      ''
+    );
+  }
+
+  private htmlModeCss(): string {
+    const css = [
+      this.selectedPdfStyleRawCss(),
+      this.stylePresetCss(this.selectedQuickStylePreset),
+      this.cleanUserCustomCss(),
+    ]
+      .filter((part) => part.trim())
+      .join('\n\n');
+    return this.adaptMarkdownScopedCssForHtml(css);
+  }
+
+  private adaptMarkdownScopedCssForHtml(css: string): string {
+    return css
+      .replace(/\.markdown-preview\s*>\s*/g, '')
+      .replace(/\.markdown-preview\s+/g, '')
+      .replace(/\.markdown-preview(?=\s*[{,])/g, 'body');
+  }
+
+  private wrapLooseHtmlCss(css: string): string {
+    const trimmed = css.trim();
+    if (!trimmed) return '';
+    if (trimmed.includes('{')) return trimmed;
+    return `body {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
+  }
+
+  private buildHtmlPreviewSrcdoc(html: string): string {
+    const css = this.wrapLooseHtmlCss(this.htmlModeCss());
+    if (!css) {
+      return html;
+    }
+
+    const styleTag = `<style id="document-generator-custom-css">\n${css}\n</style>`;
+    if (/<\/head>/i.test(html)) {
+      return html.replace(/<\/head>/i, `${styleTag}\n</head>`);
+    }
+    if (/<html[\s>]/i.test(html)) {
+      return html.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
+    }
+    return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  ${styleTag}
+</head>
+<body>
+${html}
+</body>
+</html>`;
   }
 
   private stripWrappingHtmlFence(content: string): string {
