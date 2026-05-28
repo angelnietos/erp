@@ -9,6 +9,12 @@ export const DEFAULT_CSS_VARS = `:root {
   --markdown-radius: 24px;
   --brand-primary: #7a0000;
   --brand-accent: #ff3131;
+  --bg: var(--markdown-bg);
+  --text: var(--markdown-color);
+  --text-soft: #475569;
+  --border: var(--markdown-border);
+  --code-bg: #0f172a;
+  --code-text: #f8fafc;
 }`;
 
 /** Estilos base del visor / PDF (siempre aplicados) que usan variables CSS. */
@@ -313,6 +319,30 @@ function sanitizePdfColor(color: string): string {
   return '#ffffff';
 }
 
+function hexToRgb(color: string): { r: number; g: number; b: number } | null {
+  const trimmed = color.trim();
+  const hex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.exec(trimmed);
+  if (!hex) return null;
+  const raw = hex[1].length === 3
+    ? hex[1].split('').map((part) => part + part).join('')
+    : hex[1];
+  return {
+    r: Number.parseInt(raw.slice(0, 2), 16),
+    g: Number.parseInt(raw.slice(2, 4), 16),
+    b: Number.parseInt(raw.slice(4, 6), 16),
+  };
+}
+
+function mixColor(baseColor: string, overlayColor: string, overlayAmount: number): string {
+  const base = hexToRgb(baseColor);
+  const overlay = hexToRgb(overlayColor);
+  if (!base || !overlay) return baseColor;
+  const amount = Math.min(1, Math.max(0, overlayAmount));
+  const channel = (baseValue: number, overlayValue: number) =>
+    Math.round(baseValue * (1 - amount) + overlayValue * amount);
+  return `rgb(${channel(base.r, overlay.r)}, ${channel(base.g, overlay.g)}, ${channel(base.b, overlay.b)})`;
+}
+
 function buildDocumentColorIsolationCss(colors: {
   paper: string;
   text: string;
@@ -321,6 +351,9 @@ function buildDocumentColorIsolationCss(colors: {
   border: string;
 }): string {
   const { paper, text, muted, accent, border } = colors;
+  const tableHeaderBg = mixColor(paper, accent, 0.18);
+  const tableEvenBg = mixColor(paper, text, 0.04);
+  const tableOddBg = paper;
   return `
 .document-preview-pane--isolated.markdown-preview,
 .document-preview-pane--isolated.document-preview-render,
@@ -333,6 +366,12 @@ function buildDocumentColorIsolationCss(colors: {
   background-color: ${paper} !important;
   color: ${text} !important;
   border-color: ${border} !important;
+  --bg: ${paper} !important;
+  --text: ${text} !important;
+  --text-soft: ${muted} !important;
+  --border: ${border} !important;
+  --code-bg: #0f172a !important;
+  --code-text: #f8fafc !important;
 }
 
 .document-preview-pane--isolated.markdown-preview *:not([style*='color:']),
@@ -412,6 +451,47 @@ function buildDocumentColorIsolationCss(colors: {
 .pdf-body-content.markdown-preview h2::after {
   background: ${accent} !important;
 }
+
+.document-preview-pane--isolated.markdown-preview table,
+.document-preview-pane--isolated.document-preview-render table,
+.pdf-body-content.markdown-preview table {
+  background: ${paper} !important;
+  border-color: ${border} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview thead,
+.document-preview-pane--isolated.document-preview-render thead,
+.pdf-body-content.markdown-preview thead {
+  background: transparent !important;
+}
+
+.document-preview-pane--isolated.markdown-preview th,
+.document-preview-pane--isolated.document-preview-render th,
+.pdf-body-content.markdown-preview th {
+  background: ${tableHeaderBg} !important;
+  color: ${text} !important;
+  border-color: ${border} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview td,
+.document-preview-pane--isolated.document-preview-render td,
+.pdf-body-content.markdown-preview td {
+  background: transparent !important;
+  color: ${muted} !important;
+  border-color: ${border} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview tr:nth-child(even) td,
+.document-preview-pane--isolated.document-preview-render tr:nth-child(even) td,
+.pdf-body-content.markdown-preview tr:nth-child(even) td {
+  background: ${tableEvenBg} !important;
+}
+
+.document-preview-pane--isolated.markdown-preview tr:nth-child(odd) td,
+.document-preview-pane--isolated.document-preview-render tr:nth-child(odd) td,
+.pdf-body-content.markdown-preview tr:nth-child(odd) td {
+  background: ${tableOddBg} !important;
+}
 `;
 }
 
@@ -423,6 +503,27 @@ export function buildPdfBackgroundCss(settings: PdfBackgroundSettings): string {
   const muted = sanitizePdfColor(settings.documentMutedColor ?? '#475569');
   const accent = sanitizePdfColor(settings.documentAccentColor ?? '#2563eb');
   const border = sanitizePdfColor(settings.documentBorderColor ?? '#e2e8f0');
+
+  if (mode === 'theme') {
+    const canvas = sanitizePdfColor(settings.pdfBackgroundColor ?? paper);
+    return `
+html, body {
+  background-color: ${canvas} !important;
+  background: ${canvas} !important;
+}
+.pdf-canvas-root {
+  background-color: ${canvas} !important;
+  background: ${canvas} !important;
+  min-height: 100%;
+  padding: 0;
+}
+.pdf-body-content.markdown-preview {
+  background: ${paper} !important;
+  box-shadow: none !important;
+}
+${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
+`;
+  }
 
   if (mode === 'color' && settings.pdfBackgroundColor) {
     const color = sanitizePdfColor(settings.pdfBackgroundColor);
@@ -462,7 +563,7 @@ html, body {
   min-height: 100%;
 }
 .pdf-body-content.markdown-preview {
-  background: color-mix(in srgb, ${paper} 88%, transparent) !important;
+  background: ${paper} !important;
 }
 ${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
@@ -487,6 +588,9 @@ export function resolvePdfGenerationCss(
 export function getHtml2CanvasBackground(
   settings: PdfBackgroundSettings,
 ): string | null {
+  if (settings.pdfBackgroundMode === 'theme' && settings.pdfBackgroundColor) {
+    return sanitizePdfColor(settings.pdfBackgroundColor);
+  }
   if (settings.pdfBackgroundMode === 'color' && settings.pdfBackgroundColor) {
     return sanitizePdfColor(settings.pdfBackgroundColor);
   }
@@ -499,6 +603,12 @@ export function buildPreviewPaneStyle(
 ): Record<string, string> {
   const mode = settings.pdfBackgroundMode ?? 'theme';
   const paper = sanitizePdfColor(settings.documentPaperColor ?? '#ffffff');
+  if (mode === 'theme') {
+    return {
+      background: paper,
+      color: sanitizePdfColor(settings.documentTextColor ?? '#1f2937'),
+    };
+  }
   if (mode === 'color' && settings.pdfBackgroundColor) {
     return {
       background: sanitizePdfColor(settings.pdfBackgroundColor),

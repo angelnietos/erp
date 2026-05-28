@@ -1813,23 +1813,61 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   private htmlDocumentColorCss(): string {
-    if (this.pdfBackgroundMode === 'theme') {
-      return '';
-    }
-    return `
+    const settings = this.documentBackgroundSettings();
+    const canvas = settings.pdfBackgroundColor || settings.documentPaperColor;
+    const paper = settings.documentPaperColor;
+    const text = settings.documentTextColor;
+    const muted = settings.documentMutedColor;
+    const accent = settings.documentAccentColor;
+    const border = settings.documentBorderColor;
+    const backgroundCss =
+      this.pdfBackgroundMode === 'corporate' && this.pdfBackgroundImageUrl.trim()
+        ? `
+html {
+  background-color: ${canvas} !important;
+}
 body {
-  background: ${this.documentPaperColor} !important;
-  color: ${this.documentTextColor} !important;
+  background-color: ${paper} !important;
+  background-image: url("${this.pdfBackgroundImageUrl.trim().replace(/"/g, '%22')}") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}`
+        : `
+html {
+  background: ${canvas} !important;
+}
+body {
+  background: ${paper} !important;
+}`;
+
+    return `
+${backgroundCss}
+
+:root {
+  --markdown-bg: ${paper} !important;
+  --markdown-color: ${text} !important;
+  --brand-primary: ${accent} !important;
+  --brand-accent: ${accent} !important;
+  --markdown-border: ${border} !important;
+  --bg: ${paper} !important;
+  --text: ${text} !important;
+  --text-soft: ${muted} !important;
+  --border: ${border} !important;
+}
+
+body {
+  color: ${text} !important;
 }
 
 body *:not([style*='color:']) {
-  color: ${this.documentTextColor} !important;
+  color: ${text} !important;
 }
 
 p:not([style*='color:']),
 li:not([style*='color:']),
 td:not([style*='color:']) {
-  color: ${this.documentMutedColor} !important;
+  color: ${muted} !important;
 }
 
 h1:not([style*='color:']),
@@ -1839,21 +1877,21 @@ h4:not([style*='color:']),
 h5:not([style*='color:']),
 h6:not([style*='color:']),
 strong:not([style*='color:']) {
-  color: ${this.documentTextColor} !important;
+  color: ${text} !important;
 }
 
 a:not([style*='color:']) {
-  color: ${this.documentAccentColor} !important;
+  color: ${accent} !important;
 }
 
 h1, h2, blockquote, hr, th, td {
-  border-color: ${this.documentBorderColor} !important;
+  border-color: ${border} !important;
 }
 
 h1::before,
 h2::before,
 h2::after {
-  background: ${this.documentAccentColor} !important;
+  background: ${accent} !important;
 }
 `;
   }
@@ -2148,6 +2186,7 @@ ${html}
       await this.documentPersistence.whenReady();
       const formValue = this.documentForm.value;
       const client = this.clients.find((c) => c.id === formValue.clientId);
+      const backgroundSettings = this.documentBackgroundSettings();
       const documentData = {
         ...formValue,
         client: client?.name || 'Cliente',
@@ -2156,14 +2195,7 @@ ${html}
         customCss: this.cleanUserCustomCss(),
         quickStylePreset: this.selectedQuickStylePreset,
         contentEditorMode: this.contentEditorMode,
-        pdfBackgroundMode: this.pdfBackgroundMode,
-        pdfBackgroundColor: this.pdfBackgroundColor,
-        pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-        documentPaperColor: this.documentPaperColor,
-        documentTextColor: this.documentTextColor,
-        documentMutedColor: this.documentMutedColor,
-        documentAccentColor: this.documentAccentColor,
-        documentBorderColor: this.documentBorderColor,
+        ...backgroundSettings,
         isDraft: true,
         pdfBytes: [] as number[],
       };
@@ -2535,6 +2567,19 @@ blockquote {
   }
 
   private documentBackgroundSettings() {
+    if (this.pdfBackgroundMode === 'theme') {
+      return {
+        pdfBackgroundMode: this.pdfBackgroundMode,
+        pdfBackgroundColor: this.readThemeCssColor('--bg-primary', '#f8fafc'),
+        pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+        documentPaperColor: this.readThemeCssColor('--surface', '#ffffff'),
+        documentTextColor: this.readThemeCssColor('--text-primary', '#1f2937'),
+        documentMutedColor: this.readThemeCssColor('--text-secondary', '#475569'),
+        documentAccentColor: this.readThemeCssColor('--brand', '#2563eb'),
+        documentBorderColor: this.readThemeCssColor('--border-soft', '#e2e8f0'),
+      };
+    }
+
     return {
       pdfBackgroundMode: this.pdfBackgroundMode,
       pdfBackgroundColor: this.pdfBackgroundColor,
@@ -2545,6 +2590,17 @@ blockquote {
       documentAccentColor: this.documentAccentColor,
       documentBorderColor: this.documentBorderColor,
     };
+  }
+
+  private readThemeCssColor(variableName: string, fallback: string): string {
+    if (typeof window === 'undefined') {
+      return fallback;
+    }
+    const value = window
+      .getComputedStyle(document.documentElement)
+      .getPropertyValue(variableName)
+      .trim();
+    return value || fallback;
   }
 
   private cleanUserCustomCss(): string {
@@ -2862,6 +2918,7 @@ td {
 
     if (format === 'pdf') {
       try {
+        const backgroundSettings = this.documentBackgroundSettings();
         const dateStr = formValue.date
           ? String(formValue.date)
           : new Date().toISOString().split('T')[0];
@@ -2875,14 +2932,7 @@ td {
           contentEditorMode: this.contentEditorMode,
           quickStylePreset: this.selectedQuickStylePreset,
           customCss: this.pdfExportCustomCss(),
-          pdfBackgroundMode: this.pdfBackgroundMode,
-          pdfBackgroundColor: this.pdfBackgroundColor,
-          pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-          documentPaperColor: this.documentPaperColor,
-          documentTextColor: this.documentTextColor,
-          documentMutedColor: this.documentMutedColor,
-          documentAccentColor: this.documentAccentColor,
-          documentBorderColor: this.documentBorderColor,
+          ...backgroundSettings,
         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
@@ -2977,6 +3027,7 @@ td {
         const renderableContent = this.getRenderableContentForPdf(
           String(formValue.content ?? ''),
         );
+        const backgroundSettings = this.documentBackgroundSettings();
 
         const documentData = {
           ...formValue,
@@ -2987,14 +3038,7 @@ td {
           contentEditorMode: this.contentEditorMode,
           customCss: this.pdfExportCustomCss(),
           quickStylePreset: this.selectedQuickStylePreset,
-          pdfBackgroundMode: this.pdfBackgroundMode,
-          pdfBackgroundColor: this.pdfBackgroundColor,
-          pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-          documentPaperColor: this.documentPaperColor,
-          documentTextColor: this.documentTextColor,
-          documentMutedColor: this.documentMutedColor,
-          documentAccentColor: this.documentAccentColor,
-          documentBorderColor: this.documentBorderColor,
+          ...backgroundSettings,
         };
 
         let pdfBytes: Blob;
