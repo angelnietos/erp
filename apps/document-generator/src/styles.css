@@ -492,6 +492,44 @@ a svg,
   color: var(--text-primary) !important;
 }
 
+/* Specific fix for 'Crear Nuevo' template cards: ensure readable text and
+   dark surface when selecting a template on the selection page. Targets
+   the container used in `DocumentCreateComponent`. */
+.bg-surface.rounded-2xl .grid[role="list"] a,
+.bg-surface.rounded-2xl .grid[role="list"] a * {
+  color: var(--text-primary) !important;
+}
+.bg-surface.rounded-2xl .grid[role="list"] a {
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+}
+.bg-surface.rounded-2xl .grid[role="list"] a .text-xs,
+.bg-surface.rounded-2xl .grid[role="list"] a .text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+/* Fix selected document-type cards in dark theme (override from-blue-50/to-indigo-50)
+   The component sets light gradient classes on selection — override them so
+   selected cards remain dark and readable in dark themes. */
+:root:not([data-theme*='light']) .group[aria-current="true"],
+:root:not([data-theme*='light']) .group[aria-current="true"] * {
+  color: var(--text-primary) !important;
+}
+:root:not([data-theme*='light']) .group[aria-current="true"] {
+  background-image: none !important;
+  background-color: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+/* Also guard against anchor/template cards that may receive light backgrounds */
+:root:not([data-theme*='light']) .bg-tertiary.hover\:bg-brand\/5,
+:root:not([data-theme*='light']) .bg-tertiary[class*="bg-"],
+:root:not([data-theme*='light']) .bg-tertiary[class*="/5"] {
+  background: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
+  color: var(--text-primary) !important;
+}
+
 .document-css-panel__textarea {
   min-height: 13rem;
   max-height: 28rem;
