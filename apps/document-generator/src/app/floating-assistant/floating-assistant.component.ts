@@ -6,7 +6,10 @@ import {
   ViewChild,
   OnInit,
 } from '@angular/core';
-import { AIInferenceService } from '@josanz-erp/shared-data-access';
+import {
+  AIInferenceService,
+  type AIRequestAttachment,
+} from '@josanz-erp/shared-data-access';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import {
@@ -21,6 +24,17 @@ import type { ConversationRow } from '../db/agent-memory-dexie';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
 
 declare const marked: MarkedGlobal;
+
+interface AssistantReferenceAttachment {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  kind: 'image' | 'pdf' | 'text' | 'other';
+  base64?: string;
+  dataUrl?: string;
+  textPreview?: string;
+}
 
 @Component({
   selector: 'app-floating-assistant',
@@ -275,6 +289,54 @@ declare const marked: MarkedGlobal;
 
       .input-area button:hover {
         transform: translateY(-1px);
+      }
+
+      .attachment-tray {
+        padding: 8px 11px 0;
+        background: linear-gradient(180deg, #fffdf7 0%, #ffffff 100%);
+        border-top: 3px solid #1f2937;
+      }
+
+      .attachment-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 180px;
+        border: 2px solid #1f2937;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #ffffff 0%, #e0f2fe 100%);
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 800;
+        padding: 5px 8px;
+        box-shadow: 0 2px 0 rgba(15, 23, 42, 0.16);
+      }
+
+      .attachment-chip__name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .attachment-chip button {
+        border: none;
+        background: transparent;
+        color: #991b1b;
+        cursor: pointer;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .attach-btn {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        border: 2px solid #1f2937;
+        border-radius: 15px;
+        background: linear-gradient(180deg, #fef3c7 0%, #f59e0b 100%);
+        color: #111827;
+        font-weight: 900;
+        box-shadow: 0 4px 0 rgba(120, 53, 15, 0.45);
       }
 
       .context-badge {
@@ -1205,7 +1267,51 @@ declare const marked: MarkedGlobal;
               }
             </div>
 
+            @if (referenceAttachments.length > 0) {
+              <div class="attachment-tray">
+                <div class="flex flex-wrap gap-1.5">
+                  @for (attachment of referenceAttachments; track attachment.id) {
+                    <span class="attachment-chip" [title]="attachment.name">
+                      <span aria-hidden="true">{{ attachmentIcon(attachment) }}</span>
+                      <span class="attachment-chip__name">{{ attachment.name }}</span>
+                      <button
+                        type="button"
+                        (click)="removeReferenceAttachment(attachment.id)"
+                        [attr.aria-label]="'Quitar adjunto ' + attachment.name"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  }
+                  <button
+                    type="button"
+                    class="attachment-chip"
+                    (click)="clearReferenceAttachments()"
+                  >
+                    Limpiar
+                  </button>
+                </div>
+              </div>
+            }
+
             <div class="input-area flex space-x-2">
+              <input
+                #referenceFileInput
+                type="file"
+                hidden
+                multiple
+                accept="image/*,.pdf,.html,.htm,.css,.md,.markdown,.txt,.json"
+                (change)="onReferenceFilesSelected($event)"
+              />
+              <button
+                type="button"
+                class="attach-btn"
+                (click)="referenceFileInput.click()"
+                title="Adjuntar referencias: imágenes, PDF, HTML, CSS, Markdown o texto"
+                aria-label="Adjuntar referencias"
+              >
+                📎
+              </button>
               <input
                 type="text"
                 [formControl]="messageInput"
@@ -1342,6 +1448,7 @@ export class FloatingAssistantComponent implements OnInit {
   conversations: ConversationRow[] = [];
   loadingConversations = false;
   selectedConversationId: string | null = null;
+  referenceAttachments: AssistantReferenceAttachment[] = [];
   private dragOffset = { x: 0, y: 0 };
   private resizeStart = { x: 0, y: 0, w: 0, h: 0 };
 
@@ -1689,6 +1796,7 @@ export class FloatingAssistantComponent implements OnInit {
       const system = this.buildFloatingSystemPrompt();
       const reply = await this.inference.generateResponse(message, system, {
         maxOutputTokens: 2048,
+        attachments: this.aiReferenceAttachments(),
       });
       const text = (reply || '').trim();
       this.assistantService.addMessage(
@@ -1712,6 +1820,63 @@ export class FloatingAssistantComponent implements OnInit {
   sendQuickAction(action: string): void {
     this.messageInput.setValue(action);
     void this.sendMessage();
+  }
+
+  async onReferenceFilesSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+    if (files.length === 0) {
+      return;
+    }
+
+    const nextAttachments: AssistantReferenceAttachment[] = [];
+    for (const file of files.slice(0, 6)) {
+      try {
+        nextAttachments.push(await this.fileToReferenceAttachment(file));
+      } catch (error) {
+        console.warn('No se pudo adjuntar referencia', file.name, error);
+        this.assistantService.addMessage(
+          `No he podido leer "${file.name}". Prueba con una imagen, PDF, HTML, CSS, Markdown o texto.`,
+          'assistant',
+        );
+      }
+    }
+
+    this.referenceAttachments = [
+      ...this.referenceAttachments,
+      ...nextAttachments,
+    ].slice(-8);
+
+    if (nextAttachments.length > 0) {
+      this.assistantService.addMessage(
+        `Adjunto(s) como referencia: ${nextAttachments.map((file) => file.name).join(', ')}. Puedes pedirme “crea CSS basado en estos adjuntos”.`,
+        'system',
+      );
+    }
+  }
+
+  removeReferenceAttachment(id: string): void {
+    this.referenceAttachments = this.referenceAttachments.filter(
+      (attachment) => attachment.id !== id,
+    );
+  }
+
+  clearReferenceAttachments(): void {
+    this.referenceAttachments = [];
+  }
+
+  attachmentIcon(attachment: AssistantReferenceAttachment): string {
+    switch (attachment.kind) {
+      case 'image':
+        return '🖼';
+      case 'pdf':
+        return 'PDF';
+      case 'text':
+        return 'TXT';
+      default:
+        return 'DOC';
+    }
   }
 
   /* Conversation Management Methods */
@@ -1818,6 +1983,7 @@ export class FloatingAssistantComponent implements OnInit {
       minimal: 'Respuestas muy breves, viñetas si ayudan.',
     };
     const snippet = (ctx.documentContent || '').slice(0, 8000);
+    const attachmentContext = this.referenceAttachmentPromptContext();
     const tone =
       personalityHints[pet.personality] ?? personalityHints['friendly'];
     return [
@@ -1827,10 +1993,16 @@ export class FloatingAssistantComponent implements OnInit {
       snippet
         ? `Contenido actual del documento (recortado):\n---\n${snippet}\n---`
         : 'Aún no hay texto de documento en contexto.',
+      attachmentContext,
+      this.referenceAttachments.length > 0
+        ? 'Usa los adjuntos como referencia visual/documental para proponer CSS, HTML, paletas, espaciados, tipografías y jerarquía visual. Si ves imágenes/PDF adjuntos y el proveedor lo permite, analiza su estilo visual.'
+        : '',
       'Si el usuario pide estilos visuales, puedes responder con un bloque ```css. El usuario podrá aplicarlo con el botón "Aplicar CSS último".',
       'Si el usuario pide HTML, puedes responder con un bloque ```html completo o parcial. No envuelvas explicaciones dentro del código.',
       'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
-    ].join('\n');
+    ]
+      .filter(Boolean)
+      .join('\n');
   }
 
   updateConfig<K extends keyof AssistantPetConfig>(
@@ -1908,6 +2080,112 @@ export class FloatingAssistantComponent implements OnInit {
 
   private stripFencedCodeBlocks(content: string): string {
     return content.replace(/```[\w-]*\s*[\s\S]*?\s*```/g, '').trim();
+  }
+
+  private async fileToReferenceAttachment(
+    file: File,
+  ): Promise<AssistantReferenceAttachment> {
+    const kind = this.referenceAttachmentKind(file);
+    const base64 = await this.readFileAsBase64(file);
+    const dataUrl = `data:${file.type || 'application/octet-stream'};base64,${base64}`;
+    const textPreview =
+      kind === 'text' ? (await file.text()).slice(0, 12_000) : undefined;
+
+    return {
+      id: crypto.randomUUID(),
+      name: file.name,
+      mimeType: file.type || this.mimeTypeFromName(file.name),
+      size: file.size,
+      kind,
+      base64,
+      dataUrl: kind === 'image' ? dataUrl : undefined,
+      textPreview,
+    };
+  }
+
+  private referenceAttachmentKind(
+    file: File,
+  ): AssistantReferenceAttachment['kind'] {
+    const name = file.name.toLowerCase();
+    if (file.type.startsWith('image/')) {
+      return 'image';
+    }
+    if (file.type === 'application/pdf' || name.endsWith('.pdf')) {
+      return 'pdf';
+    }
+    if (
+      file.type.startsWith('text/') ||
+      /\.(html?|css|md|markdown|txt|json)$/i.test(name)
+    ) {
+      return 'text';
+    }
+    return 'other';
+  }
+
+  private mimeTypeFromName(fileName: string): string {
+    const lower = fileName.toLowerCase();
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'text/html';
+    if (lower.endsWith('.css')) return 'text/css';
+    if (lower.endsWith('.md') || lower.endsWith('.markdown')) return 'text/markdown';
+    if (lower.endsWith('.json')) return 'application/json';
+    if (lower.endsWith('.txt')) return 'text/plain';
+    return 'application/octet-stream';
+  }
+
+  private readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = String(reader.result ?? '');
+        resolve(result.includes(',') ? result.split(',')[1] : result);
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private aiReferenceAttachments(): AIRequestAttachment[] {
+    return this.referenceAttachments
+      .filter(
+        (attachment) =>
+          (attachment.kind === 'image' || attachment.kind === 'pdf') &&
+          !!attachment.base64,
+      )
+      .map((attachment) => ({
+        name: attachment.name,
+        mimeType: attachment.mimeType,
+        base64: attachment.base64 ?? '',
+      }));
+  }
+
+  private referenceAttachmentPromptContext(): string {
+    if (this.referenceAttachments.length === 0) {
+      return '';
+    }
+
+    return [
+      'Adjuntos de referencia activos:',
+      ...this.referenceAttachments.map((attachment, index) => {
+        const base = `${index + 1}. ${attachment.name} (${attachment.mimeType}, ${this.formatFileSize(attachment.size)}, tipo ${attachment.kind})`;
+        if (attachment.textPreview) {
+          return `${base}\nContenido extraído:\n${attachment.textPreview}`;
+        }
+        if (attachment.kind === 'image') {
+          return `${base}\nImagen adjunta para análisis visual.`;
+        }
+        if (attachment.kind === 'pdf') {
+          return `${base}\nPDF adjunto como referencia visual/documental.`;
+        }
+        return base;
+      }),
+    ].join('\n\n');
+  }
+
+  private formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   }
 
   getPetFace(): string {

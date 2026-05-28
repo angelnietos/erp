@@ -35,6 +35,7 @@ export { AIBotStore } from './lib/store/ai-bot.store';
 export { AIInferenceService } from './lib/services/ai/ai-inference.service';
 export type {
   AIProvider,
+  AIRequestAttachment,
   GenerateResponseOptions,
 } from './lib/services/ai/ai-inference.service';
 export * from './lib/models/ai-bot.model';

@@ -15,6 +15,14 @@ export type AIProvider =
 export interface GenerateResponseOptions {
   /** Tokens de salida máximos donde el proveedor lo permita (p. ej. documentos largos). Por defecto 2048. */
   maxOutputTokens?: number;
+  /** Adjuntos opcionales para proveedores multimodales. Actualmente Gemini acepta inlineData. */
+  attachments?: AIRequestAttachment[];
+}
+
+export interface AIRequestAttachment {
+  name: string;
+  mimeType: string;
+  base64: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -199,8 +207,21 @@ export class AIInferenceService {
         const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
 
         const maxOut = this.resolveMaxOutputTokens(options);
+        const attachmentParts =
+          options?.attachments?.map((attachment) => ({
+            inlineData: {
+              mimeType: attachment.mimeType,
+              data: attachment.base64,
+            },
+          })) ?? [];
+
         const body = {
-          contents: [{ role: 'user', parts: [{ text: fullPrompt }] }],
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: fullPrompt }, ...attachmentParts],
+            },
+          ],
           generationConfig: {
             temperature: 0.7,
             topK: 40,
