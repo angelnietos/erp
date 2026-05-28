@@ -430,7 +430,7 @@ a svg,
 :root:not([data-theme*='light']) .document-editor-column,
 :root:not([data-theme*='light']) .document-editor-column *,
 :root:not([data-theme*='light']) .document-preview-pane,
-:root:not([data-theme*='light']) .document-preview-pane * {
+:root:not([data-theme*='light']) .document-preview-pane *:not([style*='color:']) {
   color: var(--text-primary) !important;
 }
 
@@ -487,7 +487,7 @@ a svg,
 /* If users paste custom CSS that forces light backgrounds inside the preview,
    prefer the theme surface so preview remains readable */
 :root:not([data-theme*='light']) .document-preview-pane,
-:root:not([data-theme*='light']) .document-preview-pane * {
+:root:not([data-theme*='light']) .document-preview-pane *:not([style*='color:']) {
   background: transparent !important;
   color: var(--text-primary) !important;
 }

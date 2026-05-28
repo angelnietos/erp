@@ -13,6 +13,7 @@ import { combineLatest, debounceTime, interval } from 'rxjs';
 import { CommonModule, ViewportScroller } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { AssistantContextService } from '../services/assistant-context.service';
@@ -648,6 +649,31 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <button type="button" (click)="insertCode()" title="Código">&lt;&gt;</button>
                             <button type="button" (click)="insertCodeBlock()" title="Bloque de código">{{ '{}' }}</button>
                             <div class="divider"></div>
+                            <div class="space-y-2">
+                              <label for="textColorPicker" class="block text-sm font-medium text-secondary">Color de texto</label>
+                              <div class="flex items-center gap-2">
+                                <input
+                                  id="textColorPicker"
+                                  type="color"
+                                  [(ngModel)]="selectedTextColor"
+                                  [ngModelOptions]="{ standalone: true }"
+                                  class="h-9 w-11 rounded border border-soft bg-transparent p-1"
+                                  aria-label="Color de texto seleccionado"
+                                />
+                                <button
+                                  type="button"
+                                  class="flex-1"
+                                  (click)="applyTextColor()"
+                                  title="Aplicar color al texto seleccionado"
+                                >
+                                  Aplicar color
+                                </button>
+                              </div>
+                              <p class="text-[11px] text-muted leading-snug">
+                                Selecciona texto y aplica el color.
+                              </p>
+                            </div>
+                            <div class="divider"></div>
                             <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace">🔗 Enlace</button>
                             <button type="button" (click)="copyMarkdownToClipboard()" title="Copiar Markdown al portapapeles">Copiar</button>
 
@@ -1013,7 +1039,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   private queryTemplateId: string | null = null;
   isAiGenerating = false;
   aiError: string | null = null;
-  previewHtml = '';
+  previewHtml: SafeHtml = '';
+  private previewHtmlMarkup = '';
   wordCount = 0;
   characterCount = 0;
   autoSaved = false;
@@ -1030,6 +1057,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   customCss = '';
   selectedPdfStyle = 'default';
   selectedQuickStylePreset = '';
+  selectedTextColor = '#7a0000';
   pdfStyles: PdfStyle[] = [];
   // PDF background options
   pdfBackgroundMode: 'theme' | 'color' | 'corporate' = 'theme';
@@ -1098,6 +1126,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly universalDocument = inject(UniversalDocumentService);
   private readonly documentAi = inject(DocumentAiService);
   private readonly viewportScroller = inject(ViewportScroller);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private formHooksBound = false;
 
@@ -1468,10 +1497,12 @@ export class DocumentCreateEditorComponent implements OnInit {
     const mdOpts = { gfm: true, breaks: true };
     try {
       marked.setOptions?.(mdOpts);
-      this.previewHtml = marked.parse(content, mdOpts);
+      const parsed = marked.parse(content, mdOpts);
+      this.previewHtmlMarkup = typeof parsed === 'string' ? parsed : String(parsed);
     } catch {
-      this.previewHtml = content;
+      this.previewHtmlMarkup = content;
     }
+    this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
 
     this.wordCount = content
       .split(/\s+/)
@@ -1535,6 +1566,138 @@ export class DocumentCreateEditorComponent implements OnInit {
       textarea.selectionEnd = end + before.length;
       this.updatePreview();
     }, 0);
+  }
+
+  applyTextColor(color?: string): void {
+    const textarea = document.querySelector(
+      'textarea[formControlName="content"]',
+    ) as HTMLTextAreaElement;
+    if (!textarea) {
+      return;
+    }
+
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    const content = this.documentForm.get('content')?.value || '';
+
+    if (start === end) {
+      const range = this.getCurrentMarkdownBlockRange(content, start);
+      start = range.start;
+      end = range.end;
+    }
+
+    const selectedText = content.substring(start, end);
+
+    if (!selectedText.trim()) {
+      return;
+    }
+
+    const safeColor = this.sanitizeTextColor(color ?? this.selectedTextColor);
+    const coloredText = this.applyColorToMarkdownSelection(selectedText, safeColor);
+
+    const newContent =
+      content.substring(0, start) +
+      coloredText +
+      content.substring(end);
+
+    this.documentForm.patchValue({ content: newContent });
+    this.syncAssistantFromFormNow();
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + coloredText.length;
+      this.updatePreview();
+    }, 0);
+  }
+
+  private getCurrentMarkdownBlockRange(content: string, cursorPosition: number): { start: number; end: number } {
+    let start = content.lastIndexOf('\n\n', Math.max(0, cursorPosition - 1));
+    start = start === -1 ? 0 : start + 2;
+
+    let end = content.indexOf('\n\n', cursorPosition);
+    end = end === -1 ? content.length : end;
+
+    return { start, end };
+  }
+
+  private applyColorToMarkdownSelection(selection: string, color: string): string {
+    return selection
+      .split(/(\r?\n)/)
+      .map((part) => (part.includes('\n') ? part : this.applyColorToMarkdownLine(part, color)))
+      .join('');
+  }
+
+  private applyColorToMarkdownLine(line: string, color: string): string {
+    if (!line.trim() || this.isMarkdownTableSeparator(line)) {
+      return line;
+    }
+
+    if (line.includes('|')) {
+      return line
+        .split(/(\|)/)
+        .map((part) => (part === '|' ? part : this.colorMarkdownInline(part, color)))
+        .join('');
+    }
+
+    const headingMatch = /^(\s{0,3}#{1,6}\s+)(.+)$/.exec(line);
+    if (headingMatch) {
+      return `${headingMatch[1]}${this.colorMarkdownInline(headingMatch[2], color)}`;
+    }
+
+    const prefixedLineMatch = /^(\s*(?:>\s*)*(?:(?:[-*+]\s+)|(?:\d+[.)]\s+))?)(.+)$/.exec(line);
+    if (prefixedLineMatch) {
+      return `${prefixedLineMatch[1]}${this.colorMarkdownInline(prefixedLineMatch[2], color)}`;
+    }
+
+    return this.colorMarkdownInline(line, color);
+  }
+
+  private colorMarkdownInline(value: string, color: string): string {
+    const match = /^(\s*)(.*?)(\s*)$/.exec(value);
+    if (!match || !match[2]) {
+      return value;
+    }
+
+    const [, leading, core, trailing] = match;
+    return `${leading}${this.wrapMarkdownInlineCore(core, color)}${trailing}`;
+  }
+
+  private wrapMarkdownInlineCore(value: string, color: string): string {
+    const wrappers: Array<[RegExp, (match: RegExpExecArray) => string]> = [
+      [/^(\*\*|__)(.+)(\1)$/s, (match) => `${match[1]}${this.colorSpan(match[2], color)}${match[3]}`],
+      [/^(\*|_)(.+)(\1)$/s, (match) => `${match[1]}${this.colorSpan(match[2], color)}${match[3]}`],
+      [/^(~~)(.+)(~~)$/s, (match) => `${match[1]}${this.colorSpan(match[2], color)}${match[3]}`],
+      [/^(`+)(.+)(\1)$/s, (match) => `${match[1]}${match[2]}${match[3]}`],
+    ];
+
+    for (const [regex, formatter] of wrappers) {
+      const match = regex.exec(value);
+      if (match) {
+        return formatter(match);
+      }
+    }
+
+    return this.colorSpan(value, color);
+  }
+
+  private colorSpan(value: string, color: string): string {
+    return `<span style="color: ${color} !important;">${value}</span>`;
+  }
+
+  private isMarkdownTableSeparator(line: string): boolean {
+    return /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
+  }
+
+  private sanitizeTextColor(color: string): string {
+    const trimmed = color.trim();
+    if (/^#[0-9A-Fa-f]{3,8}$/.test(trimmed)) {
+      return trimmed;
+    }
+    if (/^rgba?\([^)]+\)$/.test(trimmed)) {
+      return trimmed;
+    }
+    return '#111827';
   }
 
   @HostListener('document:keydown', ['$event'])
@@ -2209,7 +2372,7 @@ td {
 </head>
 <body>
   <main class="markdown-preview">
-    ${this.previewHtml}
+    ${this.previewHtmlMarkup}
   </main>
 </body>
 </html>`;
