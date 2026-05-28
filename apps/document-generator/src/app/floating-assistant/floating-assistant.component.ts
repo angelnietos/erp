@@ -190,6 +190,30 @@ interface AssistantReferenceAttachment {
         min-height: 0;
       }
 
+      .section-caption {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 7px 13px;
+        border-top: 3px solid #1f2937;
+        border-bottom: 2px solid rgba(31, 41, 55, 0.35);
+        background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+        color: #fef3c7;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .section-caption span:last-child {
+        color: #cbd5e1;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: normal;
+        text-transform: none;
+      }
+
       .message {
         margin-bottom: 12px;
         max-width: 82%;
@@ -261,7 +285,7 @@ interface AssistantReferenceAttachment {
 
       .input-area {
         padding: 12px;
-        border-top: 3px solid #1f2937;
+        border-top: 0;
         background: linear-gradient(180deg, #ffffff 0%, #fff7ed 100%);
         align-items: center;
       }
@@ -949,7 +973,7 @@ interface AssistantReferenceAttachment {
               [class.active]="currentView === 'chat'"
               (click)="switchToChatView()"
             >
-              💬 Chat
+              💬 Conversación
             </button>
             <button
               type="button"
@@ -957,7 +981,7 @@ interface AssistantReferenceAttachment {
               [class.active]="currentView === 'history'"
               (click)="switchToHistoryView()"
             >
-              📚 Historial
+              📚 Chats guardados
             </button>
           </div>
 
@@ -1113,10 +1137,10 @@ interface AssistantReferenceAttachment {
                 <span>
                   <div class="workspace-actions__title">
                     <span aria-hidden="true">✦</span>
-                    Centro de poderes
+                    Herramientas del documento
                   </div>
                   <div class="workspace-actions__subtitle">
-                    Acciones rápidas para escribir, vestir y preparar el documento sin salir del editor.
+                    No es otro chat: son acciones que modifican el documento o sus estilos.
                   </div>
                 </span>
                 <span class="collapse-pill">
@@ -1219,6 +1243,10 @@ interface AssistantReferenceAttachment {
         @if (!isMinimized) {
           <!-- CHAT VIEW -->
           @if (currentView === 'chat') {
+            <div class="section-caption">
+              <span>Mensajes de la conversación</span>
+              <span>Lee aquí las respuestas de Kilo</span>
+            </div>
             <div
               class="messages-container"
               #messagesContainer
@@ -1294,6 +1322,10 @@ interface AssistantReferenceAttachment {
               </div>
             }
 
+            <div class="section-caption">
+              <span>Escribe a Kilo</span>
+              <span>Único campo para preguntar o pedir cambios</span>
+            </div>
             <div class="input-area flex space-x-2">
               <input
                 #referenceFileInput
