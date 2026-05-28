@@ -35,6 +35,7 @@ import {
   buildDocumentPreviewCss,
   buildPreviewPaneStyle,
   resolvePdfGenerationCss,
+  scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
 
 declare const marked: MarkedGlobal;
@@ -577,6 +578,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         <select
                           id="pdfStyleSelector"
                           [(ngModel)]="selectedPdfStyle"
+                          (ngModelChange)="applyCustomCss()"
                           [ngModelOptions]="{ standalone: true }"
                           class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface text-sm"
                         >
@@ -663,7 +665,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div class="divider"></div>
                             <div>
                               <label for="stylePresetSelect" class="block text-sm font-medium text-secondary">Estilos rápidos</label>
-                              <select id="stylePresetSelect" class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" (change)="applyStylePreset($any($event.target).value)">
+                              <select id="stylePresetSelect" class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" [(ngModel)]="selectedQuickStylePreset" [ngModelOptions]="{ standalone: true }" (ngModelChange)="applyStylePreset($event)">
                                 <option value="">Seleccionar estilo...</option>
                                 <option value="default">Predeterminado</option>
                                 <option value="corporate">Corporativo</option>
@@ -1027,6 +1029,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   fullscreenTab: 'editor' | 'preview' = 'editor';
   customCss = '';
   selectedPdfStyle = 'default';
+  selectedQuickStylePreset = '';
   pdfStyles: PdfStyle[] = [];
   // PDF background options
   pdfBackgroundMode: 'theme' | 'color' | 'corporate' = 'theme';
@@ -1434,7 +1437,13 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
     this.savedDraftId = draftId;
     if (typeof p['customCss'] === 'string') {
-      this.customCss = p['customCss'];
+      this.customCss = this.removeManagedStylePreset(p['customCss']);
+    }
+    if (typeof p['quickStylePreset'] === 'string') {
+      this.selectedQuickStylePreset = p['quickStylePreset'];
+    }
+    if (typeof p['pdfStyleId'] === 'string') {
+      this.selectedPdfStyle = p['pdfStyleId'];
     }
     if (
       p['pdfBackgroundMode'] === 'theme' ||
@@ -1558,7 +1567,9 @@ export class DocumentCreateEditorComponent implements OnInit {
         ...formValue,
         client: client?.name || 'Cliente',
         type: this.selectedType.id,
-        customCss: this.customCss,
+        pdfStyleId: this.selectedPdfStyle,
+        customCss: this.cleanUserCustomCss(),
+        quickStylePreset: this.selectedQuickStylePreset,
         pdfBackgroundMode: this.pdfBackgroundMode,
         pdfBackgroundColor: this.pdfBackgroundColor,
         pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
@@ -1925,13 +1936,47 @@ blockquote {
  
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
+    styleEl.textContent = this.documentPreviewCss();
+  }
+
+  private pdfExportCustomCss(): string {
+    return resolvePdfGenerationCss(this.customCssForDocument(), {
+      pdfBackgroundMode: this.pdfBackgroundMode,
+      pdfBackgroundColor: this.pdfBackgroundColor,
+      pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+    });
+  }
+
+  private cleanUserCustomCss(): string {
+    const cleaned = this.removeManagedStylePreset(this.customCss);
+    if (cleaned !== this.customCss) {
+      this.customCss = cleaned;
+    }
+    return cleaned;
+  }
+
+  private customCssForDocument(): string {
+    return [this.cleanUserCustomCss(), this.stylePresetCss(this.selectedQuickStylePreset)]
+      .filter((part) => part.trim())
+      .join('\n\n');
+  }
+
+  private selectedPdfStylePreviewCss(): string {
+    const css =
+      this.pdfStyles.find((style) => style.id === this.selectedPdfStyle)?.css ??
+      '';
+    return css ? scopeCssToMarkdownPreview(css) : '';
+  }
+
+  private documentPreviewCss(): string {
     const background = {
       pdfBackgroundMode: this.pdfBackgroundMode,
       pdfBackgroundColor: this.pdfBackgroundColor,
       pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
     };
-    styleEl.textContent = [
-      resolvePdfGenerationCss(this.customCss, background),
+    return [
+      buildDocumentPreviewCss(this.customCssForDocument()),
+      this.selectedPdfStylePreviewCss(),
       buildPreviewBackgroundOverrideCss(background),
     ].join('\n\n');
   }
@@ -1978,22 +2023,9 @@ blockquote {
   }
 
   applyStylePreset(preset: string | null | undefined): void {
-    if (!preset || preset === 'default') {
-      this.customCss = this.removeManagedStylePreset(this.customCss);
-      this.applyCustomCss();
-      return;
-    }
-
-    const presetCss = this.stylePresetCss(preset);
-    if (!presetCss) {
-      return;
-    }
-    this.customCss = [
-      this.removeManagedStylePreset(this.customCss).trim(),
-      presetCss,
-    ]
-      .filter(Boolean)
-      .join('\n\n');
+    this.customCss = this.removeManagedStylePreset(this.customCss);
+    this.selectedQuickStylePreset =
+      !preset || preset === 'default' ? '' : preset;
     this.applyCustomCss();
   }
 
@@ -2148,10 +2180,6 @@ td {
     }
   }
 
-  private documentPreviewCss(): string {
-    return buildDocumentPreviewCss(this.customCss);
-  }
-
   private exportStyledHtml(title: string): void {
     const safeTitle = this.escapeHtml(title || 'Documento');
     const html = `<!DOCTYPE html>
@@ -2225,7 +2253,7 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
           client: client?.name || 'Josanz ERP',
           subtitle: client?.name || 'Josanz ERP',
           pdfStyleId: this.selectedPdfStyle,
-          customCss: this.documentPreviewCss(),
+          customCss: this.pdfExportCustomCss(),
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,
           pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
@@ -2309,7 +2337,8 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
           client: client?.name || 'Cliente',
           type: this.selectedType?.id,
           pdfStyleId: this.selectedPdfStyle,
-          customCss: this.documentPreviewCss(),
+          customCss: this.pdfExportCustomCss(),
+          quickStylePreset: this.selectedQuickStylePreset,
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,
           pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,

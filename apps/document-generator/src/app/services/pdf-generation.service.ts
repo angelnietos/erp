@@ -485,8 +485,8 @@ export class PdfGenerationService {
             page-break-inside: avoid;
           }
           ${this.getPdfPaginationCss()}
-          ${styleCss}
           ${mergedCss}
+          ${styleCss}
         </style>
       </head>
       <body>
@@ -905,8 +905,8 @@ export class PdfGenerationService {
             border-radius: 2px;
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
-          ${styleCss}
           ${mergedCss}
+          ${styleCss}
         </style>
       </head>
       <body>
