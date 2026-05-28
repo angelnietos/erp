@@ -74,6 +74,42 @@ export class DocumentAiService {
     return this.stripCodeFences(raw);
   }
 
+  /** Convierte Markdown existente en un HTML visual, autocontenido y editable. */
+  async convertMarkdownToVisualHtml(ctx: DocumentAiContext): Promise<string> {
+    const markdown = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim() ? `Cliente o destinataria: ${ctx.clientName.trim()}.` : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Convierte el siguiente Markdown en un documento HTML visual, moderno y autocontenido.',
+      'Devuelve SOLO HTML final, sin bloque ```html y sin explicaciones.',
+      'Requisitos:',
+      '- Incluye <!doctype html>, <html lang="es">, <head>, <meta charset="utf-8">, <meta name="viewport"> y un <style> interno.',
+      '- Conserva todo el contenido, datos y placeholders existentes.',
+      '- Reemplaza sintaxis Markdown visible por HTML semántico.',
+      '- Usa clases útiles para diseño: .hero, .section, .card, .metadata-grid, .table-wrap, .callout, .signature-grid, .footer, etc.',
+      '- Hazlo más atractivo que el Markdown base: jerarquía clara, buen espaciado, tablas limpias, colores coherentes y apto para PDF.',
+      '- No inventes datos; conserva [rellenar], [Fecha actual] y placeholders similares.',
+      '',
+      'MARKDOWN A CONVERTIR:',
+      '---',
+      markdown.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un diseñador/redactor experto en documentos empresariales HTML.
+Tu tarea es transformar Markdown en HTML autocontenido, visual y listo para previsualizar/exportar.
+No devuelvas Markdown. No expliques nada. Devuelve únicamente el documento HTML completo.`;
+
+    const raw = await this.inference.generateResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+    return this.stripCodeFences(raw);
+  }
+
   /** Genera un esquema estructurado del documento antes de escribirlo */
   private async generateDocumentOutline(
     brief: string,
@@ -357,12 +393,12 @@ INSTRUCCIONES:
 
   private stripCodeFences(text: string): string {
     let t = text.trim();
-    const wrapped = /^```(?:markdown|md)?\s*([\s\S]*?)```\s*$/i.exec(t);
+    const wrapped = /^```(?:markdown|md|html)?\s*([\s\S]*?)```\s*$/i.exec(t);
     if (wrapped) {
       return wrapped[1].trim();
     }
     if (t.startsWith('```')) {
-      t = t.replace(/^```(?:markdown|md)?\s*/i, '');
+      t = t.replace(/^```(?:markdown|md|html)?\s*/i, '');
       t = t.replace(/\s*```\s*$/i, '');
     }
     return t.trim();

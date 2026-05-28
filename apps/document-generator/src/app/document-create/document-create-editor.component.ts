@@ -687,6 +687,14 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div class="divider"></div>
                             <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace">🔗 Enlace</button>
                             <button type="button" (click)="copyMarkdownToClipboard()" title="Copiar Markdown al portapapeles">Copiar</button>
+                            <button
+                              type="button"
+                              (click)="convertMarkdownToVisualHtmlWithAi()"
+                              [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
+                              title="Convertir el Markdown actual en HTML visual usando IA"
+                            >
+                              ✨ HTML visual
+                            </button>
 
                             <div class="divider"></div>
                             <div class="text-xs text-muted">
@@ -1359,6 +1367,39 @@ export class DocumentCreateEditorComponent implements OnInit {
     } catch (e: unknown) {
       this.aiError =
         e instanceof Error ? e.message : 'Error al reformular con IA.';
+    } finally {
+      this.isAiGenerating = false;
+    }
+  }
+
+  async convertMarkdownToVisualHtmlWithAi(): Promise<void> {
+    const content = String(this.documentForm.get('content')?.value ?? '').trim();
+    if (this.contentEditorMode !== 'markdown') {
+      this.aiError = 'Esta acción solo está disponible desde el modo Markdown.';
+      return;
+    }
+    if (!content) {
+      this.aiError = 'Primero escribe o genera contenido Markdown en el editor.';
+      return;
+    }
+
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      const html = await this.documentAi.convertMarkdownToVisualHtml(
+        this.getAiContext(),
+      );
+      this.customCss = '';
+      this.documentForm.patchValue({ content: html });
+      this.setContentEditorMode('html');
+      this.applyCustomCss();
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    } catch (e: unknown) {
+      this.aiError =
+        e instanceof Error
+          ? e.message
+          : 'Error al convertir Markdown a HTML visual con IA.';
     } finally {
       this.isAiGenerating = false;
     }
