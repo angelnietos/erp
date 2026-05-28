@@ -70,6 +70,9 @@ export class UniversalDocumentService {
         return this.importWord(file);
       case 'md':
         return this.importMarkdown(file);
+      case 'html':
+      case 'htm':
+        return this.importHTML(file);
       case 'txt':
         return this.importPlainText(file);
       default:
@@ -304,6 +307,16 @@ export class UniversalDocumentService {
     return {
       success: true,
       blocks,
+      metadata: { filename: file.name, size: file.size },
+      warnings: [],
+    };
+  }
+
+  private async importHTML(file: File): Promise<ImportResult> {
+    const content = await file.text();
+    return {
+      success: true,
+      blocks: [{ type: 'html', content }],
       metadata: { filename: file.name, size: file.size },
       warnings: [],
     };

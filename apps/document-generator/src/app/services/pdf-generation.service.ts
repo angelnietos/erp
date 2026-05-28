@@ -41,6 +41,7 @@ interface DocumentData {
   terms?: string;
   customCss?: string;
   pdfStyleId?: string;
+  contentEditorMode?: 'markdown' | 'html' | 'plain';
   pdfBackgroundMode?: PdfBackgroundSettings['pdfBackgroundMode'];
   pdfBackgroundColor?: string;
   pdfBackgroundImageUrl?: string;
@@ -310,7 +311,10 @@ export class PdfGenerationService {
    */
   async generateMarkdownPdf(data: DocumentData): Promise<Blob> {
     // Determinar si el contenido es HTML o Markdown
-    const isHtml = /<\/?[a-z][\s\S]*>/i.test(data.content || '');
+    const isHtml =
+      data.contentEditorMode === 'html' ||
+      data.contentEditorMode === 'plain' ||
+      /<\/?[a-z][\s\S]*>/i.test(data.content || '');
     let htmlContent = '';
 
     const markedOpts = { gfm: true, breaks: true };

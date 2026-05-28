@@ -41,6 +41,8 @@ import {
 
 declare const marked: MarkedGlobal;
 
+type ContentEditorMode = 'markdown' | 'html' | 'plain';
+
 interface DocumentType {
   id: string;
   name: string;
@@ -664,13 +666,18 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                   type="button"
                                   class="flex-1"
                                   (click)="applyTextColor()"
+                                  [disabled]="contentEditorMode === 'plain'"
                                   title="Aplicar color al texto seleccionado"
                                 >
                                   Aplicar color
                                 </button>
                               </div>
                               <p class="text-[11px] text-muted leading-snug">
-                                Selecciona texto y aplica el color.
+                                @if (contentEditorMode === 'plain') {
+                                  Cambia a Markdown o HTML para aplicar color.
+                                } @else {
+                                  Selecciona texto y aplica el color.
+                                }
                               </p>
                             </div>
                             <div class="divider"></div>
@@ -709,7 +716,38 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
                             <div class="document-editor-column__bar">
-                              <span>Editor Markdown</span>
+                              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between w-full">
+                                <span>{{ editorModeLabel }}</span>
+                                <div class="inline-flex rounded-lg border border-soft bg-secondary p-1 text-xs font-semibold">
+                                  <button
+                                    type="button"
+                                    class="px-2.5 py-1 rounded-md transition-colors"
+                                    [class.bg-surface]="contentEditorMode === 'markdown'"
+                                    [class.text-brand]="contentEditorMode === 'markdown'"
+                                    (click)="setContentEditorMode('markdown')"
+                                  >
+                                    Markdown
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="px-2.5 py-1 rounded-md transition-colors"
+                                    [class.bg-surface]="contentEditorMode === 'html'"
+                                    [class.text-brand]="contentEditorMode === 'html'"
+                                    (click)="setContentEditorMode('html')"
+                                  >
+                                    HTML
+                                  </button>
+                                  <button
+                                    type="button"
+                                    class="px-2.5 py-1 rounded-md transition-colors"
+                                    [class.bg-surface]="contentEditorMode === 'plain'"
+                                    [class.text-brand]="contentEditorMode === 'plain'"
+                                    (click)="setContentEditorMode('plain')"
+                                  >
+                                    Texto
+                                  </button>
+                                </div>
+                              </div>
                               <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">
                                 Pantalla completa
                               </button>
@@ -717,7 +755,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <textarea
                               #editor
                               formControlName="content"
-                              [placeholder]="getContentPlaceholder()"
+                              [placeholder]="editorPlaceholder"
                               rows="24"
                               class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
                               (input)="updatePreview()"
@@ -742,13 +780,20 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           @if (fullscreenTab === 'editor') {
                             <div class="document-editor-column fullscreen-editor">
                               <div class="document-editor-column__bar">
-                                <span>Editor Markdown</span>
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                  <span>{{ editorModeLabel }}</span>
+                                  <div class="inline-flex rounded-lg border border-soft bg-secondary p-1 text-xs font-semibold">
+                                    <button type="button" class="px-2.5 py-1 rounded-md" [class.bg-surface]="contentEditorMode === 'markdown'" [class.text-brand]="contentEditorMode === 'markdown'" (click)="setContentEditorMode('markdown')">Markdown</button>
+                                    <button type="button" class="px-2.5 py-1 rounded-md" [class.bg-surface]="contentEditorMode === 'html'" [class.text-brand]="contentEditorMode === 'html'" (click)="setContentEditorMode('html')">HTML</button>
+                                    <button type="button" class="px-2.5 py-1 rounded-md" [class.bg-surface]="contentEditorMode === 'plain'" [class.text-brand]="contentEditorMode === 'plain'" (click)="setContentEditorMode('plain')">Texto</button>
+                                  </div>
+                                </div>
                                 <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">Salir pantalla completa</button>
                               </div>
                               <textarea
                                 #editor
                                 formControlName="content"
-                                [placeholder]="getContentPlaceholder()"
+                                [placeholder]="editorPlaceholder"
                                 class="document-editor-textarea w-full flex-1 bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                 (input)="updatePreview()"
                                 (keydown)="handleKeydown($event)"
@@ -1054,6 +1099,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   copyMarkdownFeedback = false;
   fullscreenMode = false;
   fullscreenTab: 'editor' | 'preview' = 'editor';
+  contentEditorMode: ContentEditorMode = 'markdown';
   customCss = '';
   selectedPdfStyle = 'default';
   selectedQuickStylePreset = '';
@@ -1129,6 +1175,28 @@ export class DocumentCreateEditorComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
 
   private formHooksBound = false;
+
+  get editorModeLabel(): string {
+    switch (this.contentEditorMode) {
+      case 'html':
+        return 'Editor HTML';
+      case 'plain':
+        return 'Editor Texto';
+      default:
+        return 'Editor Markdown';
+    }
+  }
+
+  get editorPlaceholder(): string {
+    switch (this.contentEditorMode) {
+      case 'html':
+        return '<h1>Título</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
+      case 'plain':
+        return 'Escribe texto normal. Las líneas en blanco separan párrafos.';
+      default:
+        return this.getContentPlaceholder();
+    }
+  }
 
   constructor() {
     this.documentForm = this.fb.group({
@@ -1471,6 +1539,13 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (typeof p['quickStylePreset'] === 'string') {
       this.selectedQuickStylePreset = p['quickStylePreset'];
     }
+    if (
+      p['contentEditorMode'] === 'markdown' ||
+      p['contentEditorMode'] === 'html' ||
+      p['contentEditorMode'] === 'plain'
+    ) {
+      this.contentEditorMode = p['contentEditorMode'];
+    }
     if (typeof p['pdfStyleId'] === 'string') {
       this.selectedPdfStyle = p['pdfStyleId'];
     }
@@ -1492,15 +1567,34 @@ export class DocumentCreateEditorComponent implements OnInit {
     this.syncAssistantFromFormNow();
   }
 
+  setContentEditorMode(mode: ContentEditorMode): void {
+    if (this.contentEditorMode === mode) {
+      return;
+    }
+    this.contentEditorMode = mode;
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+  }
+
   updatePreview() {
     const content = this.documentForm.get('content')?.value || '';
     const mdOpts = { gfm: true, breaks: true };
     try {
-      marked.setOptions?.(mdOpts);
-      const parsed = marked.parse(content, mdOpts);
-      this.previewHtmlMarkup = typeof parsed === 'string' ? parsed : String(parsed);
+      if (this.contentEditorMode === 'html') {
+        this.previewHtmlMarkup = content;
+      } else if (this.contentEditorMode === 'plain') {
+        this.previewHtmlMarkup = this.plainTextToHtml(content);
+      } else {
+        marked.setOptions?.(mdOpts);
+        const parsed = marked.parse(content, mdOpts);
+        this.previewHtmlMarkup =
+          typeof parsed === 'string' ? parsed : String(parsed);
+      }
     } catch {
-      this.previewHtmlMarkup = content;
+      this.previewHtmlMarkup =
+        this.contentEditorMode === 'plain'
+          ? this.plainTextToHtml(content)
+          : content;
     }
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
 
@@ -1508,6 +1602,24 @@ export class DocumentCreateEditorComponent implements OnInit {
       .split(/\s+/)
       .filter((w: string) => w.length > 0).length;
     this.characterCount = content.length;
+  }
+
+  private plainTextToHtml(content: string): string {
+    const paragraphs = content
+      .split(/\n{2,}/)
+      .map((paragraph: string) => paragraph.trim())
+      .filter(Boolean);
+
+    if (paragraphs.length === 0) {
+      return '';
+    }
+
+    return paragraphs
+      .map(
+        (paragraph: string) =>
+          `<p style="white-space: pre-wrap;">${this.escapeHtml(paragraph)}</p>`,
+      )
+      .join('\n');
   }
 
   insertMarkdown(before: string, after: string) {
@@ -1593,7 +1705,10 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
 
     const safeColor = this.sanitizeTextColor(color ?? this.selectedTextColor);
-    const coloredText = this.applyColorToMarkdownSelection(selectedText, safeColor);
+    const coloredText =
+      this.contentEditorMode === 'html'
+        ? this.colorSpan(selectedText, safeColor)
+        : this.applyColorToMarkdownSelection(selectedText, safeColor);
 
     const newContent =
       content.substring(0, start) +
@@ -1733,6 +1848,7 @@ export class DocumentCreateEditorComponent implements OnInit {
         pdfStyleId: this.selectedPdfStyle,
         customCss: this.cleanUserCustomCss(),
         quickStylePreset: this.selectedQuickStylePreset,
+        contentEditorMode: this.contentEditorMode,
         pdfBackgroundMode: this.pdfBackgroundMode,
         pdfBackgroundColor: this.pdfBackgroundColor,
         pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
@@ -2381,6 +2497,23 @@ td {
     this.universalDocument.download(blob, `${title || 'documento'}.html`);
   }
 
+  private getRenderableContentForPdf(content: string): string {
+    if (this.contentEditorMode === 'plain') {
+      return this.plainTextToHtml(content);
+    }
+    return content;
+  }
+
+  private getPlainContentForExport(content: string): string {
+    if (this.contentEditorMode !== 'html') {
+      return content;
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    return (doc.body.textContent || content).trim();
+  }
+
   private escapeHtml(value: string): string {
     return value
       .replace(/&/g, '&amp;')
@@ -2400,6 +2533,7 @@ td {
 
   async exportDocument(format: string) {
     const content = this.documentForm.get('content')?.value || '';
+    const renderableContent = this.getRenderableContentForPdf(content);
     const title = this.documentForm.get('title')?.value || 'documento';
     const formValue = this.documentForm.value;
     const client = this.clients.find((c) => c.id === formValue.clientId);
@@ -2409,13 +2543,14 @@ td {
         const dateStr = formValue.date
           ? String(formValue.date)
           : new Date().toISOString().split('T')[0];
-const pdfBlob = await this.pdfService.generateMarkdownPdf({
-          content: content,
+        const pdfBlob = await this.pdfService.generateMarkdownPdf({
+          content: renderableContent,
           title: title,
           date: dateStr,
           client: client?.name || 'Josanz ERP',
           subtitle: client?.name || 'Josanz ERP',
           pdfStyleId: this.selectedPdfStyle,
+          contentEditorMode: this.contentEditorMode,
           customCss: this.pdfExportCustomCss(),
           pdfBackgroundMode: this.pdfBackgroundMode,
           pdfBackgroundColor: this.pdfBackgroundColor,
@@ -2436,7 +2571,11 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
       return;
     }
 
-    const blocks = content.split('\n\n').map((text: string) => ({
+    const exportContent =
+      format === 'markdown'
+        ? content
+        : this.getPlainContentForExport(content);
+    const blocks = exportContent.split('\n\n').map((text: string) => ({
       id: crypto.randomUUID(),
       type: text.startsWith('# ') ? 'heading' : 'text',
       content: text,
@@ -2476,7 +2615,9 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
 
     if (result.success) {
       const content = result.blocks.map((b) => b.content).join('\n\n');
+      this.contentEditorMode = this.inferEditorModeFromFile(file.name);
       this.documentForm.get('content')?.setValue(content);
+      this.updatePreview();
       this.syncAssistantFromFormNow();
     }
 
@@ -2487,6 +2628,17 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
     this.fileInput.nativeElement.value = '';
   }
 
+  private inferEditorModeFromFile(fileName: string): ContentEditorMode {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    if (extension === 'html' || extension === 'htm') {
+      return 'html';
+    }
+    if (extension === 'txt') {
+      return 'plain';
+    }
+    return 'markdown';
+  }
+
   async generateDocument() {
     if (this.documentForm.valid) {
       this.documentGenerateError = '';
@@ -2494,12 +2646,17 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
       try {
         const formValue = this.documentForm.value;
         const client = this.clients.find((c) => c.id === formValue.clientId);
+        const renderableContent = this.getRenderableContentForPdf(
+          String(formValue.content ?? ''),
+        );
 
         const documentData = {
           ...formValue,
+          content: renderableContent,
           client: client?.name || 'Cliente',
           type: this.selectedType?.id,
           pdfStyleId: this.selectedPdfStyle,
+          contentEditorMode: this.contentEditorMode,
           customCss: this.pdfExportCustomCss(),
           quickStylePreset: this.selectedQuickStylePreset,
           pdfBackgroundMode: this.pdfBackgroundMode,
