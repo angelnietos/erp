@@ -128,6 +128,139 @@ export function resolveStoredDocumentCss(storedCustomCss: string | undefined): s
   return buildDocumentPreviewCss(raw);
 }
 
+export type PdfBackgroundMode = 'theme' | 'color' | 'corporate';
+
+export interface PdfBackgroundSettings {
+  pdfBackgroundMode?: PdfBackgroundMode;
+  pdfBackgroundColor?: string;
+  pdfBackgroundImageUrl?: string;
+}
+
+export function readPdfBackgroundSettings(
+  doc: Record<string, unknown> | null | undefined,
+): PdfBackgroundSettings {
+  if (!doc) {
+    return {};
+  }
+  const mode = doc['pdfBackgroundMode'];
+  return {
+    pdfBackgroundMode:
+      mode === 'color' || mode === 'corporate' || mode === 'theme'
+        ? mode
+        : undefined,
+    pdfBackgroundColor:
+      typeof doc['pdfBackgroundColor'] === 'string'
+        ? doc['pdfBackgroundColor']
+        : undefined,
+    pdfBackgroundImageUrl:
+      typeof doc['pdfBackgroundImageUrl'] === 'string'
+        ? doc['pdfBackgroundImageUrl']
+        : undefined,
+  };
+}
+
+function sanitizePdfColor(color: string): string {
+  const trimmed = color.trim();
+  if (/^#[0-9A-Fa-f]{3,8}$/.test(trimmed)) {
+    return trimmed;
+  }
+  if (/^rgba?\([^)]+\)$/.test(trimmed)) {
+    return trimmed;
+  }
+  return '#ffffff';
+}
+
+/** CSS de fondo para el documento PDF (html/body + contenedor). */
+export function buildPdfBackgroundCss(settings: PdfBackgroundSettings): string {
+  const mode = settings.pdfBackgroundMode ?? 'theme';
+
+  if (mode === 'color' && settings.pdfBackgroundColor) {
+    const color = sanitizePdfColor(settings.pdfBackgroundColor);
+    return `
+html, body {
+  background-color: ${color} !important;
+  background: ${color} !important;
+}
+.pdf-canvas-root {
+  background-color: ${color} !important;
+  background: ${color} !important;
+  min-height: 100%;
+  padding: 0;
+}
+.pdf-body-content.markdown-preview {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+`;
+  }
+
+  if (mode === 'corporate' && settings.pdfBackgroundImageUrl?.trim()) {
+    const url = settings.pdfBackgroundImageUrl
+      .trim()
+      .replace(/"/g, '%22')
+      .replace(/'/g, '%27');
+    return `
+html, body {
+  background-color: #f8fafc !important;
+}
+.pdf-canvas-root {
+  background-image: url("${url}");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100%;
+}
+.pdf-body-content.markdown-preview {
+  background: rgba(255, 255, 255, 0.88) !important;
+}
+`;
+  }
+
+  return '';
+}
+
+export function resolvePdfGenerationCss(
+  storedCustomCss: string | undefined,
+  background?: PdfBackgroundSettings,
+): string {
+  const base = resolveStoredDocumentCss(storedCustomCss);
+  const bgCss = buildPdfBackgroundCss(background ?? {});
+  if (!bgCss.trim()) {
+    return base;
+  }
+  return `${base}\n\n${bgCss}`;
+}
+
+/** Color de lienzo para html2canvas (modo color sólido). */
+export function getHtml2CanvasBackground(
+  settings: PdfBackgroundSettings,
+): string | null {
+  if (settings.pdfBackgroundMode === 'color' && settings.pdfBackgroundColor) {
+    return sanitizePdfColor(settings.pdfBackgroundColor);
+  }
+  return null;
+}
+
+/** Estilo inline del contenedor de vista previa en el editor. */
+export function buildPreviewPaneStyle(
+  settings: PdfBackgroundSettings,
+): Record<string, string> {
+  const mode = settings.pdfBackgroundMode ?? 'theme';
+  if (mode === 'color' && settings.pdfBackgroundColor) {
+    return { background: sanitizePdfColor(settings.pdfBackgroundColor) };
+  }
+  if (mode === 'corporate' && settings.pdfBackgroundImageUrl?.trim()) {
+    const url = settings.pdfBackgroundImageUrl.trim();
+    return {
+      backgroundImage: `url("${url.replace(/"/g, '%22')}")`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+    };
+  }
+  return { background: '#f8fafc' };
+}
+
 export function downloadPdfBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

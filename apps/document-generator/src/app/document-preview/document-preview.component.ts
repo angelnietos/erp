@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   OnInit,
   AfterViewInit,
@@ -12,8 +13,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import {
+  buildPreviewPaneStyle,
   downloadPdfBlob,
-  resolveStoredDocumentCss,
+  readPdfBackgroundSettings,
+  resolvePdfGenerationCss,
 } from '../utils/document-preview-css';
 import mermaid from 'mermaid';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
@@ -47,6 +50,9 @@ interface DocumentPreviewPayload {
   deployment?: string;
   customCss?: string;
   pdfStyleId?: string;
+  pdfBackgroundMode?: 'theme' | 'color' | 'corporate';
+  pdfBackgroundColor?: string;
+  pdfBackgroundImageUrl?: string;
   pdfBytes?: number[];
 }
 
@@ -210,7 +216,8 @@ interface DocumentPreviewPayload {
                   Contenido del Documento
                 </h3>
                 <div
-                  class="document-preview-render markdown-preview rounded-2xl border border-soft bg-[#f8fafc] px-6 py-5 shadow-inner"
+                  class="document-preview-render markdown-preview rounded-2xl border border-soft px-6 py-5 shadow-inner"
+                  [ngStyle]="previewContentStyle"
                   [innerHTML]="documentContentHtml"
                 ></div>
               </section>
@@ -499,6 +506,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
   private readonly persistence = inject(DocumentPersistenceService);
   private readonly pdfService = inject(PdfGenerationService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   async ngOnInit(): Promise<void> {
     const id = this.route.snapshot.params['id'];
@@ -559,6 +567,14 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     } catch {
       return '';
     }
+  }
+
+  get previewContentStyle(): Record<string, string> {
+    return buildPreviewPaneStyle(
+      readPdfBackgroundSettings(
+        this.document as unknown as Record<string, unknown>,
+      ),
+    );
   }
 
   get documentContentHtml(): string {
@@ -676,8 +692,12 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
 
     this.downloadError = '';
     this.isDownloadingPdf = true;
+    this.cdr.markForCheck();
     try {
       if (typeof d.content === 'string' && d.content.trim()) {
+        const background = readPdfBackgroundSettings(
+          d as unknown as Record<string, unknown>,
+        );
         const blob = await this.pdfService.generateMarkdownPdf({
           content: d.content,
           title: d.title || 'Documento',
@@ -685,7 +705,10 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
           client: d.client,
           subtitle: d.client,
           pdfStyleId: d.pdfStyleId,
-          customCss: resolveStoredDocumentCss(d.customCss),
+          customCss: d.customCss,
+          pdfBackgroundMode: background.pdfBackgroundMode,
+          pdfBackgroundColor: background.pdfBackgroundColor,
+          pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
         });
         downloadPdfBlob(blob, `${d.title || 'documento'}.pdf`);
         return;
@@ -708,6 +731,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
         'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.';
     } finally {
       this.isDownloadingPdf = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -719,7 +743,12 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     const styleEl =
       document.getElementById('document-preview-custom-css') ??
       this.createPreviewStyleEl();
-    styleEl.textContent = resolveStoredDocumentCss(this.document?.customCss);
+    styleEl.textContent = resolvePdfGenerationCss(
+      this.document?.customCss,
+      readPdfBackgroundSettings(
+        this.document as unknown as Record<string, unknown>,
+      ),
+    );
   }
 
   private createPreviewStyleEl(): HTMLStyleElement {

@@ -30,7 +30,11 @@ import {
   DocumentAiContext,
 } from '../services/document-ai.service';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
-import { buildDocumentPreviewCss } from '../utils/document-preview-css';
+import {
+  buildDocumentPreviewCss,
+  buildPreviewPaneStyle,
+  resolvePdfGenerationCss,
+} from '../utils/document-preview-css';
 
 declare const marked: MarkedGlobal;
 
@@ -585,12 +589,12 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         <div class="mt-3">
                           <label for="pdfBackgroundMode" class="block text-sm font-medium text-secondary mb-2">Fondo del PDF</label>
                           <div class="flex gap-2 items-center">
-                            <select id="pdfBackgroundMode" [(ngModel)]="pdfBackgroundMode" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
+                            <select id="pdfBackgroundMode" [(ngModel)]="pdfBackgroundMode" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
                               <option value="theme">Usar tema</option>
                               <option value="color">Color sólido</option>
                               <option value="corporate">Imagen corporativa</option>
                             </select>
-                            <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
+                            <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
                             <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
                           <p class="text-xs text-muted mt-2">Selecciona cómo se renderizará el fondo del PDF.</p>
@@ -698,7 +702,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               <span>Vista Previa</span>
                               <span class="font-mono">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
                             </div>
-                            <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                            <div class="document-preview-pane w-full px-5 py-4 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
                           </div>
                         </div>
                       }
@@ -730,7 +734,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 Vista Previa
                                 <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
                               </div>
-                              <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner bg-[#f8fafc]" [innerHTML]="previewHtml"></div>
+                              <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
                             </div>
                           }
                         </div>
@@ -1430,8 +1434,21 @@ export class DocumentCreateEditorComponent implements OnInit {
     this.savedDraftId = draftId;
     if (typeof p['customCss'] === 'string') {
       this.customCss = p['customCss'];
-      this.applyCustomCss();
     }
+    if (
+      p['pdfBackgroundMode'] === 'theme' ||
+      p['pdfBackgroundMode'] === 'color' ||
+      p['pdfBackgroundMode'] === 'corporate'
+    ) {
+      this.pdfBackgroundMode = p['pdfBackgroundMode'];
+    }
+    if (typeof p['pdfBackgroundColor'] === 'string') {
+      this.pdfBackgroundColor = p['pdfBackgroundColor'];
+    }
+    if (typeof p['pdfBackgroundImageUrl'] === 'string') {
+      this.pdfBackgroundImageUrl = p['pdfBackgroundImageUrl'];
+    }
+    this.applyCustomCss();
     this.documentForm.patchValue(patch);
     this.syncAssistantFromFormNow();
   }
@@ -1541,6 +1558,9 @@ export class DocumentCreateEditorComponent implements OnInit {
         client: client?.name || 'Cliente',
         type: this.selectedType.id,
         customCss: this.customCss,
+        pdfBackgroundMode: this.pdfBackgroundMode,
+        pdfBackgroundColor: this.pdfBackgroundColor,
+        pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
         isDraft: true,
         pdfBytes: [] as number[],
       };
@@ -1904,7 +1924,23 @@ blockquote {
  
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
-    styleEl.textContent = this.documentPreviewCss();
+    styleEl.textContent = resolvePdfGenerationCss(this.customCss, {
+      pdfBackgroundMode: this.pdfBackgroundMode,
+      pdfBackgroundColor: this.pdfBackgroundColor,
+      pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+    });
+  }
+
+  onPdfBackgroundChange(): void {
+    this.applyCustomCss();
+  }
+
+  get previewPaneStyle(): Record<string, string> {
+    return buildPreviewPaneStyle({
+      pdfBackgroundMode: this.pdfBackgroundMode,
+      pdfBackgroundColor: this.pdfBackgroundColor,
+      pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
+    });
   }
 
   /** Base font size used for quick adjustments (in rem). */
@@ -1990,25 +2026,6 @@ blockquote {
     return buildDocumentPreviewCss(this.customCss);
   }
 
-  /** Compose the final CSS passed to PDF generator, including background choices. */
-  private getPdfCustomCss(): string {
-    let css = this.documentPreviewCss() || '';
-    try {
-      if (this.pdfBackgroundMode === 'color') {
-        css += `\nbody { background: ${this.pdfBackgroundColor} !important; }\n`;
-        // make the inner preview area transparent so background shows through
-        css += `.markdown-preview { background: transparent !important; box-shadow: none !important; border: none !important; }\n`;
-      } else if (this.pdfBackgroundMode === 'corporate' && this.pdfBackgroundImageUrl) {
-        const url = this.pdfBackgroundImageUrl.replace(/"/g, '%22');
-          css += `\nbody { background-image: url('${url}'); background-size: cover; background-position: center; background-repeat: no-repeat; }\n`;
-        css += `.markdown-preview { background: rgba(255,255,255,0.85) !important; }\n`;
-      }
-    } catch (e) {
-      console.warn('getPdfCustomCss error', e);
-    }
-    return css;
-  }
-
   private exportStyledHtml(title: string): void {
     const safeTitle = this.escapeHtml(title || 'Documento');
     const html = `<!DOCTYPE html>
@@ -2082,7 +2099,10 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
           client: client?.name || 'Josanz ERP',
           subtitle: client?.name || 'Josanz ERP',
           pdfStyleId: this.selectedPdfStyle,
-          customCss: this.getPdfCustomCss(),
+          customCss: this.documentPreviewCss(),
+          pdfBackgroundMode: this.pdfBackgroundMode,
+          pdfBackgroundColor: this.pdfBackgroundColor,
+          pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
         });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
@@ -2163,7 +2183,10 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
           client: client?.name || 'Cliente',
           type: this.selectedType?.id,
           pdfStyleId: this.selectedPdfStyle,
-          customCss: this.getPdfCustomCss(),
+          customCss: this.documentPreviewCss(),
+          pdfBackgroundMode: this.pdfBackgroundMode,
+          pdfBackgroundColor: this.pdfBackgroundColor,
+          pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
         };
 
         let pdfBytes: Blob;

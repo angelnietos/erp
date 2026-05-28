@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
-import { resolveStoredDocumentCss } from '../utils/document-preview-css';
+import { readPdfBackgroundSettings } from '../utils/document-preview-css';
 
 /** Documento para generar PDF (mismo shape que la vista previa). */
 interface PreviewDownloadDocument {
@@ -72,11 +72,14 @@ export class DocumentPreviewDownloadComponent implements OnInit {
     this.isGenerating = true;
     this.revokePdfObjectUrl();
     try {
+      const background = readPdfBackgroundSettings(doc);
       const withStyles = {
         ...doc,
-        customCss: resolveStoredDocumentCss(
+        customCss:
           typeof doc['customCss'] === 'string' ? doc['customCss'] : undefined,
-        ),
+        pdfBackgroundMode: background.pdfBackgroundMode,
+        pdfBackgroundColor: background.pdfBackgroundColor,
+        pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
       };
       let pdfBlob: Blob;
       const kind = typeof doc.type === 'string' ? doc.type : 'documentation';

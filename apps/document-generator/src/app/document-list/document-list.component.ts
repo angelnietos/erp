@@ -9,7 +9,7 @@ import {
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import {
   downloadPdfBlob,
-  resolveStoredDocumentCss,
+  readPdfBackgroundSettings,
 } from '../utils/document-preview-css';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -504,6 +504,7 @@ export class DocumentListComponent implements OnInit {
       const content = data['content'];
 
       if (typeof content === 'string' && content.trim()) {
+        const background = readPdfBackgroundSettings(data);
         const blob = await this.pdfService.generateMarkdownPdf({
           content,
           title,
@@ -511,9 +512,11 @@ export class DocumentListComponent implements OnInit {
           client: data['client'] as string | undefined,
           subtitle: data['client'] as string | undefined,
           pdfStyleId: data['pdfStyleId'] as string | undefined,
-          customCss: resolveStoredDocumentCss(
+          customCss:
             typeof data['customCss'] === 'string' ? data['customCss'] : undefined,
-          ),
+          pdfBackgroundMode: background.pdfBackgroundMode,
+          pdfBackgroundColor: background.pdfBackgroundColor,
+          pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
         });
         downloadPdfBlob(blob, `${title}.pdf`);
         return;

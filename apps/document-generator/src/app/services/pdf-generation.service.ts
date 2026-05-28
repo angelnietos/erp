@@ -1,5 +1,11 @@
 import { Injectable, inject } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
+import {
+  getHtml2CanvasBackground,
+  readPdfBackgroundSettings,
+  resolvePdfGenerationCss,
+  type PdfBackgroundSettings,
+} from '../utils/document-preview-css';
 import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
@@ -35,6 +41,9 @@ interface DocumentData {
   terms?: string;
   customCss?: string;
   pdfStyleId?: string;
+  pdfBackgroundMode?: PdfBackgroundSettings['pdfBackgroundMode'];
+  pdfBackgroundColor?: string;
+  pdfBackgroundImageUrl?: string;
 }
 
 @Injectable({
@@ -93,7 +102,83 @@ export class PdfGenerationService {
     }
   }
 
-  private pdfHtml2PdfOptions(filename: string) {
+  private resolvePdfStyles(data: DocumentData): {
+    css: string;
+    canvasBackground: string | null;
+  } {
+    let background = readPdfBackgroundSettings(
+      data as unknown as Record<string, unknown>,
+    );
+    if (
+      !background.pdfBackgroundMode &&
+      typeof data.customCss === 'string' &&
+      data.customCss.includes('body')
+    ) {
+      const match = /body\s*\{[^}]*background(?:-color)?:\s*([^;!]+)/i.exec(
+        data.customCss,
+      );
+      if (match?.[1]) {
+        background = {
+          pdfBackgroundMode: 'color',
+          pdfBackgroundColor: match[1].trim(),
+        };
+      }
+    }
+    return {
+      css: resolvePdfGenerationCss(data.customCss, background),
+      canvasBackground: getHtml2CanvasBackground(background),
+    };
+  }
+
+  /**
+   * Renderiza HTML en un nodo DOM oculto para que html2canvas capture fondos y estilos.
+   */
+  private async htmlToPdfBlob(
+    fullHtml: string,
+    filename: string,
+    canvasBackground: string | null,
+  ): Promise<Blob> {
+    if (typeof html2pdf !== 'function') {
+      throw new Error(
+        'El motor PDF no está disponible. Recarga la página e inténtalo de nuevo.',
+      );
+    }
+
+    const host = document.createElement('div');
+    host.setAttribute('data-pdf-render-host', 'true');
+    host.style.position = 'fixed';
+    host.style.left = '-12000px';
+    host.style.top = '0';
+    host.style.width = '794px';
+    host.style.zIndex = '-1';
+    host.style.pointerEvents = 'none';
+    host.style.overflow = 'visible';
+
+    const parsed = new DOMParser().parseFromString(fullHtml, 'text/html');
+    const styleEl = document.createElement('style');
+    styleEl.textContent = Array.from(parsed.head.querySelectorAll('style'))
+      .map((node) => node.textContent ?? '')
+      .join('\n');
+
+    const page = document.createElement('div');
+    page.className = 'pdf-canvas-root';
+    page.innerHTML = parsed.body.innerHTML;
+
+    host.append(styleEl, page);
+    document.body.appendChild(host);
+
+    try {
+      const options = this.pdfHtml2PdfOptions(filename, canvasBackground);
+      return await html2pdf().set(options).from(page).outputPdf('blob');
+    } finally {
+      host.remove();
+    }
+  }
+
+  private pdfHtml2PdfOptions(
+    filename: string,
+    canvasBackground: string | null = null,
+  ) {
     return {
       margin: [18, 12, 18, 12] as [number, number, number, number],
       filename,
@@ -104,9 +189,7 @@ export class PdfGenerationService {
         letterRendering: true,
         scrollY: 0,
         logging: false,
-        // Allow html2canvas to render element background styles instead of
-        // forcing a white canvas background. `null` preserves CSS backgrounds.
-        backgroundColor: null,
+        backgroundColor: canvasBackground,
       },
       jsPDF: {
         unit: 'mm' as const,
@@ -151,6 +234,8 @@ export class PdfGenerationService {
       data.subtitle || data.client || 'Josanz ERP',
     );
     const formatLabel = isHtml ? 'HTML' : 'Markdown (GFM)';
+
+    const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
 
     // Get PDF style CSS
     const styleCss = data.pdfStyleId
@@ -395,34 +480,35 @@ export class PdfGenerationService {
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
           ${styleCss}
-          ${data.customCss ?? ''}
+          ${mergedCss}
         </style>
       </head>
       <body>
-        <div class="pdf-header">
-          <h1>${title}</h1>
-          <div class="pdf-meta">
-            <span>Fecha: ${metaDate}</span>
-            <span>${metaClient}</span>
-            <span>${formatLabel}</span>
+        <div class="pdf-canvas-root">
+          <div class="pdf-header">
+            <h1>${title}</h1>
+            <div class="pdf-meta">
+              <span>Fecha: ${metaDate}</span>
+              <span>${metaClient}</span>
+              <span>${formatLabel}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="pdf-body-content markdown-preview">
-        ${htmlContent}
-        </div>
+          <div class="pdf-body-content markdown-preview">
+          ${htmlContent}
+          </div>
 
-        <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
+          <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
+        </div>
       </body>
       </html>
     `;
 
-    const options = this.pdfHtml2PdfOptions(data.title || 'documento');
-
-    // Generamos el PDF desde el HTML
-    const worker = html2pdf().set(options);
-    const pdfBlob = await worker.from(pdfTemplate).outputPdf('blob');
-    return pdfBlob;
+    return this.htmlToPdfBlob(
+      pdfTemplate,
+      data.title || 'documento',
+      canvasBackground,
+    );
   }
 
   async generateQuotePdf(data: DocumentData): Promise<Blob> {
@@ -688,7 +774,8 @@ export class PdfGenerationService {
       data.subtitle || data.client || 'Josanz ERP',
     );
 
-    // Get PDF style CSS
+    const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
+
     const styleCss = data.pdfStyleId
       ? this.templates.getPdfStyleCss(data.pdfStyleId)
       : '';
@@ -840,31 +927,34 @@ export class PdfGenerationService {
             background: linear-gradient(90deg, #2563eb, #7c3aed);
           }
           ${styleCss}
-          ${data.customCss ?? ''}
+          ${mergedCss}
         </style>
       </head>
       <body>
-        <div class="pdf-header">
-          <h1>${title}</h1>
-          <div class="pdf-meta">
-            <span>Fecha: ${metaDate}</span>
-            <span>${metaClient}</span>
+        <div class="pdf-canvas-root">
+          <div class="pdf-header">
+            <h1>${title}</h1>
+            <div class="pdf-meta">
+              <span>Fecha: ${metaDate}</span>
+              <span>${metaClient}</span>
+            </div>
           </div>
-        </div>
 
-        <div class="pdf-body-content markdown-preview">
-        ${bodyHtml}
-        </div>
+          <div class="pdf-body-content markdown-preview">
+          ${bodyHtml}
+          </div>
 
-        <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
+          <footer class="pdf-doc-footer">Documento generado con Josanz ERP</footer>
+        </div>
       </body>
       </html>
     `;
 
-    const options = this.pdfHtml2PdfOptions(data.title || 'documento');
-    const worker = html2pdf().set(options);
-    const pdfBlob = await worker.from(pdfTemplate).outputPdf('blob');
-    return pdfBlob;
+    return this.htmlToPdfBlob(
+      pdfTemplate,
+      data.title || 'documento',
+      canvasBackground,
+    );
   }
 
   downloadPdf(blob: Blob, filename: string) {
