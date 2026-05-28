@@ -6,6 +6,11 @@ import {
   DocumentListItem,
   DocumentPersistenceService,
 } from '../services/document-persistence.service';
+import { PdfGenerationService } from '../services/pdf-generation.service';
+import {
+  downloadPdfBlob,
+  resolveStoredDocumentCss,
+} from '../utils/document-preview-css';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -414,6 +419,7 @@ export class DocumentListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly assistantCtx = inject(AssistantContextService);
   private readonly persistence = inject(DocumentPersistenceService);
+  private readonly pdfService = inject(PdfGenerationService);
 
   openFloatingHelp(): void {
     this.assistantCtx.openAssistant();
@@ -486,22 +492,42 @@ export class DocumentListComponent implements OnInit {
   async downloadDocument(doc: DocumentListItem): Promise<void> {
     try {
       await this.persistence.whenReady();
-      const data = (await this.persistence.getPayload(doc.id)) as {
-        pdfBytes?: number[];
-        title?: string;
-      } | null;
-      if (!data?.pdfBytes?.length) {
+      const data = (await this.persistence.getPayload(doc.id)) as Record<
+        string,
+        unknown
+      > | null;
+      if (!data) {
         return;
       }
-      const u8 = new Uint8Array(data.pdfBytes);
-      const blob = new Blob([u8], { type: 'application/pdf' });
-      const a = document.createElement('a');
-      const safe = (data.title || 'documento').replace(/[/\\?%*:|"<>]/g, '-');
-      const url = URL.createObjectURL(blob);
-      a.href = url;
-      a.download = `${safe}.pdf`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 0);
+
+      const title = (data['title'] as string) || 'documento';
+      const content = data['content'];
+
+      if (typeof content === 'string' && content.trim()) {
+        const blob = await this.pdfService.generateMarkdownPdf({
+          content,
+          title,
+          date: data['date'] ? String(data['date']) : undefined,
+          client: data['client'] as string | undefined,
+          subtitle: data['client'] as string | undefined,
+          pdfStyleId: data['pdfStyleId'] as string | undefined,
+          customCss: resolveStoredDocumentCss(
+            typeof data['customCss'] === 'string' ? data['customCss'] : undefined,
+          ),
+        });
+        downloadPdfBlob(blob, `${title}.pdf`);
+        return;
+      }
+
+      const pdfBytes = data['pdfBytes'];
+      if (!Array.isArray(pdfBytes) || pdfBytes.length === 0) {
+        return;
+      }
+
+      const blob = new Blob([new Uint8Array(pdfBytes as number[])], {
+        type: 'application/pdf',
+      });
+      downloadPdfBlob(blob, `${title}.pdf`);
     } catch (e) {
       console.error(e);
     }

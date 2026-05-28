@@ -30,6 +30,7 @@ import {
   DocumentAiContext,
 } from '../services/document-ai.service';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
+import { buildDocumentPreviewCss } from '../utils/document-preview-css';
 
 declare const marked: MarkedGlobal;
 
@@ -38,33 +39,6 @@ interface DocumentType {
   name: string;
   description: string;
 }
-
-const DEFAULT_DOCUMENT_PREVIEW_CSS = `
-.markdown-preview {
-  font-size: 1.05rem;
-  line-height: 1.72;
-  color: #1f2937;
-}
-
-.markdown-preview h1,
-.markdown-preview h2,
-.markdown-preview h3 {
-  letter-spacing: -0.025em;
-}
-
-.markdown-preview h1 {
-  font-size: clamp(2rem, 3vw, 2.75rem);
-}
-
-.markdown-preview h2 {
-  font-size: clamp(1.35rem, 2vw, 1.75rem);
-}
-
-.markdown-preview p,
-.markdown-preview li {
-  font-size: inherit;
-}
-`;
 
 @Component({
   styles: [
@@ -1906,62 +1880,7 @@ blockquote {
   }
 
   private documentPreviewCss(): string {
-    return [DEFAULT_DOCUMENT_PREVIEW_CSS, this.normalizeUserCss(this.customCss)]
-      .filter(Boolean)
-      .join('\n\n');
-  }
-
-  private normalizeUserCss(css: string): string {
-    const trimmed = css.trim();
-    if (!trimmed) {
-      return '';
-    }
-
-    if (trimmed.includes('{')) {
-      return this.scopeCssToMarkdownPreview(trimmed);
-    }
-
-    const declarations = trimmed.replace(/[{}]/g, '').trim();
-    if (!declarations) {
-      return '';
-    }
-
-    return `.markdown-preview {\n${declarations}\n}`;
-  }
-
-  private scopeCssToMarkdownPreview(css: string): string {
-    return css.replace(/(^|})\s*([^@{}][^{}]*)\{/g, (match, boundary: string, selectorText: string) => {
-      const scopedSelectors = selectorText
-        .split(',')
-        .map((selector) => this.scopeSingleSelector(selector.trim()))
-        .join(', ');
-
-      return `${boundary}\n${scopedSelectors} {`;
-    });
-  }
-
-  private scopeSingleSelector(selector: string): string {
-    if (!selector || selector.includes('.markdown-preview')) {
-      return selector;
-    }
-
-    if (selector === ':root' || selector === 'html' || selector === 'body') {
-      return '.markdown-preview';
-    }
-
-    if (selector.startsWith('body.')) {
-      return `.markdown-preview${selector.slice('body'.length)}`;
-    }
-
-    if (selector.startsWith('html ')) {
-      return `.markdown-preview ${selector.slice('html '.length)}`;
-    }
-
-    if (selector.startsWith('body ')) {
-      return `.markdown-preview ${selector.slice('body '.length)}`;
-    }
-
-    return `.markdown-preview ${selector}`;
+    return buildDocumentPreviewCss(this.customCss);
   }
 
   private exportStyledHtml(title: string): void {
@@ -2031,13 +1950,14 @@ blockquote {
           ? String(formValue.date)
           : new Date().toISOString().split('T')[0];
 const pdfBlob = await this.pdfService.generateMarkdownPdf({
-           content: content,
-           title: title,
-           date: dateStr,
-           client: client?.name || 'Josanz ERP',
-           subtitle: client?.name || 'Josanz ERP',
-           pdfStyleId: this.selectedPdfStyle,
-         });
+          content: content,
+          title: title,
+          date: dateStr,
+          client: client?.name || 'Josanz ERP',
+          subtitle: client?.name || 'Josanz ERP',
+          pdfStyleId: this.selectedPdfStyle,
+          customCss: this.documentPreviewCss(),
+        });
         this.universalDocument.download(pdfBlob, `${title}.pdf`);
       } catch (error) {
         console.error('Error generating PDF:', error);
@@ -2116,7 +2036,8 @@ const pdfBlob = await this.pdfService.generateMarkdownPdf({
           ...formValue,
           client: client?.name || 'Cliente',
           type: this.selectedType?.id,
-        customCss: this.documentPreviewCss(),
+          pdfStyleId: this.selectedPdfStyle,
+          customCss: this.documentPreviewCss(),
         };
 
         let pdfBytes: Blob;

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
+import { resolveStoredDocumentCss } from '../utils/document-preview-css';
 
 /** Documento para generar PDF (mismo shape que la vista previa). */
 interface PreviewDownloadDocument {
@@ -71,23 +72,27 @@ export class DocumentPreviewDownloadComponent implements OnInit {
     this.isGenerating = true;
     this.revokePdfObjectUrl();
     try {
+      const withStyles = {
+        ...doc,
+        customCss: resolveStoredDocumentCss(
+          typeof doc['customCss'] === 'string' ? doc['customCss'] : undefined,
+        ),
+      };
       let pdfBlob: Blob;
       const kind = typeof doc.type === 'string' ? doc.type : 'documentation';
       switch (kind) {
         case 'quote':
-          pdfBlob = await this.pdfService.generateQuotePdf(doc);
+          pdfBlob = await this.pdfService.generateQuotePdf(withStyles);
           break;
         case 'proposal':
-          pdfBlob = await this.pdfService.generateProposalPdf(doc);
+          pdfBlob = await this.pdfService.generateProposalPdf(withStyles);
           break;
         case 'documentation':
-          pdfBlob = await this.pdfService.generateDocumentationPdf(doc);
-          break;
         case 'architecture':
-          pdfBlob = await this.pdfService.generateArchitecturePdf(doc);
+          pdfBlob = await this.pdfService.generateDocumentationPdf(withStyles);
           break;
         default:
-          pdfBlob = await this.pdfService.generateMarkdownPdf(doc);
+          pdfBlob = await this.pdfService.generateMarkdownPdf(withStyles);
       }
 
       this.pdfUrl = URL.createObjectURL(pdfBlob);

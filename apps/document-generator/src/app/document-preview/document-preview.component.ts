@@ -11,6 +11,10 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { PdfGenerationService } from '../services/pdf-generation.service';
+import {
+  downloadPdfBlob,
+  resolveStoredDocumentCss,
+} from '../utils/document-preview-css';
 import mermaid from 'mermaid';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
 
@@ -116,10 +120,14 @@ interface DocumentPreviewPayload {
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3">
+            @if (downloadError) {
+              <p class="text-sm text-red-400 mb-2">{{ downloadError }}</p>
+            }
             <button
               type="button"
               (click)="downloadDocument()"
-              class="inline-flex items-center px-6 py-4 bg-success text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+              [disabled]="isDownloadingPdf"
+              class="inline-flex items-center px-6 py-4 bg-success text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-60 disabled:pointer-events-none"
             >
               <svg
                 class="w-5 h-5 mr-3"
@@ -135,7 +143,9 @@ interface DocumentPreviewPayload {
                   d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                 />
               </svg>
-              Descargar PDF
+              {{
+                isDownloadingPdf ? 'Generando PDF…' : 'Descargar PDF'
+              }}
             </button>
             <button
               type="button"
@@ -480,6 +490,8 @@ interface DocumentPreviewPayload {
 })
 export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   document: DocumentPreviewPayload | null = null;
+  isDownloadingPdf = false;
+  downloadError = '';
   @ViewChild('diagramsContainer', { static: false })
   diagramsContainer!: ElementRef;
 
@@ -658,32 +670,45 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
 
   async downloadDocument(): Promise<void> {
     const d = this.document;
-    if (!d?.id) return;
-    if (Array.isArray(d.pdfBytes) && d.pdfBytes.length > 0) {
-      const blob = new Blob([new Uint8Array(d.pdfBytes)], {
-        type: 'application/pdf',
-      });
-      this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
+    if (!d?.id) {
       return;
     }
 
-    if (typeof d.content === 'string' && d.content.trim()) {
-      const blob = await this.pdfService.generateMarkdownPdf({
-        content: d.content,
-        title: d.title || 'Documento',
-        date: d.date ? String(d.date) : undefined,
-        client: d.client,
-        subtitle: d.client,
-        pdfStyleId: d.pdfStyleId,
-        customCss: this.scopeCssToMarkdownPreview(d.customCss ?? ''),
-      });
-      this.downloadBlob(blob, `${d.title || 'documento'}.pdf`);
-      return;
-    }
+    this.downloadError = '';
+    this.isDownloadingPdf = true;
+    try {
+      if (typeof d.content === 'string' && d.content.trim()) {
+        const blob = await this.pdfService.generateMarkdownPdf({
+          content: d.content,
+          title: d.title || 'Documento',
+          date: d.date ? String(d.date) : undefined,
+          client: d.client,
+          subtitle: d.client,
+          pdfStyleId: d.pdfStyleId,
+          customCss: resolveStoredDocumentCss(d.customCss),
+        });
+        downloadPdfBlob(blob, `${d.title || 'documento'}.pdf`);
+        return;
+      }
 
-    void this.router.navigate(['/documents/preview-download', d.id], {
-      state: { document: d },
-    });
+      if (Array.isArray(d.pdfBytes) && d.pdfBytes.length > 0) {
+        const blob = new Blob([new Uint8Array(d.pdfBytes)], {
+          type: 'application/pdf',
+        });
+        downloadPdfBlob(blob, `${d.title || 'documento'}.pdf`);
+        return;
+      }
+
+      void this.router.navigate(['/documents/preview-download', d.id], {
+        state: { document: d },
+      });
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      this.downloadError =
+        'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.';
+    } finally {
+      this.isDownloadingPdf = false;
+    }
   }
 
   goBack() {
@@ -694,56 +719,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     const styleEl =
       document.getElementById('document-preview-custom-css') ??
       this.createPreviewStyleEl();
-    styleEl.textContent = this.scopeCssToMarkdownPreview(
-      this.document?.customCss ?? '',
-    );
-  }
-
-  private scopeCssToMarkdownPreview(css: string): string {
-    const trimmed = css.trim();
-    if (!trimmed) {
-      return '';
-    }
-
-    if (!trimmed.includes('{')) {
-      return `.markdown-preview {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
-    }
-
-    return trimmed.replace(
-      /(^|})\s*([^@{}][^{}]*)\{/g,
-      (match, boundary: string, selectorText: string) => {
-        const scopedSelectors = selectorText
-          .split(',')
-          .map((selector) => this.scopeSingleSelector(selector.trim()))
-          .join(', ');
-
-        return `${boundary}\n${scopedSelectors} {`;
-      },
-    );
-  }
-
-  private scopeSingleSelector(selector: string): string {
-    if (!selector || selector.includes('.markdown-preview')) {
-      return selector;
-    }
-
-    if (selector === ':root' || selector === 'html' || selector === 'body') {
-      return '.markdown-preview';
-    }
-
-    if (selector.startsWith('body.')) {
-      return `.markdown-preview${selector.slice('body'.length)}`;
-    }
-
-    if (selector.startsWith('html ')) {
-      return `.markdown-preview ${selector.slice('html '.length)}`;
-    }
-
-    if (selector.startsWith('body ')) {
-      return `.markdown-preview ${selector.slice('body '.length)}`;
-    }
-
-    return `.markdown-preview ${selector}`;
+    styleEl.textContent = resolveStoredDocumentCss(this.document?.customCss);
   }
 
   private createPreviewStyleEl(): HTMLStyleElement {
@@ -752,14 +728,5 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     el.setAttribute('data-document-preview-css', 'true');
     document.head.appendChild(el);
     return el;
-  }
-
-  private downloadBlob(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename.replace(/[\\/:*?"<>|]+/g, '-');
-    a.click();
-    URL.revokeObjectURL(url);
   }
 }
