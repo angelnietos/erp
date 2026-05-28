@@ -246,6 +246,69 @@ declare const marked: MarkedGlobal;
         border-radius: 4px;
       }
 
+      .workspace-actions {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 12px;
+      }
+
+      .workspace-actions__title {
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+      }
+
+      .workspace-actions__subtitle {
+        color: #64748b;
+        font-size: 11px;
+        line-height: 1.35;
+        margin-top: 2px;
+      }
+
+      .agent-action-btn {
+        border: 1px solid #dbeafe;
+        background: #eff6ff;
+        color: #1d4ed8;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 6px 9px;
+        transition:
+          background-color 0.15s ease,
+          border-color 0.15s ease,
+          color 0.15s ease;
+      }
+
+      .agent-action-btn:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1e40af;
+      }
+
+      .agent-action-btn.secondary {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #475569;
+      }
+
+      .agent-action-btn.accent {
+        background: #fff1f2;
+        border-color: #fecdd3;
+        color: #be123c;
+      }
+
+      .dock-btn {
+        border: 1px solid rgba(255,255,255,0.28);
+        background: rgba(255,255,255,0.14);
+        color: white;
+        border-radius: 8px;
+        padding: 3px 6px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
       @keyframes pet-bounce {
         0%,
         100% {
@@ -544,6 +607,33 @@ declare const marked: MarkedGlobal;
           <div class="flex items-center space-x-1 shrink-0">
             <button
               type="button"
+              (click)="$event.stopPropagation(); dockPanel('left')"
+              class="dock-btn"
+              title="Anclar a la izquierda"
+              aria-label="Anclar asistente a la izquierda"
+            >
+              ◀
+            </button>
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); dockPanel('right')"
+              class="dock-btn"
+              title="Anclar a la derecha"
+              aria-label="Anclar asistente a la derecha"
+            >
+              ▶
+            </button>
+            <button
+              type="button"
+              (click)="$event.stopPropagation(); dockPanel('bottom')"
+              class="dock-btn"
+              title="Anclar abajo"
+              aria-label="Anclar asistente abajo"
+            >
+              ▾
+            </button>
+            <button
+              type="button"
               (click)="
                 $event.stopPropagation(); togglePanelExpanded()
               "
@@ -822,6 +912,42 @@ declare const marked: MarkedGlobal;
               </div>
             </div>
           }
+
+          @if (currentView === 'chat') {
+            <div class="workspace-actions">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="workspace-actions__title">Acciones sobre el documento</div>
+                  <div class="workspace-actions__subtitle">
+                    El agente puede escribir contenido, cambiar de editor y aplicar CSS al documento actual.
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('readable')">
+                  Mejorar lectura
+                </button>
+                <button type="button" class="agent-action-btn accent" (click)="applyStyleRecipe('corporate')">
+                  CSS corporativo
+                </button>
+                <button type="button" class="agent-action-btn" (click)="applyStyleRecipe('print')">
+                  Preparar PDF
+                </button>
+                <button type="button" class="agent-action-btn secondary" (click)="applyLastCssBlock()">
+                  Aplicar CSS último
+                </button>
+                <button type="button" class="agent-action-btn secondary" (click)="insertLastAssistantText()">
+                  Insertar respuesta
+                </button>
+                <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('html')">
+                  Modo HTML
+                </button>
+                <button type="button" class="agent-action-btn secondary" (click)="setDocumentEditorMode('markdown')">
+                  Modo Markdown
+                </button>
+              </div>
+            </div>
+          }
         }
 
         @if (!isMinimized) {
@@ -1097,8 +1223,8 @@ export class FloatingAssistantComponent implements OnInit {
   quickActionsPrimary = [
     '¿Qué veo?',
     'Revisar contenido',
-    'Sugerencias',
-    'Errores',
+    'Sugerencias de estilo',
+    'Genera CSS para este documento',
   ];
 
   quickActionsExtra = [
@@ -1112,6 +1238,155 @@ export class FloatingAssistantComponent implements OnInit {
     this.assistantService.loadSavedConfig();
     void this.inference.autoSelectProvider();
     void this.loadConversations();
+  }
+
+  dockPanel(position: 'left' | 'right' | 'bottom'): void {
+    const size = this.assistantService.panelSize$();
+    const margin = 16;
+    if (position === 'left') {
+      this.assistantService.setPosition(margin, margin + 64);
+      return;
+    }
+    if (position === 'right') {
+      this.assistantService.setPosition(
+        Math.max(margin, window.innerWidth - size.width - margin),
+        margin + 64,
+      );
+      return;
+    }
+    this.assistantService.setPosition(
+      Math.max(margin, Math.round((window.innerWidth - size.width) / 2)),
+      Math.max(margin, window.innerHeight - size.height - margin),
+    );
+  }
+
+  setDocumentEditorMode(mode: 'markdown' | 'html' | 'plain'): void {
+    this.assistantService.runDocumentCommand({
+      type: 'set-editor-mode',
+      value: mode,
+      description: `Editor cambiado a ${mode}.`,
+    });
+  }
+
+  applyStyleRecipe(recipe: 'readable' | 'corporate' | 'print'): void {
+    const cssRecipes: Record<'readable' | 'corporate' | 'print', string> = {
+      readable: `
+/* Ajuste aplicado por el agente: lectura cómoda */
+.markdown-preview,
+.document-preview-render {
+  --markdown-font-size: 1.08rem;
+  --markdown-line-height: 1.78;
+  max-width: 920px;
+}
+
+.markdown-preview p,
+.markdown-preview li,
+.document-preview-render p,
+.document-preview-render li {
+  line-height: 1.78;
+}
+
+.markdown-preview h2,
+.document-preview-render h2 {
+  margin-top: 2.4rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+}
+`.trim(),
+      corporate: `
+/* Ajuste aplicado por el agente: identidad Josanz */
+:root {
+  --brand-primary: #7a0000;
+  --brand-accent: #ff3131;
+}
+
+.markdown-preview h1,
+.document-preview-render h1 {
+  color: #111827;
+  border-bottom: 3px solid var(--brand-accent);
+}
+
+.markdown-preview h2,
+.document-preview-render h2 {
+  border-left: 5px solid var(--brand-accent);
+  padding-left: 0.85rem;
+}
+
+.markdown-preview th,
+.document-preview-render th {
+  background: #7a0000;
+  color: #ffffff;
+}
+
+.markdown-preview blockquote,
+.document-preview-render blockquote {
+  border-left-color: var(--brand-accent);
+  background: #fff1f1;
+}
+`.trim(),
+      print: `
+/* Ajuste aplicado por el agente: exportación PDF */
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.document-preview-render h1,
+.document-preview-render h2,
+.document-preview-render h3 {
+  page-break-after: avoid;
+}
+
+.markdown-preview table,
+.markdown-preview pre,
+.markdown-preview blockquote,
+.document-preview-render table,
+.document-preview-render pre,
+.document-preview-render blockquote {
+  page-break-inside: avoid;
+}
+
+.markdown-preview img,
+.document-preview-render img {
+  max-width: 100%;
+  height: auto;
+}
+`.trim(),
+    };
+
+    this.assistantService.runDocumentCommand({
+      type: 'append-css',
+      value: cssRecipes[recipe],
+      description: 'CSS aplicado al documento desde el agente.',
+    });
+  }
+
+  applyLastCssBlock(): void {
+    const css = this.extractLastAssistantCodeBlock('css');
+    if (!css) {
+      this.assistantService.addMessage(
+        'No encuentro un bloque ```css en mi última respuesta. Pídeme “genera CSS para este documento” y luego pulsa “Aplicar CSS último”.',
+        'assistant',
+      );
+      return;
+    }
+
+    this.assistantService.runDocumentCommand({
+      type: 'append-css',
+      value: css,
+      description: 'CSS de la última respuesta aplicado al documento.',
+    });
+  }
+
+  insertLastAssistantText(): void {
+    const text = this.latestAssistantMessageContent();
+    if (!text) {
+      return;
+    }
+
+    this.assistantService.runDocumentCommand({
+      type: 'append-content',
+      value: this.stripFencedCodeBlocks(text).trim() || text,
+      description: 'Respuesta del agente insertada en el documento.',
+    });
   }
 
   @HostListener('document:mousemove', ['$event'])
@@ -1408,6 +1683,8 @@ export class FloatingAssistantComponent implements OnInit {
       snippet
         ? `Contenido actual del documento (recortado):\n---\n${snippet}\n---`
         : 'Aún no hay texto de documento en contexto.',
+      'Si el usuario pide estilos visuales, puedes responder con un bloque ```css. El usuario podrá aplicarlo con el botón "Aplicar CSS último".',
+      'Si el usuario pide HTML, puedes responder con un bloque ```html completo o parcial. No envuelvas explicaciones dentro del código.',
       'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
     ].join('\n');
   }
@@ -1465,6 +1742,28 @@ export class FloatingAssistantComponent implements OnInit {
   userBubbleHtml(content: string): SafeHtml {
     const esc = escapeHtml(content ?? '');
     return this.sanitizer.bypassSecurityTrustHtml(esc.replace(/\n/g, '<br>'));
+  }
+
+  private latestAssistantMessageContent(): string {
+    return (
+      [...this.assistantService.messages$()]
+        .reverse()
+        .find((message) => message.type === 'assistant')?.content ?? ''
+    );
+  }
+
+  private extractLastAssistantCodeBlock(language: string): string {
+    const content = this.latestAssistantMessageContent();
+    const regex = new RegExp(
+      '```' + language + '\\s*([\\s\\S]*?)\\s*```',
+      'i',
+    );
+    const match = regex.exec(content);
+    return match?.[1]?.trim() ?? '';
+  }
+
+  private stripFencedCodeBlocks(content: string): string {
+    return content.replace(/```[\w-]*\s*[\s\S]*?\s*```/g, '').trim();
   }
 
   getPetFace(): string {

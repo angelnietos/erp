@@ -17,6 +17,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { AssistantContextService } from '../services/assistant-context.service';
+import type { AssistantDocumentCommand } from '../services/assistant-context.service';
 import {
   UniversalDocumentService,
   DocumentFormat,
@@ -1430,6 +1431,10 @@ export class DocumentCreateEditorComponent implements OnInit {
         );
       });
 
+    this.assistantService.documentCommands$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((command) => this.applyAssistantDocumentCommand(command));
+
     interval(30_000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
@@ -1452,6 +1457,44 @@ export class DocumentCreateEditorComponent implements OnInit {
         this.selectedType?.id,
       );
     }
+    this.assistantService.setFormData({
+      ...values,
+      customCss: this.customCss,
+      contentEditorMode: this.contentEditorMode,
+      pdfStyleId: this.selectedPdfStyle,
+      quickStylePreset: this.selectedQuickStylePreset,
+    });
+  }
+
+  private applyAssistantDocumentCommand(command: AssistantDocumentCommand): void {
+    const currentContent = String(this.documentForm.get('content')?.value ?? '');
+    switch (command.type) {
+      case 'append-content': {
+        const next = currentContent.trim()
+          ? `${currentContent}\n\n${command.value}`
+          : command.value;
+        this.documentForm.patchValue({ content: next });
+        break;
+      }
+      case 'replace-content':
+        this.documentForm.patchValue({ content: command.value });
+        break;
+      case 'append-css':
+        this.customCss = [this.customCss, command.value]
+          .filter((part) => part.trim())
+          .join('\n\n');
+        this.applyCustomCss();
+        break;
+      case 'replace-css':
+        this.customCss = command.value;
+        this.applyCustomCss();
+        break;
+      case 'set-editor-mode':
+        this.setContentEditorMode(command.value);
+        break;
+    }
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
   }
 
   /** Tras cargas/importaciones: mismo criterio que valueChanges sin esperar al debounce. */

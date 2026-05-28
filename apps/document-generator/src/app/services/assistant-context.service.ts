@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { Subject } from 'rxjs';
 
 export interface AssistantPetConfig {
   name: string;
@@ -29,6 +30,18 @@ export interface AssistantContext {
   analysisResults: DocumentAnalysisCheckResult[];
   currentView: string;
 }
+
+export type AssistantDocumentCommand =
+  | {
+      type: 'append-content' | 'replace-content' | 'append-css' | 'replace-css';
+      value: string;
+      description?: string;
+    }
+  | {
+      type: 'set-editor-mode';
+      value: 'markdown' | 'html' | 'plain';
+      description?: string;
+    };
 
 export interface AssistantMessage {
   id: string;
@@ -97,6 +110,8 @@ export class AssistantContextService {
   private readonly position = signal({ x: 20, y: 100 });
 
   private readonly panelSize = signal<AssistantPanelSize>({ ...DEFAULT_PANEL });
+  private readonly documentCommandSubject =
+    new Subject<AssistantDocumentCommand>();
 
   private readonly petConfig = signal<AssistantPetConfig>({
     name: 'Kilo',
@@ -117,6 +132,7 @@ export class AssistantContextService {
   readonly isOpen$ = this.isOpen.asReadonly();
   readonly position$ = this.position.asReadonly();
   readonly panelSize$ = this.panelSize.asReadonly();
+  readonly documentCommands$ = this.documentCommandSubject.asObservable();
 
   updateContext(partial: Partial<AssistantContext>): void {
     this.context.update((current) => ({ ...current, ...partial }));
@@ -139,6 +155,11 @@ export class AssistantContextService {
 
   setFormData(data: Record<string, unknown>): void {
     this.updateContext({ formData: data });
+  }
+
+  runDocumentCommand(command: AssistantDocumentCommand): void {
+    this.documentCommandSubject.next(command);
+    this.addSystemMessage(command.description ?? `Acción aplicada: ${command.type}`);
   }
 
   setAnalysisResults(results: DocumentAnalysisCheckResult[]): void {
