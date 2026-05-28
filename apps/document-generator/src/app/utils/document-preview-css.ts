@@ -1,9 +1,22 @@
-/** Estilos base del visor / PDF (siempre aplicados). */
+/** Variables por defecto aplicadas en :root para la vista previa / PDF. */
+export const DEFAULT_CSS_VARS = `:root {
+  --markdown-font-size: 1.05rem;
+  --markdown-line-height: 1.72;
+  --markdown-color: #1f2937;
+  --markdown-padding: 48px;
+  --markdown-bg: #ffffff;
+  --markdown-border: #e2e8f0;
+  --markdown-radius: 24px;
+  --brand-primary: #7a0000;
+  --brand-accent: #ff3131;
+}`;
+
+/** Estilos base del visor / PDF (siempre aplicados) que usan variables CSS. */
 export const DEFAULT_DOCUMENT_PREVIEW_CSS = `
 .markdown-preview {
-  font-size: 1.05rem;
-  line-height: 1.72;
-  color: #1f2937;
+  font-size: var(--markdown-font-size, 1.05rem);
+  line-height: var(--markdown-line-height, 1.72);
+  color: var(--markdown-color, #1f2937);
 }
 
 .markdown-preview h1,
@@ -93,7 +106,9 @@ export function normalizeUserCss(css: string): string {
 
 /** CSS completo para vista previa y PDF (base + personalizado acotado). */
 export function buildDocumentPreviewCss(userCss: string): string {
-  return [DEFAULT_DOCUMENT_PREVIEW_CSS, normalizeUserCss(userCss)]
+  // Ensure default variables are present first, then base CSS, then user CSS (scoped)
+  const userPart = normalizeUserCss(userCss);
+  return [DEFAULT_CSS_VARS, DEFAULT_DOCUMENT_PREVIEW_CSS, userPart]
     .filter(Boolean)
     .join('\n\n');
 }
