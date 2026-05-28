@@ -268,9 +268,36 @@ export class PdfGenerationService {
 
     try {
       const options = this.pdfHtml2PdfOptions(filename, canvasBackground);
+      this.expandPdfCanvasToFullPages(page, canvasBackground);
       return await html2pdf().set(options).from(page).outputPdf('blob');
     } finally {
       host.remove();
+    }
+  }
+
+  private expandPdfCanvasToFullPages(
+    page: HTMLElement,
+    canvasBackground: string | null,
+  ): void {
+    const pageWidthPx = 794;
+    const a4HeightPx = pageWidthPx * (297 / 210);
+    const currentHeight = Math.max(page.scrollHeight, page.offsetHeight);
+    const fullPageHeight = Math.ceil(currentHeight / a4HeightPx) * a4HeightPx;
+    const heightPx = `${Math.max(a4HeightPx, fullPageHeight)}px`;
+
+    page.style.minHeight = heightPx;
+    if (canvasBackground) {
+      page.style.background = canvasBackground;
+      page.style.backgroundColor = canvasBackground;
+    }
+
+    const canvasRoot = page.querySelector('.pdf-canvas-root') as HTMLElement | null;
+    if (canvasRoot) {
+      canvasRoot.style.minHeight = heightPx;
+      if (canvasBackground) {
+        canvasRoot.style.background = canvasBackground;
+        canvasRoot.style.backgroundColor = canvasBackground;
+      }
     }
   }
 
