@@ -29,21 +29,33 @@ export interface AgentMemoryNoteRow {
   createdAt: string;
 }
 
+/** Conversación guardada del historial de chat. */
+export interface ConversationRow {
+  id: string;
+  title: string;
+  /** Mensajes almacenados como JSON string para preservar tipos complejos. */
+  messagesJson: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /**
- * Base IndexedDB dedicada al agente del generador (skills + memoria).
+ * Base IndexedDB dedicada al agente del generador (skills + memoria + conversaciones).
  * Nombre distinto de `josanz-document-generator` para no mezclar con PDFs.
  */
 export class AgentMemoryDexie extends Dexie {
   profiles!: Table<AgentProfileRow, string>;
   userSkills!: Table<UserSkillRow, string>;
   memoryNotes!: Table<AgentMemoryNoteRow, string>;
+  conversations!: Table<ConversationRow, string>;
 
   constructor() {
     super('josanz-document-agent');
-    this.version(1).stores({
+    this.version(2).stores({
       profiles: 'id, updatedAt',
       userSkills: 'id, enabled, sortOrder, updatedAt',
       memoryNotes: 'id, createdAt',
+      conversations: 'id, createdAt, updatedAt',
     });
   }
 }
