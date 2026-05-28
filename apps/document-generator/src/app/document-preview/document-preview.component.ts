@@ -13,6 +13,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import {
+  buildPreviewBackgroundOverrideCss,
   buildPreviewPaneStyle,
   downloadPdfBlob,
   readPdfBackgroundSettings,
@@ -743,12 +744,13 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     const styleEl =
       document.getElementById('document-preview-custom-css') ??
       this.createPreviewStyleEl();
-    styleEl.textContent = resolvePdfGenerationCss(
-      this.document?.customCss,
-      readPdfBackgroundSettings(
-        this.document as unknown as Record<string, unknown>,
-      ),
+    const background = readPdfBackgroundSettings(
+      this.document as unknown as Record<string, unknown>,
     );
+    styleEl.textContent = [
+      resolvePdfGenerationCss(this.document?.customCss, background),
+      buildPreviewBackgroundOverrideCss(background),
+    ].join('\n\n');
   }
 
   private createPreviewStyleEl(): HTMLStyleElement {

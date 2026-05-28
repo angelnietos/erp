@@ -261,6 +261,42 @@ export function buildPreviewPaneStyle(
   return { background: '#f8fafc' };
 }
 
+/** Regla final para que el fondo elegido gane al tema y a plantillas con !important. */
+export function buildPreviewBackgroundOverrideCss(
+  settings: PdfBackgroundSettings,
+): string {
+  const mode = settings.pdfBackgroundMode ?? 'theme';
+
+  if (mode === 'color' && settings.pdfBackgroundColor) {
+    const color = sanitizePdfColor(settings.pdfBackgroundColor);
+    return `
+.document-preview-pane.markdown-preview,
+.document-preview-render.markdown-preview {
+  background: ${color} !important;
+  background-color: ${color} !important;
+}
+`;
+  }
+
+  if (mode === 'corporate' && settings.pdfBackgroundImageUrl?.trim()) {
+    const url = settings.pdfBackgroundImageUrl
+      .trim()
+      .replace(/"/g, '%22')
+      .replace(/'/g, '%27');
+    return `
+.document-preview-pane.markdown-preview,
+.document-preview-render.markdown-preview {
+  background-image: url("${url}") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+`;
+  }
+
+  return '';
+}
+
 export function downloadPdfBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

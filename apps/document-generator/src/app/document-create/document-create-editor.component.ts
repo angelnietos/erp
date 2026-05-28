@@ -31,6 +31,7 @@ import {
 } from '../services/document-ai.service';
 import type { MarkedGlobal } from '../types/cdn-script-globals';
 import {
+  buildPreviewBackgroundOverrideCss,
   buildDocumentPreviewCss,
   buildPreviewPaneStyle,
   resolvePdfGenerationCss,
@@ -595,7 +596,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               <option value="corporate">Imagen corporativa</option>
                             </select>
                             <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
-                            <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
+                            <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
                           <p class="text-xs text-muted mt-2">Selecciona cómo se renderizará el fondo del PDF.</p>
                         </div>
@@ -1924,11 +1925,15 @@ blockquote {
  
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
-    styleEl.textContent = resolvePdfGenerationCss(this.customCss, {
+    const background = {
       pdfBackgroundMode: this.pdfBackgroundMode,
       pdfBackgroundColor: this.pdfBackgroundColor,
       pdfBackgroundImageUrl: this.pdfBackgroundImageUrl,
-    });
+    };
+    styleEl.textContent = [
+      resolvePdfGenerationCss(this.customCss, background),
+      buildPreviewBackgroundOverrideCss(background),
+    ].join('\n\n');
   }
 
   onPdfBackgroundChange(): void {
