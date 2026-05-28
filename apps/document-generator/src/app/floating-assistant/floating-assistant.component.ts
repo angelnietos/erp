@@ -793,9 +793,6 @@ interface AssistantReferenceAttachment {
               id="floating-assistant-title"
               >{{ assistantService.petConfig$().name }}</span
             >
-            <span class="context-badge shrink-0">{{
-              assistantService.context$().activeTab | uppercase
-            }}</span>
           </div>
           <div class="flex items-center space-x-1 shrink-0">
             <button
@@ -1012,6 +1009,21 @@ interface AssistantReferenceAttachment {
 
           @if (showConfig && showConfigContent) {
             <div class="config-panel">
+              <div class="config-row">
+                <label for="assistant-name" class="text-sm text-secondary"
+                  >Nombre</label
+                >
+                <input
+                  id="assistant-name"
+                  type="text"
+                  [value]="assistantService.petConfig$().name"
+                  (change)="onAssistantNameChange($event)"
+                  maxlength="64"
+                  placeholder="Ej: Pepe, Kilo, Lola..."
+                  class="px-2 py-1 border border-slate-300 rounded text-sm w-40"
+                />
+              </div>
+
               <div class="config-row">
                 <label for="animation-speed" class="text-sm text-secondary"
                   >Velocidad animación</label
@@ -2047,6 +2059,11 @@ export class FloatingAssistantComponent implements OnInit {
   onAnimationSpeedChange(event: Event): void {
     const v = Number((event.target as HTMLInputElement).value);
     this.updateConfig('animationSpeed', v);
+  }
+
+  onAssistantNameChange(event: Event): void {
+    const value = (event.target as HTMLInputElement).value.trim();
+    this.updateConfig('name', value || 'Asistente');
   }
 
   onPetColorChange(event: Event): void {
