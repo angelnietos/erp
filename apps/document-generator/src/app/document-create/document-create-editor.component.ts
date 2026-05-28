@@ -46,6 +46,25 @@ declare const marked: MarkedGlobal;
 
 type ContentEditorMode = 'markdown' | 'html' | 'plain';
 
+type EditorBlockTemplateId =
+  | 'paragraph'
+  | 'section'
+  | 'key-value'
+  | 'simple-table'
+  | 'timeline'
+  | 'budget'
+  | 'risks'
+  | 'approvals'
+  | 'callout'
+  | 'signatures';
+
+interface EditorBlockTemplate {
+  id: EditorBlockTemplateId;
+  label: string;
+  markdown: string;
+  html: string;
+}
+
 interface DocumentType {
   id: string;
   name: string;
@@ -679,6 +698,19 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <button type="button" (click)="insertCode()" title="Código">&lt;&gt;</button>
                             <button type="button" (click)="insertCodeBlock()" title="Bloque de código">{{ '{}' }}</button>
                             <div class="divider"></div>
+                            <label for="editorBlockTemplate" class="block text-sm font-medium text-secondary">Bloques</label>
+                            <select
+                              id="editorBlockTemplate"
+                              class="w-full px-3 py-2 rounded border border-soft bg-secondary text-primary text-sm"
+                              (change)="insertEditorBlockFromSelect($event)"
+                              title="Insertar bloque predefinido"
+                            >
+                              <option value="">Insertar bloque...</option>
+                              @for (block of editorBlockTemplates; track block.id) {
+                                <option [value]="block.id">{{ block.label }}</option>
+                              }
+                            </select>
+                            <div class="divider"></div>
                             <div class="space-y-2">
                               <label for="textColorPicker" class="block text-sm font-medium text-secondary">Color de texto</label>
                               <div class="flex items-center gap-2">
@@ -1168,6 +1200,138 @@ export class DocumentCreateEditorComponent implements OnInit {
   documentMutedColor = '#475569';
   documentAccentColor = '#2563eb';
   documentBorderColor = '#e2e8f0';
+  readonly editorBlockTemplates: EditorBlockTemplate[] = [
+    {
+      id: 'paragraph',
+      label: 'Párrafo',
+      markdown: `\n\n[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]\n`,
+      html: `<p>[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]</p>`,
+    },
+    {
+      id: 'section',
+      label: 'Sección completa',
+      markdown: `\n\n## [Título de la sección]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
+      html: `<section class="section card">
+  <h2>[Título de la sección]</h2>
+  <p><strong>Objetivo:</strong> [Describe el objetivo]</p>
+  <p><strong>Detalle:</strong> [Explica los puntos principales]</p>
+  <p><strong>Resultado esperado:</strong> [Indica el resultado]</p>
+</section>`,
+    },
+    {
+      id: 'key-value',
+      label: 'Datos clave',
+      markdown: `\n\n| Campo | Valor |\n|---|---|\n| Proyecto | [Nombre del proyecto] |\n| Cliente | [Nombre del cliente] |\n| Fecha | [Fecha] |\n| Responsable | [Nombre] |\n`,
+      html: `<table class="doc-table metadata-grid">
+  <tbody>
+    <tr><th>Proyecto</th><td>[Nombre del proyecto]</td></tr>
+    <tr><th>Cliente</th><td>[Nombre del cliente]</td></tr>
+    <tr><th>Fecha</th><td>[Fecha]</td></tr>
+    <tr><th>Responsable</th><td>[Nombre]</td></tr>
+  </tbody>
+</table>`,
+    },
+    {
+      id: 'simple-table',
+      label: 'Tabla simple',
+      markdown: `\n\n| Columna 1 | Columna 2 | Columna 3 |\n|---|---|---|\n| [Dato] | [Dato] | [Dato] |\n| [Dato] | [Dato] | [Dato] |\n`,
+      html: `<table class="doc-table">
+  <thead><tr><th>Columna 1</th><th>Columna 2</th><th>Columna 3</th></tr></thead>
+  <tbody>
+    <tr><td>[Dato]</td><td>[Dato]</td><td>[Dato]</td></tr>
+    <tr><td>[Dato]</td><td>[Dato]</td><td>[Dato]</td></tr>
+  </tbody>
+</table>`,
+    },
+    {
+      id: 'timeline',
+      label: 'Cronograma / hitos',
+      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripción | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Diseño aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
+      html: `<section class="section">
+  <h2>Cronograma e hitos</h2>
+  <table class="doc-table timeline-table">
+    <thead><tr><th>Hito</th><th>Descripción</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
+    <tbody>
+      <tr><td>Hito 1</td><td>Inicio del proyecto</td><td>[Fecha]</td><td>-</td></tr>
+      <tr><td>Hito 2</td><td>Diseño aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
+      <tr><td>Hito 3</td><td>Entrega final</td><td>[Fecha]</td><td>Hito 2</td></tr>
+    </tbody>
+  </table>
+</section>`,
+    },
+    {
+      id: 'budget',
+      label: 'Presupuesto',
+      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| Análisis y diseño | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
+      html: `<section class="section">
+  <h2>Presupuesto estimado</h2>
+  <table class="doc-table budget-table">
+    <thead><tr><th>Concepto</th><th>Horas</th><th>Coste unitario</th><th>Importe</th></tr></thead>
+    <tbody>
+      <tr><td>Análisis y diseño</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td>Desarrollo</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td>Pruebas</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>[EUR]</strong></td></tr>
+    </tbody>
+  </table>
+</section>`,
+    },
+    {
+      id: 'risks',
+      label: 'Riesgos',
+      markdown: `\n\n## Riesgos y mitigación\n\n| Riesgo | Impacto | Probabilidad | Mitigación |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n`,
+      html: `<section class="section">
+  <h2>Riesgos y mitigación</h2>
+  <table class="doc-table risk-table">
+    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigación</th></tr></thead>
+    <tbody>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
+    </tbody>
+  </table>
+</section>`,
+    },
+    {
+      id: 'approvals',
+      label: 'Aprobaciones',
+      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobación funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega técnica |\n`,
+      html: `<section class="section">
+  <h2>Aprobaciones</h2>
+  <table class="doc-table approvals-table">
+    <thead><tr><th>Rol</th><th>Nombre</th><th>Responsabilidad</th></tr></thead>
+    <tbody>
+      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobación funcional</td></tr>
+      <tr><td>QA</td><td>[Nombre]</td><td>Pruebas y calidad</td></tr>
+      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega técnica</td></tr>
+    </tbody>
+  </table>
+</section>`,
+    },
+    {
+      id: 'callout',
+      label: 'Nota destacada',
+      markdown: `\n\n> **Nota:** [Incluye aquí una advertencia, decisión importante o recomendación.]\n`,
+      html: `<aside class="callout">
+  <strong>Nota:</strong> [Incluye aquí una advertencia, decisión importante o recomendación.]
+</aside>`,
+    },
+    {
+      id: 'signatures',
+      label: 'Firmas',
+      markdown: `\n\n## Firmas\n\n| Aprobado por | Nombre | Fecha |\n|---|---|---|\n| Cliente | [Nombre] | [Fecha] |\n| Proveedor | [Nombre] | [Fecha] |\n`,
+      html: `<section class="section signature-grid">
+  <h2>Firmas</h2>
+  <div class="signature-card">
+    <strong>[Nombre Cliente]</strong>
+    <span>Fecha: [Fecha]</span>
+  </div>
+  <div class="signature-card">
+    <strong>[Nombre Proveedor]</strong>
+    <span>Fecha: [Fecha]</span>
+  </div>
+</section>`,
+    },
+  ];
 
   templates: DocumentTemplate[] = [];
   private readonly templatesService = inject(TemplatesRegistryService);
@@ -1965,6 +2129,62 @@ ${html}
 
   private isCorporateCoverEnabled(): boolean {
     return this.selectedQuickStylePreset === 'corporate';
+  }
+
+  insertEditorBlockFromSelect(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const templateId = select.value as EditorBlockTemplateId;
+    select.value = '';
+    if (!templateId) {
+      return;
+    }
+
+    const template = this.editorBlockTemplates.find(
+      (block) => block.id === templateId,
+    );
+    if (!template) {
+      return;
+    }
+
+    const snippet =
+      this.contentEditorMode === 'html' ? template.html : template.markdown;
+    this.insertEditorSnippet(snippet);
+  }
+
+  private insertEditorSnippet(snippet: string): void {
+    const textarea = document.querySelector(
+      'textarea[formControlName="content"]',
+    ) as HTMLTextAreaElement;
+    const content = String(this.documentForm.get('content')?.value ?? '');
+
+    if (!textarea) {
+      const separator = content.trim() ? '\n\n' : '';
+      this.documentForm.patchValue({ content: `${content}${separator}${snippet}` });
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+      return;
+    }
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = content.substring(0, start);
+    const after = content.substring(end);
+    const prefix = before && !before.endsWith('\n') ? '\n\n' : '';
+    const suffix = after && !snippet.endsWith('\n') ? '\n\n' : '';
+    const insert = `${prefix}${snippet}${suffix}`;
+
+    this.documentForm.patchValue({
+      content: `${before}${insert}${after}`,
+    });
+    this.syncAssistantFromFormNow();
+
+    setTimeout(() => {
+      textarea.focus();
+      const cursor = start + insert.length;
+      textarea.selectionStart = cursor;
+      textarea.selectionEnd = cursor;
+      this.updatePreview();
+    }, 0);
   }
 
   insertMarkdown(before: string, after: string) {
