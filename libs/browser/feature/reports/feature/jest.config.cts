@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'reports-feature',
-  preset: '../../../../../../../jest.preset.js',
+  preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../../../coverage/libs/browser/feature/reports/feature',
+  coverageDirectory: '../../../../../coverage/libs/browser/feature/reports/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'budget-feature',
-  preset: '../../../../../../../jest.preset.js',
+  preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../../../coverage/libs/browser/feature/budget/feature',
+  coverageDirectory: '../../../../../coverage/libs/browser/feature/budget/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

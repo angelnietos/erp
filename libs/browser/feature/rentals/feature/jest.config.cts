@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'rentals-feature',
-  preset: '../../../../../../../jest.preset.js',
+  preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../../../coverage/libs/browser/feature/rentals/feature',
+  coverageDirectory: '../../../../../coverage/libs/browser/feature/rentals/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
