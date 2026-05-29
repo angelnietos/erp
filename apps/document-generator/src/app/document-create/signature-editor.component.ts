@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -447,6 +447,14 @@ const DEFAULT_SIGNATURE_CONFIG: SignatureConfig = {
 export class SignatureEditorComponent {
   config = signal<SignatureConfig>({ ...DEFAULT_SIGNATURE_CONFIG });
 
+  configChanged = output<SignatureConfig>();
+
+  @Input() set initialConfig(value: Partial<SignatureConfig> | undefined) {
+    if (value) {
+      this.setConfig(value);
+    }
+  }
+
   readonly layouts = [
     { id: 'horizontal' as const, label: 'Horizontal' },
     { id: 'vertical' as const, label: 'Vertical' },
@@ -454,11 +462,19 @@ export class SignatureEditorComponent {
   ];
 
   toggleEnabled(): void {
-    this.config.update((c) => ({ ...c, enabled: !c.enabled }));
+    this.config.update((c) => {
+      const next = { ...c, enabled: !c.enabled };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   update(partial: Partial<SignatureConfig>): void {
-    this.config.update((c) => ({ ...c, ...partial }));
+    this.config.update((c) => {
+      const next = { ...c, ...partial };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   getConfig(): SignatureConfig {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 
@@ -526,6 +526,14 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
 export class CoverEditorComponent {
   config = signal<CoverConfig>({ ...DEFAULT_COVER_CONFIG });
 
+  configChanged = output<CoverConfig>();
+
+  @Input() set initialConfig(value: Partial<CoverConfig> | undefined) {
+    if (value) {
+      this.setConfig(value);
+    }
+  }
+
   readonly layouts = [
     { id: 'centered' as const, label: 'Centrado' },
     { id: 'left-aligned' as const, label: 'Alineado Izq.' },
@@ -581,11 +589,19 @@ export class CoverEditorComponent {
   }
 
   toggleEnabled(): void {
-    this.config.update((c) => ({ ...c, enabled: !c.enabled }));
+    this.config.update((c) => {
+      const next = { ...c, enabled: !c.enabled };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   update(partial: Partial<CoverConfig>): void {
-    this.config.update((c) => ({ ...c, ...partial }));
+    this.config.update((c) => {
+      const next = { ...c, ...partial };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   getConfig(): CoverConfig {

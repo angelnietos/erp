@@ -1,4 +1,4 @@
-import { Component, signal, inject, viewChild, ElementRef, computed } from '@angular/core';
+import { Component, signal, inject, viewChild, ElementRef, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -399,6 +399,14 @@ const DEFAULT_CONFIG: HeaderFooterConfig = {
 export class HeaderFooterEditorComponent {
   config = signal<HeaderFooterConfig>({ ...DEFAULT_CONFIG });
 
+  configChanged = output<HeaderFooterConfig>();
+
+  @Input() set initialConfig(value: Partial<HeaderFooterConfig> | undefined) {
+    if (value) {
+      this.setConfig(value);
+    }
+  }
+
   readonly variables = [
     { code: '{page}', label: 'Número de página' },
     { code: '{total}', label: 'Total de páginas' },
@@ -430,11 +438,19 @@ export class HeaderFooterEditorComponent {
   }
 
   toggleEnabled(): void {
-    this.config.update((c) => ({ ...c, enabled: !c.enabled }));
+    this.config.update((c) => {
+      const next = { ...c, enabled: !c.enabled };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   update(partial: Partial<HeaderFooterConfig>): void {
-    this.config.update((c) => ({ ...c, ...partial }));
+    this.config.update((c) => {
+      const next = { ...c, ...partial };
+      this.configChanged.emit(next);
+      return next;
+    });
   }
 
   insertVariable(variableCode: string): void {

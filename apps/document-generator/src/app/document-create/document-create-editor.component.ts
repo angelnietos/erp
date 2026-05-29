@@ -873,43 +873,6 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 Escribe "/" en el editor para comandos rápidos
                               </p>
                             </div>
-                            @if (showCoverEditor && coverConfig) {
-                              <div class="divider"></div>
-                              <app-cover-editor
-                                #coverEditorRef
-                                class="block"
-                              ></app-cover-editor>
-                              <button type="button" class="w-full mt-2 px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors" (click)="insertCoverIntoDocument()">
-                                Añadir portada al documento
-                              </button>
-                            }
-                            @if (showSignatureEditor && signatureConfig) {
-                              <div class="divider"></div>
-                              <app-signature-editor
-                                #signatureEditorRef
-                              ></app-signature-editor>
-                              <button type="button" class="w-full mt-2 px-3 py-2 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition-colors" (click)="insertSignatureIntoDocument()">
-                                Añadir firmas al documento
-                              </button>
-                            }
-                            @if (showHeaderFooterEditor && headerFooterConfig) {
-                              <div class="divider"></div>
-                              <app-header-footer-editor
-                                #headerFooterEditorRef
-                              ></app-header-footer-editor>
-                            }
-                            @if (showTableBuilder) {
-                              <div class="divider"></div>
-                              <app-table-builder
-                                #tableBuilderRef
-                              ></app-table-builder>
-                            }
-                            @if (showImageInsert) {
-                              <div class="divider"></div>
-                              <app-image-insert
-                                #imageInsertRef
-                              ></app-image-insert>
-                            }
                           </div>
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
@@ -1285,6 +1248,124 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                 </div>
               </div>
             </form>
+
+            <!-- Centered High-End Glassmorphism Modal Wrapper -->
+            <div 
+              class="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-300"
+              [class.opacity-0]="!hasActiveModal()"
+              [class.pointer-events-none]="!hasActiveModal()"
+            >
+              <div 
+                class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 transform"
+                [class.scale-95]="!hasActiveModal()"
+                [class.scale-100]="hasActiveModal()"
+              >
+                <!-- Modal Header -->
+                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                  <div>
+                    <h2 class="text-base font-bold text-slate-800">
+                      @if (showCoverEditor) { Portada del Documento }
+                      @else if (showSignatureEditor) { Bloque de Firmas }
+                      @else if (showHeaderFooterEditor) { Encabezado y Pie de Página }
+                      @else if (showTableBuilder) { Constructor de Tablas }
+                      @else if (showImageInsert) { Insertar Imagen }
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      @if (showCoverEditor) { Personaliza la primera página de tu PDF con logo, títulos y fondos }
+                      @else if (showSignatureEditor) { Configura firmas para los responsables al final del documento }
+                      @else if (showHeaderFooterEditor) { Define la paginación y cabeceras de cada página }
+                      @else if (showTableBuilder) { Diseña y estructura tablas de datos visualmente }
+                      @else if (showImageInsert) { Sube y edita el diseño de imágenes en tu documento }
+                    </p>
+                  </div>
+                  <button type="button" class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" (click)="closeAllModals()">
+                    <span class="text-lg">✕</span>
+                  </button>
+                </div>
+
+                <!-- Modal Body (Scrollable) -->
+                <div class="flex-1 overflow-y-auto p-6 bg-slate-50/30">
+                  <!-- Cover Editor -->
+                  <div [class.hidden]="!showCoverEditor">
+                    <app-cover-editor
+                      #coverEditorRef
+                      class="block"
+                      [initialConfig]="coverConfig"
+                      (configChanged)="onCoverConfigChanged($event)"
+                    ></app-cover-editor>
+                    <div class="mt-4 flex justify-end gap-3">
+                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
+                        Cerrar
+                      </button>
+                      <button type="button" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors" (click)="insertCoverIntoDocument(); closeAllModals()">
+                        Insertar en Documento
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Signature Editor -->
+                  <div [class.hidden]="!showSignatureEditor">
+                    <app-signature-editor
+                      #signatureEditorRef
+                      [initialConfig]="signatureConfig"
+                      (configChanged)="onSignatureConfigChanged($event)"
+                    ></app-signature-editor>
+                    <div class="mt-4 flex justify-end gap-3">
+                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
+                        Cerrar
+                      </button>
+                      <button type="button" class="px-4 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors" (click)="insertSignatureIntoDocument(); closeAllModals()">
+                        Insertar en Documento
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Header/Footer Editor -->
+                  <div [class.hidden]="!showHeaderFooterEditor">
+                    <app-header-footer-editor
+                      #headerFooterEditorRef
+                      [initialConfig]="headerFooterConfig"
+                      (configChanged)="onHeaderFooterConfigChanged($event)"
+                    ></app-header-footer-editor>
+                    <div class="mt-4 flex justify-end">
+                      <button type="button" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors" (click)="closeAllModals()">
+                        Aceptar
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Table Builder -->
+                  <div [class.hidden]="!showTableBuilder">
+                    <app-table-builder
+                      #tableBuilderRef
+                    ></app-table-builder>
+                    <div class="mt-4 flex justify-end gap-3">
+                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
+                        Cancelar
+                      </button>
+                      <button type="button" class="px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors" (click)="insertTableFromBuilder(); closeAllModals()">
+                        Insertar Tabla
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Image Insert -->
+                  <div [class.hidden]="!showImageInsert">
+                    <app-image-insert
+                      #imageInsertRef
+                    ></app-image-insert>
+                    <div class="mt-4 flex justify-end gap-3">
+                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
+                        Cancelar
+                      </button>
+                      <button type="button" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors" (click)="insertImageFromUpload(); closeAllModals()">
+                        Insertar Imagen
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         }
     </div>
@@ -2111,7 +2192,20 @@ export class DocumentCreateEditorComponent implements OnInit {
         );
       }
     }
-    this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(this.previewHtmlMarkup);
+    let fullPreviewMarkup = this.previewHtmlMarkup;
+    if (this.coverConfig?.enabled) {
+      const coverHtml = this.coverEditor
+        ? this.coverEditor.exportToHtml()
+        : this.exportCoverConfigToHtml(this.coverConfig);
+      fullPreviewMarkup = coverHtml + '\n' + fullPreviewMarkup;
+    }
+    if (this.signatureConfig?.enabled) {
+      const signatureHtml = this.signatureEditor
+        ? this.signatureEditor.exportToHtml()
+        : this.exportSignatureConfigToHtml(this.signatureConfig);
+      fullPreviewMarkup = fullPreviewMarkup + '\n' + signatureHtml;
+    }
+    this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(fullPreviewMarkup);
 
     this.wordCount = content
       .split(/\s+/)
@@ -2260,16 +2354,26 @@ h2::after {
 
   private buildHtmlPreviewSrcdoc(html: string): string {
     const css = this.wrapLooseHtmlCss(this.htmlModeCss());
-    if (!css) {
-      return html;
+    let contentHtml = html;
+    if (this.coverConfig?.enabled) {
+      const coverHtml = this.coverEditor
+        ? this.coverEditor.exportToHtml()
+        : this.exportCoverConfigToHtml(this.coverConfig);
+      contentHtml = coverHtml + '\n' + contentHtml;
+    }
+    if (this.signatureConfig?.enabled) {
+      const signatureHtml = this.signatureEditor
+        ? this.signatureEditor.exportToHtml()
+        : this.exportSignatureConfigToHtml(this.signatureConfig);
+      contentHtml = contentHtml + '\n' + signatureHtml;
     }
 
     const styleTag = `<style id="document-generator-custom-css">\n${css}\n</style>`;
-    if (/<\/head>/i.test(html)) {
-      return html.replace(/<\/head>/i, `${styleTag}\n</head>`);
+    if (/<\/head>/i.test(contentHtml)) {
+      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
     }
-    if (/<html[\s>]/i.test(html)) {
-      return html.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
+    if (/<html[\s>]/i.test(contentHtml)) {
+      return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
     }
     return `<!doctype html>
 <html lang="es">
@@ -2278,9 +2382,77 @@ h2::after {
   ${styleTag}
 </head>
 <body>
-${html}
+${contentHtml}
 </body>
 </html>`;
+  }
+
+  private exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
+    if (!c || !c.enabled) return '';
+    const backgroundStyle =
+      c.backgroundType === 'gradient'
+        ? `background: linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo});`
+        : c.backgroundType === 'solid'
+          ? `background: ${c.backgroundColor};`
+          : c.backgroundImageUrl
+            ? `background: url('${c.backgroundImageUrl}') center/cover;`
+            : `background: ${c.backgroundColor};`;
+
+    return `
+<div class="pdf-cover" style="height: 100vh; ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
+  <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
+    ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Título'}</h1>
+    ${c.subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
+    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px'};"></div>` : ''}
+    <p style="font-size: 0.9rem; opacity: 0.85; color: ${c.textColor};">
+      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' · ')}
+    </p>
+  </div>
+</div>`;
+  }
+
+  private exportSignatureConfigToHtml(c: Partial<SignatureConfig>): string {
+    if (!c || !c.enabled) return '';
+    const signatureBlock = `
+<div style="text-align: center; ${c.layout === 'horizontal' ? 'flex: 1;' : ''}">
+  ${c.signatureImageUrl ? `<img src="${c.signatureImageUrl}" style="max-width: 150px; max-height: 60px; object-fit: contain; margin-bottom: 8px;" alt="Firma"/>` : ''}
+  ${c.showLine ? '<div style="border-top: 1px solid #374151; margin: 0 auto 8px; min-width: 180px;"></div>' : ''}
+  <div style="font-weight: 600; color: #111827; font-size: 0.95rem;">${c.name || 'Nombre del firmante'}</div>
+  ${c.title ? `<div style="color: #6b7280; font-size: 0.8rem;">${c.title}</div>` : ''}
+  ${c.company ? `<div style="color: #6b7280; font-size: 0.8rem;">${c.company}</div>` : ''}
+  <div style="color: #9ca3af; font-size: 0.75rem; margin-top: 8px;">
+    ${[c.showLocation && c.location ? c.location : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(', ')}
+  </div>
+</div>`;
+
+    if (c.layout === 'horizontal') {
+      return `
+<div class="pdf-signatures" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+  <div style="display: flex; justify-content: space-between; gap: 40px;">
+    ${signatureBlock}
+    ${signatureBlock}
+  </div>
+</div>`;
+    }
+
+    if (c.layout === 'vertical') {
+      return `
+<div class="pdf-signatures" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e7eb; text-align: center;">
+  ${signatureBlock}
+</div>`;
+    }
+
+    return `
+<div class="pdf-signatures" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+    ${signatureBlock}
+    <div style="text-align: right; font-size: 0.75rem; color: #9ca3af;">
+      ${c.showLocation && c.location ? `<div>${c.location}</div>` : ''}
+      ${c.showDate && c.date ? `<div>${c.date}</div>` : ''}
+    </div>
+  </div>
+</div>`;
   }
 
   private stripWrappingHtmlFence(content: string): string {
@@ -2708,6 +2880,37 @@ ${html}
       event.preventDefault();
       this.showSlashCommands = false;
     }
+  }
+
+  onCoverConfigChanged(config: CoverConfig): void {
+    this.coverConfig = config;
+    this.updatePreview();
+  }
+
+  onSignatureConfigChanged(config: SignatureConfig): void {
+    this.signatureConfig = config;
+    this.updatePreview();
+  }
+
+  onHeaderFooterConfigChanged(config: HeaderFooterConfig): void {
+    this.headerFooterConfig = config;
+    this.updatePreview();
+  }
+
+  hasActiveModal(): boolean {
+    return this.showCoverEditor || 
+           this.showSignatureEditor || 
+           this.showHeaderFooterEditor || 
+           this.showTableBuilder || 
+           this.showImageInsert;
+  }
+
+  closeAllModals(): void {
+    this.showCoverEditor = false;
+    this.showSignatureEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showTableBuilder = false;
+    this.showImageInsert = false;
   }
 
   toggleCoverEditor(): void {
