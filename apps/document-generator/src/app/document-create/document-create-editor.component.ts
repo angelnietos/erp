@@ -3776,6 +3776,7 @@ blockquote {
   applyCustomCss(): void {
     const styleEl = document.getElementById('custom-editor-css') || this.createCustomStyleEl();
     styleEl.textContent = this.documentPreviewCss();
+    this.updatePreview();
   }
 
   private pdfExportCustomCss(): string {
@@ -4306,3 +4307,4 @@ if (format === 'pdf') {
     }
   }
 }
+
