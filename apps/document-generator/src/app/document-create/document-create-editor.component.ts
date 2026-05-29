@@ -979,14 +979,83 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 <option value="compact">Compacto</option>
                                 <option value="large">Texto grande</option>
                               </select>
-                                @if (showImageInsert) {
-                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
-                                }
-                              </button>
-                              <p class="text-[11px] text-muted leading-snug mt-2">
-                                Escribe "/" en el editor para comandos rápidos
-                              </p>
                             </div>
+                            <div style="padding:0 0.5rem 0.4rem">
+                              <div style="display:flex;align-items:center;gap:6px">
+                                <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(-0.05)">A-</button>
+                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tamaño base</div>
+                                <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(0.05)">A+</button>
+                              </div>
+                            </div>
+
+                            <div class="sidebar-divider"></div>
+
+                            <!-- ── HERRAMIENTAS PDF ────────────────────── -->
+                            <div class="sidebar-section-title">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                              PDF Pro
+                            </div>
+
+                            <button class="sidebar-action-btn" type="button" (click)="toggleCoverEditor()" style="width:100%;margin-bottom:4px">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                              <span>Portada</span>
+                              @if (showCoverEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
+                            </button>
+
+                            <button class="sidebar-action-btn" type="button" (click)="toggleHeaderFooterEditor()" style="width:100%;margin-bottom:4px">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="16" rx="2"/><path stroke-linecap="round" d="M3 10h18M7 4v16"/></svg>
+                              <span>Encabezado/Pie</span>
+                              @if (showHeaderFooterEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
+                            </button>
+
+                            <button class="sidebar-action-btn" type="button" (click)="toggleSignatureEditor()" style="width:100%;margin-bottom:4px">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                              <span>Firmas</span>
+                              @if (showSignatureEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
+                            </button>
+
+                            <button class="sidebar-action-btn" type="button" (click)="toggleTableBuilder()" style="width:100%;margin-bottom:4px">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+                              <span>Tabla virtual</span>
+                              @if (showTableBuilder) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
+                            </button>
+
+                            <button class="sidebar-action-btn" type="button" (click)="toggleImageInsert()" style="width:100%;margin-bottom:4px">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path stroke-linecap="round" d="M21 15l-5-5L5 21"/></svg>
+                              <span>Imagen</span>
+                              @if (showImageInsert) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
+                            </button>
+
+                            <div class="sidebar-divider"></div>
+
+                            <!-- ── PANEL DINÁMICO ──────────────────────── -->
+                            @if (showCoverEditor) {
+                              <app-cover-editor #coverEditorRef></app-cover-editor>
+                              <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#3b82f6;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertCoverIntoDocument()">+ Insertar portada</button>
+                              <div class="sidebar-divider"></div>
+                            }
+
+                            @if (showSignatureEditor) {
+                              <app-signature-editor #signatureEditorRef></app-signature-editor>
+                              <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#d97706;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertSignatureIntoDocument()">+ Insertar firmas</button>
+                              <div class="sidebar-divider"></div>
+                            }
+
+                            @if (showHeaderFooterEditor) {
+                              <app-header-footer-editor #headerFooterEditorRef></app-header-footer-editor>
+                              <div class="sidebar-divider"></div>
+                            }
+
+                            @if (showTableBuilder) {
+                              <app-table-builder #tableBuilderRef></app-table-builder>
+                              <div class="sidebar-divider"></div>
+                            }
+
+                            @if (showImageInsert) {
+                              <app-image-insert #imageInsertRef></app-image-insert>
+                              <div class="sidebar-divider"></div>
+                            }
+
                           </div>
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
