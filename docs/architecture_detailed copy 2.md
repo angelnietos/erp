@@ -4,6 +4,7 @@ graph TD
 
 A[Documento CAE entrada] --> B{Gateway validacion}
 
+
 B -->|Invalid| B1[Rechazo inmediato]
 B -->|Valid| C[Guardar RAW en Blob Storage]
 
