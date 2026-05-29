@@ -564,15 +564,16 @@ export class PdfGenerationService {
           .pdf-body-content tr:nth-child(even) td { background-color: #f8fafc; }
           img { max-width: 100%; height: auto; page-break-inside: avoid; }
 
-          .pdf-cover-page {
+          .pdf-cover, .pdf-cover-page {
         page-break-after: always;
         display: flex;
         align-items: center;
         justify-content: center;
         padding: 60px;
-        box-sizing: border-box;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
-      .pdf-cover-page h1 {
+      .pdf-cover h1, .pdf-cover-page h1 {
         font-size: 2.5rem;
         font-weight: 800;
         margin: 0 0 16px;
@@ -685,7 +686,7 @@ ${this.getPdfPaginationCss()}
   private stylePresetCssForPdf(preset: string): string {
     const presets: Record<string, string> = {
       corporate: `
-.markdown-preview h1 {
+.markdown-preview h1, .pdf-cover h1, .pdf-cover-page h1 {
   font-size: clamp(2.25rem, 4vw, 3rem);
   font-weight: 850;
   color: #111827;
@@ -721,14 +722,14 @@ ${this.getPdfPaginationCss()}
 }
 `,
       compact: `
-.markdown-preview h1 { font-size: 1.8rem; margin: 1rem 0 0.6rem; }
+.markdown-preview h1, .pdf-cover h1, .pdf-cover-page h1 { font-size: 1.8rem; margin: 1rem 0 0.6rem; }
 .markdown-preview h2 { font-size: 1.35rem; margin: 0.85rem 0 0.45rem; }
 .markdown-preview h3 { font-size: 1.1rem; margin: 0.7rem 0 0.35rem; }
 .markdown-preview p, .markdown-preview ul, .markdown-preview ol, .markdown-preview table { margin-top: 0.5rem; margin-bottom: 0.5rem; }
 .markdown-preview th, .markdown-preview td { padding: 0.4rem 0.55rem; }
 `,
       large: `
-.markdown-preview h1 { font-size: clamp(2.5rem, 5vw, 3.35rem); }
+.markdown-preview h1, .pdf-cover h1, .pdf-cover-page h1 { font-size: clamp(2.5rem, 5vw, 3.35rem); }
 .markdown-preview h2 { font-size: clamp(1.85rem, 3vw, 2.35rem); }
 .markdown-preview h3 { font-size: 1.55rem; }
 .markdown-preview th, .markdown-preview td { padding: 0.8rem 1rem; }
@@ -1261,4 +1262,7 @@ ${this.getPdfPaginationCss()}
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 }
+
+
+
 
