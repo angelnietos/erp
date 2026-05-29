@@ -1,8 +1,10 @@
-import { TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JosanzSettingsPlaceholderComponent } from './josanz-settings-placeholder.component';
 import { provideRouter, ActivatedRoute } from '@angular/router';
 
 describe('JosanzSettingsPlaceholderComponent', () => {
+  let fixture: ComponentFixture<JosanzSettingsPlaceholderComponent>;
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [JosanzSettingsPlaceholderComponent],
@@ -10,14 +12,30 @@ describe('JosanzSettingsPlaceholderComponent', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: { snapshot: { data: {} } },
+          useValue: {
+            snapshot: {
+              data: {},
+              queryParamMap: {
+                get: jest.fn(),
+              },
+            },
+          },
         },
       ],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(JosanzSettingsPlaceholderComponent);
   });
 
   it('should create', () => {
-    const fixture = TestBed.createComponent(JosanzSettingsPlaceholderComponent);
     expect(fixture.componentInstance).toBeTruthy();
+  });
+
+  describe('template', () => {
+    it('should render app-settings-page component', () => {
+      fixture.detectChanges();
+      const settingsPage = fixture.nativeElement.querySelector('josanz-app-settings-page');
+      expect(settingsPage).toBeTruthy();
+    });
   });
 });

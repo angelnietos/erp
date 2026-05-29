@@ -38,4 +38,10 @@ describe('Josanz auth guards integration', () => {
 
     expect(serializeGuardResult(result)).toBe('/dashboard');
   });
+
+  it('allows anonymous users through guest guard', () => {
+    const result = runCanActivateGuard(josanzGuestGuard);
+
+    expect(serializeGuardResult(result)).toBe(true);
+  });
 });
