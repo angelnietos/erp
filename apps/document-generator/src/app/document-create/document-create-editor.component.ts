@@ -1030,19 +1030,31 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                             <!-- ── PANEL DINÁMICO ──────────────────────── -->
                             @if (showCoverEditor) {
-                              <app-cover-editor #coverEditorRef></app-cover-editor>
+                              <app-cover-editor
+                                #coverEditorRef
+                                [initialConfig]="coverConfig"
+                                (configChanged)="onCoverConfigChange($event)"
+                              ></app-cover-editor>
                               <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#3b82f6;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertCoverIntoDocument()">+ Insertar portada</button>
                               <div class="sidebar-divider"></div>
                             }
 
                             @if (showSignatureEditor) {
-                              <app-signature-editor #signatureEditorRef></app-signature-editor>
+                              <app-signature-editor
+                                #signatureEditorRef
+                                [initialConfig]="signatureConfig"
+                                (configChanged)="onSignatureConfigChange($event)"
+                              ></app-signature-editor>
                               <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#d97706;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertSignatureIntoDocument()">+ Insertar firmas</button>
                               <div class="sidebar-divider"></div>
                             }
 
                             @if (showHeaderFooterEditor) {
-                              <app-header-footer-editor #headerFooterEditorRef></app-header-footer-editor>
+                              <app-header-footer-editor
+                                #headerFooterEditorRef
+                                [initialConfig]="headerFooterConfig"
+                                (configChanged)="onHeaderFooterConfigChange($event)"
+                              ></app-header-footer-editor>
                               <div class="sidebar-divider"></div>
                             }
 
@@ -1604,9 +1616,12 @@ export class DocumentCreateEditorComponent implements OnInit {
   slashMenuPosition = { x: 0, y: 0 };
   activeSidebarTab: 'styles' | 'blocks' | 'advanced' = 'blocks';
 
-  coverConfig: Partial<CoverConfig> = {};
-  signatureConfig: Partial<SignatureConfig> = {};
-  headerFooterConfig: Partial<HeaderFooterConfig> = {};
+  coverPanelEnabled = false;
+  signaturePanelEnabled = false;
+  headerFooterPanelEnabled = false;
+  coverConfig: Partial<CoverConfig> = { enabled: false };
+  signatureConfig: Partial<SignatureConfig> = { enabled: false };
+  headerFooterConfig: Partial<HeaderFooterConfig> = { enabled: false };
 
   @ViewChild(CoverEditorComponent) coverEditor!: CoverEditorComponent;
   @ViewChild(SignatureEditorComponent) signatureEditor!: SignatureEditorComponent;
@@ -2376,22 +2391,33 @@ export class DocumentCreateEditorComponent implements OnInit {
       }
     }
     let fullPreviewMarkup = this.previewHtmlMarkup;
-    if (this.coverConfig?.enabled) {
-      const coverHtml = this.coverEditor
-        ? this.coverEditor.exportToHtml()
-        : this.exportCoverConfigToHtml(this.coverConfig);
-      fullPreviewMarkup = coverHtml + '\n' + fullPreviewMarkup;
+    if (this.coverPanelEnabled || this.coverConfig?.enabled) {
+      let coverHtml = '';
+      if (this.coverEditor) {
+        coverHtml = this.coverEditor.exportToHtml();
+      } else if (this.coverConfig?.enabled) {
+        coverHtml = this.exportCoverConfigToHtml(this.coverConfig) || '';
+      }
+      if (coverHtml) {
+        fullPreviewMarkup = coverHtml + '\n' + fullPreviewMarkup;
+      }
     }
-    if (this.headerFooterConfig?.enabled) {
-      const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
-      const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+    if (this.headerFooterPanelEnabled || this.headerFooterConfig?.enabled) {
+      const hfConfig = this.headerFooterEditor?.getConfig() || this.headerFooterConfig;
+      const headerHtml = this.exportHeaderFooterConfigToHtml(hfConfig, 'header');
+      const footerHtml = this.exportHeaderFooterConfigToHtml(hfConfig, 'footer');
       fullPreviewMarkup = headerHtml + '\n' + fullPreviewMarkup + '\n' + footerHtml;
     }
-    if (this.signatureConfig?.enabled) {
-      const signatureHtml = this.signatureEditor
-        ? this.signatureEditor.exportToHtml()
-        : this.exportSignatureConfigToHtml(this.signatureConfig);
-      fullPreviewMarkup = fullPreviewMarkup + '\n' + signatureHtml;
+    if (this.signaturePanelEnabled || this.signatureConfig?.enabled) {
+      let signatureHtml = '';
+      if (this.signatureEditor) {
+        signatureHtml = this.signatureEditor.exportToHtml();
+      } else if (this.signatureConfig?.enabled) {
+        signatureHtml = this.exportSignatureConfigToHtml(this.signatureConfig);
+      }
+      if (signatureHtml) {
+        fullPreviewMarkup = fullPreviewMarkup + '\n' + signatureHtml;
+      }
     }
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(fullPreviewMarkup);
 
@@ -3140,6 +3166,24 @@ ${contentHtml}
     this.showHeaderFooterEditor = false;
     this.showTableBuilder = false;
     this.showImageInsert = false;
+  }
+
+  onCoverConfigChange(config: CoverConfig): void {
+    this.coverConfig = config;
+    this.coverPanelEnabled = config.enabled;
+    this.updatePreview();
+  }
+
+  onSignatureConfigChange(config: SignatureConfig): void {
+    this.signatureConfig = config;
+    this.signaturePanelEnabled = config.enabled;
+    this.updatePreview();
+  }
+
+  onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
+    this.headerFooterConfig = config;
+    this.headerFooterPanelEnabled = config.enabled;
+    this.updatePreview();
   }
 
   toggleCoverEditor(): void {
