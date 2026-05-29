@@ -100,159 +100,309 @@ interface DocumentType {
   styles: [
     `
       @keyframes float {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-8px);
-        }
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
       }
-
       @keyframes slide-up {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+        from { opacity: 0; transform: translateY(16px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.6; transform: scale(1.35); }
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
       }
 
-      .animate-float {
-        animation: float 3s ease-in-out infinite;
-      }
+      .animate-float  { animation: float 3s ease-in-out infinite; }
+      .animate-slide-up { animation: slide-up 0.45s cubic-bezier(.22,.68,0,1.2) both; }
+      .brand-gradient { background: linear-gradient(135deg, var(--brand), var(--brand-surface)); }
 
-      .animate-slide-up {
-        animation: slide-up 0.5s ease-out forwards;
-      }
-
-      .brand-gradient {
-        background: linear-gradient(135deg, var(--brand), var(--brand-surface));
-      }
-
-      /* Tarjeta seleccionada: se apoya en variables de tema heredadas de forma natural */
-
-      /* CTA principal: fondo de marca vibrante + texto blanco (contraste premium y garantizado en cualquier tema) */
+      /* ─── CTA Primary ────────────────────────────────────── */
       .footer-cta-primary {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        min-height: 3rem;
-        padding: 0.75rem 1.25rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.875rem;
-        line-height: 1.3;
-        color: #ffffff !important;
-        border: none;
-        cursor: pointer;
-        background: linear-gradient(
-          135deg,
-          var(--brand) 0%,
-          color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
-        );
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 0.5rem; min-height: 3rem; padding: 0.75rem 1.25rem;
+        border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+        color: #fff !important; border: none; cursor: pointer;
+        background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 78%, #0f172a) 100%);
         box-shadow: 0 10px 28px color-mix(in srgb, var(--brand) 38%, transparent);
-        transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+        transition: transform .2s, box-shadow .2s, filter .2s;
       }
+      .footer-cta-primary:hover:not(:disabled) { filter: brightness(1.07); transform: translateY(-1px); }
+      .footer-cta-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+      .footer-cta-primary svg { color:#fff !important; stroke:#fff !important; }
 
-      .footer-cta-primary:hover:not(:disabled) {
-        filter: brightness(1.06);
-        transform: translateY(-1px);
-      }
-
-      .footer-cta-primary:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-      }
-
-      .footer-cta-primary svg {
-        color: #ffffff !important;
-        stroke: #ffffff !important;
-      }
-
-      /* Guardar borrador: botón secundario adaptativo */
+      /* ─── Save Draft ─────────────────────────────────────── */
       .footer-save-draft {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        min-height: 3rem;
-        padding: 0.75rem 1.1rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 0.875rem;
-        line-height: 1.3;
-        color: var(--text-primary) !important;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-sm);
-        cursor: pointer;
-        transition:
-          background var(--transition-fast),
-          border-color var(--transition-fast),
-          box-shadow var(--transition-fast);
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 0.45rem; min-height: 3rem; padding: 0.75rem 1.1rem;
+        border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+        color: var(--text-primary) !important; background: var(--bg-secondary);
+        border: 1px solid var(--border-soft); cursor: pointer;
+        transition: background .15s, border-color .15s, box-shadow .15s;
       }
+      .footer-save-draft:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-vibrant); }
+      .footer-save-draft:disabled { opacity:.5; cursor:not-allowed; }
 
-      .footer-save-draft:hover:not(:disabled) {
-        background: var(--surface-hover);
-        border-color: var(--border-vibrant);
-        box-shadow: var(--shadow-md);
-      }
-
-      .footer-save-draft:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .action-bar-panel {
-        box-shadow: none;
-      }
-
-      /* Editor split and left sidebar for toolbar */
+      /* ─── Editor Layout ──────────────────────────────────── */
       .document-editor-split {
         display: grid;
-        grid-template-columns: 14rem 1fr 1fr;
+        grid-template-columns: 15rem 1fr 1fr;
         gap: 1rem;
         align-items: start;
       }
 
+      /* ─── Sidebar Premium ────────────────────────────────── */
       .document-editor-sidebar {
         background: var(--bg-secondary, #f8fafc);
-        border: 1px solid var(--border-soft, #e6e6e6);
-        padding: 0.75rem;
-        border-radius: 12px;
+        border: 1px solid var(--border-soft, #e2e8f0);
+        border-radius: 14px;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
-        min-height: 240px;
+        gap: 0;
+        min-height: 300px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,.05);
       }
 
-      .document-editor-sidebar button {
+      /* Section headers inside sidebar */
+      .sidebar-section-title {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
+        padding: 0.5rem 0.75rem 0.3rem;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: .07em;
+        text-transform: uppercase;
+        color: var(--text-muted, #94a3b8);
+        user-select: none;
+      }
+
+      /* Format buttons grid (B I H1 H2 H3 etc) */
+      .sidebar-format-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        gap: 3px;
+        padding: 0.25rem 0.5rem 0.5rem;
+      }
+
+      .sidebar-format-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 0.4rem 0.2rem;
+        border-radius: 8px;
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--text-secondary, #475569);
+        transition: background .12s, border-color .12s, color .12s;
+        white-space: nowrap;
+      }
+      .sidebar-format-btn:hover {
+        background: var(--surface-hover, #f1f5f9);
+        border-color: var(--border-soft, #e2e8f0);
+        color: var(--brand, #2563eb);
+      }
+      .sidebar-format-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+      /* Wide action buttons (full-width) */
+      .sidebar-action-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.48rem 0.75rem;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+        font-size: 0.78rem;
+        color: var(--text-primary, #1e293b);
+        transition: background .12s;
+        text-align: left;
+        width: 100%;
+      }
+      .sidebar-action-btn:hover {
+        background: var(--surface-hover, #f1f5f9);
+      }
+      .sidebar-action-btn svg { width:15px; height:15px; flex-shrink:0; color:var(--text-muted, #64748b); }
+      .sidebar-action-btn:hover svg { color:var(--brand, #2563eb); }
+
+      /* PDF Tool card buttons */
+      .sidebar-tool-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
         padding: 0.5rem 0.75rem;
-        border-radius: 10px;
         background: transparent;
         border: none;
         cursor: pointer;
+        font-size: 0.78rem;
+        color: var(--text-primary, #1e293b);
+        transition: background .12s;
         text-align: left;
-        transition: background 0.12s ease;
+        width: 100%;
+        position: relative;
+      }
+      .sidebar-tool-btn:hover { background: var(--surface-hover, #f1f5f9); }
+      .sidebar-tool-btn.active {
+        background: linear-gradient(90deg, #eff6ff 0%, #f8fafc 100%);
+        color: #1d4ed8;
+      }
+      .sidebar-tool-btn.active .tool-icon { color: #2563eb; }
+
+      .tool-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+        width: 22px;
+        text-align: center;
       }
 
-      .document-editor-sidebar button:hover {
-        background: var(--surface-hover, #f1f5f9);
+      /* Active dot indicator */
+      .active-dot {
+        display: inline-block;
+        width: 7px; height: 7px;
+        border-radius: 50%;
+        background: #22c55e;
+        margin-left: auto;
+        flex-shrink: 0;
+        animation: pulse-dot 1.8s ease-in-out infinite;
       }
 
-      .document-editor-sidebar .divider {
+      .sidebar-divider {
         height: 1px;
-        background: var(--border-soft, #e6e6e6);
-        margin: 0.25rem 0;
+        background: var(--border-soft, #e2e8f0);
+        margin: 0.1rem 0;
+      }
+
+      /* ─── Editor Column Bar (inline toolbar) ─────────────── */
+      .document-editor-column__bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.75rem;
+        background: var(--bg-secondary, #f8fafc);
+        border: 1px solid var(--border-soft, #e2e8f0);
+        border-radius: 10px 10px 0 0;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--text-muted, #64748b);
+        flex-wrap: wrap;
+        min-height: 2.6rem;
+      }
+
+      /* Inline format toolbar inside the bar */
+      .editor-inline-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        background: var(--bg-surface, #fff);
+        border: 1px solid var(--border-soft, #e2e8f0);
+        border-radius: 8px;
+        padding: 2px;
+      }
+      .editor-inline-toolbar button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px; height: 28px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--text-secondary, #475569);
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: background .1s, color .1s;
+      }
+      .editor-inline-toolbar button:hover {
+        background: var(--surface-hover, #f1f5f9);
+        color: var(--brand, #2563eb);
+      }
+      .editor-inline-toolbar button svg { width: 13px; height: 13px; }
+      .editor-inline-toolbar .tb-sep {
+        width: 1px; height: 16px;
+        background: var(--border-soft, #e2e8f0);
+        margin: 0 2px;
+      }
+
+      /* Mode toggle pills */
+      .mode-toggle {
+        display: inline-flex;
+        border-radius: 8px;
+        border: 1px solid var(--border-soft, #e2e8f0);
+        background: var(--bg-secondary, #f8fafc);
+        padding: 2px;
+        margin-left: auto;
+      }
+      .mode-toggle button {
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--text-muted, #64748b);
+        transition: background .12s, color .12s;
+      }
+      .mode-toggle button.active {
+        background: var(--bg-surface, #fff);
+        color: var(--brand, #2563eb);
+        box-shadow: 0 1px 3px rgba(0,0,0,.08);
+      }
+
+      /* Fullscreen toggle */
+      .fullscreen-btn {
+        display: flex; align-items: center; gap: 0.3rem;
+        padding: 3px 8px; border-radius: 6px; border: none;
+        background: transparent; cursor: pointer;
+        font-size: 0.72rem; color: var(--text-muted, #64748b);
+        transition: color .12s;
+      }
+      .fullscreen-btn:hover { color: var(--brand, #2563eb); }
+      .fullscreen-btn svg { width: 12px; height: 12px; }
+
+      /* Word count badge */
+      .editor-stats {
+        font-size: 0.68rem;
+        color: var(--text-muted, #94a3b8);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+      }
+
+      /* ─── Preview badge ──────────────────────────────────── */
+      .document-editor-column--preview .document-editor-column__bar {
+        background: linear-gradient(90deg, #ecfdf5 0%, #f8fafc 100%);
+        border-color: #bbf7d0;
+        color: #166534;
+      }
+
+      /* A4 paper shadow on preview */
+      .document-preview-pane {
+        box-shadow: 0 4px 24px rgba(0,0,0,.09), 0 1px 3px rgba(0,0,0,.06);
+      }
+
+      /* ─── Stats in sidebar ───────────────────────────────── */
+      .sidebar-stats {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.68rem;
+        color: var(--text-muted, #94a3b8);
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .sidebar-stats .saved-badge {
+        color: #16a34a;
+        font-weight: 600;
+        animation: fade-in .3s ease;
       }
     `,
   ],
@@ -704,167 +854,131 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
  
                       @if (!fullscreenMode) {
                         <div class="document-editor-split">
-                          <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
-                            <button type="button" (click)="insertMarkdown('**', '**')" title="Negrita (Ctrl+B)">
-                              <strong>B</strong>
-                              <span class="ml-2">Negrita</span>
-                            </button>
-                            <button type="button" (click)="insertMarkdown('*', '*')" title="Cursiva (Ctrl+I)">
-                              <em>I</em>
-                              <span class="ml-2">Cursiva</span>
-                            </button>
-                            <div class="divider"></div>
-                            <button type="button" (click)="insertMarkdown('# ', '')" title="Encabezado 1">H1</button>
-                            <button type="button" (click)="insertMarkdown('## ', '')" title="Encabezado 2">H2</button>
-                            <button type="button" (click)="insertMarkdown('### ', '')" title="Encabezado 3">H3</button>
-                            <div class="divider"></div>
-                            <button type="button" (click)="insertMarkdown('- ', '')" title="Lista">• Lista</button>
-                            <button type="button" (click)="insertMarkdown('> ', '')" title="Cita">" Cita</button>
-                            <button type="button" (click)="insertCode()" title="Código">&lt;&gt;</button>
-                            <button type="button" (click)="insertCodeBlock()" title="Bloque de código">{{ '{}' }}</button>
-                            <div class="divider"></div>
-                            <div class="space-y-2">
-                              <label for="selectedTextFormat" class="block text-sm font-medium text-secondary">Formato selección</label>
-                              <select
-                                id="selectedTextFormat"
-                                [(ngModel)]="selectedTextFormat"
-                                [ngModelOptions]="{ standalone: true }"
-                                class="w-full px-3 py-2 rounded border border-soft bg-secondary text-primary text-sm"
-                                title="Formato que se aplicará al texto seleccionado"
-                              >
-                                @for (format of selectedTextFormats; track format.id) {
-                                  <option [value]="format.id">{{ format.label }}</option>
+                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
+
+                            <!-- ── FORMATO ─────────────────────────────── -->
+                            <div class="sidebar-section-title">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                              Formato
+                            </div>
+                            <div class="sidebar-format-grid">
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('**','**')" title="Negrita (Ctrl+B)">
+                                <strong style="font-size:13px">B</strong>
+                                <span>Neg.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('*','*')" title="Cursiva (Ctrl+I)">
+                                <em style="font-size:13px">I</em>
+                                <span>Cur.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('~~','~~')" title="Tachado">
+                                <span style="font-size:12px;text-decoration:line-through">S</span>
+                                <span>Tach.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="Código inline">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                <span>Cód.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="Título H1">
+                                <span style="font-size:11px;font-weight:800">H1</span>
+                                <span>Tít.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subtítulo H2">
+                                <span style="font-size:11px;font-weight:700">H2</span>
+                                <span>Sub.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('### ','')" title="Encabezado H3">
+                                <span style="font-size:11px;font-weight:600">H3</span>
+                                <span>Enc.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('> ','')" title="Cita">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10.5h.01M12 10.5h.01M16 10.5h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                <span>Cita</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('- ','')" title="Lista">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                                <span>Lista</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('1. ','')" title="Lista numerada">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                <span>Núm.</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('[','](url)')" title="Enlace">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                <span>Link</span>
+                              </button>
+                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de código">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3"/></svg>
+                                <span>Blq.</span>
+                              </button>
+                            </div>
+
+                            <div class="sidebar-divider"></div>
+
+                            <!-- ── COLOR DE TEXTO ──────────────────────── -->
+                            <div class="sidebar-section-title">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h14a2 2 0 002-2v-4a2 2 0 00-2-2H7m0 6V9"/></svg>
+                              Color
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;padding:0 0.75rem 0.5rem">
+                              <input id="textColorPicker" type="color"
+                                [(ngModel)]="selectedTextColor" [ngModelOptions]="{standalone:true}"
+                                style="width:36px;height:30px;border-radius:6px;border:1px solid #e2e8f0;padding:2px;cursor:pointer"
+                                aria-label="Color de texto"/>
+                              <button class="sidebar-action-btn" style="flex:1;padding:0.3rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.73rem;background:#fff"
+                                type="button" (click)="applyTextColor()" [disabled]="contentEditorMode==='plain'" title="Aplicar color al texto seleccionado">
+                                Aplicar color
+                              </button>
+                            </div>
+
+                            <div class="sidebar-divider"></div>
+
+                            <!-- ── BLOQUES Y ACCIONES ──────────────────── -->
+                            <div class="sidebar-section-title">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                              Insertar
+                            </div>
+                            <div style="padding:0 0.5rem 0.4rem">
+                              <select id="editorBlockTemplate"
+                                style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
+                                (change)="insertEditorBlockFromSelect($event)" title="Insertar bloque predefinido">
+                                <option value="">+ Insertar bloque...</option>
+                                @for (block of editorBlockTemplates; track block.id) {
+                                  <option [value]="block.id">{{ block.label }}</option>
                                 }
                               </select>
-                              <button
-                                type="button"
-                                class="w-full"
-                                (click)="applySelectedTextFormat()"
-                                [disabled]="contentEditorMode === 'plain'"
-                                title="Aplicar el formato elegido al texto seleccionado"
-                              >
-                                Aplicar formato
-                              </button>
-                              <p class="text-[11px] text-muted leading-snug">
-                                Selecciona texto existente y aplica el formato elegido.
-                              </p>
                             </div>
-                            <div class="divider"></div>
-                            <label for="editorBlockTemplate" class="block text-sm font-medium text-secondary">Bloques</label>
-                            <select
-                              id="editorBlockTemplate"
-                              class="w-full px-3 py-2 rounded border border-soft bg-secondary text-primary text-sm"
-                              (change)="insertEditorBlockFromSelect($event)"
-                              title="Insertar bloque predefinido"
-                            >
-                              <option value="">Insertar bloque...</option>
-                              @for (block of editorBlockTemplates; track block.id) {
-                                <option [value]="block.id">{{ block.label }}</option>
-                              }
-                            </select>
-                            <div class="divider"></div>
-                            <div class="space-y-2">
-                              <label for="textColorPicker" class="block text-sm font-medium text-secondary">Color de texto</label>
-                              <div class="flex items-center gap-2">
-                                <input
-                                  id="textColorPicker"
-                                  type="color"
-                                  [(ngModel)]="selectedTextColor"
-                                  [ngModelOptions]="{ standalone: true }"
-                                  class="h-9 w-11 rounded border border-soft bg-transparent p-1"
-                                  aria-label="Color de texto seleccionado"
-                                />
-                                
-                                <button
-                                  type="button"
-                                  class="flex-1"
-                                  (click)="applyTextColor()"
-                                  [disabled]="contentEditorMode === 'plain'"
-                                  title="Aplicar color al texto seleccionado"
-                                >
-                                  Aplicar color
-                                </button>
-                              </div>
-                              <p class="text-[11px] text-muted leading-snug">
-                                @if (contentEditorMode === 'plain') {
-                                  Cambia a Markdown o HTML para aplicar color.
-                                } @else {
-                                  Selecciona texto y aplica el color.
-                                }
-                              </p>
-                            </div>
-                            <div class="divider"></div>
-                            <button type="button" (click)="insertMarkdown('[', '](url)')" title="Enlace">🔗 Enlace</button>
-                            <button type="button" (click)="copyMarkdownToClipboard()" title="Copiar Markdown al portapapeles">Copiar</button>
-                            <button
-                              type="button"
-                              (click)="convertMarkdownToVisualHtmlWithAi()"
-                              [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
-                              title="Convertir el Markdown actual en HTML visual usando IA"
-                            >
-                              ✨ HTML visual
+
+                            <button class="sidebar-action-btn" type="button" (click)="copyMarkdownToClipboard()" title="Copiar contenido al portapapeles">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2"/><path stroke-linecap="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                              <span>Copiar contenido</span>
+                              @if (copyMarkdownFeedback) { <span style="color:#7c3aed;font-size:0.65rem;margin-left:auto">✓ Copiado</span> }
                             </button>
 
-                            <div class="divider"></div>
-                            <div class="text-xs text-muted">
-                              @if (copyMarkdownFeedback) {
-                                <div class="text-violet-600 font-medium">Copiado</div>
-                              }
-                              @if (autoSaved) {
-                                <div class="text-green-600">Guardado automático</div>
-                              }
-                              <div>{{ wordCount }} palabras</div>
-                              <div>{{ characterCount }} caracteres</div>
+                            <button class="sidebar-action-btn" type="button"
+                              (click)="convertMarkdownToVisualHtmlWithAi()"
+                              [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
+                              title="Convertir el Markdown actual en HTML visual usando IA">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
+                              <span>✨ Convertir a HTML visual</span>
+                            </button>
+
+                            <div class="sidebar-divider"></div>
+
+                            <!-- ── ESTILO RÁPIDO ───────────────────────── -->
+                            <div class="sidebar-section-title">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                              Estilo
                             </div>
-                            <div class="divider"></div>
-                            <div>
-                              <label for="stylePresetSelect" class="block text-sm font-medium text-secondary">Estilos rápidos</label>
-                              <select id="stylePresetSelect" class="w-full px-3 py-2 rounded mt-2 bg-white border border-slate-200" [(ngModel)]="selectedQuickStylePreset" [ngModelOptions]="{ standalone: true }" (ngModelChange)="applyStylePreset($event)">
-                                <option value="">Seleccionar estilo...</option>
+                            <div style="padding:0 0.5rem 0.4rem">
+                              <select id="stylePresetSelect"
+                                style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
+                                [(ngModel)]="selectedQuickStylePreset" [ngModelOptions]="{standalone:true}" (ngModelChange)="applyStylePreset($event)">
+                                <option value="">Estilo predefinido...</option>
                                 <option value="default">Predeterminado</option>
                                 <option value="corporate">Corporativo</option>
                                 <option value="compact">Compacto</option>
                                 <option value="large">Texto grande</option>
                               </select>
-
-                              <div class="mt-2 flex items-center gap-2">
-                                <button type="button" class="px-2 py-1 rounded border" (click)="adjustBaseFontSize(-0.05)">A-</button>
-                                <div class="text-xs text-muted text-center flex-1">Ajustar tamaño base</div>
-                                <button type="button" class="px-2 py-1 rounded border" (click)="adjustBaseFontSize(0.05)">A+</button>
-                              </div>
-                              <div class="divider"></div>
-                              <label class="block text-sm font-medium text-secondary">Herramientas PDF</label>
-                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleCoverEditor()">
-                                <span>📄</span>
-                                <span>Portada</span>
-                                @if (showCoverEditor) {
-                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
-                                }
-                              </button>
-                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleHeaderFooterEditor()">
-                                <span>📑</span>
-                                <span>Encabezado/Pie</span>
-                                @if (showHeaderFooterEditor) {
-                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
-                                }
-                              </button>
-                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleSignatureEditor()">
-                                <span>✍️</span>
-                                <span>Firmas</span>
-                                @if (showSignatureEditor) {
-                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
-                                }
-                              </button>
-                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleTableBuilder()">
-                                <span>⊞</span>
-                                <span>Tabla personalizada</span>
-                                @if (showTableBuilder) {
-                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
-                                }
-                              </button>
-                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleImageInsert()">
-                                <span>🖼️</span>
-                                <span>Insertar imagen</span>
                                 @if (showImageInsert) {
                                   <span class="ml-auto text-xs text-blue-600">Activo</span>
                                 }
