@@ -62,6 +62,9 @@ interface DocumentPreviewPayload {
   documentAccentColor?: string;
   documentBorderColor?: string;
   pdfBytes?: number[];
+  coverConfig?: Record<string, unknown>;
+  signatureConfig?: Record<string, unknown>;
+  headerFooterConfig?: Record<string, unknown>;
 }
 
 @Component({
@@ -716,6 +719,9 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
           quickStylePreset: d.quickStylePreset,
           contentEditorMode: d.contentEditorMode,
           customCss: d.customCss,
+          coverConfig: d.coverConfig,
+          signatureConfig: d.signatureConfig,
+          headerFooterConfig: d.headerFooterConfig,
           pdfBackgroundMode: background.pdfBackgroundMode,
           pdfBackgroundColor: background.pdfBackgroundColor,
           pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,

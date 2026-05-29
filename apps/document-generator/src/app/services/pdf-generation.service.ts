@@ -351,6 +351,30 @@ export class PdfGenerationService {
    * El PDF es IDENTICO a la vista previa web
    */
   async generateMarkdownPdf(data: DocumentData): Promise<Blob> {
+    // Convertir todas las imágenes externas a Base64 asíncronamente para evitar errores CORS en html2canvas
+    const dataCopy = { ...data };
+    if (dataCopy.pdfBackgroundImageUrl) {
+      dataCopy.pdfBackgroundImageUrl = await this.imageUrlToBase64(dataCopy.pdfBackgroundImageUrl);
+    }
+    if (dataCopy.coverConfig) {
+      const cover = { ...dataCopy.coverConfig };
+      if (typeof cover['logoUrl'] === 'string') {
+        cover['logoUrl'] = await this.imageUrlToBase64(cover['logoUrl']);
+      }
+      if (typeof cover['backgroundImageUrl'] === 'string') {
+        cover['backgroundImageUrl'] = await this.imageUrlToBase64(cover['backgroundImageUrl']);
+      }
+      dataCopy.coverConfig = cover;
+    }
+    if (dataCopy.signatureConfig) {
+      const sig = { ...dataCopy.signatureConfig };
+      if (typeof sig['signatureImageUrl'] === 'string') {
+        sig['signatureImageUrl'] = await this.imageUrlToBase64(sig['signatureImageUrl']);
+      }
+      dataCopy.signatureConfig = sig;
+    }
+    data = dataCopy;
+
     // Determinar si el contenido es HTML o Markdown
     const isHtml =
       data.contentEditorMode === 'html' ||
@@ -549,6 +573,8 @@ export class PdfGenerationService {
         padding: 60px;
         box-sizing: border-box;
         text-align: center;
+        position: relative;
+        z-index: 10;
       }
       .pdf-cover-page h1 {
         font-size: 2.5rem;
@@ -1207,6 +1233,25 @@ ${this.getPdfPaginationCss()}
       data.title || 'documento',
       canvasBackground,
     );
+  }
+
+  private async imageUrlToBase64(url: string): Promise<string> {
+    if (!url || typeof url !== 'string' || url.startsWith('data:')) {
+      return url;
+    }
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(url);
+        reader.readAsDataURL(blob);
+      });
+    } catch (e) {
+      console.warn('Failed to convert image to base64:', url, e);
+      return url;
+    }
   }
 
   downloadPdf(blob: Blob, filename: string) {
