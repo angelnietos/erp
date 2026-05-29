@@ -2,9 +2,22 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JosanzExportCenterComponent } from './josanz-export-center.component';
 import { provideRouter } from '@angular/router';
 
+const originalCreateObjectURL = URL.createObjectURL;
+const originalRevokeObjectURL = URL.revokeObjectURL;
+
 describe('JosanzExportCenterComponent', () => {
   let fixture: ComponentFixture<JosanzExportCenterComponent>;
   let component: JosanzExportCenterComponent;
+
+  beforeAll(() => {
+    URL.createObjectURL = jest.fn().mockReturnValue('blob:test-url');
+    URL.revokeObjectURL = jest.fn();
+  });
+
+  afterAll(() => {
+    URL.createObjectURL = originalCreateObjectURL;
+    URL.revokeObjectURL = originalRevokeObjectURL;
+  });
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -63,7 +76,7 @@ describe('JosanzExportCenterComponent', () => {
 
     it('should set anchor href to blob url', () => {
       component.onDemoDownload('clients');
-      expect(mockAnchor.href).toContain('blob:');
+      expect(mockAnchor.href).toBe('blob:test-url');
     });
 
     it('should set correct download filename', () => {
@@ -80,6 +93,18 @@ describe('JosanzExportCenterComponent', () => {
       component.onDemoDownload('stock');
       expect(mockAnchor.download).toBe('josanz-export-stock.txt');
     });
+
+    it('should call createObjectURL with a blob', () => {
+      (URL.createObjectURL as jest.Mock).mockClear();
+      component.onDemoDownload('clients');
+      expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+      expect((URL.createObjectURL as jest.Mock).mock.calls[0][0]).toBeInstanceOf(Blob);
+    });
+
+    it('should revoke object url after download', () => {
+      component.onDemoDownload('clients');
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:test-url');
+    });
   });
 
   describe('template', () => {
@@ -94,7 +119,7 @@ describe('JosanzExportCenterComponent', () => {
     it('should render back to dashboard link', () => {
       const links = fixture.nativeElement.querySelectorAll('a');
       const backLink = Array.from(links).find(
-        (a: HTMLElement) => a.getAttribute('href') === '/dashboard' || a.textContent?.includes('Volver al panel'),
+        (a: HTMLElement) => a.textContent?.includes('Volver al panel'),
       );
       expect(backLink).toBeTruthy();
     });
