@@ -2199,6 +2199,11 @@ export class DocumentCreateEditorComponent implements OnInit {
         : this.exportCoverConfigToHtml(this.coverConfig);
       fullPreviewMarkup = coverHtml + '\n' + fullPreviewMarkup;
     }
+    if (this.headerFooterConfig?.enabled) {
+      const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
+      const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+      fullPreviewMarkup = headerHtml + '\n' + fullPreviewMarkup + '\n' + footerHtml;
+    }
     if (this.signatureConfig?.enabled) {
       const signatureHtml = this.signatureEditor
         ? this.signatureEditor.exportToHtml()
@@ -2361,6 +2366,11 @@ h2::after {
         : this.exportCoverConfigToHtml(this.coverConfig);
       contentHtml = coverHtml + '\n' + contentHtml;
     }
+    if (this.headerFooterConfig?.enabled) {
+      const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
+      const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+      contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
+    }
     if (this.signatureConfig?.enabled) {
       const signatureHtml = this.signatureEditor
         ? this.signatureEditor.exportToHtml()
@@ -2452,6 +2462,42 @@ ${contentHtml}
       ${c.showDate && c.date ? `<div>${c.date}</div>` : ''}
     </div>
   </div>
+</div>`;
+  }
+
+  private exportHeaderFooterConfigToHtml(
+    c: Partial<HeaderFooterConfig>,
+    zone: 'header' | 'footer',
+  ): string {
+    if (!c || !c.enabled) return '';
+
+    const isHeader = zone === 'header';
+    const left = isHeader ? (c.headerLeft ?? '') : (c.footerLeft ?? '');
+    const center = isHeader ? (c.headerCenter ?? '') : (c.footerCenter ?? '');
+    const right = isHeader ? (c.headerRight ?? '') : (c.footerRight ?? '');
+
+    const resolveVars = (text: string): string =>
+      text
+        .replace(/\{page\}/g, String(c.startPageFrom ?? 1))
+        .replace(/\{total\}/g, '?')
+        .replace(/\{title\}/g, 'Documento')
+        .replace(/\{date\}/g, new Date().toLocaleDateString('es-ES'))
+        .replace(/\{author\}/g, '');
+
+    const hasContent = [left, center, right].some((t) => t.trim());
+    if (!hasContent) return '';
+
+    const dividerStyle = c.showDivider
+      ? isHeader
+        ? 'border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; padding-bottom: 6px;'
+        : 'border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 6px;'
+      : '';
+
+    return `
+<div class="pdf-${zone}" style="display:flex; justify-content:space-between; align-items:center; padding: 6px 20px; font-size:${c.fontSize ?? '9pt'}; color:${c.textColor ?? '#64748b'}; background:${c.backgroundColor && c.backgroundColor !== 'transparent' ? c.backgroundColor : 'transparent'}; ${dividerStyle}">
+  <span>${resolveVars(left)}</span>
+  <span>${resolveVars(center)}</span>
+  <span>${resolveVars(right)}</span>
 </div>`;
   }
 
