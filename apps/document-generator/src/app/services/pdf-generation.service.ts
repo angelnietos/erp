@@ -567,14 +567,10 @@ export class PdfGenerationService {
           .pdf-cover-page {
         page-break-after: always;
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
         padding: 60px;
         box-sizing: border-box;
-        text-align: center;
-        position: relative;
-        z-index: 10;
       }
       .pdf-cover-page h1 {
         font-size: 2.5rem;
@@ -771,7 +767,7 @@ ${this.getPdfPaginationCss()}
     return `
       <div class="pdf-cover-page" style="${backgroundStyle} height: 100vh; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
         <div style="text-align: ${textAlign}; max-width: 600px;">
-          ${logoUrl ? `<img src="${logoUrl}" style="max-width: 140px; max-height: 70px; object-fit: contain; margin-bottom: 32px;" alt="Logo"/>` : ''}
+          ${logoUrl ? `<img src="${logoUrl}" style="max-width: 120px; object-fit: contain; margin-bottom: 24px;" alt="Logo"/>` : ''}
           <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
           ${subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${textColor};">${subtitle}</p>` : ''}
           ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 24px' : '0 0 24px'};"></div>` : ''}
@@ -1265,3 +1261,4 @@ ${this.getPdfPaginationCss()}
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 }
+
