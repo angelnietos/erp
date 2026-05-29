@@ -1,6 +1,6 @@
 module.exports = {
   displayName: 'feature',
-  preset: '../../../jest.preset.js',
+  preset: '../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory: '../../../../coverage/libs/browser/feature/events',
   transform: {

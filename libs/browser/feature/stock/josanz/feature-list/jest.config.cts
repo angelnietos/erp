@@ -1,8 +1,8 @@
 module.exports = {
   displayName: 'josanz-stock-feature-list',
-  preset: '../../../../../jest.preset.js',
+  preset: '../../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../coverage/libs/browser/feature/stock/josanz/feature-list',
+  coverageDirectory: '../../../../../../coverage/libs/browser/feature/stock/josanz/feature-list',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

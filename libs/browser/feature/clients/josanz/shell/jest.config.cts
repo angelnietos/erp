@@ -2,7 +2,7 @@ module.exports = {
   displayName: 'shell',
   preset: '../../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../coverage/libs/browser/feature/clients/josanz/shell',
+  coverageDirectory: '../../../../../../coverage/libs/browser/feature/clients/josanz/shell',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
