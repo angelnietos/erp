@@ -110,6 +110,38 @@ No devuelvas Markdown. No expliques nada. Devuelve únicamente el documento HTML
     return this.stripCodeFences(raw);
   }
 
+  async convertHtmlToMarkdown(ctx: DocumentAiContext): Promise<string> {
+    const html = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim() ? `Cliente o destinataria: ${ctx.clientName.trim()}.` : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Convierte el siguiente HTML en Markdown GFM editable.',
+      'Devuelve SOLO Markdown final, sin bloque ```markdown ni explicaciones adicionales.',
+      'Requisitos:',
+      '- Conserva todo el texto, estructura y placeholders existentes.',
+      '- Transforma listas, tablas, encabezados, enlaces, imágenes, llamadas de atención y bloques de código a Markdown semántico.',
+      '- Usa títulos numerados cuando tengan sentido y tablas GFM cuando sea necesario.',
+      '- No inventes datos; conserva [rellenar], [Fecha actual] y placeholders similares.',
+      '',
+      'HTML A CONVERTIR:',
+      '---',
+      html.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un experto en documentación que convierte HTML en Markdown editable.
+Tu objetivo es devolver únicamente Markdown bien estructurado, sin explicaciones ni entradas adicionales.`;
+
+    const raw = await this.inference.generateResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+    return this.stripCodeFences(raw);
+  }
+
   /** Genera un esquema estructurado del documento antes de escribirlo */
   private async generateDocumentOutline(
     brief: string,

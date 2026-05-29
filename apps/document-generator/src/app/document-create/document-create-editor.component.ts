@@ -120,7 +120,7 @@ interface DocumentType {
       .animate-slide-up { animation: slide-up 0.45s cubic-bezier(.22,.68,0,1.2) both; }
       .brand-gradient { background: linear-gradient(135deg, var(--brand), var(--brand-surface)); }
 
-      /* ─── CTA Primary ────────────────────────────────────── */
+      /* --- CTA Primary -------------------------------------- */
       .footer-cta-primary {
         display: inline-flex; align-items: center; justify-content: center;
         gap: 0.5rem; min-height: 3rem; padding: 0.75rem 1.25rem;
@@ -134,7 +134,7 @@ interface DocumentType {
       .footer-cta-primary:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
       .footer-cta-primary svg { color:#fff !important; stroke:#fff !important; }
 
-      /* ─── Save Draft ─────────────────────────────────────── */
+      /* --- Save Draft --------------------------------------- */
       .footer-save-draft {
         display: inline-flex; align-items: center; justify-content: center;
         gap: 0.45rem; min-height: 3rem; padding: 0.75rem 1.1rem;
@@ -146,7 +146,7 @@ interface DocumentType {
       .footer-save-draft:hover:not(:disabled) { background: var(--surface-hover); border-color: var(--border-vibrant); }
       .footer-save-draft:disabled { opacity:.5; cursor:not-allowed; }
 
-      /* ─── Editor Layout ──────────────────────────────────── */
+      /* --- Editor Layout ------------------------------------ */
       .document-editor-split {
         display: grid;
         grid-template-columns: 15rem 1fr 1fr;
@@ -154,7 +154,7 @@ interface DocumentType {
         align-items: start;
       }
 
-      /* ─── Sidebar Premium ────────────────────────────────── */
+      /* --- Sidebar Premium ---------------------------------- */
       .document-editor-sidebar {
         background: var(--bg-secondary, #f8fafc);
         border: 1px solid var(--border-soft, #e2e8f0);
@@ -282,7 +282,7 @@ interface DocumentType {
         margin: 0.1rem 0;
       }
 
-      /* ─── Editor Column Bar (inline toolbar) ─────────────── */
+      /* --- Editor Column Bar (inline toolbar) --------------- */
       .document-editor-column__bar {
         display: flex;
         align-items: center;
@@ -378,7 +378,7 @@ interface DocumentType {
         white-space: nowrap;
       }
 
-      /* ─── Preview badge ──────────────────────────────────── */
+      /* --- Preview badge ------------------------------------ */
       .document-editor-column--preview .document-editor-column__bar {
         background: linear-gradient(90deg, #ecfdf5 0%, #f8fafc 100%);
         border-color: #bbf7d0;
@@ -390,7 +390,7 @@ interface DocumentType {
         box-shadow: 0 4px 24px rgba(0,0,0,.09), 0 1px 3px rgba(0,0,0,.06);
       }
 
-      /* ─── Stats in sidebar ───────────────────────────────── */
+      /* --- Stats in sidebar --------------------------------- */
       .sidebar-stats {
         padding: 0.4rem 0.75rem;
         font-size: 0.68rem;
@@ -454,7 +454,7 @@ interface DocumentType {
                 </div>
                 <div>
                   <h2 class="text-2xl font-bold text-primary">
-                    Información del Documento
+                    Informaci�n del Documento
                   </h2>
                   <p class="text-secondary">
                     Completa los detalles para generar tu
@@ -486,7 +486,7 @@ interface DocumentType {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
                     />
                   </svg>
-                  Información General
+                  Informaci�n General
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2">
@@ -529,7 +529,7 @@ interface DocumentType {
                   <label
                     for="title"
                     class="block text-sm font-medium text-secondary"
-                    >Título del Documento</label
+                    >T�tulo del Documento</label
                   >
                   <input
                     id="title"
@@ -551,24 +551,24 @@ interface DocumentType {
                         <span
                           class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/10 text-violet-700 dark:text-violet-300"
                           aria-hidden="true"
-                          >✨</span
+                          >?</span
                         >
-                        Redacción asistida (IA)
+                        Redacci�n asistida (IA)
                       </h3>
                       <p class="text-sm text-secondary mt-1 max-w-2xl">
-                        Describe objetivos, público y datos clave; la IA genera
+                        Describe objetivos, p�blico y datos clave; la IA genera
                         un borrador en Markdown. Revisa y ajusta siempre el
                         resultado antes de enviarlo o firmarlo.
                       </p>
                       <p class="text-xs text-muted mt-2 max-w-2xl">
                         El proveedor y la clave son los mismos que en el resto
-                        del ERP (configuración local del navegador).
+                        del ERP (configuraci�n local del navegador).
                       </p>
                       <a
                         routerLink="/documents/settings/ai"
                         class="inline-flex mt-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:underline"
                       >
-                        Configurar clave API y modelo →
+                        Configurar clave API y modelo ?
                       </a>
                     </div>
                   </div>
@@ -592,7 +592,7 @@ interface DocumentType {
                        id="aiBrief"
                        formControlName="aiBrief"
                        rows="3"
-                       placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
+                       placeholder="Ej.: Presupuesto para migraci�n a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
                        class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
                        [disabled]="isGenerating || isAiGenerating"
                      ></textarea>
@@ -628,7 +628,7 @@ interface DocumentType {
                       [disabled]="isGenerating || isAiGenerating"
                       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Añadir al final
+                      A�adir al final
                     </button>
                   </div>
 
@@ -642,7 +642,7 @@ interface DocumentType {
                        id="aiInstruction"
                        formControlName="aiInstruction"
                        rows="2"
-                       placeholder="Ej.: Acorta a una página, tono más formal, añade sección de riesgos y mitigación."
+                       placeholder="Ej.: Acorta a una p�gina, tono m�s formal, a�ade secci�n de riesgos y mitigaci�n."
                        class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
                        [disabled]="isGenerating || isAiGenerating"
                      ></textarea>
@@ -652,7 +652,7 @@ interface DocumentType {
                       [disabled]="isGenerating || isAiGenerating"
                       class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Aplicar instrucción al texto
+                      Aplicar instrucci�n al texto
                     </button>
                   </div>
                 </div>
@@ -677,7 +677,7 @@ interface DocumentType {
                       <label
                         for="totalAmount"
                         class="block text-sm font-medium text-secondary"
-                        >Monto Total (€)</label
+                        >Monto Total (�)</label
                       >
                       <input
                         id="totalAmount"
@@ -691,7 +691,7 @@ interface DocumentType {
                   </div>
                 }
 
-                <!-- Plantillas Rápidas -->
+                <!-- Plantillas R�pidas -->
                 <div class="space-y-3">
                   <div class="block text-sm font-medium text-secondary">
                     Plantillas predefinidas para {{ selectedType.name }}
@@ -762,7 +762,7 @@ interface DocumentType {
                         [(ngModel)]="customCss"
                         [ngModelOptions]="{ standalone: true }"
                         rows="8"
-                        placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota automáticamente a la vista previa. */"
+                        placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota autom�ticamente a la vista previa. */"
 class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                          (input)="applyCustomCss()"
                        ></textarea>
@@ -794,13 +794,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           <div class="flex gap-2 items-center">
                             <select id="pdfBackgroundMode" [(ngModel)]="pdfBackgroundMode" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
                               <option value="theme">Usar tema</option>
-                              <option value="color">Color sólido</option>
+                              <option value="color">Color s�lido</option>
                               <option value="corporate">Imagen corporativa</option>
                             </select>
                             <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
                             <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
-                          <p class="text-xs text-muted mt-2">Selecciona cómo se renderizará el fondo del PDF.</p>
+                          <p class="text-xs text-muted mt-2">Selecciona c�mo se renderizar� el fondo del PDF.</p>
                           @if (pdfBackgroundMode !== 'theme') {
                             <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3">
                               <label class="text-xs font-medium text-secondary">
@@ -854,9 +854,9 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
  
                       @if (!fullscreenMode) {
                         <div class="document-editor-split">
-                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
+                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edici�n">
 
-                            <!-- ── FORMATO ─────────────────────────────── -->
+                            <!-- -- FORMATO ------------------------------- -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                               Formato
@@ -874,15 +874,15 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 <span style="font-size:12px;text-decoration:line-through">S</span>
                                 <span>Tach.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="Código inline">
+                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="C�digo inline">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                                <span>Cód.</span>
+                                <span>C�d.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="Título H1">
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="T�tulo H1">
                                 <span style="font-size:11px;font-weight:800">H1</span>
-                                <span>Tít.</span>
+                                <span>T�t.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subtítulo H2">
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subt�tulo H2">
                                 <span style="font-size:11px;font-weight:700">H2</span>
                                 <span>Sub.</span>
                               </button>
@@ -900,13 +900,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               </button>
                               <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('1. ','')" title="Lista numerada">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                <span>Núm.</span>
+                                <span>N�m.</span>
                               </button>
                               <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('[','](url)')" title="Enlace">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                                 <span>Link</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de código">
+                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de c�digo">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3"/></svg>
                                 <span>Blq.</span>
                               </button>
@@ -914,7 +914,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                             <div class="sidebar-divider"></div>
 
-                            <!-- ── COLOR DE TEXTO ──────────────────────── -->
+                            <!-- -- COLOR DE TEXTO ------------------------ -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h14a2 2 0 002-2v-4a2 2 0 00-2-2H7m0 6V9"/></svg>
                               Color
@@ -932,7 +932,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                             <div class="sidebar-divider"></div>
 
-                            <!-- ── BLOQUES Y ACCIONES ──────────────────── -->
+                            <!-- -- BLOQUES Y ACCIONES -------------------- -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
                               Insertar
@@ -951,7 +951,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <button class="sidebar-action-btn" type="button" (click)="copyMarkdownToClipboard()" title="Copiar contenido al portapapeles">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2"/><path stroke-linecap="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                               <span>Copiar contenido</span>
-                              @if (copyMarkdownFeedback) { <span style="color:#7c3aed;font-size:0.65rem;margin-left:auto">✓ Copiado</span> }
+                              @if (copyMarkdownFeedback) { <span style="color:#7c3aed;font-size:0.65rem;margin-left:auto">? Copiado</span> }
                             </button>
 
                             <button class="sidebar-action-btn" type="button"
@@ -959,12 +959,20 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
                               title="Convertir el Markdown actual en HTML visual usando IA">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
-                              <span>✨ Convertir a HTML visual</span>
+                              <span>? Convertir a HTML visual</span>
                             </button>
 
-                            <div class="sidebar-divider"></div>
+                            
+                             <button class="sidebar-action-btn" type="button"
+                               (click)="convertHtmlToMarkdownWithAi()"
+                               [disabled]="contentEditorMode !== 'html' || isAiGenerating"
+                               title="Convertir el HTML actual a Markdown editable usando IA">
+                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                               <span>↪ Convertir a Markdown</span>
+                             </button>
+<div class="sidebar-divider"></div>
 
-                            <!-- ── ESTILO RÁPIDO ───────────────────────── -->
+                            <!-- -- ESTILO R�PIDO ------------------------- -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                               Estilo
@@ -983,14 +991,14 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div style="padding:0 0.5rem 0.4rem">
                               <div style="display:flex;align-items:center;gap:6px">
                                 <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(-0.05)">A-</button>
-                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tamaño base</div>
+                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tama�o base</div>
                                 <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(0.05)">A+</button>
                               </div>
                             </div>
 
                             <div class="sidebar-divider"></div>
 
-                            <!-- ── HERRAMIENTAS PDF ────────────────────── -->
+                            <!-- -- HERRAMIENTAS PDF ---------------------- -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                               PDF Pro
@@ -1028,7 +1036,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                             <div class="sidebar-divider"></div>
 
-                            <!-- ── PANEL DINÁMICO ──────────────────────── -->
+                            <!-- -- PANEL DIN�MICO ------------------------ -->
                             @if (showCoverEditor) {
                               <app-cover-editor
                                 #coverEditorRef
@@ -1123,7 +1131,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           <div class="document-editor-column document-editor-column--preview">
                             <div class="document-editor-column__bar">
                               <span>Vista Previa</span>
-                              <span class="font-mono">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
+                              <span class="font-mono">{{ wordCount }} palabras � {{ characterCount }} caracteres</span>
                             </div>
                             @if (contentEditorMode === 'html') {
                               <iframe
@@ -1170,7 +1178,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div class="document-editor-column fullscreen-preview">
                               <div class="document-editor-column__bar">
                                 Vista Previa
-                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras • {{ characterCount }} caracteres</span>
+                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras � {{ characterCount }} caracteres</span>
                               </div>
                               @if (contentEditorMode === 'html') {
                                 <iframe
@@ -1200,7 +1208,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         id="architectureDiagram"
                         formControlName="architectureDiagram"
                         rows="4"
-                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
+                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticaci�n]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm"
                       ></textarea>
                     </div>
@@ -1227,7 +1235,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                       d="M10 19l-7-7m0 0l7-7m-7 7h18"
                     />
                   </svg>
-                  Volver Atrás
+                  Volver Atr�s
                 </button>
 
                 <div
@@ -1255,42 +1263,42 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           (click)="fileInput.click()"
                           class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-brand text-white shadow-md hover:opacity-95 transition-opacity"
                         >
-                          📥 Importar
+                          ?? Importar
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('markdown')"
                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
-                          📑 MD
+                          ?? MD
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('pdf')"
                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
-                          📄 PDF
+                          ?? PDF
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('xlsx')"
                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
-                          📊 Excel
+                          ?? Excel
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('html')"
                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
-                          🌐 HTML
+                          ?? HTML
                         </button>
                         <button
                           type="button"
                           (click)="exportDocument('txt')"
                           class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
                         >
-                          📃 TXT
+                          ?? TXT
                         </button>
                       </div>
                     </div>
@@ -1417,7 +1425,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         <span class="text-left leading-snug drop-shadow-sm">
                           {{
                             isGenerating
-                              ? 'Generando documento…'
+                              ? 'Generando documento�'
                               : 'Generar documento (PDF)'
                           }}
                         </span>
@@ -1461,20 +1469,20 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                     <h2 class="text-base font-bold text-slate-800">
                       @if (showCoverEditor) { Portada del Documento }
                       @else if (showSignatureEditor) { Bloque de Firmas }
-                      @else if (showHeaderFooterEditor) { Encabezado y Pie de Página }
+                      @else if (showHeaderFooterEditor) { Encabezado y Pie de P�gina }
                       @else if (showTableBuilder) { Constructor de Tablas }
                       @else if (showImageInsert) { Insertar Imagen }
                     </h2>
                     <p class="text-xs text-slate-500 mt-0.5">
-                      @if (showCoverEditor) { Personaliza la primera página de tu PDF con logo, títulos y fondos }
+                      @if (showCoverEditor) { Personaliza la primera p�gina de tu PDF con logo, t�tulos y fondos }
                       @else if (showSignatureEditor) { Configura firmas para los responsables al final del documento }
-                      @else if (showHeaderFooterEditor) { Define la paginación y cabeceras de cada página }
-                      @else if (showTableBuilder) { Diseña y estructura tablas de datos visualmente }
-                      @else if (showImageInsert) { Sube y edita el diseño de imágenes en tu documento }
+                      @else if (showHeaderFooterEditor) { Define la paginaci�n y cabeceras de cada p�gina }
+                      @else if (showTableBuilder) { Dise�a y estructura tablas de datos visualmente }
+                      @else if (showImageInsert) { Sube y edita el dise�o de im�genes en tu documento }
                     </p>
                   </div>
                   <button type="button" class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" (click)="closeAllModals()">
-                    <span class="text-lg">✕</span>
+                    <span class="text-lg">?</span>
                   </button>
                 </div>
 
@@ -1630,31 +1638,31 @@ export class DocumentCreateEditorComponent implements OnInit {
   @ViewChild(ImageInsertComponent) imageInsert!: ImageInsertComponent;
   @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
-    { id: 'paragraph', label: 'Párrafo normal' },
-    { id: 'h1', label: 'Título H1' },
-    { id: 'h2', label: 'Título H2' },
-    { id: 'h3', label: 'Título H3' },
+    { id: 'paragraph', label: 'P�rrafo normal' },
+    { id: 'h1', label: 'T�tulo H1' },
+    { id: 'h2', label: 'T�tulo H2' },
+    { id: 'h3', label: 'T�tulo H3' },
     { id: 'bold', label: 'Negrita' },
     { id: 'italic', label: 'Cursiva' },
     { id: 'quote', label: 'Cita' },
     { id: 'list', label: 'Lista' },
     { id: 'numbered-list', label: 'Lista numerada' },
-    { id: 'inline-code', label: 'Código' },
+    { id: 'inline-code', label: 'C�digo' },
     { id: 'callout', label: 'Nota destacada' },
   ];
   readonly editorBlockTemplates: EditorBlockTemplate[] = [
     {
       id: 'paragraph',
-      label: 'Párrafo',
-      markdown: `\n\n[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]\n`,
-      html: `<p>[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]</p>`,
+      label: 'P�rrafo',
+      markdown: `\n\n[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]\n`,
+      html: `<p>[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]</p>`,
     },
     {
       id: 'section',
-      label: 'Sección completa',
-      markdown: `\n\n## [Título de la sección]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
+      label: 'Secci�n completa',
+      markdown: `\n\n## [T�tulo de la secci�n]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
       html: `<section class="section card">
-  <h2>[Título de la sección]</h2>
+  <h2>[T�tulo de la secci�n]</h2>
   <p><strong>Objetivo:</strong> [Describe el objetivo]</p>
   <p><strong>Detalle:</strong> [Explica los puntos principales]</p>
   <p><strong>Resultado esperado:</strong> [Indica el resultado]</p>
@@ -1688,14 +1696,14 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'timeline',
       label: 'Cronograma / hitos',
-      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripción | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Diseño aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
+      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripci�n | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Dise�o aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
       html: `<section class="section">
   <h2>Cronograma e hitos</h2>
   <table class="doc-table timeline-table">
-    <thead><tr><th>Hito</th><th>Descripción</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
+    <thead><tr><th>Hito</th><th>Descripci�n</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
     <tbody>
       <tr><td>Hito 1</td><td>Inicio del proyecto</td><td>[Fecha]</td><td>-</td></tr>
-      <tr><td>Hito 2</td><td>Diseño aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
+      <tr><td>Hito 2</td><td>Dise�o aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
       <tr><td>Hito 3</td><td>Entrega final</td><td>[Fecha]</td><td>Hito 2</td></tr>
     </tbody>
   </table>
@@ -1704,13 +1712,13 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'budget',
       label: 'Presupuesto',
-      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| Análisis y diseño | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
+      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| An�lisis y dise�o | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
       html: `<section class="section">
   <h2>Presupuesto estimado</h2>
   <table class="doc-table budget-table">
     <thead><tr><th>Concepto</th><th>Horas</th><th>Coste unitario</th><th>Importe</th></tr></thead>
     <tbody>
-      <tr><td>Análisis y diseño</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td>An�lisis y dise�o</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Desarrollo</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Pruebas</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>[EUR]</strong></td></tr>
@@ -1721,14 +1729,14 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'risks',
       label: 'Riesgos',
-      markdown: `\n\n## Riesgos y mitigación\n\n| Riesgo | Impacto | Probabilidad | Mitigación |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n`,
+      markdown: `\n\n## Riesgos y mitigaci�n\n\n| Riesgo | Impacto | Probabilidad | Mitigaci�n |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n`,
       html: `<section class="section">
-  <h2>Riesgos y mitigación</h2>
+  <h2>Riesgos y mitigaci�n</h2>
   <table class="doc-table risk-table">
-    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigación</th></tr></thead>
+    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigaci�n</th></tr></thead>
     <tbody>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -1736,15 +1744,15 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'approvals',
       label: 'Aprobaciones',
-      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobación funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega técnica |\n`,
+      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobaci�n funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega t�cnica |\n`,
       html: `<section class="section">
   <h2>Aprobaciones</h2>
   <table class="doc-table approvals-table">
     <thead><tr><th>Rol</th><th>Nombre</th><th>Responsabilidad</th></tr></thead>
     <tbody>
-      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobación funcional</td></tr>
+      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobaci�n funcional</td></tr>
       <tr><td>QA</td><td>[Nombre]</td><td>Pruebas y calidad</td></tr>
-      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega técnica</td></tr>
+      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega t�cnica</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -1752,9 +1760,9 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'callout',
       label: 'Nota destacada',
-      markdown: `\n\n> **Nota:** [Incluye aquí una advertencia, decisión importante o recomendación.]\n`,
+      markdown: `\n\n> **Nota:** [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]\n`,
       html: `<aside class="callout">
-  <strong>Nota:</strong> [Incluye aquí una advertencia, decisión importante o recomendación.]
+  <strong>Nota:</strong> [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]
 </aside>`,
     },
     {
@@ -1791,28 +1799,28 @@ export class DocumentCreateEditorComponent implements OnInit {
     },
     {
       id: 'documentation',
-      name: 'Documentación Técnica',
-      description: 'Crear documentos técnicos o informativos',
+      name: 'Documentaci�n T�cnica',
+      description: 'Crear documentos t�cnicos o informativos',
     },
     {
       id: 'architecture',
-      name: 'Documentación Arquitectónica',
+      name: 'Documentaci�n Arquitect�nica',
       description: 'Documentos de arquitectura de sistemas con diagramas',
     },
     {
       id: 'resume',
-      name: 'Currículum Vitae',
+      name: 'Curr�culum Vitae',
       description: 'Plantillas estandarizadas de CV para candidatos',
     },
     {
       id: 'interview',
-      name: 'Pruebas Técnicas Entrevista',
+      name: 'Pruebas T�cnicas Entrevista',
       description: 'Evaluaciones y scorecards estandarizados',
     },
     {
       id: 'offer',
       name: 'Cartas de Oferta',
-      description: 'Cartas oficiales de contratación estandarizadas',
+      description: 'Cartas oficiales de contrataci�n estandarizadas',
     },
   ];
 
@@ -1855,9 +1863,9 @@ export class DocumentCreateEditorComponent implements OnInit {
   get editorPlaceholder(): string {
     switch (this.contentEditorMode) {
       case 'html':
-        return '<h1>Título</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
+        return '<h1>T�tulo</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
       case 'plain':
-        return 'Escribe texto normal. Las líneas en blanco separan párrafos.';
+        return 'Escribe texto normal. Las l�neas en blanco separan p�rrafos.';
       default:
         return this.getContentPlaceholder();
     }
@@ -1891,7 +1899,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     });
   }
 
-  /** Lista de plantillas según categoría del tipo de documento (para cambiar plantilla en el editor). */
+  /** Lista de plantillas seg�n categor�a del tipo de documento (para cambiar plantilla en el editor). */
   private setTemplatesForType(type: DocumentType): void {
     const categoryMap: Record<string, DocumentTemplate['category']> = {
       resume: 'hr',
@@ -1954,7 +1962,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (!this.selectedType) return;
     const brief = this.documentForm.get('aiBrief')?.value?.trim();
     if (!brief) {
-      this.aiError = 'Describe qué debe contener el documento.';
+      this.aiError = 'Describe qu� debe contener el documento.';
       return;
     }
     this.isAiGenerating = true;
@@ -1984,7 +1992,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     const instruction = this.documentForm.get('aiInstruction')?.value?.trim();
     if (!instruction || !this.selectedType) {
       this.aiError =
-        'Escribe una instrucción (por ejemplo: más formal, acortar, añadir tabla de costes).';
+        'Escribe una instrucci�n (por ejemplo: m�s formal, acortar, a�adir tabla de costes).';
       return;
     }
     const existing = this.documentForm.get('content')?.value || '';
@@ -2011,7 +2019,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   async convertMarkdownToVisualHtmlWithAi(): Promise<void> {
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (this.contentEditorMode !== 'markdown') {
-      this.aiError = 'Esta acción solo está disponible desde el modo Markdown.';
+      this.aiError = 'Esta acci�n solo est� disponible desde el modo Markdown.';
       return;
     }
     if (!content) {
@@ -2041,43 +2049,76 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
   }
 
+  async convertHtmlToMarkdownWithAi(): Promise<void> {
+    const content = String(this.documentForm.get('content')?.value ?? '').trim();
+    if (this.contentEditorMode !== 'html') {
+      this.aiError = 'Esta acción solo está disponible desde el modo HTML.';
+      return;
+    }
+    if (!content) {
+      this.aiError = 'Primero escribe o genera contenido HTML en el editor.';
+      return;
+    }
+
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      const markdown = await this.documentAi.convertHtmlToMarkdown(
+        this.getAiContext(),
+      );
+      this.customCss = '';
+      this.documentForm.patchValue({ content: markdown });
+      this.setContentEditorMode('markdown');
+      this.applyCustomCss();
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    } catch (e: unknown) {
+      this.aiError =
+        e instanceof Error
+          ? e.message
+          : 'Error al convertir HTML a Markdown con IA.';
+    } finally {
+      this.isAiGenerating = false;
+    }
+  }
+
   getTitlePlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
         return 'Ej: Presupuesto Desarrollo Web Corporativo';
       case 'proposal':
-        return 'Ej: Propuesta de Implementación ERP';
+        return 'Ej: Propuesta de Implementaci�n ERP';
       case 'documentation':
         return 'Ej: Manual de Usuario - Sistema ERP';
       case 'architecture':
         return 'Ej: Arquitectura del Sistema ERP';
       case 'resume':
-        return 'Ej: Currículum - Juan García López';
+        return 'Ej: Curr�culum - Juan Garc�a L�pez';
       case 'interview':
-        return 'Ej: Evaluación Técnica - Candidato Senior Developer';
+        return 'Ej: Evaluaci�n T�cnica - Candidato Senior Developer';
       case 'offer':
         return 'Ej: Carta Oferta - Puesto Senior Full Stack';
       default:
-        return 'Título del documento';
+        return 'T�tulo del documento';
     }
   }
 
   getContentPlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
-        return 'Descripción detallada del presupuesto, alcance de trabajo, condiciones...';
+        return 'Descripci�n detallada del presupuesto, alcance de trabajo, condiciones...';
       case 'proposal':
-        return 'Contenido de la propuesta comercial, beneficios, solución propuesta...';
+        return 'Contenido de la propuesta comercial, beneficios, soluci�n propuesta...';
       case 'documentation':
-        return 'Contenido detallado de la documentación técnica...';
+        return 'Contenido detallado de la documentaci�n t�cnica...';
       case 'architecture':
-        return 'Descripción de la arquitectura del sistema, componentes, tecnologías...';
+        return 'Descripci�n de la arquitectura del sistema, componentes, tecnolog�as...';
       case 'resume':
-        return 'Datos personales, experiencia laboral, formación y habilidades del candidato';
+        return 'Datos personales, experiencia laboral, formaci�n y habilidades del candidato';
       case 'interview':
-        return 'Evaluación técnica, preguntas, ejercicios y scorecard estandarizado';
+        return 'Evaluaci�n t�cnica, preguntas, ejercicios y scorecard estandarizado';
       case 'offer':
-        return 'Condiciones contractuales, salario, beneficios y fecha de incorporación';
+        return 'Condiciones contractuales, salario, beneficios y fecha de incorporaci�n';
       default:
         return 'Contenido del documento...';
     }
@@ -2621,11 +2662,11 @@ ${contentHtml}
 <div class="pdf-cover" style="height: 100vh; ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
   <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
     ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Título'}</h1>
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'T�tulo'}</h1>
     ${c.subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
     ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px'};"></div>` : ''}
     <p style="font-size: 0.9rem; opacity: 0.85; color: ${c.textColor};">
-      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' · ')}
+      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' � ')}
     </p>
   </div>
 </div>`;
@@ -3267,13 +3308,13 @@ ${contentHtml}
         this.insertMarkdown('> **Nota:** ', '');
         break;
       case 'callout-info':
-        this.insertMarkdown('> ℹ️ **Info:** ', '');
+        this.insertMarkdown('> ?? **Info:** ', '');
         break;
       case 'callout-warning':
-        this.insertMarkdown('> ⚠️ **Advertencia:** ', '');
+        this.insertMarkdown('> ?? **Advertencia:** ', '');
         break;
       case 'callout-success':
-        this.insertMarkdown('> ✅ **Éxito:** ', '');
+        this.insertMarkdown('> ? **�xito:** ', '');
         break;
       case 'cover':
         this.toggleCoverEditor();
@@ -3323,7 +3364,7 @@ ${contentHtml}
       if (this.contentEditorMode === 'html') {
         this.documentForm.patchValue({ content: currentContent + separator + signatureHtml });
       } else {
-        this.documentForm.patchValue({ content: currentContent + separator + '\n\n## Firmas\n\n_Firma electrónica_\n_' });
+        this.documentForm.patchValue({ content: currentContent + separator + '\n\n## Firmas\n\n_Firma electr�nica_\n_' });
       }
       this.updatePreview();
       this.syncAssistantFromFormNow();
@@ -3847,8 +3888,8 @@ blockquote {
 
   private documentPreviewCss(): string {
     const background = this.documentBackgroundSettings();
-    // Cascade (lowest → highest priority):
-    //   defaults → PDF style template → quick style preset → document colors → user/AI CSS.
+    // Cascade (lowest ? highest priority):
+    //   defaults ? PDF style template ? quick style preset ? document colors ? user/AI CSS.
     // Custom CSS is last so examples like `h1 { color: ... }` always work.
     return [
       buildDocumentPreviewCss(''),
@@ -4161,7 +4202,7 @@ if (format === 'pdf') {
        } catch (error) {
          console.error('Error generating PDF:', error);
          alert(
-           'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
+           'No se pudo generar el PDF. Revisa el contenido e int�ntalo de nuevo.',
          );
        }
        return;
@@ -4200,7 +4241,7 @@ if (format === 'pdf') {
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
       alert(
-        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e inténtalo de nuevo.`,
+        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e int�ntalo de nuevo.`,
       );
     }
   }
@@ -4300,11 +4341,12 @@ if (format === 'pdf') {
       } catch (error) {
         console.error('Error generating PDF:', error);
         this.documentGenerateError =
-          'No se pudo generar el documento. Revisa los datos e inténtalo de nuevo.';
+          'No se pudo generar el documento. Revisa los datos e int�ntalo de nuevo.';
       } finally {
         this.isGenerating = false;
       }
     }
   }
 }
+
 
