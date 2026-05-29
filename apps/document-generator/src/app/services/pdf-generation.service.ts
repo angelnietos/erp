@@ -380,6 +380,10 @@ export class PdfGenerationService {
       ? this.templates.getPdfStyleCss(data.pdfStyleId)
       : '';
 
+    const presetCss = this.stylePresetCssForPdf(
+      typeof data.quickStylePreset === 'string' ? data.quickStylePreset : '',
+    );
+
     const headerFooterCss = this.buildHeaderFooterCss(data);
     const coverHtml = this.buildCoverHtml(data);
 
@@ -390,6 +394,20 @@ export class PdfGenerationService {
         <meta charset="UTF-8">
         <title>${title}</title>
         <style>
+          :root {
+            --markdown-font-size: 1.05rem;
+            --markdown-line-height: 1.72;
+            --markdown-color: #1f2937;
+            --brand-primary: #7a0000;
+            --brand-accent: #ff3131;
+            --bg: #ffffff;
+            --text: #1f2937;
+            --text-soft: #475569;
+            --border: #e2e8f0;
+            --code-bg: #0f172a;
+            --code-text: #f8fafc;
+            --bg-soft: #f8f9fb;
+          }
           ${headerFooterCss}
           * {
             box-sizing: border-box;
@@ -525,10 +543,11 @@ export class PdfGenerationService {
         margin: 0 0 16px;
         letter-spacing: -0.03em;
       }
-          ${this.getPdfPaginationCss()}
-          ${styleCss}
-          ${mergedCss}
-        </style>
+${this.getPdfPaginationCss()}
+           ${presetCss}
+           ${styleCss}
+           ${mergedCss}
+         </style>
       </head>
       <body>
         ${coverHtml}
@@ -626,6 +645,61 @@ export class PdfGenerationService {
         ${pageContent}
       }
     `;
+  }
+
+  private stylePresetCssForPdf(preset: string): string {
+    const presets: Record<string, string> = {
+      corporate: `
+.markdown-preview h1 {
+  font-size: clamp(2.25rem, 4vw, 3rem);
+  font-weight: 850;
+  color: #111827;
+  border-bottom: 2px solid rgba(122, 0, 0, 0.22);
+  padding-bottom: 0.75rem;
+}
+.markdown-preview h1::before {
+  background: linear-gradient(90deg, #7a0000, #ff3131);
+}
+.markdown-preview h2 {
+  font-size: clamp(1.55rem, 2.5vw, 2rem);
+  font-weight: 800;
+  color: #1f2937;
+  border-left: 5px solid #ff3131;
+  padding-left: 0.85rem;
+}
+.markdown-preview h3 {
+  color: #374151;
+  font-weight: 750;
+}
+.markdown-preview table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+.markdown-preview th {
+  background: #7a0000;
+  color: #ffffff;
+}
+.markdown-preview blockquote {
+  background: #fff1f1;
+  border-left-color: #ff3131;
+  color: #5b0000;
+}
+`,
+      compact: `
+.markdown-preview h1 { font-size: 1.8rem; margin: 1rem 0 0.6rem; }
+.markdown-preview h2 { font-size: 1.35rem; margin: 0.85rem 0 0.45rem; }
+.markdown-preview h3 { font-size: 1.1rem; margin: 0.7rem 0 0.35rem; }
+.markdown-preview p, .markdown-preview ul, .markdown-preview ol, .markdown-preview table { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+.markdown-preview th, .markdown-preview td { padding: 0.4rem 0.55rem; }
+`,
+      large: `
+.markdown-preview h1 { font-size: clamp(2.5rem, 5vw, 3.35rem); }
+.markdown-preview h2 { font-size: clamp(1.85rem, 3vw, 2.35rem); }
+.markdown-preview h3 { font-size: 1.55rem; }
+.markdown-preview th, .markdown-preview td { padding: 0.8rem 1rem; }
+`,
+    };
+    return presets[preset] ?? '';
   }
 
   private buildCoverHtml(data: DocumentData): string {
