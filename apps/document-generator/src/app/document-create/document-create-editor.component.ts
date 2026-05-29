@@ -1480,14 +1480,14 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                 <!-- Modal Body (Scrollable) -->
                 <div class="flex-1 overflow-y-auto p-6 bg-slate-50/30">
-                  <!-- Cover Editor -->
-                  <div [class.hidden]="!showCoverEditor">
-                    <app-cover-editor
-                      #coverEditorRef
-                      class="block"
-                      [initialConfig]="coverConfig"
-                      (configChanged)="onCoverConfigChanged($event)"
-                    ></app-cover-editor>
+<!-- Cover Editor -->
+                   <div [class.hidden]="!showCoverEditor">
+                     <app-cover-editor
+                       #coverEditorRef
+                       class="block"
+                       [initialConfig]="coverConfig"
+                       (configChanged)="onCoverConfigChange($event)"
+                     ></app-cover-editor>
                     <div class="mt-4 flex justify-end gap-3">
                       <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
                         Cerrar
@@ -1498,13 +1498,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                     </div>
                   </div>
 
-                  <!-- Signature Editor -->
-                  <div [class.hidden]="!showSignatureEditor">
-                    <app-signature-editor
-                      #signatureEditorRef
-                      [initialConfig]="signatureConfig"
-                      (configChanged)="onSignatureConfigChanged($event)"
-                    ></app-signature-editor>
+<!-- Signature Editor -->
+                   <div [class.hidden]="!showSignatureEditor">
+                     <app-signature-editor
+                       #signatureEditorRef
+                       [initialConfig]="signatureConfig"
+                       (configChanged)="onSignatureConfigChange($event)"
+                     ></app-signature-editor>
                     <div class="mt-4 flex justify-end gap-3">
                       <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
                         Cerrar
@@ -1515,13 +1515,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                     </div>
                   </div>
 
-                  <!-- Header/Footer Editor -->
-                  <div [class.hidden]="!showHeaderFooterEditor">
-                    <app-header-footer-editor
-                      #headerFooterEditorRef
-                      [initialConfig]="headerFooterConfig"
-                      (configChanged)="onHeaderFooterConfigChanged($event)"
-                    ></app-header-footer-editor>
+<!-- Header/Footer Editor -->
+                   <div [class.hidden]="!showHeaderFooterEditor">
+                     <app-header-footer-editor
+                       #headerFooterEditorRef
+                       [initialConfig]="headerFooterConfig"
+                       (configChanged)="onHeaderFooterConfigChange($event)"
+                     ></app-header-footer-editor>
                     <div class="mt-4 flex justify-end">
                       <button type="button" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors" (click)="closeAllModals()">
                         Aceptar
@@ -3153,18 +3153,21 @@ ${contentHtml}
     this.showCoverEditor = false;
   }
 
-  onCoverConfigChanged(config: CoverConfig): void {
+  onCoverConfigChange(config: CoverConfig): void {
     this.coverConfig = config;
+    this.coverPanelEnabled = config.enabled;
     this.updatePreview();
   }
 
-  onSignatureConfigChanged(config: SignatureConfig): void {
+  onSignatureConfigChange(config: SignatureConfig): void {
     this.signatureConfig = config;
+    this.signaturePanelEnabled = config.enabled;
     this.updatePreview();
   }
 
-  onHeaderFooterConfigChanged(config: HeaderFooterConfig): void {
+  onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
     this.headerFooterConfig = config;
+    this.headerFooterPanelEnabled = config.enabled;
     this.updatePreview();
   }
 
@@ -3182,24 +3185,6 @@ ${contentHtml}
     this.showHeaderFooterEditor = false;
     this.showTableBuilder = false;
     this.showImageInsert = false;
-  }
-
-  onCoverConfigChange(config: CoverConfig): void {
-    this.coverConfig = config;
-    this.coverPanelEnabled = config.enabled;
-    this.updatePreview();
-  }
-
-  onSignatureConfigChange(config: SignatureConfig): void {
-    this.signatureConfig = config;
-    this.signaturePanelEnabled = config.enabled;
-    this.updatePreview();
-  }
-
-  onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
-    this.headerFooterConfig = config;
-    this.headerFooterPanelEnabled = config.enabled;
-    this.updatePreview();
   }
 
   toggleCoverEditor(): void {
@@ -4150,33 +4135,36 @@ td {
     const formValue = this.documentForm.value;
     const client = this.clients.find((c) => c.id === formValue.clientId);
 
-    if (format === 'pdf') {
-      try {
-        const backgroundSettings = this.documentBackgroundSettings();
-        const dateStr = formValue.date
-          ? String(formValue.date)
-          : new Date().toISOString().split('T')[0];
-        const pdfBlob = await this.pdfService.generateMarkdownPdf({
-          content: renderableContent,
-          title: title,
-          date: dateStr,
-          client: client?.name || 'Josanz ERP',
-          subtitle: client?.name || 'Josanz ERP',
-          pdfStyleId: this.selectedPdfStyle,
-          contentEditorMode: this.contentEditorMode,
-          quickStylePreset: this.selectedQuickStylePreset,
-          customCss: this.pdfExportCustomCss(),
-          ...backgroundSettings,
-        });
-        this.universalDocument.download(pdfBlob, `${title}.pdf`);
-      } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert(
-          'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
-        );
-      }
-      return;
-    }
+if (format === 'pdf') {
+       try {
+         const backgroundSettings = this.documentBackgroundSettings();
+         const dateStr = formValue.date
+           ? String(formValue.date)
+           : new Date().toISOString().split('T')[0];
+         const pdfBlob = await this.pdfService.generateMarkdownPdf({
+           content: renderableContent,
+           title: title,
+           date: dateStr,
+           client: client?.name || 'Josanz ERP',
+           subtitle: client?.name || 'Josanz ERP',
+           pdfStyleId: this.selectedPdfStyle,
+           contentEditorMode: this.contentEditorMode,
+           quickStylePreset: this.selectedQuickStylePreset,
+           customCss: this.pdfExportCustomCss(),
+           coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
+           signatureConfig: this.signatureConfig?.enabled ? this.signatureConfig : undefined,
+           headerFooterConfig: this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined,
+           ...backgroundSettings,
+         });
+         this.universalDocument.download(pdfBlob, `${title}.pdf`);
+       } catch (error) {
+         console.error('Error generating PDF:', error);
+         alert(
+           'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
+         );
+       }
+       return;
+     }
 
     if (format === 'html') {
       this.exportStyledHtml(title);
