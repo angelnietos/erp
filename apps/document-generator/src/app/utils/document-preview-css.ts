@@ -678,11 +678,38 @@ ${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
   return '';
 }
 
+/**
+ * Traduce los selectores del panel de vista previa al contexto PDF.
+ *
+ * El CSS guardado en BD está scopeado a `.document-create-shell .document-preview-pane--isolated.markdown-preview`
+ * (selector del editor en vivo). En el PDF el contenedor es `.pdf-body-content.markdown-preview`, por lo que
+ * sin esta transformación el CSS del usuario nunca aplica al PDF exportado.
+ */
+export function resolvePdfCustomCss(storedCustomCss: string | undefined): string {
+  const resolved = resolveStoredDocumentCss(storedCustomCss);
+
+  return (
+    resolved
+      // Reemplaza ambas variantes de scope del editor → scope PDF
+      .replace(
+        /\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)/g,
+        '.pdf-body-content.markdown-preview',
+      )
+      // Reemplaza selectores :where() del aislamiento de colores → scope PDF
+      .replace(
+        /:where\(\.document-preview-pane(?:--isolated)?(?:\.markdown-preview|\.document-preview-render)?\)/g,
+        ':where(.pdf-body-content.markdown-preview)',
+      )
+  );
+}
+
 export function resolvePdfGenerationCss(
   storedCustomCss: string | undefined,
   background?: PdfBackgroundSettings,
 ): string {
-  const base = resolveStoredDocumentCss(storedCustomCss);
+  // Usamos resolvePdfCustomCss en lugar de resolveStoredDocumentCss para que
+  // el CSS del usuario coincida con los elementos dentro del PDF generado.
+  const base = resolvePdfCustomCss(storedCustomCss);
   const bgCss = buildPdfBackgroundCss(background ?? {});
   if (!bgCss.trim()) {
     return base;

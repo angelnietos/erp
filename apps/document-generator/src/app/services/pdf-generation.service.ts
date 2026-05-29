@@ -393,6 +393,8 @@ export class PdfGenerationService {
       <head>
         <meta charset="UTF-8">
         <title>${title}</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
         <style>
           :root {
             --markdown-font-size: 1.05rem;
@@ -411,6 +413,9 @@ export class PdfGenerationService {
           ${headerFooterCss}
           * {
             box-sizing: border-box;
+            /* Fuerza a html2canvas a capturar fondos de color (tablas, blockquotes, etc.) */
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
           }
           html {
             counter-reset: page;
@@ -509,24 +514,32 @@ export class PdfGenerationService {
           hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0; }
           a { color: #2563eb; text-decoration: underline; }
           a:hover { color: #1d4ed8; }
+          /* ── Estilos base de tabla (fallback sin preset ni CSS de usuario) ── */
           table { width: 100%; border-collapse: collapse; margin: 0.65rem 0; page-break-inside: auto; }
           thead { display: table-header-group; }
           tr { page-break-inside: avoid; page-break-after: auto; }
           th {
-            background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
-            font-weight: 600;
+            /* Color sólido: los gradientes fallan con html2canvas */
+            background-color: #e8eef5;
+            font-weight: 700;
             color: #1e293b;
-            padding: 0.55rem 0.65rem;
+            padding: 0.6rem 0.75rem;
             text-align: left;
             border: 1px solid #cbd5e1;
           }
           td {
-            padding: 0.55rem 0.65rem;
+            padding: 0.6rem 0.75rem;
             border: 1px solid #e2e8f0;
             background-color: #ffffff;
+            vertical-align: top;
           }
           tr:nth-child(even) td { background-color: #f8fafc; }
+          /* ── Scoped al contenedor PDF (especificidad mayor: gana al base pero cede al preset/usuario) ── */
+          .pdf-body-content th { background-color: #e8eef5; color: #1e293b; }
+          .pdf-body-content td { background-color: #ffffff; vertical-align: top; }
+          .pdf-body-content tr:nth-child(even) td { background-color: #f8fafc; }
           img { max-width: 100%; height: auto; page-break-inside: avoid; }
+
           .pdf-cover-page {
         page-break-after: always;
         display: flex;
