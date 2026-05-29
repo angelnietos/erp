@@ -373,12 +373,13 @@ export class PdfGenerationService {
     const title = escapeHtml(data.title || 'Documento');
     const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
 
-    // Get PDF style CSS
     const styleCss = data.pdfStyleId
       ? this.templates.getPdfStyleCss(data.pdfStyleId)
       : '';
 
-    // Plantilla PDF (html2canvas no aplica @page ni running(); pie simple al final)
+    const headerFooterCss = this.buildHeaderFooterCss(data);
+    const coverHtml = this.buildCoverHtml(data);
+
     const pdfTemplate = `
       <!DOCTYPE html>
       <html>
@@ -386,13 +387,13 @@ export class PdfGenerationService {
         <meta charset="UTF-8">
         <title>${title}</title>
         <style>
-          @page {
-            margin: 0;
-          }
+          ${headerFooterCss}
           * {
             box-sizing: border-box;
           }
-          html,
+          html {
+            counter-reset: page;
+          }
           body {
             margin: 0;
             padding: 0;
@@ -402,6 +403,21 @@ export class PdfGenerationService {
             color: #0f172a;
             font-size: 11.5pt;
             letter-spacing: 0.01em;
+          }
+          .pdf-page {
+            counter-increment: page;
+            position: relative;
+          }
+          .pdf-page-number {
+            position: absolute;
+            bottom: 12mm;
+            width: 100%;
+            text-align: center;
+            font-size: 9pt;
+            color: #64748b;
+          }
+          .pdf-page-number::after {
+            content: "Página " counter(page);
           }
           h1 {
             font-size: 20pt;
@@ -437,13 +453,8 @@ export class PdfGenerationService {
             orphans: 3;
             widows: 3;
           }
-          ul, ol {
-            margin: 0.75rem 0;
-            padding-left: 1.5rem;
-          }
-          li {
-            margin: 0.375rem 0;
-          }
+          ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+          li { margin: 0.375rem 0; }
           blockquote {
             margin: 0.65rem 0;
             padding: 0.65rem 1rem;
@@ -469,48 +480,17 @@ export class PdfGenerationService {
             overflow-x: auto;
             page-break-inside: avoid;
           }
-          pre code {
-            background-color: transparent;
-            color: #e2e8f0;
-            padding: 0;
-          }
-          strong, b {
-            font-weight: 700;
-          }
-          em, i {
-            font-style: italic;
-          }
-          u {
-            text-decoration: underline;
-          }
-          s, strike {
-            text-decoration: line-through;
-          }
-          hr {
-            margin: 1.5rem 0;
-            border: none;
-            border-top: 1px solid #e2e8f0;
-          }
-          a {
-            color: #2563eb;
-            text-decoration: underline;
-          }
-          a:hover {
-            color: #1d4ed8;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0.65rem 0;
-            page-break-inside: auto;
-          }
-          thead {
-            display: table-header-group;
-          }
-          tr {
-            page-break-inside: avoid;
-            page-break-after: auto;
-          }
+          pre code { background-color: transparent; color: #e2e8f0; padding: 0; }
+          strong, b { font-weight: 700; }
+          em, i { font-style: italic; }
+          u { text-decoration: underline; }
+          s, strike { text-decoration: line-through; }
+          hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0; }
+          a { color: #2563eb; text-decoration: underline; }
+          a:hover { color: #1d4ed8; }
+          table { width: 100%; border-collapse: collapse; margin: 0.65rem 0; page-break-inside: auto; }
+          thead { display: table-header-group; }
+          tr { page-break-inside: avoid; page-break-after: auto; }
           th {
             background: linear-gradient(180deg, #f1f5f9 0%, #e8eef5 100%);
             font-weight: 600;
@@ -524,23 +504,19 @@ export class PdfGenerationService {
             border: 1px solid #e2e8f0;
             background-color: #ffffff;
           }
-          tr:nth-child(even) td {
-            background-color: #f8fafc;
-          }
-          img {
-            max-width: 100%;
-            height: auto;
-            page-break-inside: avoid;
-          }
+          tr:nth-child(even) td { background-color: #f8fafc; }
+          img { max-width: 100%; height: auto; page-break-inside: avoid; }
+          .pdf-cover-page { page-break-after: always; }
           ${this.getPdfPaginationCss()}
           ${styleCss}
           ${mergedCss}
         </style>
       </head>
       <body>
+        ${coverHtml}
         <div class="pdf-canvas-root">
           <div class="pdf-body-content document-preview-render markdown-preview">
-          ${htmlContent}
+            ${htmlContent}
           </div>
         </div>
       </body>
@@ -569,6 +545,110 @@ export class PdfGenerationService {
     const trimmed = content.trim();
     const match = /^```(?:html)?\s*([\s\S]*?)\s*```$/i.exec(trimmed);
     return match ? match[1].trim() : content;
+  }
+
+  private buildHeaderFooterCss(data: DocumentData): string {
+    const hf = (data as Record<string, unknown>)['headerFooterConfig'] as Record<string, unknown> | undefined;
+    if (!hf || hf['enabled'] !== true) return '';
+
+    const fontSize = typeof hf['fontSize'] === 'string' ? hf['fontSize'] : '9pt';
+    const textColor = typeof hf['textColor'] === 'string' ? hf['textColor'] : '#64748b';
+    const showPageNumbers = hf['showPageNumbers'] !== false;
+    const showDivider = hf['showDivider'] !== false;
+    const pageFormat = typeof hf['pageNumberFormat'] === 'string' ? hf['pageNumberFormat'] : 'simple';
+
+    const pageNumberSelector = showPageNumbers ? 'content: counter(page);' : 'content: none;';
+    const totalPagesSelector = pageFormat === 'x-of-y' ? 'content: " de " counter(pages);' : '';
+    const pagePrefixSelector = pageFormat === 'page-x' ? 'content: "Página " counter(page);' : '';
+
+    let pageContent = pageNumberSelector;
+    if (pageFormat === 'x-of-y') {
+      pageContent = 'content: counter(page) " de " counter(pages);';
+    } else if (pageFormat === 'page-x') {
+      pageContent = 'content: "Página " counter(page);';
+    }
+
+    return `
+      .pdf-header-fixed {
+        position: running(pdf-header);
+        font-size: ${fontSize};
+        color: ${textColor};
+        ${showDivider ? 'border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;' : ''}
+      }
+      .pdf-footer-fixed {
+        position: running(pdf-footer);
+        font-size: ${fontSize};
+        color: ${textColor};
+        text-align: center;
+        ${showDivider ? 'border-top: 1px solid #e2e8f0; padding-top: 8px;' : ''}
+      }
+      .pdf-page-header {
+        position: absolute;
+        top: 10mm;
+        left: 15mm;
+        right: 15mm;
+        font-size: ${fontSize};
+        color: ${textColor};
+        ${showDivider ? 'border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;' : ''}
+      }
+      .pdf-page-header-left { float: left; }
+      .pdf-page-header-center { text-align: center; }
+      .pdf-page-header-right { float: right; }
+      .pdf-page-footer {
+        position: absolute;
+        bottom: 10mm;
+        left: 15mm;
+        right: 15mm;
+        font-size: ${fontSize};
+        color: ${textColor};
+        text-align: center;
+        ${showDivider ? 'border-top: 1px solid #e2e8f0; padding-top: 6px;' : ''}
+      }
+      .pdf-page-footer::before {
+        ${pageContent}
+      }
+    `;
+  }
+
+  private buildCoverHtml(data: DocumentData): string {
+    const cover = (data as Record<string, unknown>)['coverConfig'] as Record<string, unknown> | undefined;
+    if (!cover || cover['enabled'] !== true) return '';
+
+    const title = escapeHtml(typeof cover['title'] === 'string' ? cover['title'] : data.title || 'Documento');
+    const subtitle = escapeHtml(typeof cover['subtitle'] === 'string' ? cover['subtitle'] : '');
+    const author = escapeHtml(typeof cover['author'] === 'string' ? cover['author'] : '');
+    const date = escapeHtml(typeof cover['date'] === 'string' ? cover['date'] : this.formatDisplayDate(data.date));
+    const logoUrl = typeof cover['logoUrl'] === 'string' ? cover['logoUrl'] : '';
+    const textColor = typeof cover['textColor'] === 'string' ? cover['textColor'] : '#ffffff';
+    const showDivider = cover['showDivider'] !== false;
+    const showDate = cover['showDate'] !== false;
+    const showAuthor = cover['showAuthor'] !== false;
+    const layout = typeof cover['layout'] === 'string' ? cover['layout'] : 'centered';
+
+    let backgroundStyle = 'background: linear-gradient(135deg, #420000 0%, #7a0000 100%);';
+    const bgType = typeof cover['backgroundType'] === 'string' ? cover['backgroundType'] : 'gradient';
+    if (bgType === 'solid' && typeof cover['backgroundColor'] === 'string') {
+      backgroundStyle = `background: ${cover['backgroundColor']};`;
+    } else if (bgType === 'gradient' && typeof cover['gradientFrom'] === 'string' && typeof cover['gradientTo'] === 'string') {
+      backgroundStyle = `background: linear-gradient(135deg, ${cover['gradientFrom']}, ${cover['gradientTo']});`;
+    } else if (bgType === 'image' && typeof cover['backgroundImageUrl'] === 'string') {
+      backgroundStyle = `background: url('${cover['backgroundImageUrl']}') center/cover no-repeat;`;
+    }
+
+    const justifyAlign = layout === 'left-aligned' ? 'flex-start' : layout === 'minimal' ? 'center' : 'center';
+    const textAlign = layout === 'left-aligned' ? 'left' : 'center';
+
+    return `
+      <div class="pdf-cover-page" style="${backgroundStyle} height: 100vh; color: ${textColor}; display: flex; flex-direction: column; align-items: ${justifyAlign}; justify-content: center; padding: 60px; box-sizing: border-box; text-align: ${textAlign};">
+        ${logoUrl ? `<img src="${logoUrl}" style="max-width: 140px; max-height: 70px; object-fit: contain; margin-bottom: 32px;" alt="Logo"/>` : ''}
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${textColor}; letter-spacing: -0.03em;">${title}</h1>
+        ${subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${textColor};">${subtitle}</p>` : ''}
+        ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 24px' : '0 0 24px'};"></div>` : ''}
+        <p style="font-size: 0.9rem; opacity: 0.85; color: ${textColor};">
+          ${[showAuthor && author ? author : '', showDate && date ? date : ''].filter(Boolean).join(' · ')}
+        </p>
+      </div>
+    `;
   }
 
   private applyCorporateCoverVisibility(

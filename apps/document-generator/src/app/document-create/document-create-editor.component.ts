@@ -42,6 +42,12 @@ import {
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
+import { CoverEditorComponent, type CoverConfig } from './cover-editor.component';
+import { SignatureEditorComponent, type SignatureConfig } from './signature-editor.component';
+import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-footer-editor.component';
+import { TableBuilderComponent, type TableConfig } from './table-builder.component';
+import { ImageInsertComponent, type ImageConfig } from './image-insert.component';
+import { SlashCommandsComponent, type SlashCommand } from './slash-commands.component';
 
 declare const marked: MarkedGlobal;
 
@@ -252,7 +258,7 @@ interface DocumentType {
   ],
   selector: 'app-document-create-editor',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, CoverEditorComponent, SignatureEditorComponent, HeaderFooterEditorComponent, TableBuilderComponent, ImageInsertComponent],
   template: `
     <!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
     <div class="document-create-page space-y-6">
@@ -826,7 +832,84 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 <div class="text-xs text-muted text-center flex-1">Ajustar tamaño base</div>
                                 <button type="button" class="px-2 py-1 rounded border" (click)="adjustBaseFontSize(0.05)">A+</button>
                               </div>
+                              <div class="divider"></div>
+                              <label class="block text-sm font-medium text-secondary">Herramientas PDF</label>
+                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleCoverEditor()">
+                                <span>📄</span>
+                                <span>Portada</span>
+                                @if (showCoverEditor) {
+                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
+                                }
+                              </button>
+                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleHeaderFooterEditor()">
+                                <span>📑</span>
+                                <span>Encabezado/Pie</span>
+                                @if (showHeaderFooterEditor) {
+                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
+                                }
+                              </button>
+                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleSignatureEditor()">
+                                <span>✍️</span>
+                                <span>Firmas</span>
+                                @if (showSignatureEditor) {
+                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
+                                }
+                              </button>
+                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleTableBuilder()">
+                                <span>⊞</span>
+                                <span>Tabla personalizada</span>
+                                @if (showTableBuilder) {
+                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
+                                }
+                              </button>
+                              <button type="button" class="w-full flex items-center gap-2" (click)="toggleImageInsert()">
+                                <span>🖼️</span>
+                                <span>Insertar imagen</span>
+                                @if (showImageInsert) {
+                                  <span class="ml-auto text-xs text-blue-600">Activo</span>
+                                }
+                              </button>
+                              <p class="text-[11px] text-muted leading-snug mt-2">
+                                Escribe "/" en el editor para comandos rápidos
+                              </p>
                             </div>
+                            @if (showCoverEditor && coverConfig) {
+                              <div class="divider"></div>
+                              <app-cover-editor
+                                #coverEditorRef
+                                class="block"
+                              ></app-cover-editor>
+                              <button type="button" class="w-full mt-2 px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors" (click)="insertCoverIntoDocument()">
+                                Añadir portada al documento
+                              </button>
+                            }
+                            @if (showSignatureEditor && signatureConfig) {
+                              <div class="divider"></div>
+                              <app-signature-editor
+                                #signatureEditorRef
+                              ></app-signature-editor>
+                              <button type="button" class="w-full mt-2 px-3 py-2 bg-amber-600 text-white text-xs font-medium rounded-lg hover:bg-amber-700 transition-colors" (click)="insertSignatureIntoDocument()">
+                                Añadir firmas al documento
+                              </button>
+                            }
+                            @if (showHeaderFooterEditor && headerFooterConfig) {
+                              <div class="divider"></div>
+                              <app-header-footer-editor
+                                #headerFooterEditorRef
+                              ></app-header-footer-editor>
+                            }
+                            @if (showTableBuilder) {
+                              <div class="divider"></div>
+                              <app-table-builder
+                                #tableBuilderRef
+                              ></app-table-builder>
+                            }
+                            @if (showImageInsert) {
+                              <div class="divider"></div>
+                              <app-image-insert
+                                #imageInsertRef
+                              ></app-image-insert>
+                            }
                           </div>
                           <!-- Editor Markdown -->
                           <div class="document-editor-column">
@@ -1247,6 +1330,26 @@ export class DocumentCreateEditorComponent implements OnInit {
   documentMutedColor = '#475569';
   documentAccentColor = '#2563eb';
   documentBorderColor = '#e2e8f0';
+
+  showCoverEditor = false;
+  showSignatureEditor = false;
+  showHeaderFooterEditor = false;
+  showTableBuilder = false;
+  showImageInsert = false;
+  showSlashCommands = false;
+  slashMenuPosition = { x: 0, y: 0 };
+  activeSidebarTab: 'styles' | 'blocks' | 'advanced' = 'blocks';
+
+  coverConfig: Partial<CoverConfig> = {};
+  signatureConfig: Partial<SignatureConfig> = {};
+  headerFooterConfig: Partial<HeaderFooterConfig> = {};
+
+  @ViewChild(CoverEditorComponent) coverEditor!: CoverEditorComponent;
+  @ViewChild(SignatureEditorComponent) signatureEditor!: SignatureEditorComponent;
+  @ViewChild(HeaderFooterEditorComponent) headerFooterEditor!: HeaderFooterEditorComponent;
+  @ViewChild(TableBuilderComponent) tableBuilder!: TableBuilderComponent;
+  @ViewChild(ImageInsertComponent) imageInsert!: ImageInsertComponent;
+  @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
     { id: 'paragraph', label: 'Párrafo normal' },
     { id: 'h1', label: 'Título H1' },
@@ -1947,6 +2050,15 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (typeof p['documentBorderColor'] === 'string') {
       this.documentBorderColor = p['documentBorderColor'];
     }
+    if (p['coverConfig'] && typeof p['coverConfig'] === 'object') {
+      this.coverConfig = p['coverConfig'] as Partial<CoverConfig>;
+    }
+    if (p['signatureConfig'] && typeof p['signatureConfig'] === 'object') {
+      this.signatureConfig = p['signatureConfig'] as Partial<SignatureConfig>;
+    }
+    if (p['headerFooterConfig'] && typeof p['headerFooterConfig'] === 'object') {
+      this.headerFooterConfig = p['headerFooterConfig'] as Partial<HeaderFooterConfig>;
+    }
     this.applyCustomCss();
     this.documentForm.patchValue(patch);
     this.syncAssistantFromFormNow();
@@ -2592,6 +2704,211 @@ ${html}
       event.preventDefault();
       void this.saveDraft();
     }
+    if (event.ctrlKey && event.key === 'p' && this.showSlashCommands) {
+      event.preventDefault();
+      this.showSlashCommands = false;
+    }
+  }
+
+  toggleCoverEditor(): void {
+    this.showCoverEditor = !this.showCoverEditor;
+    this.showSignatureEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showTableBuilder = false;
+    this.showImageInsert = false;
+  }
+
+  toggleSignatureEditor(): void {
+    this.showSignatureEditor = !this.showSignatureEditor;
+    this.showCoverEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showTableBuilder = false;
+    this.showImageInsert = false;
+  }
+
+  toggleHeaderFooterEditor(): void {
+    this.showHeaderFooterEditor = !this.showHeaderFooterEditor;
+    this.showCoverEditor = false;
+    this.showSignatureEditor = false;
+    this.showTableBuilder = false;
+    this.showImageInsert = false;
+  }
+
+  toggleTableBuilder(): void {
+    this.showTableBuilder = !this.showTableBuilder;
+    this.showCoverEditor = false;
+    this.showSignatureEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showImageInsert = false;
+  }
+
+  toggleImageInsert(): void {
+    this.showImageInsert = !this.showImageInsert;
+    this.showCoverEditor = false;
+    this.showSignatureEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showTableBuilder = false;
+  }
+
+  handleSlashCommand(command: SlashCommand): void {
+    this.showSlashCommands = false;
+    switch (command.id) {
+      case 'heading1':
+        this.insertMarkdown('# ', '');
+        break;
+      case 'heading2':
+        this.insertMarkdown('## ', '');
+        break;
+      case 'heading3':
+        this.insertMarkdown('### ', '');
+        break;
+      case 'bold':
+        this.insertMarkdown('**', '**');
+        break;
+      case 'italic':
+        this.insertMarkdown('*', '*');
+        break;
+      case 'quote':
+        this.insertMarkdown('> ', '');
+        break;
+      case 'divider':
+        this.insertMarkdown('\n---\n', '');
+        break;
+      case 'code':
+        this.insertMarkdown('```\n', '\n```');
+        break;
+      case 'bullet-list':
+        this.insertMarkdown('- ', '');
+        break;
+      case 'numbered-list':
+        this.insertMarkdown('1. ', '');
+        break;
+      case 'checklist':
+        this.insertMarkdown('- [ ] ', '');
+        break;
+      case 'callout':
+        this.insertMarkdown('> **Nota:** ', '');
+        break;
+      case 'callout-info':
+        this.insertMarkdown('> ℹ️ **Info:** ', '');
+        break;
+      case 'callout-warning':
+        this.insertMarkdown('> ⚠️ **Advertencia:** ', '');
+        break;
+      case 'callout-success':
+        this.insertMarkdown('> ✅ **Éxito:** ', '');
+        break;
+      case 'cover':
+        this.toggleCoverEditor();
+        break;
+      case 'signatures':
+        this.toggleSignatureEditor();
+        break;
+      case 'table':
+        this.toggleTableBuilder();
+        break;
+      case 'image':
+        this.toggleImageInsert();
+        break;
+      case 'link':
+        this.insertMarkdown('[', '](url)');
+        break;
+      case 'columns':
+        this.insertMarkdown(
+          '\n<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">\n\n',
+          '\n\n</div>\n'
+        );
+        break;
+    }
+  }
+
+  insertCoverIntoDocument(): void {
+    if (this.coverEditor) {
+      const coverHtml = this.coverEditor.exportToHtml();
+      const currentContent = this.documentForm.get('content')?.value || '';
+      const separator = currentContent.trim() ? '\n\n' : '';
+      if (this.contentEditorMode === 'html') {
+        this.documentForm.patchValue({ content: currentContent + separator + coverHtml });
+      } else {
+        const coverMd = this.coverEditor.exportToMarkdown();
+        this.documentForm.patchValue({ content: currentContent + separator + coverMd });
+      }
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    }
+  }
+
+  insertSignatureIntoDocument(): void {
+    if (this.signatureEditor) {
+      const signatureHtml = this.signatureEditor.exportToHtml();
+      const currentContent = this.documentForm.get('content')?.value || '';
+      const separator = currentContent.trim() ? '\n\n' : '';
+      if (this.contentEditorMode === 'html') {
+        this.documentForm.patchValue({ content: currentContent + separator + signatureHtml });
+      } else {
+        this.documentForm.patchValue({ content: currentContent + separator + '\n\n## Firmas\n\n_Firma electrónica_\n_' });
+      }
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    }
+  }
+
+  insertTableFromBuilder(): void {
+    if (this.tableBuilder) {
+      const currentContent = this.documentForm.get('content')?.value || '';
+      const separator = currentContent.trim() ? '\n\n' : '';
+      let tableContent: string;
+      if (this.contentEditorMode === 'html') {
+        tableContent = this.tableBuilder.exportToHtml();
+      } else {
+        tableContent = this.tableBuilder.exportToMarkdown();
+      }
+      this.documentForm.patchValue({ content: currentContent + separator + tableContent });
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    }
+  }
+
+  insertImageFromUpload(): void {
+    if (this.imageInsert) {
+      const currentContent = this.documentForm.get('content')?.value || '';
+      const separator = currentContent.trim() ? '\n\n' : '';
+      let imageContent: string;
+      if (this.contentEditorMode === 'html') {
+        imageContent = this.imageInsert.exportToHtml();
+      } else {
+        imageContent = this.imageInsert.exportToMarkdown();
+      }
+      if (imageContent) {
+        this.documentForm.patchValue({ content: currentContent + separator + imageContent });
+        this.updatePreview();
+        this.syncAssistantFromFormNow();
+      }
+    }
+  }
+
+  generateFullDocumentHtml(): string {
+    let html = '';
+    const formValue = this.documentForm.value;
+    const title = formValue.title || 'Documento';
+
+    if (this.coverEditor && this.coverConfig?.enabled) {
+      html += this.coverEditor.exportToHtml();
+    }
+
+    html += `\n<div class="document-content" style="padding: 2rem; margin-top: 2rem;">\n`;
+    html += this.previewHtmlMarkup;
+    html += `\n</div>\n`;
+
+    if (this.signatureEditor && this.signatureConfig?.enabled) {
+      html += this.signatureEditor.exportToHtml();
+    }
+
+    if (this.headerFooterEditor && this.headerFooterConfig?.enabled) {
+      html += `\n<!-- Header/Footer config: ${JSON.stringify(this.headerFooterConfig)} -->\n`;
+    }
+
+    return html;
   }
 
   async saveDraft(): Promise<void> {
@@ -2606,6 +2923,9 @@ ${html}
       const client = this.clients.find((c) => c.id === formValue.clientId);
       const backgroundSettings = this.documentBackgroundSettings();
       const documentCss = this.customCssForDocument();
+      const coverConfigData = this.coverEditor?.getConfig();
+      const signatureConfigData = this.signatureEditor?.getConfig();
+      const headerFooterConfigData = this.headerFooterEditor?.getConfig();
       const documentData = {
         ...formValue,
         client: client?.name || 'Cliente',
@@ -2614,6 +2934,9 @@ ${html}
         quickStylePreset: this.selectedQuickStylePreset,
         contentEditorMode: this.contentEditorMode,
         customCss: documentCss,
+        coverConfig: coverConfigData,
+        signatureConfig: signatureConfigData,
+        headerFooterConfig: headerFooterConfigData,
         ...backgroundSettings,
         isDraft: true,
         pdfBytes: [] as number[],
