@@ -1891,11 +1891,23 @@ export class DocumentCreateEditorComponent implements OnInit {
       }
     }
     this.savedDraftId = draftId;
+    this.selectedQuickStylePreset = '';
+    this.customCss = '';
+    const hasPresetInCss =
+      typeof p['customCss'] === 'string' &&
+      /\/\* document-style-preset:start \*\//.test(p['customCss']);
     if (typeof p['customCss'] === 'string') {
-      this.customCss = this.removeManagedStylePreset(p['customCss']);
+      this.customCss = p['customCss'];
     }
-    if (typeof p['quickStylePreset'] === 'string') {
+    if (
+      typeof p['quickStylePreset'] === 'string' &&
+      p['quickStylePreset'] &&
+      !hasPresetInCss
+    ) {
       this.selectedQuickStylePreset = p['quickStylePreset'];
+    }
+    if (!hasPresetInCss) {
+      this.customCss = this.removeManagedStylePreset(this.customCss);
     }
     if (
       p['contentEditorMode'] === 'markdown' ||
@@ -2593,14 +2605,15 @@ ${html}
       const formValue = this.documentForm.value;
       const client = this.clients.find((c) => c.id === formValue.clientId);
       const backgroundSettings = this.documentBackgroundSettings();
+      const documentCss = this.customCssForDocument();
       const documentData = {
         ...formValue,
         client: client?.name || 'Cliente',
         type: this.selectedType.id,
         pdfStyleId: this.selectedPdfStyle,
-        customCss: this.cleanUserCustomCss(),
         quickStylePreset: this.selectedQuickStylePreset,
         contentEditorMode: this.contentEditorMode,
+        customCss: documentCss,
         ...backgroundSettings,
         isDraft: true,
         pdfBytes: [] as number[],
