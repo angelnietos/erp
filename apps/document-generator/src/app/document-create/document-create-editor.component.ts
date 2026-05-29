@@ -3137,6 +3137,22 @@ ${contentHtml}
     }
   }
 
+  getActiveCoverConfig(): Partial<CoverConfig> | null {
+    return this.coverConfig?.enabled ? this.coverConfig : null;
+  }
+
+  getActiveSignatureConfig(): Partial<SignatureConfig> | null {
+    return this.signatureConfig?.enabled ? this.signatureConfig : null;
+  }
+
+  getActiveHeaderFooterConfig(): Partial<HeaderFooterConfig> | null {
+    return this.headerFooterConfig?.enabled ? this.headerFooterConfig : null;
+  }
+
+  onCloseCover(): void {
+    this.showCoverEditor = false;
+  }
+
   onCoverConfigChanged(config: CoverConfig): void {
     this.coverConfig = config;
     this.updatePreview();
@@ -3399,9 +3415,6 @@ ${contentHtml}
       const client = this.clients.find((c) => c.id === formValue.clientId);
       const backgroundSettings = this.documentBackgroundSettings();
       const documentCss = this.customCssForDocument();
-      const coverConfigData = this.coverEditor?.getConfig();
-      const signatureConfigData = this.signatureEditor?.getConfig();
-      const headerFooterConfigData = this.headerFooterEditor?.getConfig();
       const documentData = {
         ...formValue,
         client: client?.name || 'Cliente',
@@ -3410,9 +3423,9 @@ ${contentHtml}
         quickStylePreset: this.selectedQuickStylePreset,
         contentEditorMode: this.contentEditorMode,
         customCss: documentCss,
-        coverConfig: coverConfigData,
-        signatureConfig: signatureConfigData,
-        headerFooterConfig: headerFooterConfigData,
+        coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
+        signatureConfig: this.signatureConfig?.enabled ? this.signatureConfig : undefined,
+        headerFooterConfig: this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined,
         ...backgroundSettings,
         isDraft: true,
         pdfBytes: [] as number[],
@@ -4250,6 +4263,10 @@ td {
         );
         const backgroundSettings = this.documentBackgroundSettings();
 
+        const coverCfg = this.coverConfig?.enabled ? this.coverConfig : undefined;
+        const sigCfg = this.signatureConfig?.enabled ? this.signatureConfig : undefined;
+        const hfCfg = this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined;
+
         const documentData = {
           ...formValue,
           content: renderableContent,
@@ -4259,6 +4276,9 @@ td {
           contentEditorMode: this.contentEditorMode,
           customCss: this.pdfExportCustomCss(),
           quickStylePreset: this.selectedQuickStylePreset,
+          coverConfig: coverCfg,
+          signatureConfig: sigCfg,
+          headerFooterConfig: hfCfg,
           ...backgroundSettings,
         };
 
