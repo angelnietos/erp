@@ -767,27 +767,31 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
               </div>
             </form>
 
-            <app-document-tools-modal
-              [active]="hasActiveModal()"
-              [modalTitle]="activeToolModalTitle()"
-              [modalSubtitle]="activeToolModalSubtitle()"
-              [showCoverEditor]="showCoverEditor"
-              [showSignatureEditor]="showSignatureEditor"
-              [showHeaderFooterEditor]="showHeaderFooterEditor"
-              [showTableBuilder]="showTableBuilder"
-              [showImageInsert]="showImageInsert"
-              [coverConfig]="coverConfig"
-              [signatureConfig]="signatureConfig"
-              [headerFooterConfig]="headerFooterConfig"
-              (closeAll)="closeAllModals()"
-              (coverConfigChange)="onCoverConfigChange($event)"
-              (signatureConfigChange)="onSignatureConfigChange($event)"
-              (headerFooterConfigChange)="onHeaderFooterConfigChange($event)"
-              (insertCover)="insertCoverIntoDocument()"
-              (insertSignature)="insertSignatureIntoDocument()"
-              (insertTable)="insertTableFromBuilder()"
-              (insertImage)="insertImageFromUpload()"
-            />
+<app-document-tools-modal
+               [active]="hasActiveModal()"
+               [modalTitle]="activeToolModalTitle()"
+               [modalSubtitle]="activeToolModalSubtitle()"
+               [showCoverEditor]="showCoverEditor"
+               [showSignatureEditor]="showSignatureEditor"
+               [showHeaderFooterEditor]="showHeaderFooterEditor"
+               [showTableBuilder]="showTableBuilder"
+               [showImageInsert]="showImageInsert"
+               [showWatermarkEditor]="showWatermarkEditor"
+               [coverConfig]="coverConfig"
+               [signatureConfig]="signatureConfig"
+               [headerFooterConfig]="headerFooterConfig"
+               [watermarkConfig]="watermarkConfig"
+               (closeAll)="closeAllModals()"
+               (coverConfigChange)="onCoverConfigChange($event)"
+               (signatureConfigChange)="onSignatureConfigChange($event)"
+               (headerFooterConfigChange)="onHeaderFooterConfigChange($event)"
+               (watermarkConfigChange)="onWatermarkConfigChange($event)"
+               (insertCover)="insertCoverIntoDocument()"
+               (insertSignature)="insertSignatureIntoDocument()"
+               (insertTable)="insertTableFromBuilder()"
+               (insertImage)="insertImageFromUpload()"
+               (insertWatermark)="insertWatermarkIntoDocument()"
+             />
           </div>
         }
     </div>

@@ -46,10 +46,11 @@ import {
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
-import { exportCoverConfigToHtml } from '../utils/document-export-html';
+import { exportCoverConfigToHtml, exportWatermarkConfigToHtml } from '../utils/document-export-html';
 import { CoverEditorComponent, type CoverConfig } from './cover-editor.component';
 import { SignatureEditorComponent, type SignatureConfig } from './signature-editor.component';
 import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-footer-editor.component';
+import { WatermarkDialogComponent, type WatermarkConfig } from './watermark-dialog.component';
 import { TableBuilderComponent } from './table-builder.component';
 import { ImageInsertComponent } from './image-insert.component';
 import { SlashCommandsComponent, type SlashCommand } from './slash-commands.component';
@@ -154,25 +155,29 @@ export class DocumentCreateEditorComponent implements OnInit {
   showCoverEditor = false;
   showSignatureEditor = false;
   showHeaderFooterEditor = false;
-  showTableBuilder = false;
-  showImageInsert = false;
-  showSlashCommands = false;
-  slashMenuPosition = { x: 0, y: 0 };
-  activeSidebarTab: 'styles' | 'blocks' | 'advanced' = 'blocks';
+showTableBuilder = false;
+   showImageInsert = false;
+   showWatermarkEditor = false;
+   showSlashCommands = false;
+   slashMenuPosition = { x: 0, y: 0 };
+   activeSidebarTab: 'styles' | 'blocks' | 'advanced' = 'blocks';
 
-  coverPanelEnabled = false;
-  signaturePanelEnabled = false;
-  headerFooterPanelEnabled = false;
-  coverConfig: Partial<CoverConfig> = { enabled: false };
-  signatureConfig: Partial<SignatureConfig> = { enabled: false };
-  headerFooterConfig: Partial<HeaderFooterConfig> = { enabled: false };
+   coverPanelEnabled = false;
+   signaturePanelEnabled = false;
+   headerFooterPanelEnabled = false;
+   watermarkPanelEnabled = false;
+   coverConfig: Partial<CoverConfig> = { enabled: false };
+   signatureConfig: Partial<SignatureConfig> = { enabled: false };
+   headerFooterConfig: Partial<HeaderFooterConfig> = { enabled: false };
+   watermarkConfig: Partial<WatermarkConfig> = { enabled: false };
 
-  @ViewChild(CoverEditorComponent) coverEditor?: CoverEditorComponent;
-  @ViewChild(SignatureEditorComponent) signatureEditor?: SignatureEditorComponent;
-  @ViewChild(HeaderFooterEditorComponent) headerFooterEditor?: HeaderFooterEditorComponent;
-  @ViewChild(TableBuilderComponent) tableBuilder?: TableBuilderComponent;
-  @ViewChild(ImageInsertComponent) imageInsert?: ImageInsertComponent;
-  @ViewChild(DocumentToolsModalComponent) toolsModal?: DocumentToolsModalComponent;
+   @ViewChild(CoverEditorComponent) coverEditor?: CoverEditorComponent;
+   @ViewChild(SignatureEditorComponent) signatureEditor?: SignatureEditorComponent;
+   @ViewChild(HeaderFooterEditorComponent) headerFooterEditor?: HeaderFooterEditorComponent;
+   @ViewChild(TableBuilderComponent) tableBuilder?: TableBuilderComponent;
+   @ViewChild(ImageInsertComponent) imageInsert?: ImageInsertComponent;
+   @ViewChild(WatermarkDialogComponent) watermarkEditor?: WatermarkDialogComponent;
+   @ViewChild(DocumentToolsModalComponent) toolsModal?: DocumentToolsModalComponent;
   @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
     { id: 'paragraph', label: 'Pórrafo normal' },
@@ -1181,6 +1186,11 @@ readonly pdfService = inject(PdfGenerationService);
       this.toolsModal?.headerFooterEditor?.getConfig() ??
       this.headerFooterConfig ??
       { enabled: false };
+    const watermarkConfig =
+      this.watermarkEditor?.getConfig() ??
+      this.toolsModal?.watermarkEditor?.getConfig() ??
+      this.watermarkConfig ??
+      { enabled: false };
 
     return {
       content,
@@ -1193,9 +1203,11 @@ readonly pdfService = inject(PdfGenerationService);
       coverConfig,
       signatureConfig,
       headerFooterConfig,
+      watermarkConfig,
       coverPanelEnabled: this.coverPanelEnabled,
       signaturePanelEnabled: this.signaturePanelEnabled,
       headerFooterPanelEnabled: this.headerFooterPanelEnabled,
+      watermarkPanelEnabled: this.watermarkPanelEnabled,
       documentTitle: title,
     };
   }
@@ -1208,9 +1220,11 @@ readonly pdfService = inject(PdfGenerationService);
       coverConfig: input.coverConfig,
       signatureConfig: input.signatureConfig,
       headerFooterConfig: input.headerFooterConfig,
+      watermarkConfig: input.watermarkConfig,
       coverPanelEnabled: input.coverPanelEnabled,
       signaturePanelEnabled: input.signaturePanelEnabled,
       headerFooterPanelEnabled: input.headerFooterPanelEnabled,
+      watermarkPanelEnabled: input.watermarkPanelEnabled,
       documentTitle,
     };
   }
@@ -1246,9 +1260,11 @@ readonly pdfService = inject(PdfGenerationService);
           coverConfig: input.coverConfig,
           signatureConfig: input.signatureConfig,
           headerFooterConfig: input.headerFooterConfig,
+          watermarkConfig: input.watermarkConfig,
           coverPanelEnabled: input.coverPanelEnabled,
           signaturePanelEnabled: input.signaturePanelEnabled,
           headerFooterPanelEnabled: input.headerFooterPanelEnabled,
+          watermarkPanelEnabled: input.watermarkPanelEnabled,
           documentTitle: input.documentTitle,
         },
       );
@@ -2001,6 +2017,9 @@ ${contentHtml}
       case 'image':
         this.toggleImageInsert();
         break;
+      case 'watermark':
+        this.toggleWatermarkEditor();
+        break;
     }
   }
 
@@ -2141,9 +2160,15 @@ ${contentHtml}
     this.updatePreview();
   }
 
-  onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
+onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
     this.headerFooterConfig = config;
     this.headerFooterPanelEnabled = config.enabled;
+    this.updatePreview();
+  }
+
+  onWatermarkConfigChange(config: WatermarkConfig): void {
+    this.watermarkConfig = config;
+    this.watermarkPanelEnabled = config.enabled;
     this.updatePreview();
   }
 
@@ -2152,8 +2177,9 @@ ${contentHtml}
            this.showSignatureEditor || 
            this.showHeaderFooterEditor || 
            this.showTableBuilder || 
-           this.showImageInsert;
-  }
+           this.showImageInsert ||
+           this.showWatermarkEditor;
+   }
 
   activeToolModalTitle(): string {
     if (this.showCoverEditor) return 'Portada del Documento';
@@ -2161,6 +2187,7 @@ ${contentHtml}
     if (this.showHeaderFooterEditor) return 'Encabezado y Pie de Pagina';
     if (this.showTableBuilder) return 'Constructor de Tablas';
     if (this.showImageInsert) return 'Insertar Imagen';
+    if (this.showWatermarkEditor) return 'Marca de Agua';
     return '';
   }
 
@@ -2180,6 +2207,9 @@ ${contentHtml}
     if (this.showImageInsert) {
       return 'Sube y edita el diseno de imagenes en tu documento';
     }
+    if (this.showWatermarkEditor) {
+      return 'Añade una marca de agua semi-transparente al documento';
+    }
     return '';
   }
 
@@ -2189,6 +2219,7 @@ ${contentHtml}
     this.showHeaderFooterEditor = false;
     this.showTableBuilder = false;
     this.showImageInsert = false;
+    this.showWatermarkEditor = false;
   }
 
   toggleCoverEditor(): void {
@@ -2229,6 +2260,16 @@ ${contentHtml}
     this.showSignatureEditor = false;
     this.showHeaderFooterEditor = false;
     this.showTableBuilder = false;
+    this.showWatermarkEditor = false;
+  }
+
+  toggleWatermarkEditor(): void {
+    this.showWatermarkEditor = !this.showWatermarkEditor;
+    this.showCoverEditor = false;
+    this.showSignatureEditor = false;
+    this.showHeaderFooterEditor = false;
+    this.showTableBuilder = false;
+    this.showImageInsert = false;
   }
 
   handleSlashCommand(command: SlashCommand): void {
@@ -2290,6 +2331,9 @@ ${contentHtml}
         break;
       case 'image':
         this.toggleImageInsert();
+        break;
+      case 'watermark':
+        this.toggleWatermarkEditor();
         break;
       case 'link':
         this.insertMarkdown('[', '](url)');
@@ -2370,6 +2414,11 @@ ${contentHtml}
         this.syncAssistantFromFormNow();
       }
     }
+  }
+
+  insertWatermarkIntoDocument(): void {
+    // Watermark is applied via CSS overlay, no need to insert into document content
+    // The watermarkConfig is already passed to the render service
   }
 
   generateFullDocumentHtml(): string {

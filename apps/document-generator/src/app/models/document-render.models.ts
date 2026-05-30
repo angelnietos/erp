@@ -1,6 +1,7 @@
 import type { CoverConfig } from '../document-create/cover-editor.component';
 import type { SignatureConfig } from '../document-create/signature-editor.component';
 import type { HeaderFooterConfig } from '../document-create/header-footer-editor.component';
+import type { WatermarkConfig } from '../document-create/watermark-dialog.component';
 import type { PdfStyle } from '../services/templates-registry.service';
 import type { PdfBackgroundSettings } from '../utils/document-preview-css';
 
@@ -42,9 +43,11 @@ export interface DocumentRenderInput {
   coverConfig?: Partial<CoverConfig>;
   signatureConfig?: Partial<SignatureConfig>;
   headerFooterConfig?: Partial<HeaderFooterConfig>;
+  watermarkConfig?: Partial<WatermarkConfig>;
   coverPanelEnabled?: boolean;
   signaturePanelEnabled?: boolean;
   headerFooterPanelEnabled?: boolean;
+  watermarkPanelEnabled?: boolean;
   documentTitle?: string;
 }
 

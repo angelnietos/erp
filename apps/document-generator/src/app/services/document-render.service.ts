@@ -35,9 +35,11 @@ export class DocumentRenderService {
       coverConfig: input.coverConfig,
       signatureConfig: input.signatureConfig,
       headerFooterConfig: input.headerFooterConfig,
+      watermarkConfig: input.watermarkConfig,
       coverPanelEnabled: input.coverPanelEnabled,
       signaturePanelEnabled: input.signaturePanelEnabled,
       headerFooterPanelEnabled: input.headerFooterPanelEnabled,
+      watermarkPanelEnabled: input.watermarkPanelEnabled,
       documentTitle: input.documentTitle,
     };
     const bodyHtml = assembleDocumentBodyHtml(contentMarkup, extras);
@@ -90,16 +92,11 @@ export class DocumentRenderService {
 
   buildPreviewStylesheet(input: DocumentRenderInput): string {
     const cleanedCss = removeManagedStylePreset(input.customCss);
-    // Include PDF base CSS for HTML preview to ensure color variables work correctly
-    // If user provided :root variables in their custom CSS, extract them
-    // and apply them both to :root and to the preview scopes so variables
-    // (brand colors, accents) are visible in the in-app preview.
     const rootRe = /:root\s*\{([\s\S]*?)\}/m;
     const rootMatch = rootRe.exec(cleanedCss || '');
     let rootVarsBlock = '';
     if (rootMatch?.[1]) {
       const vars = rootMatch[1].trim();
-      // Apply declarations to :root and to the preview pane scopes
       rootVarsBlock = [
         `:root {\n${vars}\n}`,
         `.document-create-shell .document-preview-pane.markdown-preview, .document-create-shell .document-preview-pane--isolated.markdown-preview {\n${vars}\n}`,
@@ -111,8 +108,6 @@ export class DocumentRenderService {
       this.selectedPdfStylePreviewCss(input.pdfStyles, input.selectedPdfStyle),
       normalizeUserCss(stylePresetCss(input.selectedQuickStylePreset)),
       buildPreviewBackgroundOverrideCss(input.backgroundSettings),
-      // Inject extracted root variable overrides early so variables exist,
-      // then append prioritized user CSS declarations to ensure overriding.
       rootVarsBlock,
       prioritizeUserCss(normalizeUserCss(cleanedCss)),
     ]
@@ -175,20 +170,15 @@ ${bodyHtml}
   ): string {
     let bodyHtml = assembleDocumentBodyHtml(contentHtml, extras);
 
-    // Remove fixed height styles from cover for responsive preview
     bodyHtml = bodyHtml
       .replace(/height:\s*297mm/gi, '')
       .replace(/min-height:\s*297mm/gi, '')
       .replace(/\s*;\s*;/g, ';');
 
-// Adapt scoped markdown preview CSS so it also applies correctly inside
-// the iframe/srcdoc used for HTML preview. We include both the original
-// stylesheet and an adapted variant to maximize compatibility.
-const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
-const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
+    const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
+    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (/<\/head>/i.test(contentHtml)) {
-      // Wrap body content in markdown-preview container if not already present
       const wrappedBodyHtml = bodyHtml.includes('document-preview-render')
         ? bodyHtml
         : `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
@@ -314,8 +304,6 @@ const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/
     html: string,
     coverConfig: { enabled?: boolean } | undefined,
   ): string {
-    // Remove cover elements from document content when coverConfig is provided
-    // to prevent duplicate covers in PDF
     if (!coverConfig?.enabled) {
       return html;
     }
@@ -359,6 +347,23 @@ body .pdf-cover-page,
   height: auto !important;
   min-height: auto !important;
   aspect-ratio: 210/297 !important;
+}
+
+/* Watermark overlay for iframe preview */
+.document-preview-render .pdf-watermark {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+  font-size: 48px !important;
+  color: #000000 !important;
+  opacity: 0.1 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  z-index: -1 !important;
+  white-space: nowrap !important;
+  font-weight: 700 !important;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif !important;
 }
 `;
   }
