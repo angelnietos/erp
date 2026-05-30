@@ -481,6 +481,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   copyMarkdownToClipboard(): void {
+    console.log('copyMarkdownToClipboard called');
     const content = this.documentForm.get('content')?.value || '';
     void navigator.clipboard.writeText(content).then(
       () => {
@@ -554,6 +555,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   async convertMarkdownToVisualHtmlWithAi(): Promise<void> {
+    console.log('convertMarkdownToVisualHtmlWithAi called', this.contentEditorMode);
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (this.contentEditorMode !== 'markdown') {
       this.aiError = 'Esta acción solo estó disponible desde el modo Markdown.';
@@ -587,6 +589,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   async convertHtmlToMarkdownWithAi(): Promise<void> {
+    console.log('convertHtmlToMarkdownWithAi called', this.contentEditorMode);
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (this.contentEditorMode !== 'html') {
       this.aiError = 'Esta acción solo está disponible desde el modo HTML.';
@@ -620,6 +623,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   }
 
   async beautifyDocumentWithAi(): Promise<void> {
+    console.log('beautifyDocumentWithAi called', this.contentEditorMode);
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (!content) {
       this.aiError = 'Primero escribe o genera contenido en el editor.';

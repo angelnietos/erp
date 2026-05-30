@@ -544,7 +544,7 @@ a svg,
 
 .document-editor-split {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(24rem, 0.95fr);
+  grid-template-columns: 15rem 1fr 1fr;
   gap: 1rem;
   align-items: stretch;
 }

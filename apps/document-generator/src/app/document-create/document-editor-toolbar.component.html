@@ -37,10 +37,10 @@
     </select>
   </div>
 
-  <button class="sidebar-action-btn" type="button" (click)="copyContent.emit()"><span>Copiar contenido</span></button>
-  <button class="sidebar-action-btn" type="button" (click)="convertToHtml.emit()" [disabled]="contentEditorMode() !== 'markdown' || isAiGenerating()">Convertir a HTML visual</button>
-  <button class="sidebar-action-btn" type="button" (click)="convertToMarkdown.emit()" [disabled]="contentEditorMode() !== 'html' || isAiGenerating()">Convertir a Markdown</button>
-  <button class="sidebar-action-btn" type="button" (click)="beautify.emit()" [disabled]="isAiGenerating()">Embellecer documento</button>
+<button class="sidebar-action-btn" type="button" (click)="console.log('copyContent clicked'); copyContent.emit()"><span>Copiar contenido</span></button>
+<button class="sidebar-action-btn" type="button" (click)="console.log('convertToHtml clicked', contentEditorMode()); convertToHtml.emit()" [disabled]="contentEditorMode() !== 'markdown' || isAiGenerating()">Convertir a HTML visual</button>
+<button class="sidebar-action-btn" type="button" (click)="console.log('convertToMarkdown clicked', contentEditorMode()); convertToMarkdown.emit()" [disabled]="contentEditorMode() !== 'html' || isAiGenerating()">Convertir a Markdown</button>
+<button class="sidebar-action-btn" type="button" (click)="console.log('beautify clicked'); beautify.emit()" [disabled]="isAiGenerating()">Embellecer documento</button>
 
   <div class="sidebar-divider"></div>
 
