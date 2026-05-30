@@ -1466,29 +1466,41 @@ private wrapLooseHtmlCss(css: string): string {
      return `body {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
    }
 
-   private buildHtmlPreviewSrcdoc(html: string): string {
-     // Use the same CSS as PDF export for consistency
-     const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
-     let contentHtml = html;
-     if (this.coverConfig?.enabled) {
-       const coverHtml = this.coverEditor
-         ? this.coverEditor.exportToHtml()
-         : this.exportCoverConfigToHtml(this.coverConfig);
-       contentHtml = coverHtml + '\n' + contentHtml;
-     }
-     if (this.headerFooterConfig?.enabled) {
-       const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
-       const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
-       contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
-     }
-     if (this.signatureConfig?.enabled) {
-       const signatureHtml = this.signatureEditor
-         ? this.signatureEditor.exportToHtml()
-         : this.exportSignatureConfigToHtml(this.signatureConfig);
-       contentHtml = contentHtml + '\n' + signatureHtml;
-     }
+private buildHtmlPreviewSrcdoc(html: string): string {
+      // Use the same CSS as PDF export for consistency
+      const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
+      const previewCoverCss = `
+body .pdf-cover,
+body .pdf-cover-page,
+.pdf-cover,
+.pdf-cover-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: auto !important;
+  aspect-ratio: 210/297 !important;
+}
+`;
+      let contentHtml = html;
+      if (this.coverConfig?.enabled) {
+        const coverHtml = this.coverEditor
+          ? this.coverEditor.exportToHtml()
+          : this.exportCoverConfigToHtml(this.coverConfig);
+        contentHtml = coverHtml + '\n' + contentHtml;
+      }
+      if (this.headerFooterConfig?.enabled) {
+        const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
+        const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+        contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
+      }
+      if (this.signatureConfig?.enabled) {
+        const signatureHtml = this.signatureEditor
+          ? this.signatureEditor.exportToHtml()
+          : this.exportSignatureConfigToHtml(this.signatureConfig);
+        contentHtml = contentHtml + '\n' + signatureHtml;
+      }
 
-     const styleTag = `<style id="document-generator-custom-css">\n${css}\n</style>`;
+      const styleTag = `<style id="document-generator-custom-css">\n${css}\n${previewCoverCss}\n</style>`;
      if (/<\/head>/i.test(contentHtml)) {
        return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
      }

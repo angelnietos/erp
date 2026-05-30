@@ -296,8 +296,10 @@ ${bodyHtml}
 
   private previewCoverOverrideCss(): string {
     return `
-.markdown-preview .pdf-cover,
-.markdown-preview .pdf-cover-page {
+body .pdf-cover,
+body .pdf-cover-page,
+.pdf-cover,
+.pdf-cover-page {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
