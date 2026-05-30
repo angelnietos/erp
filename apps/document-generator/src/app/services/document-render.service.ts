@@ -91,12 +91,29 @@ export class DocumentRenderService {
   buildPreviewStylesheet(input: DocumentRenderInput): string {
     const cleanedCss = removeManagedStylePreset(input.customCss);
     // Include PDF base CSS for HTML preview to ensure color variables work correctly
+    // If user provided :root variables in their custom CSS, extract them
+    // and apply them both to :root and to the preview scopes so variables
+    // (brand colors, accents) are visible in the in-app preview.
+    const rootRe = /:root\s*\{([\s\S]*?)\}/m;
+    const rootMatch = rootRe.exec(cleanedCss || '');
+    let rootVarsBlock = '';
+    if (rootMatch && rootMatch[1]) {
+      const vars = rootMatch[1].trim();
+      // Apply declarations to :root and to the preview pane scopes
+      rootVarsBlock = [
+        `:root {\n${vars}\n}`,
+        `.document-create-shell .document-preview-pane.markdown-preview, .document-create-shell .document-preview-pane--isolated.markdown-preview {\n${vars}\n}`,
+      ].join('\n\n');
+    }
+
     return [
-      PDF_EXPORT_BASE_CSS,
       buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(input.pdfStyles, input.selectedPdfStyle),
       normalizeUserCss(stylePresetCss(input.selectedQuickStylePreset)),
       buildPreviewBackgroundOverrideCss(input.backgroundSettings),
+      // Inject extracted root variable overrides early so variables exist,
+      // then append prioritized user CSS declarations to ensure overriding.
+      rootVarsBlock,
       prioritizeUserCss(normalizeUserCss(cleanedCss)),
     ]
       .filter(Boolean)
@@ -164,7 +181,11 @@ ${bodyHtml}
       .replace(/min-height:\s*297mm/gi, '')
       .replace(/\s*;\s*;/g, ';');
 
-const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
+// Adapt scoped markdown preview CSS so it also applies correctly inside
+// the iframe/srcdoc used for HTML preview. We include both the original
+// stylesheet and an adapted variant to maximize compatibility.
+const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
+const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (/<\/head>/i.test(contentHtml)) {
       // Wrap body content in markdown-preview container if not already present

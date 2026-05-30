@@ -2761,6 +2761,20 @@ table,
 blockquote {
 	page-break-inside: avoid;
 }`;
+    // If a PDF style named 'corporate' exists, select it so preview and
+    // export use the corporate PDF style as well. Then apply CSS.
+    try {
+      const corporate = this.pdfStyles?.find((s: any) =>
+        String(s.id || '').toLowerCase().includes('corporate') ||
+        String(s.id || '').toLowerCase().includes('corporativa'),
+      );
+      if (corporate && corporate.id) {
+        this.selectedPdfStyle = corporate.id;
+      }
+    } catch (e) {
+      // ignore
+    }
+
     this.applyCustomCss();
   }
 
