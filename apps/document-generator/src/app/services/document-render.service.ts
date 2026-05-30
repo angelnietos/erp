@@ -158,7 +158,7 @@ ${bodyHtml}
     extras: DocumentExtrasInput,
   ): string {
     const bodyHtml = assembleDocumentBodyHtml(contentHtml, extras);
-    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n</style>`;
+    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (/<\/head>/i.test(contentHtml)) {
       return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
@@ -292,5 +292,19 @@ ${bodyHtml}
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  private previewCoverOverrideCss(): string {
+    return `
+.markdown-preview .pdf-cover,
+.markdown-preview .pdf-cover-page {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 210/297 !important;
+  box-sizing: border-box !important;
+}
+`;
   }
 }
