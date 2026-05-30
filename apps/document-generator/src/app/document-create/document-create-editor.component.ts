@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   DestroyRef,
   HostListener,
@@ -454,7 +454,7 @@ interface DocumentType {
                 </div>
                 <div>
                   <h2 class="text-2xl font-bold text-primary">
-                    Informaci�n del Documento
+                    Informaciï¿½n del Documento
                   </h2>
                   <p class="text-secondary">
                     Completa los detalles para generar tu
@@ -486,7 +486,7 @@ interface DocumentType {
                       d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
                     />
                   </svg>
-                  Informaci�n General
+                  Informaciï¿½n General
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2">
@@ -529,7 +529,7 @@ interface DocumentType {
                   <label
                     for="title"
                     class="block text-sm font-medium text-secondary"
-                    >T�tulo del Documento</label
+                    >Tï¿½tulo del Documento</label
                   >
                   <input
                     id="title"
@@ -553,16 +553,16 @@ interface DocumentType {
                           aria-hidden="true"
                           >?</span
                         >
-                        Redacci�n asistida (IA)
+                        Redacciï¿½n asistida (IA)
                       </h3>
                       <p class="text-sm text-secondary mt-1 max-w-2xl">
-                        Describe objetivos, p�blico y datos clave; la IA genera
+                        Describe objetivos, pï¿½blico y datos clave; la IA genera
                         un borrador en Markdown. Revisa y ajusta siempre el
                         resultado antes de enviarlo o firmarlo.
                       </p>
                       <p class="text-xs text-muted mt-2 max-w-2xl">
                         El proveedor y la clave son los mismos que en el resto
-                        del ERP (configuraci�n local del navegador).
+                        del ERP (configuraciï¿½n local del navegador).
                       </p>
                       <a
                         routerLink="/documents/settings/ai"
@@ -592,7 +592,7 @@ interface DocumentType {
                        id="aiBrief"
                        formControlName="aiBrief"
                        rows="3"
-                       placeholder="Ej.: Presupuesto para migraci�n a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
+                       placeholder="Ej.: Presupuesto para migraciï¿½n a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
                        class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
                        [disabled]="isGenerating || isAiGenerating"
                      ></textarea>
@@ -628,7 +628,7 @@ interface DocumentType {
                       [disabled]="isGenerating || isAiGenerating"
                       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      A�adir al final
+                      Aï¿½adir al final
                     </button>
                   </div>
 
@@ -642,7 +642,7 @@ interface DocumentType {
                        id="aiInstruction"
                        formControlName="aiInstruction"
                        rows="2"
-                       placeholder="Ej.: Acorta a una p�gina, tono m�s formal, a�ade secci�n de riesgos y mitigaci�n."
+                       placeholder="Ej.: Acorta a una pï¿½gina, tono mï¿½s formal, aï¿½ade secciï¿½n de riesgos y mitigaciï¿½n."
                        class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
                        [disabled]="isGenerating || isAiGenerating"
                      ></textarea>
@@ -652,7 +652,7 @@ interface DocumentType {
                       [disabled]="isGenerating || isAiGenerating"
                       class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                      Aplicar instrucci�n al texto
+                      Aplicar instrucciï¿½n al texto
                     </button>
                   </div>
                 </div>
@@ -677,7 +677,7 @@ interface DocumentType {
                       <label
                         for="totalAmount"
                         class="block text-sm font-medium text-secondary"
-                        >Monto Total (�)</label
+                        >Monto Total (ï¿½)</label
                       >
                       <input
                         id="totalAmount"
@@ -691,7 +691,7 @@ interface DocumentType {
                   </div>
                 }
 
-                <!-- Plantillas R�pidas -->
+                <!-- Plantillas Rï¿½pidas -->
                 <div class="space-y-3">
                   <div class="block text-sm font-medium text-secondary">
                     Plantillas predefinidas para {{ selectedType.name }}
@@ -762,7 +762,7 @@ interface DocumentType {
                         [(ngModel)]="customCss"
                         [ngModelOptions]="{ standalone: true }"
                         rows="8"
-                        placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota autom�ticamente a la vista previa. */"
+                        placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota automï¿½ticamente a la vista previa. */"
 class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
                          (input)="applyCustomCss()"
                        ></textarea>
@@ -794,13 +794,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           <div class="flex gap-2 items-center">
                             <select id="pdfBackgroundMode" [(ngModel)]="pdfBackgroundMode" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="px-3 py-2 rounded border bg-white">
                               <option value="theme">Usar tema</option>
-                              <option value="color">Color s�lido</option>
+                              <option value="color">Color sï¿½lido</option>
                               <option value="corporate">Imagen corporativa</option>
                             </select>
                             <input id="pdfBackgroundColor" *ngIf="pdfBackgroundMode === 'color'" type="color" [(ngModel)]="pdfBackgroundColor" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="w-10 h-10 p-0 border rounded" />
                             <input id="pdfBackgroundImageUrl" *ngIf="pdfBackgroundMode === 'corporate'" type="text" placeholder="URL imagen (https://...)" [(ngModel)]="pdfBackgroundImageUrl" (ngModelChange)="onPdfBackgroundChange()" [ngModelOptions]="{ standalone: true }" class="flex-1 px-3 py-2 rounded border bg-white" />
                           </div>
-                          <p class="text-xs text-muted mt-2">Selecciona c�mo se renderizar� el fondo del PDF.</p>
+                          <p class="text-xs text-muted mt-2">Selecciona cï¿½mo se renderizarï¿½ el fondo del PDF.</p>
                           @if (pdfBackgroundMode !== 'theme') {
                             <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3">
                               <label class="text-xs font-medium text-secondary">
@@ -854,7 +854,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
  
                       @if (!fullscreenMode) {
                         <div class="document-editor-split">
-                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edici�n">
+                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de ediciï¿½n">
 
                             <!-- -- FORMATO ------------------------------- -->
                             <div class="sidebar-section-title">
@@ -874,15 +874,15 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                 <span style="font-size:12px;text-decoration:line-through">S</span>
                                 <span>Tach.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="C�digo inline">
+                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="Cï¿½digo inline">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                                <span>C�d.</span>
+                                <span>Cï¿½d.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="T�tulo H1">
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="Tï¿½tulo H1">
                                 <span style="font-size:11px;font-weight:800">H1</span>
-                                <span>T�t.</span>
+                                <span>Tï¿½t.</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subt�tulo H2">
+                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subtï¿½tulo H2">
                                 <span style="font-size:11px;font-weight:700">H2</span>
                                 <span>Sub.</span>
                               </button>
@@ -900,13 +900,13 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               </button>
                               <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('1. ','')" title="Lista numerada">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                <span>N�m.</span>
+                                <span>Nï¿½m.</span>
                               </button>
                               <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('[','](url)')" title="Enlace">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
                                 <span>Link</span>
                               </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de c�digo">
+                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de cï¿½digo">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3"/></svg>
                                 <span>Blq.</span>
                               </button>
@@ -968,7 +968,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                [disabled]="contentEditorMode !== 'html' || isAiGenerating"
                                title="Convertir el HTML actual a Markdown editable usando IA">
                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                               <span>↪ Convertir a Markdown</span>
+                               <span>â†ª Convertir a Markdown</span>
                              </button>
 
                             <button class="sidebar-action-btn" type="button"
@@ -976,11 +976,11 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               [disabled]="!documentForm.get('content')?.value || isAiGenerating"
                               title="Embellecer y mejorar el documento actual usando IA">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                              <span>✨ Embellecer documento</span>
+                              <span>âœ¨ Embellecer documento</span>
                             </button>
 <div class="sidebar-divider"></div>
 
-                            <!-- -- ESTILO R�PIDO ------------------------- -->
+                            <!-- -- ESTILO Rï¿½PIDO ------------------------- -->
                             <div class="sidebar-section-title">
                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
                               Estilo
@@ -999,7 +999,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div style="padding:0 0.5rem 0.4rem">
                               <div style="display:flex;align-items:center;gap:6px">
                                 <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(-0.05)">A-</button>
-                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tama�o base</div>
+                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tamaï¿½o base</div>
                                 <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(0.05)">A+</button>
                               </div>
                             </div>
@@ -1044,7 +1044,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
 
                             <div class="sidebar-divider"></div>
 
-                            <!-- -- PANEL DIN�MICO ------------------------ -->
+                            <!-- -- PANEL DINï¿½MICO ------------------------ -->
                             @if (showCoverEditor) {
                               <app-cover-editor
                                 #coverEditorRef
@@ -1139,7 +1139,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                           <div class="document-editor-column document-editor-column--preview">
                             <div class="document-editor-column__bar">
                               <span>Vista Previa</span>
-                              <span class="font-mono">{{ wordCount }} palabras � {{ characterCount }} caracteres</span>
+                              <span class="font-mono">{{ wordCount }} palabras ï¿½ {{ characterCount }} caracteres</span>
                             </div>
                             @if (contentEditorMode === 'html') {
                               <iframe
@@ -1186,7 +1186,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             <div class="document-editor-column fullscreen-preview">
                               <div class="document-editor-column__bar">
                                 Vista Previa
-                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras � {{ characterCount }} caracteres</span>
+                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras ï¿½ {{ characterCount }} caracteres</span>
                               </div>
                               @if (contentEditorMode === 'html') {
                                 <iframe
@@ -1216,7 +1216,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         id="architectureDiagram"
                         formControlName="architectureDiagram"
                         rows="4"
-                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticaci�n]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
+                        placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticaciï¿½n]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
                         class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm"
                       ></textarea>
                     </div>
@@ -1243,7 +1243,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                       d="M10 19l-7-7m0 0l7-7m-7 7h18"
                     />
                   </svg>
-                  Volver Atr�s
+                  Volver Atrï¿½s
                 </button>
 
                 <div
@@ -1433,7 +1433,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                         <span class="text-left leading-snug drop-shadow-sm">
                           {{
                             isGenerating
-                              ? 'Generando documento�'
+                              ? 'Generando documentoï¿½'
                               : 'Generar documento (PDF)'
                           }}
                         </span>
@@ -1477,16 +1477,16 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                     <h2 class="text-base font-bold text-slate-800">
                       @if (showCoverEditor) { Portada del Documento }
                       @else if (showSignatureEditor) { Bloque de Firmas }
-                      @else if (showHeaderFooterEditor) { Encabezado y Pie de P�gina }
+                      @else if (showHeaderFooterEditor) { Encabezado y Pie de Pï¿½gina }
                       @else if (showTableBuilder) { Constructor de Tablas }
                       @else if (showImageInsert) { Insertar Imagen }
                     </h2>
                     <p class="text-xs text-slate-500 mt-0.5">
-                      @if (showCoverEditor) { Personaliza la primera p�gina de tu PDF con logo, t�tulos y fondos }
+                      @if (showCoverEditor) { Personaliza la primera pï¿½gina de tu PDF con logo, tï¿½tulos y fondos }
                       @else if (showSignatureEditor) { Configura firmas para los responsables al final del documento }
-                      @else if (showHeaderFooterEditor) { Define la paginaci�n y cabeceras de cada p�gina }
-                      @else if (showTableBuilder) { Dise�a y estructura tablas de datos visualmente }
-                      @else if (showImageInsert) { Sube y edita el dise�o de im�genes en tu documento }
+                      @else if (showHeaderFooterEditor) { Define la paginaciï¿½n y cabeceras de cada pï¿½gina }
+                      @else if (showTableBuilder) { Diseï¿½a y estructura tablas de datos visualmente }
+                      @else if (showImageInsert) { Sube y edita el diseï¿½o de imï¿½genes en tu documento }
                     </p>
                   </div>
                   <button type="button" class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" (click)="closeAllModals()">
@@ -1646,31 +1646,31 @@ export class DocumentCreateEditorComponent implements OnInit {
   @ViewChild(ImageInsertComponent) imageInsert!: ImageInsertComponent;
   @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
-    { id: 'paragraph', label: 'P�rrafo normal' },
-    { id: 'h1', label: 'T�tulo H1' },
-    { id: 'h2', label: 'T�tulo H2' },
-    { id: 'h3', label: 'T�tulo H3' },
+    { id: 'paragraph', label: 'Pï¿½rrafo normal' },
+    { id: 'h1', label: 'Tï¿½tulo H1' },
+    { id: 'h2', label: 'Tï¿½tulo H2' },
+    { id: 'h3', label: 'Tï¿½tulo H3' },
     { id: 'bold', label: 'Negrita' },
     { id: 'italic', label: 'Cursiva' },
     { id: 'quote', label: 'Cita' },
     { id: 'list', label: 'Lista' },
     { id: 'numbered-list', label: 'Lista numerada' },
-    { id: 'inline-code', label: 'C�digo' },
+    { id: 'inline-code', label: 'Cï¿½digo' },
     { id: 'callout', label: 'Nota destacada' },
   ];
   readonly editorBlockTemplates: EditorBlockTemplate[] = [
     {
       id: 'paragraph',
-      label: 'P�rrafo',
-      markdown: `\n\n[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]\n`,
-      html: `<p>[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]</p>`,
+      label: 'Pï¿½rrafo',
+      markdown: `\n\n[Escribe aquï¿½ un pï¿½rrafo descriptivo con el contexto, objetivo o explicaciï¿½n principal.]\n`,
+      html: `<p>[Escribe aquï¿½ un pï¿½rrafo descriptivo con el contexto, objetivo o explicaciï¿½n principal.]</p>`,
     },
     {
       id: 'section',
-      label: 'Secci�n completa',
-      markdown: `\n\n## [T�tulo de la secci�n]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
+      label: 'Secciï¿½n completa',
+      markdown: `\n\n## [Tï¿½tulo de la secciï¿½n]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
       html: `<section class="section card">
-  <h2>[T�tulo de la secci�n]</h2>
+  <h2>[Tï¿½tulo de la secciï¿½n]</h2>
   <p><strong>Objetivo:</strong> [Describe el objetivo]</p>
   <p><strong>Detalle:</strong> [Explica los puntos principales]</p>
   <p><strong>Resultado esperado:</strong> [Indica el resultado]</p>
@@ -1704,14 +1704,14 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'timeline',
       label: 'Cronograma / hitos',
-      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripci�n | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Dise�o aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
+      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripciï¿½n | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Diseï¿½o aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
       html: `<section class="section">
   <h2>Cronograma e hitos</h2>
   <table class="doc-table timeline-table">
-    <thead><tr><th>Hito</th><th>Descripci�n</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
+    <thead><tr><th>Hito</th><th>Descripciï¿½n</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
     <tbody>
       <tr><td>Hito 1</td><td>Inicio del proyecto</td><td>[Fecha]</td><td>-</td></tr>
-      <tr><td>Hito 2</td><td>Dise�o aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
+      <tr><td>Hito 2</td><td>Diseï¿½o aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
       <tr><td>Hito 3</td><td>Entrega final</td><td>[Fecha]</td><td>Hito 2</td></tr>
     </tbody>
   </table>
@@ -1720,13 +1720,13 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'budget',
       label: 'Presupuesto',
-      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| An�lisis y dise�o | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
+      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| Anï¿½lisis y diseï¿½o | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
       html: `<section class="section">
   <h2>Presupuesto estimado</h2>
   <table class="doc-table budget-table">
     <thead><tr><th>Concepto</th><th>Horas</th><th>Coste unitario</th><th>Importe</th></tr></thead>
     <tbody>
-      <tr><td>An�lisis y dise�o</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td>Anï¿½lisis y diseï¿½o</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Desarrollo</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Pruebas</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>[EUR]</strong></td></tr>
@@ -1737,14 +1737,14 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'risks',
       label: 'Riesgos',
-      markdown: `\n\n## Riesgos y mitigaci�n\n\n| Riesgo | Impacto | Probabilidad | Mitigaci�n |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n`,
+      markdown: `\n\n## Riesgos y mitigaciï¿½n\n\n| Riesgo | Impacto | Probabilidad | Mitigaciï¿½n |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acciï¿½n preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acciï¿½n preventiva] |\n`,
       html: `<section class="section">
-  <h2>Riesgos y mitigaci�n</h2>
+  <h2>Riesgos y mitigaciï¿½n</h2>
   <table class="doc-table risk-table">
-    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigaci�n</th></tr></thead>
+    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigaciï¿½n</th></tr></thead>
     <tbody>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acciï¿½n preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acciï¿½n preventiva]</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -1752,15 +1752,15 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'approvals',
       label: 'Aprobaciones',
-      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobaci�n funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega t�cnica |\n`,
+      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobaciï¿½n funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega tï¿½cnica |\n`,
       html: `<section class="section">
   <h2>Aprobaciones</h2>
   <table class="doc-table approvals-table">
     <thead><tr><th>Rol</th><th>Nombre</th><th>Responsabilidad</th></tr></thead>
     <tbody>
-      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobaci�n funcional</td></tr>
+      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobaciï¿½n funcional</td></tr>
       <tr><td>QA</td><td>[Nombre]</td><td>Pruebas y calidad</td></tr>
-      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega t�cnica</td></tr>
+      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega tï¿½cnica</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -1768,9 +1768,9 @@ export class DocumentCreateEditorComponent implements OnInit {
     {
       id: 'callout',
       label: 'Nota destacada',
-      markdown: `\n\n> **Nota:** [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]\n`,
+      markdown: `\n\n> **Nota:** [Incluye aquï¿½ una advertencia, decisiï¿½n importante o recomendaciï¿½n.]\n`,
       html: `<aside class="callout">
-  <strong>Nota:</strong> [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]
+  <strong>Nota:</strong> [Incluye aquï¿½ una advertencia, decisiï¿½n importante o recomendaciï¿½n.]
 </aside>`,
     },
     {
@@ -1807,28 +1807,28 @@ export class DocumentCreateEditorComponent implements OnInit {
     },
     {
       id: 'documentation',
-      name: 'Documentaci�n T�cnica',
-      description: 'Crear documentos t�cnicos o informativos',
+      name: 'Documentaciï¿½n Tï¿½cnica',
+      description: 'Crear documentos tï¿½cnicos o informativos',
     },
     {
       id: 'architecture',
-      name: 'Documentaci�n Arquitect�nica',
+      name: 'Documentaciï¿½n Arquitectï¿½nica',
       description: 'Documentos de arquitectura de sistemas con diagramas',
     },
     {
       id: 'resume',
-      name: 'Curr�culum Vitae',
+      name: 'Currï¿½culum Vitae',
       description: 'Plantillas estandarizadas de CV para candidatos',
     },
     {
       id: 'interview',
-      name: 'Pruebas T�cnicas Entrevista',
+      name: 'Pruebas Tï¿½cnicas Entrevista',
       description: 'Evaluaciones y scorecards estandarizados',
     },
     {
       id: 'offer',
       name: 'Cartas de Oferta',
-      description: 'Cartas oficiales de contrataci�n estandarizadas',
+      description: 'Cartas oficiales de contrataciï¿½n estandarizadas',
     },
   ];
 
@@ -1871,9 +1871,9 @@ export class DocumentCreateEditorComponent implements OnInit {
   get editorPlaceholder(): string {
     switch (this.contentEditorMode) {
       case 'html':
-        return '<h1>T�tulo</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
+        return '<h1>Tï¿½tulo</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
       case 'plain':
-        return 'Escribe texto normal. Las l�neas en blanco separan p�rrafos.';
+        return 'Escribe texto normal. Las lï¿½neas en blanco separan pï¿½rrafos.';
       default:
         return this.getContentPlaceholder();
     }
@@ -1907,7 +1907,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     });
   }
 
-  /** Lista de plantillas seg�n categor�a del tipo de documento (para cambiar plantilla en el editor). */
+  /** Lista de plantillas segï¿½n categorï¿½a del tipo de documento (para cambiar plantilla en el editor). */
   private setTemplatesForType(type: DocumentType): void {
     const categoryMap: Record<string, DocumentTemplate['category']> = {
       resume: 'hr',
@@ -1970,7 +1970,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     if (!this.selectedType) return;
     const brief = this.documentForm.get('aiBrief')?.value?.trim();
     if (!brief) {
-      this.aiError = 'Describe qu� debe contener el documento.';
+      this.aiError = 'Describe quï¿½ debe contener el documento.';
       return;
     }
     this.isAiGenerating = true;
@@ -2000,7 +2000,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     const instruction = this.documentForm.get('aiInstruction')?.value?.trim();
     if (!instruction || !this.selectedType) {
       this.aiError =
-        'Escribe una instrucci�n (por ejemplo: m�s formal, acortar, a�adir tabla de costes).';
+        'Escribe una instrucciï¿½n (por ejemplo: mï¿½s formal, acortar, aï¿½adir tabla de costes).';
       return;
     }
     const existing = this.documentForm.get('content')?.value || '';
@@ -2027,7 +2027,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   async convertMarkdownToVisualHtmlWithAi(): Promise<void> {
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (this.contentEditorMode !== 'markdown') {
-      this.aiError = 'Esta acci�n solo est� disponible desde el modo Markdown.';
+      this.aiError = 'Esta acciï¿½n solo estï¿½ disponible desde el modo Markdown.';
       return;
     }
     if (!content) {
@@ -2060,7 +2060,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   async convertHtmlToMarkdownWithAi(): Promise<void> {
     const content = String(this.documentForm.get('content')?.value ?? '').trim();
     if (this.contentEditorMode !== 'html') {
-      this.aiError = 'Esta acción solo está disponible desde el modo HTML.';
+      this.aiError = 'Esta acciÃ³n solo estÃ¡ disponible desde el modo HTML.';
       return;
     }
     if (!content) {
@@ -2133,38 +2133,38 @@ export class DocumentCreateEditorComponent implements OnInit {
       case 'quote':
         return 'Ej: Presupuesto Desarrollo Web Corporativo';
       case 'proposal':
-        return 'Ej: Propuesta de Implementaci�n ERP';
+        return 'Ej: Propuesta de Implementaciï¿½n ERP';
       case 'documentation':
         return 'Ej: Manual de Usuario - Sistema ERP';
       case 'architecture':
         return 'Ej: Arquitectura del Sistema ERP';
       case 'resume':
-        return 'Ej: Curr�culum - Juan Garc�a L�pez';
+        return 'Ej: Currï¿½culum - Juan Garcï¿½a Lï¿½pez';
       case 'interview':
-        return 'Ej: Evaluaci�n T�cnica - Candidato Senior Developer';
+        return 'Ej: Evaluaciï¿½n Tï¿½cnica - Candidato Senior Developer';
       case 'offer':
         return 'Ej: Carta Oferta - Puesto Senior Full Stack';
       default:
-        return 'T�tulo del documento';
+        return 'Tï¿½tulo del documento';
     }
   }
 
   getContentPlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
-        return 'Descripci�n detallada del presupuesto, alcance de trabajo, condiciones...';
+        return 'Descripciï¿½n detallada del presupuesto, alcance de trabajo, condiciones...';
       case 'proposal':
-        return 'Contenido de la propuesta comercial, beneficios, soluci�n propuesta...';
+        return 'Contenido de la propuesta comercial, beneficios, soluciï¿½n propuesta...';
       case 'documentation':
-        return 'Contenido detallado de la documentaci�n t�cnica...';
+        return 'Contenido detallado de la documentaciï¿½n tï¿½cnica...';
       case 'architecture':
-        return 'Descripci�n de la arquitectura del sistema, componentes, tecnolog�as...';
+        return 'Descripciï¿½n de la arquitectura del sistema, componentes, tecnologï¿½as...';
       case 'resume':
-        return 'Datos personales, experiencia laboral, formaci�n y habilidades del candidato';
+        return 'Datos personales, experiencia laboral, formaciï¿½n y habilidades del candidato';
       case 'interview':
-        return 'Evaluaci�n t�cnica, preguntas, ejercicios y scorecard estandarizado';
+        return 'Evaluaciï¿½n tï¿½cnica, preguntas, ejercicios y scorecard estandarizado';
       case 'offer':
-        return 'Condiciones contractuales, salario, beneficios y fecha de incorporaci�n';
+        return 'Condiciones contractuales, salario, beneficios y fecha de incorporaciï¿½n';
       default:
         return 'Contenido del documento...';
     }
@@ -2864,11 +2864,11 @@ ${contentHtml}
 <div class="pdf-cover" style="height: 100vh; ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
   <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
     ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'T�tulo'}</h1>
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Tï¿½tulo'}</h1>
     ${c.subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
     ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px'};"></div>` : ''}
     <p style="font-size: 0.9rem; opacity: 0.85; color: ${c.textColor};">
-      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' � ')}
+      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' ï¿½ ')}
     </p>
   </div>
 </div>`;
@@ -3516,7 +3516,7 @@ ${contentHtml}
         this.insertMarkdown('> ?? **Advertencia:** ', '');
         break;
       case 'callout-success':
-        this.insertMarkdown('> ? **�xito:** ', '');
+        this.insertMarkdown('> ? **ï¿½xito:** ', '');
         break;
       case 'cover':
         this.toggleCoverEditor();
@@ -3566,7 +3566,7 @@ ${contentHtml}
       if (this.contentEditorMode === 'html') {
         this.documentForm.patchValue({ content: currentContent + separator + signatureHtml });
       } else {
-        this.documentForm.patchValue({ content: currentContent + separator + '\n\n## Firmas\n\n_Firma electr�nica_\n_' });
+        this.documentForm.patchValue({ content: currentContent + separator + '\n\n## Firmas\n\n_Firma electrï¿½nica_\n_' });
       }
       this.updatePreview();
       this.syncAssistantFromFormNow();
@@ -4404,7 +4404,7 @@ if (format === 'pdf') {
        } catch (error) {
          console.error('Error generating PDF:', error);
          alert(
-           'No se pudo generar el PDF. Revisa el contenido e int�ntalo de nuevo.',
+           'No se pudo generar el PDF. Revisa el contenido e intï¿½ntalo de nuevo.',
          );
        }
        return;
@@ -4443,7 +4443,7 @@ if (format === 'pdf') {
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
       alert(
-        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e int�ntalo de nuevo.`,
+        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e intï¿½ntalo de nuevo.`,
       );
     }
   }
@@ -4543,12 +4543,13 @@ if (format === 'pdf') {
       } catch (error) {
         console.error('Error generating PDF:', error);
         this.documentGenerateError =
-          'No se pudo generar el documento. Revisa los datos e int�ntalo de nuevo.';
+          'No se pudo generar el documento. Revisa los datos e intï¿½ntalo de nuevo.';
       } finally {
         this.isGenerating = false;
       }
     }
   }
 }
+
 
 
