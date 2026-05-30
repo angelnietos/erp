@@ -2761,19 +2761,17 @@ table,
 blockquote {
 	page-break-inside: avoid;
 }`;
-    // If a PDF style named 'corporate' exists, select it so preview and
-    // export use the corporate PDF style as well. Then apply CSS.
-    try {
-      const corporate = this.pdfStyles?.find((s: any) =>
-        String(s.id || '').toLowerCase().includes('corporate') ||
-        String(s.id || '').toLowerCase().includes('corporativa'),
-      );
-      if (corporate && corporate.id) {
-        this.selectedPdfStyle = corporate.id;
-      }
-    } catch (e) {
-      // ignore
-    }
+    // Force the corporate preview and PDF style, and switch preview background
+    // settings away from the UI theme so blue theme accents no longer override
+    // the red/granate corporate palette.
+    this.selectedPdfStyle = 'default';
+    this.pdfBackgroundMode = 'color';
+    this.pdfBackgroundColor = '#ffffff';
+    this.documentPaperColor = '#ffffff';
+    this.documentTextColor = '#111827';
+    this.documentMutedColor = '#4b5563';
+    this.documentAccentColor = '#7a0000';
+    this.documentBorderColor = '#e5e7eb';
 
     this.applyCustomCss();
   }
