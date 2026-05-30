@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import type { SafeHtml } from '@angular/platform-browser';
 import type { ContentEditorMode } from '../models/document-render.models';
@@ -17,6 +17,7 @@ import type { ContentEditorMode } from '../models/document-render.models';
         <iframe
           title="Vista previa HTML"
           class="document-preview-pane w-full min-h-[70vh] border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
+          [ngStyle]="previewPaneStyle()"
           [srcdoc]="htmlPreviewSrcdoc()"
         ></iframe>
       } @else {

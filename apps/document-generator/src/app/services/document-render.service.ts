@@ -97,7 +97,7 @@ export class DocumentRenderService {
     const rootRe = /:root\s*\{([\s\S]*?)\}/m;
     const rootMatch = rootRe.exec(cleanedCss || '');
     let rootVarsBlock = '';
-    if (rootMatch && rootMatch[1]) {
+    if (rootMatch?.[1]) {
       const vars = rootMatch[1].trim();
       // Apply declarations to :root and to the preview pane scopes
       rootVarsBlock = [
@@ -127,7 +127,7 @@ export class DocumentRenderService {
       input.selectedPdfStyle,
     );
     const pdfStyleGlobal = pdfStyleRaw
-      ? this.adaptMarkdownScopedCssForHtml(
+      ? this.adaptMarkdownScopedCssForPdf(
           scopeCssToMarkdownPreview(pdfStyleRaw),
         )
       : '';
@@ -261,13 +261,28 @@ const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/
     );
   }
 
-  private adaptMarkdownScopedCssForHtml(css: string): string {
+  private adaptMarkdownScopedCssForTarget(css: string, target: string): string {
     return css
-      .replace(/\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s+/g, '')
-      .replace(/\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s+/g, '')
-      .replace(/\.markdown-preview\s*>\s*/g, '')
-      .replace(/\.markdown-preview\s+/g, '')
-      .replace(/\.markdown-preview(?=\s*[{,])/g, '.pdf-body-content.markdown-preview');
+      .replace(/\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
+      .replace(/\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
+      .replace(/\.document-preview-render\.markdown-preview/g, target)
+      .replace(/\.markdown-preview\s*>\s*/g, `${target} > `)
+      .replace(/\.markdown-preview(?=[\s,{>])/g, `${target}`)
+      .replace(/\.markdown-preview\s+/g, `${target} `);
+  }
+
+  private adaptMarkdownScopedCssForHtml(css: string): string {
+    return this.adaptMarkdownScopedCssForTarget(
+      css,
+      '.document-preview-render.markdown-preview',
+    );
+  }
+
+  private adaptMarkdownScopedCssForPdf(css: string): string {
+    return this.adaptMarkdownScopedCssForTarget(
+      css,
+      '.pdf-body-content.markdown-preview',
+    );
   }
 
   private stripWrappingHtmlFence(content: string): string {
