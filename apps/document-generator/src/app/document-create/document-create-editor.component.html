@@ -368,13 +368,6 @@
                         </svg>
                         Estilos CSS personalizados (opcional)
                       </label>
-                      <button
-                        type="button"
-                        (click)="insertDefaultCssTemplate()"
-                        class="ml-auto text-xs px-3 py-1.5 bg-[#7a0000] hover:bg-[#5b0000] text-white rounded-lg transition-colors shadow-sm"
-                      >
-                        Usar plantilla corporativa
-                      </button>
                       <textarea
                         id="customCss"
                         [(ngModel)]="customCss"
@@ -500,6 +493,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             (toggleFullscreen)="toggleFullscreen()"
                             (contentInput)="updatePreview()"
                             (editorKeydown)="handleKeydown($event)"
+                            (applyCorporateTemplate)="insertDefaultCssTemplate()"
                           />
 
                           <app-document-live-preview

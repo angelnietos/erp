@@ -17,6 +17,8 @@ import type { ContentEditorMode } from '../models/document-render.models';
             <button type="button" class="px-2.5 py-1 rounded-md transition-colors" [class.bg-surface]="contentEditorMode() === 'html'" [class.text-brand]="contentEditorMode() === 'html'" (click)="modeChange.emit('html')">HTML</button>
             <button type="button" class="px-2.5 py-1 rounded-md transition-colors" [class.bg-surface]="contentEditorMode() === 'plain'" [class.text-brand]="contentEditorMode() === 'plain'" (click)="modeChange.emit('plain')">Texto</button>
           </div>
+          <!-- Corporate template button on toolbar -->
+          <button type="button" (click)="applyCorporateTemplate.emit()" title="Usar plantilla corporativa" class="ml-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium bg-[#7a0000] hover:bg-[#5b0000] text-white transition-colors">Plantilla corporativa</button>
         </div>
         <button type="button" (click)="toggleFullscreen.emit()" class="hover:text-brand transition-colors">Pantalla completa</button>
       </div>
@@ -41,4 +43,5 @@ export class DocumentEditorCanvasComponent {
   readonly toggleFullscreen = output<void>();
   readonly contentInput = output<void>();
   readonly editorKeydown = output<KeyboardEvent>();
+  readonly applyCorporateTemplate = output<void>();
 }
