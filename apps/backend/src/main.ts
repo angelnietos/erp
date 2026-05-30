@@ -13,7 +13,7 @@ loadEnv();
 function parseCorsOrigins(): string | string[] {
   const raw =
     process.env.CORS_ORIGIN ??
-    'http://localhost:4200,http://localhost:4300';
+    'http://localhost:4200,http://localhost:4210,http://localhost:4300';
   const list = raw
     .split(',')
     .map((s) => s.trim())

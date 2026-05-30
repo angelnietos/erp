@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, Input, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
+import { exportCoverConfigToHtml } from '../utils/document-export-html';
 
 export interface CoverConfig {
   enabled: boolean;
@@ -620,29 +621,6 @@ export class CoverEditorComponent {
   }
 
   exportToHtml(): string {
-    const c = this.config();
-    if (!c.enabled) return '';
-
-    const backgroundStyle =
-      c.backgroundType === 'gradient'
-        ? `background: linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo});`
-        : c.backgroundType === 'solid'
-          ? `background: ${c.backgroundColor};`
-          : c.backgroundImageUrl
-            ? `background: url('${c.backgroundImageUrl}') center/cover;`
-            : `background: ${c.backgroundColor};`;
-
-    return `
-<div class="pdf-cover" style="height: 100vh; ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
-  <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
-    ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Título'}</h1>
-    ${c.subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
-    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px'};"></div>` : ''}
-    <p style="font-size: 0.9rem; opacity: 0.85; color: ${c.textColor};">
-      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' · ')}
-    </p>
-  </div>
-</div>`;
+    return exportCoverConfigToHtml(this.config());
   }
 }
