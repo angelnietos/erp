@@ -78,6 +78,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
       <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('cover')" style="width:100%;margin-bottom:4px"><span>Portada</span></button>
       <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('header-footer')" style="width:100%;margin-bottom:4px"><span>Encabezado/Pie</span></button>
       <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('signature')" style="width:100%;margin-bottom:4px"><span>Firmas</span></button>
+      <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('watermark')" style="width:100%;margin-bottom:4px"><span>Marca de agua</span></button>
       <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('table')" style="width:100%;margin-bottom:4px"><span>Tabla virtual</span></button>
       <button class="sidebar-action-btn" type="button" (click)="toggleTool.emit('image')" style="width:100%;margin-bottom:4px"><span>Imagen</span></button>
     </div>

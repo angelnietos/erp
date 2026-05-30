@@ -1,6 +1,7 @@
 import type { CoverConfig } from '../document-create/cover-editor.component';
 import type { SignatureConfig } from '../document-create/signature-editor.component';
 import type { HeaderFooterConfig } from '../document-create/header-footer-editor.component';
+import type { WatermarkConfig } from '../document-create/watermark-dialog.component';
 
 /** Altura A4 real para portada (evita 100vh en html2canvas/Chromium). */
 export const PDF_COVER_A4_STYLE =
@@ -183,13 +184,41 @@ export function exportHeaderFooterConfigToHtml(
 </div>`;
 }
 
+export function exportWatermarkConfigToHtml(c: Partial<WatermarkConfig>): string {
+  if (!c?.enabled || !c?.text) return '';
+
+  const opacity = Math.max(0.05, Math.min(0.5, c.opacity ?? 0.1));
+  const fontSize = c.fontSize ?? 48;
+  const rotation = c.rotation ?? -45;
+  const color = c.color ?? '#000000';
+
+  return `
+<div class="pdf-watermark" style="
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(${rotation}deg);
+  font-size: ${fontSize}px;
+  color: ${color};
+  opacity: ${opacity};
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+  white-space: nowrap;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+">${c.text}</div>`;
+}
+
 export interface DocumentExtrasInput {
   coverConfig?: Partial<CoverConfig>;
   signatureConfig?: Partial<SignatureConfig>;
   headerFooterConfig?: Partial<HeaderFooterConfig>;
+  watermarkConfig?: Partial<WatermarkConfig>;
   coverPanelEnabled?: boolean;
   signaturePanelEnabled?: boolean;
   headerFooterPanelEnabled?: boolean;
+  watermarkPanelEnabled?: boolean;
   documentTitle?: string;
 }
 
@@ -230,6 +259,15 @@ export function assembleDocumentBodyHtml(
     const signatureHtml = exportSignatureConfigToHtml(extras.signatureConfig);
     if (signatureHtml) {
       body = body + '\n' + signatureHtml;
+    }
+  }
+
+  const watermarkEnabled =
+    extras.watermarkPanelEnabled || extras.watermarkConfig?.enabled;
+  if (watermarkEnabled && extras.watermarkConfig) {
+    const watermarkHtml = exportWatermarkConfigToHtml(extras.watermarkConfig);
+    if (watermarkHtml) {
+      body = watermarkHtml + '\n' + body;
     }
   }
 
