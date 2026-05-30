@@ -24,6 +24,8 @@ html, body {
 
 .pdf-cover,
 .pdf-cover-page {
+  position: relative;
+  overflow: hidden;
   width: 210mm;
   height: 297mm;
   min-height: 297mm;
@@ -31,6 +33,26 @@ html, body {
   break-after: page;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+.pdf-cover::before,
+.pdf-cover-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.2), transparent 18%),
+    radial-gradient(circle at 80% 35%, rgba(255, 255, 255, 0.16), transparent 24%),
+    linear-gradient(120deg, rgba(255,255,255,0.12) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.12) 100%);
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pdf-cover .cover-container,
+.pdf-cover-page .cover-container {
+  position: relative;
+  z-index: 1;
 }
 
 .pdf-body-content.markdown-preview {
