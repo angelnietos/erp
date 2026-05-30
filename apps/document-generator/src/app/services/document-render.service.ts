@@ -265,6 +265,7 @@ const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/
     return css
       .replace(/\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
       .replace(/\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
+      .replace(/\.pdf-body-content\.markdown-preview/g, target)
       .replace(/\.document-preview-render\.markdown-preview/g, target)
       .replace(/\.markdown-preview\s*>\s*/g, `${target} > `)
       .replace(/\.markdown-preview(?=[\s,{>])/g, `${target}`)
