@@ -46,6 +46,7 @@ import {
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
+import { exportCoverConfigToHtml } from '../utils/document-export-html';
 import { CoverEditorComponent, type CoverConfig } from './cover-editor.component';
 import { SignatureEditorComponent, type SignatureConfig } from './signature-editor.component';
 import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-footer-editor.component';
@@ -1473,12 +1474,27 @@ private buildHtmlPreviewSrcdoc(html: string): string {
       // For preview, remove fixed height styles from cover to make it responsive
       const previewCoverCss = `
 body .pdf-cover,
-.pdf-cover {
+.pdf-cover,
+body .pdf-cover-page,
+.pdf-cover-page {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
   min-height: auto !important;
   aspect-ratio: 210/297 !important;
+  padding: 32px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.16) !important;
+  overflow: hidden !important;
+}
+.pdf-cover .cover-container,
+.pdf-cover-page .cover-container {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+.pdf-cover .cover-header,
+.pdf-cover-page .cover-header {
+  width: 100%;
 }
 `;
       if (this.coverConfig?.enabled) {
@@ -1525,28 +1541,7 @@ ${contentHtml}
     }
 
   private exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
-    if (!c || !c.enabled) return '';
-    const backgroundStyle =
-      c.backgroundType === 'gradient'
-        ? `background: linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo});`
-        : c.backgroundType === 'solid'
-          ? `background: ${c.backgroundColor};`
-          : c.backgroundImageUrl
-            ? `background: url('${c.backgroundImageUrl}') center/cover;`
-            : `background: ${c.backgroundColor};`;
-
-    return `
-<div class="pdf-cover" style="${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
-  <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
-    ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Tótulo'}</h1>
-    ${c.subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
-    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 20px' : '0 auto 20px'};"></div>` : ''}
-    <p style="font-size: 0.85rem; opacity: 0.85; color: ${c.textColor};">
-      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' ó ')}
-    </p>
-  </div>
-</div>`;
+    return exportCoverConfigToHtml(c);
   }
 
   private exportSignatureConfigToHtml(c: Partial<SignatureConfig>): string {

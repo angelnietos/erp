@@ -20,6 +20,8 @@ export interface CoverConfig {
   showDate: boolean;
   showAuthor: boolean;
   layout: 'centered' | 'left-aligned' | 'minimal' | 'bold';
+  titleFontSize: string;
+  subtitleFontSize: string;
 }
 
 const DEFAULT_COVER_CONFIG: CoverConfig = {
@@ -39,6 +41,8 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
   showDate: true,
   showAuthor: true,
   layout: 'centered',
+  titleFontSize: '2.25rem',
+  subtitleFontSize: '1rem',
 };
 
 @Component({
@@ -308,6 +312,33 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
 
             <div class="grid grid-cols-2 gap-3">
               <div class="form-group">
+                <label>Tamaño del título</label>
+                <select
+                  [ngModel]="config().titleFontSize"
+                  (ngModelChange)="update({ titleFontSize: $event })"
+                >
+                  <option value="1.75rem">Pequeño</option>
+                  <option value="2rem">Mediano</option>
+                  <option value="2.25rem">Grande</option>
+                  <option value="2.75rem">Extra grande</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tamaño del subtítulo</label>
+                <select
+                  [ngModel]="config().subtitleFontSize"
+                  (ngModelChange)="update({ subtitleFontSize: $event })"
+                >
+                  <option value="0.95rem">Pequeño</option>
+                  <option value="1rem">Medio</option>
+                  <option value="1.1rem">Grande</option>
+                  <option value="1.25rem">Extra grande</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="form-group">
                 <label>Autor</label>
                 <input
                   type="text"
@@ -480,7 +511,7 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
                 <h1
                   class="cover-title"
                   [style.color]="config().textColor"
-                  [style.font-size]="titleFontSize"
+                  [style.font-size]="config().titleFontSize"
                 >
                   {{ config().title || 'Título del documento' }}
                 </h1>
@@ -489,7 +520,7 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
                   <p
                     class="cover-subtitle"
                     [style.color]="config().textColor"
-                    [style.font-size]="subtitleFontSize"
+                    [style.font-size]="config().subtitleFontSize"
                   >
                     {{ config().subtitle }}
                   </p>
@@ -617,7 +648,7 @@ export class CoverEditorComponent {
     const c = this.config();
     if (!c.enabled) return '';
 
-    return `\n---\n\n<div class="cover">\n<div class="cover-inner cover-layout-${c.layout}">\n${c.logoUrl ? `<img src="${c.logoUrl}" class="cover-logo" />\n` : ''}<h1 class="cover-title">${c.title}</h1>\n${c.subtitle ? `<p class="cover-subtitle">${c.subtitle}</p>\n` : ''}${c.showDivider ? '<div class="cover-divider"></div>\n' : ''}<div class="cover-meta">\n${c.showAuthor && c.author ? `<span>${c.author}</span>\n` : ''}${c.showDate && c.date ? `<span>${c.date}</span>\n` : ''}</div>\n</div>\n</div>\n\n---\n`;
+    return `\n---\n\n<div class="cover">\n<div class="cover-inner cover-layout-${c.layout}">\n${c.logoUrl ? `<img src="${c.logoUrl}" class="cover-logo" />\n` : ''}<h1 class="cover-title" style="font-size: ${c.titleFontSize};">${c.title}</h1>\n${c.subtitle ? `<p class="cover-subtitle" style="font-size: ${c.subtitleFontSize};">${c.subtitle}</p>\n` : ''}${c.showDivider ? '<div class="cover-divider"></div>\n' : ''}<div class="cover-meta">\n${c.showAuthor && c.author ? `<span>${c.author}</span>\n` : ''}${c.showDate && c.date ? `<span>${c.date}</span>\n` : ''}</div>\n</div>\n</div>\n\n---\n`;
   }
 
   exportToHtml(): string {
