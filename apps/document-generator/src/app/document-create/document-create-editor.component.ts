@@ -627,14 +627,29 @@ interface DocumentType {
                       }
                       Sustituir contenido
                     </button>
-                    <button
-                      type="button"
-                      (click)="generateDraftWithAi('append')"
-                      [disabled]="isGenerating || isAiGenerating"
-                      class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Aóadir al final
-                    </button>
+<button
+                       type="button"
+                       (click)="generateDraftWithAi('append')"
+                       [disabled]="isGenerating || isAiGenerating"
+                       class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                     >
+                       @if (isAiGenerating) {
+                         <svg
+                           class="w-4 h-4 animate-spin shrink-0"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24"
+                         >
+                           <path
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             stroke-width="2"
+                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                           />
+                         </svg>
+                       }
+                       Aóadir al final
+                     </button>
                   </div>
 
                   <div class="border-t border-violet-200/70 dark:border-violet-900/40 pt-4 space-y-2">
@@ -651,14 +666,29 @@ interface DocumentType {
                        class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
                        [disabled]="isGenerating || isAiGenerating"
                      ></textarea>
-                    <button
-                      type="button"
-                      (click)="transformWithAi()"
-                      [disabled]="isGenerating || isAiGenerating"
-                      class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                      Aplicar instrucción al texto
-                    </button>
+<button
+                       type="button"
+                       (click)="transformWithAi()"
+                       [disabled]="isGenerating || isAiGenerating"
+                       class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                     >
+                       @if (isAiGenerating) {
+                         <svg
+                           class="w-4 h-4 animate-spin shrink-0"
+                           fill="none"
+                           stroke="currentColor"
+                           viewBox="0 0 24 24"
+                         >
+                           <path
+                             stroke-linecap="round"
+                             stroke-linejoin="round"
+                             stroke-width="2"
+                             d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                           />
+                         </svg>
+                       }
+                       Aplicar instrucción al texto
+                     </button>
                   </div>
                 </div>
 
@@ -959,30 +989,45 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                               @if (copyMarkdownFeedback) { <span style="color:#7c3aed;font-size:0.65rem;margin-left:auto">? Copiado</span> }
                             </button>
 
-                            <button class="sidebar-action-btn" type="button"
-                              (click)="convertMarkdownToVisualHtmlWithAi()"
-                              [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
-                              title="Convertir el Markdown actual en HTML visual usando IA">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
-                              <span>? Convertir a HTML visual</span>
-                            </button>
-
-                            
-                             <button class="sidebar-action-btn" type="button"
-                               (click)="convertHtmlToMarkdownWithAi()"
-                               [disabled]="contentEditorMode !== 'html' || isAiGenerating"
-                               title="Convertir el HTML actual a Markdown editable usando IA">
-                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                               <span>â†ª Convertir a Markdown</span>
+<button class="sidebar-action-btn" type="button"
+                               (click)="convertMarkdownToVisualHtmlWithAi()"
+                               [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
+                               title="Convertir el Markdown actual en HTML visual usando IA">
+                               @if (isAiGenerating) {
+                                 <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                 </svg>
+                               }
+                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
+                               <span>? Convertir a HTML visual</span>
                              </button>
 
-                            <button class="sidebar-action-btn" type="button"
-                              (click)="beautifyDocumentWithAi()"
-                              [disabled]="!documentForm.get('content')?.value || isAiGenerating"
-                              title="Embellecer y mejorar el documento actual usando IA">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                              <span>âœ¨ Embellecer documento</span>
-                            </button>
+                             
+                              <button class="sidebar-action-btn" type="button"
+                                (click)="convertHtmlToMarkdownWithAi()"
+                                [disabled]="contentEditorMode !== 'html' || isAiGenerating"
+                                title="Convertir el HTML actual a Markdown editable usando IA">
+                                @if (isAiGenerating) {
+                                  <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                  </svg>
+                                }
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <span>â†ª Convertir a Markdown</span>
+                              </button>
+
+                             <button class="sidebar-action-btn" type="button"
+                               (click)="beautifyDocumentWithAi()"
+                               [disabled]="!documentForm.get('content')?.value || isAiGenerating"
+                               title="Embellecer y mejorar el documento actual usando IA">
+                               @if (isAiGenerating) {
+                                 <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                 </svg>
+                               }
+                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 01-18 0 9 9 0 0118 0z"/></svg>
+                               <span>âœ¨ Embellecer documento</span>
+                             </button>
 <div class="sidebar-divider"></div>
 
                             <!-- -- ESTILO RóPIDO ------------------------- -->
@@ -2807,42 +2852,43 @@ h2::after {
       .replace(/\.markdown-preview(?=\s*[{,])/g, 'body');
   }
 
-  private wrapLooseHtmlCss(css: string): string {
-    const trimmed = css.trim();
-    if (!trimmed) return '';
-    if (trimmed.includes('{')) return trimmed;
-    return `body {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
-  }
+private wrapLooseHtmlCss(css: string): string {
+     const trimmed = css.trim();
+     if (!trimmed) return '';
+     if (trimmed.includes('{')) return trimmed;
+     return `body {\n${trimmed.replace(/[{}]/g, '').trim()}\n}`;
+   }
 
-  private buildHtmlPreviewSrcdoc(html: string): string {
-    const css = this.wrapLooseHtmlCss(this.htmlModeCss());
-    let contentHtml = html;
-    if (this.coverConfig?.enabled) {
-      const coverHtml = this.coverEditor
-        ? this.coverEditor.exportToHtml()
-        : this.exportCoverConfigToHtml(this.coverConfig);
-      contentHtml = coverHtml + '\n' + contentHtml;
-    }
-    if (this.headerFooterConfig?.enabled) {
-      const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
-      const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
-      contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
-    }
-    if (this.signatureConfig?.enabled) {
-      const signatureHtml = this.signatureEditor
-        ? this.signatureEditor.exportToHtml()
-        : this.exportSignatureConfigToHtml(this.signatureConfig);
-      contentHtml = contentHtml + '\n' + signatureHtml;
-    }
+   private buildHtmlPreviewSrcdoc(html: string): string {
+     // Use the same CSS as PDF export for consistency
+     const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
+     let contentHtml = html;
+     if (this.coverConfig?.enabled) {
+       const coverHtml = this.coverEditor
+         ? this.coverEditor.exportToHtml()
+         : this.exportCoverConfigToHtml(this.coverConfig);
+       contentHtml = coverHtml + '\n' + contentHtml;
+     }
+     if (this.headerFooterConfig?.enabled) {
+       const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
+       const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+       contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
+     }
+     if (this.signatureConfig?.enabled) {
+       const signatureHtml = this.signatureEditor
+         ? this.signatureEditor.exportToHtml()
+         : this.exportSignatureConfigToHtml(this.signatureConfig);
+       contentHtml = contentHtml + '\n' + signatureHtml;
+     }
 
-    const styleTag = `<style id="document-generator-custom-css">\n${css}\n</style>`;
-    if (/<\/head>/i.test(contentHtml)) {
-      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
-    }
-    if (/<html[\s>]/i.test(contentHtml)) {
-      return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
-    }
-    return `<!doctype html>
+     const styleTag = `<style id="document-generator-custom-css">\n${css}\n</style>`;
+     if (/<\/head>/i.test(contentHtml)) {
+       return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
+     }
+     if (/<html[\s>]/i.test(contentHtml)) {
+       return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
+     }
+     return `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -2852,7 +2898,7 @@ h2::after {
 ${contentHtml}
 </body>
 </html>`;
-  }
+   }
 
   private exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
     if (!c || !c.enabled) return '';
@@ -4093,19 +4139,18 @@ blockquote {
     return css ? scopeCssToMarkdownPreview(css) : '';
   }
 
-  private documentPreviewCss(): string {
-    const background = this.documentBackgroundSettings();
-    // Cascade (lowest ? highest priority):
-    //   defaults ? PDF style template ? quick style preset ? document colors ? user/AI CSS.
-    // Custom CSS is last so examples like `h1 { color: ... }` always work.
-    return [
-      buildDocumentPreviewCss(''),
-      this.selectedPdfStylePreviewCss(),
-      normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
-      buildPreviewBackgroundOverrideCss(background),
-      prioritizeUserCss(normalizeUserCss(this.cleanUserCustomCss())),
-    ].filter(Boolean).join('\n\n');
-  }
+private documentPreviewCss(): string {
+     const background = this.documentBackgroundSettings();
+     // Cascade (lowest ? highest priority):
+     //   defaults ? PDF style template ? quick style preset ? document colors ? user/AI CSS.
+     // Custom CSS is last so examples like `h1 { color: ... }` always work.
+     return [
+       buildDocumentPreviewCss(''),
+       this.selectedPdfStylePreviewCss(),
+       normalizeUserCss(this.stylePresetCss(this.selectedQuickStylePreset)),
+       prioritizeUserCss(normalizeUserCss(this.cleanUserCustomCss())),
+     ].filter(Boolean).join('\n\n');
+   }
 
   onPdfBackgroundChange(): void {
     this.applyCustomCss();
@@ -4377,9 +4422,8 @@ td {
     return el;
   }
 
-  async exportDocument(format: string) {
+async exportDocument(format: string) {
     const content = this.documentForm.get('content')?.value || '';
-    const renderableContent = this.getRenderableContentForPdf(content);
     const title = this.documentForm.get('title')?.value || 'documento';
     const formValue = this.documentForm.value;
     const client = this.clients.find((c) => c.id === formValue.clientId);
@@ -4391,7 +4435,7 @@ if (format === 'pdf') {
            ? String(formValue.date)
            : new Date().toISOString().split('T')[0];
          const pdfBlob = await this.pdfService.generateMarkdownPdf({
-           content: renderableContent,
+           content: this.getRenderableContentForPdf(content),
            title: title,
            date: dateStr,
            client: client?.name || 'Josanz ERP',
