@@ -273,18 +273,17 @@ export class PdfGenerationService {
     try {
       const options = this.pdfHtml2PdfOptions(filename, canvasBackground);
       this.expandPdfCanvasToFullPages(page, canvasBackground);
-      
-      // toPdf callback runs after html2canvas renders but before PDF is finalized
-      // This allows adding page numbers to each page
       return await html2pdf().set(options).from(page).toPdf(function(pdf: JsPdfInstance) {
         const totalPages = pdf.internal.getTotalPages ? pdf.internal.getTotalPages() : 1;
+        const pageSize = pdf.internal.pageSize;
+        const pageWidth = pageSize.getWidth ? pageSize.getWidth() : 210;
+        // Add page numbers at the bottom center of each page via jsPDF
         for (let i = 1; i <= totalPages; i++) {
           pdf.setPage(i);
-          const pageSize = pdf.internal.pageSize;
-          const pageWidth = pageSize.getWidth ? pageSize.getWidth() : 210;
           pdf.setFontSize(9);
           pdf.setTextColor('#64748b');
-          pdf.text(`Página ${i}`, pageWidth / 2, 10, { align: 'center' });
+          const pageHeight = pageSize.getHeight ? pageSize.getHeight() : 297;
+          pdf.text(`Página ${i}`, pageWidth / 2, pageHeight - 15, { align: 'center' });
         }
       }).outputPdf('blob');
     } finally {
@@ -683,9 +682,6 @@ ${this.getPdfPaginationCss()}
       .pdf-page-footer-center { text-align: center; }
       .pdf-page-header-right,
       .pdf-page-footer-right { text-align: right; }
-      .pdf-counter-page::before {
-        content: counter(page);
-      }
     `;
   }
 
