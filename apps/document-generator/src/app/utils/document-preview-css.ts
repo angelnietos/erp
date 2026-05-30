@@ -420,7 +420,7 @@ function buildDocumentColorIsolationCss(colors: {
   const tableOddBg = paper;
   return `
 :where(.document-preview-pane--isolated.markdown-preview),
-:where(.document-preview-pane--isolated.document-preview-render),
+:where(.document-preview-render.markdown-preview),
 :where(.pdf-body-content.markdown-preview) {
   --markdown-bg: ${paper} !important;
   --markdown-color: ${text} !important;
@@ -439,7 +439,7 @@ function buildDocumentColorIsolationCss(colors: {
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) *:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) *:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) *:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) *:not([style*='color:']) {
   color: ${text};
 }
@@ -448,9 +448,9 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.markdown-preview) li:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) td:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) .doc-paragraph:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) p:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) li:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) td:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) p:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) li:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) td:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) p:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) li:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) td:not([style*='color:']) {
@@ -464,10 +464,10 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.markdown-preview) h5:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) h6:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) strong:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) h1:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) h2:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) h3:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) strong:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) h1,
+:where(.document-preview-render.markdown-preview) h2,
+:where(.document-preview-render.markdown-preview) h3,
+:where(.document-preview-render.markdown-preview) strong,
 :where(.pdf-body-content.markdown-preview) h1:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) h2:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) h3:not([style*='color:']),
@@ -477,7 +477,8 @@ function buildDocumentColorIsolationCss(colors: {
 
 :where(.document-preview-pane--isolated.markdown-preview) a:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) .doc-callout:not([style*='color:']),
-:where(.document-preview-pane--isolated.document-preview-render) a:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) a:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) .doc-callout:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) a:not([style*='color:']) {
   color: ${accent};
 }
@@ -489,12 +490,12 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.markdown-preview) hr,
 :where(.document-preview-pane--isolated.markdown-preview) th,
 :where(.document-preview-pane--isolated.markdown-preview) td,
-:where(.document-preview-pane--isolated.document-preview-render) h1,
-:where(.document-preview-pane--isolated.document-preview-render) h2,
-:where(.document-preview-pane--isolated.document-preview-render) blockquote,
-:where(.document-preview-pane--isolated.document-preview-render) hr,
-:where(.document-preview-pane--isolated.document-preview-render) th,
-:where(.document-preview-pane--isolated.document-preview-render) td,
+:where(.document-preview-render.markdown-preview) h1,
+:where(.document-preview-render.markdown-preview) h2,
+:where(.document-preview-render.markdown-preview) blockquote,
+:where(.document-preview-render.markdown-preview) hr,
+:where(.document-preview-render.markdown-preview) th,
+:where(.document-preview-render.markdown-preview) td,
 :where(.pdf-body-content.markdown-preview) h1,
 :where(.pdf-body-content.markdown-preview) h2,
 :where(.pdf-body-content.markdown-preview) blockquote,
@@ -507,9 +508,9 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.markdown-preview) h1::before,
 :where(.document-preview-pane--isolated.markdown-preview) h2::before,
 :where(.document-preview-pane--isolated.markdown-preview) h2::after,
-:where(.document-preview-pane--isolated.document-preview-render) h1::before,
-:where(.document-preview-pane--isolated.document-preview-render) h2::before,
-:where(.document-preview-pane--isolated.document-preview-render) h2::after,
+:where(.document-preview-render.markdown-preview) h1::before,
+:where(.document-preview-render.markdown-preview) h2::before,
+:where(.document-preview-render.markdown-preview) h2::after,
 :where(.pdf-body-content.markdown-preview) h1::before,
 :where(.pdf-body-content.markdown-preview) h2::before,
 :where(.pdf-body-content.markdown-preview) h2::after {
@@ -517,20 +518,20 @@ function buildDocumentColorIsolationCss(colors: {
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) table,
-:where(.document-preview-pane--isolated.document-preview-render) table,
+:where(.document-preview-render.markdown-preview) table,
 :where(.pdf-body-content.markdown-preview) table {
   background: ${paper};
   border-color: ${border};
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) thead,
-:where(.document-preview-pane--isolated.document-preview-render) thead,
+:where(.document-preview-render.markdown-preview) thead,
 :where(.pdf-body-content.markdown-preview) thead {
   background: transparent;
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) th,
-:where(.document-preview-pane--isolated.document-preview-render) th,
+:where(.document-preview-render.markdown-preview) th,
 :where(.pdf-body-content.markdown-preview) th {
   background: ${tableHeaderBg};
   color: ${text};
@@ -538,7 +539,7 @@ function buildDocumentColorIsolationCss(colors: {
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) td,
-:where(.document-preview-pane--isolated.document-preview-render) td,
+:where(.document-preview-render.markdown-preview) td,
 :where(.pdf-body-content.markdown-preview) td {
   background: transparent;
   color: ${muted};
@@ -546,26 +547,26 @@ function buildDocumentColorIsolationCss(colors: {
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(even) td,
-:where(.document-preview-pane--isolated.document-preview-render) tr:nth-child(even) td,
+:where(.document-preview-render.markdown-preview) tr:nth-child(even) td,
 :where(.pdf-body-content.markdown-preview) tr:nth-child(even) td {
   background: ${tableEvenBg};
 }
 
 :where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(odd) td,
-:where(.document-preview-pane--isolated.document-preview-render) tr:nth-child(odd) td,
+:where(.document-preview-render.markdown-preview) tr:nth-child(odd) td,
 :where(.pdf-body-content.markdown-preview) tr:nth-child(odd) td {
   background: ${tableOddBg};
 }
 
 .document-create-shell .document-preview-pane--isolated.markdown-preview,
-.document-create-shell .document-preview-pane--isolated.document-preview-render {
+.document-preview-render.markdown-preview {
   background-color: ${paper} !important;
   color: ${text} !important;
   border-color: ${border} !important;
 }
 
 .document-create-shell .document-preview-pane--isolated.markdown-preview *:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render *:not([style*='color:']) {
+.document-preview-render.markdown-preview *:not([style*='color:']) {
   color: ${text} !important;
 }
 
@@ -573,9 +574,9 @@ function buildDocumentColorIsolationCss(colors: {
 .document-create-shell .document-preview-pane--isolated.markdown-preview li:not([style*='color:']),
 .document-create-shell .document-preview-pane--isolated.markdown-preview td:not([style*='color:']),
 .document-create-shell .document-preview-pane--isolated.markdown-preview .doc-paragraph:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render p:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render li:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render td:not([style*='color:']) {
+.document-preview-render.markdown-preview p:not([style*='color:']),
+.document-preview-render.markdown-preview li:not([style*='color:']),
+.document-preview-render.markdown-preview td:not([style*='color:']) {
   color: ${muted} !important;
 }
 
@@ -586,16 +587,16 @@ function buildDocumentColorIsolationCss(colors: {
 .document-create-shell .document-preview-pane--isolated.markdown-preview h5:not([style*='color:']),
 .document-create-shell .document-preview-pane--isolated.markdown-preview h6:not([style*='color:']),
 .document-create-shell .document-preview-pane--isolated.markdown-preview strong:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render h1:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render h2:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render h3:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render strong:not([style*='color:']) {
+.document-preview-render.markdown-preview h1:not([style*='color:']),
+.document-preview-render.markdown-preview h2:not([style*='color:']),
+.document-preview-render.markdown-preview h3:not([style*='color:']),
+.document-preview-render.markdown-preview strong:not([style*='color:']) {
   color: ${text} !important;
 }
 
 .document-create-shell .document-preview-pane--isolated.markdown-preview a:not([style*='color:']),
 .document-create-shell .document-preview-pane--isolated.markdown-preview .doc-callout:not([style*='color:']),
-.document-create-shell .document-preview-pane--isolated.document-preview-render a:not([style*='color:']) {
+.document-preview-render.markdown-preview a:not([style*='color:']) {
   color: ${accent} !important;
 }
 `;
@@ -699,6 +700,11 @@ export function resolvePdfCustomCss(storedCustomCss: string | undefined): string
       .replace(
         /:where\(\.document-preview-pane(?:--isolated)?(?:\.markdown-preview|\.document-preview-render)?\)/g,
         ':where(.pdf-body-content.markdown-preview)',
+      )
+      // Reemplaza .document-preview-render.markdown-preview → scope PDF
+      .replace(
+        /\.document-preview-render\.markdown-preview/g,
+        '.pdf-body-content.markdown-preview',
       )
   );
 }
@@ -815,6 +821,10 @@ ${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 
 ${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
 `;
+  }
+
+  if (mode === 'theme') {
+   return buildDocumentColorIsolationCss({ paper, text, muted, accent, border });
   }
 
   return '';

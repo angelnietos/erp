@@ -162,15 +162,22 @@ ${bodyHtml}
       .replace(/min-height:\s*297mm/gi, '')
       .replace(/\s*;\s*;/g, ';');
 
-    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
+const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (/<\/head>/i.test(contentHtml)) {
-      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
+      // Wrap body content in markdown-preview container if not already present
+      const wrappedBodyHtml = bodyHtml.includes('document-preview-render')
+        ? bodyHtml
+        : `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
+      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`).replace(/<body[^>]*>/i, `<body>\n${wrappedBodyHtml}`);
     }
     if (/<html[\s>]/i.test(contentHtml)) {
+      const wrappedBodyHtml = bodyHtml.includes('document-preview-render')
+        ? bodyHtml
+        : `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
       return contentHtml.replace(
         /<html([^>]*)>/i,
-        `<html$1><head>${styleTag}</head>`,
+        `<html$1><head>${styleTag}</head><body>${wrappedBodyHtml}</body>`,
       );
     }
 
@@ -181,7 +188,7 @@ ${bodyHtml}
   ${styleTag}
 </head>
 <body>
-${bodyHtml}
+  <div class="document-preview-render markdown-preview">${bodyHtml}</div>
 </body>
 </html>`;
   }
@@ -302,6 +309,8 @@ ${bodyHtml}
 
   private previewCoverOverrideCss(): string {
     return `
+.document-preview-render .pdf-cover,
+.document-preview-render .pdf-cover-page,
 body .pdf-cover,
 body .pdf-cover-page,
 .pdf-cover,
