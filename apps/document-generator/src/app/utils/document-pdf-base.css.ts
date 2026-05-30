@@ -48,6 +48,107 @@ html, body {
   break-inside: avoid;
 }
 
+.pdf-header,
+.pdf-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  font-size: 9.5pt;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pdf-header {
+  border-bottom: 1px solid #d1d5db;
+}
+
+.pdf-footer {
+  border-top: 1px solid #d1d5db;
+  justify-content: center;
+  text-align: center;
+}
+
+.pdf-header .pdf-brand,
+.pdf-footer .pdf-brand {
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: 0.02em;
+}
+
+.pdf-header .pdf-section,
+.pdf-footer .pdf-section {
+  min-width: 0;
+  flex: 1;
+}
+
+.pdf-header .pdf-section.center,
+.pdf-footer .pdf-section.center {
+  text-align: center;
+}
+
+.pdf-header .pdf-section.right,
+.pdf-footer .pdf-section.right {
+  text-align: right;
+}
+
+.pdf-cover .cover-container {
+  width: 100%;
+  max-width: 760px;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  box-shadow: 0 40px 120px rgba(15, 23, 42, 0.12);
+}
+
+.pdf-cover .cover-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.pdf-cover .cover-title {
+  font-size: clamp(2.5rem, 5vw, 3.35rem);
+  line-height: 1.02;
+  margin: 0;
+  font-weight: 900;
+  color: #111827;
+  letter-spacing: -0.04em;
+}
+
+.pdf-cover .cover-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: #475569;
+  opacity: 0.95;
+}
+
+.pdf-cover .cover-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-top: 1.8rem;
+}
+
+.pdf-cover .cover-meta .cover-meta-item {
+  padding: 1rem 1.1rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  color: #334155;
+}
+
+.pdf-cover .cover-meta .cover-meta-item strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
 .pdf-signatures {
   margin-top: 32px;
 }

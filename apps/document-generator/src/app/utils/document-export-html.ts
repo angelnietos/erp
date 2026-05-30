@@ -9,29 +9,40 @@ export const PDF_COVER_A4_STYLE =
 export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
   if (!c?.enabled) return '';
 
-  const backgroundStyle =
-    c.backgroundType === 'gradient'
-      ? `background: linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo});`
-      : c.backgroundType === 'solid'
-        ? `background: ${c.backgroundColor};`
-        : c.backgroundImageUrl
-          ? `background: url('${c.backgroundImageUrl}') center/cover;`
-          : `background: ${c.backgroundColor};`;
+  let backgroundStyle = `background: ${c.backgroundColor};`;
+  if (c.backgroundType === 'gradient') {
+    backgroundStyle = `background: linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo});`;
+  } else if (c.backgroundType === 'solid') {
+    backgroundStyle = `background: ${c.backgroundColor};`;
+  } else if (c.backgroundImageUrl) {
+    backgroundStyle = `background: url('${c.backgroundImageUrl}') center/cover; background-size: cover;`;
+  }
 
   const textAlign = c.layout === 'left-aligned' ? 'left' : 'center';
-  const dividerMargin =
-    c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px';
+  const metadataItems = [
+    c.showAuthor && c.author ? { label: 'Autor', value: c.author } : null,
+    c.showDate && c.date ? { label: 'Fecha', value: c.date } : null,
+  ].filter((item): item is { label: string; value: string } => Boolean(item));
 
   return `
 <div class="pdf-cover pdf-cover-page" style="${PDF_COVER_A4_STYLE} ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 40px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-  <div style="text-align: ${textAlign}; max-width: 600px;">
-    ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Título'}</h1>
-    ${c.subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
-    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${dividerMargin};"></div>` : ''}
-    <p style="font-size: 0.85rem; opacity: 0.85; color: ${c.textColor};">
-      ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' · ')}
-    </p>
+  <div class="cover-container" style="text-align: ${textAlign};">
+    ${c.logoUrl ? `<div style="display: flex; justify-content: ${textAlign}; margin-bottom: 26px;"><img src="${c.logoUrl}" style="max-width: 140px; height: auto;" alt="Logo"/></div>` : ''}
+    <div class="cover-header">
+      <h1 class="cover-title" style="color: ${c.textColor};">${c.title || 'Título del documento'}</h1>
+      ${c.subtitle ? `<p class="cover-subtitle" style="color: ${c.textColor};">${c.subtitle}</p>` : ''}
+    </div>
+    ${c.showDivider ? `<div style="width: 96px; height: 4px; background: ${c.textColor}; opacity: 0.65; border-radius: 999px; margin: 28px auto 0;"></div>` : ''}
+    ${metadataItems.length
+      ? `<div class="cover-meta">
+          ${metadataItems
+            .map(
+              (item) =>
+                `<div class="cover-meta-item"><strong>${item.label}</strong><span>${item.value}</span></div>`,
+            )
+            .join('')}
+        </div>`
+      : ''}
   </div>
 </div>`;
 }
@@ -39,19 +50,59 @@ export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
 export function exportSignatureConfigToHtml(c: Partial<SignatureConfig>): string {
   if (!c?.enabled) return '';
 
-  const signatureBlock = `
-<div style="text-align: center; ${c.layout === 'horizontal' ? 'flex: 1;' : ''}">
-  ${c.signatureImageUrl ? `<img src="${c.signatureImageUrl}" style="max-width: 150px; max-height: 60px; object-fit: contain; margin-bottom: 8px;" alt="Firma"/>` : ''}
-  ${c.showLine ? '<div style="border-top: 1px solid #374151; margin: 0 auto 8px; min-width: 180px;"></div>' : ''}
-  <div style="font-weight: 600; color: #111827; font-size: 0.95rem;">${c.name || 'Nombre del firmante'}</div>
-  ${c.title ? `<div style="color: #6b7280; font-size: 0.8rem;">${c.title}</div>` : ''}
-  ${c.company ? `<div style="color: #6b7280; font-size: 0.8rem;">${c.company}</div>` : ''}
-  <div style="color: #9ca3af; font-size: 0.75rem; margin-top: 8px;">
-    ${[c.showLocation && c.location ? c.location : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(', ')}
-  </div>
-</div>`;
+  const signatureBlock = renderSignatureBlock(c);
+  const layout = getSignatureLayout(c.layout);
+  return renderSignatureLayout(layout, signatureBlock, c);
+}
 
-  if (c.layout === 'horizontal') {
+function renderSignatureBlock(c: Partial<SignatureConfig>): string {
+  const blocks: string[] = [];
+  if (c.signatureImageUrl) {
+    blocks.push(
+      `<img src="${c.signatureImageUrl}" style="max-width: 150px; max-height: 60px; object-fit: contain; margin-bottom: 8px;" alt="Firma"/>`,
+    );
+  }
+  if (c.showLine) {
+    blocks.push('<div style="border-top: 1px solid #374151; margin: 0 auto 8px; min-width: 180px;"></div>');
+  }
+  blocks.push(`<div style="font-weight: 600; color: #111827; font-size: 0.95rem;">${c.name || 'Nombre del firmante'}</div>`);
+  if (c.title) {
+    blocks.push(`<div style="color: #6b7280; font-size: 0.8rem;">${c.title}</div>`);
+  }
+  if (c.company) {
+    blocks.push(`<div style="color: #6b7280; font-size: 0.8rem;">${c.company}</div>`);
+  }
+
+  const locationAndDate = [c.showLocation && c.location ? c.location : '', c.showDate && c.date ? c.date : '']
+    .filter(Boolean)
+    .join(', ');
+  if (locationAndDate) {
+    blocks.push(`<div style="color: #9ca3af; font-size: 0.75rem; margin-top: 8px;">${locationAndDate}</div>`);
+  }
+
+  const flexStyle = c.layout === 'horizontal' ? 'flex: 1;' : '';
+  return `
+<div style="text-align: center; ${flexStyle}">
+  ${blocks.join('')}
+</div>`;
+}
+
+function getSignatureLayout(layout?: string): 'horizontal' | 'vertical' | 'default' {
+  if (layout === 'horizontal') {
+    return 'horizontal';
+  }
+  if (layout === 'vertical') {
+    return 'vertical';
+  }
+  return 'default';
+}
+
+function renderSignatureLayout(
+  layout: 'horizontal' | 'vertical' | 'default',
+  signatureBlock: string,
+  c: Partial<SignatureConfig>,
+): string {
+  if (layout === 'horizontal') {
     return `
 <div class="pdf-signatures" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e7eb;">
   <div style="display: flex; justify-content: space-between; gap: 40px;">
@@ -61,7 +112,7 @@ export function exportSignatureConfigToHtml(c: Partial<SignatureConfig>): string
 </div>`;
   }
 
-  if (c.layout === 'vertical') {
+  if (layout === 'vertical') {
     return `
 <div class="pdf-signatures" style="margin-top: 60px; padding-top: 30px; border-top: 1px solid #e5e7eb; text-align: center;">
   ${signatureBlock}
@@ -103,17 +154,18 @@ export function exportHeaderFooterConfigToHtml(
   const hasContent = [left, center, right].some((t) => t.trim());
   if (!hasContent) return '';
 
-  const dividerStyle = c.showDivider
-    ? isHeader
-      ? 'border-bottom: 1px solid #e2e8f0; margin-bottom: 8px; padding-bottom: 6px;'
-      : 'border-top: 1px solid #e2e8f0; margin-top: 8px; padding-top: 6px;'
-    : '';
+  let dividerStyle = '';
+  if (c.showDivider) {
+    dividerStyle = isHeader
+      ? 'border-bottom: 1px solid rgba(226, 232, 240, 0.95); margin-bottom: 8px; padding-bottom: 6px;'
+      : 'border-top: 1px solid rgba(226, 232, 240, 0.95); margin-top: 8px; padding-top: 6px;';
+  }
 
   return `
-<div class="pdf-${zone}" style="display:flex; justify-content:space-between; align-items:center; padding: 6px 20px; font-size:${c.fontSize ?? '9pt'}; color:${c.textColor ?? '#64748b'}; background:${c.backgroundColor && c.backgroundColor !== 'transparent' ? c.backgroundColor : 'transparent'}; ${dividerStyle}">
-  <span>${resolveVars(left)}</span>
-  <span>${resolveVars(center)}</span>
-  <span>${resolveVars(right)}</span>
+<div class="pdf-${zone}" style="display:flex; justify-content:space-between; align-items:center; gap: 1rem; padding: 8px 20px; font-size:${c.fontSize ?? '9pt'}; color:${c.textColor ?? '#475569'}; background:${c.backgroundColor && c.backgroundColor !== 'transparent' ? c.backgroundColor : 'rgba(255,255,255,0.92)'}; ${dividerStyle}">
+  <span class="pdf-section left">${resolveVars(left)}</span>
+  <span class="pdf-section center">${resolveVars(center)}</span>
+  <span class="pdf-section right">${resolveVars(right)}</span>
 </div>`;
 }
 
