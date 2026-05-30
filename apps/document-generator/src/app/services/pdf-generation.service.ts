@@ -10,6 +10,7 @@ import {
 import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
+  JsPdfInstance,
   MarkedGlobal,
 } from '../types/cdn-script-globals';
 
@@ -272,7 +273,20 @@ export class PdfGenerationService {
     try {
       const options = this.pdfHtml2PdfOptions(filename, canvasBackground);
       this.expandPdfCanvasToFullPages(page, canvasBackground);
-      return await html2pdf().set(options).from(page).outputPdf('blob');
+      
+      // toPdf callback runs after html2canvas renders but before PDF is finalized
+      // This allows adding page numbers to each page
+      return await html2pdf().set(options).from(page).toPdf(function(pdf: JsPdfInstance) {
+        const totalPages = pdf.internal.getTotalPages ? pdf.internal.getTotalPages() : 1;
+        for (let i = 1; i <= totalPages; i++) {
+          pdf.setPage(i);
+          const pageSize = pdf.internal.pageSize;
+          const pageWidth = pageSize.getWidth ? pageSize.getWidth() : 210;
+          pdf.setFontSize(9);
+          pdf.setTextColor('#64748b');
+          pdf.text(`Página ${i}`, pageWidth / 2, 10, { align: 'center' });
+        }
+      }).outputPdf('blob');
     } finally {
       host.remove();
     }
@@ -459,19 +473,7 @@ export class PdfGenerationService {
             letter-spacing: 0.01em;
           }
           .pdf-page {
-            counter-increment: page;
             position: relative;
-          }
-          .pdf-page-number {
-            position: absolute;
-            bottom: 12mm;
-            width: 100%;
-            text-align: center;
-            font-size: 9pt;
-            color: #64748b;
-          }
-          .pdf-page-number::after {
-            content: "Página " counter(page);
           }
           h1 {
             font-size: 20pt;
