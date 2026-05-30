@@ -585,7 +585,9 @@ a svg,
 
 /* Cover styling for document preview - adapt to container (responsive) */
 .document-preview-pane .pdf-cover-page,
-.document-preview-pane .pdf-cover {
+.document-preview-pane .pdf-cover,
+.document-preview-render .pdf-cover-page,
+.document-preview-render .pdf-cover {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;

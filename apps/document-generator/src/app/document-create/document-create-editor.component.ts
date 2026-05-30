@@ -1469,11 +1469,12 @@ private wrapLooseHtmlCss(css: string): string {
 private buildHtmlPreviewSrcdoc(html: string): string {
       // Use the same CSS as PDF export for consistency
       const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
+      let contentHtml = html;
+
+      // For preview, remove fixed height styles from cover to make it responsive
       const previewCoverCss = `
 body .pdf-cover,
-body .pdf-cover-page,
-.pdf-cover,
-.pdf-cover-page {
+.pdf-cover {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
@@ -1481,11 +1482,16 @@ body .pdf-cover-page,
   aspect-ratio: 210/297 !important;
 }
 `;
-      let contentHtml = html;
       if (this.coverConfig?.enabled) {
-        const coverHtml = this.coverEditor
+        let coverHtml = this.coverEditor
           ? this.coverEditor.exportToHtml()
           : this.exportCoverConfigToHtml(this.coverConfig);
+        // Remove inline height/min-height styles for responsive preview
+        coverHtml = coverHtml
+          .replace(/height:\s*297mm/gi, '')
+          .replace(/min-height:\s*297mm/gi, '')
+          .replace(/height:\s*100vh/gi, '')
+          .replace(/\s*;\s*;/g, ';');
         contentHtml = coverHtml + '\n' + contentHtml;
       }
       if (this.headerFooterConfig?.enabled) {
@@ -1501,13 +1507,13 @@ body .pdf-cover-page,
       }
 
       const styleTag = `<style id="document-generator-custom-css">\n${css}\n${previewCoverCss}\n</style>`;
-     if (/<\/head>/i.test(contentHtml)) {
-       return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
-     }
-     if (/<html[\s>]/i.test(contentHtml)) {
-       return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
-     }
-     return `<!doctype html>
+      if (/<\/head>/i.test(contentHtml)) {
+        return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
+      }
+      if (/<html[\s>]/i.test(contentHtml)) {
+        return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
+      }
+      return `<!doctype html>
 <html lang="es">
 <head>
   <meta charset="utf-8">
@@ -1517,7 +1523,7 @@ body .pdf-cover-page,
 ${contentHtml}
 </body>
 </html>`;
-   }
+    }
 
   private exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
     if (!c || !c.enabled) return '';

@@ -157,7 +157,14 @@ ${bodyHtml}
     stylesheet: string,
     extras: DocumentExtrasInput,
   ): string {
-    const bodyHtml = assembleDocumentBodyHtml(contentHtml, extras);
+    let bodyHtml = assembleDocumentBodyHtml(contentHtml, extras);
+
+    // Remove fixed height styles from cover for responsive preview
+    bodyHtml = bodyHtml
+      .replace(/height:\s*297mm/gi, '')
+      .replace(/min-height:\s*297mm/gi, '')
+      .replace(/\s*;\s*;/g, ';');
+
     const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (/<\/head>/i.test(contentHtml)) {
