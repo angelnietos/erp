@@ -147,25 +147,15 @@ export function exportHeaderFooterConfigToHtml(
   const right = isHeader ? (c.headerRight ?? '') : (c.footerRight ?? '');
 
   const samplePage = Number.isFinite(c.startPageFrom ?? NaN) ? c.startPageFrom! : 1;
-  const sampleTotal = samplePage + 3;
 
   const resolveVars = (text: string): string =>
     text
       .replace(/\{page\}/g, String(samplePage))
-      .replace(/\{total\}/g, String(sampleTotal))
       .replace(/\{title\}/g, documentTitle)
       .replace(/\{date\}/g, new Date().toLocaleDateString('es-ES'))
       .replace(/\{author\}/g, '');
 
-  const pageNumberFormat = c.pageNumberFormat ?? 'simple';
-  const defaultFooter = pageNumberFormat === 'x-of-y'
-    ? `Página ${samplePage} de ${sampleTotal}`
-    : pageNumberFormat === 'page-x'
-    ? `Pág. ${samplePage}`
-    : `${samplePage}`;
-
-  const effectiveRight = isHeader ? right : right || defaultFooter;
-  const hasContent = [left, center, effectiveRight].some((t) => t.trim());
+  const hasContent = [left, center, right].some((t) => t.trim());
   if (!hasContent) return '';
 
   let dividerStyle = '';

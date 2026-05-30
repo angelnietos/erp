@@ -633,15 +633,6 @@ ${this.getPdfPaginationCss()}
     const textColor = typeof hf['textColor'] === 'string' ? hf['textColor'] : '#64748b';
     const showPageNumbers = hf['showPageNumbers'] !== false;
     const showDivider = hf['showDivider'] !== false;
-    const pageFormat = typeof hf['pageNumberFormat'] === 'string' ? hf['pageNumberFormat'] : 'simple';
-
-    const pageContent = showPageNumbers
-      ? pageFormat === 'x-of-y'
-        ? 'counter(page) " de " counter(pages)'
-        : pageFormat === 'page-x'
-        ? '"Página " counter(page)'
-        : 'counter(page)'
-      : '';
 
     const dividerColor = textColor;
     const footerBackground = hf['backgroundColor'] && hf['backgroundColor'] !== 'transparent' ? hf['backgroundColor'] : 'rgba(255,255,255,0.92)';
@@ -693,13 +684,6 @@ ${this.getPdfPaginationCss()}
       .pdf-counter-page::before {
         content: counter(page);
       }
-      .pdf-counter-pages::before {
-        content: counter(pages);
-      }
-      .pdf-counter-page,
-      .pdf-counter-pages {
-        display: inline;
-      }
     `;
   }
 
@@ -723,8 +707,7 @@ ${this.getPdfPaginationCss()}
 
       if (showPageNumbers) {
         escaped = escaped
-          .replace(/\{page\}/g, '<span class="pdf-counter-page"></span>')
-          .replace(/\{total\}/g, '<span class="pdf-counter-pages"></span>');
+          .replace(/\{page\}/g, '<span class="pdf-counter-page"></span>');
       } else {
         escaped = escaped.replace(/\{page\}|\{total\}/g, '');
       }
@@ -732,19 +715,19 @@ ${this.getPdfPaginationCss()}
       return escaped;
     };
 
-    const autoPageText = showPageNumbers
-      ? format === 'x-of-y'
-        ? 'Página <span class="pdf-counter-page"></span> de <span class="pdf-counter-pages"></span>'
-        : format === 'page-x'
-        ? 'Pág. <span class="pdf-counter-page"></span>'
-        : '<span class="pdf-counter-page"></span>'
-      : '';
-
     const headerLeft = renderText(hf['headerLeft']);
     const headerCenter = renderText(hf['headerCenter']);
     const headerRight = renderText(hf['headerRight']);
     const footerLeft = renderText(hf['footerLeft']);
     const footerCenter = renderText(hf['footerCenter']);
+    
+    // Build automatic page text - just page number since total can't be known in CSS
+    let autoPageText = '';
+    if (showPageNumbers) {
+      autoPageText = format === 'page-x'
+        ? 'Pág. <span class="pdf-counter-page"></span>'
+        : '<span class="pdf-counter-page"></span>';
+    }
     const footerRight = renderText(hf['footerRight'] || autoPageText);
 
     return `
