@@ -45,8 +45,8 @@ import {
 import { CoverEditorComponent, type CoverConfig } from './cover-editor.component';
 import { SignatureEditorComponent, type SignatureConfig } from './signature-editor.component';
 import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-footer-editor.component';
-import { TableBuilderComponent, type TableConfig } from './table-builder.component';
-import { ImageInsertComponent, type ImageConfig } from './image-insert.component';
+import { TableBuilderComponent } from './table-builder.component';
+import { ImageInsertComponent } from './image-insert.component';
 import { SlashCommandsComponent, type SlashCommand } from './slash-commands.component';
 
 declare const marked: MarkedGlobal;
@@ -970,6 +970,14 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                <span>↪ Convertir a Markdown</span>
                              </button>
+
+                            <button class="sidebar-action-btn" type="button"
+                              (click)="beautifyDocumentWithAi()"
+                              [disabled]="!documentForm.get('content')?.value || isAiGenerating"
+                              title="Embellecer y mejorar el documento actual usando IA">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                              <span>✨ Embellecer documento</span>
+                            </button>
 <div class="sidebar-divider"></div>
 
                             <!-- -- ESTILO R�PIDO ------------------------- -->
@@ -2077,6 +2085,44 @@ export class DocumentCreateEditorComponent implements OnInit {
         e instanceof Error
           ? e.message
           : 'Error al convertir HTML a Markdown con IA.';
+    } finally {
+      this.isAiGenerating = false;
+    }
+  }
+
+  async beautifyDocumentWithAi(): Promise<void> {
+    const content = String(this.documentForm.get('content')?.value ?? '').trim();
+    if (!content) {
+      this.aiError = 'Primero escribe o genera contenido en el editor.';
+      return;
+    }
+
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      let beautified: string;
+
+      if (this.contentEditorMode === 'markdown') {
+        beautified = await this.documentAi.beautifyMarkdown(
+          this.getAiContext(),
+        );
+      } else if (this.contentEditorMode === 'html') {
+        beautified = await this.documentAi.beautifyHtml(
+          this.getAiContext(),
+        );
+      } else {
+        this.aiError = 'Mode no compatible para embellecer.';
+        return;
+      }
+
+      this.documentForm.patchValue({ content: beautified });
+      this.updatePreview();
+      this.syncAssistantFromFormNow();
+    } catch (e: unknown) {
+      this.aiError =
+        e instanceof Error
+          ? e.message
+          : 'Error al embellecer el documento con IA.';
     } finally {
       this.isAiGenerating = false;
     }

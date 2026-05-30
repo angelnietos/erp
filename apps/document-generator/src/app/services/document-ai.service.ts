@@ -4,7 +4,6 @@ import {
   GenerateResponseOptions,
 } from '@josanz-erp/shared-data-access';
 import { AgentPersonaService } from './agent-persona.service';
-import type { AgentMemoryNoteRow } from '../db/agent-memory-dexie';
 
 export interface DocumentAiContext {
   /** quote | proposal | documentation | architecture | resume | interview | offer */
@@ -22,7 +21,7 @@ export interface DocumentAiContext {
 const DOCUMENT_AI_GEN_OPTS: GenerateResponseOptions = {
   maxOutputTokens: 8192,
 };
-
+const TRUNCATION_MARKER = '[RESPUESTA_CORTADA_POR_MAX_TOKENS]';
 const SYSTEM_DOC_WRITER = `Eres un redactor profesional de documentos empresariales en español.
 Reglas:
 - Salida SOLO en Markdown (GFM): títulos ## numerados (## 1. Título, ## 2. …), listas, tablas cuando ayuden.
@@ -66,12 +65,7 @@ export class DocumentAiService {
   ): Promise<string> {
     const prompt = this.buildPrompt(instruction, ctx, 'transform');
     const system = await this.buildSystemPrompt(ctx);
-    const raw = await this.inference.generateResponse(
-      prompt,
-      system,
-      DOCUMENT_AI_GEN_OPTS,
-    );
-    return this.stripCodeFences(raw);
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }
 
   /** Convierte Markdown existente en un HTML visual, autocontenido y editable. */
@@ -106,8 +100,7 @@ export class DocumentAiService {
 Tu tarea es transformar Markdown en HTML autocontenido, visual y listo para previsualizar/exportar.
 No devuelvas Markdown. No expliques nada. Devuelve únicamente el documento HTML completo.`;
 
-    const raw = await this.inference.generateResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
-    return this.stripCodeFences(raw);
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }
 
   async convertHtmlToMarkdown(ctx: DocumentAiContext): Promise<string> {
@@ -138,8 +131,69 @@ No devuelvas Markdown. No expliques nada. Devuelve únicamente el documento HTML
     const system = `Eres un experto en documentación que convierte HTML en Markdown editable.
 Tu objetivo es devolver únicamente Markdown bien estructurado, sin explicaciones ni entradas adicionales.`;
 
-    const raw = await this.inference.generateResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
-    return this.stripCodeFences(raw);
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+  }
+
+  async beautifyMarkdown(ctx: DocumentAiContext): Promise<string> {
+    const markdown = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim() ? `Cliente o destinataria: ${ctx.clientName.trim()}.` : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Embellece este Markdown de documento empresarial manteniendo el formato Markdown actual.',
+      'Devuelve SOLO Markdown final mejorado, sin explicaciones ni contenido adicional.',
+      'Requisitos:',
+      '- Conserva todo el contenido y placeholders existentes.',
+      '- Mejora el estilo, claridad, estructura y legibilidad.',
+      '- Usa títulos numerados cuando tengan sentido y tablas GFM cuando sea necesario.',
+      '- Preserva los marcadores [rellenar: …] y no inventes datos.',
+      '',
+      'MARKDOWN A MEJORAR:',
+      '---',
+      markdown.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un redactor profesional que mejora documentos en Markdown.
+Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni contenido adicional.`;
+
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+  }
+
+  async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
+    const html = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim() ? `Cliente o destinataria: ${ctx.clientName.trim()}.` : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Embellece este HTML de documento empresarial manteniendo el formato HTML actual.',
+      'Devuelve SOLO HTML final mejorado, sin explicaciones ni contenido adicional.',
+      'Requisitos:',
+      '- Conserva todo el contenido y placeholders existentes.',
+      '- Mejora la apariencia, claridad, estructura y el marcado semántico.',
+      '- Mantén el documento autocontenido y válido.',
+      '- Preserva los marcadores [rellenar: …] y no inventes datos.',
+      '',
+      'HTML A MEJORAR:',
+      '---',
+      html.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un diseñador/redactor experto en documentos HTML.
+Tu objetivo es devolver únicamente el HTML mejorado, sin explicaciones ni contenido adicional.`;
+
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }
 
   /** Genera un esquema estructurado del documento antes de escribirlo */
@@ -173,13 +227,13 @@ SECCIONES:
 [Continuar con todas las secciones necesarias]`;
 
     const system = await this.buildSystemPrompt(ctx);
-    const raw = await this.inference.generateResponse(
+    const raw = await this.generateFullResponse(
       outlinePrompt,
       system,
       { maxOutputTokens: 2048 }, // Less tokens needed for outline
     );
     
-    return this.parseOutline(this.stripCodeFences(raw));
+    return this.parseOutline(raw);
   }
 
   /** Genera el contenido completo basado en el esquema */
@@ -212,13 +266,13 @@ INSTRUCCIONES:
 6. Asegúrate de que el flujo entre secciones sea lógico y natural`;
 
     const system = await this.buildSystemPrompt(ctx);
-    const raw = await this.inference.generateResponse(
+    const raw = await this.generateFullResponse(
       prompt,
       system,
       DOCUMENT_AI_GEN_OPTS,
     );
     
-    return this.stripCodeFences(raw);
+    return raw;
   }
 
   /** Analiza el contenido generado y propone mejoras mediante auto-reflexión */
@@ -253,13 +307,11 @@ Para cada problema encontrado, proporciona:
 Sé específico y constructivo en tu análisis.`;
 
     const system = await this.buildSystemPrompt(ctx);
-    const analysisRaw = await this.inference.generateResponse(
+    const analysis = await this.generateFullResponse(
       analysisPrompt,
       system,
       { maxOutputTokens: 2048 },
     );
-    
-    const analysis = this.stripCodeFences(analysisRaw);
     
     // If no significant issues found, return original content
     if (this.hasNoSignificantIssues(analysis)) {
@@ -283,13 +335,38 @@ INSTRUCCIONES:
 4. Preserva cualquier marcador [rellenar: …] que fuera apropiado
 5. Devuelve SOLO el documento mejorado en Markdown, sin explicaciones adicionales`;
 
-    const improvementRaw = await this.inference.generateResponse(
+    const improvement = await this.generateFullResponse(
       improvementPrompt,
       system,
       DOCUMENT_AI_GEN_OPTS,
     );
     
-    return this.stripCodeFences(improvementRaw);
+    return improvement;
+  }
+
+  private async generateFullResponse(
+    prompt: string,
+    system: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
+    let fullResponse = '';
+    let currentPrompt = prompt;
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const raw = await this.inference.generateResponse(currentPrompt, system, options);
+      const containsMarker = raw.includes(TRUNCATION_MARKER);
+      const chunk = this.stripCodeFences(raw).replace(TRUNCATION_MARKER, '').trim();
+      fullResponse = fullResponse ? `${fullResponse}\n\n${chunk}` : chunk;
+
+      if (!containsMarker) {
+        break;
+      }
+
+      currentPrompt =
+        'La respuesta anterior se quedó cortada por límite de tokens. Continúa exactamente desde donde quedó, sin repetir contenido ni añadir explicaciones. Devuelve únicamente el texto restante en el mismo formato.';
+    }
+
+    return fullResponse.trim();
   }
 
   /** Parsea el esquema generado por la IA en un objeto estructurado */
