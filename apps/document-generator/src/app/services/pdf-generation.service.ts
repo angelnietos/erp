@@ -784,17 +784,20 @@ ${this.getPdfPaginationCss()}
     html: string,
     data: DocumentData,
   ): string {
-    if (data.quickStylePreset === 'corporate') {
+    // Remove cover elements from document content when coverConfig is provided
+    // to prevent duplicate covers in PDF
+    const cover = data.coverConfig as { enabled?: boolean } | undefined;
+    if (!cover?.enabled) {
       return html;
     }
 
-    if (!/class\s*=\s*["'][^"']*\bcover\b/i.test(html)) {
+    if (!/class\s*=\s*["'][^"']*\b(pdf-cover|cover)\b[^"']*/i.test(html)) {
       return html;
     }
 
     const wrapper = document.createElement('div');
     wrapper.innerHTML = html;
-    wrapper.querySelectorAll('.cover').forEach((cover) => cover.remove());
+    wrapper.querySelectorAll('.pdf-cover, .pdf-cover-page, .cover').forEach((coverEl) => coverEl.remove());
     return wrapper.innerHTML;
   }
 

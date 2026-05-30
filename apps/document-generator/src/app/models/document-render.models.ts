@@ -46,7 +46,6 @@ export interface DocumentRenderInput {
   signaturePanelEnabled?: boolean;
   headerFooterPanelEnabled?: boolean;
   documentTitle?: string;
-  isCorporateCoverEnabled?: boolean;
 }
 
 export interface DocumentRenderPayload {

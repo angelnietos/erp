@@ -1196,7 +1196,6 @@ readonly pdfService = inject(PdfGenerationService);
       signaturePanelEnabled: this.signaturePanelEnabled,
       headerFooterPanelEnabled: this.headerFooterPanelEnabled,
       documentTitle: title,
-      isCorporateCoverEnabled: this.isCorporateCoverEnabled(),
     };
   }
 
@@ -1298,11 +1297,11 @@ ${payload.bodyHtml}
       const client = this.clients.find((c) => c.id === formValue.clientId);
       const backgroundSettings = this.documentBackgroundSettings();
       return this.pdfService.generateMarkdownPdf({
-        content: this.documentRender.getRenderableContentForPdf(
-          String(formValue.content ?? ''),
-          pdfMode,
-          this.isCorporateCoverEnabled(),
-        ),
+content: this.documentRender.getRenderableContentForPdf(
+           String(formValue.content ?? ''),
+           pdfMode,
+           this.coverConfig,
+         ),
         title,
         date: formValue.date
           ? String(formValue.date)
@@ -1636,29 +1635,22 @@ ${contentHtml}
   }
 
   private applyCorporateCoverVisibility(html: string): string {
-    if (this.isCorporateCoverEnabled()) {
-      return html;
-    }
-
-    if (!/class\s*=\s*["'][^"']*\bcover\b/i.test(html)) {
+    // Remove cover elements for inline cover previews (corporate style renders built-in header)
+    if (!/class\s*=\s*["'][^"']*\b(pdf-cover|cover)\b[^"']*/i.test(html)) {
       return html;
     }
 
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      doc.querySelectorAll('.cover').forEach((cover) => cover.remove());
+      doc.querySelectorAll('.pdf-cover, .pdf-cover-page, .cover').forEach((cover) => cover.remove());
       return doc.body.innerHTML || html;
     } catch {
       return html.replace(
-        /<([a-z][\w:-]*)\b[^>]*class=(["'])[^"']*\bcover\b[^"']*\2[^>]*>[\s\S]*?<\/\1>/gi,
+        /<([a-z][\w:-]*)\b[^>]*class=(["'])[^"']*\b(pdf-cover|cover)\b[^"']*\2[^>]*>[\s\S]*?<\/\1>/gi,
         '',
       );
     }
-  }
-
-  private isCorporateCoverEnabled(): boolean {
-    return this.selectedQuickStylePreset === 'corporate';
   }
 
   insertEditorBlockFromSelect(event: Event): void {

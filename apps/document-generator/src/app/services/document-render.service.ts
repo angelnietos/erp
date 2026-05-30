@@ -69,7 +69,7 @@ export class DocumentRenderService {
       return enrichDocumentHtmlForStyling(
         this.applyCorporateCoverVisibility(
           this.plainTextToHtml(content),
-          input.isCorporateCoverEnabled ?? false,
+          input.coverConfig,
         ),
       );
     }
@@ -84,10 +84,7 @@ export class DocumentRenderService {
       parsed = content;
     }
 
-    parsed = this.applyCorporateCoverVisibility(
-      parsed,
-      input.isCorporateCoverEnabled ?? false,
-    );
+    parsed = this.applyCorporateCoverVisibility(parsed, input.coverConfig);
     return enrichDocumentHtmlForStyling(parsed);
   }
 
@@ -192,7 +189,7 @@ ${bodyHtml}
   getRenderableContentForPdf(
     content: string,
     mode: ContentEditorMode,
-    isCorporateCoverEnabled: boolean,
+    coverConfig: { enabled?: boolean } | undefined,
   ): string {
     if (mode === 'html') {
       return this.stripWrappingHtmlFence(content);
@@ -200,10 +197,10 @@ ${bodyHtml}
     if (mode === 'plain') {
       return this.applyCorporateCoverVisibility(
         this.plainTextToHtml(content),
-        isCorporateCoverEnabled,
+        coverConfig,
       );
     }
-    return this.applyCorporateCoverVisibility(content, isCorporateCoverEnabled);
+    return this.applyCorporateCoverVisibility(content, coverConfig);
   }
 
   customCssForDocument(input: DocumentRenderInput): string {
@@ -269,24 +266,26 @@ ${bodyHtml}
 
   private applyCorporateCoverVisibility(
     html: string,
-    isCorporateCoverEnabled: boolean,
+    coverConfig: { enabled?: boolean } | undefined,
   ): string {
-    if (isCorporateCoverEnabled) {
+    // Remove cover elements from document content when coverConfig is provided
+    // to prevent duplicate covers in PDF
+    if (!coverConfig?.enabled) {
       return html;
     }
 
-    if (!/class\s*=\s*["'][^"']*\bcover\b/i.test(html)) {
+    if (!/class\s*=\s*["'][^"']*\b(pdf-cover|cover)\b[^"']*/i.test(html)) {
       return html;
     }
 
     try {
       const parser = new DOMParser();
       const doc = parser.parseFromString(html, 'text/html');
-      doc.querySelectorAll('.cover').forEach((cover) => cover.remove());
+      doc.querySelectorAll('.pdf-cover, .pdf-cover-page, .cover').forEach((cover) => cover.remove());
       return doc.body.innerHTML || html;
     } catch {
       return html.replace(
-        /<([a-z][\w:-]*)\b[^>]*class=(["'])[^"']*\bcover\b[^"']*\2[^>]*>[\s\S]*?<\/\1>/gi,
+        /<([a-z][\w:-]*)\b[^>]*class=(["'])[^"']*\b(pdf-cover|cover)\b[^"']*\2[^>]*>[\s\S]*?<\/\1>/gi,
         '',
       );
     }
