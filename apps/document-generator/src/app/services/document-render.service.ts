@@ -90,7 +90,9 @@ export class DocumentRenderService {
 
   buildPreviewStylesheet(input: DocumentRenderInput): string {
     const cleanedCss = removeManagedStylePreset(input.customCss);
+    // Include PDF base CSS for HTML preview to ensure color variables work correctly
     return [
+      PDF_EXPORT_BASE_CSS,
       buildDocumentPreviewCss(''),
       this.selectedPdfStylePreviewCss(input.pdfStyles, input.selectedPdfStyle),
       normalizeUserCss(stylePresetCss(input.selectedQuickStylePreset)),

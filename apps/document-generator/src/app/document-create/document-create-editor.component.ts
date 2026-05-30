@@ -1140,13 +1140,13 @@ readonly pdfService = inject(PdfGenerationService);
     this.previewHtmlMarkup = payload.contentMarkup;
 
     if (this.contentEditorMode === 'html') {
-      this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
-        this.documentRender.buildHtmlPreviewSrcdoc(
-          payload.contentMarkup,
-          payload.exportStylesheet,
-          this.buildDocumentExtras(input.documentTitle),
-        ),
-      );
+this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
+         this.documentRender.buildHtmlPreviewSrcdoc(
+           payload.contentMarkup,
+           payload.previewStylesheet,
+           this.buildDocumentExtras(input.documentTitle),
+         ),
+       );
     } else {
       this.htmlPreviewSrcdoc = '';
     }

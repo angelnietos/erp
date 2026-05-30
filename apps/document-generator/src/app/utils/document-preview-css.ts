@@ -824,10 +824,147 @@ ${buildDocumentColorIsolationCss({ paper, text, muted, accent, border })}
   }
 
   if (mode === 'theme') {
-   return buildDocumentColorIsolationCss({ paper, text, muted, accent, border });
+    const canvas = settings.pdfBackgroundColor ?? paper;
+    return `
+html, body {
+  background-color: ${canvas} !important;
+  background: ${canvas} !important;
+}
+
+${buildDocumentColorIsolationCssForIframe({ paper, text, muted, accent, border })}
+`;
   }
 
   return '';
+}
+
+/** CSS de aislamiento de colores optimizado para iframe (sin prefijos del editor). */
+function buildDocumentColorIsolationCssForIframe(colors: {
+  paper: string;
+  text: string;
+  muted: string;
+  accent: string;
+  border: string;
+}): string {
+  const { paper, text, muted, accent, border } = colors;
+  const tableHeaderBg = mixColor(paper, accent, 0.18);
+  const tableEvenBg = mixColor(paper, text, 0.04);
+  const tableOddBg = paper;
+  return `
+.markdown-preview,
+.document-preview-render.markdown-preview {
+  --markdown-bg: ${paper} !important;
+  --markdown-color: ${text} !important;
+  --brand-primary: ${accent} !important;
+  --brand-accent: ${accent} !important;
+  --markdown-border: ${border} !important;
+  background-color: ${paper};
+  color: ${text};
+  border-color: ${border};
+  --bg: ${paper} !important;
+  --text: ${text} !important;
+  --text-soft: ${muted} !important;
+  --border: ${border} !important;
+  --code-bg: #0f172a !important;
+  --code-text: #f8fafc !important;
+}
+
+.markdown-preview *:not([style*='color:']),
+.document-preview-render.markdown-preview *:not([style*='color:']) {
+  color: ${text};
+}
+
+.markdown-preview p:not([style*='color:']),
+.markdown-preview li:not([style*='color:']),
+.markdown-preview td:not([style*='color:']),
+.markdown-preview .doc-paragraph:not([style*='color:']),
+.document-preview-render.markdown-preview p:not([style*='color:']),
+.document-preview-render.markdown-preview li:not([style*='color:']),
+.document-preview-render.markdown-preview td:not([style*='color:']) {
+  color: ${muted};
+}
+
+.markdown-preview h1:not([style*='color:']),
+.markdown-preview h2:not([style*='color:']),
+.markdown-preview h3:not([style*='color:']),
+.markdown-preview h4:not([style*='color:']),
+.markdown-preview h5:not([style*='color:']),
+.markdown-preview h6:not([style*='color:']),
+.markdown-preview strong:not([style*='color:']),
+.document-preview-render.markdown-preview h1,
+.document-preview-render.markdown-preview h2,
+.document-preview-render.markdown-preview h3,
+.document-preview-render.markdown-preview strong {
+  color: ${text} !important;
+}
+
+.markdown-preview a:not([style*='color:']),
+.markdown-preview .doc-callout:not([style*='color:']),
+.document-preview-render.markdown-preview a:not([style*='color:']),
+.document-preview-render.markdown-preview .doc-callout:not([style*='color:']) {
+  color: ${accent};
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview blockquote,
+.markdown-preview .doc-callout,
+.markdown-preview hr,
+.markdown-preview th,
+.markdown-preview td,
+.document-preview-render.markdown-preview h1,
+.document-preview-render.markdown-preview h2,
+.document-preview-render.markdown-preview blockquote,
+.document-preview-render.markdown-preview hr,
+.document-preview-render.markdown-preview th,
+.document-preview-render.markdown-preview td {
+  border-color: ${border};
+}
+
+.markdown-preview h1::before,
+.markdown-preview h2::before,
+.markdown-preview h2::after,
+.document-preview-render.markdown-preview h1::before,
+.document-preview-render.markdown-preview h2::before,
+.document-preview-render.markdown-preview h2::after {
+  background: ${accent};
+}
+
+.markdown-preview table,
+.document-preview-render.markdown-preview table {
+  background: ${paper};
+  border-color: ${border};
+}
+
+.markdown-preview thead,
+.document-preview-render.markdown-preview thead {
+  background: transparent;
+}
+
+.markdown-preview th,
+.document-preview-render.markdown-preview th {
+  background: ${tableHeaderBg};
+  color: ${text};
+  border-color: ${border};
+}
+
+.markdown-preview td,
+.document-preview-render.markdown-preview td {
+  background: transparent;
+  color: ${muted};
+  border-color: ${border};
+}
+
+.markdown-preview tr:nth-child(even) td,
+.document-preview-render.markdown-preview tr:nth-child(even) td {
+  background: ${tableEvenBg};
+}
+
+.markdown-preview tr:nth-child(odd) td,
+.document-preview-render.markdown-preview tr:nth-child(odd) td {
+  background: ${tableOddBg};
+}
+`;
 }
 
 export function downloadPdfBlob(blob: Blob, filename: string): void {
