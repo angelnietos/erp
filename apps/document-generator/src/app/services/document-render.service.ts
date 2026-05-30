@@ -301,9 +301,8 @@ ${bodyHtml}
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
-  min-height: 0 !important;
+  min-height: auto !important;
   aspect-ratio: 210/297 !important;
-  box-sizing: border-box !important;
 }
 `;
   }
