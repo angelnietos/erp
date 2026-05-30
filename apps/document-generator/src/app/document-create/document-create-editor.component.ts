@@ -1,4 +1,4 @@
-﻿﻿import {
+﻿import {
   Component,
   DestroyRef,
   HostListener,
@@ -282,21 +282,26 @@ interface DocumentType {
         margin: 0.1rem 0;
       }
 
-      /* --- Editor Column Bar (inline toolbar) --------------- */
-      .document-editor-column__bar {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 0.75rem;
-        background: var(--bg-secondary, #f8fafc);
-        border: 1px solid var(--border-soft, #e2e8f0);
-        border-radius: 10px 10px 0 0;
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: var(--text-muted, #64748b);
-        flex-wrap: wrap;
-        min-height: 2.6rem;
-      }
+       /* --- Editor Column Bar (inline toolbar) --------------- */
+       .document-editor-column__bar {
+         display: flex;
+         align-items: center;
+         gap: 0.5rem;
+         padding: 0.4rem 0.75rem;
+         background: var(--bg-secondary, #f8fafc);
+         border: 1px solid var(--border-soft, #e2e8f0);
+         border-radius: 10px 10px 0 0;
+         font-size: 0.78rem;
+         font-weight: 500;
+         color: var(--text-muted, #64748b);
+         flex-wrap: wrap;
+         min-height: 2.6rem;
+       }
+
+       /* Editor column container */
+       .document-editor-column {
+         position: relative;
+       }
 
       /* Inline format toolbar inside the bar */
       .editor-inline-toolbar {
