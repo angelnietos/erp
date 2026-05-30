@@ -2384,13 +2384,169 @@ export class DocumentCreateEditorComponent implements OnInit {
     this.syncAssistantFromFormNow();
   }
 
-  setContentEditorMode(mode: ContentEditorMode): void {
+  async setContentEditorMode(mode: ContentEditorMode): Promise<void> {
     if (this.contentEditorMode === mode) {
       return;
     }
+
+    const content = String(this.documentForm.get('content')?.value ?? '');
+    if (this.contentEditorMode === 'markdown' && mode === 'html') {
+      const html = this.convertMarkdownToHtmlForEditor(content);
+      this.documentForm.patchValue({ content: html });
+    } else if (this.contentEditorMode === 'html' && mode === 'markdown') {
+      const markdown = this.convertHtmlToMarkdownForEditor(content);
+      this.documentForm.patchValue({ content: markdown });
+    } else if (this.contentEditorMode === 'plain' && mode === 'html') {
+      this.documentForm.patchValue({ content: this.plainTextToHtml(content) });
+    } else if (this.contentEditorMode === 'html' && mode === 'plain') {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      this.documentForm.patchValue({ content: (doc.body.textContent || '').trim() });
+    }
+
     this.contentEditorMode = mode;
     this.updatePreview();
     this.syncAssistantFromFormNow();
+  }
+
+  private convertMarkdownToHtmlForEditor(content: string): string {
+    marked.setOptions?.({ gfm: true, breaks: true });
+    return String(marked.parse(content, { gfm: true, breaks: true }));
+  }
+
+  private convertHtmlToMarkdownForEditor(html: string): string {
+    if (!html.trim()) {
+      return '';
+    }
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(this.stripWrappingHtmlFence(html), 'text/html');
+    const markdown = this.nodeToMarkdown(doc.body, { listLevel: 0, olIndex: 1 }).trim();
+    return markdown.replace(/\n{3,}/g, '\n\n');
+  }
+
+  private nodeToMarkdown(
+    node: Node,
+    context: { listLevel: number; listType?: 'ul' | 'ol'; olIndex: number },
+  ): string {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return (node.textContent || '').replace(/\s+/g, ' ');
+    }
+
+    if (node.nodeType !== Node.ELEMENT_NODE) {
+      return '';
+    }
+
+    const element = node as HTMLElement;
+    const tag = element.tagName.toLowerCase();
+    const children = Array.from(element.childNodes)
+      .map((child) => this.nodeToMarkdown(child, context))
+      .join('');
+
+    switch (tag) {
+      case 'br':
+        return '  \n';
+      case 'p':
+      case 'div':
+      case 'section':
+      case 'article':
+      case 'body':
+      case 'html':
+        return `${children.trim()}\n\n`;
+      case 'h1':
+        return `# ${children.trim()}\n\n`;
+      case 'h2':
+        return `## ${children.trim()}\n\n`;
+      case 'h3':
+        return `### ${children.trim()}\n\n`;
+      case 'h4':
+        return `#### ${children.trim()}\n\n`;
+      case 'h5':
+        return `##### ${children.trim()}\n\n`;
+      case 'h6':
+        return `###### ${children.trim()}\n\n`;
+      case 'strong':
+      case 'b':
+        return `**${children.trim()}**`;
+      case 'em':
+      case 'i':
+        return `*${children.trim()}*`;
+      case 'u':
+        return `_${children.trim()}_`;
+      case 'a':
+        return `[${children.trim()}](${element.getAttribute('href') || ''})`;
+      case 'img':
+        return `![${element.getAttribute('alt') || ''}](${element.getAttribute('src') || ''})`;
+      case 'code':
+        if (element.parentElement?.tagName.toLowerCase() === 'pre') {
+          return children;
+        }
+        return '`' + children.trim() + '`';
+      case 'pre': {
+        const codeText = element.textContent?.replace(/\r\n?/g, '\n').trim() || '';
+        return '\n\n```\n' + codeText + '\n```\n\n';
+      }
+      case 'blockquote': {
+        const block = children
+          .split('\n')
+          .map((line) => (line.trim() ? `> ${line}` : ''))
+          .join('\n');
+        return `${block}\n\n`;
+      }
+      case 'ul': {
+        return Array.from(element.children)
+          .map((child) =>
+            this.nodeToMarkdown(child, {
+              listLevel: context.listLevel + 1,
+              listType: 'ul',
+              olIndex: 1,
+            }),
+          )
+          .join('') + '\n';
+      }
+      case 'ol': {
+        return Array.from(element.children)
+          .map((child, index) =>
+            this.nodeToMarkdown(child, {
+              listLevel: context.listLevel + 1,
+              listType: 'ol',
+              olIndex: index + 1,
+            }),
+          )
+          .join('') + '\n';
+      }
+      case 'li': {
+        const prefix = context.listType === 'ol' ? `${context.olIndex}. ` : '- ';
+        const item = Array.from(element.childNodes)
+          .map((child) => this.nodeToMarkdown(child, context))
+          .join('')
+          .trim();
+        const indentation = '  '.repeat(Math.max(0, context.listLevel - 1));
+        return `${indentation}${prefix}${item}\n`;
+      }
+      case 'table': {
+        const rows = Array.from(element.querySelectorAll('tr'));
+        if (!rows.length) {
+          return '';
+        }
+        const rowToText = (row: HTMLTableRowElement) =>
+          Array.from(row.children)
+            .map((cell) => this.nodeToMarkdown(cell, context).trim())
+            .join(' | ');
+        const header = rowToText(rows[0]);
+        const separator = Array.from(rows[0].children)
+          .map(() => '---')
+          .join(' | ');
+        const body = rows.slice(1).map(rowToText).join('\n');
+        return `${header}\n${separator}${body ? `\n${body}` : ''}\n\n`;
+      }
+      case 'thead':
+      case 'tbody':
+      case 'tfoot':
+        return children;
+      default:
+        return children;
+    }
   }
 
   updatePreview() {
