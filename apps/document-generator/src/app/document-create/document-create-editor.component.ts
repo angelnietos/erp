@@ -580,6 +580,8 @@ readonly pdfService = inject(PdfGenerationService);
       this.applyCustomCss();
       this.updatePreview();
       this.syncAssistantFromFormNow();
+      // Force DOM update for iframe srcdoc
+      setTimeout(() => this.cdRef.detectChanges());
     } catch (e: unknown) {
       this.aiError =
         e instanceof Error
