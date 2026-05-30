@@ -8,6 +8,7 @@
   OnInit,
   ViewChild,
   ElementRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { combineLatest, debounceTime, interval } from 'rxjs';
@@ -374,17 +375,18 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  readonly pdfService = inject(PdfGenerationService);
-  private readonly documentRender = inject(DocumentRenderService);
-  private readonly documentPdfApi = inject(DocumentPdfApiService);
-  private readonly documentPersistence = inject(DocumentPersistenceService);
-  readonly assistantService = inject(AssistantContextService);
-  readonly universalDocument = inject(UniversalDocumentService);
-  private readonly documentAi = inject(DocumentAiService);
-  private readonly viewportScroller = inject(ViewportScroller);
-  private readonly sanitizer = inject(DomSanitizer);
+readonly pdfService = inject(PdfGenerationService);
+   private readonly documentRender = inject(DocumentRenderService);
+   private readonly documentPdfApi = inject(DocumentPdfApiService);
+   private readonly documentPersistence = inject(DocumentPersistenceService);
+   readonly assistantService = inject(AssistantContextService);
+   readonly universalDocument = inject(UniversalDocumentService);
+   private readonly documentAi = inject(DocumentAiService);
+   private readonly viewportScroller = inject(ViewportScroller);
+   private readonly sanitizer = inject(DomSanitizer);
+   private readonly cdRef = inject(ChangeDetectorRef);
 
-  private formHooksBound = false;
+   private formHooksBound = false;
 
   get editorModeLabel(): string {
     switch (this.contentEditorMode) {
@@ -574,7 +576,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       );
       this.customCss = '';
       this.documentForm.patchValue({ content: html });
-      this.setContentEditorMode('html');
+      await this.setContentEditorMode('html');
       this.applyCustomCss();
       this.updatePreview();
       this.syncAssistantFromFormNow();
@@ -608,7 +610,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       );
       this.customCss = '';
       this.documentForm.patchValue({ content: markdown });
-      this.setContentEditorMode('markdown');
+      await this.setContentEditorMode('markdown');
       this.applyCustomCss();
       this.updatePreview();
       this.syncAssistantFromFormNow();
@@ -1148,6 +1150,7 @@ export class DocumentCreateEditorComponent implements OnInit {
     }
 
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(payload.bodyHtml);
+    this.cdRef.detectChanges();
 
     this.wordCount = content
       .split(/\s+/)
