@@ -766,13 +766,13 @@ ${this.getPdfPaginationCss()}
     const textAlign = layout === 'left-aligned' ? 'left' : 'center';
 
     return `
-      <div class="pdf-cover-page" style="${backgroundStyle} height: 100vh; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
+      <div class="pdf-cover-page" style="${backgroundStyle} height: 100vh; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
         <div style="text-align: ${textAlign}; max-width: 600px;">
           ${logoUrl ? `<img src="${logoUrl}" style="max-width: 120px; object-fit: contain; margin-bottom: 24px;" alt="Logo"/>` : ''}
-          <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
-          ${subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${textColor};">${subtitle}</p>` : ''}
-          ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 24px' : '0 0 24px'};"></div>` : ''}
-          <p style="font-size: 0.9rem; opacity: 0.85; color: ${textColor};">
+          <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
+          ${subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${textColor};">${subtitle}</p>` : ''}
+          ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 20px' : '0 0 20px'};"></div>` : ''}
+          <p style="font-size: 0.85rem; opacity: 0.85; color: ${textColor};">
             ${[showAuthor && author ? author : '', showDate && date ? date : ''].filter(Boolean).join(' · ')}
           </p>
         </div>

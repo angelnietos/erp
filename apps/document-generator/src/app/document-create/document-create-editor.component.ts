@@ -1536,13 +1536,13 @@ ${contentHtml}
             : `background: ${c.backgroundColor};`;
 
     return `
-<div class="pdf-cover" style="${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 60px;">
+<div class="pdf-cover" style="${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
   <div style="text-align: ${c.layout === 'left-aligned' ? 'left' : 'center'}; max-width: 600px;">
     ${c.logoUrl ? `<img src="${c.logoUrl}" style="max-width: 120px; margin-bottom: 24px;" alt="Logo"/>` : ''}
-    <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Tótulo'}</h1>
-    ${c.subtitle ? `<p style="font-size: 1.1rem; opacity: 0.9; margin: 0 0 24px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
-    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 24px' : '0 auto 24px'};"></div>` : ''}
-    <p style="font-size: 0.9rem; opacity: 0.85; color: ${c.textColor};">
+    <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${c.textColor};">${c.title || 'Tótulo'}</h1>
+    ${c.subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${c.textColor};">${c.subtitle}</p>` : ''}
+    ${c.showDivider ? `<div style="width: 80px; height: 4px; background: ${c.textColor}; opacity: 0.5; border-radius: 4px; margin: ${c.layout === 'left-aligned' ? '0 0 20px' : '0 auto 20px'};"></div>` : ''}
+    <p style="font-size: 0.85rem; opacity: 0.85; color: ${c.textColor};">
       ${[c.showAuthor && c.author ? c.author : '', c.showDate && c.date ? c.date : ''].filter(Boolean).join(' ó ')}
     </p>
   </div>
