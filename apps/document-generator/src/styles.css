@@ -583,6 +583,17 @@ a svg,
   min-height: clamp(34rem, 68vh, 54rem);
 }
 
+/* Cover styling for document preview - adapt to container (responsive) */
+.document-preview-pane .pdf-cover-page,
+.document-preview-pane .pdf-cover {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 210/297 !important; /* A4 aspect ratio: 210mm × 297mm */
+  box-sizing: border-box !important;
+}
+
 .editor-container.fullscreen {
   position: fixed;
   top: 0;
