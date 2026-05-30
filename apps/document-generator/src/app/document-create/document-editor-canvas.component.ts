@@ -26,7 +26,7 @@ import type { ContentEditorMode } from '../models/document-render.models';
         rows="24"
         class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
         (input)="contentInput.emit()"
-        (keydown)="keydown.emit($event)"
+        (keydown)="editorKeydown.emit($event)"
       ></textarea>
     </div>
   `,
@@ -40,5 +40,5 @@ export class DocumentEditorCanvasComponent {
   readonly modeChange = output<ContentEditorMode>();
   readonly toggleFullscreen = output<void>();
   readonly contentInput = output<void>();
-  readonly keydown = output<KeyboardEvent>();
+  readonly editorKeydown = output<KeyboardEvent>();
 }

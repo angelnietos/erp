@@ -2,6 +2,7 @@
   Component,
   DestroyRef,
   HostListener,
+  ViewEncapsulation,
   inject,
   isDevMode,
   OnInit,
@@ -50,8 +51,11 @@ import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-f
 import { TableBuilderComponent } from './table-builder.component';
 import { ImageInsertComponent } from './image-insert.component';
 import { SlashCommandsComponent, type SlashCommand } from './slash-commands.component';
+import { DocumentEditorToolbarComponent } from './document-editor-toolbar.component';
+import { DocumentEditorCanvasComponent } from './document-editor-canvas.component';
 import { DocumentLivePreviewComponent } from './document-live-preview.component';
 import { DocumentExportActionsComponent } from './document-export-actions.component';
+import { DocumentToolsModalComponent } from './document-tools-modal.component';
 import {
   removeManagedStylePreset,
   stylePresetCss,
@@ -77,6 +81,8 @@ type SelectedTextFormatId =
   | 'inline-code'
   | 'callout';
 
+type PdfPreviewSource = 'current' | 'markdown' | 'html';
+
 declare const marked: MarkedGlobal;
 
 interface SelectedTextFormat {
@@ -92,16 +98,15 @@ interface SelectedTextFormat {
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    CoverEditorComponent,
-    SignatureEditorComponent,
-    HeaderFooterEditorComponent,
-    TableBuilderComponent,
-    ImageInsertComponent,
+    DocumentEditorToolbarComponent,
+    DocumentEditorCanvasComponent,
     DocumentLivePreviewComponent,
     DocumentExportActionsComponent,
+    DocumentToolsModalComponent,
   ],
   templateUrl: './document-create-editor.component.html',
   styleUrl: './document-create-editor.component.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class DocumentCreateEditorComponent implements OnInit {
   selectedType: DocumentType | null = null;
@@ -160,11 +165,12 @@ export class DocumentCreateEditorComponent implements OnInit {
   signatureConfig: Partial<SignatureConfig> = { enabled: false };
   headerFooterConfig: Partial<HeaderFooterConfig> = { enabled: false };
 
-  @ViewChild(CoverEditorComponent) coverEditor!: CoverEditorComponent;
-  @ViewChild(SignatureEditorComponent) signatureEditor!: SignatureEditorComponent;
-  @ViewChild(HeaderFooterEditorComponent) headerFooterEditor!: HeaderFooterEditorComponent;
-  @ViewChild(TableBuilderComponent) tableBuilder!: TableBuilderComponent;
-  @ViewChild(ImageInsertComponent) imageInsert!: ImageInsertComponent;
+  @ViewChild(CoverEditorComponent) coverEditor?: CoverEditorComponent;
+  @ViewChild(SignatureEditorComponent) signatureEditor?: SignatureEditorComponent;
+  @ViewChild(HeaderFooterEditorComponent) headerFooterEditor?: HeaderFooterEditorComponent;
+  @ViewChild(TableBuilderComponent) tableBuilder?: TableBuilderComponent;
+  @ViewChild(ImageInsertComponent) imageInsert?: ImageInsertComponent;
+  @ViewChild(DocumentToolsModalComponent) toolsModal?: DocumentToolsModalComponent;
   @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
     { id: 'paragraph', label: 'Pórrafo normal' },
@@ -1145,22 +1151,30 @@ export class DocumentCreateEditorComponent implements OnInit {
     this.characterCount = content.length;
   }
 
-  private buildRenderInput(content: string): DocumentRenderInput {
+  private buildRenderInput(
+    content: string,
+    contentEditorMode: ContentEditorMode = this.contentEditorMode,
+  ): DocumentRenderInput {
     const title = String(this.documentForm.get('title')?.value ?? 'Documento');
     const coverConfig =
-      this.coverEditor?.getConfig() ?? this.coverConfig ?? { enabled: false };
+      this.coverEditor?.getConfig() ??
+      this.toolsModal?.coverEditor?.getConfig() ??
+      this.coverConfig ??
+      { enabled: false };
     const signatureConfig =
       this.signatureEditor?.getConfig() ??
+      this.toolsModal?.signatureEditor?.getConfig() ??
       this.signatureConfig ??
       { enabled: false };
     const headerFooterConfig =
       this.headerFooterEditor?.getConfig() ??
+      this.toolsModal?.headerFooterEditor?.getConfig() ??
       this.headerFooterConfig ??
       { enabled: false };
 
     return {
       content,
-      contentEditorMode: this.contentEditorMode,
+      contentEditorMode,
       customCss: this.customCss,
       selectedPdfStyle: this.selectedPdfStyle,
       selectedQuickStylePreset: this.selectedQuickStylePreset,
@@ -1192,19 +1206,82 @@ export class DocumentCreateEditorComponent implements OnInit {
     };
   }
 
-  private buildExportPayload() {
+  private buildExportPayload(contentEditorMode: ContentEditorMode = this.contentEditorMode) {
     const content = this.documentForm.get('content')?.value || '';
-    const title = String(this.documentForm.get('title')?.value ?? 'Documento');
-    const input = this.buildRenderInput(content);
+    const input = this.buildRenderInput(content, contentEditorMode);
     return this.documentRender.buildPayload(input);
   }
 
-  private async generatePdfBlob(title: string): Promise<Blob> {
-    const payload = this.buildExportPayload();
+  private resolvePdfPreviewMode(source: PdfPreviewSource): ContentEditorMode {
+    if (source === 'markdown') {
+      return 'markdown';
+    }
+    if (source === 'html') {
+      return 'html';
+    }
+    return this.contentEditorMode;
+  }
+
+  private buildPdfHtmlForPreview(source: PdfPreviewSource): string {
+    const content = this.documentForm.get('content')?.value || '';
+    const title = String(this.documentForm.get('title')?.value ?? 'Documento');
+    const mode = this.resolvePdfPreviewMode(source);
+    const input = this.buildRenderInput(content, mode);
+    const payload = this.documentRender.buildPayload(input);
+
+    if (source === 'html' || mode === 'html') {
+      return this.documentRender.buildHtmlPreviewSrcdoc(
+        payload.contentMarkup,
+        payload.exportStylesheet,
+        {
+          coverConfig: input.coverConfig,
+          signatureConfig: input.signatureConfig,
+          headerFooterConfig: input.headerFooterConfig,
+          coverPanelEnabled: input.coverPanelEnabled,
+          signaturePanelEnabled: input.signaturePanelEnabled,
+          headerFooterPanelEnabled: input.headerFooterPanelEnabled,
+          documentTitle: input.documentTitle,
+        },
+      );
+    }
+
+    return `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${this.escapeHtml(title)}</title>
+  <style id="document-generator-preview-css">
+${payload.previewStylesheet}
+  </style>
+</head>
+<body class="document-create-shell">
+  <main class="document-preview-pane markdown-preview" style="${this.previewPaneStyleAttribute()}">
+${payload.bodyHtml}
+  </main>
+</body>
+</html>`;
+  }
+
+  private previewPaneStyleAttribute(): string {
+    return Object.entries(this.previewPaneStyle)
+      .map(([property, value]) => {
+        const cssProperty = property.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`);
+        return `${cssProperty}: ${String(value).replace(/"/g, '&quot;')}`;
+      })
+      .join('; ');
+  }
+
+  private async generatePdfBlob(
+    title: string,
+    source: PdfPreviewSource = 'current',
+  ): Promise<Blob> {
+    const html = this.buildPdfHtmlForPreview(source);
+    const pdfMode = this.resolvePdfPreviewMode(source);
     try {
       return await this.documentPdfApi.exportPdf({
         title,
-        html: payload.fullExportHtml,
+        html,
       });
     } catch (backendError) {
       console.warn('Backend PDF failed, falling back to client renderer', backendError);
@@ -1214,7 +1291,7 @@ export class DocumentCreateEditorComponent implements OnInit {
       return this.pdfService.generateMarkdownPdf({
         content: this.documentRender.getRenderableContentForPdf(
           String(formValue.content ?? ''),
-          this.contentEditorMode,
+          pdfMode,
           this.isCorporateCoverEnabled(),
         ),
         title,
@@ -1224,10 +1301,10 @@ export class DocumentCreateEditorComponent implements OnInit {
         client: client?.name || 'Josanz ERP',
         subtitle: client?.name || 'Josanz ERP',
         pdfStyleId: this.selectedPdfStyle,
-        contentEditorMode: this.contentEditorMode,
+        contentEditorMode: pdfMode,
         quickStylePreset: this.selectedQuickStylePreset,
         customCss: this.documentRender.customCssForDocument(
-          this.buildRenderInput(String(formValue.content ?? '')),
+          this.buildRenderInput(String(formValue.content ?? ''), pdfMode),
         ),
         coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
         signatureConfig: this.signatureConfig?.enabled
@@ -1843,6 +1920,67 @@ ${contentHtml}
     }, 0);
   }
 
+  handleToolbarFormatAction(action: string): void {
+    switch (action) {
+      case 'bold':
+        this.insertMarkdown('**', '**');
+        break;
+      case 'italic':
+        this.insertMarkdown('*', '*');
+        break;
+      case 'strike':
+        this.insertMarkdown('~~', '~~');
+        break;
+      case 'code':
+        this.insertCode();
+        break;
+      case 'h1':
+        this.insertMarkdown('# ', '');
+        break;
+      case 'h2':
+        this.insertMarkdown('## ', '');
+        break;
+      case 'h3':
+        this.insertMarkdown('### ', '');
+        break;
+      case 'quote':
+        this.insertMarkdown('> ', '');
+        break;
+      case 'list':
+        this.insertMarkdown('- ', '');
+        break;
+      case 'numbered-list':
+        this.insertMarkdown('1. ', '');
+        break;
+      case 'link':
+        this.insertMarkdown('[', '](url)');
+        break;
+      case 'code-block':
+        this.insertCodeBlock();
+        break;
+    }
+  }
+
+  toggleDocumentTool(tool: string): void {
+    switch (tool) {
+      case 'cover':
+        this.toggleCoverEditor();
+        break;
+      case 'header-footer':
+        this.toggleHeaderFooterEditor();
+        break;
+      case 'signature':
+        this.toggleSignatureEditor();
+        break;
+      case 'table':
+        this.toggleTableBuilder();
+        break;
+      case 'image':
+        this.toggleImageInsert();
+        break;
+    }
+  }
+
   private getCurrentMarkdownBlockRange(content: string, cursorPosition: number): { start: number; end: number } {
     let start = content.lastIndexOf('\n\n', Math.max(0, cursorPosition - 1));
     start = start === -1 ? 0 : start + 2;
@@ -1994,6 +2132,34 @@ ${contentHtml}
            this.showImageInsert;
   }
 
+  activeToolModalTitle(): string {
+    if (this.showCoverEditor) return 'Portada del Documento';
+    if (this.showSignatureEditor) return 'Bloque de Firmas';
+    if (this.showHeaderFooterEditor) return 'Encabezado y Pie de Pagina';
+    if (this.showTableBuilder) return 'Constructor de Tablas';
+    if (this.showImageInsert) return 'Insertar Imagen';
+    return '';
+  }
+
+  activeToolModalSubtitle(): string {
+    if (this.showCoverEditor) {
+      return 'Personaliza la primera pagina de tu PDF con logo, titulos y fondos';
+    }
+    if (this.showSignatureEditor) {
+      return 'Configura firmas para los responsables al final del documento';
+    }
+    if (this.showHeaderFooterEditor) {
+      return 'Define la paginacion y cabeceras de cada pagina';
+    }
+    if (this.showTableBuilder) {
+      return 'Disena y estructura tablas de datos visualmente';
+    }
+    if (this.showImageInsert) {
+      return 'Sube y edita el diseno de imagenes en tu documento';
+    }
+    return '';
+  }
+
   closeAllModals(): void {
     this.showCoverEditor = false;
     this.showSignatureEditor = false;
@@ -2115,14 +2281,15 @@ ${contentHtml}
   }
 
   insertCoverIntoDocument(): void {
-    if (this.coverEditor) {
-      const coverHtml = this.coverEditor.exportToHtml();
+    const coverEditor = this.coverEditor ?? this.toolsModal?.coverEditor;
+    if (coverEditor) {
+      const coverHtml = coverEditor.exportToHtml();
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
       if (this.contentEditorMode === 'html') {
         this.documentForm.patchValue({ content: currentContent + separator + coverHtml });
       } else {
-        const coverMd = this.coverEditor.exportToMarkdown();
+        const coverMd = coverEditor.exportToMarkdown();
         this.documentForm.patchValue({ content: currentContent + separator + coverMd });
       }
       this.updatePreview();
@@ -2131,8 +2298,9 @@ ${contentHtml}
   }
 
   insertSignatureIntoDocument(): void {
-    if (this.signatureEditor) {
-      const signatureHtml = this.signatureEditor.exportToHtml();
+    const signatureEditor = this.signatureEditor ?? this.toolsModal?.signatureEditor;
+    if (signatureEditor) {
+      const signatureHtml = signatureEditor.exportToHtml();
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
       if (this.contentEditorMode === 'html') {
@@ -2146,14 +2314,15 @@ ${contentHtml}
   }
 
   insertTableFromBuilder(): void {
-    if (this.tableBuilder) {
+    const tableBuilder = this.tableBuilder ?? this.toolsModal?.tableBuilder;
+    if (tableBuilder) {
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
       let tableContent: string;
       if (this.contentEditorMode === 'html') {
-        tableContent = this.tableBuilder.exportToHtml();
+        tableContent = tableBuilder.exportToHtml();
       } else {
-        tableContent = this.tableBuilder.exportToMarkdown();
+        tableContent = tableBuilder.exportToMarkdown();
       }
       this.documentForm.patchValue({ content: currentContent + separator + tableContent });
       this.updatePreview();
@@ -2162,14 +2331,15 @@ ${contentHtml}
   }
 
   insertImageFromUpload(): void {
-    if (this.imageInsert) {
+    const imageInsert = this.imageInsert ?? this.toolsModal?.imageInsert;
+    if (imageInsert) {
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
       let imageContent: string;
       if (this.contentEditorMode === 'html') {
-        imageContent = this.imageInsert.exportToHtml();
+        imageContent = imageInsert.exportToHtml();
       } else {
-        imageContent = this.imageInsert.exportToMarkdown();
+        imageContent = imageInsert.exportToMarkdown();
       }
       if (imageContent) {
         this.documentForm.patchValue({ content: currentContent + separator + imageContent });
@@ -2183,17 +2353,19 @@ ${contentHtml}
     let html = '';
     const formValue = this.documentForm.value;
     const title = formValue.title || 'Documento';
+    const coverEditor = this.coverEditor ?? this.toolsModal?.coverEditor;
+    const signatureEditor = this.signatureEditor ?? this.toolsModal?.signatureEditor;
 
-    if (this.coverEditor && this.coverConfig?.enabled) {
-      html += this.coverEditor.exportToHtml();
+    if (coverEditor && this.coverConfig?.enabled) {
+      html += coverEditor.exportToHtml();
     }
 
     html += `\n<div class="document-content" style="padding: 2rem; margin-top: 2rem;">\n`;
     html += this.previewHtmlMarkup;
     html += `\n</div>\n`;
 
-    if (this.signatureEditor && this.signatureConfig?.enabled) {
-      html += this.signatureEditor.exportToHtml();
+    if (signatureEditor && this.signatureConfig?.enabled) {
+      html += signatureEditor.exportToHtml();
     }
 
     if (this.headerFooterEditor && this.headerFooterConfig?.enabled) {
@@ -2795,10 +2967,22 @@ async exportDocument(format: string) {
     const formValue = this.documentForm.value;
     const client = this.clients.find((c) => c.id === formValue.clientId);
 
-if (format === 'pdf') {
+if (format === 'pdf' || format === 'pdf-markdown' || format === 'pdf-html') {
        try {
-         const pdfBlob = await this.generatePdfBlob(title);
-         this.universalDocument.download(pdfBlob, `${title}.pdf`);
+         const source: PdfPreviewSource =
+           format === 'pdf-markdown'
+             ? 'markdown'
+             : format === 'pdf-html'
+               ? 'html'
+               : 'current';
+         const pdfBlob = await this.generatePdfBlob(title, source);
+         const suffix =
+           source === 'markdown'
+             ? '-preview-markdown'
+             : source === 'html'
+               ? '-preview-html'
+               : '';
+         this.universalDocument.download(pdfBlob, `${title}${suffix}.pdf`);
        } catch (error) {
          console.error('Error generating PDF:', error);
          alert(

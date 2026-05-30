@@ -30,10 +30,19 @@ import { CommonModule } from '@angular/common';
       </button>
       <button
         type="button"
-        (click)="exportFormat.emit('pdf')"
+        (click)="exportFormat.emit('pdf-markdown')"
         class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        title="Descargar PDF usando la vista previa Markdown"
       >
-        PDF
+        PDF MD
+      </button>
+      <button
+        type="button"
+        (click)="exportFormat.emit('pdf-html')"
+        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        title="Descargar PDF usando la vista previa HTML"
+      >
+        PDF HTML
       </button>
       <button
         type="button"

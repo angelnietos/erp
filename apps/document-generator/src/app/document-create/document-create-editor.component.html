@@ -472,302 +472,36 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
  
                       @if (!fullscreenMode) {
                         <div class="document-editor-split">
-                            <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
+                          <app-document-editor-toolbar
+                            [contentEditorMode]="contentEditorMode"
+                            [selectedTextColor]="selectedTextColor"
+                            [selectedQuickStylePreset]="selectedQuickStylePreset"
+                            [isAiGenerating]="isAiGenerating"
+                            [editorBlockTemplates]="editorBlockTemplates"
+                            (formatAction)="handleToolbarFormatAction($event)"
+                            (textColorChange)="selectedTextColor = $event"
+                            (applyTextColor)="applyTextColor()"
+                            (blockInsert)="insertEditorBlockFromSelect($event)"
+                            (copyContent)="copyMarkdownToClipboard()"
+                            (convertToHtml)="convertMarkdownToVisualHtmlWithAi()"
+                            (convertToMarkdown)="convertHtmlToMarkdownWithAi()"
+                            (beautify)="beautifyDocumentWithAi()"
+                            (stylePresetChange)="applyStylePreset($event)"
+                            (fontSizeDelta)="adjustBaseFontSize($event)"
+                            (toggleTool)="toggleDocumentTool($event)"
+                          />
 
-                            <!-- -- FORMATO ------------------------------- -->
-                            <div class="sidebar-section-title">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                              Formato
-                            </div>
-                            <div class="sidebar-format-grid">
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('**','**')" title="Negrita (Ctrl+B)">
-                                <strong style="font-size:13px">B</strong>
-                                <span>Neg.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('*','*')" title="Cursiva (Ctrl+I)">
-                                <em style="font-size:13px">I</em>
-                                <span>Cur.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('~~','~~')" title="Tachado">
-                                <span style="font-size:12px;text-decoration:line-through">S</span>
-                                <span>Tach.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCode()" title="Código inline">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-                                <span>Cód.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('# ','')" title="Tótulo H1">
-                                <span style="font-size:11px;font-weight:800">H1</span>
-                                <span>Tót.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('## ','')" title="Subtótulo H2">
-                                <span style="font-size:11px;font-weight:700">H2</span>
-                                <span>Sub.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('### ','')" title="Encabezado H3">
-                                <span style="font-size:11px;font-weight:600">H3</span>
-                                <span>Enc.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('> ','')" title="Cita">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10.5h.01M12 10.5h.01M16 10.5h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                                <span>Cita</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('- ','')" title="Lista">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                                <span>Lista</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('1. ','')" title="Lista numerada">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                <span>Nóm.</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertMarkdown('[','](url)')" title="Enlace">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
-                                <span>Link</span>
-                              </button>
-                              <button class="sidebar-format-btn" type="button" (click)="insertCodeBlock()" title="Bloque de código">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3"/></svg>
-                                <span>Blq.</span>
-                              </button>
-                            </div>
+                          <app-document-editor-canvas
+                            [documentForm]="documentForm"
+                            [editorModeLabel]="editorModeLabel"
+                            [contentEditorMode]="contentEditorMode"
+                            [editorPlaceholder]="editorPlaceholder"
+                            (modeChange)="setContentEditorMode($event)"
+                            (toggleFullscreen)="toggleFullscreen()"
+                            (contentInput)="updatePreview()"
+                            (editorKeydown)="handleKeydown($event)"
+                          />
 
-                            <div class="sidebar-divider"></div>
-
-                            <!-- -- COLOR DE TEXTO ------------------------ -->
-                            <div class="sidebar-section-title">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h14a2 2 0 002-2v-4a2 2 0 00-2-2H7m0 6V9"/></svg>
-                              Color
-                            </div>
-                            <div style="display:flex;align-items:center;gap:6px;padding:0 0.75rem 0.5rem">
-                              <input id="textColorPicker" type="color"
-                                [(ngModel)]="selectedTextColor" [ngModelOptions]="{standalone:true}"
-                                style="width:36px;height:30px;border-radius:6px;border:1px solid #e2e8f0;padding:2px;cursor:pointer"
-                                aria-label="Color de texto"/>
-                              <button class="sidebar-action-btn" style="flex:1;padding:0.3rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.73rem;background:#fff"
-                                type="button" (click)="applyTextColor()" [disabled]="contentEditorMode==='plain'" title="Aplicar color al texto seleccionado">
-                                Aplicar color
-                              </button>
-                            </div>
-
-                            <div class="sidebar-divider"></div>
-
-                            <!-- -- BLOQUES Y ACCIONES -------------------- -->
-                            <div class="sidebar-section-title">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                              Insertar
-                            </div>
-                            <div style="padding:0 0.5rem 0.4rem">
-                              <select id="editorBlockTemplate"
-                                style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
-                                (change)="insertEditorBlockFromSelect($event)" title="Insertar bloque predefinido">
-                                <option value="">+ Insertar bloque...</option>
-                                @for (block of editorBlockTemplates; track block.id) {
-                                  <option [value]="block.id">{{ block.label }}</option>
-                                }
-                              </select>
-                            </div>
-
-                            <button class="sidebar-action-btn" type="button" (click)="copyMarkdownToClipboard()" title="Copiar contenido al portapapeles">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="9" y="9" width="13" height="13" rx="2"/><path stroke-linecap="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-                              <span>Copiar contenido</span>
-                              @if (copyMarkdownFeedback) { <span style="color:#7c3aed;font-size:0.65rem;margin-left:auto">? Copiado</span> }
-                            </button>
-
-<button class="sidebar-action-btn" type="button"
-                               (click)="convertMarkdownToVisualHtmlWithAi()"
-                               [disabled]="contentEditorMode !== 'markdown' || isAiGenerating"
-                               title="Convertir el Markdown actual en HTML visual usando IA">
-                               @if (isAiGenerating) {
-                                 <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                 </svg>
-                               }
-                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3l14 9-14 9V3z"/></svg>
-                               <span>? Convertir a HTML visual</span>
-                             </button>
-
-                             
-                              <button class="sidebar-action-btn" type="button"
-                                (click)="convertHtmlToMarkdownWithAi()"
-                                [disabled]="contentEditorMode !== 'html' || isAiGenerating"
-                                title="Convertir el HTML actual a Markdown editable usando IA">
-                                @if (isAiGenerating) {
-                                  <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                  </svg>
-                                }
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                <span>â†ª Convertir a Markdown</span>
-                              </button>
-
-                             <button class="sidebar-action-btn" type="button"
-                               (click)="beautifyDocumentWithAi()"
-                               [disabled]="!documentForm.get('content')?.value || isAiGenerating"
-                               title="Embellecer y mejorar el documento actual usando IA">
-                               @if (isAiGenerating) {
-                                 <svg class="w-4 h-4 animate-spin shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                                 </svg>
-                               }
-                               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 01-18 0 9 9 0 0118 0z"/></svg>
-                               <span>âœ¨ Embellecer documento</span>
-                             </button>
-<div class="sidebar-divider"></div>
-
-                            <!-- -- ESTILO RóPIDO ------------------------- -->
-                            <div class="sidebar-section-title">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72l1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-                              Estilo
-                            </div>
-                            <div style="padding:0 0.5rem 0.4rem">
-                              <select id="stylePresetSelect"
-                                style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
-                                [(ngModel)]="selectedQuickStylePreset" [ngModelOptions]="{standalone:true}" (ngModelChange)="applyStylePreset($event)">
-                                <option value="">Estilo predefinido...</option>
-                                <option value="default">Predeterminado</option>
-                                <option value="corporate">Corporativo</option>
-                                <option value="compact">Compacto</option>
-                                <option value="large">Texto grande</option>
-                              </select>
-                            </div>
-                            <div style="padding:0 0.5rem 0.4rem">
-                              <div style="display:flex;align-items:center;gap:6px">
-                                <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(-0.05)">A-</button>
-                                <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">Tamaóo base</div>
-                                <button type="button" style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer" (click)="adjustBaseFontSize(0.05)">A+</button>
-                              </div>
-                            </div>
-
-                            <div class="sidebar-divider"></div>
-
-                            <!-- -- HERRAMIENTAS PDF ---------------------- -->
-                            <div class="sidebar-section-title">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                              PDF Pro
-                            </div>
-
-                            <button class="sidebar-action-btn" type="button" (click)="toggleCoverEditor()" style="width:100%;margin-bottom:4px">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                              <span>Portada</span>
-                              @if (showCoverEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
-                            </button>
-
-                            <button class="sidebar-action-btn" type="button" (click)="toggleHeaderFooterEditor()" style="width:100%;margin-bottom:4px">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="4" width="18" height="16" rx="2"/><path stroke-linecap="round" d="M3 10h18M7 4v16"/></svg>
-                              <span>Encabezado/Pie</span>
-                              @if (showHeaderFooterEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
-                            </button>
-
-                            <button class="sidebar-action-btn" type="button" (click)="toggleSignatureEditor()" style="width:100%;margin-bottom:4px">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                              <span>Firmas</span>
-                              @if (showSignatureEditor) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
-                            </button>
-
-                            <button class="sidebar-action-btn" type="button" (click)="toggleTableBuilder()" style="width:100%;margin-bottom:4px">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="18" height="18" rx="2"/><path stroke-linecap="round" d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
-                              <span>Tabla virtual</span>
-                              @if (showTableBuilder) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
-                            </button>
-
-                            <button class="sidebar-action-btn" type="button" (click)="toggleImageInsert()" style="width:100%;margin-bottom:4px">
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path stroke-linecap="round" d="M21 15l-5-5L5 21"/></svg>
-                              <span>Imagen</span>
-                              @if (showImageInsert) { <span style="margin-left:auto;width:6px;height:6px;border-radius:50%;background:#22c55e"></span> }
-                            </button>
-
-                            <div class="sidebar-divider"></div>
-
-                            <!-- -- PANEL DINóMICO ------------------------ -->
-                            @if (showCoverEditor) {
-                              <app-cover-editor
-                                #coverEditorRef
-                                [initialConfig]="coverConfig"
-                                (configChanged)="onCoverConfigChange($event)"
-                              ></app-cover-editor>
-                              <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#3b82f6;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertCoverIntoDocument()">+ Insertar portada</button>
-                              <div class="sidebar-divider"></div>
-                            }
-
-                            @if (showSignatureEditor) {
-                              <app-signature-editor
-                                #signatureEditorRef
-                                [initialConfig]="signatureConfig"
-                                (configChanged)="onSignatureConfigChange($event)"
-                              ></app-signature-editor>
-                              <button type="button" style="width:100%;padding:0.4rem;margin-top:6px;border-radius:8px;border:none;background:#d97706;color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer" (click)="insertSignatureIntoDocument()">+ Insertar firmas</button>
-                              <div class="sidebar-divider"></div>
-                            }
-
-                            @if (showHeaderFooterEditor) {
-                              <app-header-footer-editor
-                                #headerFooterEditorRef
-                                [initialConfig]="headerFooterConfig"
-                                (configChanged)="onHeaderFooterConfigChange($event)"
-                              ></app-header-footer-editor>
-                              <div class="sidebar-divider"></div>
-                            }
-
-                            @if (showTableBuilder) {
-                              <app-table-builder #tableBuilderRef></app-table-builder>
-                              <div class="sidebar-divider"></div>
-                            }
-
-                            @if (showImageInsert) {
-                              <app-image-insert #imageInsertRef></app-image-insert>
-                              <div class="sidebar-divider"></div>
-                            }
-
-                          </div>
-                          <!-- Editor Markdown -->
-                          <div class="document-editor-column">
-                            <div class="document-editor-column__bar">
-                              <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between w-full">
-                                <span>{{ editorModeLabel }}</span>
-                                <div class="inline-flex rounded-lg border border-soft bg-secondary p-1 text-xs font-semibold">
-                                  <button
-                                    type="button"
-                                    class="px-2.5 py-1 rounded-md transition-colors"
-                                    [class.bg-surface]="contentEditorMode === 'markdown'"
-                                    [class.text-brand]="contentEditorMode === 'markdown'"
-                                    (click)="setContentEditorMode('markdown')"
-                                  >
-                                    Markdown
-                                  </button>
-                                  <button
-                                    type="button"
-                                    class="px-2.5 py-1 rounded-md transition-colors"
-                                    [class.bg-surface]="contentEditorMode === 'html'"
-                                    [class.text-brand]="contentEditorMode === 'html'"
-                                    (click)="setContentEditorMode('html')"
-                                  >
-                                    HTML
-                                  </button>
-                                  <button
-                                    type="button"
-                                    class="px-2.5 py-1 rounded-md transition-colors"
-                                    [class.bg-surface]="contentEditorMode === 'plain'"
-                                    [class.text-brand]="contentEditorMode === 'plain'"
-                                    (click)="setContentEditorMode('plain')"
-                                  >
-                                    Texto
-                                  </button>
-                                </div>
-                              </div>
-                              <button type="button" (click)="toggleFullscreen()" class="hover:text-brand transition-colors">
-                                Pantalla completa
-                              </button>
-                            </div>
-                            <textarea
-                              #editor
-                              formControlName="content"
-                              [placeholder]="editorPlaceholder"
-                              rows="24"
-                              class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
-                              (input)="updatePreview()"
-                              (keydown)="handleKeydown($event)"
-                            ></textarea>
-                          </div>
- 
                           <app-document-live-preview
                             [contentEditorMode]="contentEditorMode"
                             [wordCount]="wordCount"
@@ -1039,123 +773,27 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
               </div>
             </form>
 
-            <!-- Centered High-End Glassmorphism Modal Wrapper -->
-            <div 
-              class="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-300"
-              [class.opacity-0]="!hasActiveModal()"
-              [class.pointer-events-none]="!hasActiveModal()"
-            >
-              <div 
-                class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 transform"
-                [class.scale-95]="!hasActiveModal()"
-                [class.scale-100]="hasActiveModal()"
-              >
-                <!-- Modal Header -->
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                  <div>
-                    <h2 class="text-base font-bold text-slate-800">
-                      @if (showCoverEditor) { Portada del Documento }
-                      @else if (showSignatureEditor) { Bloque de Firmas }
-                      @else if (showHeaderFooterEditor) { Encabezado y Pie de Pógina }
-                      @else if (showTableBuilder) { Constructor de Tablas }
-                      @else if (showImageInsert) { Insertar Imagen }
-                    </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                      @if (showCoverEditor) { Personaliza la primera pógina de tu PDF con logo, tótulos y fondos }
-                      @else if (showSignatureEditor) { Configura firmas para los responsables al final del documento }
-                      @else if (showHeaderFooterEditor) { Define la paginación y cabeceras de cada pógina }
-                      @else if (showTableBuilder) { Diseóa y estructura tablas de datos visualmente }
-                      @else if (showImageInsert) { Sube y edita el diseóo de imógenes en tu documento }
-                    </p>
-                  </div>
-                  <button type="button" class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600" (click)="closeAllModals()">
-                    <span class="text-lg">?</span>
-                  </button>
-                </div>
-
-                <!-- Modal Body (Scrollable) -->
-                <div class="flex-1 overflow-y-auto p-6 bg-slate-50/30">
-<!-- Cover Editor -->
-                   <div [class.hidden]="!showCoverEditor">
-                     <app-cover-editor
-                       #coverEditorRef
-                       class="block"
-                       [initialConfig]="coverConfig"
-                       (configChanged)="onCoverConfigChange($event)"
-                     ></app-cover-editor>
-                    <div class="mt-4 flex justify-end gap-3">
-                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
-                        Cerrar
-                      </button>
-                      <button type="button" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors" (click)="insertCoverIntoDocument(); closeAllModals()">
-                        Insertar en Documento
-                      </button>
-                    </div>
-                  </div>
-
-<!-- Signature Editor -->
-                   <div [class.hidden]="!showSignatureEditor">
-                     <app-signature-editor
-                       #signatureEditorRef
-                       [initialConfig]="signatureConfig"
-                       (configChanged)="onSignatureConfigChange($event)"
-                     ></app-signature-editor>
-                    <div class="mt-4 flex justify-end gap-3">
-                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
-                        Cerrar
-                      </button>
-                      <button type="button" class="px-4 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 transition-colors" (click)="insertSignatureIntoDocument(); closeAllModals()">
-                        Insertar en Documento
-                      </button>
-                    </div>
-                  </div>
-
-<!-- Header/Footer Editor -->
-                   <div [class.hidden]="!showHeaderFooterEditor">
-                     <app-header-footer-editor
-                       #headerFooterEditorRef
-                       [initialConfig]="headerFooterConfig"
-                       (configChanged)="onHeaderFooterConfigChange($event)"
-                     ></app-header-footer-editor>
-                    <div class="mt-4 flex justify-end">
-                      <button type="button" class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors" (click)="closeAllModals()">
-                        Aceptar
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Table Builder -->
-                  <div [class.hidden]="!showTableBuilder">
-                    <app-table-builder
-                      #tableBuilderRef
-                    ></app-table-builder>
-                    <div class="mt-4 flex justify-end gap-3">
-                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
-                        Cancelar
-                      </button>
-                      <button type="button" class="px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700 transition-colors" (click)="insertTableFromBuilder(); closeAllModals()">
-                        Insertar Tabla
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Image Insert -->
-                  <div [class.hidden]="!showImageInsert">
-                    <app-image-insert
-                      #imageInsertRef
-                    ></app-image-insert>
-                    <div class="mt-4 flex justify-end gap-3">
-                      <button type="button" class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50 transition-colors" (click)="closeAllModals()">
-                        Cancelar
-                      </button>
-                      <button type="button" class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors" (click)="insertImageFromUpload(); closeAllModals()">
-                        Insertar Imagen
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <app-document-tools-modal
+              [active]="hasActiveModal()"
+              [modalTitle]="activeToolModalTitle()"
+              [modalSubtitle]="activeToolModalSubtitle()"
+              [showCoverEditor]="showCoverEditor"
+              [showSignatureEditor]="showSignatureEditor"
+              [showHeaderFooterEditor]="showHeaderFooterEditor"
+              [showTableBuilder]="showTableBuilder"
+              [showImageInsert]="showImageInsert"
+              [coverConfig]="coverConfig"
+              [signatureConfig]="signatureConfig"
+              [headerFooterConfig]="headerFooterConfig"
+              (closeAll)="closeAllModals()"
+              (coverConfigChange)="onCoverConfigChange($event)"
+              (signatureConfigChange)="onSignatureConfigChange($event)"
+              (headerFooterConfigChange)="onHeaderFooterConfigChange($event)"
+              (insertCover)="insertCoverIntoDocument()"
+              (insertSignature)="insertSignatureIntoDocument()"
+              (insertTable)="insertTableFromBuilder()"
+              (insertImage)="insertImageFromUpload()"
+            />
           </div>
         }
     </div>
