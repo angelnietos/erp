@@ -19,8 +19,8 @@ export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
   }
 
   const textAlign = c.layout === 'left-aligned' ? 'left' : 'center';
-  const titleFontSize = c.titleFontSize ?? '2.25rem';
-  const subtitleFontSize = c.subtitleFontSize ?? '1rem';
+  const titleFontSize = c.htmlTitleFontSize ?? c.titleFontSize ?? '2.25rem';
+  const subtitleFontSize = c.htmlSubtitleFontSize ?? c.subtitleFontSize ?? '1rem';
   const metadataItems = [
     c.showAuthor && c.author ? { label: 'Autor', value: c.author } : null,
     c.showDate && c.date ? { label: 'Fecha', value: c.date } : null,
@@ -31,8 +31,8 @@ export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
   <div class="cover-container" style="text-align: ${textAlign}; width: 100%; max-width: 760px;">
     ${c.logoUrl ? `<div style="display: flex; justify-content: ${textAlign}; margin-bottom: 26px;"><img src="${c.logoUrl}" style="max-width: 140px; height: auto;" alt="Logo"/></div>` : ''}
     <div class="cover-header">
-      <h1 class="cover-title" style="color: ${c.textColor}; font-size: ${titleFontSize};">${c.title || 'Título del documento'}</h1>
-      ${c.subtitle ? `<p class="cover-subtitle" style="color: ${c.textColor}; font-size: ${subtitleFontSize};">${c.subtitle}</p>` : ''}
+      <h1 class="cover-title" style="color: ${c.textColor}; font-size: ${titleFontSize}; overflow-wrap: break-word; word-break: break-word; white-space: normal;">${c.title || 'Título del documento'}</h1>
+      ${c.subtitle ? `<p class="cover-subtitle" style="color: ${c.textColor}; font-size: ${subtitleFontSize}; overflow-wrap: break-word; word-break: break-word; white-space: normal;">${c.subtitle}</p>` : ''}
     </div>
     ${c.showDivider ? `<div style="width: 96px; height: 4px; background: ${c.textColor}; opacity: 0.65; border-radius: 999px; margin: 28px auto 0;"></div>` : ''}
     ${metadataItems.length

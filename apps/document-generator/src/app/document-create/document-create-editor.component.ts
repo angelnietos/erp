@@ -1496,6 +1496,15 @@ body .pdf-cover-page,
 .pdf-cover-page .cover-header {
   width: 100%;
 }
+.pdf-cover .cover-title,
+.pdf-cover-page .cover-title,
+.pdf-cover .cover-subtitle,
+.pdf-cover-page .cover-subtitle {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: normal !important;
+}
 `;
       if (this.coverConfig?.enabled) {
         let coverHtml = this.coverEditor
