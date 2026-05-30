@@ -399,6 +399,10 @@ export class PdfGenerationService {
 
     const title = escapeHtml(data.title || 'Documento');
     const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
+    const headerFooterHtml = this.buildPdfHeaderFooterHtml(data);
+    const headerFooterConfig = (data as Record<string, unknown>)['headerFooterConfig'] as Record<string, unknown> | undefined;
+    const startPageFrom = typeof headerFooterConfig?.['startPageFrom'] === 'number' ? headerFooterConfig['startPageFrom'] : 1;
+    const pageResetValue = Math.max(0, startPageFrom - 1);
 
     const styleCss = data.pdfStyleId
       ? this.templates.getPdfStyleCss(data.pdfStyleId)
@@ -442,7 +446,7 @@ export class PdfGenerationService {
             print-color-adjust: exact;
           }
           html {
-            counter-reset: page;
+            counter-reset: page ${pageResetValue};
           }
           body {
             margin: 0;
@@ -587,6 +591,7 @@ ${this.getPdfPaginationCss()}
       </head>
       <body>
         ${coverHtml}
+        ${headerFooterHtml}
         <div class="pdf-canvas-root">
           <div class="pdf-body-content document-preview-render markdown-preview">
             ${htmlContent}
@@ -630,56 +635,129 @@ ${this.getPdfPaginationCss()}
     const showDivider = hf['showDivider'] !== false;
     const pageFormat = typeof hf['pageNumberFormat'] === 'string' ? hf['pageNumberFormat'] : 'simple';
 
-    const pageNumberSelector = showPageNumbers ? 'content: counter(page);' : 'content: none;';
-    const totalPagesSelector = pageFormat === 'x-of-y' ? 'content: " de " counter(pages);' : '';
-    const pagePrefixSelector = pageFormat === 'page-x' ? 'content: "Página " counter(page);' : '';
+    const pageContent = showPageNumbers
+      ? pageFormat === 'x-of-y'
+        ? 'counter(page) " de " counter(pages)'
+        : pageFormat === 'page-x'
+        ? '"Página " counter(page)'
+        : 'counter(page)'
+      : '';
 
-    let pageContent = pageNumberSelector;
-    if (pageFormat === 'x-of-y') {
-      pageContent = 'content: counter(page) " de " counter(pages);';
-    } else if (pageFormat === 'page-x') {
-      pageContent = 'content: "Página " counter(page);';
-    }
+    const dividerColor = textColor;
+    const footerBackground = hf['backgroundColor'] && hf['backgroundColor'] !== 'transparent' ? hf['backgroundColor'] : 'rgba(255,255,255,0.92)';
+    const headerBackground = footerBackground;
 
     return `
-      .pdf-header-fixed {
-        position: running(pdf-header);
-        font-size: ${fontSize};
-        color: ${textColor};
-        ${showDivider ? 'border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;' : ''}
+      .pdf-body-content {
+        padding-top: 24mm;
+        padding-bottom: 24mm;
       }
-      .pdf-footer-fixed {
-        position: running(pdf-footer);
+      .pdf-page-header,
+      .pdf-page-footer {
+        position: fixed;
+        left: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 8px 15mm;
         font-size: ${fontSize};
         color: ${textColor};
-        text-align: center;
-        ${showDivider ? 'border-top: 1px solid #e2e8f0; padding-top: 8px;' : ''}
+        background: ${headerBackground};
+        z-index: 10;
       }
       .pdf-page-header {
-        position: absolute;
-        top: 10mm;
-        left: 15mm;
-        right: 15mm;
-        font-size: ${fontSize};
-        color: ${textColor};
-        ${showDivider ? 'border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;' : ''}
+        top: 0;
+        ${showDivider ? `border-bottom: 1px solid ${dividerColor};` : ''}
       }
-      .pdf-page-header-left { float: left; }
-      .pdf-page-header-center { text-align: center; }
-      .pdf-page-header-right { float: right; }
       .pdf-page-footer {
-        position: absolute;
-        bottom: 10mm;
-        left: 15mm;
-        right: 15mm;
-        font-size: ${fontSize};
-        color: ${textColor};
-        text-align: center;
-        ${showDivider ? 'border-top: 1px solid #e2e8f0; padding-top: 6px;' : ''}
+        bottom: 0;
+        ${showDivider ? `border-top: 1px solid ${dividerColor};` : ''}
       }
-      .pdf-page-footer::before {
-        ${pageContent}
+      .pdf-page-header-left,
+      .pdf-page-footer-left,
+      .pdf-page-header-center,
+      .pdf-page-footer-center,
+      .pdf-page-header-right,
+      .pdf-page-footer-right {
+        min-width: 0;
+        flex: 1;
       }
+      .pdf-page-header-left,
+      .pdf-page-footer-left { text-align: left; }
+      .pdf-page-header-center,
+      .pdf-page-footer-center { text-align: center; }
+      .pdf-page-header-right,
+      .pdf-page-footer-right { text-align: right; }
+      .pdf-counter-page::before {
+        content: counter(page);
+      }
+      .pdf-counter-pages::before {
+        content: counter(pages);
+      }
+      .pdf-counter-page,
+      .pdf-counter-pages {
+        display: inline;
+      }
+    `;
+  }
+
+  private buildPdfHeaderFooterHtml(data: DocumentData): string {
+    const hf = (data as Record<string, unknown>)['headerFooterConfig'] as Record<string, unknown> | undefined;
+    if (!hf || hf['enabled'] !== true) return '';
+
+    const showPageNumbers = hf['showPageNumbers'] !== false;
+    const format = typeof hf['pageNumberFormat'] === 'string' ? hf['pageNumberFormat'] : 'simple';
+    const title = data.title || 'Documento';
+    const date = this.formatDisplayDate(data.date);
+    const author = data.client || '';
+
+    const renderText = (value: unknown): string => {
+      const text = String(value ?? '').trim();
+      if (!text) return '';
+      let escaped = escapeHtml(text)
+        .replace(/\{title\}/g, escapeHtml(title))
+        .replace(/\{date\}/g, escapeHtml(date))
+        .replace(/\{author\}/g, escapeHtml(author));
+
+      if (showPageNumbers) {
+        escaped = escaped
+          .replace(/\{page\}/g, '<span class="pdf-counter-page"></span>')
+          .replace(/\{total\}/g, '<span class="pdf-counter-pages"></span>');
+      } else {
+        escaped = escaped.replace(/\{page\}|\{total\}/g, '');
+      }
+
+      return escaped;
+    };
+
+    const autoPageText = showPageNumbers
+      ? format === 'x-of-y'
+        ? 'Página <span class="pdf-counter-page"></span> de <span class="pdf-counter-pages"></span>'
+        : format === 'page-x'
+        ? 'Pág. <span class="pdf-counter-page"></span>'
+        : '<span class="pdf-counter-page"></span>'
+      : '';
+
+    const headerLeft = renderText(hf['headerLeft']);
+    const headerCenter = renderText(hf['headerCenter']);
+    const headerRight = renderText(hf['headerRight']);
+    const footerLeft = renderText(hf['footerLeft']);
+    const footerCenter = renderText(hf['footerCenter']);
+    const footerRight = renderText(hf['footerRight'] || autoPageText);
+
+    return `
+      <div class="pdf-page-header">
+        <div class="pdf-page-header-left">${headerLeft}</div>
+        <div class="pdf-page-header-center">${headerCenter}</div>
+        <div class="pdf-page-header-right">${headerRight}</div>
+      </div>
+      <div class="pdf-page-footer">
+        <div class="pdf-page-footer-left">${footerLeft}</div>
+        <div class="pdf-page-footer-center">${footerCenter}</div>
+        <div class="pdf-page-footer-right">${footerRight}</div>
+      </div>
     `;
   }
 

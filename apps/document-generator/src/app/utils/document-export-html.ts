@@ -145,15 +145,26 @@ export function exportHeaderFooterConfigToHtml(
   const center = isHeader ? (c.headerCenter ?? '') : (c.footerCenter ?? '');
   const right = isHeader ? (c.headerRight ?? '') : (c.footerRight ?? '');
 
+  const samplePage = Number.isFinite(c.startPageFrom ?? NaN) ? c.startPageFrom! : 1;
+  const sampleTotal = samplePage + 3;
+
   const resolveVars = (text: string): string =>
     text
-      .replace(/\{page\}/g, String(c.startPageFrom ?? 1))
-      .replace(/\{total\}/g, '?')
+      .replace(/\{page\}/g, String(samplePage))
+      .replace(/\{total\}/g, String(sampleTotal))
       .replace(/\{title\}/g, documentTitle)
       .replace(/\{date\}/g, new Date().toLocaleDateString('es-ES'))
       .replace(/\{author\}/g, '');
 
-  const hasContent = [left, center, right].some((t) => t.trim());
+  const pageNumberFormat = c.pageNumberFormat ?? 'simple';
+  const defaultFooter = pageNumberFormat === 'x-of-y'
+    ? `Página ${samplePage} de ${sampleTotal}`
+    : pageNumberFormat === 'page-x'
+    ? `Pág. ${samplePage}`
+    : `${samplePage}`;
+
+  const effectiveRight = isHeader ? right : right || defaultFooter;
+  const hasContent = [left, center, effectiveRight].some((t) => t.trim());
   if (!hasContent) return '';
 
   let dividerStyle = '';
@@ -163,11 +174,12 @@ export function exportHeaderFooterConfigToHtml(
       : 'border-top: 1px solid rgba(226, 232, 240, 0.95); margin-top: 8px; padding-top: 6px;';
   }
 
+  const sectionStyle = `min-width: 0; flex: 1;`; 
   return `
-<div class="pdf-${zone}" style="display:flex; justify-content:space-between; align-items:center; gap: 1rem; padding: 8px 20px; font-size:${c.fontSize ?? '9pt'}; color:${c.textColor ?? '#475569'}; background:${c.backgroundColor && c.backgroundColor !== 'transparent' ? c.backgroundColor : 'rgba(255,255,255,0.92)'}; ${dividerStyle}">
-  <span class="pdf-section left">${resolveVars(left)}</span>
-  <span class="pdf-section center">${resolveVars(center)}</span>
-  <span class="pdf-section right">${resolveVars(right)}</span>
+<div class="pdf-${zone}" style="display:flex; justify-content:space-between; align-items:center; gap: 1rem; padding: 10px 20px; font-size:${c.fontSize ?? '9pt'}; color:${c.textColor ?? '#475569'}; background:${c.backgroundColor && c.backgroundColor !== 'transparent' ? c.backgroundColor : 'rgba(255,255,255,0.92)'}; ${dividerStyle}">
+  <span class="pdf-section left" style="${sectionStyle}; text-align:left;">${resolveVars(left)}</span>
+  <span class="pdf-section center" style="${sectionStyle}; text-align:center;">${resolveVars(center)}</span>
+  <span class="pdf-section right" style="${sectionStyle}; text-align:right;">${resolveVars(right)}</span>
 </div>`;
 }
 
