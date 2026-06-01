@@ -1,4 +1,4 @@
-import { Component, signal, input, output } from '@angular/core';
+import { Component, signal, input, output, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -77,7 +77,7 @@ const DEFAULT_WATERMARK_CONFIG: WatermarkConfig = {
     </div>
   `,
 })
-export class WatermarkDialogComponent {
+export class WatermarkDialogComponent implements OnInit, OnChanges {
   readonly initialConfig = input<Partial<WatermarkConfig>>({});
   readonly configChanged = output<WatermarkConfig>();
 
