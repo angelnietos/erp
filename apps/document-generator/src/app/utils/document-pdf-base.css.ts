@@ -222,12 +222,11 @@ html, body {
 .pdf-page-footer-right { text-align: right; flex: 1; }
 
 /* === CONTENIDO CON COMPACTACIÓN PROFESIONAL === */
-.pdf-body-content.markdown-preview h1 {
-  font-size: clamp(2rem, 3.5vw, 2.5rem);
-  font-weight: 800;
-  margin: 1.25rem 0 0.5rem 0;
-  padding-bottom: 0.4rem;
-  border-bottom: 2px solid #e2e8f0;
+.pdf-body-content.markdown-preview h1:not([style*='color:']),
+.pdf-body-content.markdown-preview h2:not([style*='color:']),
+.pdf-body-content.markdown-preview h3:not([style*='color:']),
+.pdf-body-content.markdown-preview h4:not([style*='color:']),
+.pdf-body-content.markdown-preview strong:not([style*='color:']) {
   color: #0f172a;
   letter-spacing: -0.02em;
   page-break-after: avoid;
@@ -236,31 +235,30 @@ html, body {
   break-inside: avoid;
 }
 
-.pdf-body-content.markdown-preview h2 {
+.pdf-body-content.markdown-preview h1:not([style*='color:']) {
+  font-size: clamp(2rem, 3.5vw, 2.5rem);
+  font-weight: 800;
+  margin: 1.25rem 0 0.5rem 0;
+  padding-bottom: 0.4rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.pdf-body-content.markdown-preview h2:not([style*='color:']) {
   font-size: clamp(1.35rem, 2.5vw, 1.75rem);
   font-weight: 700;
   margin: 0.85rem 0 0.4rem 0;
-  color: #1e293b;
-  page-break-after: avoid;
-  break-after: avoid-page;
 }
 
-.pdf-body-content.markdown-preview h3 {
+.pdf-body-content.markdown-preview h3:not([style*='color:']) {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0.7rem 0 0.35rem 0;
-  color: #334155;
-  page-break-after: avoid;
-  break-after: avoid-page;
 }
 
-.pdf-body-content.markdown-preview h4 {
+.pdf-body-content.markdown-preview h4:not([style*='color:']) {
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0.55rem 0 0.25rem 0;
-  color: #475569;
-  page-break-after: avoid;
-  break-after: avoid-page;
 }
 
 /* Párrafos compactos sin saltos excesivos */
@@ -268,9 +266,13 @@ html, body {
   margin: 0.45rem 0;
   line-height: 1.68;
   text-align: justify;
-  color: #334155;
   orphans: 3;
   widows: 3;
+}
+
+.pdf-body-content.markdown-preview p:not([style*='color:']),
+.pdf-body-content.markdown-preview li:not([style*='color:']) {
+  color: #334155;
 }
 
 /* Listas con espaciado compacto y sin saltos de página innecesarios */
@@ -372,7 +374,7 @@ html, body {
   break-inside: avoid-page;
 }
 
-.pdf-body-content.markdown-preview th {
+.pdf-body-content.markdown-preview th:not([style*='color:']) {
   background: #f8fafc;
   font-weight: 700;
   color: #1e293b;
@@ -382,15 +384,14 @@ html, body {
   vertical-align: top;
 }
 
-.pdf-body-content.markdown-preview td {
+.pdf-body-content.markdown-preview td:not([style*='color:']) {
   padding: 0.6rem 0.85rem;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   vertical-align: top;
-  color: #334155;
 }
 
-.pdf-body-content.markdown-preview tr:nth-child(even) td {
+.pdf-body-content.markdown-preview tr:nth-child(even) td:not([style*='color:']) {
   background: #f8fafc;
 }
 
