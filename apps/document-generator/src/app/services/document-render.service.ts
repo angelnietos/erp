@@ -20,6 +20,7 @@ import {
   stylePresetCss,
 } from '../utils/document-style-presets';
 import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base.css';
+
 import type {
   ContentEditorMode,
   DocumentRenderInput,
@@ -27,6 +28,154 @@ import type {
 } from '../models/document-render.models';
 
 declare const marked: MarkedGlobal;
+
+/** Base markdown preview styles for iframe isolation - uses static colors since iframe cannot access parent theme variables */
+const MARKDOWN_PREVIEW_BASE_CSS_IFRAME = `
+/* Base markdown preview styles for iframe isolation */
+.document-preview-render.markdown-preview {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 1.05rem;
+  line-height: 1.72;
+  color: #1f2937;
+  background: #ffffff;
+}
+
+.document-preview-render.markdown-preview h1,
+.document-preview-render.markdown-preview h2,
+.document-preview-render.markdown-preview h3 {
+  letter-spacing: -0.025em;
+}
+
+.document-preview-render.markdown-preview h1 {
+  font-size: 1.875rem;
+  font-weight: 800;
+  margin: 1.5rem 0 1rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  color: #0f172a;
+  position: relative;
+}
+
+.document-preview-render.markdown-preview h1::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #2563eb, #7c3aed);
+}
+
+.document-preview-render.markdown-preview h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1.25rem 0 0.75rem 0;
+  color: #1e293b;
+}
+
+.document-preview-render.markdown-preview h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+  color: #334155;
+}
+
+.document-preview-render.markdown-preview p {
+  margin: 0.75rem 0;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.document-preview-render.markdown-preview ul,
+.document-preview-render.markdown-preview ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+}
+
+.document-preview-render.markdown-preview li {
+  margin: 0.375rem 0;
+}
+
+.document-preview-render.markdown-preview blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  border-left: 4px solid #3b82f6;
+  background-color: #eff6ff;
+  border-radius: 0 0.5rem 0.5rem 0;
+  color: #1e40af;
+}
+
+.document-preview-render.markdown-preview code {
+  background-color: #f1f5f9;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-family: 'JetBrains Mono', Consolas, monospace;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.document-preview-render.markdown-preview pre {
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #0f172a;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.document-preview-render.markdown-preview pre code {
+  background-color: transparent;
+  color: #e2e8f0;
+  padding: 0;
+}
+
+.document-preview-render.markdown-preview strong {
+  font-weight: 700;
+}
+
+.document-preview-render.markdown-preview em {
+  font-style: italic;
+}
+
+.document-preview-render.markdown-preview hr {
+  margin: 1.5rem 0;
+  border: none;
+  border-top: 1px solid #e2e8f0;
+}
+
+.document-preview-render.markdown-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+.document-preview-render.markdown-preview th,
+.document-preview-render.markdown-preview td {
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.document-preview-render.markdown-preview th {
+  background: #f1f5f9;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.document-preview-render.markdown-preview td {
+  background: #ffffff;
+  color: #1e293b;
+}
+
+.document-preview-render.markdown-preview a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.document-preview-render.markdown-preview a:hover {
+  color: #1d4ed8;
+}
+`;
 
 @Injectable({ providedIn: 'root' })
 export class DocumentRenderService {
@@ -203,7 +352,7 @@ buildHtmlPreviewSrcdoc(
       .replace(/\s*;\s*;/g, ';');
 
     const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
-    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
+    const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${MARKDOWN_PREVIEW_BASE_CSS_IFRAME}\n${this.previewCoverOverrideCss()}\n</style>`;
 
     if (isFullDocument) {
       return `<!doctype html>
@@ -281,12 +430,12 @@ buildHtmlPreviewSrcdoc(
 
   private adaptMarkdownScopedCssForTarget(css: string, target: string): string {
     return css
-      .replace(/\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
-      .replace(/\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)\s*/g, `${target} `)
+      .replace(/\.document-create-shell\s+\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)(\s|,|\{)/g, `${target}$1`)
+      .replace(/\.document-preview-pane(?:--isolated)?\.(?:markdown-preview|document-preview-render)(\s|,|\{)/g, `${target}$1`)
       .replace(/\.pdf-body-content\.markdown-preview/g, target)
       .replace(/\.document-preview-render\.markdown-preview/g, target)
       .replace(/\.markdown-preview\s*>\s*/g, `${target} > `)
-      .replace(/\.markdown-preview(?=[\s,{>])/g, `${target}`)
+      .replace(/\.markdown-preview(?=[,\{])/g, `${target}`)
       .replace(/\.markdown-preview\s+/g, `${target} `);
   }
 
