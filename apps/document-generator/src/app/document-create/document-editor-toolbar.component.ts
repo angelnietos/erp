@@ -11,7 +11,12 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
     <div class="document-editor-sidebar" role="toolbar" aria-label="Herramientas de edición">
       <ng-content select="[toolbarPanels]"></ng-content>
 
-      <div class="sidebar-section-title">Formato</div>
+      <div class="sidebar-section-title">
+        Formato
+        <span style="font-size:0.65rem;margin-left:4px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#475569">
+          {{ contentEditorMode() === 'html' ? 'HTML' : contentEditorMode() === 'plain' ? 'Texto' : 'MD' }}
+        </span>
+      </div>
       <div class="sidebar-format-grid">
         <button class="sidebar-format-btn" type="button" (click)="formatAction.emit('bold')" title="Negrita"><strong style="font-size:13px">B</strong><span>Neg.</span></button>
         <button class="sidebar-format-btn" type="button" (click)="formatAction.emit('italic')" title="Cursiva"><em style="font-size:13px">I</em><span>Cur.</span></button>

@@ -216,7 +216,7 @@ buildHtmlPreviewSrcdoc(
 <body>
   ${bodyHtml}
 </body>
-</html>`;
+</html><!-- preview-timestamp: ${Date.now()} -->`;
     }
 
     return `<!doctype html>
@@ -228,7 +228,7 @@ buildHtmlPreviewSrcdoc(
 <body>
   ${bodyHtml}
 </body>
-</html>`;
+</html><!-- preview-timestamp: ${Date.now()} -->`;
   }
 
   getRenderableContentForPdf(

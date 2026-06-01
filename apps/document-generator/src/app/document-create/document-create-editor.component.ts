@@ -123,6 +123,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   htmlPreviewSrcdoc: SafeHtml = '';
   private previewHtmlMarkup = '';
   private lastHtmlEditorContent: string | null = null;
+  private previewRenderCounter = 1;
+  get previewRenderKey(): number { return this.previewRenderCounter; }
   wordCount = 0;
   characterCount = 0;
   autoSaved = false;
@@ -1162,6 +1164,7 @@ readonly pdfService = inject(PdfGenerationService);
     this.previewHtmlMarkup = payload.contentMarkup;
 
     if (this.contentEditorMode === 'html') {
+      this.previewRenderCounter++;
       this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
         this.documentRender.buildHtmlPreviewSrcdoc(
           payload.contentMarkup,
@@ -1964,8 +1967,9 @@ ${PDF_COVER_SHARED_CSS}
 
     const safeColor = this.sanitizeTextColor(color ?? this.selectedTextColor);
     let coloredText: string;
+    
     if (this.contentEditorMode === 'html') {
-      coloredText = this.colorHtmlSelection(selectedText, safeColor);
+      coloredText = this.colorHtmlSelectionWithClass(selectedText, safeColor);
     } else {
       coloredText = this.applyColorToMarkdownSelection(selectedText, safeColor);
     }
@@ -1986,7 +1990,133 @@ ${PDF_COVER_SHARED_CSS}
     }, 0);
   }
 
+  private colorHtmlSelectionWithClass(html: string, color: string): string {
+    if (!html.trim()) {
+      return '';
+    }
+
+    // Generate a unique class name for this color
+    const colorHash = color.replace(/[^a-f0-9]/gi, '').substring(0, 6);
+    const className = `doc-color-${colorHash}`;
+    
+    // Add the class definition to customCss if not already present
+    this.ensureColorClassInCss(className, color);
+
+    // Check if HTML or plain text
+    const isHtml = /<[^>]+>/.test(html);
+
+    if (isHtml) {
+      // Parse HTML and add class to elements properly
+      return this.applyClassToHtmlContent(html, className);
+    } else {
+      // Wrap plain text with the class
+      return `<span class="${className}">${this.escapeHtml(html)}</span>`;
+    }
+  }
+
+  private applyClassToHtmlContent(html: string, className: string): string {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(
+        `<root>${html}</root>`,
+        'text/xml'
+      );
+      
+      if (doc.getElementsByTagName('parsererror').length > 0) {
+        // XML parsing failed, try HTML parsing
+        return `<span class="${className}">${this.escapeHtml(html)}</span>`;
+      }
+
+      const root = doc.documentElement;
+      if (!root) {
+        return `<span class="${className}">${this.escapeHtml(html)}</span>`;
+      }
+
+      // Add class to root and all children
+      this.addClassToAllElements(root, className);
+      
+      // Get the serializedcontent (children of root)
+      let result = '';
+      for (let i = 0; i < root.childNodes.length; i++) {
+        result += this.serializeNode(root.childNodes[i]);
+      }
+      
+      return result || `<span class="${className}">${this.escapeHtml(html)}</span>`;
+    } catch (e) {
+      console.warn('HTML class application failed', e);
+      return `<span class="${className}">${this.escapeHtml(html)}</span>`;
+    }
+  }
+
+  private addClassToAllElements(element: Node, className: string): void {
+    if (element.nodeType === Node.ELEMENT_NODE) {
+      const el = element as Element;
+      const existing = el.getAttribute('class') || '';
+      if (!existing.includes(className)) {
+        const newClass = existing.trim() ? `${existing} ${className}` : className;
+        el.setAttribute('class', newClass);
+      }
+    }
+
+    for (let i = 0; i < element.childNodes.length; i++) {
+      this.addClassToAllElements(element.childNodes[i], className);
+    }
+  }
+
+  private serializeNode(node: Node): string {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent || '';
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      const tagName = el.tagName.toLowerCase();
+      const attrs = this.serializeAttributes(el);
+      const content = Array.from(el.childNodes)
+        .map((child: Node) => this.serializeNode(child))
+        .join('');
+      return `<${tagName}${attrs}>${content}</${tagName}>`;
+    }
+    return '';
+  }
+
+  private serializeAttributes(element: Element): string {
+    let attrs = '';
+    if (element.attributes) {
+      for (let i = 0; i < element.attributes.length; i++) {
+        const attr = element.attributes[i];
+        attrs += ` ${attr.name}="${attr.value}"`;
+      }
+    }
+    return attrs;
+  }
+
+  private ensureColorClassInCss(className: string, color: string): void {
+    const cssRule = `.${className} { color: ${color} !important; }`;
+    
+    // Check if rule already exists
+    if (this.customCss.includes(className)) {
+      return;
+    }
+
+    // Add to customCss
+    if (this.customCss.trim()) {
+      this.customCss += `\n\n${cssRule}`;
+    } else {
+      this.customCss = cssRule;
+    }
+
+    this.applyCustomCss();
+  }
+
   handleToolbarFormatAction(action: string): void {
+    // Rod HTML en modo HTML, Markdown en otros modos
+    if (this.contentEditorMode === 'html') {
+      this.handleHtmlFormatAction(action);
+    } else {
+      this.handleMarkdownFormatAction(action);
+    }
+  }
+
+  private handleMarkdownFormatAction(action: string): void {
     switch (action) {
       case 'bold':
         this.insertMarkdown('**', '**');
@@ -2025,6 +2155,141 @@ ${PDF_COVER_SHARED_CSS}
         this.insertCodeBlock();
         break;
     }
+  }
+
+  private handleHtmlFormatAction(action: string): void {
+    const textarea = document.querySelector(
+      'textarea[formControlName="content"]',
+    ) as HTMLTextAreaElement;
+    if (!textarea) {
+      console.warn('Textarea not found');
+      return;
+    }
+
+    let start = textarea.selectionStart;
+    let end = textarea.selectionEnd;
+    const content = this.documentForm.get('content')?.value || '';
+    let selectedText = content.substring(start, end);
+
+    console.log('HTML Format Action - Initial:', { action, start, end, selectedTextLength: selectedText.length, trimmed: selectedText.trim() });
+
+    // If no selection, try to get current word/block
+    if (start === end || !selectedText.trim()) {
+      const range = this.getCurrentMarkdownBlockRange(content, start);
+      start = range.start;
+      end = range.end;
+      selectedText = content.substring(start, end);
+      console.log('HTML Format Action - Auto-selected block:', { start, end, selectedTextLength: selectedText.length });
+    }
+
+    if (!selectedText.trim()) {
+      console.warn('Selection is still empty after auto-select');
+      return;
+    }
+
+    let formattedText: string;
+    switch (action) {
+      case 'bold':
+        formattedText = this.wrapHtmlElement(selectedText, 'strong');
+        break;
+      case 'italic':
+        formattedText = this.wrapHtmlElement(selectedText, 'em');
+        break;
+      case 'strike':
+        formattedText = this.wrapHtmlElement(selectedText, 'del');
+        break;
+      case 'code':
+        formattedText = this.wrapHtmlElement(selectedText, 'code');
+        break;
+      case 'h1':
+      case 'h2':
+      case 'h3':
+        formattedText = this.wrapHtmlHeading(selectedText, action);
+        break;
+      case 'quote':
+        formattedText = this.wrapHtmlBlock(selectedText, 'blockquote');
+        break;
+      case 'list':
+        formattedText = this.wrapHtmlList(selectedText, 'ul');
+        break;
+      case 'numbered-list':
+        formattedText = this.wrapHtmlList(selectedText, 'ol');
+        break;
+      case 'link':
+        formattedText = `<a href="url">${this.escapeHtml(selectedText)}</a>`;
+        break;
+      case 'code-block':
+        formattedText = `<pre><code>${this.escapeHtml(selectedText)}</code></pre>`;
+        break;
+      default:
+        console.warn('Unknown action:', action);
+        return;
+    }
+
+    const newContent =
+      content.substring(0, start) +
+      formattedText +
+      content.substring(end);
+
+    console.log('New content applied:', { formattedTextLength: formattedText.length, newContentLength: newContent.length, formattedText });
+
+    this.documentForm.patchValue({ content: newContent });
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + formattedText.length;
+    }, 0);
+  }
+
+  private wrapHtmlHeading(text: string, tag: string): string {
+    const tagNum = tag.replace(/\D/g, '');
+    const tagName = `h${tagNum}`;
+    const isHtml = /<[^>]+>/.test(text);
+    const content = isHtml ? text.trim() : this.escapeHtml(text.trim());
+    return `<${tagName}>${content}</${tagName}>`;
+  }
+
+  private wrapHtmlElement(text: string, tag: string): string {
+    // Check if text is already HTML (contains < and >)
+    const isHtml = /<[^>]+>/.test(text);
+    
+    if (isHtml) {
+      // Text contains HTML, use it as-is
+      return `<${tag}>${text}</${tag}>`;
+    } else {
+      // Plain text, escape it
+      const escaped = this.escapeHtml(text);
+      return `<${tag}>${escaped}</${tag}>`;
+    }
+  }
+
+  private wrapHtmlBlock(text: string, tag: string): string {
+    const tagName = tag.startsWith('h') ? `h${tag.replace(/[^123]/, '')}` : tag;
+    if (tag.startsWith('h') || tag === 'blockquote') {
+      // For headings and blockquote, wrap the entire text as one block
+      const isHtml = /<[^>]+>/.test(text);
+      const content = isHtml ? text.trim() : this.escapeHtml(text.trim());
+      return `<${tagName}>${content}</${tagName}>`;
+    }
+    const isHtml = /<[^>]+>/.test(text);
+    const content = isHtml ? text : this.escapeHtml(text);
+    return `<${tagName}>${content}</${tagName}>`;
+  }
+
+  private wrapHtmlList(text: string, tag: 'ul' | 'ol'): string {
+    const lines = text.split('\n').filter((line) => line.trim());
+    const items = lines
+      .map((line) => {
+        // Check if line is HTML (contains tags)
+        const isHtml = /<[^>]+>/.test(line);
+        const content = isHtml ? line : this.escapeHtml(line.trim());
+        return `  <li>${content}</li>`;
+      })
+      .join('\n');
+    return `<${tag}>\n${items}\n</${tag}>`;
   }
 
   toggleDocumentTool(tool: string): void {
@@ -2129,56 +2394,68 @@ ${PDF_COVER_SHARED_CSS}
       return '';
     }
 
-    const parser = new DOMParser();
-    const wrapped = html.startsWith('<') ? html : `<root>${this.escapeHtml(html)}</root>`;
-    const doc = parser.parseFromString(wrapped, 'text/html');
-    const root = doc.body.firstChild as Element;
-
-    if (!root) {
+    // For plain text without HTML tags, use simple wrapping
+    const isSimpleText = !html.includes('<');
+    
+    if (isSimpleText) {
       return `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
     }
 
-    this.applyColorRecursive(root, color);
-    return root.outerHTML;
+    // For HTML with tags, parse and apply color recursively
+    try {
+      const parser = new DOMParser();
+      // Parse as a complete HTML document to preserve structure
+      const doc = parser.parseFromString(
+        `<!DOCTYPE html><html><body>${html}</body></html>`,
+        'text/html'
+      );
+      
+      const body = doc.body;
+      if (!body) {
+        return `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
+      }
+
+      // Apply color to all elements in the body
+      this.applyColorSafeRecursive(body, color);
+      
+      // Serialize: get everything inside body as HTML string
+      const result = body.innerHTML;
+      return result || `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
+    } catch (e) {
+      // Fallback to safe wrapping if parsing fails
+      console.warn('HTML color parsing failed, using fallback', e);
+      return `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
+    }
   }
 
-  private applyColorRecursive(element: Element, color: string): void {
-    const el = element as HTMLElement;
-
-    if (this.isBlockElement(element)) {
-      const existing = el.getAttribute('style') || '';
-      const regex = /color:\s*[^;]+;?\s*/i;
-      const newStyle = regex.test(existing)
-        ? existing.replace(regex, `color: ${color} !important;`)
-        : `${existing}; color: ${color} !important;`.replace(/^;/, '');
-      el.setAttribute('style', newStyle);
-      Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
+  private applyColorSafeRecursive(node: Element | Node, color: string): void {
+    if (node.nodeType === Node.TEXT_NODE) {
       return;
     }
 
-    if (element.tagName === 'SPAN') {
-      const existing = el.getAttribute('style') || '';
-      const regex = /color:\s*[^;]+;?\s*/i;
-      const newStyle = regex.test(existing)
-        ? existing.replace(regex, `color: ${color} !important;`)
-        : `${existing}; color: ${color} !important;`.replace(/^;/, '');
-      el.setAttribute('style', newStyle);
-      Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
-      return;
+    const element = node as HTMLElement;
+
+    // Check if element already has color style
+    const currentStyle = element.getAttribute('style') || '';
+    const hasColor = /color\s*:/i.test(currentStyle);
+
+    // Only apply color if not already present
+    if (!hasColor) {
+      const newStyle = currentStyle.trim()
+        ? `${currentStyle}; color: ${color} !important;`
+        : `color: ${color} !important;`;
+      element.setAttribute('style', newStyle.trim());
     }
 
-    if (element.textContent?.trim()) {
-      const escaped = this.escapeHtml(element.textContent);
-      element.innerHTML = `<span style="color: ${color} !important;">${escaped}</span>`;
+    // Recursively process children
+    for (let i = 0; i < element.childNodes.length; i++) {
+      const child = element.childNodes[i];
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        this.applyColorSafeRecursive(child as Element, color);
+      }
     }
-
-    Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
   }
 
-  private isBlockElement(el: Element): boolean {
-    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'SECTION', 'UL', 'OL'];
-    return blockTags.includes(el.tagName.toUpperCase());
-  }
 
   private isMarkdownTableSeparator(line: string): boolean {
     return /^\s*\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);

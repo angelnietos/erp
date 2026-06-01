@@ -497,7 +497,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             (applyCorporateTemplate)="insertDefaultCssTemplate()"
                           />
 
-                          <app-document-live-preview
+<app-document-live-preview
                             [contentEditorMode]="contentEditorMode"
                             [wordCount]="wordCount"
                             [characterCount]="characterCount"
@@ -505,6 +505,7 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             [previewHtml]="previewHtml"
                             [previewPaneStyle]="previewPaneStyle"
                             [pdfBackgroundMode]="pdfBackgroundMode"
+                            [previewRenderKey]="previewRenderKey"
                           />
                         </div>
                       }
@@ -536,24 +537,26 @@ class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rou
                             </div>
                           }
  
-                          <!-- Vista Previa (Fullscreen) -->
-                          @if (fullscreenTab === 'preview') {
-                            <div class="document-editor-column fullscreen-preview">
-                              <div class="document-editor-column__bar">
-                                Vista Previa
-                                <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras ó {{ characterCount }} caracteres</span>
-                              </div>
-                              @if (contentEditorMode === 'html') {
-                                <iframe
-                                  title="Vista previa HTML"
-                                  class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
-                                  [srcdoc]="htmlPreviewSrcdoc"
-                                ></iframe>
-                              } @else {
-                                <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [class.document-preview-pane--isolated]="pdfBackgroundMode !== 'theme'" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
-                              }
-                            </div>
-                          }
+<!-- Vista Previa (Fullscreen) -->
+                           @if (fullscreenTab === 'preview') {
+                             <div class="document-editor-column fullscreen-preview">
+                               <div class="document-editor-column__bar">
+                                 Vista Previa
+                                 <span class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded">{{ wordCount }} palabras ó {{ characterCount }} caracteres</span>
+                               </div>
+                               @if (contentEditorMode === 'html') {
+                                 @if (previewRenderKey) {
+                                   <iframe
+                                     title="Vista previa HTML"
+                                     class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
+                                     [srcdoc]="htmlPreviewSrcdoc"
+                                   ></iframe>
+                                 }
+                               } @else {
+                                 <div class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner" [class.document-preview-pane--isolated]="pdfBackgroundMode !== 'theme'" [ngStyle]="previewPaneStyle" [innerHTML]="previewHtml"></div>
+                               }
+                             </div>
+                           }
                         </div>
                       }
                     </div>

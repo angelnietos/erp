@@ -39,4 +39,5 @@ export class DocumentLivePreviewComponent {
   readonly previewHtml = input<SafeHtml | string>('');
   readonly previewPaneStyle = input<Record<string, string>>({});
   readonly pdfBackgroundMode = input<'theme' | 'color' | 'corporate'>('theme');
+  readonly previewRenderKey = input(0);
 }
