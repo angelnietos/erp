@@ -32,32 +32,45 @@ const DEFAULT_WATERMARK_CONFIG: WatermarkConfig = {
       </div>
 
       @if (config.enabled) {
-        <div class="space-y-3">
-          <div>
-            <label for="watermarkText" class="block text-xs font-medium text-slate-600 mb-1">Texto de la marca</label>
-            <input type="text" id="watermarkText" [(ngModel)]="config.text" (ngModelChange)="onConfigChange()" placeholder="Ej: CONFIDENCIAL" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
-          </div>
+        <div class="p-3 bg-cyan-50/50 rounded-lg border border-cyan-100">
+          <div class="space-y-3">
+            <div>
+              <label for="watermarkText" class="block text-xs font-medium text-slate-600 mb-1">Texto de la marca</label>
+              <input type="text" id="watermarkText" [(ngModel)]="config.text" (ngModelChange)="onConfigChange()" placeholder="Ej: CONFIDENCIAL" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
+            </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label for="watermarkOpacity" class="block text-xs font-medium text-slate-600 mb-1">Opacidad (0-1)</label>
-              <input type="number" id="watermarkOpacity" [(ngModel)]="config.opacity" (ngModelChange)="onConfigChange()" min="0" max="1" step="0.05" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="watermarkOpacity" class="block text-xs font-medium text-slate-600 mb-1">Opacidad (0-1)</label>
+                <input type="number" id="watermarkOpacity" [(ngModel)]="config.opacity" (ngModelChange)="onConfigChange()" min="0" max="1" step="0.05" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
+              </div>
+              <div>
+                <label for="watermarkFontSize" class="block text-xs font-medium text-slate-600 mb-1">Tamaño fuente (px)</label>
+                <input type="number" id="watermarkFontSize" [(ngModel)]="config.fontSize" (ngModelChange)="onConfigChange()" min="10" max="100" step="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
+              </div>
             </div>
-            <div>
-              <label for="watermarkFontSize" class="block text-xs font-medium text-slate-600 mb-1">Tamaño fuente (px)</label>
-              <input type="number" id="watermarkFontSize" [(ngModel)]="config.fontSize" (ngModelChange)="onConfigChange()" min="10" max="100" step="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
-            </div>
-          </div>
 
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label for="watermarkColor" class="block text-xs font-medium text-slate-600 mb-1">Color</label>
-              <input type="color" id="watermarkColor" [(ngModel)]="config.color" (ngModelChange)="onConfigChange()" class="w-full h-10 border border-slate-300 rounded-lg cursor-pointer" />
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="watermarkColor" class="block text-xs font-medium text-slate-600 mb-1">Color</label>
+                <input type="color" id="watermarkColor" [(ngModel)]="config.color" (ngModelChange)="onConfigChange()" class="w-full h-10 border border-slate-300 rounded-lg cursor-pointer" />
+              </div>
+              <div>
+                <label for="watermarkRotation" class="block text-xs font-medium text-slate-600 mb-1">Rotación (deg)</label>
+                <input type="number" id="watermarkRotation" [(ngModel)]="config.rotation" (ngModelChange)="onConfigChange()" min="-180" max="180" step="15" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
+              </div>
             </div>
-            <div>
-              <label for="watermarkRotation" class="block text-xs font-medium text-slate-600 mb-1">Rotación (deg)</label>
-              <input type="number" id="watermarkRotation" [(ngModel)]="config.rotation" (ngModelChange)="onConfigChange()" min="-180" max="180" step="15" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" />
-            </div>
+
+            @if (config.text) {
+              <div class="mt-2 p-2 bg-white rounded border border-slate-200">
+                <div class="text-xs text-slate-500 mb-1">Vista previa:</div>
+                <div class="relative h-16 overflow-hidden rounded bg-slate-50/50 flex items-center justify-center">
+                  <span style="font-size: {{config.fontSize}}px; color: {{config.color}}; opacity: {{config.opacity}}; transform: rotate({{config.rotation}}deg); font-weight: 700;">
+                    {{config.text}}
+                  </span>
+                </div>
+              </div>
+            }
           </div>
         </div>
       }
