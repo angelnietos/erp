@@ -49,6 +49,24 @@ Prioriza hechos, alcance, plazos y responsabilidades.`,
     defaultEnabled: true,
     body: `El resumen ejecutivo, objetivos, alcance y precios deben ser coherentes entre sí; señala contradicciones si las detectas al redactar.`,
   },
+  {
+    id: 'josanz-design-styles',
+    title: 'Estilos de diseño corporativo',
+    defaultEnabled: true,
+    body: `Sé capaz de crear documentos con estilos inspirados en marcas como Nintendo Switch (neón, vibrante), Ubisoft (moderno, premium), Tokyostar (japonés, limpio) o GameOver (gaming, oscuro).
+Usa clases CSS como .hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer, .doc-block.
+Para HTML: usa inline styles para colores (#RRGGBB) y clases semánticas. Los elementos de diseño: tarjetas con sombra, divisores degradados, iconos emoji, tipografía moderna.`,
+  },
+  {
+    id: 'josanz-html-cards',
+    title: 'Diseño de tarjetas y componentes HTML',
+    defaultEnabled: true,
+    body: `Cuando generes HTML visual, usa estructuras de tarjetas (.card) con fondo blanco y sombra suave.
+Las secciones (.section) deben tener títulos con estilo y contenido bien espaciado.
+Las tablas (.doc-table) usan bordes suaves y alternancia de filas.
+Los bloques de llamada de atención (.callout, aside) usan borde izquierdo coloreado.
+El pie de página (.footer) tiene borde superior y texto secundario.`,
+  },
 ];
 
 const LS_BUILTIN_DISABLED = 'josanz_agent_builtin_disabled';

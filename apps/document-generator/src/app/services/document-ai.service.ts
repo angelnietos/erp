@@ -27,7 +27,9 @@ Reglas:
 - Salida SOLO en Markdown (GFM): títulos ## numerados (## 1. Título, ## 2. …), listas, tablas cuando ayuden.
 - Tono claro y formal; sin marketing vacío.
 - Usa marcadores [rellenar: …] donde falten datos concretos.
-- No envuelvas la respuesta en bloques \`\`\`markdown; solo el texto.`;
+- No envuelvas la respuesta en bloques \`\`\`markdown; solo el texto.
+- Puedes sugerir estilos visuales basados en Nintendo Switch (neón, vibrante), Ubisoft (premium, moderno), Tokyostar (minimalista, japonés) o GameOver (gaming, oscuro).
+- Para HTML generado: usa clases útiles (.hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer) y colores inline (#RRGGBB).`;
 
 interface DocumentOutline {
   sections: Array<{
@@ -84,8 +86,9 @@ export class DocumentAiService {
       '- Incluye <!doctype html>, <html lang="es">, <head>, <meta charset="utf-8">, <meta name="viewport"> y un <style> interno.',
       '- Conserva todo el contenido, datos y placeholders existentes.',
       '- Reemplaza sintaxis Markdown visible por HTML semántico.',
-      '- Usa clases útiles para diseño: .hero, .section, .card, .metadata-grid, .table-wrap, .callout, .signature-grid, .footer, etc.',
+      '- Usa clases útiles para diseño: .hero, .section, .card, .metadata-grid, .table-wrap, .callout, .signature-grid, .footer, .doc-block, .doc-title, .doc-paragraph, .doc-list, .doc-table.',
       '- Hazlo más atractivo que el Markdown base: jerarquía clara, buen espaciado, tablas limpias, colores coherentes y apto para PDF.',
+      '- Puedes sugerir estilos inspirados en Nintendo Switch (neón, #ff3131 rojo coral, #7a0000 granate oscuro), Ubisoft (premium, tipografía elegante, sombras sutiles), Tokyostar (minimalista, japonés, espacios en blanco, tipografía sans-serif) o GameOver (gaming, oscuro, #111111 fondo, acentos neón).',
       '- No inventes datos; conserva [rellenar], [Fecha actual] y placeholders similares.',
       '',
       'MARKDOWN A CONVERTIR:',
@@ -98,6 +101,7 @@ export class DocumentAiService {
 
     const system = `Eres un diseñador/redactor experto en documentos empresariales HTML.
 Tu tarea es transformar Markdown en HTML autocontenido, visual y listo para previsualizar/exportar.
+Siempre puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.
 No devuelvas Markdown. No expliques nada. Devuelve únicamente el documento HTML completo.`;
 
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
@@ -180,6 +184,9 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
       '- Conserva todo el contenido y placeholders existentes.',
       '- Mejora la apariencia, claridad, estructura y el marcado semántico.',
       '- Mantén el documento autocontenido y válido.',
+      '- Usa clases útiles: .hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer, .doc-block.',
+      '- Puedes aplicar estilos inspirados en Nintendo Switch (neón, rojo coral #ff3131, granate #7a0000), Ubisoft (premium, elegante), Tokyostar (minimalista, japonés), GameOver (gaming, oscuro, acentos neón).',
+      '- Aplica colores inline (#RRGGBB) para texto y fondos coherentes.',
       '- Preserva los marcadores [rellenar: …] y no inventes datos.',
       '',
       'HTML A MEJORAR:',
@@ -191,7 +198,8 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
       .join('\n');
 
     const system = `Eres un diseñador/redactor experto en documentos HTML.
-Tu objetivo es devolver únicamente el HTML mejorado, sin explicaciones ni contenido adicional.`;
+Tu objetivo es devolver únicamente el HTML mejorado, sin explicaciones ni contenido adicional.
+Puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.`;
 
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }

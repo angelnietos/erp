@@ -2114,36 +2114,49 @@ ${PDF_COVER_SHARED_CSS}
     }
 
     const parser = new DOMParser();
-    const wrapped = html.startsWith('<') ? html : `<span>${this.escapeHtml(html)}</span>`;
+    const wrapped = html.startsWith('<') ? html : `<root>${this.escapeHtml(html)}</root>`;
     const doc = parser.parseFromString(wrapped, 'text/html');
-    const root = doc.body.firstChild;
+    const root = doc.body.firstChild as Element;
 
     if (!root) {
       return `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
     }
 
-    this.applyColorToNode(root as Element, color);
-    return (root as Element).outerHTML;
+    this.applyColorRecursive(root, color);
+    return root.outerHTML;
   }
 
-  private applyColorToNode(node: Element, color: string): void {
-    const el = node as HTMLElement;
+  private applyColorRecursive(element: Element, color: string): void {
+    const el = element as HTMLElement;
 
-    if (this.isBlockElement(node) || node.tagName === 'SPAN') {
-      const existingStyle = el.getAttribute('style') || '';
-      const styleRegex = /color:\s*[^;]+;?\s*/i;
-      if (styleRegex.test(existingStyle)) {
-        el.setAttribute('style', existingStyle.replace(styleRegex, `color: ${color} !important;`));
-      } else if (existingStyle) {
-        el.setAttribute('style', `${existingStyle}; color: ${color} !important;`);
-      } else {
-        el.setAttribute('style', `color: ${color} !important;`);
-      }
-    } else {
-      el.innerHTML = `<span style="color: ${color} !important;">${el.innerHTML}</span>`;
+    if (this.isBlockElement(element)) {
+      const existing = el.getAttribute('style') || '';
+      const regex = /color:\s*[^;]+;?\s*/i;
+      const newStyle = regex.test(existing)
+        ? existing.replace(regex, `color: ${color} !important;`)
+        : `${existing}; color: ${color} !important;`.replace(/^;/, '');
+      el.setAttribute('style', newStyle);
+      Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
+      return;
     }
 
-    Array.from(node.children).forEach((child) => this.applyColorToNode(child, color));
+    if (element.tagName === 'SPAN') {
+      const existing = el.getAttribute('style') || '';
+      const regex = /color:\s*[^;]+;?\s*/i;
+      const newStyle = regex.test(existing)
+        ? existing.replace(regex, `color: ${color} !important;`)
+        : `${existing}; color: ${color} !important;`.replace(/^;/, '');
+      el.setAttribute('style', newStyle);
+      Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
+      return;
+    }
+
+    if (element.textContent?.trim()) {
+      const escaped = this.escapeHtml(element.textContent);
+      element.innerHTML = `<span style="color: ${color} !important;">${escaped}</span>`;
+    }
+
+    Array.from(element.children).forEach((child) => this.applyColorRecursive(child, color));
   }
 
   private isBlockElement(el: Element): boolean {

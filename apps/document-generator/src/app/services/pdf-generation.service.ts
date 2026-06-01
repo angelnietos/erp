@@ -460,13 +460,6 @@ const pdfTemplate = `
       </html>
     `;
 
-    return this.htmlToPdfBlob(
-      pdfTemplate,
-      data.title || 'documento',
-      canvasBackground,
-    );
-  }
-
   private prepareHtmlContentForPdf(content: string, data: DocumentData): string {
     if (data.contentEditorMode === 'html') {
       return this.stripWrappingHtmlFence(content);
