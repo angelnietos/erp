@@ -424,7 +424,7 @@ const title = escapeHtml(data.title || 'Documento');
        typeof data.quickStylePreset === 'string' ? data.quickStylePreset : '',
      );
 
-     const headerFooterCss = this.buildHeaderFooterCss(data);
+const headerFooterCss = this.buildHeaderFooterCss(data);
      const coverHtml = this.buildCoverHtml(data);
 
      const pdfTemplate = `

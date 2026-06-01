@@ -72,7 +72,7 @@ export class AuditInterceptor implements NestInterceptor {
       const entityName = body?.name || body?.title || response?.name || response?.title || undefined;
       const targetId = response?.id || url.split('/').pop() || 'unknown';
 
-      await this.auditLogWriter.record(user.sub, {
+      await this.auditLogWriter.record(user.sub ?? 'unknown', {
         action,
         targetEntity: `${entity}:${targetId}`,
         changesJson: {
