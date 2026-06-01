@@ -122,6 +122,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   previewHtml: SafeHtml = '';
   htmlPreviewSrcdoc: SafeHtml = '';
   private previewHtmlMarkup = '';
+  private lastHtmlEditorContent: string | null = null;
   wordCount = 0;
   characterCount = 0;
   autoSaved = false;
@@ -653,6 +654,7 @@ readonly pdfService = inject(PdfGenerationService);
         beautified = await this.documentAi.beautifyHtml(
           this.getAiContext(),
         );
+        beautified = enrichDocumentHtmlForStyling(beautified);
       } else {
         this.aiError = 'Mode no compatible para embellecer.';
         return;
@@ -980,14 +982,27 @@ readonly pdfService = inject(PdfGenerationService);
 
     const content = String(this.documentForm.get('content')?.value ?? '');
     if (this.contentEditorMode === 'markdown' && mode === 'html') {
-      const html = this.convertMarkdownToHtmlForEditor(content);
-      this.documentForm.patchValue({ content: html });
+      const restoredHtml =
+        this.lastHtmlEditorContent &&
+        this.convertHtmlToMarkdownForEditor(this.lastHtmlEditorContent).trim() ===
+          content.trim()
+          ? this.lastHtmlEditorContent
+          : null;
+
+      if (restoredHtml) {
+        this.documentForm.patchValue({ content: restoredHtml });
+      } else {
+        const html = this.convertMarkdownToHtmlForEditor(content);
+        this.documentForm.patchValue({ content: html });
+      }
     } else if (this.contentEditorMode === 'html' && mode === 'markdown') {
+      this.lastHtmlEditorContent = content;
       const markdown = this.convertHtmlToMarkdownForEditor(content);
       this.documentForm.patchValue({ content: markdown });
     } else if (this.contentEditorMode === 'plain' && mode === 'html') {
       this.documentForm.patchValue({ content: this.plainTextToHtml(content) });
     } else if (this.contentEditorMode === 'html' && mode === 'plain') {
+      this.lastHtmlEditorContent = content;
       const parser = new DOMParser();
       const doc = parser.parseFromString(content, 'text/html');
       this.documentForm.patchValue({ content: (doc.body.textContent || '').trim() });
@@ -1000,7 +1015,8 @@ readonly pdfService = inject(PdfGenerationService);
 
   private convertMarkdownToHtmlForEditor(content: string): string {
     marked.setOptions?.({ gfm: true, breaks: true });
-    return String(marked.parse(content, { gfm: true, breaks: true }));
+    const parsed = String(marked.parse(content, { gfm: true, breaks: true }));
+    return enrichDocumentHtmlForStyling(parsed);
   }
 
   private convertHtmlToMarkdownForEditor(html: string): string {
@@ -1149,7 +1165,7 @@ readonly pdfService = inject(PdfGenerationService);
       this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
         this.documentRender.buildHtmlPreviewSrcdoc(
           payload.contentMarkup,
-          payload.exportStylesheet,
+          payload.previewStylesheet,
           this.buildDocumentExtras(input.documentTitle),
         ),
       );

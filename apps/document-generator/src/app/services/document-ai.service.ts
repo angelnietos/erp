@@ -186,7 +186,7 @@ async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
       '- No incluyas DOCTYPE ni estructura de documento completa.',
       '- Usa clases útiles: .hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer, .doc-block.',
       '- Puedes aplicar estilos inspirados en Nintendo Switch (neón, rojo coral #ff3131, granate #7a0000), Ubisoft (premium, elegante), Tokyostar (minimalista, japonés), GameOver (gaming, oscuro, acentos neón).',
-      '- Aplica colores inline (#RRGGBB) para texto y fondos coherentes.',
+      '- Aplica colores inline (#RRGGBB) para texto y fondos coherenes.',
       '- Preserva los marcadores [rellenar: …] y no inventes datos.',
       '',
       'HTML A MEJORAR:',
@@ -519,6 +519,19 @@ INSTRUCCIONES:
       t = t.replace(/\s*```\s*$/i, '');
     }
     return t.trim();
+  }
+
+  private extractBodyContent(fullHtml: string): string {
+    const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(fullHtml);
+    if (bodyMatch?.[1]) {
+      let content = bodyMatch[1].trim();
+      const wrapperMatch = /<div[^>]*class=(["'])[^"']*document-preview-render[^"']*\1[^>]*>([\s\S]*?)<\/div>/i.exec(content);
+      if (wrapperMatch?.[2]) {
+        return wrapperMatch[2];
+      }
+      return content;
+    }
+    return fullHtml;
   }
 }
 
