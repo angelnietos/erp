@@ -2109,54 +2109,41 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   private colorHtmlSelection(html: string, color: string): string {
+    if (!html.trim()) {
+      return '';
+    }
+
     const parser = new DOMParser();
-    const wrapper = parser.parseFromString(`<div id="root">${html}</div>`, 'text/html');
-    const root = wrapper.getElementById('root');
+    const wrapped = html.startsWith('<') ? html : `<span>${this.escapeHtml(html)}</span>`;
+    const doc = parser.parseFromString(wrapped, 'text/html');
+    const root = doc.body.firstChild;
 
     if (!root) {
-      return `<span style="color: ${color} !important;">${html}</span>`;
+      return `<span style="color: ${color} !important;">${this.escapeHtml(html)}</span>`;
     }
 
-    this.replaceOrApplyColor(root, color);
-
-    let result = root.innerHTML;
-    result = this.removeWrappingSpansIfNeeded(result, html);
-
-    return result;
+    this.applyColorToNode(root as Element, color);
+    return (root as Element).outerHTML;
   }
 
-  private replaceOrApplyColor(element: Element, color: string): void {
-    if (this.isBlockElement(element)) {
-      (element as HTMLElement).style.setProperty('color', color, 'important');
-      Array.from(element.children).forEach((child) => this.replaceOrApplyColor(child, color));
-      return;
-    }
+  private applyColorToNode(node: Element, color: string): void {
+    const el = node as HTMLElement;
 
-    if (element.children.length === 0) {
-      element.innerHTML = `<span style="color: ${color} !important;">${element.textContent || ''}</span>`;
-      return;
-    }
-
-    Array.from(element.children).forEach((child) => this.replaceOrApplyColor(child, color));
-
-    const inlineColorSpans = element.querySelectorAll('span[style*="color:"]');
-    if (inlineColorSpans.length > 0) {
-      for (const span of Array.from(inlineColorSpans)) {
-        (span as HTMLElement).style.setProperty('color', color, 'important');
+    if (this.isBlockElement(node) || node.tagName === 'SPAN') {
+      const existingStyle = el.getAttribute('style') || '';
+      const styleRegex = /color:\s*[^;]+;?\s*/i;
+      if (styleRegex.test(existingStyle)) {
+        el.setAttribute('style', existingStyle.replace(styleRegex, `color: ${color} !important;`));
+      } else if (existingStyle) {
+        el.setAttribute('style', `${existingStyle}; color: ${color} !important;`);
+      } else {
+        el.setAttribute('style', `color: ${color} !important;`);
       }
-    }
-  }
-
-  private removeWrappingSpansIfNeeded(result: string, original: string): string {
-    const hasOnlyText = !original.trim().startsWith('<');
-    const hasSingleSpan = result.match(/^<span[^>]*>.*<\/span>$/s);
-
-    if (hasOnlyText && hasSingleSpan) {
-      return result;
+    } else {
+      el.innerHTML = `<span style="color: ${color} !important;">${el.innerHTML}</span>`;
     }
 
-    return result.replace(/^<span style="color: [^"]+ !important;">/, '')
-      .replace(/<\/span>$/, '');
+    Array.from(node.children).forEach((child) => this.applyColorToNode(child, color));
   }
 
   private isBlockElement(el: Element): boolean {

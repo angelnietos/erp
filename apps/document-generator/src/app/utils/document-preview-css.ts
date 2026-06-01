@@ -464,16 +464,16 @@ function buildDocumentColorIsolationCss(colors: {
 :where(.document-preview-pane--isolated.markdown-preview) h5:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) h6:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) strong:not([style*='color:']),
-:where(.document-preview-render.markdown-preview) h1,
-:where(.document-preview-render.markdown-preview) h2,
-:where(.document-preview-render.markdown-preview) h3,
-:where(.document-preview-render.markdown-preview) strong,
+:where(.document-preview-render.markdown-preview) h1:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) h2:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) h3:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) strong:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) h1:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) h2:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) h3:not([style*='color:']),
 :where(.pdf-body-content.markdown-preview) strong:not([style*='color:']) {
-  color: ${text};
-}
+   color: ${text};
+ }
 
 :where(.document-preview-pane--isolated.markdown-preview) a:not([style*='color:']),
 :where(.document-preview-pane--isolated.markdown-preview) .doc-callout:not([style*='color:']),
@@ -546,17 +546,17 @@ function buildDocumentColorIsolationCss(colors: {
    border-color: ${border};
  }
 
-:where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(even) td,
-:where(.document-preview-render.markdown-preview) tr:nth-child(even) td,
-:where(.pdf-body-content.markdown-preview) tr:nth-child(even) td {
-  background: ${tableEvenBg};
-}
+:where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(even) td:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) tr:nth-child(even) td:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) tr:nth-child(even) td:not([style*='color:']) {
+   background: ${tableEvenBg};
+ }
 
-:where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(odd) td,
-:where(.document-preview-render.markdown-preview) tr:nth-child(odd) td,
-:where(.pdf-body-content.markdown-preview) tr:nth-child(odd) td {
-  background: ${tableOddBg};
-}
+ :where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(odd) td:not([style*='color:']),
+ :where(.document-preview-render.markdown-preview) tr:nth-child(odd) td:not([style*='color:']),
+ :where(.pdf-body-content.markdown-preview) tr:nth-child(odd) td:not([style*='color:']) {
+   background: ${tableOddBg};
+ }
 
 .document-create-shell .document-preview-pane--isolated.markdown-preview,
 .document-preview-render.markdown-preview {
@@ -885,18 +885,21 @@ function buildDocumentColorIsolationCssForIframe(colors: {
 }
 
 .markdown-preview h1:not([style*='color:']),
-.markdown-preview h2:not([style*='color:']),
-.markdown-preview h3:not([style*='color:']),
-.markdown-preview h4:not([style*='color:']),
-.markdown-preview h5:not([style*='color:']),
-.markdown-preview h6:not([style*='color:']),
-.markdown-preview strong:not([style*='color:']),
-.document-preview-render.markdown-preview h1:not([style*='color:']),
-.document-preview-render.markdown-preview h2:not([style*='color:']),
-.document-preview-render.markdown-preview h3:not([style*='color:']),
-.document-preview-render.markdown-preview strong:not([style*='color:']) {
-   color: ${text} !important;
-}
+ .markdown-preview h2:not([style*='color:']),
+ .markdown-preview h3:not([style*='color:']),
+ .markdown-preview h4:not([style*='color:']),
+ .markdown-preview h5:not([style*='color:']),
+ .markdown-preview h6:not([style*='color:']),
+ .markdown-preview strong:not([style*='color:']),
+ .document-preview-render.markdown-preview h1:not([style*='color:']),
+ .document-preview-render.markdown-preview h2:not([style*='color:']),
+ .document-preview-render.markdown-preview h3:not([style*='color:']),
+ .document-preview-render.markdown-preview h4:not([style*='color:']),
+ .document-preview-render.markdown-preview h5:not([style*='color:']),
+ .document-preview-render.markdown-preview h6:not([style*='color:']),
+ .document-preview-render.markdown-preview strong:not([style*='color:']) {
+    color: ${text} !important;
+  }
 
 .markdown-preview a:not([style*='color:']),
 .markdown-preview .doc-callout:not([style*='color:']),
@@ -955,15 +958,15 @@ function buildDocumentColorIsolationCssForIframe(colors: {
    border-color: ${border};
  }
 
-.markdown-preview tr:nth-child(even) td,
-.document-preview-render.markdown-preview tr:nth-child(even) td {
-  background: ${tableEvenBg};
-}
+.markdown-preview tr:nth-child(even) td:not([style*='color:']),
+ .document-preview-render.markdown-preview tr:nth-child(even) td:not([style*='color:']) {
+   background: ${tableEvenBg};
+ }
 
-.markdown-preview tr:nth-child(odd) td,
-.document-preview-render.markdown-preview tr:nth-child(odd) td {
-  background: ${tableOddBg};
-}
+ .markdown-preview tr:nth-child(odd) td:not([style*='color:']),
+ .document-preview-render.markdown-preview tr:nth-child(odd) td:not([style*='color:']) {
+   background: ${tableOddBg};
+ }
 `;
 }
 
