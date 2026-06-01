@@ -520,18 +520,5 @@ INSTRUCCIONES:
     }
     return t.trim();
   }
-
-  private extractBodyContent(fullHtml: string): string {
-    const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(fullHtml);
-    if (bodyMatch?.[1]) {
-      let content = bodyMatch[1].trim();
-      const wrapperMatch = /<div[^>]*class=(["'])[^"']*document-preview-render[^"']*\1[^>]*>([\s\S]*?)<\/div>/i.exec(content);
-      if (wrapperMatch?.[2]) {
-        return wrapperMatch[2];
-      }
-      return content;
-    }
-    return fullHtml;
-  }
 }
 
