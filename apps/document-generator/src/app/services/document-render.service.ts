@@ -191,6 +191,7 @@ ${bodyHtml}
       }
     } else {
       bodyHtml = assembleDocumentBodyHtml(processedHtml, extras);
+      bodyHtml = `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
       bodyHtml = bodyHtml
         .replace(/height:\s*297mm/gi, '')
         .replace(/min-height:\s*297mm/gi, '')
