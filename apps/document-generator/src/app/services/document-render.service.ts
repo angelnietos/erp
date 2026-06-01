@@ -69,7 +69,7 @@ export class DocumentRenderService {
       if (/<html[\s>]/i.test(html)) {
         html = this.extractBodyContent(html);
       }
-      return html;
+      return enrichDocumentHtmlForStyling(html);
     }
 
     if (contentEditorMode === 'plain') {
@@ -168,7 +168,7 @@ ${bodyHtml}
   </html>`;
   }
 
-  buildHtmlPreviewSrcdoc(
+buildHtmlPreviewSrcdoc(
     contentHtml: string,
     stylesheet: string,
     extras: DocumentExtrasInput,
@@ -184,19 +184,23 @@ ${bodyHtml}
       headContent = headMatch?.[1]?.trim() || '';
 
       const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(processedHtml);
-      bodyHtml = bodyMatch?.[1]?.trim() || processedHtml;
+      const rawBody = bodyMatch?.[1]?.trim() || processedHtml;
 
-      if (!bodyHtml.includes('document-preview-render')) {
+      if (!rawBody.includes('document-preview-render')) {
+        bodyHtml = assembleDocumentBodyHtml(rawBody, extras);
         bodyHtml = `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
+      } else {
+        bodyHtml = rawBody;
       }
     } else {
       bodyHtml = assembleDocumentBodyHtml(processedHtml, extras);
       bodyHtml = `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
-      bodyHtml = bodyHtml
-        .replace(/height:\s*297mm/gi, '')
-        .replace(/min-height:\s*297mm/gi, '')
-        .replace(/\s*;\s*;/g, ';');
     }
+
+    bodyHtml = bodyHtml
+      .replace(/height:\s*297mm/gi, '')
+      .replace(/min-height:\s*297mm/gi, '')
+      .replace(/\s*;\s*;/g, ';');
 
     const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
     const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
