@@ -52,11 +52,12 @@ interface DocumentData {
   documentTextColor?: string;
   documentMutedColor?: string;
   documentAccentColor?: string;
-  documentBorderColor?: string;
-  coverConfig?: Record<string, unknown>;
-  signatureConfig?: Record<string, unknown>;
-  headerFooterConfig?: Record<string, unknown>;
-}
+documentBorderColor?: string;
+   coverConfig?: Record<string, unknown>;
+   signatureConfig?: Record<string, unknown>;
+   headerFooterConfig?: Record<string, unknown>;
+   watermarkConfig?: Record<string, unknown>;
+ }
 
 @Injectable({
   providedIn: 'root',
@@ -584,23 +585,39 @@ export class PdfGenerationService {
         margin: 0 0 16px;
         letter-spacing: -0.03em;
       }
+      .pdf-watermark {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        font-size: 48px;
+        color: #000000;
+        opacity: 0.1;
+        pointer-events: none;
+        user-select: none;
+        z-index: -1;
+        white-space: nowrap;
+        font-weight: 700;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
 ${this.getPdfPaginationCss()}
            ${presetCss}
            ${styleCss}
            ${mergedCss}
-         </style>
-      </head>
-      <body>
-        ${coverHtml}
-        ${headerFooterHtml}
-        <div class="pdf-canvas-root">
-          <div class="pdf-body-content document-preview-render markdown-preview">
-            ${htmlContent}
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+</style>
+       </head>
+       <body>
+         ${coverHtml}
+         ${headerFooterHtml}
+         ${this.buildWatermarkHtml(data)}
+         <div class="pdf-canvas-root">
+           <div class="pdf-body-content document-preview-render markdown-preview">
+             ${htmlContent}
+           </div>
+         </div>
+       </body>
+       </html>
+     `;
 
     return this.htmlToPdfBlob(
       pdfTemplate,
@@ -824,20 +841,48 @@ ${this.getPdfPaginationCss()}
 
     const textAlign = layout === 'left-aligned' ? 'left' : 'center';
 
-    return `
-      <div class="pdf-cover-page" style="${backgroundStyle} height: 100vh; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
-        <div style="text-align: ${textAlign}; max-width: 600px;">
-          ${logoUrl ? `<img src="${logoUrl}" style="max-width: 120px; object-fit: contain; margin-bottom: 24px;" alt="Logo"/>` : ''}
-          <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
-          ${subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${textColor};">${subtitle}</p>` : ''}
-          ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 20px' : '0 0 20px'};"></div>` : ''}
-          <p style="font-size: 0.85rem; opacity: 0.85; color: ${textColor};">
-            ${[showAuthor && author ? author : '', showDate && date ? date : ''].filter(Boolean).join(' · ')}
-          </p>
-        </div>
-      </div>
-    `;
-  }
+return `
+       <div class="pdf-cover-page" style="${backgroundStyle} height: 297mm; min-height: 297mm; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
+         <div style="text-align: ${textAlign}; max-width: 600px; width: 100%;">
+           ${logoUrl ? `<img src="${logoUrl}" style="max-width: 120px; object-fit: contain; margin-bottom: 24px;" alt="Logo"/>` : ''}
+           <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
+           ${subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${textColor};">${subtitle}</p>` : ''}
+           ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 20px' : '0 0 20px'};"></div>` : ''}
+           <p style="font-size: 0.85rem; opacity: 0.85; color: ${textColor};">
+             ${[showAuthor && author ? author : '', showDate && date ? date : ''].filter(Boolean).join(' · ')}
+           </p>
+         </div>
+       </div>
+     `;
+   }
+
+   private buildWatermarkHtml(data: DocumentData): string {
+     const wm = (data as Record<string, unknown>)['watermarkConfig'] as Record<string, unknown> | undefined;
+     if (!wm || wm['enabled'] !== true || !wm['text']) return '';
+
+     const text = String(wm['text'] || '');
+     const opacity = Math.max(0.05, Math.min(0.5, typeof wm['opacity'] === 'number' ? wm['opacity'] : 0.1));
+     const fontSize = typeof wm['fontSize'] === 'number' ? wm['fontSize'] : 48;
+     const rotation = typeof wm['rotation'] === 'number' ? wm['rotation'] : -45;
+     const color = typeof wm['color'] === 'string' ? wm['color'] : '#000000';
+
+     return `
+<div class="pdf-watermark" style="
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(${rotation}deg);
+  font-size: ${fontSize}px;
+  color: ${color};
+  opacity: ${opacity};
+  pointer-events: none;
+  user-select: none;
+  z-index: -1;
+  white-space: nowrap;
+  font-weight: 700;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+">${text}</div>`;
+   }
 
   private applyCorporateCoverVisibility(
     html: string,

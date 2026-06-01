@@ -1331,14 +1331,17 @@ content: this.documentRender.getRenderableContentForPdf(
         customCss: this.documentRender.customCssForDocument(
           this.buildRenderInput(String(formValue.content ?? ''), pdfMode),
         ),
-        coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
-        signatureConfig: this.signatureConfig?.enabled
-          ? this.signatureConfig
-          : undefined,
-        headerFooterConfig: this.headerFooterConfig?.enabled
-          ? this.headerFooterConfig
-          : undefined,
-        ...backgroundSettings,
+coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
+         signatureConfig: this.signatureConfig?.enabled
+           ? this.signatureConfig
+           : undefined,
+         headerFooterConfig: this.headerFooterConfig?.enabled
+           ? this.headerFooterConfig
+           : undefined,
+         watermarkConfig: this.watermarkConfig?.enabled
+           ? this.watermarkConfig
+           : undefined,
+         ...backgroundSettings,
       });
     }
   }
@@ -2459,21 +2462,22 @@ onHeaderFooterConfigChange(config: HeaderFooterConfig): void {
       const client = this.clients.find((c) => c.id === formValue.clientId);
       const backgroundSettings = this.documentBackgroundSettings();
       const documentCss = this.customCssForDocument();
-      const documentData = {
-        ...formValue,
-        client: client?.name || 'Cliente',
-        type: this.selectedType.id,
-        pdfStyleId: this.selectedPdfStyle,
-        quickStylePreset: this.selectedQuickStylePreset,
-        contentEditorMode: this.contentEditorMode,
-        customCss: documentCss,
-        coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
-        signatureConfig: this.signatureConfig?.enabled ? this.signatureConfig : undefined,
-        headerFooterConfig: this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined,
-        ...backgroundSettings,
-        isDraft: true,
-        pdfBytes: [] as number[],
-      };
+const documentData = {
+         ...formValue,
+         client: client?.name || 'Cliente',
+         type: this.selectedType.id,
+         pdfStyleId: this.selectedPdfStyle,
+         quickStylePreset: this.selectedQuickStylePreset,
+         contentEditorMode: this.contentEditorMode,
+         customCss: documentCss,
+         coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
+         signatureConfig: this.signatureConfig?.enabled ? this.signatureConfig : undefined,
+         headerFooterConfig: this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined,
+         watermarkConfig: this.watermarkConfig?.enabled ? this.watermarkConfig : undefined,
+         ...backgroundSettings,
+         isDraft: true,
+         pdfBytes: [] as number[],
+       };
       const id = this.savedDraftId ?? Date.now().toString();
       await this.documentPersistence.save(id, documentData);
       this.savedDraftId = id;
@@ -3157,9 +3161,10 @@ if (format === 'pdf' || format === 'pdf-markdown' || format === 'pdf-html') {
         const client = this.clients.find((c) => c.id === formValue.clientId);
         const backgroundSettings = this.documentBackgroundSettings();
 
-        const coverCfg = this.coverConfig?.enabled ? this.coverConfig : undefined;
+const coverCfg = this.coverConfig?.enabled ? this.coverConfig : undefined;
         const sigCfg = this.signatureConfig?.enabled ? this.signatureConfig : undefined;
         const hfCfg = this.headerFooterConfig?.enabled ? this.headerFooterConfig : undefined;
+        const wmCfg = this.watermarkConfig?.enabled ? this.watermarkConfig : undefined;
 
         const documentData = {
           ...formValue,
@@ -3173,6 +3178,7 @@ if (format === 'pdf' || format === 'pdf-markdown' || format === 'pdf-html') {
           coverConfig: coverCfg,
           signatureConfig: sigCfg,
           headerFooterConfig: hfCfg,
+          watermarkConfig: wmCfg,
           ...backgroundSettings,
         };
 
