@@ -2110,23 +2110,57 @@ ${PDF_COVER_SHARED_CSS}
 
   private colorHtmlSelection(html: string, color: string): string {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    const elements = Array.from(doc.body.children);
+    const wrapper = parser.parseFromString(`<div id="root">${html}</div>`, 'text/html');
+    const root = wrapper.getElementById('root');
 
-    elements.forEach((el) => {
-      if (this.isBlockElement(el)) {
-        (el as HTMLElement).style.setProperty('color', color, 'important');
-      } else {
-        el.innerHTML = `<span style="color: ${color} !important;">${el.innerHTML}</span>`;
+    if (!root) {
+      return `<span style="color: ${color} !important;">${html}</span>`;
+    }
+
+    this.replaceOrApplyColor(root, color);
+
+    let result = root.innerHTML;
+    result = this.removeWrappingSpansIfNeeded(result, html);
+
+    return result;
+  }
+
+  private replaceOrApplyColor(element: Element, color: string): void {
+    if (this.isBlockElement(element)) {
+      (element as HTMLElement).style.setProperty('color', color, 'important');
+      Array.from(element.children).forEach((child) => this.replaceOrApplyColor(child, color));
+      return;
+    }
+
+    if (element.children.length === 0) {
+      element.innerHTML = `<span style="color: ${color} !important;">${element.textContent || ''}</span>`;
+      return;
+    }
+
+    Array.from(element.children).forEach((child) => this.replaceOrApplyColor(child, color));
+
+    const inlineColorSpans = element.querySelectorAll('span[style*="color:"]');
+    if (inlineColorSpans.length > 0) {
+      for (const span of Array.from(inlineColorSpans)) {
+        (span as HTMLElement).style.setProperty('color', color, 'important');
       }
-    });
+    }
+  }
 
-    const result = doc.body.innerHTML;
-    return elements.length > 0 ? result : `<span style="color: ${color} !important;">${html}</span>`;
+  private removeWrappingSpansIfNeeded(result: string, original: string): string {
+    const hasOnlyText = !original.trim().startsWith('<');
+    const hasSingleSpan = result.match(/^<span[^>]*>.*<\/span>$/s);
+
+    if (hasOnlyText && hasSingleSpan) {
+      return result;
+    }
+
+    return result.replace(/^<span style="color: [^"]+ !important;">/, '')
+      .replace(/<\/span>$/, '');
   }
 
   private isBlockElement(el: Element): boolean {
-    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'SECTION'];
+    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'SECTION', 'UL', 'OL'];
     return blockTags.includes(el.tagName.toUpperCase());
   }
 
