@@ -677,7 +677,8 @@ private buildCoverHtml(data: DocumentData): string {
     } else if (bgType === 'gradient' && typeof cover['gradientFrom'] === 'string' && typeof cover['gradientTo'] === 'string') {
       backgroundStyle = `background: linear-gradient(135deg, ${cover['gradientFrom']}, ${cover['gradientTo']});`;
     } else if (bgType === 'image' && typeof cover['backgroundImageUrl'] === 'string') {
-      backgroundStyle = `background: url('${cover['backgroundImageUrl']}') center/cover no-repeat;`;
+      const imageUrl = cover['backgroundImageUrl'].replace(/"/g, '%22').replace(/'/g, '%27');
+      backgroundStyle = `background: url('${imageUrl}') center/cover no-repeat; background-clip: border-box;`;
     }
 
     const textAlign = layout === 'left-aligned' ? 'left' : 'center';

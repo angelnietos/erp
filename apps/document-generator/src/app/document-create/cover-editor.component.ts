@@ -68,10 +68,11 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
 
       .cover-editor-preview {
         aspect-ratio: 210/297;
-        border-radius: 12px;
+        border-radius: 14px;
         overflow: hidden;
         position: relative;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05), 0 18px 45px rgba(15, 23, 42, 0.08);
+        border: 1px solid rgba(15, 23, 42, 0.06);
       }
 
       .cover-layout-centered {
@@ -284,6 +285,7 @@ const DEFAULT_COVER_CONFIG: CoverConfig = {
         <div>
           <h3 class="text-sm font-semibold text-slate-800">Portada del Documento</h3>
           <p class="text-xs text-slate-500 mt-0.5">Personaliza la primera página de tu PDF</p>
+          <p class="text-xs text-slate-400 mt-1">La portada usa su propio fondo y no se verá afectada por el color de papel del documento.</p>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-xs text-slate-500">Activar</span>
