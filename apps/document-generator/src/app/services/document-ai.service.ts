@@ -169,7 +169,7 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }
 
-  async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
+async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
     const html = (ctx.existingContent ?? '').trim();
     const prompt = [
       `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
@@ -179,11 +179,11 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
         ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
         : '',
       'Embellece este HTML de documento empresarial manteniendo el formato HTML actual.',
-      'Devuelve SOLO HTML final mejorado, sin explicaciones ni contenido adicional.',
+      'Devuelve SOLO el contenido HTML mejorado (sin etiquetas <html>, <head>, <body> wrapper - solo el body inner content).',
       'Requisitos:',
       '- Conserva todo el contenido y placeholders existentes.',
       '- Mejora la apariencia, claridad, estructura y el marcado semántico.',
-      '- Mantén el documento autocontenido y válido.',
+      '- No incluyas DOCTYPE ni estructura de documento completa.',
       '- Usa clases útiles: .hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer, .doc-block.',
       '- Puedes aplicar estilos inspirados en Nintendo Switch (neón, rojo coral #ff3131, granate #7a0000), Ubisoft (premium, elegante), Tokyostar (minimalista, japonés), GameOver (gaming, oscuro, acentos neón).',
       '- Aplica colores inline (#RRGGBB) para texto y fondos coherentes.',
@@ -198,8 +198,8 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
       .join('\n');
 
     const system = `Eres un diseñador/redactor experto en documentos HTML.
-Tu objetivo es devolver únicamente el HTML mejorado, sin explicaciones ni contenido adicional.
-Puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.`;
+ Tu objetivo es devolver únicamente el contenido HTML mejorado (solo el body inner content, sin etiquetas <html>, <head>, <body> wrapper ni DOCTYPE).
+ Puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.`;
 
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }

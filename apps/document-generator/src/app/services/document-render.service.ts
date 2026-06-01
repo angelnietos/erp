@@ -65,7 +65,11 @@ export class DocumentRenderService {
     const { content, contentEditorMode } = input;
 
     if (contentEditorMode === 'html') {
-      return this.stripWrappingHtmlFence(content);
+      let html = this.stripWrappingHtmlFence(content);
+      if (/<html[\s>]/i.test(html)) {
+        html = this.extractBodyContent(html);
+      }
+      return html;
     }
 
     if (contentEditorMode === 'plain') {
@@ -169,30 +173,45 @@ ${bodyHtml}
     stylesheet: string,
     extras: DocumentExtrasInput,
   ): string {
-    let bodyHtml = assembleDocumentBodyHtml(contentHtml, extras);
+    let processedHtml = this.stripWrappingHtmlFence(contentHtml);
+    const isFullDocument = /<html[\s>]/i.test(processedHtml);
 
-    bodyHtml = bodyHtml
-      .replace(/height:\s*297mm/gi, '')
-      .replace(/min-height:\s*297mm/gi, '')
-      .replace(/\s*;\s*;/g, ';');
+    let bodyHtml: string;
+    let headContent = '';
+
+    if (isFullDocument) {
+      const headMatch = /<head[^>]*>([\s\S]*?)<\/head>/i.exec(processedHtml);
+      headContent = headMatch?.[1]?.trim() || '';
+
+      const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(processedHtml);
+      bodyHtml = bodyMatch?.[1]?.trim() || processedHtml;
+
+      if (!bodyHtml.includes('document-preview-render')) {
+        bodyHtml = `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
+      }
+    } else {
+      bodyHtml = assembleDocumentBodyHtml(processedHtml, extras);
+      bodyHtml = bodyHtml
+        .replace(/height:\s*297mm/gi, '')
+        .replace(/min-height:\s*297mm/gi, '')
+        .replace(/\s*;\s*;/g, ';');
+    }
 
     const adaptedStylesheet = this.adaptMarkdownScopedCssForHtml(String(stylesheet || ''));
     const styleTag = `<style id="document-generator-custom-css">\n${stylesheet}\n\n/* Adapted for srcdoc (scoped -> iframe) */\n${adaptedStylesheet}\n${this.previewCoverOverrideCss()}\n</style>`;
 
-    if (/<\/head>/i.test(contentHtml)) {
-      const wrappedBodyHtml = bodyHtml.includes('document-preview-render')
-        ? bodyHtml
-        : `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
-      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`).replace(/<body[^>]*>/i, `<body>\n${wrappedBodyHtml}`);
-    }
-    if (/<html[\s>]/i.test(contentHtml)) {
-      const wrappedBodyHtml = bodyHtml.includes('document-preview-render')
-        ? bodyHtml
-        : `<div class="document-preview-render markdown-preview">${bodyHtml}</div>`;
-      return contentHtml.replace(
-        /<html([^>]*)>/i,
-        `<html$1><head>${styleTag}</head><body>${wrappedBodyHtml}</body>`,
-      );
+    if (isFullDocument) {
+      return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  ${styleTag}
+  ${headContent}
+</head>
+<body>
+  ${bodyHtml}
+</body>
+</html>`;
     }
 
     return `<!doctype html>
@@ -202,7 +221,7 @@ ${bodyHtml}
   ${styleTag}
 </head>
 <body>
-  <div class="document-preview-render markdown-preview">${bodyHtml}</div>
+  ${bodyHtml}
 </body>
 </html>`;
   }
@@ -213,7 +232,10 @@ ${bodyHtml}
     coverConfig: { enabled?: boolean } | undefined,
   ): string {
     if (mode === 'html') {
-      return this.stripWrappingHtmlFence(content);
+      const stripped = this.stripWrappingHtmlFence(content);
+      return /<html[\s>]/i.test(stripped)
+        ? this.extractBodyContent(stripped)
+        : stripped;
     }
     if (mode === 'plain') {
       return this.applyCorporateCoverVisibility(
@@ -281,6 +303,19 @@ ${bodyHtml}
     const trimmed = content.trim();
     const match = /^```(?:html)?\s*([\s\S]*?)\s*```$/i.exec(trimmed);
     return match ? match[1].trim() : content;
+  }
+
+  private extractBodyContent(fullHtml: string): string {
+    const bodyMatch = /<body[^>]*>([\s\S]*?)<\/body>/i.exec(fullHtml);
+    if (bodyMatch?.[1]) {
+      let content = bodyMatch[1].trim();
+      const wrapperMatch = /<div[^>]*class=(["'])[^"']*document-preview-render[^"']*\1[^>]*>([\s\S]*?)<\/div>/i.exec(content);
+      if (wrapperMatch?.[2]) {
+        return wrapperMatch[2];
+      }
+      return content;
+    }
+    return fullHtml;
   }
 
   private plainTextToHtml(content: string): string {
