@@ -46,7 +46,7 @@ import {
   resolvePdfGenerationCss,
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
-import { exportCoverConfigToHtml, exportWatermarkConfigToHtml } from '../utils/document-export-html';
+import { exportCoverConfigToHtml, PDF_COVER_SHARED_CSS, exportWatermarkConfigToHtml } from '../utils/document-export-html';
 import { CoverEditorComponent, type CoverConfig } from './cover-editor.component';
 import { SignatureEditorComponent, type SignatureConfig } from './signature-editor.component';
 import { HeaderFooterEditorComponent, type HeaderFooterConfig } from './header-footer-editor.component';
@@ -1486,16 +1486,19 @@ private wrapLooseHtmlCss(css: string): string {
    }
 
 private buildHtmlPreviewSrcdoc(html: string): string {
-      // Use the same CSS as PDF export for consistency
-      const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
-      let contentHtml = html;
+    // Use the same CSS as PDF export for consistency
+    const css = resolvePdfGenerationCss(this.pdfExportCustomCss(), this.documentBackgroundSettings());
+    let contentHtml = html;
 
-      // For preview, remove fixed height styles from cover to make it responsive
-      const previewCoverCss = `
-body .pdf-cover,
+    // For preview, remove fixed height styles from cover to make it responsive
+    const previewCoverCss = `
+/* Cover styles (shared with PDF) */
+${PDF_COVER_SHARED_CSS}
+
+/* Responsive preview overrides */
 .pdf-cover,
-body .pdf-cover-page,
-.pdf-cover-page {
+.pdf-cover-page,
+.cover {
   width: 100% !important;
   max-width: 100% !important;
   height: auto !important;
@@ -1503,70 +1506,110 @@ body .pdf-cover-page,
   aspect-ratio: 210/297 !important;
   padding: 32px !important;
   border-radius: 24px !important;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.16) !important;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12) !important;
   overflow: hidden !important;
 }
-.pdf-cover .cover-container,
-.pdf-cover-page .cover-container {
+
+.cover-container {
   width: 100% !important;
-  max-width: 100% !important;
 }
-.pdf-cover .cover-header,
-.pdf-cover-page .cover-header {
-  width: 100%;
-}
-.pdf-cover .cover-title,
-.pdf-cover-page .cover-title,
-.pdf-cover .cover-subtitle,
-.pdf-cover-page .cover-subtitle {
+
+.cover-title,
+.cover-subtitle {
   max-width: 100% !important;
   overflow-wrap: break-word !important;
   word-break: break-word !important;
   white-space: normal !important;
 }
-`;
-      if (this.coverConfig?.enabled) {
-        let coverHtml = this.coverEditor
-          ? this.coverEditor.exportToHtml()
-          : this.exportCoverConfigToHtml(this.coverConfig);
-        // Remove inline height/min-height styles for responsive preview
-        coverHtml = coverHtml
-          .replace(/height:\s*297mm/gi, '')
-          .replace(/min-height:\s*297mm/gi, '')
-          .replace(/height:\s*100vh/gi, '')
-          .replace(/\s*;\s*;/g, ';');
-        contentHtml = coverHtml + '\n' + contentHtml;
-      }
-      if (this.headerFooterConfig?.enabled) {
-        const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
-        const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
-        contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
-      }
-      if (this.signatureConfig?.enabled) {
-        const signatureHtml = this.signatureEditor
-          ? this.signatureEditor.exportToHtml()
-          : this.exportSignatureConfigToHtml(this.signatureConfig);
-        contentHtml = contentHtml + '\n' + signatureHtml;
-      }
 
-      const styleTag = `<style id="document-generator-custom-css">\n${css}\n${previewCoverCss}\n</style>`;
-      if (/<\/head>/i.test(contentHtml)) {
-        return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
-      }
-      if (/<html[\s>]/i.test(contentHtml)) {
-        return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
-      }
-      return `<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  ${styleTag}
-</head>
-<body>
-${contentHtml}
-</body>
-</html>`;
+/* Watermark overlay for iframe preview */
+.pdf-watermark {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) rotate(-45deg) !important;
+  font-size: 48px !important;
+  color: #000000 !important;
+  opacity: 0.1 !important;
+  pointer-events: none !important;
+  user-select: none !important;
+  z-index: -1 !important;
+  white-space: nowrap !important;
+  font-weight: 700 !important;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif !important;
+}
+
+/* Content spacing - compact but professional */
+.document-preview-render .pdf-body-content p {
+  margin: 0.45rem 0 !important;
+  line-height: 1.68 !important;
+}
+
+.document-preview-render .pdf-body-content ul,
+.document-preview-render .pdf-body-content ol {
+  margin: 0.55rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content li {
+  margin: 0.25rem 0 !important;
+}
+
+/* Headers with tight spacing */
+.document-preview-render .pdf-body-content h1 {
+  margin: 1.25rem 0 0.5rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content h2 {
+  margin: 0.85rem 0 0.4rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content h3 {
+  margin: 0.7rem 0 0.35rem 0 !important;
+}
+
+/* Avoid page breaks before lists */
+.document-preview-render .pdf-body-content h1 + ul,
+.document-preview-render .pdf-body-content h2 + ul,
+.document-preview-render .pdf-body-content h3 + ul,
+.document-preview-render .pdf-body-content h1 + ol,
+.document-preview-render .pdf-body-content h2 + ol,
+.document-preview-render .pdf-body-content h3 + ol {
+  margin-top: 0.25rem !important;
+}
+`;
+    if (this.coverConfig?.enabled) {
+      let coverHtml = this.coverEditor
+        ? this.coverEditor.exportToHtml()
+        : this.exportCoverConfigToHtml(this.coverConfig);
+      // Remove inline height/min-height styles for responsive preview
+      coverHtml = coverHtml
+        .replace(/height:\s*297mm/gi, '')
+        .replace(/min-height:\s*297mm/gi, '')
+        .replace(/height:\s*100vh/gi, '')
+        .replace(/\s*;\s*;/g, ';');
+      contentHtml = coverHtml + '\n' + contentHtml;
     }
+    if (this.headerFooterConfig?.enabled) {
+      const headerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'header');
+      const footerHtml = this.exportHeaderFooterConfigToHtml(this.headerFooterConfig, 'footer');
+      contentHtml = headerHtml + '\n' + contentHtml + '\n' + footerHtml;
+    }
+    if (this.signatureConfig?.enabled) {
+      const signatureHtml = this.signatureEditor
+        ? this.signatureEditor.exportToHtml()
+        : this.exportSignatureConfigToHtml(this.signatureConfig);
+      contentHtml = contentHtml + '\n' + signatureHtml;
+    }
+
+    const styleTag = `<style id="document-generator-custom-css">\n${css}\n${previewCoverCss}\n</style>`;
+    if (/<\/head>/i.test(contentHtml)) {
+      return contentHtml.replace(/<\/head>/i, `${styleTag}\n</head>`);
+    }
+    if (/<html[\s>]/i.test(contentHtml)) {
+      return contentHtml.replace(/<html([^>]*)>/i, `<html$1><head>${styleTag}</head>`);
+    }
+    return `<!doctype html>\n<html lang="es">\n<head>\n  <meta charset="utf-8">\n  ${styleTag}\n</head>\n<body>\n${contentHtml}\n</body>\n</html>`;
+  }
 
   private exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
     return exportCoverConfigToHtml(c);

@@ -11,8 +11,9 @@ import {
   scopeCssToMarkdownPreview,
 } from '../utils/document-preview-css';
 import {
-  assembleDocumentBodyHtml,
-  type DocumentExtrasInput,
+   assembleDocumentBodyHtml,
+   type DocumentExtrasInput,
+   PDF_COVER_SHARED_CSS,
 } from '../utils/document-export-html';
 import {
   removeManagedStylePreset,
@@ -136,7 +137,7 @@ export class DocumentRenderService {
       .join('\n\n');
   }
 
-  buildFullExportHtml(
+buildFullExportHtml(
     title: string,
     bodyHtml: string,
     stylesheet: string,
@@ -150,17 +151,17 @@ export class DocumentRenderService {
   <title>${safeTitle}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style id="document-generator-export-css">
 ${stylesheet}
   </style>
-</head>
-<body>
-  <main class="pdf-body-content markdown-preview">
+  </head>
+  <body>
+    <main class="pdf-body-content markdown-preview">
 ${bodyHtml}
-  </main>
-</body>
-</html>`;
+    </main>
+  </body>
+  </html>`;
   }
 
   buildHtmlPreviewSrcdoc(
@@ -334,12 +335,14 @@ ${bodyHtml}
       .replace(/'/g, '&#39;');
   }
 
-  private previewCoverOverrideCss(): string {
-    return `
+private previewCoverOverrideCss(): string {
+    return (`
+/* Cover styles (shared with PDF) */
+${PDF_COVER_SHARED_CSS}
+
+/* Responsive preview overrides */
 .document-preview-render .pdf-cover,
 .document-preview-render .pdf-cover-page,
-body .pdf-cover,
-body .pdf-cover-page,
 .pdf-cover,
 .pdf-cover-page {
   width: 100% !important;
@@ -347,6 +350,25 @@ body .pdf-cover-page,
   height: auto !important;
   min-height: auto !important;
   aspect-ratio: 210/297 !important;
+  padding: 32px !important;
+  border-radius: 24px !important;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12) !important;
+  overflow: hidden !important;
+}
+
+.pdf-cover .cover-container,
+.pdf-cover-page .cover-container {
+  width: 100% !important;
+}
+
+.pdf-cover .cover-title,
+.pdf-cover-page .cover-title,
+.pdf-cover .cover-subtitle,
+.pdf-cover-page .cover-subtitle {
+  max-width: 100% !important;
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  white-space: normal !important;
 }
 
 /* Watermark overlay for iframe preview */
@@ -365,6 +387,44 @@ body .pdf-cover-page,
   font-weight: 700 !important;
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif !important;
 }
-`;
+
+/* Content spacing - compact but professional (matches PDF) */
+.document-preview-render .pdf-body-content p {
+  margin: 0.45rem 0 !important;
+  line-height: 1.68 !important;
+}
+
+.document-preview-render .pdf-body-content ul,
+.document-preview-render .pdf-body-content ol {
+  margin: 0.55rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content li {
+  margin: 0.25rem 0 !important;
+}
+
+/* Headers with tight spacing matching PDF */
+.document-preview-render .pdf-body-content h1 {
+  margin: 1.25rem 0 0.5rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content h2 {
+  margin: 0.85rem 0 0.4rem 0 !important;
+}
+
+.document-preview-render .pdf-body-content h3 {
+  margin: 0.7rem 0 0.35rem 0 !important;
+}
+
+/* Avoid page breaks before lists */
+.document-preview-render .pdf-body-content h1 + ul,
+.document-preview-render .pdf-body-content h2 + ul,
+.document-preview-render .pdf-body-content h3 + ul,
+.document-preview-render .pdf-body-content h1 + ol,
+.document-preview-render .pdf-body-content h2 + ol,
+.document-preview-render .pdf-body-content h3 + ol {
+  margin-top: 0.25rem !important;
+}
+`);
   }
 }

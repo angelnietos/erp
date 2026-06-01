@@ -4,8 +4,111 @@ import type { HeaderFooterConfig } from '../document-create/header-footer-editor
 import type { WatermarkConfig } from '../document-create/watermark-dialog.component';
 
 /** Altura A4 real para portada (evita 100vh en html2canvas/Chromium). */
-export const PDF_COVER_A4_STYLE =
-  'width: 210mm; height: 297mm; min-height: 297mm; box-sizing: border-box; page-break-after: always;';
+export const PDF_COVER_A4_STYLE = 'width: 210mm; height: 297mm; min-height: 297mm; box-sizing: border-box; page-break-after: always; break-after: page;';
+
+/** CSS compartido para portada (idéntico en preview y PDF) */
+export const PDF_COVER_SHARED_CSS = `
+.pdf-cover,
+.pdf-cover-page {
+  position: relative;
+  overflow: hidden;
+  width: 210mm;
+  height: 297mm;
+  min-height: 297mm;
+  page-break-after: always;
+  break-after: page;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.pdf-cover::before,
+.pdf-cover-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15), transparent 20%),
+    radial-gradient(circle at 80% 40%, rgba(255,255,255,0.12), transparent 25%);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pdf-cover .cover-container,
+.pdf-cover-page .cover-container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+  max-width: 660px;
+}
+
+.pdf-cover .cover-header,
+.pdf-cover-page .cover-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.pdf-cover .cover-title,
+.pdf-cover-page .cover-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1.08;
+  margin: 0;
+  letter-spacing: -0.03em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.pdf-cover .cover-subtitle,
+.pdf-cover-page .cover-subtitle {
+  font-size: 1.1rem;
+  margin: 0;
+  opacity: 0.92;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  max-width: 100%;
+}
+
+.pdf-cover .cover-divider,
+.pdf-cover-page .cover-divider {
+  width: 80px;
+  height: 3px;
+  background: currentColor;
+  opacity: 0.4;
+  border-radius: 999px;
+  margin: 1rem auto;
+}
+
+.pdf-cover .cover-meta,
+.pdf-cover-page .cover-meta {
+  font-size: 0.875rem;
+  opacity: 0.88;
+  margin-top: 0.5rem;
+}
+
+.pdf-cover .cover-meta-item:not(:last-child)::after {
+  content: ' · ';
+  opacity: 0.6;
+}
+
+.pdf-cover .cover-logo,
+.pdf-cover-page .cover-logo {
+  max-width: 120px;
+  max-height: 60px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+}
+`;
 
 export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
   if (!c?.enabled) return '';
@@ -20,28 +123,29 @@ export function exportCoverConfigToHtml(c: Partial<CoverConfig>): string {
   }
 
   const textAlign = c.layout === 'left-aligned' ? 'left' : 'center';
-  const titleFontSize = c.htmlTitleFontSize ?? c.titleFontSize ?? '2.25rem';
-  const subtitleFontSize = c.htmlSubtitleFontSize ?? c.subtitleFontSize ?? '1rem';
+  const titleFontSize = c.htmlTitleFontSize ?? c.titleFontSize ?? '2.5rem';
+  const subtitleFontSize = c.htmlSubtitleFontSize ?? c.subtitleFontSize ?? '1.1rem';
   const metadataItems = [
     c.showAuthor && c.author ? { label: 'Autor', value: c.author } : null,
     c.showDate && c.date ? { label: 'Fecha', value: c.date } : null,
   ].filter((item): item is { label: string; value: string } => Boolean(item));
 
+  // Usamos el mismo markup que en PDF (cover-container + cover-header)
   return `
-<div class="pdf-cover pdf-cover-page" style="${PDF_COVER_A4_STYLE} ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 40px; -webkit-print-color-adjust: exact; print-color-adjust: exact;">
-  <div class="cover-container" style="text-align: ${textAlign}; width: 100%; max-width: 760px;">
-    ${c.logoUrl ? `<div style="display: flex; justify-content: ${textAlign}; margin-bottom: 26px;"><img src="${c.logoUrl}" style="max-width: 140px; height: auto;" alt="Logo"/></div>` : ''}
+<div class="pdf-cover pdf-cover-page" style="${PDF_COVER_A4_STYLE} ${backgroundStyle} color: ${c.textColor}; display: flex; align-items: center; justify-content: center; padding: 32px;">
+  <div class="cover-container" style="text-align: ${textAlign}; width: 100%; max-width: 660px;">
     <div class="cover-header">
-      <h1 class="cover-title" style="color: ${c.textColor}; font-size: ${titleFontSize}; overflow-wrap: break-word; word-break: break-word; white-space: normal;">${c.title || 'Título del documento'}</h1>
-      ${c.subtitle ? `<p class="cover-subtitle" style="color: ${c.textColor}; font-size: ${subtitleFontSize}; overflow-wrap: break-word; word-break: break-word; white-space: normal;">${c.subtitle}</p>` : ''}
+      ${c.logoUrl ? `<img src="${c.logoUrl}" class="cover-logo" style="max-width: 120px; max-height: 60px; object-fit: contain; margin-bottom: 0.75rem;" alt="Logo"/>` : ''}
+      <h1 class="cover-title" style="color: ${c.textColor}; font-size: ${titleFontSize}; word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 100%;">${c.title || 'Título del documento'}</h1>
+      ${c.subtitle ? `<p class="cover-subtitle" style="color: ${c.textColor}; font-size: ${subtitleFontSize}; word-break: break-word; overflow-wrap: break-word; white-space: normal; max-width: 100%;">${c.subtitle}</p>` : ''}
     </div>
-    ${c.showDivider ? `<div style="width: 96px; height: 4px; background: ${c.textColor}; opacity: 0.65; border-radius: 999px; margin: 28px auto 0;"></div>` : ''}
+    ${c.showDivider ? `<div class="cover-divider" style="background: ${c.textColor};"></div>` : ''}
     ${metadataItems.length
-      ? `<div class="cover-meta">
+      ? `<div class="cover-meta" style="color: ${c.textColor}; font-size: 0.875rem; opacity: 0.88;">
           ${metadataItems
             .map(
               (item) =>
-                `<div class="cover-meta-item"><strong>${item.label}</strong><span>${item.value}</span></div>`,
+                `<span class="cover-meta-item"><span>${item.label}:</span> ${item.value}</span>`,
             )
             .join('')}
         </div>`

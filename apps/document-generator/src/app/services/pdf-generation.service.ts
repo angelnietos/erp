@@ -1,12 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { escapeHtml } from '../utils/html-escape';
 import {
-  enrichDocumentHtmlForStyling,
-  getHtml2CanvasBackground,
-  readPdfBackgroundSettings,
-  resolvePdfGenerationCss,
-  type PdfBackgroundSettings,
-} from '../utils/document-preview-css';
+   enrichDocumentHtmlForStyling,
+   getHtml2CanvasBackground,
+   readPdfBackgroundSettings,
+   resolvePdfGenerationCss,
+   type PdfBackgroundSettings,
+ } from '../utils/document-preview-css';
+import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base.css';
 import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
@@ -429,195 +430,35 @@ export class PdfGenerationService {
     const headerFooterCss = this.buildHeaderFooterCss(data);
     const coverHtml = this.buildCoverHtml(data);
 
-    const pdfTemplate = `
+const pdfTemplate = `
       <!DOCTYPE html>
       <html>
       <head>
         <meta charset="UTF-8">
         <title>${title}</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
         <style>
-          :root {
-            --markdown-font-size: 1.05rem;
-            --markdown-line-height: 1.72;
-            --markdown-color: #1f2937;
-            --brand-primary: #7a0000;
-            --brand-accent: #ff3131;
-            --bg: #ffffff;
-            --text: #1f2937;
-            --text-soft: #475569;
-            --border: #e2e8f0;
-            --code-bg: #0f172a;
-            --code-text: #f8fafc;
-            --bg-soft: #f8f9fb;
-          }
-          ${headerFooterCss}
-          * {
-            box-sizing: border-box;
-            /* Fuerza a html2canvas a capturar fondos de color (tablas, blockquotes, etc.) */
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-          }
-          html {
-            counter-reset: page ${pageResetValue};
-          }
-          body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-            font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-            line-height: 1.68;
-            color: #0f172a;
-            font-size: 11.5pt;
-            letter-spacing: 0.01em;
-          }
-          .pdf-page {
-            position: relative;
-          }
-          h1 {
-            font-size: 20pt;
-            font-weight: 800;
-            margin: 1.25rem 0 0.65rem 0;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e2e8f0;
-            color: #0f172a;
-            letter-spacing: -0.02em;
-          }
-          h2 {
-            font-size: 18pt;
-            font-weight: 700;
-            margin: 1rem 0 0.5rem 0;
-            color: #1e293b;
-          }
-          h3 {
-            font-size: 15pt;
-            font-weight: 600;
-            margin: 0.85rem 0 0.45rem 0;
-            color: #334155;
-          }
-          h4 {
-            font-size: 14pt;
-            font-weight: 600;
-            margin: 0.65rem 0 0.35rem 0;
-            color: #475569;
-          }
-          p {
-            margin: 0.5rem 0;
-            line-height: 1.65;
-            text-align: justify;
-            orphans: 3;
-            widows: 3;
-          }
-          ul, ol { margin: 0.75rem 0; padding-left: 1.5rem; }
-          li { margin: 0.375rem 0; }
-          blockquote {
-            margin: 0.65rem 0;
-            padding: 0.65rem 1rem;
-            border-left: 4px solid #3b82f6;
-            background-color: #eff6ff;
-            border-radius: 0 0.5rem 0.5rem 0;
-            color: #1e40af;
-            page-break-inside: auto;
-          }
-          code {
-            background-color: #f1f5f9;
-            padding: 0.125rem 0.375rem;
-            border-radius: 0.25rem;
-            font-family: Consolas, 'JetBrains Mono', monospace;
-            font-size: 11pt;
-            color: #dc2626;
-          }
-          pre {
-            margin: 1rem 0;
-            padding: 1rem;
-            background-color: #0f172a;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            page-break-inside: avoid;
-          }
-          pre code { background-color: transparent; color: #e2e8f0; padding: 0; }
-          strong, b { font-weight: 700; }
-          em, i { font-style: italic; }
-          u { text-decoration: underline; }
-          s, strike { text-decoration: line-through; }
-          hr { margin: 1.5rem 0; border: none; border-top: 1px solid #e2e8f0; }
-          a { color: #2563eb; text-decoration: underline; }
-          a:hover { color: #1d4ed8; }
-          /* ── Estilos base de tabla (fallback sin preset ni CSS de usuario) ── */
-          table { width: 100%; border-collapse: collapse; margin: 0.65rem 0; page-break-inside: auto; }
-          thead { display: table-header-group; }
-          tr { page-break-inside: avoid; page-break-after: auto; }
-          th {
-            /* Color sólido: los gradientes fallan con html2canvas */
-            background-color: #e8eef5;
-            font-weight: 700;
-            color: #1e293b;
-            padding: 0.6rem 0.75rem;
-            text-align: left;
-            border: 1px solid #cbd5e1;
-          }
-          td {
-            padding: 0.6rem 0.75rem;
-            border: 1px solid #e2e8f0;
-            background-color: #ffffff;
-            vertical-align: top;
-          }
-          tr:nth-child(even) td { background-color: #f8fafc; }
-          /* ── Scoped al contenedor PDF (especificidad mayor: gana al base pero cede al preset/usuario) ── */
-          .pdf-body-content th { background-color: #e8eef5; color: #1e293b; }
-          .pdf-body-content td { background-color: #ffffff; vertical-align: top; }
-          .pdf-body-content tr:nth-child(even) td { background-color: #f8fafc; }
-          img { max-width: 100%; height: auto; page-break-inside: avoid; }
-
-          .pdf-cover, .pdf-cover-page {
-        page-break-after: always;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 60px;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      .pdf-cover h1, .pdf-cover-page h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin: 0 0 16px;
-        letter-spacing: -0.03em;
-      }
-      .pdf-watermark {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        font-size: 48px;
-        color: #000000;
-        opacity: 0.1;
-        pointer-events: none;
-        user-select: none;
-        z-index: -1;
-        white-space: nowrap;
-        font-weight: 700;
-        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-      }
-${this.getPdfPaginationCss()}
-           ${presetCss}
-           ${styleCss}
-           ${mergedCss}
-</style>
-       </head>
-       <body>
-         ${coverHtml}
-         ${headerFooterHtml}
-         ${this.buildWatermarkHtml(data)}
-         <div class="pdf-canvas-root">
-           <div class="pdf-body-content document-preview-render markdown-preview">
-             ${htmlContent}
-           </div>
-         </div>
-       </body>
-       </html>
-     `;
+          ${PDF_EXPORT_BASE_CSS}
+          ${this.getPdfPaginationCss()}
+          ${presetCss}
+          ${styleCss}
+          ${mergedCss}
+        </style>
+      </head>
+      <body>
+        ${coverHtml}
+        ${headerFooterHtml}
+        ${this.buildWatermarkHtml(data)}
+        <div class="pdf-canvas-root">
+          <div class="pdf-body-content markdown-preview">
+            ${htmlContent}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
 
     return this.htmlToPdfBlob(
       pdfTemplate,
@@ -814,7 +655,7 @@ ${this.getPdfPaginationCss()}
     return presets[preset] ?? '';
   }
 
-  private buildCoverHtml(data: DocumentData): string {
+private buildCoverHtml(data: DocumentData): string {
     const cover = (data as Record<string, unknown>)['coverConfig'] as Record<string, unknown> | undefined;
     if (!cover || cover['enabled'] !== true) return '';
 
@@ -828,6 +669,8 @@ ${this.getPdfPaginationCss()}
     const showDate = cover['showDate'] !== false;
     const showAuthor = cover['showAuthor'] !== false;
     const layout = typeof cover['layout'] === 'string' ? cover['layout'] : 'centered';
+    const titleFontSize = typeof cover['htmlTitleFontSize'] === 'string' ? cover['htmlTitleFontSize'] : '2.5rem';
+    const subtitleFontSize = typeof cover['htmlSubtitleFontSize'] === 'string' ? cover['htmlSubtitleFontSize'] : '1.1rem';
 
     let backgroundStyle = 'background: linear-gradient(135deg, #420000 0%, #7a0000 100%);';
     const bgType = typeof cover['backgroundType'] === 'string' ? cover['backgroundType'] : 'gradient';
@@ -840,21 +683,25 @@ ${this.getPdfPaginationCss()}
     }
 
     const textAlign = layout === 'left-aligned' ? 'left' : 'center';
+    const metadataParts = [
+      showAuthor && author ? `<span class="cover-meta-item">Autor: ${author}</span>` : '',
+      showDate && date ? `<span class="cover-meta-item">Fecha: ${date}</span>` : '',
+    ].filter(Boolean).join(showAuthor && showDate ? ' · ' : '');
 
-return `
-       <div class="pdf-cover-page" style="${backgroundStyle} height: 297mm; min-height: 297mm; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 40px;">
-         <div style="text-align: ${textAlign}; max-width: 600px; width: 100%;">
-           ${logoUrl ? `<img src="${logoUrl}" style="max-width: 120px; object-fit: contain; margin-bottom: 24px;" alt="Logo"/>` : ''}
-           <h1 style="font-size: 2.25rem; font-weight: 800; margin: 0 0 16px; color: ${textColor};">${title}</h1>
-           ${subtitle ? `<p style="font-size: 1rem; opacity: 0.9; margin: 0 0 20px; color: ${textColor};">${subtitle}</p>` : ''}
-           ${showDivider ? `<div style="width: 80px; height: 4px; background: ${textColor}; opacity: 0.5; border-radius: 4px; margin: ${textAlign === 'center' ? '0 auto 20px' : '0 0 20px'};"></div>` : ''}
-           <p style="font-size: 0.85rem; opacity: 0.85; color: ${textColor};">
-             ${[showAuthor && author ? author : '', showDate && date ? date : ''].filter(Boolean).join(' · ')}
-           </p>
-         </div>
-       </div>
-     `;
-   }
+    return `
+      <div class="pdf-cover-page" style="${backgroundStyle} height: 297mm; min-height: 297mm; color: ${textColor}; display: flex; align-items: center; justify-content: center; padding: 32px;">
+        <div class="cover-container" style="text-align: ${textAlign}; width: 100%; max-width: 660px;">
+          <div class="cover-header">
+            ${logoUrl ? `<img src="${logoUrl}" class="cover-logo" style="max-width: 120px; object-fit: contain; margin-bottom: 0.75rem;" alt="Logo"/>` : ''}
+            <h1 style="font-size: ${titleFontSize}; font-weight: 800; margin: 0 0 1rem; letter-spacing: -0.03em; color: ${textColor}; word-break: break-word; max-width: 100%;">${title}</h1>
+            ${subtitle ? `<p style="font-size: ${subtitleFontSize}; margin: 0; opacity: 0.92; color: ${textColor}; word-break: break-word; max-width: 100%;">${subtitle}</p>` : ''}
+          </div>
+          ${showDivider ? `<div style="width: 80px; height: 3px; background: ${textColor}; opacity: 0.4; border-radius: 999px; margin: 1rem auto;"></div>` : ''}
+          ${metadataParts ? `<div style="font-size: 0.875rem; opacity: 0.88; margin-top: 0.5rem; color: ${textColor};">${metadataParts}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }
 
    private buildWatermarkHtml(data: DocumentData): string {
      const wm = (data as Record<string, unknown>)['watermarkConfig'] as Record<string, unknown> | undefined;
