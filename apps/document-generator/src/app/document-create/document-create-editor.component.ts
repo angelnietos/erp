@@ -1947,10 +1947,12 @@ ${PDF_COVER_SHARED_CSS}
     }
 
     const safeColor = this.sanitizeTextColor(color ?? this.selectedTextColor);
-    const coloredText =
-      this.contentEditorMode === 'html'
-        ? this.colorSpan(selectedText, safeColor)
-        : this.applyColorToMarkdownSelection(selectedText, safeColor);
+    let coloredText: string;
+    if (this.contentEditorMode === 'html') {
+      coloredText = this.colorHtmlSelection(selectedText, safeColor);
+    } else {
+      coloredText = this.applyColorToMarkdownSelection(selectedText, safeColor);
+    }
 
     const newContent =
       content.substring(0, start) +
@@ -2104,6 +2106,28 @@ ${PDF_COVER_SHARED_CSS}
 
   private colorSpan(value: string, color: string): string {
     return `<span style="color: ${color} !important;">${value}</span>`;
+  }
+
+  private colorHtmlSelection(html: string, color: string): string {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const elements = Array.from(doc.body.children);
+
+    elements.forEach((el) => {
+      if (this.isBlockElement(el)) {
+        (el as HTMLElement).style.setProperty('color', color, 'important');
+      } else {
+        el.innerHTML = `<span style="color: ${color} !important;">${el.innerHTML}</span>`;
+      }
+    });
+
+    const result = doc.body.innerHTML;
+    return elements.length > 0 ? result : `<span style="color: ${color} !important;">${html}</span>`;
+  }
+
+  private isBlockElement(el: Element): boolean {
+    const blockTags = ['DIV', 'P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'TD', 'TH', 'SECTION'];
+    return blockTags.includes(el.tagName.toUpperCase());
   }
 
   private isMarkdownTableSeparator(line: string): boolean {

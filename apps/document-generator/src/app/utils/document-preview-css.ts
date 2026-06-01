@@ -530,21 +530,21 @@ function buildDocumentColorIsolationCss(colors: {
   background: transparent;
 }
 
-:where(.document-preview-pane--isolated.markdown-preview) th,
-:where(.document-preview-render.markdown-preview) th,
-:where(.pdf-body-content.markdown-preview) th {
-  background: ${tableHeaderBg};
-  color: ${text};
-  border-color: ${border};
-}
+:where(.document-preview-pane--isolated.markdown-preview) th:not([style*='color:']),
+:where(.document-preview-render.markdown-preview) th:not([style*='color:']),
+:where(.pdf-body-content.markdown-preview) th:not([style*='color:']) {
+   background: ${tableHeaderBg};
+   color: ${text};
+   border-color: ${border};
+ }
 
-:where(.document-preview-pane--isolated.markdown-preview) td,
-:where(.document-preview-render.markdown-preview) td,
-:where(.pdf-body-content.markdown-preview) td {
-  background: transparent;
-  color: ${muted};
-  border-color: ${border};
-}
+ :where(.document-preview-pane--isolated.markdown-preview) td:not([style*='color:']),
+ :where(.document-preview-render.markdown-preview) td:not([style*='color:']),
+ :where(.pdf-body-content.markdown-preview) td:not([style*='color:']) {
+   background: transparent;
+   color: ${muted};
+   border-color: ${border};
+ }
 
 :where(.document-preview-pane--isolated.markdown-preview) tr:nth-child(even) td,
 :where(.document-preview-render.markdown-preview) tr:nth-child(even) td,
@@ -891,11 +891,11 @@ function buildDocumentColorIsolationCssForIframe(colors: {
 .markdown-preview h5:not([style*='color:']),
 .markdown-preview h6:not([style*='color:']),
 .markdown-preview strong:not([style*='color:']),
-.document-preview-render.markdown-preview h1,
-.document-preview-render.markdown-preview h2,
-.document-preview-render.markdown-preview h3,
-.document-preview-render.markdown-preview strong {
-  color: ${text} !important;
+.document-preview-render.markdown-preview h1:not([style*='color:']),
+.document-preview-render.markdown-preview h2:not([style*='color:']),
+.document-preview-render.markdown-preview h3:not([style*='color:']),
+.document-preview-render.markdown-preview strong:not([style*='color:']) {
+   color: ${text} !important;
 }
 
 .markdown-preview a:not([style*='color:']),
@@ -941,19 +941,19 @@ function buildDocumentColorIsolationCssForIframe(colors: {
   background: transparent;
 }
 
-.markdown-preview th,
-.document-preview-render.markdown-preview th {
-  background: ${tableHeaderBg};
-  color: ${text};
-  border-color: ${border};
-}
+.markdown-preview th:not([style*='color:']),
+.document-preview-render.markdown-preview th:not([style*='color:']) {
+   background: ${tableHeaderBg};
+   color: ${text};
+   border-color: ${border};
+ }
 
-.markdown-preview td,
-.document-preview-render.markdown-preview td {
-  background: transparent;
-  color: ${muted};
-  border-color: ${border};
-}
+ .markdown-preview td:not([style*='color:']),
+ .document-preview-render.markdown-preview td:not([style*='color:']) {
+   background: transparent;
+   color: ${muted};
+   border-color: ${border};
+ }
 
 .markdown-preview tr:nth-child(even) td,
 .document-preview-render.markdown-preview tr:nth-child(even) td {
