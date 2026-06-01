@@ -412,53 +412,58 @@ export class PdfGenerationService {
 
     htmlContent = this.prepareHtmlForPdfPagination(htmlContent);
 
-    const title = escapeHtml(data.title || 'Documento');
-    const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
-    const headerFooterHtml = this.buildPdfHeaderFooterHtml(data);
-    const headerFooterConfig = (data as Record<string, unknown>)['headerFooterConfig'] as Record<string, unknown> | undefined;
-    const startPageFrom = typeof headerFooterConfig?.['startPageFrom'] === 'number' ? headerFooterConfig['startPageFrom'] : 1;
-    const pageResetValue = Math.max(0, startPageFrom - 1);
+const title = escapeHtml(data.title || 'Documento');
+     const { css: mergedCss, canvasBackground } = this.resolvePdfStyles(data);
+     const headerFooterHtml = this.buildPdfHeaderFooterHtml(data);
 
-    const styleCss = data.pdfStyleId
-      ? this.templates.getPdfStyleCss(data.pdfStyleId)
-      : '';
+     const styleCss = data.pdfStyleId
+       ? this.templates.getPdfStyleCss(data.pdfStyleId)
+       : '';
 
-    const presetCss = this.stylePresetCssForPdf(
-      typeof data.quickStylePreset === 'string' ? data.quickStylePreset : '',
-    );
+     const presetCss = this.stylePresetCssForPdf(
+       typeof data.quickStylePreset === 'string' ? data.quickStylePreset : '',
+     );
 
-    const headerFooterCss = this.buildHeaderFooterCss(data);
-    const coverHtml = this.buildCoverHtml(data);
+     const headerFooterCss = this.buildHeaderFooterCss(data);
+     const coverHtml = this.buildCoverHtml(data);
 
-const pdfTemplate = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <title>${title}</title>
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-        <style>
-          ${PDF_EXPORT_BASE_CSS}
-          ${this.getPdfPaginationCss()}
-          ${presetCss}
-          ${styleCss}
-          ${mergedCss}
-        </style>
-      </head>
-      <body>
-        ${coverHtml}
-        ${headerFooterHtml}
-        ${this.buildWatermarkHtml(data)}
-        <div class="pdf-canvas-root">
-          <div class="pdf-body-content markdown-preview">
-            ${htmlContent}
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+     const pdfTemplate = `
+       <!DOCTYPE html>
+       <html>
+       <head>
+         <meta charset="UTF-8">
+         <title>${title}</title>
+         <link rel="preconnect" href="https://fonts.googleapis.com">
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+         <style>
+           ${PDF_EXPORT_BASE_CSS}
+           ${this.getPdfPaginationCss()}
+           ${headerFooterCss}
+           ${presetCss}
+           ${styleCss}
+           ${mergedCss}
+         </style>
+       </head>
+       <body>
+         ${coverHtml}
+         ${headerFooterHtml}
+         ${this.buildWatermarkHtml(data)}
+         <div class="pdf-canvas-root">
+           <div class="pdf-body-content markdown-preview">
+             ${htmlContent}
+           </div>
+         </div>
+       </body>
+       </html>
+     `;
+
+     return this.htmlToPdfBlob(
+       pdfTemplate,
+       data.title || 'documento',
+       canvasBackground,
+     );
+   }
 
   private prepareHtmlContentForPdf(content: string, data: DocumentData): string {
     if (data.contentEditorMode === 'html') {
