@@ -172,7 +172,7 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }
 
-  async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
+async beautifyHtml(ctx: DocumentAiContext): Promise<string> {
     const html = (ctx.existingContent ?? '').trim();
     const prompt = [
       `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
@@ -203,8 +203,84 @@ Tu objetivo es devolver únicamente el Markdown mejorado, sin explicaciones ni c
       .join('\n');
 
     const system = `Eres un diseñador/redactor experto en documentos HTML.
- Tu objetivo es devolver únicamente el contenido HTML mejorado (solo el body inner content, sin etiquetas <html>, <head>, <body> wrapper ni DOCTYPE).
- Puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.`;
+  Tu objetivo es devolver únicamente el contenido HTML mejorado (solo el body inner content, sin etiquetas <html>, <head>, <body> wrapper ni DOCTYPE).
+  Puedes sugerir estilos basados en marcas como Nintendo Switch, Ubisoft, Tokyostar o GameOver.`;
+
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+  }
+
+  async technicalImproveMarkdown(ctx: DocumentAiContext): Promise<string> {
+    const markdown = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim()
+        ? `Cliente o destinataria: ${ctx.clientName.trim()}.`
+        : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Mejora la ESTRUCTURA TÉCNICA y arquitectónica de este documento manteniendo el formato Markdown.',
+      'Devuelve SOLO Markdown final mejorado, sin explicaciones ni contenido adicional.',
+      'Enfócate en:',
+      '- Reorganizar secciones siguiendo estándares de documentación técnica (portada, índice, objetivos, alcance, arquitectura, componentes, implementación, pruebas, despliegue, anexos)',
+      '- Mejorar la jerarquía de títulos y numeración (## 1., ## 2., etc.)',
+      '- Añadir secciones clave si faltan: introducción, objetivos, requisitos, arquitectura, componentes, API, despliegue, consideraciones de seguridad, riesgos',
+      '- Usar tablas GFM para datos estructurados (especificaciones técnicas, requisitos, dependencias)',
+      '- Añadir diagramas de arquitectura en Mermaid (graph TD/ LR) si es apropiado',
+      '- Incluir bloques de código con language tags para ejemplos técnicos',
+      '- Preservar los marcadores [rellenar: …] y no inventes datos.',
+      '- Mantener tono técnico, preciso y profesional.',
+      '',
+      'MARKDOWN A MEJORAR:',
+      '---',
+      markdown.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un arquitecto de sistemas experto en documentación técnica.
+  Tu objetivo es devolver únicamente el Markdown mejorado con estructura arquitectónica más sólida, sin explicaciones ni contenido adicional.
+  Enfócate en organización, jerarquía y componentes técnicos relevantes para el tipo de documento.`;
+
+    return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
+  }
+
+  async technicalImproveHtml(ctx: DocumentAiContext): Promise<string> {
+    const html = (ctx.existingContent ?? '').trim();
+    const prompt = [
+      `Tipo de documento: ${ctx.documentTypeLabel || 'Documento'} (id: ${ctx.documentTypeId || 'sin-id'}).`,
+      ctx.title?.trim() ? `Título de trabajo: ${ctx.title.trim()}.` : '',
+      ctx.clientName?.trim()
+        ? `Cliente o destinataria: ${ctx.clientName.trim()}.`
+        : '',
+      ctx.templateName
+        ? `Plantilla de referencia: ${ctx.templateName}${ctx.templateDescription ? ` — ${ctx.templateDescription}` : ''}.`
+        : '',
+      'Mejora la ESTRUCTURA TÉCNICA y arquitectónica de este documento HTML manteniendo el formato HTML actual.',
+      'Devuelve SOLO el contenido HTML mejorado (sin etiquetas <html>, <head>, <body> wrapper - solo el body inner content).',
+      'Enfócate en:',
+      '- Reorganizar secciones siguiendo estándares de documentación técnica',
+      '- Mejorar la jerarquía semántica (header, main, section, article, aside)',
+      '- Añadir elementos clave si faltan: portada, índice, objetivos, alcance, arquitectura, componentes, implementación, pruebas, despliegue',
+      '- Usar clases útiles: .hero, .section, .card, .callout, .metadata-grid, .table-wrap, .signature-grid, .footer, .doc-block',
+      '- Incluir diagramas Mermaid para arquitectura si es apropiado',
+      '- Añadir bloques de código con language tags para ejemplos técnicos',
+      '- Preservar los marcadores [rellenar: …] y no inventes datos.',
+      '- Mantener tono técnico, preciso y profesional.',
+      '',
+      'HTML A MEJORAR:',
+      '---',
+      html.slice(0, 120_000),
+      '---',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const system = `Eres un arquitecto de sistemas experto en documentación técnica HTML.
+  Tu objetivo es devolver únicamente el contenido HTML mejorado con estructura arquitectónica más sólida (solo el body inner content, sin etiquetas <html>, <head>, <body> wrapper ni DOCTYPE).
+  Enfócate en organización, jerarquía semántica y componentes técnicos relevantes.`;
 
     return this.generateFullResponse(prompt, system, DOCUMENT_AI_GEN_OPTS);
   }

@@ -699,20 +699,60 @@ export class DocumentCreateEditorComponent implements OnInit {
         return;
       }
 
-      this.documentForm.patchValue({ content: beautified });
+this.documentForm.patchValue({ content: beautified });
+       this.updatePreview();
+       this.syncAssistantFromFormNow();
+     } catch (e: unknown) {
+       this.aiError =
+         e instanceof Error
+           ? e.message
+           : 'Error al embellecer el documento con IA.';
+     } finally {
+       this.isAiGenerating = false;
+     }
+   }
+
+   async technicalImproveDocumentWithAi(): Promise<void> {
+    console.log('technicalImproveDocumentWithAi called', this.contentEditorMode);
+    const content = String(
+      this.documentForm.get('content')?.value ?? '',
+    ).trim();
+    if (!content) {
+      this.aiError = 'Primero escribe o genera contenido en el editor.';
+      return;
+    }
+
+    this.isAiGenerating = true;
+    this.aiError = null;
+    try {
+      let improved: string;
+
+      if (this.contentEditorMode === 'markdown') {
+        improved = await this.documentAi.technicalImproveMarkdown(
+          this.getAiContext(),
+        );
+      } else if (this.contentEditorMode === 'html') {
+        improved = await this.documentAi.technicalImproveHtml(this.getAiContext());
+        improved = enrichDocumentHtmlForStyling(improved);
+      } else {
+        this.aiError = 'Modo no compatible para mejorar estructura técnica.';
+        return;
+      }
+
+      this.documentForm.patchValue({ content: improved });
       this.updatePreview();
       this.syncAssistantFromFormNow();
     } catch (e: unknown) {
       this.aiError =
         e instanceof Error
           ? e.message
-          : 'Error al embellecer el documento con IA.';
+          : 'Error al mejorar la estructura técnica del documento con IA.';
     } finally {
       this.isAiGenerating = false;
     }
   }
 
-  getTitlePlaceholder(): string {
+   getTitlePlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
         return 'Ej: Presupuesto Desarrollo Web Corporativo';

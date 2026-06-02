@@ -201,6 +201,15 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
       >
         Embellecer documento
       </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="technicalImprove.emit()"
+        [disabled]="isAiGenerating()"
+        title="Mejorar estructura, arquitectura y organización técnica del documento"
+      >
+        Mejorar estructura técnica
+      </button>
 
       <div class="sidebar-divider"></div>
 
@@ -310,6 +319,7 @@ export class DocumentEditorToolbarComponent {
   readonly convertToHtml = output<void>();
   readonly convertToMarkdown = output<void>();
   readonly beautify = output<void>();
+  readonly technicalImprove = output<void>();
   readonly stylePresetChange = output<string>();
   readonly fontSizeDelta = output<number>();
   readonly toggleTool = output<string>();
