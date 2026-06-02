@@ -2199,7 +2199,7 @@ export class FloatingAssistantComponent implements OnInit {
     );
   }
 
-  async onReferenceFilesSelected(event: Event): Promise<void> {
+async onReferenceFilesSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     input.value = '';
@@ -2218,6 +2218,20 @@ export class FloatingAssistantComponent implements OnInit {
           'assistant',
         );
       }
+    }
+
+    this.referenceAttachments = [
+      ...this.referenceAttachments,
+      ...nextAttachments,
+    ].slice(-8);
+
+    if (nextAttachments.length > 0) {
+      this.assistantService.addMessage(
+        `Adjunto(s) como referencia: ${nextAttachments.map((file) => file.name).join(', ')}. Puedes pedirme "crea CSS basado en estos adjuntos".`,
+        'system',
+      );
+    }
+  }
     }
 
     this.referenceAttachments = [
