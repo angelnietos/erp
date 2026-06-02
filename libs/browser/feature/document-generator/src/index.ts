@@ -13,3 +13,4 @@ export * from './lib/types/cdn-script-globals';
 export * from './lib/utils/html-escape';
 export * from './lib/document-generator-layout/document-generator-layout.component';
 export * from './lib/floating-assistant/floating-assistant.component';
+export { ThemeSelectorComponent } from './lib/theme-selector/theme-selector.component';

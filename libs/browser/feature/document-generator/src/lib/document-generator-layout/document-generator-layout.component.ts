@@ -3,6 +3,7 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { FloatingAssistantComponent } from '../floating-assistant/floating-assistant.component';
+import { ThemeSelectorComponent } from '../theme-selector/theme-selector.component';
 
 @Component({
   selector: 'lib-document-generator-layout',
@@ -12,6 +13,7 @@ import { FloatingAssistantComponent } from '../floating-assistant/floating-assis
     CommonModule,
     LucideAngularModule,
     FloatingAssistantComponent,
+    ThemeSelectorComponent,
   ],
   styles: [
     `
@@ -173,6 +175,9 @@ import { FloatingAssistantComponent } from '../floating-assistant/floating-assis
       <main class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
         <router-outlet></router-outlet>
       </main>
+
+      <!-- Theme Selector -->
+      <app-theme-selector />
 
       <!-- Floating Global Assistant -->
       <lib-floating-assistant />

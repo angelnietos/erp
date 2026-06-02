@@ -1,6 +1,6 @@
 import { Component, HostListener, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ThemeManagerService, Theme } from './services/theme-manager.service';
+import { ThemeManagerService, Theme } from '../services/theme-manager.service';
 
 @Component({
   selector: 'app-theme-selector',
