@@ -6,7 +6,6 @@
   "sourceRoot": "apps/document-generator/src",
   "tags": ["scope:document-generator", "type:app"],
   "implicitDependencies": [
-    "document-generator-shell",
     "document-generator-feature",
     "document-generator-data-access"
   ],
