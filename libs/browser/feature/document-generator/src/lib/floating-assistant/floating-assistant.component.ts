@@ -2217,7 +2217,7 @@ async onReferenceFilesSelected(event: Event): Promise<void> {
           `No he podido leer "${file.name}". Prueba con una imagen, PDF, HTML, CSS, Markdown o texto.`,
           'assistant',
         );
-      }
+}
     }
 
     this.referenceAttachments = [
@@ -2228,20 +2228,6 @@ async onReferenceFilesSelected(event: Event): Promise<void> {
     if (nextAttachments.length > 0) {
       this.assistantService.addMessage(
         `Adjunto(s) como referencia: ${nextAttachments.map((file) => file.name).join(', ')}. Puedes pedirme "crea CSS basado en estos adjuntos".`,
-        'system',
-      );
-    }
-  }
-    }
-
-    this.referenceAttachments = [
-      ...this.referenceAttachments,
-      ...nextAttachments,
-    ].slice(-8);
-
-    if (nextAttachments.length > 0) {
-      this.assistantService.addMessage(
-        `Adjunto(s) como referencia: ${nextAttachments.map((file) => file.name).join(', ')}. Puedes pedirme “crea CSS basado en estos adjuntos”.`,
         'system',
       );
     }
