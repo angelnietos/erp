@@ -2190,6 +2190,10 @@ export class FloatingAssistantComponent implements OnInit {
   }
 
   private shouldReplaceDocument(userMessage: string): boolean {
+    const visualKeywords = /\b(embellecer|estilizar|mejorar visual|visual|estilo|diseño|diseñar|stylize|visualize|stylish)\b/i;
+    if (visualKeywords.test(userMessage)) {
+      return false;
+    }
     return /\b(reemplaza|sustituye|reescribe|cambia todo|nuevo documento|desde cero|replace|rewrite)\b/i.test(
       userMessage,
     );
@@ -2405,9 +2409,16 @@ export class FloatingAssistantComponent implements OnInit {
         '- NO uses variables inventadas como var(--text), var(--bg), var(--muted). Usa valores concretos (#hex, rgb()) o las variables listadas.',
         '- Para redefinir variables, usa :root { --markdown-color: #111; } (no usar body o html para variables).',
       ].join('\n'),
+      'REGLAS PARA APLICAR ESTILOS VISUALES (videojuegos/modernos):',
+      '- Si el usuario pide "embellecer", "estilizar", "mejorar visualmente" o similar: NO cambies el contenido, SOLO genera CSS.',
+      '- Mantén exactamente el mismo texto, pega exactamente el mismo contenido. Solo añade estilos visuales modernos.',
+      '- Usa estilos modernos con gradientes, sombras, bordes redondeados, tipografías atractivas, pero NO inventes datos.',
+      '- Temática videojuegos: usa colores vibrantes, efectos neón, tipografías futuristas, pero respetando el contenido existente.',
+      '- NUNCA sustituyas [rellenar], [Fecha actual] u otros placeholders. Déjalos tal cual.',
+      '- NUNCA inventes precios, nombres de productos, o datos específicos. Usa los del documento.',
       'IMPORTANTE: No reescribas un HTML completo si el usuario solo pide estilos o mejoras visuales. En ese caso devuelve solo CSS. Solo devuelve ```html si el usuario pide explícitamente reemplazar todo el documento.',
       'IMPORTANTE: Si el usuario pide crear o mejorar contenido (no estilos), responde con un único bloque ```markdown (o ```html si el modo es html). La app lo insertará automáticamente.',
-      'Responde en español. Ayuda con redacción, estructura y revisión. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
+      'Responde en español. No inventes datos numéricos ni legales concretos: usa [rellenar] si faltan.',
     ]
       .filter(Boolean)
       .join('\n');
