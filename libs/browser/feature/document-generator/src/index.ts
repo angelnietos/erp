@@ -1,5 +1,4 @@
 export * from './lib/lib.routes';
-export * from './lib/document-generator-layout';
 export * from './lib/document-create/document-create.component';
 export * from './lib/document-list/document-list.component';
 export * from './lib/document-preview/document-preview.component';
@@ -7,4 +6,8 @@ export * from './lib/document-preview-download/document-preview-download.compone
 export * from './lib/document-analysis/document-analysis.component';
 export * from './lib/document-ai-settings/document-ai-settings.component';
 export * from './lib/document-agent-settings/document-agent-settings.component';
-export * from './lib/floating-assistant/floating-assistant.component';
+export * from './lib/services/assistant-context.service';
+export * from './lib/services/agent-persona.service';
+export * from './lib/db/agent-memory-dexie';
+export * from './lib/types/cdn-script-globals';
+export * from './lib/utils/html-escape';

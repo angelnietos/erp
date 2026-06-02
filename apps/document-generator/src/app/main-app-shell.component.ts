@@ -1,15 +1,15 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { DocumentGeneratorLayoutComponent } from '@josanz-erp/document-generator-feature';
+import { DocumentGeneratorLayoutComponent } from '@josanz-erp/document-generator-shell';
 
 @Component({
   selector: 'app-main-app-shell',
   standalone: true,
   imports: [RouterModule, DocumentGeneratorLayoutComponent],
   template: `
-    <app-document-generator-layout>
+    <lib-document-generator-layout>
       <router-outlet></router-outlet>
-    </app-document-generator-layout>
+    </lib-document-generator-layout>
   `,
 })
 export class MainAppShellComponent {}

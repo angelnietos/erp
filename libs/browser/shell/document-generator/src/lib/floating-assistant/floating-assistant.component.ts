@@ -15,13 +15,13 @@ import { RouterModule } from '@angular/router';
 import {
   AssistantContextService,
   AssistantPetConfig,
-} from '../services/assistant-context.service';
-import { AgentPersonaService } from '../services/agent-persona.service';
+} from '@josanz-erp/document-generator-feature';
+import { AgentPersonaService } from '@josanz-erp/document-generator-feature';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { escapeHtml } from '../utils/html-escape';
-import type { ConversationRow } from '../db/agent-memory-dexie';
-import type { MarkedGlobal } from '../types/cdn-script-globals';
+import { escapeHtml } from '@josanz-erp/document-generator-feature';
+import type { ConversationRow } from '@josanz-erp/document-generator-feature';
+import type { MarkedGlobal } from '@josanz-erp/document-generator-feature';
 
 declare const marked: MarkedGlobal;
 
@@ -37,7 +37,7 @@ interface AssistantReferenceAttachment {
 }
 
 @Component({
-  selector: 'app-floating-assistant',
+  selector: 'lib-floating-assistant',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   styles: [

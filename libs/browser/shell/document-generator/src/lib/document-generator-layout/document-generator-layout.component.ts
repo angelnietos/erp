@@ -5,7 +5,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import { FloatingAssistantComponent } from '../floating-assistant/floating-assistant.component';
 
 @Component({
-  selector: 'app-document-generator-layout',
+  selector: 'lib-document-generator-layout',
   standalone: true,
   imports: [
     RouterModule,
@@ -175,7 +175,7 @@ import { FloatingAssistantComponent } from '../floating-assistant/floating-assis
       </main>
 
       <!-- Floating Global Assistant -->
-      <app-floating-assistant />
+      <lib-floating-assistant />
     </div>
   `,
 })

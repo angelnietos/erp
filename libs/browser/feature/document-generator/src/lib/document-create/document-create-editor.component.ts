@@ -26,8 +26,10 @@ import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentRenderService } from '../services/document-render.service';
 import { DocumentPdfApiService } from '../services/document-pdf-api.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
-import { AssistantContextService } from '../services/assistant-context.service';
-import type { AssistantDocumentCommand } from '../services/assistant-context.service';
+import {
+  AssistantContextService,
+  AssistantDocumentCommand,
+} from '../services/assistant-context.service';
 import {
   UniversalDocumentService,
   DocumentFormat,
