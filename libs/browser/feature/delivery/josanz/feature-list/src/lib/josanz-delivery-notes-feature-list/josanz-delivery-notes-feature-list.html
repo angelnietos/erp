@@ -1,5 +1,5 @@
-<josanz-main-list-layout 
-  [title]="title" 
+<josanz-main-list-layout
+  [title]="title"
   [primaryBtnLabel]="primaryBtnLabel"
   [filterOptions]="filterOptions"
   [paginationTotal]="5"
@@ -9,8 +9,8 @@
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
-  (excelAction)="onExcel()">
-
+  (excelAction)="onExcel()"
+>
   <josanz-list-template-header-row
     titleLabel="Nº Albarán"
     [fieldLabels]="deliveryLabels"

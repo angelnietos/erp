@@ -2,7 +2,8 @@ module.exports = {
   displayName: 'document-generator-feature',
   preset: '../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../coverage/libs/browser/feature/document-generator',
+  coverageDirectory:
+    '../../../../coverage/libs/browser/feature/document-generator',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

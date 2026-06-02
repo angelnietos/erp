@@ -2,7 +2,6 @@ C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\apps\document-generator
 
 C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs
 
-
 necesito crear una lib especifica para la app de docs etc y montar router y estrucutra como en el resto de apps el app docs deberia actuar como un shell necesito que examines todo y me des plan md para ejecutar refactor
 
 por ejemplo deberian funcionar como estas apps
@@ -65,15 +64,17 @@ Let me look at the shell structure in libs to understand the pattern better.
 Command
 nx show projects --type lib --json | jq -r '.[]' | Where-Object { $_ -match 'shell$' }
 Output
-jq : El t�rmino 'jq' no se reconoce como nombre de un cmdlet, funci�n, archivo de script o programa ejecutable. 
-Compruebe si escribi� correctamente el nombre o, si incluy� una ruta de acceso, compruebe que dicha ruta es correcta e 
+jq : El t�rmino 'jq' no se reconoce como nombre de un cmdlet, funci�n, archivo de script o programa ejecutable.
+Compruebe si escribi� correctamente el nombre o, si incluy� una ruta de acceso, compruebe que dicha ruta es correcta e
 int�ntelo de nuevo.
 En l�nea: 1 Car�cter: 38
-+ nx show projects --type lib --json | jq -r '.[]' | Where-Object { $_  ...
-+                                      ~~
-    + CategoryInfo          : ObjectNotFound: (jq:String) [], CommandNotFoundException
-    + FullyQualifiedErrorId : CommandNotFoundException
- 
+
+- nx show projects --type lib --json | jq -r '.[]' | Where-Object { $\_ ...
+-                                      ~~
+
+  - CategoryInfo : ObjectNotFound: (jq:String) [], CommandNotFoundException
+  - FullyQualifiedErrorId : CommandNotFoundException
+
 jq no está disponible, usaré PowerShell nativo.
 
 Command
@@ -85,7 +86,7 @@ Ahora veo que hay varios tipos de libs:
 document-generator-feature - parece ser la feature existente
 document-generator-backend - backend
 shell - parece ser un shell genérico
-document-* - document generator related
+document-\* - document generator related
 Necesito examinar una estructura de shell existente para entender el patrón.
 
 File not found
@@ -131,33 +132,32 @@ Command
 Get-ChildItem -Path "libs\browser\feature" -Directory | Select-Object -First 20
 Output
 
-
     Directorio: C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
-d-----        08/04/2026      3:27                ai-insights                                                          
-da----        07/04/2026     15:03                audit                                                                
-da----        07/04/2026     15:03                billing                                                              
-da----        23/05/2026      0:54                budget                                                               
-da----        23/05/2026      0:54                clients                                                              
-da----        07/04/2026     15:03                dashboard                                                            
-da----        23/05/2026      0:54                delivery                                                             
-d-----        23/05/2026      0:54                document-generator                                                   
-d-----        23/05/2026      0:54                events                                                               
-da----        07/04/2026     15:03                fleet                                                                
-da----        07/04/2026     15:03                identity                                                             
-da----        07/04/2026     15:03                inventory                                                            
-da----        07/04/2026     15:03                projects                                                             
-da----        07/04/2026     15:03                receipts                                                             
-da----        07/04/2026     15:03                rentals                                                              
-da----        07/04/2026     15:03                reports                                                              
-da----        07/04/2026     15:03                services                                                             
-da----        07/04/2026     15:03                settings                                                             
-d-----        27/05/2026     15:59                staff                                                                
-d-----        23/05/2026      0:54                stock                                                                
+---
 
+d----- 08/04/2026 3:27 ai-insights  
+da---- 07/04/2026 15:03 audit  
+da---- 07/04/2026 15:03 billing  
+da---- 23/05/2026 0:54 budget  
+da---- 23/05/2026 0:54 clients  
+da---- 07/04/2026 15:03 dashboard  
+da---- 23/05/2026 0:54 delivery  
+d----- 23/05/2026 0:54 document-generator  
+d----- 23/05/2026 0:54 events  
+da---- 07/04/2026 15:03 fleet  
+da---- 07/04/2026 15:03 identity  
+da---- 07/04/2026 15:03 inventory  
+da---- 07/04/2026 15:03 projects  
+da---- 07/04/2026 15:03 receipts  
+da---- 07/04/2026 15:03 rentals  
+da---- 07/04/2026 15:03 reports  
+da---- 07/04/2026 15:03 services  
+da---- 07/04/2026 15:03 settings  
+d----- 27/05/2026 15:59 staff  
+d----- 23/05/2026 0:54 stock
 
 Ahora entiendo la estructura. Los features están en libs/browser/feature/<name> y los shells en libs/browser/shell/<name>/shell. Veamos un ejemplo de feature y shell para entender mejor el patrón.
 
@@ -167,53 +167,52 @@ Command
 Get-ChildItem -Path "libs\browser\feature\projects" -Recurse -File | Select-Object -First 30
 Output
 
-
     Directorio: C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature\projects\feature
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
--a----        29/05/2026     15:35            745 jest.config.cts                                                      
--a----        23/05/2026      0:54            735 project.json                                                         
--a----        07/04/2026     16:03            784 tsconfig.json                                                        
--a----        07/04/2026     15:07            403 tsconfig.lib.json                                                    
--a----        07/04/2026     15:07            397 tsconfig.spec.json                                                   
+---
 
+-a---- 29/05/2026 15:35 745 jest.config.cts  
+-a---- 23/05/2026 0:54 735 project.json  
+-a---- 07/04/2026 16:03 784 tsconfig.json  
+-a---- 07/04/2026 15:07 403 tsconfig.lib.json  
+-a---- 07/04/2026 15:07 397 tsconfig.spec.json
 
     Directorio: C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature\projects\feature\src
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
--a----        09/04/2026     19:45             35 index.ts                                                             
--a----        09/04/2026     19:45            179 test-setup.ts                                                        
+---
 
+-a---- 09/04/2026 19:45 35 index.ts  
+-a---- 09/04/2026 19:45 179 test-setup.ts
 
     Directorio: C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature\projects\feature\src\lib
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
--a----        23/05/2026      0:54            793 lib.routes.ts                                                        
+---
 
+-a---- 23/05/2026 0:54 793 lib.routes.ts
 
-    Directorio: 
+    Directorio:
     C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature\projects\feature\src\lib\projects-detail
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
--a----        23/05/2026      0:54          18579 projects-detail.component.ts                                         
+---
 
+-a---- 23/05/2026 0:54 18579 projects-detail.component.ts
 
-    Directorio: 
+    Directorio:
     C:\Users\amuni\Desktop\josanz-proyect\josanz-erp\libs\browser\feature\projects\feature\src\lib\projects-list
 
+Mode LastWriteTime Length Name
 
-Mode                 LastWriteTime         Length Name                                                                 
-----                 -------------         ------ ----                                                                 
--a----        23/05/2026      0:54          28916 projects-list.component.ts                                           
+---
 
+-a---- 23/05/2026 0:54 28916 projects-list.component.ts
 
 Ahora entiendo la estructura. Las features están en libs/browser/feature/{name}/feature/. Voy a examinar una feature completa para entender la estructura de routes.
 
@@ -322,50 +321,50 @@ API → cliente HTTP para comunicación backend
 Actual:
 apps/document-generator/
 ├── src/app/
-│   ├── app.routes.ts          ← rutas con toda la lógica
-│   ├── document-generator.routes.ts ← rutas del feature
-│   ├── document-generator-layout.component.ts
-│   ├── document-*.component.ts (20+ componentes)
-│   ├── services/*.ts (12 servicios)
-│   ├── guards/
-│   └── ... (todo mezclado)
+│ ├── app.routes.ts ← rutas con toda la lógica
+│ ├── document-generator.routes.ts ← rutas del feature
+│ ├── document-generator-layout.component.ts
+│ ├── document-_.component.ts (20+ componentes)
+│ ├── services/_.ts (12 servicios)
+│ ├── guards/
+│ └── ... (todo mezclado)
 
-libs/browser/feature/document-generator/  ← feature vacío (solo stub)
+libs/browser/feature/document-generator/ ← feature vacío (solo stub)
 libs/node/backend/document-generator-backend/ ← API backend (OK)
 Objetivo:
 libs/browser/shell/document-generator/
-└── src/lib/lib.routes.ts      ← solo routing del shell
+└── src/lib/lib.routes.ts ← solo routing del shell
 
 libs/browser/feature/document-generator/
 └── src/lib/
-    ├── document-generator.routes.ts ← rutas actuales
-    ├── + page components (de apps/)
-    └── + services (de apps/)
+├── document-generator.routes.ts ← rutas actuales
+├── + page components (de apps/)
+└── + services (de apps/)
 
 libs/browser/data-access/document-generator/
 └── src/lib/
-    └── + servicios de estado/persistencia
+└── + servicios de estado/persistencia
 
 libs/browser/api/document-generator/
 └── src/lib/
-    └── + cliente HTTP (apis)
+└── + cliente HTTP (apis)
 
 libs/isomorphic/core/document-generator/
 └── src/lib/
-    └── + modelos de dominio
+└── + modelos de dominio
 
 apps/document-generator/
 ├── src/app/
-│   ├── app.routes.ts          ← shell entry point
-│   ├── main-app-shell.component.ts (simplificado)
-│   └── app.config.ts (limpio)
+│ ├── app.routes.ts ← shell entry point
+│ ├── main-app-shell.component.ts (simplificado)
+│ └── app.config.ts (limpio)
 🔄 Pasos de Refactor
 Fase 1: Crear libs nuevas
-Librería	Tipo	Tags	Acción
-document-generator-shell	library	scope:document-generator, type:shell	Generar con Nx
-document-generator-data-access	library	scope:document-generator, type:data-access	Generar con Nx (opcional, si hay estado)
-document-generator-api	library	scope:document-generator, type:api	Generar con Nx (opcional)
-document-generator-core	library	scope:document-generator, type:core	Generar con Nx (opcional)
+Librería Tipo Tags Acción
+document-generator-shell library scope:document-generator, type:shell Generar con Nx
+document-generator-data-access library scope:document-generator, type:data-access Generar con Nx (opcional, si hay estado)
+document-generator-api library scope:document-generator, type:api Generar con Nx (opcional)
+document-generator-core library scope:document-generator, type:core Generar con Nx (opcional)
 Fase 2: Migración de código
 Mover document-generator.routes.ts a feature
 De: apps/document-generator/src/app/
@@ -378,14 +377,14 @@ document-analysis/
 document-ai-settings/
 document-agent-settings/
 floating-assistant/
-guards/* (excepto auth guards genéricos)
+guards/\* (excepto auth guards genéricos)
 Mover servicios a feature o data-access
 Servicios de UI (tema, render, pdf): feature
 Servicios de datos/persistencia: data-access
 Crear rutas del shell
 document-generator-shell/src/lib/lib.routes.ts:
 export const documentGeneratorShellRoutes: Route[] = [
-  { path: '', loadChildren: () => import('@josanz-erp/document-generator-feature').then(m => m.documentGeneratorRoutes) }
+{ path: '', loadChildren: () => import('@josanz-erp/document-generator-feature').then(m => m.documentGeneratorRoutes) }
 ];
 Fase 3: Actualizar app shell
 app.routes.ts (shell puro):
@@ -395,16 +394,16 @@ import { MainAppShellComponent } from './main-app-shell.component';
 import { NotFoundComponent } from './not-found.component';
 
 export const appRoutes: Route[] = [
-  { path: '', redirectTo: 'documents', pathMatch: 'full' },
-  {
-    path: 'documents',
-    component: MainAppShellComponent,
-    children: [
-      { path: '', loadChildren: () => import('@josanz-erp/document-generator-shell').then(m => m.documentGeneratorShellRoutes) }
-    ]
-  },
-  { path: 'not-found', component: NotFoundComponent },
-  { path: '**', redirectTo: '/not-found' }
+{ path: '', redirectTo: 'documents', pathMatch: 'full' },
+{
+path: 'documents',
+component: MainAppShellComponent,
+children: [
+{ path: '', loadChildren: () => import('@josanz-erp/document-generator-shell').then(m => m.documentGeneratorShellRoutes) }
+]
+},
+{ path: 'not-found', component: NotFoundComponent },
+{ path: '\*\*', redirectTo: '/not-found' }
 ];
 app.config.ts (limpiar):
 
@@ -414,52 +413,57 @@ Fase 4: Actualizar project.json
 Agregar implicitDependencies:
 
 "implicitDependencies": [
-  "document-generator-shell",
-  "document-generator-feature",
-  "document-generator-data-access",
-  "document-generator-api",
-  "document-generator-core"
+"document-generator-shell",
+"document-generator-feature",
+"document-generator-data-access",
+"document-generator-api",
+"document-generator-core"
 ]
 Fase 5: Cleanup app
 Eliminar componentes/pages movidos
 Mantener solo: main.ts, app.ts, app.config.ts, app.routes.ts, main-app-shell.component.ts (simplificado)
 Mantener environments/
 🛠 Comandos Nx para generar libs
+
 # Shell
+
 npx nx generate @nx/angular:library \
-  --name=document-generator-shell \
-  --directory=browser/shell/document-generator \
-  --prefix=lib \
-  --style=css \
-  --standalone=true
+ --name=document-generator-shell \
+ --directory=browser/shell/document-generator \
+ --prefix=lib \
+ --style=css \
+ --standalone=true
 
 # Feature (actualizar package.json existente)
+
 # No generar, usar libs/browser/feature/document-generator existente
 
 # Data Access
+
 npx nx generate @nx/angular:library \
-  --name=document-generator-data-access \
-  --directory=browser/data-access/document-generator \
-  --prefix=lib \
-  --style=none
+ --name=document-generator-data-access \
+ --directory=browser/data-access/document-generator \
+ --prefix=lib \
+ --style=none
 
 # API
+
 npx nx generate @nx/angular:library \
-  --name=document-generator-api \
-  --directory=browser/api/document-generator \
-  --prefix=lib \
-  --style=none
+ --name=document-generator-api \
+ --directory=browser/api/document-generator \
+ --prefix=lib \
+ --style=none
 ⚠️ Consideraciones
 Layout: El DocumentGeneratorLayoutComponent puede quedarse en feature (es específico del feature) o moverse a shared-ui-shell si se reusa
 Guard openAssistantRedirectGuard: Mover a feature (específico del document-generator)
 Servicios de theme: Evaluar si mover a shared/theme-manager o mantener en feature
-Imports actuales: Verificar todos los imports @josanz-erp/document-generator-* y actualizar rutas
+Imports actuales: Verificar todos los imports @josanz-erp/document-generator-\* y actualizar rutas
 📊 Comparativa con otras apps
-App	Arquitectura
-frontend	Shell → shell libs (projects-shell, dashboard-shell, etc.) → feature libs
-josanz-web-app	Similar a frontend pero con estructura diferente
-document-generator (actual)	Todo en app, feature vacío
-document-generator (objetivo)	Shell → document-generator-shell → document-generator-feature
+App Arquitectura
+frontend Shell → shell libs (projects-shell, dashboard-shell, etc.) → feature libs
+josanz-web-app Similar a frontend pero con estructura diferente
+document-generator (actual) Todo en app, feature vacío
+document-generator (objetivo) Shell → document-generator-shell → document-generator-feature
 ¿Quieres que ejecute este refactor o prefieres revisar algún punto específico antes?
 
 quiero el documento md con todo el refactor para ejecutar por pasos primero tenerlo en algun lugar guardado
@@ -484,11 +488,15 @@ Actualizar app: Dejar solo el shell en la app (app.routes.ts, main-app-shell.com
 Actualizar dependencies: Modificar project.json con implicitDependencies
 Cleanup: Eliminar código duplicado/migrado
 Comandos listos para ejecutar (cuando tengas un agente con permisos):
+
 # 1. Generar shell
+
 npx nx generate @nx/angular:library --name=document-generator-shell --directory=browser/shell/document-generator --prefix=lib --standalone=true
 
-# 2. Generar data-access  
+# 2. Generar data-access
+
 npx nx generate @nx/angular:library --name=document-generator-data-access --directory=browser/data-access/document-generator --prefix=lib
 
 # 3. Generar api
+
 npx nx generate @nx/angular:library --name=document-generator-api --directory=browser/api/document-generator --prefix=lib

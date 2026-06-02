@@ -25,10 +25,11 @@ export class DocumentGeneratorPdfController {
   })
   async exportPdf(@Body() dto: ExportDocumentPdfDto) {
     const bytes = await this.htmlPdf.renderHtmlToPdf(dto.html);
-    const safeName = (dto.title || 'documento')
-      .replace(/[^\w\s.-]/g, '')
-      .trim()
-      .slice(0, 80) || 'documento';
+    const safeName =
+      (dto.title || 'documento')
+        .replace(/[^\w\s.-]/g, '')
+        .trim()
+        .slice(0, 80) || 'documento';
 
     return new StreamableFile(bytes, {
       type: 'application/pdf',

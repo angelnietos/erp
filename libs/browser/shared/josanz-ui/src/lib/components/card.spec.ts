@@ -6,7 +6,11 @@ describe('CardComponent', () => {
   const mockTheme = {
     currentTheme: () => ({
       defaultShape: 'rounded',
-      atmosphere: { surface: '#fff', border: '#ddd', shadow: '0 1px 2px rgba(0,0,0,0.1)' },
+      atmosphere: {
+        surface: '#fff',
+        border: '#ddd',
+        shadow: '0 1px 2px rgba(0,0,0,0.1)',
+      },
     }),
   };
 

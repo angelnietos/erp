@@ -73,7 +73,11 @@ export class JosanzStockListComponent extends BaseListComponent {
       labels: this.stockLabels,
       status: item.status,
       statusVariant:
-        item.status === 'En Stock' ? 'success' : item.status === 'Agotado' ? 'error' : 'warning',
+        item.status === 'En Stock'
+          ? 'success'
+          : item.status === 'Agotado'
+            ? 'error'
+            : 'warning',
     }));
   }
 

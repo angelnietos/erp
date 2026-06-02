@@ -1,5 +1,8 @@
 /** Anchos de columna compartidos entre cabecera de listado y `josanz-main-template-card`. */
-export function josanzListFieldWidthClass(index: number, fieldCount: number): string {
+export function josanzListFieldWidthClass(
+  index: number,
+  fieldCount: number,
+): string {
   if (fieldCount === 3) {
     if (index === 0) {
       return 'josanz-list-template-row__field--w160';

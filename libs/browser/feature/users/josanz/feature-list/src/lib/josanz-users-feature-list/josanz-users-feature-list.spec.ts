@@ -34,11 +34,21 @@ describe('JosanzUsersListComponent', () => {
     });
 
     it('should have userLabels', () => {
-      expect(component.userLabels).toEqual(['Email', 'Teléfono', 'Rol', 'Último acceso']);
+      expect(component.userLabels).toEqual([
+        'Email',
+        'Teléfono',
+        'Rol',
+        'Último acceso',
+      ]);
     });
 
     it('should have filterOptions', () => {
-      expect(component.filterOptions).toEqual(['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z']);
+      expect(component.filterOptions).toEqual([
+        'Todas',
+        'Tipo X',
+        'Tipo Y',
+        'Tipo Z',
+      ]);
     });
 
     it('should have userItems', () => {

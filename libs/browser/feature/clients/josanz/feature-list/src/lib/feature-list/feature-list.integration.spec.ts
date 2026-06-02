@@ -45,7 +45,11 @@ describe('JosanzClientsListComponent integration', () => {
     component.onFilter('Tipo cliente 2');
 
     expect(component.filteredClientItems).toHaveLength(2);
-    expect(component.filteredClientItems.every(item => item.statusVariant === 'cliente-tipo-green')).toBe(true);
+    expect(
+      component.filteredClientItems.every(
+        (item) => item.statusVariant === 'cliente-tipo-green',
+      ),
+    ).toBe(true);
   });
 
   it('paginates client items correctly', () => {

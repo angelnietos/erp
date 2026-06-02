@@ -1,5 +1,11 @@
 import { storybookRouterDecorator } from './storybook-providers';
-import { JOSANZ_FIGMA_APP, JOSANZ_FIGMA_DASHBOARD, JOSANZ_FIGMA_LOGIN, JOSANZ_FIGMA_SEMANTIC, JOSANZ_FIGMA_SHELL } from '../src/lib/theme/josanz-figma-tokens';
+import {
+  JOSANZ_FIGMA_APP,
+  JOSANZ_FIGMA_DASHBOARD,
+  JOSANZ_FIGMA_LOGIN,
+  JOSANZ_FIGMA_SEMANTIC,
+  JOSANZ_FIGMA_SHELL,
+} from '../src/lib/theme/josanz-figma-tokens';
 import {
   JOSANZ_ATMOSPHERE_CATALOG,
   JOSANZ_ATMOSPHERE_REGISTRY,
@@ -228,11 +234,13 @@ body.sb-show-main,
 }
 `;
 
-const atmosphereToolbarItems = JOSANZ_ATMOSPHERE_CATALOG.map(({ name, label, description }) => ({
-  value: name,
-  title: label,
-  right: description,
-}));
+const atmosphereToolbarItems = JOSANZ_ATMOSPHERE_CATALOG.map(
+  ({ name, label, description }) => ({
+    value: name,
+    title: label,
+    right: description,
+  }),
+);
 
 const brandToolbarItems = [
   { value: JOSANZ_DEFAULT_PRIMARY, title: 'Josanz Negro' },
@@ -257,35 +265,49 @@ const isShape = (value: unknown): value is JosanzControlShape =>
   value === 'rounded' || value === 'pill' || value === 'square';
 
 const shapeToThemeName = (shape: JosanzControlShape) =>
-  shape === 'square' ? 'luxe-sharp' : shape === 'pill' ? 'luxe-pill' : 'luxe-rounded';
+  shape === 'square'
+    ? 'luxe-sharp'
+    : shape === 'pill'
+      ? 'luxe-pill'
+      : 'luxe-rounded';
 
 const applyStorybookThemeDetail = (detail: StorybookThemeDetail): void => {
-  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[detail.atmosphereName] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
+  const atmosphere =
+    JOSANZ_ATMOSPHERE_REGISTRY[detail.atmosphereName] ??
+    JOSANZ_ATMOSPHERE_REGISTRY.neutral;
   applyJosanzThemeCssVariables({
     atmosphere,
     primaryColor: detail.primaryColor,
     themeName: shapeToThemeName(detail.shape),
   });
-  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] = detail;
+  (window as unknown as StorybookThemeWindow)[STORYBOOK_THEME_STATE_KEY] =
+    detail;
 };
 
-const updateStorybookGlobalsFromService = (detail: StorybookThemeDetail): void => {
+const updateStorybookGlobalsFromService = (
+  detail: StorybookThemeDetail,
+): void => {
   const syncKey = `${detail.atmosphereName}|${detail.primaryColor}|${detail.shape}`;
   if (syncKey === lastGlobalsSyncKey) {
     return;
   }
   lastGlobalsSyncKey = syncKey;
-  const channel = (window as unknown as StorybookThemeWindow)['__STORYBOOK_ADDONS_CHANNEL__'];
+  const channel = (window as unknown as StorybookThemeWindow)[
+    '__STORYBOOK_ADDONS_CHANNEL__'
+  ];
   if (!channel || typeof (channel as { emit?: unknown }).emit !== 'function') {
     return;
   }
-  (channel as { emit: (eventName: string, payload: unknown) => void }).emit('updateGlobals', {
-    globals: {
-      josanzAtmosphere: detail.atmosphereName,
-      josanzBrandColor: detail.primaryColor,
-      josanzShape: detail.shape,
+  (channel as { emit: (eventName: string, payload: unknown) => void }).emit(
+    'updateGlobals',
+    {
+      globals: {
+        josanzAtmosphere: detail.atmosphereName,
+        josanzBrandColor: detail.primaryColor,
+        josanzShape: detail.shape,
+      },
     },
-  });
+  );
 };
 
 // ─── Atmósfera Josanz: sincroniza CSS con el mismo registro que `JosanzThemeService` ─
@@ -293,18 +315,35 @@ const atmosphereDecorator = (
   storyFn: () => unknown,
   context: {
     args?: Record<string, unknown>;
-    globals: { josanzAtmosphere?: string; josanzBrandColor?: string; josanzShape?: string };
+    globals: {
+      josanzAtmosphere?: string;
+      josanzBrandColor?: string;
+      josanzShape?: string;
+    };
   },
 ) => {
-  const key = (context.globals?.josanzAtmosphere ?? 'neutral') as JosanzAtmosphereName;
-  const atmosphere = JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
-  const customColor = typeof context.args?.['customColor'] === 'string' ? context.args['customColor'].trim() : '';
-  const brandColor = typeof context.args?.['brandColor'] === 'string' ? context.args['brandColor'].trim() : '';
-  const toolbarBrandColor = context.globals?.josanzBrandColor || JOSANZ_DEFAULT_PRIMARY;
+  const key = (context.globals?.josanzAtmosphere ??
+    'neutral') as JosanzAtmosphereName;
+  const atmosphere =
+    JOSANZ_ATMOSPHERE_REGISTRY[key] ?? JOSANZ_ATMOSPHERE_REGISTRY.neutral;
+  const customColor =
+    typeof context.args?.['customColor'] === 'string'
+      ? context.args['customColor'].trim()
+      : '';
+  const brandColor =
+    typeof context.args?.['brandColor'] === 'string'
+      ? context.args['brandColor'].trim()
+      : '';
+  const toolbarBrandColor =
+    context.globals?.josanzBrandColor || JOSANZ_DEFAULT_PRIMARY;
   const primaryColor = customColor || brandColor || toolbarBrandColor;
   const storyShape = context.args?.['shape'];
   const toolbarShape = context.globals?.josanzShape;
-  const shape = isShape(storyShape) ? storyShape : isShape(toolbarShape) ? toolbarShape : 'rounded';
+  const shape = isShape(storyShape)
+    ? storyShape
+    : isShape(toolbarShape)
+      ? toolbarShape
+      : 'rounded';
   const detail = {
     atmosphereName: atmosphere.name,
     primaryColor,
@@ -321,7 +360,10 @@ const atmosphereDecorator = (
 };
 
 // ─── Theme decorator: apply data-theme to <html> from Storybook globals ─────
-const themeDecorator = (storyFn: () => unknown, context: { globals: { theme?: string } }) => {
+const themeDecorator = (
+  storyFn: () => unknown,
+  context: { globals: { theme?: string } },
+) => {
   const theme = context.globals?.theme ?? 'light';
   document.documentElement.setAttribute('data-theme', theme);
   applyJosanzStructuralCssVariables(document.documentElement);
@@ -389,7 +431,8 @@ export const globalTypes = {
   },
   josanzShape: {
     name: 'Shape',
-    description: 'Forma global de controles (`JosanzThemeService.defaultShape`)',
+    description:
+      'Forma global de controles (`JosanzThemeService.defaultShape`)',
     defaultValue: 'rounded',
     toolbar: {
       icon: 'circlehollow',
@@ -420,8 +463,8 @@ export const parameters = {
     default: 'Luxe Light',
     values: [
       { name: 'Luxe Light', value: '#fefefe' },
-      { name: 'White',      value: '#ffffff' },
-      { name: 'Luxe Dark',  value: '#0f172a' },
+      { name: 'White', value: '#ffffff' },
+      { name: 'Luxe Dark', value: '#0f172a' },
     ],
   },
 };

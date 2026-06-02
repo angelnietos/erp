@@ -7,7 +7,9 @@ export const appRoutes: Route[] = [
     path: 'auth/login',
     canActivate: [josanzGuestGuard],
     loadComponent: () =>
-      import('./pages/josanz-login.component').then((m) => m.JosanzLoginComponent),
+      import('./pages/josanz-login.component').then(
+        (m) => m.JosanzLoginComponent,
+      ),
   },
   {
     path: '',
@@ -43,26 +45,35 @@ export const appRoutes: Route[] = [
       {
         path: 'reports/new',
         loadComponent: () =>
-          import('./pages/josanz-report-new.component').then((m) => m.JosanzReportNewComponent),
+          import('./pages/josanz-report-new.component').then(
+            (m) => m.JosanzReportNewComponent,
+          ),
       },
       {
         path: 'clients',
-        loadChildren: () => import('@josanz-erp/shell').then((m) => m.josanzClientsRoutes),
+        loadChildren: () =>
+          import('@josanz-erp/shell').then((m) => m.josanzClientsRoutes),
       },
       {
         path: 'users',
         loadChildren: () =>
-          import('@josanz-erp/josanz-users-shell').then((m) => m.josanzUsersRoutes),
+          import('@josanz-erp/josanz-users-shell').then(
+            (m) => m.josanzUsersRoutes,
+          ),
       },
       {
         path: 'stock',
         loadChildren: () =>
-          import('@josanz-erp/josanz-stock-shell').then((m) => m.josanzStockRoutes),
+          import('@josanz-erp/josanz-stock-shell').then(
+            (m) => m.josanzStockRoutes,
+          ),
       },
       {
         path: 'budgets',
         loadChildren: () =>
-          import('@josanz-erp/josanz-budgets-feature-list').then((m) => m.josanzBudgetsRoutes),
+          import('@josanz-erp/josanz-budgets-feature-list').then(
+            (m) => m.josanzBudgetsRoutes,
+          ),
       },
       {
         path: 'delivery-notes',
@@ -74,7 +85,9 @@ export const appRoutes: Route[] = [
       {
         path: 'events',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then((m) => m.josanzEventsRoutes),
+          import('@josanz-erp/josanz-events-feature-list').then(
+            (m) => m.josanzEventsRoutes,
+          ),
       },
       {
         path: 'equipment',

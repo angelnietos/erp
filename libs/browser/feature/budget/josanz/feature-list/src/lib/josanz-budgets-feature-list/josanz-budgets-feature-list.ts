@@ -12,7 +12,12 @@ import {
 @Component({
   selector: 'josanz-budgets-feature-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListTemplateHeaderRowComponent],
+  imports: [
+    CommonModule,
+    MainListLayoutComponent,
+    AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
+  ],
   templateUrl: './josanz-budgets-feature-list.html',
 })
 export class JosanzBudgetsFeatureListComponent {

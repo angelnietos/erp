@@ -12,7 +12,7 @@
   (save)="onSave()"
 >
   <div class="josanz-event-detail-body">
-  @if (activeTab() === 'Resumen') {
+    @if (activeTab() === 'Resumen') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__body">
         <div class="josanz-event-hero__title-row">
@@ -36,13 +36,13 @@
         <p>Total: 1.210,00 €</p>
       </div>
     </section>
-  }
-  @if (activeTab() === 'Líneas' || activeTab() === 'Cobros' || activeTab() === 'Emails') {
+    } @if (activeTab() === 'Líneas' || activeTab() === 'Cobros' || activeTab()
+    === 'Emails') {
     <section class="josanz-event-section">
       <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
         Contenido de {{ activeTab() }} — específico para Facturación.
       </p>
     </section>
-  }
+    }
   </div>
 </josanz-main-detail-layout>

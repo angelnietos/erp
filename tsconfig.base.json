@@ -308,6 +308,12 @@
       ],
       "@josanz-erp/josanz-events-feature-list": [
         "libs/browser/feature/events/josanz/feature-list/src/index.ts"
+      ],
+      "@josanz-erp/document-generator-shell": [
+        "libs/browser/shell/document-generator/src/index.ts"
+      ],
+      "@josanz-erp/document-generator-data-access": [
+        "libs/browser/data-access/document-generator/src/index.ts"
       ]
     }
   },

@@ -51,6 +51,12 @@ export class JosanzBillingListComponent {
       { label: 'Pendiente', count: 24 },
       { label: 'Revisión', count: 5 },
     ],
-    statusFilterOptions: ['Todos (180)', 'Facturado', 'Pendiente', 'Revisión', 'Cerrado'],
+    statusFilterOptions: [
+      'Todos (180)',
+      'Facturado',
+      'Pendiente',
+      'Revisión',
+      'Cerrado',
+    ],
   };
 }

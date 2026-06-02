@@ -10,7 +10,10 @@ describe('JosanzLoginComponent', () => {
   const router = { navigate: jest.fn() };
   const theme = {
     setTheme: jest.fn(),
-    currentTheme: jest.fn(() => ({ defaultShape: 'rounded', primaryColor: '#080808' })),
+    currentTheme: jest.fn(() => ({
+      defaultShape: 'rounded',
+      primaryColor: '#080808',
+    })),
   };
   let fixture: ComponentFixture<JosanzLoginComponent>;
   let component: JosanzLoginComponent;
@@ -46,12 +49,16 @@ describe('JosanzLoginComponent', () => {
 
     it('should have required validator on email', () => {
       component.loginForm.controls.email.setValue('');
-      expect(component.loginForm.controls.email.hasError('required')).toBe(true);
+      expect(component.loginForm.controls.email.hasError('required')).toBe(
+        true,
+      );
     });
 
     it('should have required validator on password', () => {
       component.loginForm.controls.password.setValue('');
-      expect(component.loginForm.controls.password.hasError('required')).toBe(true);
+      expect(component.loginForm.controls.password.hasError('required')).toBe(
+        true,
+      );
     });
 
     it('should have loginCta from JOSANZ_FIGMA_LOGIN', () => {
@@ -97,7 +104,9 @@ describe('JosanzLoginComponent', () => {
       component.onSubmit();
 
       expect(auth.login).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledWith(['/dashboard'], { replaceUrl: true });
+      expect(router.navigate).toHaveBeenCalledWith(['/dashboard'], {
+        replaceUrl: true,
+      });
     });
   });
 

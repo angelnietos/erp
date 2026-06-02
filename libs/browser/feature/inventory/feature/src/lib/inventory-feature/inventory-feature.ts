@@ -24,7 +24,14 @@ import {
       <div class="inventory-success-toast" role="status">
         <span aria-hidden="true">✓</span>
         Equipo creado correctamente
-        <button type="button" class="toast-close" aria-label="Cerrar" (click)="dismissToast()">×</button>
+        <button
+          type="button"
+          class="toast-close"
+          aria-label="Cerrar"
+          (click)="dismissToast()"
+        >
+          ×
+        </button>
       </div>
     }
 
@@ -46,10 +53,14 @@ import {
         <div class="list-header__row w-full min-w-0 px-1 py-0 md:px-1 md:py-0">
           <div class="list-header__title truncate">Equipo / Categoría</div>
           <div class="list-header__fields">
-            <div class="list-header__field list-header__field--w160 truncate">Código</div>
+            <div class="list-header__field list-header__field--w160 truncate">
+              Código
+            </div>
             <div class="list-header__field truncate">Ubicación</div>
           </div>
-          <div class="list-header__status"><span class="truncate">Estado</span></div>
+          <div class="list-header__status">
+            <span class="truncate">Estado</span>
+          </div>
         </div>
       </div>
 
@@ -113,7 +124,14 @@ export class InventoryFeature implements OnInit {
   readonly pageSize = 12;
   showSuccessToast = false;
 
-  filterOptions = ['Todos', 'Audio', 'Video', 'Estructuras', 'Iluminación', 'Accesorios'];
+  filterOptions = [
+    'Todos',
+    'Audio',
+    'Video',
+    'Estructuras',
+    'Iluminación',
+    'Accesorios',
+  ];
 
   readonly equipmentItems: JosanzAdaptiveListItem[] = [
     {

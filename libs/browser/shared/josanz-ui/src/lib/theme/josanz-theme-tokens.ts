@@ -71,29 +71,114 @@ export interface JosanzAtmosphereCatalogEntry {
 }
 
 /** Orden y metadatos para el panel de personalización. */
-export const JOSANZ_ATMOSPHERE_CATALOG: readonly JosanzAtmosphereCatalogEntry[] = [
-  { name: 'neutral', label: 'Neutral White', description: 'Referencia Figma: lienzo claro y tarjetas blancas.' },
-  { name: 'lavender', label: 'Lavanda Suave', description: 'Morado empolvado, calmado y luminoso.' },
-  { name: 'sakura', label: 'Sakura', description: 'Rosa cerezo y crema, delicado y acogedor.' },
-  { name: 'cafe', label: 'Café Cálido', description: 'Marrón tostado y vainilla, como una cafetería.' },
-  { name: 'terracotta', label: 'Terracota', description: 'Arcilla y ámbar, cálido mediterráneo.' },
-  { name: 'nintendo', label: 'Nintendo Red', description: 'Crema cálida con acentos rojos alegres.' },
-  { name: 'emerald', label: 'Esmeralda', description: 'Verde bosque refinado, fresco y elegante.' },
-  { name: 'ocean', label: 'Océano Sereno', description: 'Azul profundo con espuma clara, relajante.' },
-  { name: 'forest', label: 'Bosque Musgo', description: 'Verdes apagados y sombra suave.' },
-  { name: 'sunset', label: 'Atardecer', description: 'Ámbar, coral y noche temprana.' },
-  { name: 'aurora', label: 'Aurora', description: 'Verde azulado y violeta, como luces del norte.' },
-  { name: 'ubisoft', label: 'Azul Profundo', description: 'Azul nocturno cinematográfico, suave.' },
-  { name: 'rayman', label: 'Magia Violeta', description: 'Índigo y oro, fantasía acogedora.' },
-  { name: 'easports', label: 'Arena Digital', description: 'Pizarra y cian eléctrico, deportivo premium.' },
-  { name: 'midnight', label: 'Medianoche', description: 'Gris azulado GitHub, foco nocturno.' },
-  { name: 'stargazer', label: 'Cielo Estrellado', description: 'Índigo cosmos con destellos suaves.' },
-  { name: 'orbitron', label: 'Orbitron', description: 'Interfaz sci-fi con tipografía Orbitron y acentos neón.' },
-  { name: 'rosewood', label: 'Palo Rosa', description: 'Burdeos y rosa antiguo, íntimo.' },
-  { name: 'rockstar', label: 'Oro Urbano', description: 'Carbón cálido y dorado tenue.' },
-  { name: 'industrial', label: 'Grafito', description: 'Zinc cálido, estudio minimalista.' },
-  { name: 'cyberpunk', label: 'Neón Lounge', description: 'Oscuro con neones suaves, no agresivo.' },
-] as const;
+export const JOSANZ_ATMOSPHERE_CATALOG: readonly JosanzAtmosphereCatalogEntry[] =
+  [
+    {
+      name: 'neutral',
+      label: 'Neutral White',
+      description: 'Referencia Figma: lienzo claro y tarjetas blancas.',
+    },
+    {
+      name: 'lavender',
+      label: 'Lavanda Suave',
+      description: 'Morado empolvado, calmado y luminoso.',
+    },
+    {
+      name: 'sakura',
+      label: 'Sakura',
+      description: 'Rosa cerezo y crema, delicado y acogedor.',
+    },
+    {
+      name: 'cafe',
+      label: 'Café Cálido',
+      description: 'Marrón tostado y vainilla, como una cafetería.',
+    },
+    {
+      name: 'terracotta',
+      label: 'Terracota',
+      description: 'Arcilla y ámbar, cálido mediterráneo.',
+    },
+    {
+      name: 'nintendo',
+      label: 'Nintendo Red',
+      description: 'Crema cálida con acentos rojos alegres.',
+    },
+    {
+      name: 'emerald',
+      label: 'Esmeralda',
+      description: 'Verde bosque refinado, fresco y elegante.',
+    },
+    {
+      name: 'ocean',
+      label: 'Océano Sereno',
+      description: 'Azul profundo con espuma clara, relajante.',
+    },
+    {
+      name: 'forest',
+      label: 'Bosque Musgo',
+      description: 'Verdes apagados y sombra suave.',
+    },
+    {
+      name: 'sunset',
+      label: 'Atardecer',
+      description: 'Ámbar, coral y noche temprana.',
+    },
+    {
+      name: 'aurora',
+      label: 'Aurora',
+      description: 'Verde azulado y violeta, como luces del norte.',
+    },
+    {
+      name: 'ubisoft',
+      label: 'Azul Profundo',
+      description: 'Azul nocturno cinematográfico, suave.',
+    },
+    {
+      name: 'rayman',
+      label: 'Magia Violeta',
+      description: 'Índigo y oro, fantasía acogedora.',
+    },
+    {
+      name: 'easports',
+      label: 'Arena Digital',
+      description: 'Pizarra y cian eléctrico, deportivo premium.',
+    },
+    {
+      name: 'midnight',
+      label: 'Medianoche',
+      description: 'Gris azulado GitHub, foco nocturno.',
+    },
+    {
+      name: 'stargazer',
+      label: 'Cielo Estrellado',
+      description: 'Índigo cosmos con destellos suaves.',
+    },
+    {
+      name: 'orbitron',
+      label: 'Orbitron',
+      description: 'Interfaz sci-fi con tipografía Orbitron y acentos neón.',
+    },
+    {
+      name: 'rosewood',
+      label: 'Palo Rosa',
+      description: 'Burdeos y rosa antiguo, íntimo.',
+    },
+    {
+      name: 'rockstar',
+      label: 'Oro Urbano',
+      description: 'Carbón cálido y dorado tenue.',
+    },
+    {
+      name: 'industrial',
+      label: 'Grafito',
+      description: 'Zinc cálido, estudio minimalista.',
+    },
+    {
+      name: 'cyberpunk',
+      label: 'Neón Lounge',
+      description: 'Oscuro con neones suaves, no agresivo.',
+    },
+  ] as const;
 
 export interface JosanzThemeConfig {
   name: JosanzThemeName;
@@ -103,7 +188,10 @@ export interface JosanzThemeConfig {
 }
 
 /** Registro único de atmósferas (servicio, Storybook y herramientas). */
-export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmosphereConfig> = {
+export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
+  JosanzAtmosphereName,
+  JosanzAtmosphereConfig
+> = {
   neutral: {
     name: 'neutral',
     background: JOSANZ_FIGMA_SHELL.canvasBg,
@@ -121,7 +209,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   lavender: {
     name: 'lavender',
-    background: 'radial-gradient(circle at 15% 10%, #FFFFFF 0%, transparent 28%), linear-gradient(145deg, #F8F3FF 0%, #E9DDFF 46%, #D9C7FF 100%)',
+    background:
+      'radial-gradient(circle at 15% 10%, #FFFFFF 0%, transparent 28%), linear-gradient(145deg, #F8F3FF 0%, #E9DDFF 46%, #D9C7FF 100%)',
     surface: '#FFFCFF',
     text: '#2E1065',
     textMuted: '#6D28D9',
@@ -137,7 +226,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   sakura: {
     name: 'sakura',
-    background: 'radial-gradient(circle at 82% 12%, #FFFFFF 0%, transparent 30%), linear-gradient(160deg, #FFF8FA 0%, #FFE7EF 52%, #FFD3E2 100%)',
+    background:
+      'radial-gradient(circle at 82% 12%, #FFFFFF 0%, transparent 30%), linear-gradient(160deg, #FFF8FA 0%, #FFE7EF 52%, #FFD3E2 100%)',
     surface: '#FFFBFD',
     text: '#4A102A',
     textMuted: '#9D174D',
@@ -153,7 +243,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   cafe: {
     name: 'cafe',
-    background: 'radial-gradient(circle at 8% 12%, #FFFDF8 0%, transparent 32%), linear-gradient(150deg, #FBF6EF 0%, #F0E3D3 50%, #E2D0BC 100%)',
+    background:
+      'radial-gradient(circle at 8% 12%, #FFFDF8 0%, transparent 32%), linear-gradient(150deg, #FBF6EF 0%, #F0E3D3 50%, #E2D0BC 100%)',
     surface: '#FFFDF9',
     text: '#3A271A',
     textMuted: '#7C5F42',
@@ -169,7 +260,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   terracotta: {
     name: 'terracotta',
-    background: 'radial-gradient(circle at 88% 8%, #FFF7ED 0%, transparent 30%), linear-gradient(145deg, #FFF4E8 0%, #FFDCC4 48%, #F7B78D 100%)',
+    background:
+      'radial-gradient(circle at 88% 8%, #FFF7ED 0%, transparent 30%), linear-gradient(145deg, #FFF4E8 0%, #FFDCC4 48%, #F7B78D 100%)',
     surface: '#FFFDF9',
     text: '#431407',
     textMuted: '#9A3412',
@@ -185,7 +277,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   nintendo: {
     name: 'nintendo',
-    background: 'radial-gradient(circle at 18% 0%, #FFFFFF 0%, transparent 28%), linear-gradient(160deg, #FFF8F1 0%, #FFE3E3 48%, #FFB4B4 100%)',
+    background:
+      'radial-gradient(circle at 18% 0%, #FFFFFF 0%, transparent 28%), linear-gradient(160deg, #FFF8F1 0%, #FFE3E3 48%, #FFB4B4 100%)',
     surface: '#FFFFFF',
     text: '#4A0B0B',
     textMuted: '#B91C1C',
@@ -201,7 +294,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   emerald: {
     name: 'emerald',
-    background: 'radial-gradient(circle at 85% 12%, #ECFDF5 0%, transparent 28%), linear-gradient(150deg, #DDFBEA 0%, #9EEEC8 45%, #5FD6A2 100%)',
+    background:
+      'radial-gradient(circle at 85% 12%, #ECFDF5 0%, transparent 28%), linear-gradient(150deg, #DDFBEA 0%, #9EEEC8 45%, #5FD6A2 100%)',
     surface: '#FBFFFD',
     text: '#052E24',
     textMuted: '#047857',
@@ -217,7 +311,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   ubisoft: {
     name: 'ubisoft',
-    background: 'radial-gradient(circle at 18% 12%, rgba(96, 165, 250, 0.28) 0%, transparent 28%), linear-gradient(155deg, #07111F 0%, #0D1B33 48%, #142B4D 100%)',
+    background:
+      'radial-gradient(circle at 18% 12%, rgba(96, 165, 250, 0.28) 0%, transparent 28%), linear-gradient(155deg, #07111F 0%, #0D1B33 48%, #142B4D 100%)',
     surface: '#16243D',
     text: '#F3F8FF',
     textMuted: '#AFC4E8',
@@ -233,7 +328,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   rayman: {
     name: 'rayman',
-    background: 'radial-gradient(circle at 78% 14%, rgba(251, 191, 36, 0.28) 0%, transparent 24%), linear-gradient(145deg, #171346 0%, #27206F 44%, #3C2EA8 100%)',
+    background:
+      'radial-gradient(circle at 78% 14%, rgba(251, 191, 36, 0.28) 0%, transparent 24%), linear-gradient(145deg, #171346 0%, #27206F 44%, #3C2EA8 100%)',
     surface: '#332A86',
     text: '#FBFCFF',
     textMuted: '#D9D7FF',
@@ -249,7 +345,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   easports: {
     name: 'easports',
-    background: 'radial-gradient(circle at 80% 8%, rgba(34, 211, 238, 0.22) 0%, transparent 26%), linear-gradient(160deg, #07111F 0%, #0D182B 50%, #101C33 100%)',
+    background:
+      'radial-gradient(circle at 80% 8%, rgba(34, 211, 238, 0.22) 0%, transparent 26%), linear-gradient(160deg, #07111F 0%, #0D182B 50%, #101C33 100%)',
     surface: '#16243A',
     text: '#F4F9FF',
     textMuted: '#A4BCD9',
@@ -265,7 +362,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   cyberpunk: {
     name: 'cyberpunk',
-    background: 'radial-gradient(circle at 15% 10%, rgba(236, 72, 153, 0.24) 0%, transparent 25%), radial-gradient(circle at 86% 80%, rgba(45, 212, 191, 0.16) 0%, transparent 28%), linear-gradient(155deg, #12081A 0%, #1A1027 48%, #0D1720 100%)',
+    background:
+      'radial-gradient(circle at 15% 10%, rgba(236, 72, 153, 0.24) 0%, transparent 25%), radial-gradient(circle at 86% 80%, rgba(45, 212, 191, 0.16) 0%, transparent 28%), linear-gradient(155deg, #12081A 0%, #1A1027 48%, #0D1720 100%)',
     surface: '#21172D',
     text: '#F8F5FF',
     textMuted: '#D8B4FE',
@@ -281,7 +379,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   midnight: {
     name: 'midnight',
-    background: 'radial-gradient(circle at 70% 4%, rgba(88, 166, 255, 0.16) 0%, transparent 28%), linear-gradient(180deg, #090D13 0%, #111827 100%)',
+    background:
+      'radial-gradient(circle at 70% 4%, rgba(88, 166, 255, 0.16) 0%, transparent 28%), linear-gradient(180deg, #090D13 0%, #111827 100%)',
     surface: '#1A2230',
     text: '#F4F8FF',
     textMuted: '#A8B3C3',
@@ -297,7 +396,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   stargazer: {
     name: 'stargazer',
-    background: 'radial-gradient(circle at 22% 14%, rgba(129, 140, 248, 0.26) 0%, transparent 24%), radial-gradient(circle at 82% 72%, rgba(217, 70, 239, 0.12) 0%, transparent 30%), linear-gradient(160deg, #070B20 0%, #12183A 44%, #1B1240 100%)',
+    background:
+      'radial-gradient(circle at 22% 14%, rgba(129, 140, 248, 0.26) 0%, transparent 24%), radial-gradient(circle at 82% 72%, rgba(217, 70, 239, 0.12) 0%, transparent 30%), linear-gradient(160deg, #070B20 0%, #12183A 44%, #1B1240 100%)',
     surface: '#202A4F',
     text: '#F4F6FF',
     textMuted: '#B8C3F7',
@@ -313,7 +413,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   orbitron: {
     name: 'orbitron',
-    background: 'radial-gradient(circle at 16% 12%, rgba(34, 211, 238, 0.26) 0%, transparent 24%), radial-gradient(circle at 84% 18%, rgba(168, 85, 247, 0.22) 0%, transparent 28%), linear-gradient(150deg, #050816 0%, #0A1024 46%, #111827 100%)',
+    background:
+      'radial-gradient(circle at 16% 12%, rgba(34, 211, 238, 0.26) 0%, transparent 24%), radial-gradient(circle at 84% 18%, rgba(168, 85, 247, 0.22) 0%, transparent 28%), linear-gradient(150deg, #050816 0%, #0A1024 46%, #111827 100%)',
     surface: '#111A2E',
     text: '#F8FBFF',
     textMuted: '#A7F3D0',
@@ -331,7 +432,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   rosewood: {
     name: 'rosewood',
-    background: 'radial-gradient(circle at 18% 12%, rgba(244, 114, 182, 0.18) 0%, transparent 25%), linear-gradient(150deg, #210D13 0%, #361522 50%, #26101B 100%)',
+    background:
+      'radial-gradient(circle at 18% 12%, rgba(244, 114, 182, 0.18) 0%, transparent 25%), linear-gradient(150deg, #210D13 0%, #361522 50%, #26101B 100%)',
     surface: '#432130',
     text: '#FFF1F7',
     textMuted: '#F2B8CF',
@@ -347,7 +449,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   rockstar: {
     name: 'rockstar',
-    background: 'radial-gradient(circle at 72% 10%, rgba(245, 158, 11, 0.18) 0%, transparent 24%), linear-gradient(160deg, #100E0B 0%, #1C1711 50%, #0F0D0A 100%)',
+    background:
+      'radial-gradient(circle at 72% 10%, rgba(245, 158, 11, 0.18) 0%, transparent 24%), linear-gradient(160deg, #100E0B 0%, #1C1711 50%, #0F0D0A 100%)',
     surface: '#29231C',
     text: '#FFF2D6',
     textMuted: '#D6C2A2',
@@ -363,7 +466,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   industrial: {
     name: 'industrial',
-    background: 'radial-gradient(circle at 18% 0%, rgba(212, 212, 216, 0.12) 0%, transparent 28%), linear-gradient(180deg, #121214 0%, #232327 100%)',
+    background:
+      'radial-gradient(circle at 18% 0%, rgba(212, 212, 216, 0.12) 0%, transparent 28%), linear-gradient(180deg, #121214 0%, #232327 100%)',
     surface: '#303036',
     text: '#FAFAFA',
     textMuted: '#B9B9C0',
@@ -379,7 +483,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   sunset: {
     name: 'sunset',
-    background: 'radial-gradient(circle at 22% 10%, rgba(251, 146, 60, 0.24) 0%, transparent 26%), radial-gradient(circle at 85% 72%, rgba(244, 63, 94, 0.18) 0%, transparent 30%), linear-gradient(150deg, #331106 0%, #7C2D12 42%, #3A0A1A 100%)',
+    background:
+      'radial-gradient(circle at 22% 10%, rgba(251, 146, 60, 0.24) 0%, transparent 26%), radial-gradient(circle at 85% 72%, rgba(244, 63, 94, 0.18) 0%, transparent 30%), linear-gradient(150deg, #331106 0%, #7C2D12 42%, #3A0A1A 100%)',
     surface: '#5F2517',
     text: '#FFF7ED',
     textMuted: '#FED7AA',
@@ -395,7 +500,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   ocean: {
     name: 'ocean',
-    background: 'radial-gradient(circle at 20% 12%, rgba(125, 211, 252, 0.22) 0%, transparent 26%), linear-gradient(160deg, #06283D 0%, #0B4568 42%, #075985 100%)',
+    background:
+      'radial-gradient(circle at 20% 12%, rgba(125, 211, 252, 0.22) 0%, transparent 26%), linear-gradient(160deg, #06283D 0%, #0B4568 42%, #075985 100%)',
     surface: '#0D4A66',
     text: '#F0FAFF',
     textMuted: '#C7ECFF',
@@ -411,7 +517,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   forest: {
     name: 'forest',
-    background: 'radial-gradient(circle at 78% 8%, rgba(134, 239, 172, 0.18) 0%, transparent 26%), linear-gradient(155deg, #041F13 0%, #0B3B25 46%, #14532D 100%)',
+    background:
+      'radial-gradient(circle at 78% 8%, rgba(134, 239, 172, 0.18) 0%, transparent 26%), linear-gradient(155deg, #041F13 0%, #0B3B25 46%, #14532D 100%)',
     surface: '#123F2C',
     text: '#F0FDF4',
     textMuted: '#BDECCF',
@@ -427,7 +534,8 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<JosanzAtmosphereName, JosanzAtmo
   },
   aurora: {
     name: 'aurora',
-    background: 'radial-gradient(circle at 18% 12%, rgba(45, 212, 191, 0.26) 0%, transparent 25%), radial-gradient(circle at 82% 76%, rgba(167, 139, 250, 0.2) 0%, transparent 30%), linear-gradient(135deg, #08111F 0%, #0E3C3B 36%, #3B1A78 72%, #0B5F73 100%)',
+    background:
+      'radial-gradient(circle at 18% 12%, rgba(45, 212, 191, 0.26) 0%, transparent 25%), radial-gradient(circle at 82% 76%, rgba(167, 139, 250, 0.2) 0%, transparent 30%), linear-gradient(135deg, #08111F 0%, #0E3C3B 36%, #3B1A78 72%, #0B5F73 100%)',
     surface: '#1A3142',
     text: '#F0FDFA',
     textMuted: '#B6F2EA',
@@ -456,7 +564,9 @@ function parseCssColorToRgb(input: string): [number, number, number] | null {
     const n = parseInt(h, 16);
     return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
   }
-  const rgbComma = s.match(/^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+  const rgbComma = s.match(
+    /^rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i,
+  );
   if (rgbComma) {
     return [Number(rgbComma[1]), Number(rgbComma[2]), Number(rgbComma[3])];
   }
@@ -478,7 +588,10 @@ function relativeLuminanceFromRgb(rgb: [number, number, number]): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-function contrastRatioFromRgb(a: [number, number, number], b: [number, number, number]): number {
+function contrastRatioFromRgb(
+  a: [number, number, number],
+  b: [number, number, number],
+): number {
   const l1 = relativeLuminanceFromRgb(a);
   const l2 = relativeLuminanceFromRgb(b);
   const lighter = Math.max(l1, l2);
@@ -521,7 +634,9 @@ export function josanzReadableOnSolid(background: string): string {
   }
   const dark: [number, number, number] = [15, 23, 42];
   const light: [number, number, number] = [255, 255, 255];
-  return contrastRatioFromRgb(dark, rgb) >= contrastRatioFromRgb(light, rgb) ? '#0F172A' : '#FFFFFF';
+  return contrastRatioFromRgb(dark, rgb) >= contrastRatioFromRgb(light, rgb)
+    ? '#0F172A'
+    : '#FFFFFF';
 }
 
 /**
@@ -575,17 +690,30 @@ export function applyJosanzBrandCssVariables(
         ? `color-mix(in srgb, ${primaryColor} 78%, white)`
         : `color-mix(in srgb, ${primaryColor} 82%, black)`,
   );
-  root.style.setProperty('--josanz-button-primary-text', josanzReadableOnSolid(isNeutral ? '#0F1E2F' : primaryColor));
+  root.style.setProperty(
+    '--josanz-button-primary-text',
+    josanzReadableOnSolid(isNeutral ? '#0F1E2F' : primaryColor),
+  );
   root.style.setProperty(
     '--josanz-button-secondary-bg',
-    isNeutral ? '#FFFFFF' : `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 8}%, ${surface})`,
+    isNeutral
+      ? '#FFFFFF'
+      : `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 8}%, ${surface})`,
   );
   root.style.setProperty(
     '--josanz-button-secondary-border',
-    isNeutral ? '#0F1E2F' : `color-mix(in srgb, ${primaryColor} 48%, ${atmosphere.border})`,
+    isNeutral
+      ? '#0F1E2F'
+      : `color-mix(in srgb, ${primaryColor} 48%, ${atmosphere.border})`,
   );
-  root.style.setProperty('--josanz-button-secondary-text', isNeutral ? '#0F1E2F' : pillText);
-  root.style.setProperty('--josanz-button-ghost-text', isNeutral ? '#0F1E2F' : atmosphere.text);
+  root.style.setProperty(
+    '--josanz-button-secondary-text',
+    isNeutral ? '#0F1E2F' : pillText,
+  );
+  root.style.setProperty(
+    '--josanz-button-ghost-text',
+    isNeutral ? '#0F1E2F' : atmosphere.text,
+  );
   root.style.setProperty('--josanz-button-disabled-bg', '#DADFE6');
   root.style.setProperty('--josanz-button-disabled-border', '#DADFE6');
   root.style.setProperty('--josanz-button-disabled-text', '#FFFFFF');
@@ -595,16 +723,33 @@ export function applyJosanzBrandCssVariables(
       ? '0 2px 8px rgba(231, 237, 241, 0.9)'
       : `0 12px 26px color-mix(in srgb, ${primaryColor} 26%, transparent)`,
   );
-  root.style.setProperty('--josanz-sidebar-bg', isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface));
+  root.style.setProperty(
+    '--josanz-sidebar-bg',
+    isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface),
+  );
   root.style.setProperty('--josanz-sidebar-width', '36px');
   root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
-  root.style.setProperty('--josanz-sidebar-border', isNeutral ? 'transparent' : atmosphere.border);
-  root.style.setProperty('--josanz-sidebar-shadow', isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow);
-  root.style.setProperty('--josanz-sidebar-icon', isNeutral ? '#222222' : atmosphere.textMuted);
-  root.style.setProperty('--josanz-sidebar-icon-active', isNeutral ? '#222222' : pillText);
+  root.style.setProperty(
+    '--josanz-sidebar-border',
+    isNeutral ? 'transparent' : atmosphere.border,
+  );
+  root.style.setProperty(
+    '--josanz-sidebar-shadow',
+    isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow,
+  );
+  root.style.setProperty(
+    '--josanz-sidebar-icon',
+    isNeutral ? '#222222' : atmosphere.textMuted,
+  );
+  root.style.setProperty(
+    '--josanz-sidebar-icon-active',
+    isNeutral ? '#222222' : pillText,
+  );
   root.style.setProperty(
     '--josanz-sidebar-hover-bg',
-    isNeutral ? 'transparent' : `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+    isNeutral
+      ? 'transparent'
+      : `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
   );
   root.style.setProperty(
     '--josanz-focus-ring',
@@ -621,11 +766,14 @@ export function applyJosanzBrandCssVariables(
 }
 
 /** Infiera si la atmósfera es oscura a partir del fondo (sólido o gradiente). */
-export function josanzAtmosphereIsDark(atmosphere: JosanzAtmosphereConfig): boolean {
+export function josanzAtmosphereIsDark(
+  atmosphere: JosanzAtmosphereConfig,
+): boolean {
   if (atmosphere.isDark !== undefined) {
     return atmosphere.isDark;
   }
-  const sample = atmosphere.background.match(/#[\da-f]{3,8}/i)?.[0] ?? atmosphere.background;
+  const sample =
+    atmosphere.background.match(/#[\da-f]{3,8}/i)?.[0] ?? atmosphere.background;
   const rgb = parseCssColorToRgb(sample);
   if (!rgb) {
     return false;
@@ -668,8 +816,14 @@ export function applyJosanzThemeCssVariables(params: {
   };
 
   root.style.setProperty('--josanz-primary', primaryColor);
-  root.style.setProperty('--josanz-on-primary', josanzReadableOnSolid(primaryColor));
-  root.style.setProperty('--josanz-on-danger', josanzReadableOnSolid('#EF4444'));
+  root.style.setProperty(
+    '--josanz-on-primary',
+    josanzReadableOnSolid(primaryColor),
+  );
+  root.style.setProperty(
+    '--josanz-on-danger',
+    josanzReadableOnSolid('#EF4444'),
+  );
   root.style.setProperty('--josanz-bg', atmosphere.background);
   root.style.setProperty('--josanz-surface', atmosphere.surface);
   root.style.setProperty('--josanz-text', effectiveText);
@@ -677,10 +831,22 @@ export function applyJosanzThemeCssVariables(params: {
   root.style.setProperty('--josanz-border', effectiveBorder);
   root.style.setProperty('--josanz-shadow', atmosphere.shadow);
   root.style.setProperty('--josanz-glass', atmosphere.glass ?? 'transparent');
-  root.style.setProperty('--font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
-  root.style.setProperty('--font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
-  root.style.setProperty('--josanz-font-main', atmosphere.fontMain ?? "'Nunito', sans-serif");
-  root.style.setProperty('--josanz-font-display', atmosphere.fontDisplay ?? "'DM Sans', sans-serif");
+  root.style.setProperty(
+    '--font-main',
+    atmosphere.fontMain ?? "'Nunito', sans-serif",
+  );
+  root.style.setProperty(
+    '--font-display',
+    atmosphere.fontDisplay ?? "'DM Sans', sans-serif",
+  );
+  root.style.setProperty(
+    '--josanz-font-main',
+    atmosphere.fontMain ?? "'Nunito', sans-serif",
+  );
+  root.style.setProperty(
+    '--josanz-font-display',
+    atmosphere.fontDisplay ?? "'DM Sans', sans-serif",
+  );
   root.style.setProperty(
     '--josanz-card-shadow',
     atmosphere.cardShadow ?? atmosphere.shadow,
@@ -707,7 +873,10 @@ export function applyJosanzThemeCssVariables(params: {
   }
   if (atmosphere.surfaceMuted) {
     root.style.setProperty('--josanz-surface-muted', atmosphere.surfaceMuted);
-    root.style.setProperty('--josanz-header-filter-bg', atmosphere.surfaceMuted);
+    root.style.setProperty(
+      '--josanz-header-filter-bg',
+      atmosphere.surfaceMuted,
+    );
   }
   if (atmosphere.strokeField) {
     root.style.setProperty('--josanz-stroke-field', atmosphere.strokeField);
@@ -724,26 +893,64 @@ export function applyJosanzThemeCssVariables(params: {
 
 /** Tokens estructurales fijos del frame Figma (modo neutro). */
 function applyJosanzFigmaNeutralStructuralOverrides(root: HTMLElement): void {
-  root.style.setProperty('--josanz-stroke-widget', JOSANZ_FIGMA_DASHBOARD.widgetStroke);
-  root.style.setProperty('--josanz-stroke-field', JOSANZ_FIGMA_LOGIN.fieldStroke);
+  root.style.setProperty(
+    '--josanz-stroke-widget',
+    JOSANZ_FIGMA_DASHBOARD.widgetStroke,
+  );
+  root.style.setProperty(
+    '--josanz-stroke-field',
+    JOSANZ_FIGMA_LOGIN.fieldStroke,
+  );
   root.style.setProperty('--josanz-row-line', JOSANZ_FIGMA_DASHBOARD.rowLine);
-  root.style.setProperty('--josanz-surface-muted', JOSANZ_FIGMA_DASHBOARD.surfaceMuted);
-  root.style.setProperty('--josanz-header-filter-bg', JOSANZ_FIGMA_DASHBOARD.headerFilterBg);
-  root.style.setProperty('--josanz-field-fill', JOSANZ_FIGMA_LOGIN.fieldIdleFill);
+  root.style.setProperty(
+    '--josanz-surface-muted',
+    JOSANZ_FIGMA_DASHBOARD.surfaceMuted,
+  );
+  root.style.setProperty(
+    '--josanz-header-filter-bg',
+    JOSANZ_FIGMA_DASHBOARD.headerFilterBg,
+  );
+  root.style.setProperty(
+    '--josanz-field-fill',
+    JOSANZ_FIGMA_LOGIN.fieldIdleFill,
+  );
   root.style.setProperty('--josanz-text-heading', JOSANZ_FIGMA_LOGIN.heading);
   root.style.setProperty('--josanz-label-muted', JOSANZ_FIGMA_LOGIN.muted);
-  root.style.setProperty('--josanz-kpi-positive', JOSANZ_FIGMA_DASHBOARD.kpiPositive);
-  root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(178, 178, 178, 0.28)');
+  root.style.setProperty(
+    '--josanz-kpi-positive',
+    JOSANZ_FIGMA_DASHBOARD.kpiPositive,
+  );
+  root.style.setProperty(
+    '--josanz-elev-soft',
+    '0px 4px 8px rgba(178, 178, 178, 0.28)',
+  );
   root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0, 0, 0, 0.08)');
-  root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0, 0, 0, 0.08)');
-  root.style.setProperty('--josanz-radius-control', `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`);
-  root.style.setProperty('--josanz-radius-widget', `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`);
+  root.style.setProperty(
+    '--josanz-footer-elev',
+    '0 -10px 30px rgba(0, 0, 0, 0.08)',
+  );
+  root.style.setProperty(
+    '--josanz-radius-control',
+    `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`,
+  );
+  root.style.setProperty(
+    '--josanz-radius-widget',
+    `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`,
+  );
   root.style.setProperty('--josanz-radius-card', '12px');
-  root.style.setProperty('--josanz-secondary-fill', JOSANZ_FIGMA_APP.secondaryFill);
+  root.style.setProperty(
+    '--josanz-secondary-fill',
+    JOSANZ_FIGMA_APP.secondaryFill,
+  );
 }
 
-function applyJosanzStatusPillCssVariables(root: HTMLElement, isDark: boolean): void {
-  const palette = isDark ? JOSANZ_FIGMA_STATUS_PILLS_DARK : JOSANZ_FIGMA_STATUS_PILLS;
+function applyJosanzStatusPillCssVariables(
+  root: HTMLElement,
+  isDark: boolean,
+): void {
+  const palette = isDark
+    ? JOSANZ_FIGMA_STATUS_PILLS_DARK
+    : JOSANZ_FIGMA_STATUS_PILLS;
   (Object.keys(palette) as JosanzStatusPillKey[]).forEach((key) => {
     const { bg, text } = palette[key];
     root.style.setProperty(`--josanz-pill-${key}-bg`, bg);
@@ -752,7 +959,9 @@ function applyJosanzStatusPillCssVariables(root: HTMLElement, isDark: boolean): 
 }
 
 /** Tokens de layout Figma (trazos, radios, superficies) + semántica; respeta `data-theme="dark"`. */
-export function applyJosanzStructuralCssVariables(root: HTMLElement = document.documentElement): void {
+export function applyJosanzStructuralCssVariables(
+  root: HTMLElement = document.documentElement,
+): void {
   const isDark = root.getAttribute('data-theme') === 'dark';
   if (isDark) {
     root.style.setProperty('--josanz-status-pill-muted-bg', '#334155');
@@ -766,50 +975,107 @@ export function applyJosanzStructuralCssVariables(root: HTMLElement = document.d
     root.style.setProperty('--josanz-text-heading', '#f8fafc');
     root.style.setProperty('--josanz-label-muted', '#94a3b8');
     root.style.setProperty('--josanz-kpi-positive', '#4ade80');
-    root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(0,0,0,0.35)');
+    root.style.setProperty(
+      '--josanz-elev-soft',
+      '0px 4px 8px rgba(0,0,0,0.35)',
+    );
     root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0,0,0,0.25)');
   } else {
-    root.style.setProperty('--josanz-status-pill-muted-bg', JOSANZ_FIGMA_LOGIN.primaryCta);
-    root.style.setProperty('--josanz-status-pill-muted-text', JOSANZ_FIGMA_LOGIN.onPrimaryCta);
-    root.style.setProperty('--josanz-stroke-widget', JOSANZ_FIGMA_DASHBOARD.widgetStroke);
-    root.style.setProperty('--josanz-stroke-field', JOSANZ_FIGMA_LOGIN.fieldStroke);
+    root.style.setProperty(
+      '--josanz-status-pill-muted-bg',
+      JOSANZ_FIGMA_LOGIN.primaryCta,
+    );
+    root.style.setProperty(
+      '--josanz-status-pill-muted-text',
+      JOSANZ_FIGMA_LOGIN.onPrimaryCta,
+    );
+    root.style.setProperty(
+      '--josanz-stroke-widget',
+      JOSANZ_FIGMA_DASHBOARD.widgetStroke,
+    );
+    root.style.setProperty(
+      '--josanz-stroke-field',
+      JOSANZ_FIGMA_LOGIN.fieldStroke,
+    );
     root.style.setProperty('--josanz-row-line', JOSANZ_FIGMA_DASHBOARD.rowLine);
-    root.style.setProperty('--josanz-surface-muted', JOSANZ_FIGMA_DASHBOARD.surfaceMuted);
-    root.style.setProperty('--josanz-header-filter-bg', JOSANZ_FIGMA_DASHBOARD.headerFilterBg);
-    root.style.setProperty('--josanz-field-fill', JOSANZ_FIGMA_LOGIN.fieldIdleFill);
+    root.style.setProperty(
+      '--josanz-surface-muted',
+      JOSANZ_FIGMA_DASHBOARD.surfaceMuted,
+    );
+    root.style.setProperty(
+      '--josanz-header-filter-bg',
+      JOSANZ_FIGMA_DASHBOARD.headerFilterBg,
+    );
+    root.style.setProperty(
+      '--josanz-field-fill',
+      JOSANZ_FIGMA_LOGIN.fieldIdleFill,
+    );
     root.style.setProperty('--josanz-text-heading', JOSANZ_FIGMA_LOGIN.heading);
     root.style.setProperty('--josanz-label-muted', JOSANZ_FIGMA_LOGIN.muted);
-    root.style.setProperty('--josanz-kpi-positive', JOSANZ_FIGMA_DASHBOARD.kpiPositive);
-    root.style.setProperty('--josanz-elev-soft', '0px 4px 8px rgba(178,178,178,0.28)');
+    root.style.setProperty(
+      '--josanz-kpi-positive',
+      JOSANZ_FIGMA_DASHBOARD.kpiPositive,
+    );
+    root.style.setProperty(
+      '--josanz-elev-soft',
+      '0px 4px 8px rgba(178,178,178,0.28)',
+    );
     root.style.setProperty('--josanz-shadow-sm', '0 2px 4px rgba(0,0,0,0.1)');
   }
-  root.style.setProperty('--josanz-radius-control', `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`);
-  root.style.setProperty('--josanz-radius-widget', `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`);
+  root.style.setProperty(
+    '--josanz-radius-control',
+    `${JOSANZ_FIGMA_LOGIN.fieldRadiusPx}px`,
+  );
+  root.style.setProperty(
+    '--josanz-radius-widget',
+    `${JOSANZ_FIGMA_DASHBOARD.widgetRadiusPx}px`,
+  );
   root.style.setProperty('--josanz-radius-card', '12px');
-  root.style.setProperty('--josanz-secondary-fill', JOSANZ_FIGMA_APP.secondaryFill);
+  root.style.setProperty(
+    '--josanz-secondary-fill',
+    JOSANZ_FIGMA_APP.secondaryFill,
+  );
   root.style.setProperty('--josanz-success', JOSANZ_FIGMA_SEMANTIC.success);
   root.style.setProperty('--josanz-warning', JOSANZ_FIGMA_SEMANTIC.warning);
-  root.style.setProperty('--josanz-badge-neutral', JOSANZ_FIGMA_SEMANTIC.badgeNeutral);
+  root.style.setProperty(
+    '--josanz-badge-neutral',
+    JOSANZ_FIGMA_SEMANTIC.badgeNeutral,
+  );
   root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
   root.style.setProperty('--josanz-content-max', '1440px');
   root.style.setProperty('--josanz-sidebar-width', '36px');
   root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
   root.style.setProperty('--josanz-shell-pad-x', '1.5rem');
-  root.style.setProperty('--josanz-shell-pad-x-md', `${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px`);
+  root.style.setProperty(
+    '--josanz-shell-pad-x-md',
+    `${JOSANZ_FIGMA_DASHBOARD.pagePadPx}px`,
+  );
   root.style.setProperty('--josanz-shell-pad-y', '1.5rem');
   root.style.setProperty('--josanz-shell-pad-y-md', '2.5rem');
-  root.style.setProperty('--josanz-shell-footer-safe', 'max(1.5rem, env(safe-area-inset-bottom, 0px))');
+  root.style.setProperty(
+    '--josanz-shell-footer-safe',
+    'max(1.5rem, env(safe-area-inset-bottom, 0px))',
+  );
   root.style.setProperty('--josanz-shell-mobile-tab-clearance', '133px');
   /** Listas (Dashboard.svg): gutter rejilla 32px; más aire interior en filas tipo card. */
-  root.style.setProperty('--josanz-list-stack-gap', `${JOSANZ_FIGMA_DASHBOARD.gridGapPx}px`);
+  root.style.setProperty(
+    '--josanz-list-stack-gap',
+    `${JOSANZ_FIGMA_DASHBOARD.gridGapPx}px`,
+  );
   root.style.setProperty('--josanz-list-card-pad-x', '1.25rem');
   root.style.setProperty('--josanz-list-card-pad-x-md', '2rem');
   root.style.setProperty('--josanz-list-card-pad-y', '1.25rem');
   root.style.setProperty('--josanz-list-card-pad-y-md', '1.5rem');
   if (isDark) {
-    root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0,0,0,0.45)');
+    root.style.setProperty(
+      '--josanz-footer-elev',
+      '0 -10px 30px rgba(0,0,0,0.45)',
+    );
   } else {
-    root.style.setProperty('--josanz-footer-elev', '0 -10px 30px rgba(0,0,0,0.1)');
+    root.style.setProperty(
+      '--josanz-footer-elev',
+      '0 -10px 30px rgba(0,0,0,0.1)',
+    );
   }
 
   applyJosanzStatusPillCssVariables(root, isDark);

@@ -15,25 +15,42 @@ import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout
       <div
         class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-0 md:px-[var(--josanz-list-card-pad-x-md)] md:py-0"
       >
-        <div class="josanz-list-template-row__title flex items-center md:block shrink-0">
+        <div
+          class="josanz-list-template-row__title flex items-center md:block shrink-0"
+        >
           <div class="flex min-w-0 items-center gap-2.5">
             @if (withLeadingMark) {
-              <span class="josanz-list-thead__leading-spacer" aria-hidden="true"></span>
+              <span
+                class="josanz-list-thead__leading-spacer"
+                aria-hidden="true"
+              ></span>
             }
-            <span class="josanz-list-thead__label min-w-0 truncate">{{ titleLabel }}</span>
+            <span class="josanz-list-thead__label min-w-0 truncate">{{
+              titleLabel
+            }}</span>
           </div>
         </div>
 
         <div class="josanz-list-template-row__fields">
           @for (label of fieldLabels; track label; let i = $index) {
-            <div class="josanz-list-template-row__field" [ngClass]="fieldWidthClass(i)">
-              <span class="josanz-list-thead__field-bullet" aria-hidden="true"></span>
-              <span class="josanz-list-thead__label min-w-0 truncate">{{ label }}</span>
+            <div
+              class="josanz-list-template-row__field"
+              [ngClass]="fieldWidthClass(i)"
+            >
+              <span
+                class="josanz-list-thead__field-bullet"
+                aria-hidden="true"
+              ></span>
+              <span class="josanz-list-thead__label min-w-0 truncate">{{
+                label
+              }}</span>
             </div>
           }
         </div>
 
-        <div class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end">
+        <div
+          class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end"
+        >
           <span
             class="josanz-list-thead__status-label px-4 py-1.5 text-[10px] font-black uppercase tracking-widest"
           >

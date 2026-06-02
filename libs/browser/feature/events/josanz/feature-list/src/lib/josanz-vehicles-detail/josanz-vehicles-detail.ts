@@ -13,7 +13,7 @@ export class JosanzVehiclesDetailComponent {
   private readonly router = inject(Router);
 
   activeTab = signal('Resumen');
-  
+
   readonly tabs = ['Resumen', 'Mantenimiento', 'Historial', 'Multas'];
 
   setTab(tab: string): void {

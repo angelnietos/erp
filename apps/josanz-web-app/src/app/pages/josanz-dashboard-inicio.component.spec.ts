@@ -52,7 +52,13 @@ describe('JosanzDashboardInicioComponent', () => {
     it('should have days', () => {
       expect(component.days.length).toBe(7);
       expect(component.days).toEqual([
-        'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo',
+        'Lunes',
+        'Martes',
+        'Miércoles',
+        'Jueves',
+        'Viernes',
+        'Sábado',
+        'Domingo',
       ]);
     });
 
@@ -151,28 +157,37 @@ describe('JosanzDashboardInicioComponent', () => {
     });
 
     it('should render filter tabs', () => {
-      const filterTabs = fixture.nativeElement.querySelector('josanz-filter-tabs');
+      const filterTabs =
+        fixture.nativeElement.querySelector('josanz-filter-tabs');
       expect(filterTabs).toBeTruthy();
     });
 
     it('should render period buttons', () => {
-      const periodButtons = fixture.nativeElement.querySelectorAll('.josanz-home__period-btn');
+      const periodButtons = fixture.nativeElement.querySelectorAll(
+        '.josanz-home__period-btn',
+      );
       expect(periodButtons.length).toBe(4);
     });
 
     it('should render KPI cards', () => {
-      const kpiCards = fixture.nativeElement.querySelectorAll('.josanz-home__kpi-card');
+      const kpiCards = fixture.nativeElement.querySelectorAll(
+        '.josanz-home__kpi-card',
+      );
       expect(kpiCards.length).toBeGreaterThanOrEqual(4);
     });
 
     it('should render schedule grid', () => {
-      const schedule = fixture.nativeElement.querySelector('.josanz-home__schedule');
+      const schedule = fixture.nativeElement.querySelector(
+        '.josanz-home__schedule',
+      );
       expect(schedule).toBeTruthy();
     });
 
     it('should call onPeriodChange when period button is clicked', () => {
       jest.spyOn(component, 'onPeriodChange');
-      const periodButtons = fixture.nativeElement.querySelectorAll('.josanz-home__period-btn');
+      const periodButtons = fixture.nativeElement.querySelectorAll(
+        '.josanz-home__period-btn',
+      );
       (periodButtons[0] as HTMLElement).click();
       expect(component.onPeriodChange).toHaveBeenCalled();
     });
@@ -180,7 +195,9 @@ describe('JosanzDashboardInicioComponent', () => {
     it('should highlight active period button', () => {
       component.period = 'Semana';
       fixture.detectChanges();
-      const activeButton = fixture.nativeElement.querySelector('.josanz-home__period-btn--active');
+      const activeButton = fixture.nativeElement.querySelector(
+        '.josanz-home__period-btn--active',
+      );
       expect(activeButton).toBeTruthy();
       expect(activeButton.textContent.trim()).toBe('Semana');
     });

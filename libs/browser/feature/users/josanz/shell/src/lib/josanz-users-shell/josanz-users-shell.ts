@@ -116,7 +116,9 @@ export class JosanzUsersShell {
       return this.userItems;
     }
     return this.userItems.filter((item) =>
-      item.data.some((d) => d.toLowerCase().includes(this.activeRole().toLowerCase())),
+      item.data.some((d) =>
+        d.toLowerCase().includes(this.activeRole().toLowerCase()),
+      ),
     );
   }
 

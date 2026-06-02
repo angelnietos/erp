@@ -4,10 +4,10 @@ Guía para publicar **3 servicios Railway** desde la **misma rama `dev`**, usand
 
 ## Resumen
 
-| Servicio Railway | App Nx | Config Railway | Dockerfile |
-|------------------|--------|----------------|------------|
-| `backend` | `backend` | `deploy/railway/config/backend.railway.json` | `deploy/railway/dockerfiles/backend.Dockerfile` |
-| `josanz-web-app` | `josanz-web-app` | `deploy/railway/config/josanz-web-app.railway.json` | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` |
+| Servicio Railway      | App Nx                        | Config Railway                                           | Dockerfile                                                  |
+| --------------------- | ----------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
+| `backend`             | `backend`                     | `deploy/railway/config/backend.railway.json`             | `deploy/railway/dockerfiles/backend.Dockerfile`             |
+| `josanz-web-app`      | `josanz-web-app`              | `deploy/railway/config/josanz-web-app.railway.json`      | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile`      |
 | `josanz-ui-storybook` | `josanz-ui` (build-storybook) | `deploy/railway/config/josanz-ui-storybook.railway.json` | `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile` |
 
 ## Paso 1 — Proyecto y base de datos
@@ -20,12 +20,12 @@ Guía para publicar **3 servicios Railway** desde la **misma rama `dev`**, usand
 
 En **cada** servicio → **Settings** → **Source**:
 
-| Campo | Valor |
-|-------|--------|
-| Repo | Este monorepo |
-| Branch | `dev` |
-| Root Directory | *(vacío — raíz del repo)* |
-| Wait for CI | Desactivado al principio; luego opcional (ver [railway-ci.md](../../docs/deploy/railway-ci.md)) |
+| Campo          | Valor                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| Repo           | Este monorepo                                                                                   |
+| Branch         | `dev`                                                                                           |
+| Root Directory | _(vacío — raíz del repo)_                                                                       |
+| Wait for CI    | Desactivado al principio; luego opcional (ver [railway-ci.md](../../docs/deploy/railway-ci.md)) |
 
 ## Paso 3 — Build por servicio
 
@@ -44,7 +44,6 @@ En **Settings** → **Build** de cada servicio:
 - **Dockerfile path**: `deploy/railway/dockerfiles/josanz-web-app.Dockerfile`
 
 ### josanz-ui-storybook
-
 
 - **Config file path**: `deploy/railway/config/josanz-ui-storybook.railway.json`
 - **Dockerfile path**: `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile`
@@ -112,13 +111,13 @@ railway run --service backend --environment production -- \
 
 El workflow [.github/workflows/deploy-railway.yml](../../.github/workflows/deploy-railway.yml) también despliega en push a `dev` si tienes secretos:
 
-| Secreto GitHub | Servicio |
-|----------------|----------|
-| `RAILWAY_TOKEN` | Todos |
-| `RAILWAY_PROJECT_ID` | Todos |
-| `RAILWAY_SERVICE_BACKEND` | backend |
-| `RAILWAY_SERVICE_JOSANZ_WEB_APP` | josanz-web-app |
-| `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK` | Storybook |
+| Secreto GitHub                        | Servicio       |
+| ------------------------------------- | -------------- |
+| `RAILWAY_TOKEN`                       | Todos          |
+| `RAILWAY_PROJECT_ID`                  | Todos          |
+| `RAILWAY_SERVICE_BACKEND`             | backend        |
+| `RAILWAY_SERVICE_JOSANZ_WEB_APP`      | josanz-web-app |
+| `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK` | Storybook      |
 
 Puedes usar **solo Railway Git**, **solo Actions**, o ambos (evita duplicar deploys si no lo necesitas).
 
@@ -136,12 +135,12 @@ Si el log de build muestra `RUN npm ci` y conflictos entre `@angular/compiler-cl
 
 **Arreglo en Railway → servicio `josanz-web-app` → Settings → Build:**
 
-| Campo | Valor correcto |
-|-------|----------------|
-| Builder | **Dockerfile** (no Railpack / Nixpacks) |
-| Dockerfile path | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` |
-| Config file path | `deploy/railway/config/josanz-web-app.railway.json` |
-| Custom Build Command | *(vacío)* |
+| Campo                | Valor correcto                                         |
+| -------------------- | ------------------------------------------------------ |
+| Builder              | **Dockerfile** (no Railpack / Nixpacks)                |
+| Dockerfile path      | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` |
+| Config file path     | `deploy/railway/config/josanz-web-app.railway.json`    |
+| Custom Build Command | _(vacío)_                                              |
 
 Tras guardar, **Redeploy**. El log debe mostrar `pnpm install --frozen-lockfile`, no `npm ci`.
 

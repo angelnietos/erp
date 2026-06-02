@@ -24,14 +24,26 @@ describe('AvatarGroupComponent', () => {
   it('should limit visible items', () => {
     const fixture = TestBed.createComponent(AvatarGroupComponent);
     const component = fixture.componentInstance;
-    component.items = [{ name: 'A' }, { name: 'B' }, { name: 'C' }, { name: 'D' }, { name: 'E' }];
+    component.items = [
+      { name: 'A' },
+      { name: 'B' },
+      { name: 'C' },
+      { name: 'D' },
+      { name: 'E' },
+    ];
     expect(component.visibleItems().length).toBe(4);
   });
 
   it('should calculate extra count', () => {
     const fixture = TestBed.createComponent(AvatarGroupComponent);
     const component = fixture.componentInstance;
-    component.items = [{ name: 'A' }, { name: 'B' }, { name: 'C' }, { name: 'D' }, { name: 'E' }];
+    component.items = [
+      { name: 'A' },
+      { name: 'B' },
+      { name: 'C' },
+      { name: 'D' },
+      { name: 'E' },
+    ];
     expect(component.extraCount()).toBe(1);
   });
 

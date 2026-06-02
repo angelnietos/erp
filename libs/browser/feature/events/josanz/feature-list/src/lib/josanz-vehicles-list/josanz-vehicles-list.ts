@@ -52,6 +52,12 @@ export class JosanzVehiclesListComponent {
       { label: 'En ruta', count: 3 },
       { label: 'Incidencia', count: 2 },
     ],
-    statusFilterOptions: ['Todos (42)', 'Disponible', 'Reservado', 'En ruta', 'Incidencia'],
+    statusFilterOptions: [
+      'Todos (42)',
+      'Disponible',
+      'Reservado',
+      'En ruta',
+      'Incidencia',
+    ],
   };
 }

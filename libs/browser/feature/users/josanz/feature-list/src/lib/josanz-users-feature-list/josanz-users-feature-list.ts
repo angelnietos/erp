@@ -12,7 +12,12 @@ import {
 @Component({
   selector: 'lib-josanz-users-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListTemplateHeaderRowComponent],
+  imports: [
+    CommonModule,
+    MainListLayoutComponent,
+    AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
+  ],
   templateUrl: './josanz-users-feature-list.html',
   styleUrl: './josanz-users-feature-list.css',
 })
@@ -25,7 +30,12 @@ export class JosanzUsersListComponent extends BaseListComponent {
     {
       id: 'admin@josanz.com',
       title: 'Admin Josanz',
-      data: ['admin@josanz.com', '+34 600 000 001', 'Administrador', 'Hace 5 min'],
+      data: [
+        'admin@josanz.com',
+        '+34 600 000 001',
+        'Administrador',
+        'Hace 5 min',
+      ],
       labels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
       status: 'Activo',
       statusVariant: 'success',
@@ -41,7 +51,12 @@ export class JosanzUsersListComponent extends BaseListComponent {
     {
       id: 'ana.belen@josanz.com',
       title: 'Ana Belén',
-      data: ['ana.belen@josanz.com', '+34 600 000 003', 'Logística', '12/05/2024'],
+      data: [
+        'ana.belen@josanz.com',
+        '+34 600 000 003',
+        'Logística',
+        '12/05/2024',
+      ],
       labels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
       status: 'Ausente',
       statusVariant: 'warning',

@@ -1,4 +1,5 @@
 # 🏗️ Arquitectura de Procesamiento Inteligente de Documentos (IDP) - Especificación Detallada
+
 Este documento define la arquitectura técnica y operativa del sistema de Procesamiento Inteligente de Documentos (IDP) implementado en JOSANZ ERP. El objetivo del sistema no es solo la digitalización o el Reconocimiento Óptico de Caracteres (OCR), sino actuar como un **motor de decisión legal y de cumplimiento (Compliance) asistido por IA**, garantizando trazabilidad, optimización de costes y soberanía de los datos para documentación técnica como CAE (Coordinación de Actividades Empresariales), ITV, Seguros, PRL (Prevención de Riesgos Laborales) y normativas ADR.
 
 ---
@@ -154,8 +155,6 @@ Este pipeline nunca se cierra, sino que es un ciclo iterativo.
 Tu sistema está construido bajo la principal premisa que separa los juguetes basados en API LLM's del software empresarial: **Control de responsabilidades**.
 Tu IA hace lo que se le da bien (interpretar patrones variables), tu código de backend hace lo estricto e infalible (evaluar vigencia, caducidades e ids), tu base de datos audita cada transacción asegurando Compliance técnico y el operario es llamado la menor cantidad de veces posibles, garantizando máxima escalabilidad sin pérdida de calidad.
 
-
-
 graph TD
 
 %% =========================
@@ -276,16 +275,3 @@ W --> Y[Improve rules]
 S --> Z[Audit log]
 T --> Z
 U --> Z
-
-
-
-
-
-
-
-
-
-
-
-
-

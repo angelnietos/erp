@@ -52,6 +52,12 @@ export class JosanzEquipmentListComponent {
       { label: 'Reservado', count: 18 },
       { label: 'Mantenimiento', count: 6 },
     ],
-    statusFilterOptions: ['Todos (180)', 'Disponible', 'Reservado', 'En evento', 'Mantenimiento'],
+    statusFilterOptions: [
+      'Todos (180)',
+      'Disponible',
+      'Reservado',
+      'En evento',
+      'Mantenimiento',
+    ],
   };
 }

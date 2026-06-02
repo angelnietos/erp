@@ -65,9 +65,9 @@ describe('JosanzExportCenterComponent', () => {
 
     beforeEach(() => {
       mockAnchor = { href: '', download: '', click: jest.fn() };
-      jest.spyOn(document, 'createElement').mockReturnValue(
-        mockAnchor as unknown as HTMLAnchorElement,
-      );
+      jest
+        .spyOn(document, 'createElement')
+        .mockReturnValue(mockAnchor as unknown as HTMLAnchorElement);
     });
 
     afterEach(() => {
@@ -98,7 +98,9 @@ describe('JosanzExportCenterComponent', () => {
       (URL.createObjectURL as jest.Mock).mockClear();
       component.onDemoDownload('clients');
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
-      expect((URL.createObjectURL as jest.Mock).mock.calls[0][0]).toBeInstanceOf(Blob);
+      expect(
+        (URL.createObjectURL as jest.Mock).mock.calls[0][0],
+      ).toBeInstanceOf(Blob);
     });
 
     it('should revoke object url after download', () => {
@@ -118,8 +120,8 @@ describe('JosanzExportCenterComponent', () => {
 
     it('should render back to dashboard link', () => {
       const links = fixture.nativeElement.querySelectorAll('a');
-      const backLink = Array.from(links).find(
-        (a: HTMLElement) => a.textContent?.includes('Volver al panel'),
+      const backLink = Array.from(links).find((a: HTMLElement) =>
+        a.textContent?.includes('Volver al panel'),
       );
       expect(backLink).toBeTruthy();
     });
@@ -130,9 +132,10 @@ describe('JosanzExportCenterComponent', () => {
     });
 
     it('should render download buttons', () => {
-      const allButtons = fixture.nativeElement.querySelectorAll('josanz-button');
-      const downloadBtns = Array.from(allButtons).filter(
-        (btn: HTMLElement) => btn.textContent?.includes('Descargar (demo)'),
+      const allButtons =
+        fixture.nativeElement.querySelectorAll('josanz-button');
+      const downloadBtns = Array.from(allButtons).filter((btn: HTMLElement) =>
+        btn.textContent?.includes('Descargar (demo)'),
       );
       expect(downloadBtns.length).toBeGreaterThanOrEqual(1);
     });

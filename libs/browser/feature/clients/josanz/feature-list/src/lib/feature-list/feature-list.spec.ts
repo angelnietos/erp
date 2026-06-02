@@ -48,7 +48,11 @@ describe('JosanzClientsListComponent', () => {
     });
 
     it('should have clientFieldLabels', () => {
-      expect(component.clientFieldLabels).toEqual(['Teléfono', 'Email', 'Operador']);
+      expect(component.clientFieldLabels).toEqual([
+        'Teléfono',
+        'Email',
+        'Operador',
+      ]);
     });
 
     it('should have all client items', () => {
@@ -118,15 +122,23 @@ describe('JosanzClientsListComponent', () => {
     it('should filter items by typology', () => {
       component.activeTypology = 'Tipo cliente 1';
       const filtered = component.filteredClientItems;
-      expect(filtered.every((item) => item.statusVariant === 'cliente-tipo-pink')).toBe(true);
+      expect(
+        filtered.every((item) => item.statusVariant === 'cliente-tipo-pink'),
+      ).toBe(true);
     });
   });
 
   describe('typologyPillKey', () => {
     it('should map tab names to pill keys', () => {
-      expect(component.typologyPillKey('Tipo cliente 1')).toBe('cliente-tipo-pink');
-      expect(component.typologyPillKey('Tipo cliente 2')).toBe('cliente-tipo-green');
-      expect(component.typologyPillKey('Tipo cliente 3')).toBe('cliente-tipo-yellow');
+      expect(component.typologyPillKey('Tipo cliente 1')).toBe(
+        'cliente-tipo-pink',
+      );
+      expect(component.typologyPillKey('Tipo cliente 2')).toBe(
+        'cliente-tipo-green',
+      );
+      expect(component.typologyPillKey('Tipo cliente 3')).toBe(
+        'cliente-tipo-yellow',
+      );
     });
 
     it('should return undefined for unknown tab', () => {

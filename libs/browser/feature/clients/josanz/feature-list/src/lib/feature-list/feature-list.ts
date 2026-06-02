@@ -26,7 +26,10 @@ import {
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
 })
-export class JosanzClientsListComponent extends BaseListComponent implements OnInit {
+export class JosanzClientsListComponent
+  extends BaseListComponent
+  implements OnInit
+{
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
@@ -52,7 +55,11 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
       id: '1',
       title: 'Cliente ejemplo',
       leadingMark: 'NB',
-      data: ['000000000', 'email@email.com', 'Operador A, Operador B, Operador C'],
+      data: [
+        '000000000',
+        'email@email.com',
+        'Operador A, Operador B, Operador C',
+      ],
       labels: this.clientLabels,
       status: 'Nuevo',
       statusVariant: 'cliente-nuevo',
@@ -78,7 +85,11 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
     {
       id: '4',
       title: 'Cliente ejemplo',
-      data: ['000000000', 'email@email.com', 'Operador A, Operador B, Operador C'],
+      data: [
+        '000000000',
+        'email@email.com',
+        'Operador A, Operador B, Operador C',
+      ],
       labels: this.clientLabels,
       status: 'Tipo cliente',
       statusVariant: 'cliente-tipo-yellow',
@@ -133,7 +144,10 @@ export class JosanzClientsListComponent extends BaseListComponent implements OnI
   get filteredClientItems(): JosanzAdaptiveListItem[] {
     let items = this.filterItems(this.clientItems);
     if (this.activeTypology !== 'Todos') {
-      items = items.filter((item) => item.statusVariant === this.typologyPillKey(this.activeTypology));
+      items = items.filter(
+        (item) =>
+          item.statusVariant === this.typologyPillKey(this.activeTypology),
+      );
     }
     return items;
   }

@@ -52,16 +52,18 @@ describe('JosanzAppShellComponent', () => {
     it('should navigate to /auth/login with replaceUrl', () => {
       component.onLogout();
       const router = TestBed.inject(Router);
-      expect(router.navigateByUrl).toHaveBeenCalledWith('/auth/login', { replaceUrl: true });
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/auth/login', {
+        replaceUrl: true,
+      });
     });
 
     it('should logout before navigating', () => {
       const callOrder: string[] = [];
       auth.logout.mockImplementation(() => callOrder.push('logout'));
       const router = TestBed.inject(Router);
-      (router as unknown as { navigateByUrl: jest.Mock }).navigateByUrl.mockImplementation(
-        () => callOrder.push('navigate'),
-      );
+      (
+        router as unknown as { navigateByUrl: jest.Mock }
+      ).navigateByUrl.mockImplementation(() => callOrder.push('navigate'));
 
       component.onLogout();
 

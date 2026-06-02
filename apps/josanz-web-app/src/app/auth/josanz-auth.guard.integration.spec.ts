@@ -3,7 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { appRoutes } from '../app.routes';
 import { josanzAuthGuard, josanzGuestGuard } from './josanz-auth.guard';
 import { JosanzDemoAuthService } from './josanz-demo-auth.service';
-import { runCanActivateGuard, serializeGuardResult } from '../../testing/router-guard-testing';
+import {
+  runCanActivateGuard,
+  serializeGuardResult,
+} from '../../testing/router-guard-testing';
 
 describe('Josanz auth guards integration', () => {
   beforeEach(() => {

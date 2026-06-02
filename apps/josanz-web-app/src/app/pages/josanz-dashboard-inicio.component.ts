@@ -52,7 +52,15 @@ export class JosanzDashboardInicioComponent {
     { id: 't5', initials: 'DV' },
   ];
 
-  readonly days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  readonly days = [
+    'Lunes',
+    'Martes',
+    'Miércoles',
+    'Jueves',
+    'Viernes',
+    'Sábado',
+    'Domingo',
+  ];
 
   readonly sampleEvent: JosanzHomeEventCard = {
     title: 'Evento X',
@@ -88,13 +96,22 @@ export class JosanzDashboardInicioComponent {
   }
 
   onViewChange(value: string): void {
-    if (value === 'Eventos' || value === 'Técnicos' || value === 'Proveedores') {
+    if (
+      value === 'Eventos' ||
+      value === 'Técnicos' ||
+      value === 'Proveedores'
+    ) {
       this.viewMode = value;
     }
   }
 
   onPeriodChange(value: string): void {
-    if (value === 'Día' || value === 'Semana' || value === 'Mes' || value === 'Lista') {
+    if (
+      value === 'Día' ||
+      value === 'Semana' ||
+      value === 'Mes' ||
+      value === 'Lista'
+    ) {
       this.period = value;
     }
   }

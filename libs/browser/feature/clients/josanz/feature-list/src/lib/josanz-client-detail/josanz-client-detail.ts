@@ -30,7 +30,15 @@ export class JosanzClientDetailComponent {
   @Output() modalClose = new EventEmitter<void>();
 
   activeTab = signal<string>('Datos cliente');
-  readonly tabs = ['Datos cliente', 'Operadores', 'Presupuestos', 'Proveedores', 'Facturas', 'Productos/eventos', 'Informes / reportes'];
+  readonly tabs = [
+    'Datos cliente',
+    'Operadores',
+    'Presupuestos',
+    'Proveedores',
+    'Facturas',
+    'Productos/eventos',
+    'Informes / reportes',
+  ];
 
   // Empty state icons based on tab
   getEmptyStateIcon(tab: string): JosanzEmptyStateIcon {
@@ -96,4 +104,3 @@ export class JosanzClientDetailComponent {
     this.onBack();
   }
 }
-

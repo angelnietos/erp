@@ -215,6 +215,12 @@
         "libs/node/shared-infrastructure/src/index.ts"
       ],
       "@nestjs/common": ["apps/frontend/src/shims/empty.ts"],
+      "@josanz-erp/document-generator-shell": [
+        "libs/browser/shell/document-generator/src/index.ts"
+      ],
+      "@josanz-erp/document-generator-feature": [
+        "libs/browser/feature/document-generator/src/index.ts"
+      ],
       "stream": ["apps/frontend/src/shims/empty.ts"],
       "util": ["apps/frontend/src/shims/empty.ts"],
       "url": ["apps/frontend/src/shims/empty.ts"],

@@ -20,6 +20,7 @@ Este plan detalla las acciones técnicas para lograr que la exportación en PDF 
 ## 2. Propuesta de Solución e Implementación
 
 ### Fase 1: Corrección de la Portada y Traspaso de Datos
+
 - **Modificar [document-preview.component.ts](file:///c:/Users/amuni/Desktop/josanz-proyect/josanz-erp/apps/document-generator/src/app/document-preview/document-preview.component.ts):**
   - Actualizar la interfaz `DocumentPreviewPayload` para incluir `coverConfig`, `signatureConfig` y `headerFooterConfig`.
   - Modificar la llamada a `pdfService.generateMarkdownPdf` dentro de `downloadDocument()` para enviar estas tres propiedades guardadas en la base de datos IndexedDB.
@@ -27,11 +28,13 @@ Este plan detalla las acciones técnicas para lograr que la exportación en PDF 
   - Asegurar que la clase `.pdf-cover-page` tenga un fondo explícito e independiente del contenedor `.pdf-canvas-root`.
 
 ### Fase 2: Robustez de Imágenes con Conversión a Base64 (CORS Fix)
+
 - **Implementar Helper de Conversión en [pdf-generation.service.ts](file:///c:/Users/amuni/Desktop/josanz-proyect/josanz-erp/apps/document-generator/src/app/services/pdf-generation.service.ts):**
   - Desarrollar una función asíncrona para convertir URLs de imágenes (logos, fondos de portada y fondos corporativos) a formato de datos Base64 (`data:image/...;base64,...`) antes de alimentar el motor de renderizado HTML.
   - Esto garantiza que `html2canvas` dibuje las imágenes de inmediato sin disparar bloqueos de seguridad de origen cruzado (CORS).
 
 ### Fase 3: Perfeccionamiento del Diseño y Tipografía Premium
+
 - **Integración de Fuentes y Estilos:**
   - Asegurar que Google Fonts `Inter` esté plenamente integrado en el `<head>` del HTML temporal del PDF.
   - Ajustar tamaños de fuente, espaciados y paddings en el PDF para emular la vista previa de forma idéntica.

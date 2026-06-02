@@ -1,4 +1,13 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, inject } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  inject,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
@@ -87,21 +96,26 @@ export class FilterTabsComponent implements OnInit, OnChanges {
       const active = this.active === option;
       return [
         'relative px-0 pb-3 pt-1 text-[14px] font-semibold bg-transparent border-0 cursor-pointer outline-none whitespace-nowrap transition-colors',
-        active ? 'text-[var(--josanz-text)]' : 'text-[var(--josanz-text-muted)] hover:text-[var(--josanz-text)]',
+        active
+          ? 'text-[var(--josanz-text)]'
+          : 'text-[var(--josanz-text-muted)] hover:text-[var(--josanz-text)]',
       ].join(' ');
     }
     const figma = this.useFigmaChips();
     const shapeClass = figma
       ? 'rounded-lg'
-      : {
+      : ({
           rounded: 'rounded-xl',
           pill: 'rounded-full',
           square: 'rounded-none',
-        }[this.shape ?? this.themeService.currentTheme().defaultShape] ?? 'rounded-lg';
+        }[this.shape ?? this.themeService.currentTheme().defaultShape] ??
+        'rounded-lg');
 
     const base = `px-5 h-[34px] ${shapeClass} flex items-center justify-center text-[12px] font-bold transition-all duration-200 cursor-pointer outline-none whitespace-nowrap border border-solid`;
     if (this.active === option) {
-      return figma ? `${base} border-transparent` : `${base} border-none scale-[1.02]`;
+      return figma
+        ? `${base} border-transparent`
+        : `${base} border-none scale-[1.02]`;
     }
     return `${base} hover:brightness-[0.99] active:scale-[0.98]`;
   }
@@ -135,15 +149,20 @@ export class FilterTabsComponent implements OnInit, OnChanges {
       return {
         color: on,
         WebkitTextFillColor: on,
-        backgroundColor: this.customColor ?? 'var(--josanz-button-primary-bg, var(--josanz-primary))',
+        backgroundColor:
+          this.customColor ??
+          'var(--josanz-button-primary-bg, var(--josanz-primary))',
         borderColor: 'transparent',
-        boxShadow: 'var(--josanz-button-shadow, 0 4px 14px -2px color-mix(in srgb, var(--josanz-primary) 45%, transparent))',
+        boxShadow:
+          'var(--josanz-button-shadow, 0 4px 14px -2px color-mix(in srgb, var(--josanz-primary) 45%, transparent))',
       };
     }
     return {
       color: 'var(--josanz-button-secondary-text, var(--josanz-text-muted))',
-      backgroundColor: 'var(--josanz-button-secondary-bg, var(--josanz-surface))',
-      borderColor: 'var(--josanz-button-secondary-border, var(--josanz-border))',
+      backgroundColor:
+        'var(--josanz-button-secondary-bg, var(--josanz-surface))',
+      borderColor:
+        'var(--josanz-button-secondary-border, var(--josanz-border))',
     };
   }
 }

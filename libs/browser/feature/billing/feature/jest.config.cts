@@ -2,7 +2,8 @@ module.exports = {
   displayName: 'billing-feature',
   preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../coverage/libs/browser/feature/billing/feature',
+  coverageDirectory:
+    '../../../../../coverage/libs/browser/feature/billing/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',

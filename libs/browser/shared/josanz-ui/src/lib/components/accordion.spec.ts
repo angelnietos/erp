@@ -46,7 +46,12 @@ describe('AccordionComponent', () => {
   it('should not toggle disabled item', () => {
     const fixture = TestBed.createComponent(AccordionComponent);
     const component = fixture.componentInstance;
-    const item = { id: 'test-1', title: 'Test', content: 'Content', disabled: true };
+    const item = {
+      id: 'test-1',
+      title: 'Test',
+      content: 'Content',
+      disabled: true,
+    };
     component.items = [item];
     component.openIds = [];
     component.toggle(item);

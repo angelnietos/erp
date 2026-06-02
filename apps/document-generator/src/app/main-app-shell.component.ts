@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { DocumentGeneratorLayoutComponent } from './document-generator-layout.component';
+import { DocumentGeneratorLayoutComponent } from '@josanz-erp/document-generator-feature';
 
 @Component({
   selector: 'app-main-app-shell',

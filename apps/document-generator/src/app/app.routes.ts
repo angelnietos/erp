@@ -15,8 +15,8 @@ export const appRoutes: Route[] = [
       {
         path: 'documents',
         loadChildren: () =>
-          import('./document-generator.routes').then(
-            (m) => m.documentGeneratorRoutes,
+          import('@josanz-erp/document-generator-shell').then(
+            (m) => m.documentGeneratorShellRoutes,
           ),
       },
       {

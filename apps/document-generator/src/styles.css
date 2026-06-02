@@ -395,7 +395,11 @@ a svg,
   border: 1px solid var(--border-soft);
   border-radius: 1.5rem;
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--brand) 5%, transparent), transparent 34%),
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--brand) 5%, transparent),
+      transparent 34%
+    ),
     color-mix(in srgb, var(--surface) 96%, var(--bg-secondary));
   box-shadow: var(--shadow-sm);
 }
@@ -427,10 +431,20 @@ a svg,
 :root:not([data-theme*='light']) .document-editor-panel *,
 :root:not([data-theme*='light']) .document-css-panel,
 :root:not([data-theme*='light']) .document-css-panel *,
-:root:not([data-theme*='light']) .document-editor-column:not(.document-editor-column--preview):not(.fullscreen-preview),
-:root:not([data-theme*='light']) .document-editor-column:not(.document-editor-column--preview):not(.fullscreen-preview) *,
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated),
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) *:not([style*='color:']) {
+:root:not([data-theme*='light'])
+  .document-editor-column:not(.document-editor-column--preview):not(
+    .fullscreen-preview
+  ),
+:root:not([data-theme*='light'])
+  .document-editor-column:not(.document-editor-column--preview):not(
+    .fullscreen-preview
+  )
+  *,
+:root:not([data-theme*='light'])
+  .document-preview-pane:not(.document-preview-pane--isolated),
+:root:not([data-theme*='light'])
+  .document-preview-pane:not(.document-preview-pane--isolated)
+  *:not([style*='color:']) {
   color: var(--text-primary) !important;
 }
 
@@ -438,7 +452,9 @@ a svg,
 :root:not([data-theme*='light']) .document-create-shell .text-muted,
 :root:not([data-theme*='light']) .document-editor-panel .text-muted,
 :root:not([data-theme*='light']) .document-css-panel .text-muted,
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) .text-muted {
+:root:not([data-theme*='light'])
+  .document-preview-pane:not(.document-preview-pane--isolated)
+  .text-muted {
   color: var(--text-secondary) !important;
 }
 
@@ -454,40 +470,47 @@ a svg,
    This targets common Tailwind-generated class names used across components
    (e.g. bg-white, bg-slate-100, bg-slate-50 and opacity modifiers like /90).
    These selectors are broad on purpose to quickly restore contrast. */
-:root:not([data-theme*='light']) [class*="bg-white"],
-:root:not([data-theme*='light']) [class*="bg-slate-100"],
-:root:not([data-theme*='light']) [class*="bg-slate-50"],
-:root:not([data-theme*='light']) [class*="bg-gray-100"],
-:root:not([data-theme*='light']) [class*="bg-gray-50"],
-:root:not([data-theme*='light']) [class*="bg-neutral-"],
-:root:not([data-theme*='light']) [class*="/90"],
-:root:not([data-theme*='light']) [class*="/80"],
-:root:not([data-theme*='light']) [class*="/70"] {
-  background-color: color-mix(in srgb, var(--surface) 92%, var(--bg-secondary)) !important;
+:root:not([data-theme*='light']) [class*='bg-white'],
+:root:not([data-theme*='light']) [class*='bg-slate-100'],
+:root:not([data-theme*='light']) [class*='bg-slate-50'],
+:root:not([data-theme*='light']) [class*='bg-gray-100'],
+:root:not([data-theme*='light']) [class*='bg-gray-50'],
+:root:not([data-theme*='light']) [class*='bg-neutral-'],
+:root:not([data-theme*='light']) [class*='/90'],
+:root:not([data-theme*='light']) [class*='/80'],
+:root:not([data-theme*='light']) [class*='/70'] {
+  background-color: color-mix(
+    in srgb,
+    var(--surface) 92%,
+    var(--bg-secondary)
+  ) !important;
   background-image: none !important;
   color: var(--text-primary) !important;
 }
 
 /* Borders for those replaced panels */
-:root:not([data-theme*='light']) [class*="border-slate"],
-:root:not([data-theme*='light']) [class*="border-gray"],
-:root:not([data-theme*='light']) [class*="border-white"],
-:root:not([data-theme*='light']) [class*="border-" ] {
-  border-color: rgba(255,255,255,0.06) !important;
+:root:not([data-theme*='light']) [class*='border-slate'],
+:root:not([data-theme*='light']) [class*='border-gray'],
+:root:not([data-theme*='light']) [class*='border-white'],
+:root:not([data-theme*='light']) [class*='border-'] {
+  border-color: rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Buttons and interactive elements that used pale text on pale backgrounds */
-:root:not([data-theme*='light']) [class*="text-violet-"],
-:root:not([data-theme*='light']) [class*="text-slate-"],
-:root:not([data-theme*='light']) [class*="text-gray-"],
-:root:not([data-theme*='light']) [class*="text-white"] {
+:root:not([data-theme*='light']) [class*='text-violet-'],
+:root:not([data-theme*='light']) [class*='text-slate-'],
+:root:not([data-theme*='light']) [class*='text-gray-'],
+:root:not([data-theme*='light']) [class*='text-white'] {
   color: var(--text-primary) !important;
 }
 
 /* If users paste custom CSS that forces light backgrounds inside the preview,
    prefer the theme surface so preview remains readable (only when not isolated). */
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated),
-:root:not([data-theme*='light']) .document-preview-pane:not(.document-preview-pane--isolated) *:not([style*='color:']) {
+:root:not([data-theme*='light'])
+  .document-preview-pane:not(.document-preview-pane--isolated),
+:root:not([data-theme*='light'])
+  .document-preview-pane:not(.document-preview-pane--isolated)
+  *:not([style*='color:']) {
   background: transparent !important;
   color: var(--text-primary) !important;
 }
@@ -495,38 +518,50 @@ a svg,
 /* Specific fix for 'Crear Nuevo' template cards: ensure readable text and
    dark surface when selecting a template on the selection page. Targets
    the container used in `DocumentCreateComponent`. */
-.bg-surface.rounded-2xl .grid[role="list"] a,
-.bg-surface.rounded-2xl .grid[role="list"] a * {
+.bg-surface.rounded-2xl .grid[role='list'] a,
+.bg-surface.rounded-2xl .grid[role='list'] a * {
   color: var(--text-primary) !important;
 }
-.bg-surface.rounded-2xl .grid[role="list"] a {
-  background: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
-  border-color: rgba(255,255,255,0.04) !important;
+.bg-surface.rounded-2xl .grid[role='list'] a {
+  background: color-mix(
+    in srgb,
+    var(--surface) 96%,
+    var(--bg-secondary)
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.04) !important;
 }
-.bg-surface.rounded-2xl .grid[role="list"] a .text-xs,
-.bg-surface.rounded-2xl .grid[role="list"] a .text-secondary {
+.bg-surface.rounded-2xl .grid[role='list'] a .text-xs,
+.bg-surface.rounded-2xl .grid[role='list'] a .text-secondary {
   color: var(--text-secondary) !important;
 }
 
 /* Fix selected document-type cards in dark theme (override from-blue-50/to-indigo-50)
    The component sets light gradient classes on selection — override them so
    selected cards remain dark and readable in dark themes. */
-:root:not([data-theme*='light']) .group[aria-current="true"],
-:root:not([data-theme*='light']) .group[aria-current="true"] * {
+:root:not([data-theme*='light']) .group[aria-current='true'],
+:root:not([data-theme*='light']) .group[aria-current='true'] * {
   color: var(--text-primary) !important;
 }
-:root:not([data-theme*='light']) .group[aria-current="true"] {
+:root:not([data-theme*='light']) .group[aria-current='true'] {
   background-image: none !important;
-  background-color: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
-  border-color: rgba(255,255,255,0.06) !important;
+  background-color: color-mix(
+    in srgb,
+    var(--surface) 96%,
+    var(--bg-secondary)
+  ) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
   box-shadow: var(--shadow-sm) !important;
 }
 
 /* Also guard against anchor/template cards that may receive light backgrounds */
 :root:not([data-theme*='light']) .bg-tertiary.hover\:bg-brand\/5,
-:root:not([data-theme*='light']) .bg-tertiary[class*="bg-"],
-:root:not([data-theme*='light']) .bg-tertiary[class*="/5"] {
-  background: color-mix(in srgb, var(--surface) 96%, var(--bg-secondary)) !important;
+:root:not([data-theme*='light']) .bg-tertiary[class*='bg-'],
+:root:not([data-theme*='light']) .bg-tertiary[class*='/5'] {
+  background: color-mix(
+    in srgb,
+    var(--surface) 96%,
+    var(--bg-secondary)
+  ) !important;
   color: var(--text-primary) !important;
 }
 
@@ -2141,12 +2176,20 @@ html[data-theme='rose'] .theme-card {
 /* Asegurar texto legible en botones ghost/ghost-effect */
 .ui-ghost,
 .ghost-effect {
-  background: color-mix(in srgb, var(--text-primary) 6%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--text-primary) 6%,
+    transparent
+  ) !important;
   border: 1px solid var(--border-soft) !important;
 }
 
 .ui-ghost:hover,
 .ghost-effect:hover {
-  background: color-mix(in srgb, var(--text-primary) 10%, transparent) !important;
+  background: color-mix(
+    in srgb,
+    var(--text-primary) 10%,
+    transparent
+  ) !important;
   color: var(--text-primary) !important;
 }

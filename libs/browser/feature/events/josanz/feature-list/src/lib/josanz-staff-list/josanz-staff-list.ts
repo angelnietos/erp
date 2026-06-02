@@ -52,6 +52,12 @@ export class JosanzStaffListComponent {
       { label: 'Freelance', count: 31 },
       { label: 'Prácticas', count: 8 },
     ],
-    statusFilterOptions: ['Todos (100)', 'Técnico', 'Freelance', 'En prácticas', 'Inasistencia'],
+    statusFilterOptions: [
+      'Todos (100)',
+      'Técnico',
+      'Freelance',
+      'En prácticas',
+      'Inasistencia',
+    ],
   };
 }

@@ -34,7 +34,9 @@ describe('JosanzSettingsPlaceholderComponent', () => {
   describe('template', () => {
     it('should render app-settings-page component', () => {
       fixture.detectChanges();
-      const settingsPage = fixture.nativeElement.querySelector('josanz-app-settings-page');
+      const settingsPage = fixture.nativeElement.querySelector(
+        'josanz-app-settings-page',
+      );
       expect(settingsPage).toBeTruthy();
     });
   });

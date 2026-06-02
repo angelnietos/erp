@@ -2,7 +2,8 @@ module.exports = {
   displayName: 'fleet-feature',
   preset: '../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
-  coverageDirectory: '../../../../../coverage/libs/browser/feature/fleet/feature',
+  coverageDirectory:
+    '../../../../../coverage/libs/browser/feature/fleet/feature',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': [
       'jest-preset-angular',
@@ -19,9 +20,3 @@ module.exports = {
     'jest-preset-angular/build/serializers/html-comment',
   ],
 };
-
-
-
-
-
-

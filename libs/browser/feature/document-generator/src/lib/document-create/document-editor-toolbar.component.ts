@@ -1,0 +1,316 @@
+import { Component, input, output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import type { EditorBlockTemplate } from '../models/document-render.models';
+
+@Component({
+  selector: 'app-document-editor-toolbar',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
+    <div
+      class="document-editor-sidebar"
+      role="toolbar"
+      aria-label="Herramientas de edición"
+    >
+      <ng-content select="[toolbarPanels]"></ng-content>
+
+      <div class="sidebar-section-title">
+        Formato
+        <span
+          style="font-size:0.65rem;margin-left:4px;padding:2px 6px;border-radius:4px;background:#f1f5f9;color:#475569"
+        >
+          {{
+            contentEditorMode() === 'html'
+              ? 'HTML'
+              : contentEditorMode() === 'plain'
+                ? 'Texto'
+                : 'MD'
+          }}
+        </span>
+      </div>
+      <div class="sidebar-format-grid">
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('bold')"
+          title="Negrita"
+        >
+          <strong style="font-size:13px">B</strong><span>Neg.</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('italic')"
+          title="Cursiva"
+        >
+          <em style="font-size:13px">I</em><span>Cur.</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('strike')"
+          title="Tachado"
+        >
+          <span style="font-size:12px;text-decoration:line-through">S</span
+          ><span>Tach.</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('code')"
+          title="Código inline"
+        >
+          <span>&lt;/&gt;</span><span>Cód.</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('h1')"
+          title="Título H1"
+        >
+          <span style="font-size:11px;font-weight:800">H1</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('h2')"
+          title="Subtítulo H2"
+        >
+          <span style="font-size:11px;font-weight:700">H2</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('h3')"
+          title="Encabezado H3"
+        >
+          <span style="font-size:11px;font-weight:600">H3</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('quote')"
+          title="Cita"
+        >
+          <span>"</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('list')"
+          title="Lista"
+        >
+          <span>•</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('numbered-list')"
+          title="Lista numerada"
+        >
+          <span>1.</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('link')"
+          title="Enlace"
+        >
+          <span>Link</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('code-block')"
+          title="Bloque de código"
+        >
+          <span>Blq</span>
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-title">Color</div>
+      <div
+        style="display:flex;align-items:center;gap:6px;padding:0 0.75rem 0.5rem"
+      >
+        <input
+          type="color"
+          [ngModel]="selectedTextColor()"
+          (ngModelChange)="textColorChange.emit($event)"
+          [ngModelOptions]="{ standalone: true }"
+          style="width:36px;height:30px;border-radius:6px;border:1px solid #e2e8f0;padding:2px;cursor:pointer"
+          aria-label="Color de texto"
+        />
+        <button
+          class="sidebar-action-btn"
+          style="flex:1;padding:0.3rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.73rem;background:#fff"
+          type="button"
+          (click)="applyTextColor.emit()"
+          [disabled]="contentEditorMode() === 'plain'"
+        >
+          Aplicar color
+        </button>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-title">Insertar</div>
+      <div style="padding:0 0.5rem 0.4rem">
+        <select
+          style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
+          (change)="blockInsert.emit($event)"
+          title="Insertar bloque predefinido"
+        >
+          <option value="">+ Insertar bloque...</option>
+          @for (block of editorBlockTemplates(); track block.id) {
+            <option [value]="block.id">{{ block.label }}</option>
+          }
+        </select>
+      </div>
+
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="copyContent.emit()"
+      >
+        <span>Copiar contenido</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="convertToHtml.emit()"
+        [disabled]="contentEditorMode() !== 'markdown' || isAiGenerating()"
+      >
+        Convertir a HTML visual
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="convertToMarkdown.emit()"
+        [disabled]="contentEditorMode() !== 'html' || isAiGenerating()"
+      >
+        Convertir a Markdown
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="beautify.emit()"
+        [disabled]="isAiGenerating()"
+      >
+        Embellecer documento
+      </button>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-title">Estilo</div>
+      <div style="padding:0 0.5rem 0.4rem">
+        <select
+          style="width:100%;padding:0.35rem 0.5rem;border-radius:8px;border:1px solid #e2e8f0;font-size:0.75rem;background:#fff;color:#374151"
+          [ngModel]="selectedQuickStylePreset()"
+          (ngModelChange)="stylePresetChange.emit($event)"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option value="">Estilo predefinido...</option>
+          <option value="default">Predeterminado</option>
+          <option value="corporate">Corporativo</option>
+          <option value="compact">Compacto</option>
+          <option value="large">Texto grande</option>
+        </select>
+      </div>
+      <div style="padding:0 0.5rem 0.4rem">
+        <div style="display:flex;align-items:center;gap:6px">
+          <button
+            type="button"
+            style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer"
+            (click)="fontSizeDelta.emit(-0.05)"
+          >
+            A-
+          </button>
+          <div style="flex:1;text-align:center;font-size:0.65rem;color:#94a3b8">
+            Tamaño base
+          </div>
+          <button
+            type="button"
+            style="width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:0.7rem;cursor:pointer"
+            (click)="fontSizeDelta.emit(0.05)"
+          >
+            A+
+          </button>
+        </div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <div class="sidebar-section-title">PDF Pro</div>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('cover')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Portada</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('header-footer')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Encabezado/Pie</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('signature')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Firmas</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('watermark')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Marca de agua</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('table')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Tabla virtual</span>
+      </button>
+      <button
+        class="sidebar-action-btn"
+        type="button"
+        (click)="toggleTool.emit('image')"
+        style="width:100%;margin-bottom:4px"
+      >
+        <span>Imagen</span>
+      </button>
+    </div>
+  `,
+})
+export class DocumentEditorToolbarComponent {
+  readonly contentEditorMode = input<'markdown' | 'html' | 'plain'>('markdown');
+  readonly selectedTextColor = input('#7a0000');
+  readonly selectedQuickStylePreset = input('');
+  readonly isAiGenerating = input(false);
+  readonly editorBlockTemplates = input<EditorBlockTemplate[]>([]);
+
+  readonly formatAction = output<string>();
+  readonly textColorChange = output<string>();
+  readonly applyTextColor = output<void>();
+  readonly blockInsert = output<Event>();
+  readonly copyContent = output<void>();
+  readonly convertToHtml = output<void>();
+  readonly convertToMarkdown = output<void>();
+  readonly beautify = output<void>();
+  readonly stylePresetChange = output<string>();
+  readonly fontSizeDelta = output<number>();
+  readonly toggleTool = output<string>();
+}

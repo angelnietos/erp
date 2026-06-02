@@ -8,26 +8,26 @@ Guía paso a paso (3 servicios, misma rama, Watch Paths): **[DEV-3-SERVICES.md](
 
 Config as code por servicio:
 
-| Servicio | Archivo |
-|----------|---------|
-| backend | `deploy/railway/config/backend.railway.json` |
-| josanz-web-app | `deploy/railway/config/josanz-web-app.railway.json` |
+| Servicio            | Archivo                                                  |
+| ------------------- | -------------------------------------------------------- |
+| backend             | `deploy/railway/config/backend.railway.json`             |
+| josanz-web-app      | `deploy/railway/config/josanz-web-app.railway.json`      |
 | josanz-ui-storybook | `deploy/railway/config/josanz-ui-storybook.railway.json` |
 
 Watch Paths (copiar en Railway): `deploy/railway/watch-paths/*.txt`
 
 ## Servicios
 
-| App Nx | Dockerfile Railway | Notas |
-|--------|--------------------|-------|
-| `backend` | `deploy/railway/dockerfiles/backend.Dockerfile` | API principal, usa `PORT` de Railway |
-| `verifactu-api` | `deploy/railway/dockerfiles/verifactu-api.Dockerfile` | Mapea `PORT` a `VERIFACTU_PORT` |
-| `verifactu-worker` | `deploy/railway/dockerfiles/verifactu-worker.Dockerfile` | Mapea `PORT` a `VERIFACTU_WORKER_PORT` |
-| `frontend` | `deploy/railway/dockerfiles/frontend.Dockerfile` | Nginx SPA con proxy `/api`; configurar `BACKEND_PROXY_URL` |
-| `josanz-web-app` | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
-| `josanz-ui-storybook` | `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile` | Storybook estático de `libs/browser/shared/josanz-ui` |
-| `saas-platform` | `deploy/railway/dockerfiles/saas-platform.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
-| `document-generator` | `deploy/railway/dockerfiles/document-generator.Dockerfile` | Nginx SPA, usa `PORT` de Railway |
+| App Nx                | Dockerfile Railway                                          | Notas                                                      |
+| --------------------- | ----------------------------------------------------------- | ---------------------------------------------------------- |
+| `backend`             | `deploy/railway/dockerfiles/backend.Dockerfile`             | API principal, usa `PORT` de Railway                       |
+| `verifactu-api`       | `deploy/railway/dockerfiles/verifactu-api.Dockerfile`       | Mapea `PORT` a `VERIFACTU_PORT`                            |
+| `verifactu-worker`    | `deploy/railway/dockerfiles/verifactu-worker.Dockerfile`    | Mapea `PORT` a `VERIFACTU_WORKER_PORT`                     |
+| `frontend`            | `deploy/railway/dockerfiles/frontend.Dockerfile`            | Nginx SPA con proxy `/api`; configurar `BACKEND_PROXY_URL` |
+| `josanz-web-app`      | `deploy/railway/dockerfiles/josanz-web-app.Dockerfile`      | Nginx SPA, usa `PORT` de Railway                           |
+| `josanz-ui-storybook` | `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile` | Storybook estático de `libs/browser/shared/josanz-ui`      |
+| `saas-platform`       | `deploy/railway/dockerfiles/saas-platform.Dockerfile`       | Nginx SPA, usa `PORT` de Railway                           |
+| `document-generator`  | `deploy/railway/dockerfiles/document-generator.Dockerfile`  | Nginx SPA, usa `PORT` de Railway                           |
 
 ## Configuración en Railway
 
@@ -77,18 +77,18 @@ Los Dockerfiles copian `scripts/` y `apps/backend/prisma/` antes de `pnpm instal
 
 Secretos necesarios:
 
-| Secreto | Uso |
-|---------|-----|
-| `RAILWAY_TOKEN` | Token de Railway con permisos de deploy |
-| `RAILWAY_PROJECT_ID` | ID del proyecto Railway |
-| `RAILWAY_SERVICE_BACKEND` | ID o nombre exacto del servicio `backend` |
-| `RAILWAY_SERVICE_VERIFACTU_API` | ID o nombre exacto del servicio `verifactu-api` |
-| `RAILWAY_SERVICE_VERIFACTU_WORKER` | ID o nombre exacto del servicio `verifactu-worker` |
-| `RAILWAY_SERVICE_FRONTEND` | ID o nombre exacto del servicio `frontend` |
-| `RAILWAY_SERVICE_JOSANZ_WEB_APP` | ID o nombre exacto del servicio `josanz-web-app` |
+| Secreto                               | Uso                                                   |
+| ------------------------------------- | ----------------------------------------------------- |
+| `RAILWAY_TOKEN`                       | Token de Railway con permisos de deploy               |
+| `RAILWAY_PROJECT_ID`                  | ID del proyecto Railway                               |
+| `RAILWAY_SERVICE_BACKEND`             | ID o nombre exacto del servicio `backend`             |
+| `RAILWAY_SERVICE_VERIFACTU_API`       | ID o nombre exacto del servicio `verifactu-api`       |
+| `RAILWAY_SERVICE_VERIFACTU_WORKER`    | ID o nombre exacto del servicio `verifactu-worker`    |
+| `RAILWAY_SERVICE_FRONTEND`            | ID o nombre exacto del servicio `frontend`            |
+| `RAILWAY_SERVICE_JOSANZ_WEB_APP`      | ID o nombre exacto del servicio `josanz-web-app`      |
 | `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK` | ID o nombre exacto del servicio `josanz-ui-storybook` |
-| `RAILWAY_SERVICE_SAAS_PLATFORM` | ID o nombre exacto del servicio `saas-platform` |
-| `RAILWAY_SERVICE_DOCUMENT_GENERATOR` | ID o nombre exacto del servicio `document-generator` |
+| `RAILWAY_SERVICE_SAAS_PLATFORM`       | ID o nombre exacto del servicio `saas-platform`       |
+| `RAILWAY_SERVICE_DOCUMENT_GENERATOR`  | ID o nombre exacto del servicio `document-generator`  |
 
 Para desplegar solo el front de Josanz en push, necesitas `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`. Si eliges `all` manualmente, deben existir todos los secretos de los servicios incluidos.
 

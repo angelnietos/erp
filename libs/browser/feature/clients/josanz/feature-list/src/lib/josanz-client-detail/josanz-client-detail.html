@@ -1,207 +1,267 @@
-<josanz-main-detail-layout 
+<josanz-main-detail-layout
   title="Cliente"
-  [showFooterActions]="false" 
-  [tabs]="tabs" 
-  [activeTab]="activeTab()" 
+  [showFooterActions]="false"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
   (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
 >
-   <!-- Header Actions Slot -->
-   <div header-actions class="pr-4 text-[13px] font-semibold" style="color: var(--josanz-primary)">
-   </div>
+  <!-- Header Actions Slot -->
+  <div
+    header-actions
+    class="pr-4 text-[13px] font-semibold"
+    style="color: var(--josanz-primary)"
+  ></div>
 
-   <div class="flex w-full flex-col">
-     <!-- Tab: Datos cliente -->
-     @if (activeTab() === 'Datos cliente') {
-       <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
-         <div class="space-y-4">
-           <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-             Información general
-           </h2>
-           <div
-             class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-             style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-shadow);"
-           >
-             @for (row of generalInfoRows; track row.label) {
-               <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                 <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{ row.label }}</span>
-                 <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
-               </div>
-             }
-           </div>
-         </div>
-         <div class="space-y-4">
-           <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-             Dirección fiscal
-           </h2>
-           <div
-             class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-             style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-shadow);"
-           >
-             @for (row of fiscalAddressRows; track row.label) {
-               <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                 <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{ row.label }}</span>
-                 <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
-               </div>
-             }
-           </div>
-         </div>
-       </div>
-     }
+  <div class="flex w-full flex-col">
+    <!-- Tab: Datos cliente -->
+    @if (activeTab() === 'Datos cliente') {
+    <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
+      <div class="space-y-4">
+        <h2
+          class="text-[12px] font-bold uppercase tracking-[0.2em]"
+          style="color: var(--josanz-text-muted)"
+        >
+          Información general
+        </h2>
+        <div
+          class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+          style="
+            background-color: var(--josanz-surface);
+            border-color: var(--josanz-border);
+            box-shadow: var(--josanz-shadow);
+          "
+        >
+          @for (row of generalInfoRows; track row.label) {
+          <div
+            class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0"
+            style="border-color: var(--josanz-border)"
+          >
+            <span
+              class="text-[11px] font-bold uppercase tracking-wider"
+              style="color: var(--josanz-text-muted)"
+              >{{ row.label }}</span
+            >
+            <span
+              class="text-[16px] font-extrabold leading-snug"
+              style="color: var(--josanz-text)"
+              >{{ row.value }}</span
+            >
+          </div>
+          }
+        </div>
+      </div>
+      <div class="space-y-4">
+        <h2
+          class="text-[12px] font-bold uppercase tracking-[0.2em]"
+          style="color: var(--josanz-text-muted)"
+        >
+          Dirección fiscal
+        </h2>
+        <div
+          class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
+          style="
+            background-color: var(--josanz-surface);
+            border-color: var(--josanz-border);
+            box-shadow: var(--josanz-shadow);
+          "
+        >
+          @for (row of fiscalAddressRows; track row.label) {
+          <div
+            class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0"
+            style="border-color: var(--josanz-border)"
+          >
+            <span
+              class="text-[11px] font-bold uppercase tracking-wider"
+              style="color: var(--josanz-text-muted)"
+              >{{ row.label }}</span
+            >
+            <span
+              class="text-[16px] font-extrabold leading-snug"
+              style="color: var(--josanz-text)"
+              >{{ row.value }}</span
+            >
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
 
-     <!-- Tab: Operadores -->
-     @if (activeTab() === 'Operadores') {
-       @if (operadores.length === 0) {
-         <josanz-empty-state
-           [icon]="getEmptyStateIcon('Operadores')"
-           eyebrow="Sin operadores"
-           title="Este cliente no tiene operadores asignados"
-           description="Añade operadores para gestionar el equipo de trabajo."
-           primaryLabel="Añadir operador"
-         ></josanz-empty-state>
-       } @else {
-         <div class="py-4 overflow-x-auto no-scrollbar">
-           <div class="mb-2 flex w-full min-w-[600px] items-center px-6 text-[11px] font-bold uppercase tracking-[0.2em] md:min-w-0" style="color: var(--josanz-text-muted)">
-             <div class="w-[180px] shrink-0">Nombre Operario</div>
-             <div class="w-[200px] shrink-0">Cargo / Función</div>
-             <div class="flex-1">Última actividad</div>
-             <div class="w-[120px] shrink-0 text-center">Estado</div>
-           </div>
-           @for (op of operadores; track op.name) {
-             <josanz-main-template-card
-               [title]="op.name"
-               [data]="[op.role, 'Hace 2 horas']"
-               [status]="op.status"
-               [statusVariant]="op.status === 'Activo' ? 'success' : 'warning'"
-             ></josanz-main-template-card>
-           }
-         </div>
-       }
-     }
+    <!-- Tab: Operadores -->
+    @if (activeTab() === 'Operadores') { @if (operadores.length === 0) {
+    <josanz-empty-state
+      [icon]="getEmptyStateIcon('Operadores')"
+      eyebrow="Sin operadores"
+      title="Este cliente no tiene operadores asignados"
+      description="Añade operadores para gestionar el equipo de trabajo."
+      primaryLabel="Añadir operador"
+    ></josanz-empty-state>
+    } @else {
+    <div class="py-4 overflow-x-auto no-scrollbar">
+      <div
+        class="mb-2 flex w-full min-w-[600px] items-center px-6 text-[11px] font-bold uppercase tracking-[0.2em] md:min-w-0"
+        style="color: var(--josanz-text-muted)"
+      >
+        <div class="w-[180px] shrink-0">Nombre Operario</div>
+        <div class="w-[200px] shrink-0">Cargo / Función</div>
+        <div class="flex-1">Última actividad</div>
+        <div class="w-[120px] shrink-0 text-center">Estado</div>
+      </div>
+      @for (op of operadores; track op.name) {
+      <josanz-main-template-card
+        [title]="op.name"
+        [data]="[op.role, 'Hace 2 horas']"
+        [status]="op.status"
+        [statusVariant]="op.status === 'Activo' ? 'success' : 'warning'"
+      ></josanz-main-template-card>
+      }
+    </div>
+    } }
 
-     <!-- Tab: Presupuestos -->
-     @if (activeTab() === 'Presupuestos') {
-       <div class="py-6 space-y-10">
-         @if (presupuestosPropios.length > 0) {
-           <div class="flex w-full flex-col">
-             <h3 class="mb-3 text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">Propios</h3>
-             <josanz-document-list uploadLabel="Subir documentación">
-               @for (file of presupuestosPropios; track file) {
-                 <josanz-document-item [name]="file"></josanz-document-item>
-               }
-             </josanz-document-list>
-           </div>
-         }
-         @if (presupuestosExternos.length > 0) {
-           <div class="flex w-full flex-col">
-             <h3 class="mb-3 text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">Externos</h3>
-             <josanz-document-list uploadLabel="Subir documentación" accentColor="var(--josanz-text-muted)">
-               @for (file of presupuestosExternos; track file) {
-                 <josanz-document-item [name]="file" statusColor="var(--josanz-stroke-widget)"></josanz-document-item>
-               }
-             </josanz-document-list>
-           </div>
-         }
-         @if (presupuestosPropios.length === 0 && presupuestosExternos.length === 0) {
-           <josanz-empty-state
-             [icon]="getEmptyStateIcon('Presupuestos')"
-             eyebrow="Sin presupuestos"
-             title="No hay presupuestos para este cliente"
-             description="Los presupuestos aparecerán aquí cuando se asocien al cliente."
-             primaryLabel="Crear presupuesto"
-           ></josanz-empty-state>
-         }
-       </div>
-     }
+    <!-- Tab: Presupuestos -->
+    @if (activeTab() === 'Presupuestos') {
+    <div class="py-6 space-y-10">
+      @if (presupuestosPropios.length > 0) {
+      <div class="flex w-full flex-col">
+        <h3
+          class="mb-3 text-[12px] font-bold uppercase tracking-[0.2em]"
+          style="color: var(--josanz-text-muted)"
+        >
+          Propios
+        </h3>
+        <josanz-document-list uploadLabel="Subir documentación">
+          @for (file of presupuestosPropios; track file) {
+          <josanz-document-item [name]="file"></josanz-document-item>
+          }
+        </josanz-document-list>
+      </div>
+      } @if (presupuestosExternos.length > 0) {
+      <div class="flex w-full flex-col">
+        <h3
+          class="mb-3 text-[12px] font-bold uppercase tracking-[0.2em]"
+          style="color: var(--josanz-text-muted)"
+        >
+          Externos
+        </h3>
+        <josanz-document-list
+          uploadLabel="Subir documentación"
+          accentColor="var(--josanz-text-muted)"
+        >
+          @for (file of presupuestosExternos; track file) {
+          <josanz-document-item
+            [name]="file"
+            statusColor="var(--josanz-stroke-widget)"
+          ></josanz-document-item>
+          }
+        </josanz-document-list>
+      </div>
+      } @if (presupuestosPropios.length === 0 && presupuestosExternos.length ===
+      0) {
+      <josanz-empty-state
+        [icon]="getEmptyStateIcon('Presupuestos')"
+        eyebrow="Sin presupuestos"
+        title="No hay presupuestos para este cliente"
+        description="Los presupuestos aparecerán aquí cuando se asocien al cliente."
+        primaryLabel="Crear presupuesto"
+      ></josanz-empty-state>
+      }
+    </div>
+    }
 
-     <!-- Tab: Proveedores -->
-     @if (activeTab() === 'Proveedores') {
-       @if (proveedores.length === 0) {
-         <josanz-empty-state
-           [icon]="getEmptyStateIcon('Proveedores')"
-           eyebrow="Sin proveedores"
-           title="Este cliente no tiene proveedores asociados"
-           description="Añade proveedores para gestionar el abastecimiento."
-           primaryLabel="Añadir proveedor"
-         ></josanz-empty-state>
-       } @else {
-         <div class="py-4 overflow-x-auto no-scrollbar">
-           <div class="mb-2 flex w-full min-w-[500px] items-center px-6 text-[11px] font-bold uppercase tracking-[0.2em] md:min-w-0" style="color: var(--josanz-text-muted)">
-             <div class="w-[180px] shrink-0">ID Proveedor</div>
-             <div class="flex-1">Nombre Comercial</div>
-             <div class="w-[120px] shrink-0 text-center">Estado</div>
-           </div>
-           @for (prov of proveedores; track prov.id) {
-             <josanz-main-template-card
-               [title]="prov.id"
-               [data]="[prov.name]"
-               [status]="prov.status"
-               [statusVariant]="prov.status === 'Activo' ? 'success' : 'warning'"
-             ></josanz-main-template-card>
-           }
-         </div>
-       }
-     }
+    <!-- Tab: Proveedores -->
+    @if (activeTab() === 'Proveedores') { @if (proveedores.length === 0) {
+    <josanz-empty-state
+      [icon]="getEmptyStateIcon('Proveedores')"
+      eyebrow="Sin proveedores"
+      title="Este cliente no tiene proveedores asociados"
+      description="Añade proveedores para gestionar el abastecimiento."
+      primaryLabel="Añadir proveedor"
+    ></josanz-empty-state>
+    } @else {
+    <div class="py-4 overflow-x-auto no-scrollbar">
+      <div
+        class="mb-2 flex w-full min-w-[500px] items-center px-6 text-[11px] font-bold uppercase tracking-[0.2em] md:min-w-0"
+        style="color: var(--josanz-text-muted)"
+      >
+        <div class="w-[180px] shrink-0">ID Proveedor</div>
+        <div class="flex-1">Nombre Comercial</div>
+        <div class="w-[120px] shrink-0 text-center">Estado</div>
+      </div>
+      @for (prov of proveedores; track prov.id) {
+      <josanz-main-template-card
+        [title]="prov.id"
+        [data]="[prov.name]"
+        [status]="prov.status"
+        [statusVariant]="prov.status === 'Activo' ? 'success' : 'warning'"
+      ></josanz-main-template-card>
+      }
+    </div>
+    } }
 
-     <!-- Tab: Facturas -->
-     @if (activeTab() === 'Facturas') {
-       <div class="py-6 space-y-10">
-         @if (facturas.length > 0) {
-           <div class="flex w-full flex-col">
-             <josanz-document-list uploadLabel="Subir documentación" accentColor="var(--josanz-text-muted)">
-               @for (file of facturas; track file) {
-                 <josanz-document-item [name]="file" statusColor="var(--josanz-stroke-widget)"></josanz-document-item>
-               }
-             </josanz-document-list>
-           </div>
-         } @else {
-           <josanz-empty-state
-             [icon]="getEmptyStateIcon('Facturas')"
-             eyebrow="Sin facturas"
-             title="No hay facturas para este cliente"
-             description="Las facturas aparecerán aquí cuando se asocien al cliente."
-             primaryLabel="Crear factura"
-           ></josanz-empty-state>
-         }
-       </div>
-     }
+    <!-- Tab: Facturas -->
+    @if (activeTab() === 'Facturas') {
+    <div class="py-6 space-y-10">
+      @if (facturas.length > 0) {
+      <div class="flex w-full flex-col">
+        <josanz-document-list
+          uploadLabel="Subir documentación"
+          accentColor="var(--josanz-text-muted)"
+        >
+          @for (file of facturas; track file) {
+          <josanz-document-item
+            [name]="file"
+            statusColor="var(--josanz-stroke-widget)"
+          ></josanz-document-item>
+          }
+        </josanz-document-list>
+      </div>
+      } @else {
+      <josanz-empty-state
+        [icon]="getEmptyStateIcon('Facturas')"
+        eyebrow="Sin facturas"
+        title="No hay facturas para este cliente"
+        description="Las facturas aparecerán aquí cuando se asocien al cliente."
+        primaryLabel="Crear factura"
+      ></josanz-empty-state>
+      }
+    </div>
+    }
 
-     <!-- Tab: Productos/eventos -->
-     @if (activeTab() === 'Productos/eventos') {
-       @if (eventos.length === 0) {
-         <josanz-empty-state
-           [icon]="getEmptyStateIcon('Productos/eventos')"
-           eyebrow="Sin eventos"
-           title="Este cliente no tiene eventos asociados"
-           description="Crea o asigna eventos para este cliente."
-           primaryLabel="Crear evento"
-         ></josanz-empty-state>
-       } @else {
-         <div class="space-y-6 py-4">
-           @for (evento of eventos; track evento.title) {
-             <lib-detail-card
-               [imageUrl]="evento.imageUrl"
-               [title]="evento.title"
-               [badgeText]="evento.badgeText"
-               [subtitle]="evento.subtitle"
-               [description]="evento.description"
-               [tags]="evento.tags"
-             ></lib-detail-card>
-           }
-         </div>
-       }
-     }
+    <!-- Tab: Productos/eventos -->
+    @if (activeTab() === 'Productos/eventos') { @if (eventos.length === 0) {
+    <josanz-empty-state
+      [icon]="getEmptyStateIcon('Productos/eventos')"
+      eyebrow="Sin eventos"
+      title="Este cliente no tiene eventos asociados"
+      description="Crea o asigna eventos para este cliente."
+      primaryLabel="Crear evento"
+    ></josanz-empty-state>
+    } @else {
+    <div class="space-y-6 py-4">
+      @for (evento of eventos; track evento.title) {
+      <lib-detail-card
+        [imageUrl]="evento.imageUrl"
+        [title]="evento.title"
+        [badgeText]="evento.badgeText"
+        [subtitle]="evento.subtitle"
+        [description]="evento.description"
+        [tags]="evento.tags"
+      ></lib-detail-card>
+      }
+    </div>
+    } }
 
-     <!-- Tab: Informes / reportes -->
-     @if (activeTab() === 'Informes / reportes') {
-       <josanz-empty-state
-         [icon]="getEmptyStateIcon('Informes / reportes')"
-         eyebrow="Sin informes"
-         title="No hay informes disponibles para este cliente"
-         description="No hay informes disponibles para este cliente en el periodo actual."
-       ></josanz-empty-state>
-     }
-   </div>
+    <!-- Tab: Informes / reportes -->
+    @if (activeTab() === 'Informes / reportes') {
+    <josanz-empty-state
+      [icon]="getEmptyStateIcon('Informes / reportes')"
+      eyebrow="Sin informes"
+      title="No hay informes disponibles para este cliente"
+      description="No hay informes disponibles para este cliente en el periodo actual."
+    ></josanz-empty-state>
+    }
+  </div>
 </josanz-main-detail-layout>

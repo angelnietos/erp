@@ -6,7 +6,12 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
-export type JosanzStatusPillVariant = JosanzStatusPillKey | 'primary' | 'success' | 'warning' | 'error';
+export type JosanzStatusPillVariant =
+  | JosanzStatusPillKey
+  | 'primary'
+  | 'success'
+  | 'warning'
+  | 'error';
 
 @Component({
   selector: 'josanz-main-template-card',
@@ -21,7 +26,12 @@ export class MainTemplateCardComponent {
   @Input() title = 'Facturación General';
   @Input() status = 'Pendiente';
   @Input() statusVariant: JosanzStatusPillVariant = 'warning';
-  @Input() data: string[] = ['ID: #4502', 'Fecha: 12/05/2026', 'Total: 1.250€', 'Vencimiento: 30 días'];
+  @Input() data: string[] = [
+    'ID: #4502',
+    'Fecha: 12/05/2026',
+    'Total: 1.250€',
+    'Vencimiento: 30 días',
+  ];
   /** Labels shown inline on mobile next to each data value. Should match data array length. */
   @Input() labels: string[] = [];
   @Input() leadingMark = '';

@@ -1,0 +1,926 @@
+﻿<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
+<div class="document-create-page space-y-6">
+  <nav
+    class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-secondary"
+    aria-label="Migas de pan"
+  >
+    <a routerLink="/documents/list" class="hover:text-primary transition-colors"
+      >Documentos</a
+    >
+    <span class="text-muted" aria-hidden="true">/</span>
+    <a
+      routerLink="/documents/create"
+      class="hover:text-primary transition-colors"
+      >Tipo y plantilla</a
+    >
+    <span class="text-muted" aria-hidden="true">/</span>
+    <span class="text-primary font-medium">Editor</span>
+  </nav>
+
+  @if (selectedType) {
+    <div
+      class="document-create-shell bg-surface rounded-2xl shadow-xl border border-soft"
+    >
+      <div class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+          <div
+            class="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center"
+          >
+            <svg
+              class="w-5 h-5 text-bg-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-primary">
+              Información del Documento
+            </h2>
+            <p class="text-secondary">
+              Completa los detalles para generar tu
+              {{ selectedType.name.toLowerCase() }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <form
+        [formGroup]="documentForm"
+        (ngSubmit)="generateDocument()"
+        class="space-y-8"
+      >
+        <div class="bg-tertiary rounded-xl p-6 border border-soft">
+          <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+            <svg
+              class="w-5 h-5 mr-2 text-secondary"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
+              />
+            </svg>
+            Información General
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <label
+                for="clientId"
+                class="block text-sm font-medium text-primary"
+                >Cliente *</label
+              >
+              <select
+                id="clientId"
+                formControlName="clientId"
+                class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
+              >
+                <option value="">Seleccionar cliente</option>
+                @for (client of clients; track client.id) {
+                  <option [value]="client.id">
+                    {{ client.name }}
+                  </option>
+                }
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label for="date" class="block text-sm font-medium text-primary"
+                >Fecha</label
+              >
+              <input
+                id="date"
+                type="date"
+                formControlName="date"
+                class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <label for="title" class="block text-sm font-medium text-secondary"
+              >Tótulo del Documento</label
+            >
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              [placeholder]="getTitlePlaceholder()"
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
+            />
+          </div>
+
+          <div
+            class="rounded-2xl border border-violet-200/90 dark:border-violet-800/60 bg-gradient-to-br from-violet-50/90 via-white to-slate-50/80 dark:from-violet-950/40 dark:via-slate-900 dark:to-slate-950 p-6 space-y-4 shadow-md shadow-slate-900/5 ring-1 ring-violet-100/70 dark:ring-violet-900/40"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h3
+                  class="text-lg font-semibold text-primary flex items-center gap-2"
+                >
+                  <span
+                    class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/10 text-violet-700 dark:text-violet-300"
+                    aria-hidden="true"
+                    >?</span
+                  >
+                  Redacción asistida (IA)
+                </h3>
+                <p class="text-sm text-secondary mt-1 max-w-2xl">
+                  Describe objetivos, póblico y datos clave; la IA genera un
+                  borrador en Markdown. Revisa y ajusta siempre el resultado
+                  antes de enviarlo o firmarlo.
+                </p>
+                <p class="text-xs text-muted mt-2 max-w-2xl">
+                  El proveedor y la clave son los mismos que en el resto del ERP
+                  (configuración local del navegador).
+                </p>
+                <a
+                  routerLink="/documents/settings/ai"
+                  class="inline-flex mt-2 text-sm font-medium text-violet-700 dark:text-violet-300 hover:underline"
+                >
+                  Configurar clave API y modelo ?
+                </a>
+              </div>
+            </div>
+
+            @if (aiError) {
+              <p
+                class="text-sm text-red-600 dark:text-red-400 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 px-3 py-2"
+                role="alert"
+              >
+                {{ aiError }}
+              </p>
+            }
+
+            <div class="space-y-2">
+              <label
+                for="aiBrief"
+                class="block text-sm font-medium text-secondary"
+                >Consigna para generar borrador</label
+              >
+              <textarea
+                id="aiBrief"
+                formControlName="aiBrief"
+                rows="3"
+                placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
+                class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y min-h-[5rem]"
+                [disabled]="isGenerating || isAiGenerating"
+              ></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                (click)="generateDraftWithAi('replace')"
+                [disabled]="isGenerating || isAiGenerating"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 text-white shadow hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                @if (isAiGenerating) {
+                  <svg
+                    class="w-4 h-4 animate-spin shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                }
+                Sustituir contenido
+              </button>
+              <button
+                type="button"
+                (click)="generateDraftWithAi('append')"
+                [disabled]="isGenerating || isAiGenerating"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-violet-300 dark:border-violet-800 bg-surface text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                @if (isAiGenerating) {
+                  <svg
+                    class="w-4 h-4 animate-spin shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                }
+                Aóadir al final
+              </button>
+            </div>
+
+            <div
+              class="border-t border-violet-200/70 dark:border-violet-900/40 pt-4 space-y-2"
+            >
+              <label
+                for="aiInstruction"
+                class="block text-sm font-medium text-secondary"
+                >Reformular el documento actual</label
+              >
+              <textarea
+                id="aiInstruction"
+                formControlName="aiInstruction"
+                rows="2"
+                placeholder="Ej.: Acorta a una pógina, tono mós formal, aóade sección de riesgos y mitigación."
+                class="w-full px-4 py-3 border border-violet-200 dark:border-violet-900/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 bg-surface text-sm resize-y"
+                [disabled]="isGenerating || isAiGenerating"
+              ></textarea>
+              <button
+                type="button"
+                (click)="transformWithAi()"
+                [disabled]="isGenerating || isAiGenerating"
+                class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                @if (isAiGenerating) {
+                  <svg
+                    class="w-4 h-4 animate-spin shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                }
+                Aplicar instrucción al texto
+              </button>
+            </div>
+          </div>
+
+          @if (selectedType.id === 'quote') {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-2">
+                <label
+                  for="projectName"
+                  class="block text-sm font-medium text-secondary"
+                  >Proyecto</label
+                >
+                <input
+                  id="projectName"
+                  type="text"
+                  formControlName="projectName"
+                  placeholder="Nombre del proyecto"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
+                />
+              </div>
+              <div class="space-y-2">
+                <label
+                  for="totalAmount"
+                  class="block text-sm font-medium text-secondary"
+                  >Monto Total (ó)</label
+                >
+                <input
+                  id="totalAmount"
+                  type="number"
+                  formControlName="totalAmount"
+                  placeholder="0.00"
+                  step="0.01"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface"
+                />
+              </div>
+            </div>
+          }
+
+          <!-- Plantillas Rópidas -->
+          <div class="space-y-3">
+            <div class="block text-sm font-medium text-secondary">
+              Plantillas predefinidas para {{ selectedType.name }}
+            </div>
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
+              role="group"
+              aria-labelledby="templates-label"
+            >
+              @for (template of templates; track template.id) {
+                <button
+                  type="button"
+                  (click)="loadTemplate(template)"
+                  class="px-4 py-3 text-left bg-white/90 dark:bg-slate-900/80 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-800 dark:hover:text-blue-200 rounded-xl transition-all border border-slate-200/80 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-700 shadow-sm hover:shadow"
+                >
+                  <div class="font-medium">
+                    {{ template.icon }} {{ template.name }}
+                  </div>
+                  <div class="text-xs text-secondary mt-1">
+                    {{ template.description }}
+                  </div>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Toolbar relocated to left sidebar in editor split -->
+
+          <div class="document-editor-panel">
+            <div class="document-editor-panel__header">
+              <div>
+                <label
+                  for="content"
+                  class="block text-sm font-semibold text-primary"
+                  >Contenido Universal (Markdown, Texto, HTML)</label
+                >
+                <p class="text-xs text-muted mt-1">
+                  Escribe a la izquierda y revisa el resultado final a la
+                  derecha.
+                </p>
+              </div>
+              <div class="flex items-center gap-2 text-xs text-muted">
+                <span class="px-2 py-1 bg-slate-100 rounded"
+                  >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
+                >
+              </div>
+            </div>
+
+            <!-- Custom CSS Input -->
+            <div class="document-css-panel">
+              <label
+                for="customCss"
+                class="block text-sm font-medium text-secondary flex items-center gap-2"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h14a2 2 0 002-2v-7a2 2 0 00-2-2h-5l-2-2-2 2H7a2 2 0 00-2 2v7a2 2 0 002 2z"
+                  ></path>
+                </svg>
+                Estilos CSS personalizados (opcional)
+              </label>
+              <textarea
+                id="customCss"
+                [(ngModel)]="customCss"
+                [ngModelOptions]="{ standalone: true }"
+                rows="8"
+                placeholder="h1 { color: #2563eb; }&#10;.doc-title { letter-spacing: -0.04em; }&#10;.doc-table { border-radius: 16px; overflow: hidden; }&#10;&#10;/* En HTML se aplica como CSS normal. En Markdown se acota automóticamente a la vista previa. */"
+                class="document-css-panel__textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-y"
+                (input)="applyCustomCss()"
+              ></textarea>
+              <p class="text-xs text-muted">
+                Puedes escribir propiedades sueltas o reglas completas. Se
+                aplican sobre los estilos base del documento.
+              </p>
+            </div>
+
+            <!-- PDF Style Selector -->
+            @if (pdfStyles.length > 0) {
+              <div class="document-css-panel">
+                <label
+                  for="pdfStyleSelector"
+                  class="block text-sm font-medium text-secondary mb-2"
+                >
+                  Estilo del PDF
+                </label>
+                <select
+                  id="pdfStyleSelector"
+                  [(ngModel)]="selectedPdfStyle"
+                  (ngModelChange)="applyCustomCss()"
+                  [ngModelOptions]="{ standalone: true }"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface text-sm"
+                >
+                  @for (style of pdfStyles; track style.id) {
+                    <option [value]="style.id">{{ style.name }}</option>
+                  }
+                </select>
+                <p class="text-xs text-muted mt-1">
+                  El estilo se aplica al generar el PDF final.
+                </p>
+                <div class="mt-3">
+                  <label
+                    for="pdfBackgroundMode"
+                    class="block text-sm font-medium text-secondary mb-2"
+                    >Fondo del PDF</label
+                  >
+                  <div class="flex gap-2 items-center">
+                    <select
+                      id="pdfBackgroundMode"
+                      [(ngModel)]="pdfBackgroundMode"
+                      (ngModelChange)="onPdfBackgroundChange()"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="px-3 py-2 rounded border bg-white"
+                    >
+                      <option value="theme">Usar tema</option>
+                      <option value="color">Color sólido</option>
+                      <option value="corporate">Imagen corporativa</option>
+                    </select>
+                    <input
+                      id="pdfBackgroundColor"
+                      *ngIf="pdfBackgroundMode === 'color'"
+                      type="color"
+                      [(ngModel)]="pdfBackgroundColor"
+                      (ngModelChange)="onPdfBackgroundChange()"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="w-10 h-10 p-0 border rounded"
+                    />
+                    <input
+                      id="pdfBackgroundImageUrl"
+                      *ngIf="pdfBackgroundMode === 'corporate'"
+                      type="text"
+                      placeholder="URL imagen (https://...)"
+                      [(ngModel)]="pdfBackgroundImageUrl"
+                      (ngModelChange)="onPdfBackgroundChange()"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="flex-1 px-3 py-2 rounded border bg-white"
+                    />
+                  </div>
+                  <p class="text-xs text-muted mt-2">
+                    Selecciona cómo se renderizaró el fondo del PDF.
+                  </p>
+                  @if (pdfBackgroundMode !== 'theme') {
+                    <div class="mt-3 grid grid-cols-2 sm:grid-cols-5 gap-3">
+                      <label class="text-xs font-medium text-secondary">
+                        Papel
+                        <input
+                          type="color"
+                          [(ngModel)]="documentPaperColor"
+                          (ngModelChange)="onPdfBackgroundChange()"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="mt-1 w-full h-9 p-0 rounded border"
+                        />
+                      </label>
+                      <label class="text-xs font-medium text-secondary">
+                        Texto
+                        <input
+                          type="color"
+                          [(ngModel)]="documentTextColor"
+                          (ngModelChange)="onPdfBackgroundChange()"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="mt-1 w-full h-9 p-0 rounded border"
+                        />
+                      </label>
+                      <label class="text-xs font-medium text-secondary">
+                        Secundario
+                        <input
+                          type="color"
+                          [(ngModel)]="documentMutedColor"
+                          (ngModelChange)="onPdfBackgroundChange()"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="mt-1 w-full h-9 p-0 rounded border"
+                        />
+                      </label>
+                      <label class="text-xs font-medium text-secondary">
+                        Acento
+                        <input
+                          type="color"
+                          [(ngModel)]="documentAccentColor"
+                          (ngModelChange)="onPdfBackgroundChange()"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="mt-1 w-full h-9 p-0 rounded border"
+                        />
+                      </label>
+                      <label class="text-xs font-medium text-secondary">
+                        Bordes
+                        <input
+                          type="color"
+                          [(ngModel)]="documentBorderColor"
+                          (ngModelChange)="onPdfBackgroundChange()"
+                          [ngModelOptions]="{ standalone: true }"
+                          class="mt-1 w-full h-9 p-0 rounded border"
+                        />
+                      </label>
+                    </div>
+                    <p class="text-xs text-muted mt-2">
+                      Al no usar tema, la preview y el PDF usan estos colores
+                      del documento, no los de la interfaz.
+                    </p>
+                    <p class="text-xs text-muted mt-1">
+                      El cambio de papel solo afecta el contenido del documento;
+                      la portada se renderiza con su propio fondo.
+                    </p>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="editor-container" [class.fullscreen]="fullscreenMode">
+              @if (fullscreenMode) {
+                <div class="editor-tabs">
+                  <button
+                    type="button"
+                    class="editor-tab-button"
+                    [class.active]="fullscreenTab === 'editor'"
+                    (click)="fullscreenTab = 'editor'"
+                  >
+                    Editor
+                  </button>
+                  <button
+                    type="button"
+                    class="editor-tab-button"
+                    [class.active]="fullscreenTab === 'preview'"
+                    (click)="fullscreenTab = 'preview'"
+                  >
+                    Vista Previa
+                  </button>
+                </div>
+              }
+
+              @if (!fullscreenMode) {
+                <div class="document-editor-split">
+                  <app-document-editor-toolbar
+                    [contentEditorMode]="contentEditorMode"
+                    [selectedTextColor]="selectedTextColor"
+                    [selectedQuickStylePreset]="selectedQuickStylePreset"
+                    [isAiGenerating]="isAiGenerating"
+                    [editorBlockTemplates]="editorBlockTemplates"
+                    (formatAction)="handleToolbarFormatAction($event)"
+                    (textColorChange)="selectedTextColor = $event"
+                    (applyTextColor)="applyTextColor()"
+                    (blockInsert)="insertEditorBlockFromSelect($event)"
+                    (copyContent)="copyMarkdownToClipboard()"
+                    (convertToHtml)="convertMarkdownToVisualHtmlWithAi()"
+                    (convertToMarkdown)="convertHtmlToMarkdownWithAi()"
+                    (beautify)="beautifyDocumentWithAi()"
+                    (stylePresetChange)="applyStylePreset($event)"
+                    (fontSizeDelta)="adjustBaseFontSize($event)"
+                    (toggleTool)="toggleDocumentTool($event)"
+                  />
+
+                  <app-document-editor-canvas
+                    [documentForm]="documentForm"
+                    [editorModeLabel]="editorModeLabel"
+                    [contentEditorMode]="contentEditorMode"
+                    [editorPlaceholder]="editorPlaceholder"
+                    (modeChange)="setContentEditorMode($event)"
+                    (toggleFullscreen)="toggleFullscreen()"
+                    (contentInput)="updatePreview()"
+                    (editorKeydown)="handleKeydown($event)"
+                    (applyCorporateTemplate)="insertDefaultCssTemplate()"
+                  />
+
+                  <app-document-live-preview
+                    [contentEditorMode]="contentEditorMode"
+                    [wordCount]="wordCount"
+                    [characterCount]="characterCount"
+                    [htmlPreviewSrcdoc]="htmlPreviewSrcdoc"
+                    [previewHtml]="previewHtml"
+                    [previewPaneStyle]="previewPaneStyle"
+                    [pdfBackgroundMode]="pdfBackgroundMode"
+                    [previewRenderKey]="previewRenderKey"
+                  />
+                </div>
+              }
+
+              @if (fullscreenMode) {
+                <div class="document-fullscreen-body">
+                  <!-- Editor Markdown (Fullscreen) -->
+                  @if (fullscreenTab === 'editor') {
+                    <div class="document-editor-column fullscreen-editor">
+                      <div class="document-editor-column__bar">
+                        <div
+                          class="flex flex-col gap-2 sm:flex-row sm:items-center"
+                        >
+                          <span>{{ editorModeLabel }}</span>
+                          <div
+                            class="inline-flex rounded-lg border border-soft bg-secondary p-1 text-xs font-semibold"
+                          >
+                            <button
+                              type="button"
+                              class="px-2.5 py-1 rounded-md"
+                              [class.bg-surface]="
+                                contentEditorMode === 'markdown'
+                              "
+                              [class.text-brand]="
+                                contentEditorMode === 'markdown'
+                              "
+                              (click)="setContentEditorMode('markdown')"
+                            >
+                              Markdown
+                            </button>
+                            <button
+                              type="button"
+                              class="px-2.5 py-1 rounded-md"
+                              [class.bg-surface]="contentEditorMode === 'html'"
+                              [class.text-brand]="contentEditorMode === 'html'"
+                              (click)="setContentEditorMode('html')"
+                            >
+                              HTML
+                            </button>
+                            <button
+                              type="button"
+                              class="px-2.5 py-1 rounded-md"
+                              [class.bg-surface]="contentEditorMode === 'plain'"
+                              [class.text-brand]="contentEditorMode === 'plain'"
+                              (click)="setContentEditorMode('plain')"
+                            >
+                              Texto
+                            </button>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          (click)="toggleFullscreen()"
+                          class="hover:text-brand transition-colors"
+                        >
+                          Salir pantalla completa
+                        </button>
+                      </div>
+                      <textarea
+                        #editor
+                        formControlName="content"
+                        [placeholder]="editorPlaceholder"
+                        class="document-editor-textarea w-full flex-1 bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        (input)="updatePreview()"
+                        (keydown)="handleKeydown($event)"
+                      ></textarea>
+                    </div>
+                  }
+
+                  <!-- Vista Previa (Fullscreen) -->
+                  @if (fullscreenTab === 'preview') {
+                    <div class="document-editor-column fullscreen-preview">
+                      <div class="document-editor-column__bar">
+                        Vista Previa
+                        <span
+                          class="ml-auto text-xs font-mono bg-tertiary px-2 py-0.5 rounded"
+                          >{{ wordCount }} palabras ó
+                          {{ characterCount }} caracteres</span
+                        >
+                      </div>
+                      @if (contentEditorMode === 'html') {
+                        @if (previewRenderKey) {
+                          <iframe
+                            title="Vista previa HTML"
+                            class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
+                            [srcdoc]="htmlPreviewSrcdoc"
+                          ></iframe>
+                        }
+                      } @else {
+                        <div
+                          class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner"
+                          [class.document-preview-pane--isolated]="
+                            pdfBackgroundMode !== 'theme'
+                          "
+                          [ngStyle]="previewPaneStyle"
+                          [innerHTML]="previewHtml"
+                        ></div>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (selectedType.id === 'architecture') {
+            <div class="space-y-4">
+              <div class="space-y-2">
+                <label
+                  for="architectureDiagram"
+                  class="block text-sm font-medium text-secondary"
+                  >Diagrama de Arquitectura (Mermaid)</label
+                >
+                <textarea
+                  id="architectureDiagram"
+                  formControlName="architectureDiagram"
+                  rows="4"
+                  placeholder="graph TD&#10;    A[Cliente] --> B[API Gateway]&#10;    B --> C[Servicio de Autenticación]&#10;    B --> D[Servicio de Documentos]&#10;    C --> E[Base de Datos]&#10;    D --> E"
+                  class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm"
+                ></textarea>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="pt-8 border-t border-soft space-y-4">
+          <button
+            type="button"
+            (click)="goBack()"
+            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+          >
+            <svg
+              class="w-4 h-4 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Volver Atrós
+          </button>
+
+          <div class="rounded-2xl border border-soft bg-surface p-4 sm:p-5">
+            <div
+              class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end"
+            >
+              <div class="min-w-0 space-y-3">
+                <p
+                  class="text-xs font-semibold uppercase tracking-wider text-secondary"
+                >
+                  Importar y exportar
+                </p>
+                <app-document-export-actions
+                  (importFile)="importDocument($event)"
+                  (exportFormat)="exportDocument($event)"
+                />
+              </div>
+
+              <div
+                class="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:justify-end lg:min-w-[min(100%,20rem)]"
+              >
+                <button
+                  type="button"
+                  (click)="openFloatingAssistant()"
+                  class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+                >
+                  <svg
+                    class="w-4 h-4 shrink-0 text-slate-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z"
+                    />
+                  </svg>
+                  Abrir ayuda flotante
+                </button>
+                <button
+                  type="button"
+                  (click)="saveDraft()"
+                  [disabled]="!selectedType || isSavingDraft || isGenerating"
+                  class="footer-save-draft w-full sm:w-auto"
+                  title="Guarda el contenido en el historial de este navegador (IndexedDB)"
+                >
+                  @if (isSavingDraft) {
+                    <svg
+                      class="w-4 h-4 shrink-0 animate-spin text-slate-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                  } @else {
+                    <svg
+                      class="w-4 h-4 shrink-0 text-slate-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l3 3m0 0l3-3m-3 3V4"
+                      />
+                    </svg>
+                  }
+                  Guardar borrador
+                </button>
+                <a
+                  routerLink="/documents/analysis"
+                  class="inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+                >
+                  <svg
+                    class="w-4 h-4 shrink-0 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  Analizar Propuesta
+                </a>
+                <button
+                  type="submit"
+                  [disabled]="
+                    documentForm.invalid || isGenerating || isAiGenerating
+                  "
+                  class="footer-cta-primary w-full sm:w-auto sm:min-w-[14rem]"
+                >
+                  @if (!isGenerating) {
+                    <svg
+                      class="w-5 h-5 shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 0 012-2h5.586a1 0 01.707.293l5.414 5.414a1 0 01.293.707V19a2 0 01-2 2z"
+                      />
+                    </svg>
+                  }
+                  @if (isGenerating) {
+                    <svg
+                      class="w-5 h-5 shrink-0 animate-spin"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                      />
+                    </svg>
+                  }
+                  <span class="text-left leading-snug drop-shadow-sm">
+                    {{
+                      isGenerating
+                        ? 'Generando documentoó'
+                        : 'Generar documento (PDF)'
+                    }}
+                  </span>
+                </button>
+              </div>
+              @if (draftSaveMessage) {
+                <p
+                  class="text-xs text-emerald-700 dark:text-emerald-400 mt-2 text-right"
+                  role="status"
+                >
+                  {{ draftSaveMessage }}
+                </p>
+              }
+              @if (documentGenerateError) {
+                <p
+                  class="text-xs text-red-700 dark:text-red-400 mt-2 text-right"
+                  role="alert"
+                >
+                  {{ documentGenerateError }}
+                </p>
+              }
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <app-document-tools-modal
+        [active]="hasActiveModal()"
+        [modalTitle]="activeToolModalTitle()"
+        [modalSubtitle]="activeToolModalSubtitle()"
+        [showCoverEditor]="showCoverEditor"
+        [showSignatureEditor]="showSignatureEditor"
+        [showHeaderFooterEditor]="showHeaderFooterEditor"
+        [showTableBuilder]="showTableBuilder"
+        [showImageInsert]="showImageInsert"
+        [showWatermarkEditor]="showWatermarkEditor"
+        [coverConfig]="coverConfig"
+        [signatureConfig]="signatureConfig"
+        [headerFooterConfig]="headerFooterConfig"
+        [watermarkConfig]="watermarkConfig"
+        (closeAll)="closeAllModals()"
+        (coverConfigChange)="onCoverConfigChange($event)"
+        (signatureConfigChange)="onSignatureConfigChange($event)"
+        (headerFooterConfigChange)="onHeaderFooterConfigChange($event)"
+        (watermarkConfigChange)="onWatermarkConfigChange($event)"
+        (insertCover)="insertCoverIntoDocument()"
+        (insertSignature)="insertSignatureIntoDocument()"
+        (insertTable)="insertTableFromBuilder()"
+        (insertImage)="insertImageFromUpload()"
+        (insertWatermark)="insertWatermarkIntoDocument()"
+      />
+    </div>
+  }
+</div>

@@ -34,7 +34,7 @@ export class AIInferenceService {
   readonly selectedProvider = signal<AIProvider>(this.getInitialProvider());
   readonly selectedModelId = signal<string>(this.getInitialModelId());
   readonly providerApiKey = signal<string>(
-    localStorage.getItem('ai_api_key') || this.getInitialApiKey()
+    localStorage.getItem('ai_api_key') || this.getInitialApiKey(),
   );
 
   readonly ollamaConfig = signal<{
@@ -42,7 +42,8 @@ export class AIInferenceService {
     model: string;
     available: boolean;
   }>({
-    baseUrl: localStorage.getItem('ollama_base_url') || 'http://localhost:11434',
+    baseUrl:
+      localStorage.getItem('ollama_base_url') || 'http://localhost:11434',
     model: localStorage.getItem('ollama_model') || 'llama2',
     available: false,
   });
@@ -79,8 +80,19 @@ export class AIInferenceService {
 
   private getInitialProvider(): AIProvider {
     const persisted = localStorage.getItem('ai_provider');
-    const validProviders = ['gemini', 'openai', 'anthropic', 'grok', 'together', 'openrouter', 'ollama', 'free'];
-    return (validProviders.includes(persisted || '') ? persisted : 'gemini') as AIProvider;
+    const validProviders = [
+      'gemini',
+      'openai',
+      'anthropic',
+      'grok',
+      'together',
+      'openrouter',
+      'ollama',
+      'free',
+    ];
+    return (
+      validProviders.includes(persisted || '') ? persisted : 'gemini'
+    ) as AIProvider;
   }
 
   private getInitialModelId(): string {
@@ -91,10 +103,19 @@ export class AIInferenceService {
   private getInitialApiKey(): string {
     const provider = this.getInitialProvider();
     switch (provider) {
-      case 'gemini': return AI_CONFIG.google_api_key || '';
-      case 'grok': return AI_CONFIG.xai_api_key || '';
-      case 'openrouter': return AI_CONFIG.openrouter_api_key || '';
-      default: return AI_CONFIG.google_api_key || AI_CONFIG.openrouter_api_key || AI_CONFIG.xai_api_key || '';
+      case 'gemini':
+        return AI_CONFIG.google_api_key || '';
+      case 'grok':
+        return AI_CONFIG.xai_api_key || '';
+      case 'openrouter':
+        return AI_CONFIG.openrouter_api_key || '';
+      default:
+        return (
+          AI_CONFIG.google_api_key ||
+          AI_CONFIG.openrouter_api_key ||
+          AI_CONFIG.xai_api_key ||
+          ''
+        );
     }
   }
 
@@ -107,8 +128,14 @@ export class AIInferenceService {
       { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Calidad)' },
       { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
       { value: 'gemini-3-flash-preview', label: 'Gemini 3 Flash Preview' },
-      { value: 'gemini-3.1-flash-lite-preview', label: 'Gemini 3.1 Flash Lite Preview' },
-      { value: 'gemini-3.1-flash-live-preview', label: 'Gemini 3.1 Flash Live Preview' },
+      {
+        value: 'gemini-3.1-flash-lite-preview',
+        label: 'Gemini 3.1 Flash Lite Preview',
+      },
+      {
+        value: 'gemini-3.1-flash-live-preview',
+        label: 'Gemini 3.1 Flash Live Preview',
+      },
       { value: 'openai', label: 'OpenAI GPT-4o' },
       { value: 'anthropic', label: 'Anthropic Claude 3.5' },
     ];
@@ -133,7 +160,7 @@ export class AIInferenceService {
     // selectedProvider is kept in sync by setAIModel, but may lag due to HMR or initialization order.
     const modelId = this.selectedModelId();
     let provider: AIProvider;
-    
+
     if (modelId.startsWith('ollama:')) {
       provider = 'ollama';
     } else if (modelId.startsWith('gemini')) {
@@ -149,14 +176,22 @@ export class AIInferenceService {
 
     try {
       switch (provider) {
-        case 'gemini': return await this.generateWithGemini(prompt, context, options);
-        case 'openai': return await this.generateWithOpenAI(prompt, context, options);
-        case 'ollama': return await this.generateWithOllama(prompt, context, options);
-        case 'grok': return await this.generateWithGrok(prompt, context);
-        case 'together': return await this.generateWithTogether(prompt, context, options);
-        case 'openrouter': return await this.generateWithOpenRouter(prompt, context, options);
-        case 'free': return this.generateSmartFallback(prompt, context);
-        default: return this.generateSmartFallback(prompt, context);
+        case 'gemini':
+          return await this.generateWithGemini(prompt, context, options);
+        case 'openai':
+          return await this.generateWithOpenAI(prompt, context, options);
+        case 'ollama':
+          return await this.generateWithOllama(prompt, context, options);
+        case 'grok':
+          return await this.generateWithGrok(prompt, context);
+        case 'together':
+          return await this.generateWithTogether(prompt, context, options);
+        case 'openrouter':
+          return await this.generateWithOpenRouter(prompt, context, options);
+        case 'free':
+          return this.generateSmartFallback(prompt, context);
+        default:
+          return this.generateSmartFallback(prompt, context);
       }
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : String(error);
@@ -181,12 +216,15 @@ export class AIInferenceService {
   ): Promise<string> {
     // Always prefer the Google-specific key, then fall back to the generic stored key
     const apiKey = AI_CONFIG.google_api_key || this.providerApiKey();
-    if (!apiKey) throw new Error('API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.');
+    if (!apiKey)
+      throw new Error(
+        'API Key de Gemini no configurada. Ve a Configuración → Asistentes de IA y añade tu clave de Google.',
+      );
 
     const selectedModelId = this.selectedModelId();
-    const primaryModel = selectedModelId.startsWith('gemini') 
-      ? selectedModelId 
-      : (AI_CONFIG.gemini_model || 'gemini-2.5-flash');
+    const primaryModel = selectedModelId.startsWith('gemini')
+      ? selectedModelId
+      : AI_CONFIG.gemini_model || 'gemini-2.5-flash';
 
     // Chain of fallbacks to ensure availability
     const fallbackChain = [
@@ -194,7 +232,7 @@ export class AIInferenceService {
       'gemini-2.5-flash',
       'gemini-2.5-flash-lite',
       'gemini-3.1-flash-lite-preview',
-      'gemini-2.5-pro'
+      'gemini-2.5-pro',
     ];
 
     // Deduplicate while maintaining priority order
@@ -204,7 +242,9 @@ export class AIInferenceService {
     for (const model of modelsToTry) {
       try {
         // Prepend context as part of the user message — works universally across all API versions
-        const fullPrompt = context ? `${context}\n\n---\n\nUsuario: ${prompt}` : prompt;
+        const fullPrompt = context
+          ? `${context}\n\n---\n\nUsuario: ${prompt}`
+          : prompt;
 
         const maxOut = this.resolveMaxOutputTokens(options);
         const attachmentParts =
@@ -230,34 +270,48 @@ export class AIInferenceService {
           },
         };
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          },
+        );
 
         if (response.status === 429) {
-          console.warn(`⚡ [AI Fallback] Modelo "${model}" agotado por cuota (429). Saltando al siguiente...`);
+          console.warn(
+            `⚡ [AI Fallback] Modelo "${model}" agotado por cuota (429). Saltando al siguiente...`,
+          );
           continue;
         }
 
         if (!response.ok) {
           const errorData = await response.json();
-          const errorMsg = errorData.error?.message || `Error HTTP ${response.status}`;
-          
+          const errorMsg =
+            errorData.error?.message || `Error HTTP ${response.status}`;
+
           // Si es un error de modelo sobrecargado o temporal, intentamos el siguiente
-          if (response.status >= 500 || errorMsg.toLowerCase().includes('overloaded') || errorMsg.toLowerCase().includes('expired')) {
-             console.warn(`⚠️ [AI Fallback] Error temporal en "${model}": ${errorMsg}. Reintentando con otro...`);
-             continue;
+          if (
+            response.status >= 500 ||
+            errorMsg.toLowerCase().includes('overloaded') ||
+            errorMsg.toLowerCase().includes('expired')
+          ) {
+            console.warn(
+              `⚠️ [AI Fallback] Error temporal en "${model}": ${errorMsg}. Reintentando con otro...`,
+            );
+            continue;
           }
 
           throw new Error(errorMsg);
         }
 
         const data = await response.json();
-        
+
         if (model !== primaryModel) {
-          console.info(`✅ [AI Recovery] Recuperado exitosamente usando modelo de backup: ${model}`);
+          console.info(
+            `✅ [AI Recovery] Recuperado exitosamente usando modelo de backup: ${model}`,
+          );
         }
 
         const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
@@ -287,7 +341,10 @@ export class AIInferenceService {
     const maxTokens = this.resolveMaxOutputTokens(options, 2048, 16384);
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
@@ -308,26 +365,35 @@ export class AIInferenceService {
   ): Promise<string> {
     const fullPrompt = context ? `${context}\n\n${prompt}` : prompt;
     const numPredict = this.resolveMaxOutputTokens(options, 2048, 8192);
-    const response = await fetch(`${this.ollamaConfig().baseUrl}/api/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: this.ollamaConfig().model,
-        prompt: fullPrompt,
-        stream: false,
-        options: { num_predict: numPredict },
-      }),
-    });
+    const response = await fetch(
+      `${this.ollamaConfig().baseUrl}/api/generate`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: this.ollamaConfig().model,
+          prompt: fullPrompt,
+          stream: false,
+          options: { num_predict: numPredict },
+        }),
+      },
+    );
     const data = await response.json();
     return data.response || 'Error con Ollama';
   }
 
-  private async generateWithGrok(prompt: string, context?: string): Promise<string> {
+  private async generateWithGrok(
+    prompt: string,
+    context?: string,
+  ): Promise<string> {
     const apiKey = this.providerApiKey();
     if (!apiKey) return `[Simulación Grok] Sin API Key para: ${prompt}`;
     const resp = await fetch('https://api.x.ai/v1/responses', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         model: 'grok-4.20-reasoning',
         input: context ? `${context}\n\nPregunta: ${prompt}` : prompt,
@@ -347,7 +413,10 @@ export class AIInferenceService {
     const maxTokens = this.resolveMaxOutputTokens(options, 2048, 8192);
     const resp = await fetch('https://api.together.xyz/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
         model: 'deepseek-ai/DeepSeek-V3',
         messages: [
@@ -391,21 +460,23 @@ export class AIInferenceService {
 
   async checkOllamaAvailability(force = false): Promise<boolean> {
     const now = Date.now();
-    if (!force && now - this._lastCheckTime < this.CHECK_THROTTLE_MS) return this.ollamaConfig().available;
+    if (!force && now - this._lastCheckTime < this.CHECK_THROTTLE_MS)
+      return this.ollamaConfig().available;
     this._lastCheckTime = now;
     try {
       const response = await fetch(`${this.ollamaConfig().baseUrl}/api/tags`);
       if (response.ok) {
         const data = await response.json();
-        const availableModels = (data.models as Array<{name: string}>)?.map((m) => m.name) || [];
-        this.freeModels.update(c => ({ ...c, localModels: availableModels }));
-        this.ollamaConfig.update(c => ({ ...c, available: true }));
+        const availableModels =
+          (data.models as Array<{ name: string }>)?.map((m) => m.name) || [];
+        this.freeModels.update((c) => ({ ...c, localModels: availableModels }));
+        this.ollamaConfig.update((c) => ({ ...c, available: true }));
         return true;
       }
     } catch (e) {
       console.warn('Ollama not available', e);
     }
-    this.ollamaConfig.update(c => ({ ...c, available: false }));
+    this.ollamaConfig.update((c) => ({ ...c, available: false }));
     return false;
   }
 
@@ -442,8 +513,12 @@ export class AIInferenceService {
   }
 
   private generateSmartFallback(prompt: string, context?: string): string {
-    console.debug('Generating smart fallback for:', prompt, 'with context:', context?.length);
+    console.debug(
+      'Generating smart fallback for:',
+      prompt,
+      'with context:',
+      context?.length,
+    );
     return `[Modo Offline] Entiendo que preguntas sobre "${prompt}". Configura una API para una respuesta real.`;
   }
 }
-

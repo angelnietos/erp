@@ -112,7 +112,14 @@ export class JosanzCatalogListComponent {
   }
 
   rowValues(row: JosanzCatalogListRow): string[] {
-    return row.values ?? [row.eventName ?? '', row.date ?? '', row.client ?? '', row.operator ?? ''];
+    return (
+      row.values ?? [
+        row.eventName ?? '',
+        row.date ?? '',
+        row.client ?? '',
+        row.operator ?? '',
+      ]
+    );
   }
 
   onAdd(): void {

@@ -1,5 +1,5 @@
-<josanz-main-list-layout 
-  [title]="title" 
+<josanz-main-list-layout
+  [title]="title"
   [primaryBtnLabel]="primaryBtnLabel"
   [filterOptions]="filterOptions"
   [paginationTotal]="10"
@@ -8,32 +8,35 @@
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
-  (excelAction)="onExcel()">
-
+  (excelAction)="onExcel()"
+>
   <div extra-filters class="flex flex-col gap-3">
-    <josanz-main-tabs 
+    <josanz-main-tabs
       [options]="['Productos / lotes', 'Productos en alquiler']"
       [selection]="activeType"
       (selectionChange)="onTypeChange($event)"
-      shape="rounded">
+      shape="rounded"
+    >
     </josanz-main-tabs>
-    <josanz-filter-tabs 
+    <josanz-filter-tabs
       [options]="secondaryFilterOptions"
-      (selectionChange)="onSecondaryFilterChange($event)">
+      (selectionChange)="onSecondaryFilterChange($event)"
+    >
     </josanz-filter-tabs>
   </div>
 
   <div extra-actions>
     @if (activeType === 'Productos / lotes') {
-      <josanz-button 
-        label="Nuevo almacén +" 
-        [showIcon]="false"
-        variant="primary"
-        (btnClick)="onAddWarehouse()">
-      </josanz-button>
+    <josanz-button
+      label="Nuevo almacén +"
+      [showIcon]="false"
+      variant="primary"
+      (btnClick)="onAddWarehouse()"
+    >
+    </josanz-button>
     }
   </div>
-  
+
   <josanz-list-template-header-row
     titleLabel="Referencia"
     [fieldLabels]="stockLabels"

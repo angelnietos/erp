@@ -1,36 +1,36 @@
-﻿import { TestBed } from "@angular/core/testing";
-import { DividerComponent } from "./divider";
+﻿import { TestBed } from '@angular/core/testing';
+import { DividerComponent } from './divider';
 
-describe("DividerComponent", () => {
+describe('DividerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DividerComponent],
     }).compileComponents();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     const fixture = TestBed.createComponent(DividerComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it("should have default values", () => {
+  it('should have default values', () => {
     const fixture = TestBed.createComponent(DividerComponent);
     const component = fixture.componentInstance;
-    expect(component.label).toBe("");
-    expect(component.orientation).toBe("horizontal");
-    expect(component.color).toBe("");
+    expect(component.label).toBe('');
+    expect(component.orientation).toBe('horizontal');
+    expect(component.color).toBe('');
   });
 
-  it("should return horizontal line class by default", () => {
+  it('should return horizontal line class by default', () => {
     const fixture = TestBed.createComponent(DividerComponent);
     const component = fixture.componentInstance;
-    expect(component.lineClass()).toBe("h-px flex-1");
+    expect(component.lineClass()).toBe('h-px flex-1');
   });
 
-  it("should return vertical line class when orientation is vertical", () => {
+  it('should return vertical line class when orientation is vertical', () => {
     const fixture = TestBed.createComponent(DividerComponent);
     const component = fixture.componentInstance;
-    component.orientation = "vertical";
-    expect(component.lineClass()).toBe("h-full min-h-8 w-px");
+    component.orientation = 'vertical';
+    expect(component.lineClass()).toBe('h-full min-h-8 w-px');
   });
 });

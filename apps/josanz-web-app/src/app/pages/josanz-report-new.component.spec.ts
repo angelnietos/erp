@@ -107,7 +107,9 @@ describe('JosanzReportNewComponent', () => {
     it('should render back to dashboard link', () => {
       const links = fixture.nativeElement.querySelectorAll('a');
       const backLink = Array.from(links).find(
-        (a: HTMLElement) => a.getAttribute('href') === '/dashboard' || a.textContent?.includes('Volver al panel'),
+        (a: HTMLElement) =>
+          a.getAttribute('href') === '/dashboard' ||
+          a.textContent?.includes('Volver al panel'),
       );
       expect(backLink).toBeTruthy();
     });
@@ -118,24 +120,31 @@ describe('JosanzReportNewComponent', () => {
     });
 
     it('should render report type buttons', () => {
-      const typeButtons = fixture.nativeElement.querySelectorAll('li:first-of-type button[type="button"]');
+      const typeButtons = fixture.nativeElement.querySelectorAll(
+        'li:first-of-type button[type="button"]',
+      );
       expect(typeButtons.length).toBe(4);
     });
 
     it('should render format buttons', () => {
-      const allButtonGroups = fixture.nativeElement.querySelectorAll('li:last-of-type button[type="button"]');
+      const allButtonGroups = fixture.nativeElement.querySelectorAll(
+        'li:last-of-type button[type="button"]',
+      );
       expect(allButtonGroups.length).toBe(2);
     });
 
     it('should render date inputs', () => {
-      const dateInputs = fixture.nativeElement.querySelectorAll('input[type="date"]');
+      const dateInputs =
+        fixture.nativeElement.querySelectorAll('input[type="date"]');
       expect(dateInputs.length).toBe(2);
     });
 
     it('should render generate button', () => {
-      const allButtons = fixture.nativeElement.querySelectorAll('button[type="button"]');
-      const generateBtn = Array.from(allButtons).find(
-        (btn: HTMLElement) => btn.textContent?.includes('Generar borrador'),
+      const allButtons = fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      );
+      const generateBtn = Array.from(allButtons).find((btn: HTMLElement) =>
+        btn.textContent?.includes('Generar borrador'),
       );
       expect(generateBtn).toBeTruthy();
     });
@@ -143,29 +152,37 @@ describe('JosanzReportNewComponent', () => {
     it('should render link to export page', () => {
       const links = fixture.nativeElement.querySelectorAll('a');
       const exportLinks = Array.from(links).filter(
-        (a: HTMLElement) => a.getAttribute('href') === '/export' || a.textContent?.includes('Ir a exportaciones'),
+        (a: HTMLElement) =>
+          a.getAttribute('href') === '/export' ||
+          a.textContent?.includes('Ir a exportaciones'),
       );
       expect(exportLinks.length).toBeGreaterThanOrEqual(1);
     });
 
     it('should call onGenerate when generate button is clicked', () => {
       jest.spyOn(component, 'onGenerate');
-      const allButtons = fixture.nativeElement.querySelectorAll('button[type="button"]');
-      const generateBtn = Array.from(allButtons).find(
-        (btn: HTMLElement) => btn.textContent?.includes('Generar borrador'),
+      const allButtons = fixture.nativeElement.querySelectorAll(
+        'button[type="button"]',
+      );
+      const generateBtn = Array.from(allButtons).find((btn: HTMLElement) =>
+        btn.textContent?.includes('Generar borrador'),
       ) as HTMLElement;
       generateBtn.click();
       expect(component.onGenerate).toHaveBeenCalledTimes(1);
     });
 
     it('should update selectedType when a report type button is clicked', () => {
-      const typeButtons = fixture.nativeElement.querySelectorAll('li:first-of-type button[type="button"]');
+      const typeButtons = fixture.nativeElement.querySelectorAll(
+        'li:first-of-type button[type="button"]',
+      );
       (typeButtons[1] as HTMLElement).click();
       expect(component.selectedType()).toBe('Ventas por cliente');
     });
 
     it('should update selectedFormat when a format button is clicked', () => {
-      const allButtons = fixture.nativeElement.querySelectorAll('li:last-of-type button[type="button"]');
+      const allButtons = fixture.nativeElement.querySelectorAll(
+        'li:last-of-type button[type="button"]',
+      );
       (allButtons[0] as HTMLElement).click();
       expect(component.selectedFormat()).toBe('PDF');
     });

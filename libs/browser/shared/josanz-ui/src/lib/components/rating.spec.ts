@@ -1,19 +1,19 @@
-﻿import { TestBed } from "@angular/core/testing";
-import { RatingComponent } from "./rating";
+﻿import { TestBed } from '@angular/core/testing';
+import { RatingComponent } from './rating';
 
-describe("RatingComponent", () => {
+describe('RatingComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [RatingComponent],
     }).compileComponents();
   });
 
-  it("should create", () => {
+  it('should create', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it("should have default values", () => {
+  it('should have default values', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     const component = fixture.componentInstance;
     expect(component.value).toBe(4);
@@ -22,7 +22,7 @@ describe("RatingComponent", () => {
     expect(component.showValue).toBe(true);
   });
 
-  it("should generate correct stars array", () => {
+  it('should generate correct stars array', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     const component = fixture.componentInstance;
     const stars = component.stars();
@@ -31,7 +31,7 @@ describe("RatingComponent", () => {
     expect(stars[4]).toBe(5);
   });
 
-  it("should generate stars based on max value", () => {
+  it('should generate stars based on max value', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     const component = fixture.componentInstance;
     component.max = 10;
@@ -39,14 +39,14 @@ describe("RatingComponent", () => {
     expect(stars.length).toBe(10);
   });
 
-  it("should return custom color when provided", () => {
+  it('should return custom color when provided', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     const component = fixture.componentInstance;
-    component.customColor = "#ff0000";
-    expect(component.accentColor()).toBe("#ff0000");
+    component.customColor = '#ff0000';
+    expect(component.accentColor()).toBe('#ff0000');
   });
 
-  it("should not change value when readonly", () => {
+  it('should not change value when readonly', () => {
     const fixture = TestBed.createComponent(RatingComponent);
     const component = fixture.componentInstance;
     component.readonly = true;

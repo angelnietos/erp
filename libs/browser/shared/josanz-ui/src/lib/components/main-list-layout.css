@@ -87,10 +87,12 @@
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 500;
-  color: var(--josanz-text-muted, #6B7280);
+  color: var(--josanz-text-muted, #6b7280);
   background: transparent;
-  border: 1px solid var(--josanz-border, #E5E7EB);
-  transition: background 0.15s, color 0.15s;
+  border: 1px solid var(--josanz-border, #e5e7eb);
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .josanz-catalog-summary__item strong {
@@ -99,7 +101,7 @@
 }
 
 .josanz-catalog-summary__item--active {
-  background: var(--josanz-interactive, #0F1E2F);
+  background: var(--josanz-interactive, #0f1e2f);
   color: #fff;
   border-color: transparent;
 }
@@ -119,7 +121,6 @@
 .josanz-catalog-filters-row__divider {
   width: 1px;
   height: 20px;
-  background: var(--josanz-border, #E5E7EB);
+  background: var(--josanz-border, #e5e7eb);
   flex-shrink: 0;
 }
-

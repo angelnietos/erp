@@ -12,7 +12,12 @@ import {
 @Component({
   selector: 'josanz-delivery-notes-feature-list',
   standalone: true,
-  imports: [CommonModule, MainListLayoutComponent, AdaptiveListRowsComponent, ListTemplateHeaderRowComponent],
+  imports: [
+    CommonModule,
+    MainListLayoutComponent,
+    AdaptiveListRowsComponent,
+    ListTemplateHeaderRowComponent,
+  ],
   templateUrl: './josanz-delivery-notes-feature-list.html',
 })
 export class JosanzDeliveryNotesFeatureListComponent {
@@ -30,7 +35,12 @@ export class JosanzDeliveryNotesFeatureListComponent {
     {
       id: 'ALB-2024-001',
       title: 'ALB-2024-001',
-      data: ['Construcciones S.A.', '14/05/2024', 'Reforma Local B', 'Juan Pérez'],
+      data: [
+        'Construcciones S.A.',
+        '14/05/2024',
+        'Reforma Local B',
+        'Juan Pérez',
+      ],
       labels: ['Cliente', 'Fecha', 'Proyecto', 'Operador'],
       status: 'Firmado',
       statusVariant: 'primary',
@@ -38,7 +48,12 @@ export class JosanzDeliveryNotesFeatureListComponent {
     {
       id: 'ALB-2024-002',
       title: 'ALB-2024-002',
-      data: ['Instalaciones Eléctricas', '14/05/2024', 'Mantenimiento Anual', 'Ana Belén'],
+      data: [
+        'Instalaciones Eléctricas',
+        '14/05/2024',
+        'Mantenimiento Anual',
+        'Ana Belén',
+      ],
       labels: ['Cliente', 'Fecha', 'Proyecto', 'Operador'],
       status: 'Pendiente',
       statusVariant: 'warning',

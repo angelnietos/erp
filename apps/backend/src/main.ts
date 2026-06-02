@@ -78,9 +78,9 @@ async function bootstrap() {
   // Auto-validation + serialization for all DTOs
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,       // strip unknown properties
+      whitelist: true, // strip unknown properties
       forbidNonWhitelisted: true,
-      transform: true,       // auto-transform payloads to DTO class instances
+      transform: true, // auto-transform payloads to DTO class instances
       transformOptions: { enableImplicitConversion: true },
     }),
   );

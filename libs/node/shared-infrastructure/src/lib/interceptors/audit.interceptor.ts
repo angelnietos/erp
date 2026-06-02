@@ -37,7 +37,11 @@ export class AuditInterceptor implements NestInterceptor {
     }
 
     // Evitamos auditar el propio log de auditoría o rutas de salud/docs
-    if (url.includes('/audit-logs') || url.includes('/health') || url.includes('/docs')) {
+    if (
+      url.includes('/audit-logs') ||
+      url.includes('/health') ||
+      url.includes('/docs')
+    ) {
       return next.handle();
     }
 
@@ -50,7 +54,9 @@ export class AuditInterceptor implements NestInterceptor {
         },
         error: (err) => {
           // Opcional: auditar intentos fallidos con flag de error
-          this.logger.debug(`Mutation failed: ${method} ${url} - ${err.message}`);
+          this.logger.debug(
+            `Mutation failed: ${method} ${url} - ${err.message}`,
+          );
         },
       }),
     );
@@ -67,9 +73,14 @@ export class AuditInterceptor implements NestInterceptor {
     try {
       const action = this.mapMethodToAction(method);
       const entity = this.inferEntityFromUrl(url);
-      
+
       // Intentamos extraer un nombre legible si es una creación/actualización
-      const entityName = body?.name || body?.title || response?.name || response?.title || undefined;
+      const entityName =
+        body?.name ||
+        body?.title ||
+        response?.name ||
+        response?.title ||
+        undefined;
       const targetId = response?.id || url.split('/').pop() || 'unknown';
 
       await this.auditLogWriter.record(user.sub ?? 'unknown', {
@@ -82,8 +93,8 @@ export class AuditInterceptor implements NestInterceptor {
           details: `Acción automática via API: ${method} ${url}`,
           metadata: {
             path: url,
-            method
-          }
+            method,
+          },
         },
       });
     } catch (err) {
@@ -93,16 +104,20 @@ export class AuditInterceptor implements NestInterceptor {
 
   private mapMethodToAction(method: string): string {
     switch (method) {
-      case 'POST': return 'CREATE';
+      case 'POST':
+        return 'CREATE';
       case 'PUT':
-      case 'PATCH': return 'UPDATE';
-      case 'DELETE': return 'DELETE';
-      default: return 'ACTION';
+      case 'PATCH':
+        return 'UPDATE';
+      case 'DELETE':
+        return 'DELETE';
+      default:
+        return 'ACTION';
     }
   }
 
   private inferEntityFromUrl(url: string): string {
-    const parts = url.split('/').filter(p => p && p !== 'api');
+    const parts = url.split('/').filter((p) => p && p !== 'api');
     return parts[0] || 'System';
   }
 }

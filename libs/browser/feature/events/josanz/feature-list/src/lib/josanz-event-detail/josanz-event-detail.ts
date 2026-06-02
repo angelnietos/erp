@@ -91,12 +91,48 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly budgetTotal = '€ 340.00';
 
   readonly budgetCatalog: JosanzBudgetCatalogItem[] = [
-    { id: 'mic-01', name: 'Micrófono 01', warehouse: 'Almacén X', status: 'Mantenimiento', pillKey: 'en-proceso' },
-    { id: 'mic-02', name: 'Micrófono 02', warehouse: 'Almacén X', status: 'En uso', pillKey: 'en-produccion' },
-    { id: 'mic-03', name: 'Micrófono 03', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
-    { id: 'mic-04', name: 'Micrófono 04', warehouse: 'Almacén X', status: 'Averiado', pillKey: 'cancelado' },
-    { id: 'mic-05', name: 'Micrófono 05', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
-    { id: 'mic-06', name: 'Micrófono 06', warehouse: 'Almacén X', status: 'Correcto', pillKey: 'confirmado' },
+    {
+      id: 'mic-01',
+      name: 'Micrófono 01',
+      warehouse: 'Almacén X',
+      status: 'Mantenimiento',
+      pillKey: 'en-proceso',
+    },
+    {
+      id: 'mic-02',
+      name: 'Micrófono 02',
+      warehouse: 'Almacén X',
+      status: 'En uso',
+      pillKey: 'en-produccion',
+    },
+    {
+      id: 'mic-03',
+      name: 'Micrófono 03',
+      warehouse: 'Almacén X',
+      status: 'Correcto',
+      pillKey: 'confirmado',
+    },
+    {
+      id: 'mic-04',
+      name: 'Micrófono 04',
+      warehouse: 'Almacén X',
+      status: 'Averiado',
+      pillKey: 'cancelado',
+    },
+    {
+      id: 'mic-05',
+      name: 'Micrófono 05',
+      warehouse: 'Almacén X',
+      status: 'Correcto',
+      pillKey: 'confirmado',
+    },
+    {
+      id: 'mic-06',
+      name: 'Micrófono 06',
+      warehouse: 'Almacén X',
+      status: 'Correcto',
+      pillKey: 'confirmado',
+    },
   ];
 
   readonly emails: JosanzEventEmail[] = [
