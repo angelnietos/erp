@@ -63,14 +63,43 @@ import type { ContentEditorMode } from '../models/document-render.models';
           Pantalla completa
         </button>
       </div>
-      <textarea
-        formControlName="content"
-        [placeholder]="editorPlaceholder()"
-        rows="24"
-        class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
-        (input)="contentInput.emit()"
-        (keydown)="editorKeydown.emit($event)"
-      ></textarea>
+      <div class="relative">
+        <textarea
+          formControlName="content"
+          [placeholder]="editorPlaceholder()"
+          rows="24"
+          [attr.disabled]="isAiGenerating() ? true : null"
+          class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
+          (input)="contentInput.emit()"
+          (keydown)="editorKeydown.emit($event)"
+        ></textarea>
+        @if (isAiGenerating()) {
+          <div
+            class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 rounded-xl"
+            aria-live="polite"
+            aria-label="La IA está procesando el documento"
+          >
+            <div class="flex flex-col items-center gap-3">
+              <svg
+                class="w-10 h-10 animate-spin text-brand"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span class="text-sm font-medium text-primary"
+                >Mejorando con IA...</span
+              >
+            </div>
+          </div>
+        }
+      </div>
     </div>
   `,
 })
@@ -79,6 +108,7 @@ export class DocumentEditorCanvasComponent {
   readonly editorModeLabel = input('');
   readonly contentEditorMode = input<ContentEditorMode>('markdown');
   readonly editorPlaceholder = input('');
+  readonly isAiGenerating = input(false);
 
   readonly modeChange = output<ContentEditorMode>();
   readonly toggleFullscreen = output<void>();
