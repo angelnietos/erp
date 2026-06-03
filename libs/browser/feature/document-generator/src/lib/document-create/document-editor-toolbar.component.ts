@@ -36,7 +36,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('bold')"
           title="Negrita"
         >
-          <strong style="font-size:13px">B</strong><span>Neg.</span>
+          <strong style="font-size:14px;font-weight:800;">B</strong><span style="font-size:0.65rem;line-height:1.2;">Neg.</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -44,7 +44,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('italic')"
           title="Cursiva"
         >
-          <em style="font-size:13px">I</em><span>Cur.</span>
+          <em style="font-size:14px;font-weight:600;">I</em><span style="font-size:0.65rem;line-height:1.2;">Cur.</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -52,8 +52,8 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('strike')"
           title="Tachado"
         >
-          <span style="font-size:12px;text-decoration:line-through">S</span
-          ><span>Tach.</span>
+          <span style="font-size:13px;text-decoration:line-through;font-weight:600;">S</span
+          ><span style="font-size:0.65rem;line-height:1.2;">Tach.</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -61,7 +61,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('code')"
           title="Código inline"
         >
-          <span>&lt;/&gt;</span><span>Cód.</span>
+          <span style="font-size:13px;font-family:monospace;">&lt;/&gt;</span><span style="font-size:0.65rem;line-height:1.2;">Cód.</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -69,7 +69,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('h1')"
           title="Título H1"
         >
-          <span style="font-size:11px;font-weight:800">H1</span>
+          <span style="font-size:12px;font-weight:800;">H1</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -77,7 +77,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('h2')"
           title="Subtítulo H2"
         >
-          <span style="font-size:11px;font-weight:700">H2</span>
+          <span style="font-size:12px;font-weight:700;">H2</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -85,7 +85,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('h3')"
           title="Encabezado H3"
         >
-          <span style="font-size:11px;font-weight:600">H3</span>
+          <span style="font-size:12px;font-weight:600;">H3</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -93,7 +93,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('quote')"
           title="Cita"
         >
-          <span>"</span>
+          <span style="font-size:14px;font-weight:600;">"</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -101,7 +101,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('list')"
           title="Lista"
         >
-          <span>•</span>
+          <span style="font-size:14px;font-weight:600;">•</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -109,7 +109,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('numbered-list')"
           title="Lista numerada"
         >
-          <span>1.</span>
+          <span style="font-size:13px;font-weight:600;">1.</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -117,7 +117,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('link')"
           title="Enlace"
         >
-          <span>Link</span>
+          <span style="font-size:11px;font-weight:600;">Link</span>
         </button>
         <button
           class="sidebar-format-btn"
@@ -125,7 +125,7 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           (click)="formatAction.emit('code-block')"
           title="Bloque de código"
         >
-          <span>Blq</span>
+          <span style="font-size:11px;font-weight:600;">Blq</span>
         </button>
       </div>
 

@@ -157,8 +157,8 @@
 /* Format buttons grid (B I H1 H2 H3 etc) */
 .sidebar-format-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 3px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
   padding: 0.25rem 0.5rem 0.5rem;
 }
 
@@ -167,13 +167,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   padding: 0.4rem 0.2rem;
   border-radius: 8px;
   background: transparent;
   border: 1px solid transparent;
   cursor: pointer;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--text-secondary, #475569);
   transition:
@@ -181,15 +181,24 @@
     border-color 0.12s,
     color 0.12s;
   white-space: nowrap;
+  min-height: 38px;
 }
+
+.sidebar-format-btn > *:first-child {
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
 .sidebar-format-btn:hover {
   background: var(--surface-hover, #f1f5f9);
   border-color: var(--border-soft, #e2e8f0);
   color: var(--brand, #2563eb);
 }
+
 .sidebar-format-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
 }
 
