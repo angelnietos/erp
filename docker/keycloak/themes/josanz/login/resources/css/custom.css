@@ -1,0 +1,21 @@
+/* Josanz ERP Branding */
+:root {
+  --kcColorPrimary: #0369a1;
+  --kcColorPrimaryActive: #0c4a6e;
+  --kcColorPrimaryHover: #0284c7;
+}
+
+.kc-logo-text {
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.kc-button {
+  background-color: #0369a1 !important;
+  border-color: #0369a1 !important;
+}
+
+.kc-button:hover {
+  background-color: #0284c7 !important;
+  border-color: #0284c7 !important;
+}

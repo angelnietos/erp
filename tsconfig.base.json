@@ -314,6 +314,12 @@
       ],
       "@josanz-erp/document-generator-data-access": [
         "libs/browser/data-access/document-generator/src/index.ts"
+      ],
+      "@josanz-erp/auth-keycloak": [
+        "libs/node/shared/auth-keycloak/src/index.ts"
+      ],
+      "@josanz-erp/shared-auth-keycloak": [
+        "libs/browser/shared/auth-keycloak/src/index.ts"
       ]
     }
   },

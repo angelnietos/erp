@@ -20,17 +20,22 @@ import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-m
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
 import { PlatformJwtGuard } from './presentation/guards/platform-jwt.guard';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
+import { HybridJwtStrategy } from './infrastructure/auth/hybrid-jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
+import { KeycloakAuthModule } from '@josanz-erp/auth-keycloak';
 
 export interface IdentityConfig {
   _isIdentityConfig?: boolean;
+  useKeycloak?: boolean;
 }
 
 @Module({})
 export class IdentityModule {
   static forRoot(options?: IdentityConfig): DynamicModule {
+    const useKeycloak = options?.useKeycloak ?? process.env.KEYCLOAK_ENABLED === 'true';
+
     return {
       module: IdentityModule,
       imports: [
@@ -48,6 +53,7 @@ export class IdentityModule {
             };
           },
         }),
+        useKeycloak ? KeycloakAuthModule.forRoot() : Module.forRoot({}),
       ],
       controllers: [
         AuthController,
@@ -67,7 +73,7 @@ export class IdentityModule {
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,
         PlatformJwtGuard,
-        JwtStrategy,
+        useKeycloak ? HybridJwtStrategy : JwtStrategy,
         {
           provide: USER_REPOSITORY,
           useClass: PrismaUserRepository,
@@ -77,7 +83,7 @@ export class IdentityModule {
           useValue: options || {},
         },
       ],
-      exports: [AuthService, JwtStrategy],
+      exports: [AuthService, useKeycloak ? HybridJwtStrategy : JwtStrategy],
     };
   }
 }

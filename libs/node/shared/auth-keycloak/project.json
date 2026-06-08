@@ -1,0 +1,30 @@
+{
+  "name": "auth-keycloak",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/node/shared/auth-keycloak/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:auth"],
+  "targets": {
+    "build": {
+      "executor": "@nx/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node/shared/auth-keycloak",
+        "main": "libs/node/shared/auth-keycloak/src/index.ts",
+        "tsConfig": "libs/node/shared/auth-keycloak/tsconfig.lib.json",
+        "assets": ["libs/node/shared/auth-keycloak/*.json"],
+        "externalDependencies": "none"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/node/shared/auth-keycloak/jest.config.cts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

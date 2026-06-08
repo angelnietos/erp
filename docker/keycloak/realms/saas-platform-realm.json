@@ -1,0 +1,60 @@
+{
+  "realm": "saas-platform-realm",
+  "enabled": true,
+  "displayName": "Josanz ERP - SaaS Platform",
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@saas-platform.local",
+      "firstName": "Admin",
+      "lastName": "Platform",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123"
+        }
+      ],
+      "clientRoles": {
+        "saas-platform-spa": ["platformAdmin"]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "saas-platform-spa",
+      "name": "SaaS Platform SPA",
+      "description": "Angular SPA for SaaS Platform Management",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "webOrigins": ["http://localhost:4202"],
+      "redirectUris": ["http://localhost:4202/*"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "client_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "userinfo.token claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {"name": "PlatformOwner"},
+      {"name": "PlatformAdmin"}
+    ]
+  }
+}

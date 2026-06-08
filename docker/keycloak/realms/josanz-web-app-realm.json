@@ -1,0 +1,92 @@
+{
+  "realm": "josanz-web-app-realm",
+  "enabled": true,
+  "displayName": "Josanz ERP - Web App",
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "email": "admin@josanz-erp.local",
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin123"
+        }
+      ],
+      "clientRoles": {
+        "josanz-web-app-spa": ["admin", "user"]
+      }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "josanz-web-app-spa",
+      "name": "Josanz Web App SPA",
+      "description": "Angular SPA for Josanz ERP",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "webOrigins": ["http://localhost:4200", "http://localhost:4201"],
+      "redirectUris": ["http://localhost:4200/*", "http://localhost:4201/*"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "userinfo.token claim": "true",
+            "user.attribute": "tenant_id",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "client_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "userinfo.token claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "josanz-erp-api",
+      "name": "Josanz ERP API",
+      "description": "Backend API for Josanz ERP",
+      "enabled": true,
+      "publicClient": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "secret": "josanz-erp-api-secret",
+      "webOrigins": ["+"],
+      "redirectUris": ["http://localhost:3000/*"]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "josanz-platform-owner",
+      "description": "Platform Owner scope",
+      "protocol": "openid-connect"
+    }
+  ],
+  "roles": {
+    "realm": [
+      {"name": "PlatformOwner"},
+      {"name": "PlatformAdmin"}
+   ]
+  }
+}
