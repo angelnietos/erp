@@ -3,7 +3,7 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/shared/auth-keycloak/src",
   "projectType": "library",
-  "tags": ["scope:shared", "type:auth"],
+  "tags": ["type:auth", "scope:backend"],
   "targets": {
     "build": {
       "executor": "@nx/node:webpack",

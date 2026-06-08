@@ -24,7 +24,6 @@ import { HybridJwtStrategy } from './infrastructure/auth/hybrid-jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
-import { KeycloakAuthModule } from '@josanz-erp/auth-keycloak';
 
 export interface IdentityConfig {
   _isIdentityConfig?: boolean;
@@ -53,7 +52,6 @@ export class IdentityModule {
             };
           },
         }),
-        useKeycloak ? KeycloakAuthModule.forRoot() : Module.forRoot({}),
       ],
       controllers: [
         AuthController,
