@@ -70,3 +70,4 @@ volumes:
 networks:
   keycloak-network:
     driver: bridge
+    
