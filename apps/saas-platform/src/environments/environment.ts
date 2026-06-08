@@ -2,7 +2,7 @@ export const environment = {
   production: false,
   apiOrigin: 'http://localhost:3000',
   keycloak: {
-    url: 'http://localhost:8080',
+    url: 'http://localhost:8081',
     realm: 'saas-platform-realm',
     clientId: 'saas-platform-spa',
   },
