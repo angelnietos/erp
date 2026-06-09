@@ -39,7 +39,7 @@ import {
       title="Inventario"
       [filterOptions]="filterOptions"
       [primaryBtnLabel]="'Añadir Equipo'"
-      [paginationPage]="currentPage"
+      [paginationPage]="currentPage()"
       [paginationTotal]="totalPages"
       [figmaCatalogLayout]="true"
       typologyTabsVariant="figma"

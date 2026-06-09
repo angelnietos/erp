@@ -266,6 +266,9 @@
       "@josanz-erp/events-shell": [
         "libs/browser/shell/events/shell/src/index.ts"
       ],
+      "@josanz-erp/events-feature": [
+        "libs/browser/feature/events/src/index.ts"
+      ],
       "@josanz-erp/ai-core": ["libs/node/shared/ai-core/src/index.ts"],
       "@josanz-erp/ai-insights-feature": [
         "libs/browser/feature/ai-insights/feature/src/index.ts"

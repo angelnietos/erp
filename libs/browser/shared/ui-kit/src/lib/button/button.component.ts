@@ -369,7 +369,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       }
     }
 
-    /* Figma `Login.svg`: CTA #0F1E2F a ancho completo (tenant Josanz). */
+    /* Figma Login.svg: CTA #0F1E2F a ancho completo (tenant Josanz). */
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid,
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto {
       width: 100%;

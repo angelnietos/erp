@@ -66,140 +66,142 @@ import { environment } from '../environments/environment';
       }
     </div>
   `,
-  styles: `
-    :host {
-      display: block;
-      min-height: 100%;
-      font-family: var(--sp-font-sans);
-      color: var(--sp-text);
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        min-height: 100%;
+        font-family: var(--sp-font-sans);
+        color: var(--sp-text);
+      }
 
-    .shell {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 3.5vw, 2rem) clamp(2rem, 5vw, 3rem);
-    }
+      .shell {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: clamp(1rem, 3vw, 1.75rem) clamp(1rem, 3.5vw, 2rem) clamp(2rem, 5vw, 3rem);
+      }
 
-    .page-head {
-      margin-bottom: clamp(1.25rem, 3vw, 2rem);
-    }
+      .page-head {
+        margin-bottom: clamp(1.25rem, 3vw, 2rem);
+      }
 
-    .eyebrow {
-      margin: 0 0 0.4rem;
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--sp-muted);
-    }
+      .eyebrow {
+        margin: 0 0 0.4rem;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--sp-muted);
+      }
 
-    .title {
-      margin: 0 0 0.55rem;
-      font-family: var(--sp-font-display);
-      font-weight: 700;
-      font-size: clamp(1.85rem, 4vw, 2.5rem);
-      letter-spacing: 0.02em;
-      line-height: 1.08;
-      background: linear-gradient(92deg, #fff 0%, rgba(255, 255, 255, 0.74) 100%);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+      .title {
+        margin: 0 0 0.55rem;
+        font-family: var(--sp-font-display);
+        font-weight: 700;
+        font-size: clamp(1.85rem, 4vw, 2.5rem);
+        letter-spacing: 0.02em;
+        line-height: 1.08;
+        background: linear-gradient(92deg, #fff 0%, rgba(255, 255, 255, 0.74) 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
 
-    .lede {
-      margin: 0;
-      max-width: 46rem;
-      font-size: 0.95rem;
-      line-height: 1.58;
-      color: var(--sp-muted);
-    }
+      .lede {
+        margin: 0;
+        max-width: 46rem;
+        font-size: 0.95rem;
+        line-height: 1.58;
+        color: var(--sp-muted);
+      }
 
-    .frame-wrap {
-      position: relative;
-      border-radius: var(--sp-radius-lg);
-      border: 1px solid var(--sp-line);
-      overflow: hidden;
-      background: rgba(0, 0, 0, 0.35);
-      box-shadow: var(--sp-shadow);
-      min-height: min(72vh, 900px);
-    }
+      .frame-wrap {
+        position: relative;
+        border-radius: var(--sp-radius-lg);
+        border: 1px solid var(--sp-line);
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.35);
+        box-shadow: var(--sp-shadow);
+        min-height: min(72vh, 900px);
+      }
 
-    .frame {
-      display: block;
-      width: 100%;
-      height: min(72vh, 900px);
-      border: none;
-    }
+      .frame {
+        display: block;
+        width: 100%;
+        height: min(72vh, 900px);
+        border: none;
+      }
 
-    .frame-foot {
-      margin: 0.85rem 0 0;
-      font-size: 0.82rem;
-      color: var(--sp-muted);
-      line-height: 1.45;
-    }
+      .frame-foot {
+        margin: 0.85rem 0 0;
+        font-size: 0.82rem;
+        color: var(--sp-muted);
+        line-height: 1.45;
+      }
 
-    .frame-foot a {
-      color: var(--sp-accent-secondary);
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
+      .frame-foot a {
+        color: var(--sp-accent-secondary);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
 
-    .empty-card {
-      padding: clamp(1.75rem, 4vw, 2.5rem);
-      border-radius: var(--sp-radius-lg);
-      border: 1px dashed var(--sp-line);
-      background: linear-gradient(165deg, rgba(12, 20, 40, 0.5), rgba(6, 10, 18, 0.4));
-    }
+      .empty-card {
+        padding: clamp(1.75rem, 4vw, 2.5rem);
+        border-radius: var(--sp-radius-lg);
+        border: 1px dashed var(--sp-line);
+        background: linear-gradient(165deg, rgba(12, 20, 40, 0.5), rgba(6, 10, 18, 0.4));
+      }
 
-    .empty-icon {
-      width: 3rem;
-      height: 3rem;
-      margin-bottom: 1rem;
-      color: var(--sp-accent-secondary);
-      opacity: 0.85;
-    }
+      .empty-icon {
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1rem;
+        color: var(--sp-accent-secondary);
+        opacity: 0.85;
+      }
 
-    .empty-icon svg {
-      width: 100%;
-      height: 100%;
-    }
+      .empty-icon svg {
+        width: 100%;
+        height: 100%;
+      }
 
-    .empty-title {
-      margin: 0 0 0.5rem;
-      font-family: var(--sp-font-display);
-      font-size: 1.35rem;
-      font-weight: 700;
-    }
+      .empty-title {
+        margin: 0 0 0.5rem;
+        font-family: var(--sp-font-display);
+        font-size: 1.35rem;
+        font-weight: 700;
+      }
 
-    .empty-lede {
-      margin: 0 0 1.25rem;
-      font-size: 0.92rem;
-      line-height: 1.55;
-      color: var(--sp-muted);
-      max-width: 40rem;
-    }
+      .empty-lede {
+        margin: 0 0 1.25rem;
+        font-size: 0.92rem;
+        line-height: 1.55;
+        color: var(--sp-muted);
+        max-width: 40rem;
+      }
 
-    .steps {
-      margin: 0;
-      padding-left: 1.2rem;
-      color: var(--sp-muted);
-      font-size: 0.88rem;
-      line-height: 1.6;
-      max-width: 42rem;
-    }
+      .steps {
+        margin: 0;
+        padding-left: 1.2rem;
+        color: var(--sp-muted);
+        font-size: 0.88rem;
+        line-height: 1.6;
+        max-width: 42rem;
+      }
 
-    .steps li {
-      margin-bottom: 0.5rem;
-    }
+      .steps li {
+        margin-bottom: 0.5rem;
+      }
 
-    code {
-      font-size: 0.86em;
-      padding: 0.1em 0.35em;
-      border-radius: 4px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-  `,
+      code {
+        font-size: 0.86em;
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+    `,
+  ],
 })
 export class MetricsPageComponent {
   private readonly sanitizer = inject(DomSanitizer);

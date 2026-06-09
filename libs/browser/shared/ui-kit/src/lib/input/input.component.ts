@@ -174,7 +174,7 @@ export type InputVariant = string;
       color: var(--brand);
     }
 
-    /* Figma `Login.svg`: campos blancos, borde #D7D7D7, radio 8px (tenant Josanz). */
+    /* Figma Login.svg: campos blancos, borde #D7D7D7, radio 8px (tenant Josanz). */
     :host-context(.auth-wrapper--figma) .input-wrapper {
       --input-bg: #ffffff;
       --input-border: #d7d7d7;

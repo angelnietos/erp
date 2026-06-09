@@ -947,7 +947,6 @@ nx g &#64;nx/angular:component ui/src/lib/button</pre>
       </div>
     </div>
   `,
-  styles: [],
   encapsulation: ViewEncapsulation.None,
 })
 export class NxWelcome {}

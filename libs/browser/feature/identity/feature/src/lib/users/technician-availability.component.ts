@@ -933,8 +933,6 @@ interface PersonalGridCell {
         grid-template-columns: 1fr;
         gap: 0;
       }
-        gap: 0;
-      }
 
       @keyframes expandBtnEnter {
         0% { opacity: 0; transform: translateX(-100%) translateY(-50%); }

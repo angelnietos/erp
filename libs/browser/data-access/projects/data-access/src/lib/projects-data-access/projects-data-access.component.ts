@@ -4,6 +4,6 @@ import { Component } from '@angular/core';
   selector: 'lib-projects-data-access',
   imports: [],
   template: ` <p>projects-data-access works!</p> `,
-  styles: ``,
+  styles: [],
 })
 export class ProjectsDataAccessComponent {}
