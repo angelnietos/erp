@@ -230,16 +230,16 @@ interface PluginDescriptor {
 
                   <div class="identity-form">
                     <div class="luxe-input-group">
-                      <label>Identificador Nominal</label>
-                      <input type="text" [value]="_authStore.user()?.firstName + ' ' + _authStore.user()?.lastName" class="luxe-underlined-input" readonly>
+                      <label class="luxe-label">Identificador Nominal</label>
+                      <input type="text" [value]="_authStore.user()?.firstName + ' ' + _authStore.user()?.lastName" class="luxe-underlined-input" readonly aria-label="Identificador Nominal">
                     </div>
                     <div class="luxe-input-group">
-                      <label>Canal de Comunicación</label>
-                      <input type="email" [value]="_authStore.user()?.email" class="luxe-underlined-input" readonly>
+                      <label class="luxe-label">Canal de Comunicación</label>
+                      <input type="email" [value]="_authStore.user()?.email" class="luxe-underlined-input" readonly aria-label="Canal de Comunicación">
                     </div>
                     <div class="luxe-input-group">
-                      <label>Descriptor de Rol</label>
-                      <input type="text" [value]="_authStore.user()?.roles?.[0] || 'Miembro Plataforma'" class="luxe-underlined-input" readonly>
+                      <label class="luxe-label">Descriptor de Rol</label>
+                      <input type="text" [value]="_authStore.user()?.roles?.[0] || 'Miembro Plataforma'" class="luxe-underlined-input" readonly aria-label="Descriptor de Rol">
                     </div>
                     
                     <div class="form-footer mt-8">
@@ -420,7 +420,7 @@ interface PluginDescriptor {
                 <div class="identity-form pr-12">
                   <div class="grid grid-cols-2 gap-6">
                     <div class="luxe-input-group">
-                      <label>Proveedor Base</label>
+                      <label class="luxe-label">Proveedor Base</label>
                       <ui-select
                         [options]="aiBotStore.aiModelOptions()"
                         [ngModel]="aiBotStore.selectedModelId()"
@@ -428,7 +428,7 @@ interface PluginDescriptor {
                       ></ui-select>
                     </div>
                     <div class="luxe-input-group">
-                      <label>Agente Principal</label>
+                      <label class="luxe-label">Agente Principal</label>
                       <ui-select
                         [options]="botOptions()"
                         [ngModel]="aiBotStore.activeBotFeature()"
@@ -439,8 +439,8 @@ interface PluginDescriptor {
 
                   @if (aiBotStore.needsApiKey()) {
                     <div class="luxe-input-group mt-8">
-                      <label>Token de Acceso Seguro (API KEY)</label>
-                      <input type="password" [ngModel]="aiBotStore.providerApiKey()" (ngModelChange)="aiBotStore.providerApiKey.set($event)" class="luxe-underlined-input" placeholder="AIzaSy... •••••">
+                      <label class="luxe-label">Token de Acceso Seguro (API KEY)</label>
+                      <input type="password" [ngModel]="aiBotStore.providerApiKey()" (ngModelChange)="aiBotStore.providerApiKey.set($event)" class="luxe-underlined-input" placeholder="AIzaSy... •••••" aria-label="Token de Acceso Seguro (API KEY)">
                     </div>
                   }
                   
@@ -497,7 +497,17 @@ interface PluginDescriptor {
 
                     <div class="pref-row">
                       <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Estado SaaS</span>
-                      <div class="toggle-wrapper" [class.active]="bot.status === 'active'" (click)="aiBotStore.toggleBotStatus(bot.feature)">
+                      <div
+                        class="toggle-wrapper"
+                        [class.active]="bot.status === 'active'"
+                        (click)="aiBotStore.toggleBotStatus(bot.feature)"
+                        (keydown.enter)="aiBotStore.toggleBotStatus(bot.feature)"
+                        (keydown.space)="aiBotStore.toggleBotStatus(bot.feature)"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="bot.status === 'active'"
+                        aria-label="Alternar estado SaaS"
+                      >
                         <div class="toggle-handle"></div>
                       </div>
                     </div>
@@ -859,6 +869,8 @@ interface PluginDescriptor {
                         class="rage-toggle mt-4"
                         [class.active]="aiBotStore.rageMode()"
                         (click)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
+                        (keydown.enter)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
+                        (keydown.space)="aiBotStore.setRageMode(!aiBotStore.rageMode())"
                         tabindex="0" role="switch"
                         [attr.aria-checked]="aiBotStore.rageMode()"
                         aria-label="Modo rage"
@@ -1388,28 +1400,44 @@ interface PluginDescriptor {
                     <lucide-icon name="zap" size="20" class="text-brand"></lucide-icon>
                     <h3>Optimización de Interfaz</h3>
                   </div>
-                  <div class="pref-row mt-6">
-                    <div class="pref-text">
-                      <h4>Modo Compacto</h4>
-                      <p>Priorizar densidad de datos en lugar de aire visual</p>
+<div class="pref-row mt-6">
+                      <div class="pref-text">
+                        <h4>Modo Compacto</h4>
+                        <p>Priorizar densidad de datos en lugar de aire visual</p>
+                      </div>
+                      <div
+                        class="toggle-wrapper"
+                        [class.active]="aiBotStore.compactMode()"
+                        (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                        (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                        (keydown.space)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="aiBotStore.compactMode()"
+                        aria-label="Alternar modo compacto"
+                      >
+                        <div class="toggle-handle"></div>
+                      </div>
                     </div>
-                    <div class="toggle-wrapper" 
-                         [class.active]="aiBotStore.compactMode()"
-                         (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())">
-                      <div class="toggle-handle"></div>
+                    <div class="pref-row">
+                      <div class="pref-text">
+                        <h4 class="premium-text">Luxe Engine V2</h4>
+                        <p>Habilitar renderizado de alta fidelidad para cristales</p>
+                      </div>
+                      <div
+                        class="toggle-wrapper premium"
+                        [class.active]="premiumExperience()"
+                        (click)="togglePremium()"
+                        (keydown.enter)="togglePremium()"
+                        (keydown.space)="togglePremium()"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="premiumExperience()"
+                        aria-label="Alternar Luxe Engine V2"
+                      >
+                        <div class="toggle-handle"></div>
+                      </div>
                     </div>
-                  </div>
-                  <div class="pref-row">
-                    <div class="pref-text">
-                      <h4 class="premium-text">Luxe Engine V2</h4>
-                      <p>Habilitar renderizado de alta fidelidad para cristales</p>
-                    </div>
-                    <div class="toggle-wrapper premium" 
-                         [class.active]="premiumExperience()"
-                         (click)="togglePremium()">
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
                 </ui-card>
               </div>
             </section>
@@ -1436,36 +1464,52 @@ interface PluginDescriptor {
                     <lucide-icon name="bell-ring" size="20" class="text-brand"></lucide-icon>
                     <h3>Centro de Alertas</h3>
                   </div>
-                  <div class="pref-row mt-6">
-                    <div class="pref-text">
-                      <h4>Notificaciones Globales</h4>
-                      <p>Push en tiempo real y alertas de escritorio</p>
+<div class="pref-row mt-6">
+                      <div class="pref-text">
+                        <h4>Notificaciones Globales</h4>
+                        <p>Push en tiempo real y alertas de escritorio</p>
+                      </div>
+                      <div
+                        class="toggle-wrapper"
+                        [class.active]="aiBotStore.notificationsEnabled()"
+                        (click)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
+                        (keydown.enter)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
+                        (keydown.space)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="aiBotStore.notificationsEnabled()"
+                        aria-label="Alternar notificaciones globales"
+                      >
+                        <div class="toggle-handle"></div>
+                      </div>
                     </div>
-                    <div class="toggle-wrapper" 
-                         [class.active]="aiBotStore.notificationsEnabled()"
-                         (click)="aiBotStore.notificationsEnabled.set(!aiBotStore.notificationsEnabled())">
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
-                </ui-card>
+                  </ui-card>
 
-                <ui-card variant="glass">
-                  <div class="pref-header">
-                    <lucide-icon name="volume-2" size="20" class="text-brand"></lucide-icon>
-                    <h3>Feedback Auditivo</h3>
-                  </div>
-                  <div class="pref-row mt-6">
-                    <div class="pref-text">
-                      <h4>Efectos de Sonido</h4>
-                      <p>Confirmaciones acústicas para acciones clave</p>
+                  <ui-card variant="glass">
+                    <div class="pref-header">
+                      <lucide-icon name="volume-2" size="20" class="text-brand"></lucide-icon>
+                      <h3>Feedback Auditivo</h3>
                     </div>
-                    <div class="toggle-wrapper" 
-                         [class.active]="aiBotStore.soundEffects()"
-                         (click)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())">
-                      <div class="toggle-handle"></div>
+                    <div class="pref-row mt-6">
+                      <div class="pref-text">
+                        <h4>Efectos de Sonido</h4>
+                        <p>Confirmaciones acústicas para acciones clave</p>
+                      </div>
+                      <div
+                        class="toggle-wrapper"
+                        [class.active]="aiBotStore.soundEffects()"
+                        (click)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
+                        (keydown.enter)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
+                        (keydown.space)="aiBotStore.soundEffects.set(!aiBotStore.soundEffects())"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="aiBotStore.soundEffects()"
+                        aria-label="Alternar efectos de sonido"
+                      >
+                        <div class="toggle-handle"></div>
+                      </div>
                     </div>
-                  </div>
-                </ui-card>
+                  </ui-card>
               </div>
             </section>
           }
@@ -1719,22 +1763,25 @@ interface PluginDescriptor {
                     <span class="category-tag">MOTOR NÚCLEO</span>
                     <lucide-icon name="cpu" size="18" class="text-brand"></lucide-icon>
                   </div>
-                  <div class="pref-row">
-                    <div class="pref-text">
-                      <h4>Josanz Genesis Engine</h4>
-                      <p>Motor de razonamiento autónomo profundo con inferencia multi-paso</p>
+<div class="pref-row">
+                      <div class="pref-text">
+                        <h4>Josanz Genesis Engine</h4>
+                        <p>Motor de razonamiento autónomo profundo con inferencia multi-paso</p>
+                      </div>
+                      <div
+                        class="toggle-wrapper"
+                        (click)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
+                        (keydown.enter)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
+                        (keydown.space)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
+                        [class.active]="aiBotStore.experimentalFeatures()"
+                        tabindex="0"
+                        role="switch"
+                        [attr.aria-checked]="aiBotStore.experimentalFeatures()"
+                        aria-label="Habilitar funciones beta"
+                      >
+                        <div class="toggle-handle"></div>
+                      </div>
                     </div>
-                    <div
-                      class="toggle-wrapper"
-                      (click)="aiBotStore.experimentalFeatures.set(!aiBotStore.experimentalFeatures())"
-                      [class.active]="aiBotStore.experimentalFeatures()"
-                      tabindex="0" role="switch"
-                      [attr.aria-checked]="aiBotStore.experimentalFeatures()"
-                      aria-label="Habilitar funciones beta"
-                    >
-                      <div class="toggle-handle"></div>
-                    </div>
-                  </div>
                 </ui-card>
 
                 <ui-card variant="glass">
@@ -1777,7 +1824,17 @@ interface PluginDescriptor {
                       <h4 class="text-brand">Luxe Mode V2</h4>
                       <p>Glassmorphism, reflejos dinámicos y sombras de alta fidelidad</p>
                     </div>
-                    <div class="toggle-wrapper premium" [class.active]="premiumExperience()" (click)="togglePremium()">
+                    <div
+                      class="toggle-wrapper premium"
+                      [class.active]="premiumExperience()"
+                      (click)="togglePremium()"
+                      (keydown.enter)="togglePremium()"
+                      (keydown.space)="togglePremium()"
+                      tabindex="0"
+                      role="switch"
+                      [attr.aria-checked]="premiumExperience()"
+                      aria-label="Alternar Luxe Mode V2"
+                    >
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
@@ -1787,19 +1844,29 @@ interface PluginDescriptor {
                       <h4>Modo Compacto</h4>
                       <p>Mayor densidad de datos, menos espacio en blanco</p>
                     </div>
-                    <div class="toggle-wrapper" [class.active]="aiBotStore.compactMode()" (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())">
+                    <div
+                      class="toggle-wrapper"
+                      [class.active]="aiBotStore.compactMode()"
+                      (click)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                      (keydown.enter)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                      (keydown.space)="aiBotStore.compactMode.set(!aiBotStore.compactMode())"
+                      tabindex="0"
+                      role="switch"
+                      [attr.aria-checked]="aiBotStore.compactMode()"
+                      aria-label="Alternar modo compacto"
+                    >
                       <div class="toggle-handle"></div>
                     </div>
                   </div>
 
                   <div class="mt-6">
                     <div class="luxe-input-group mb-4">
-                      <label>Intensidad Crystal Blur</label>
-                      <input type="range" class="luxe-range" min="0" max="40" value="14">
+                      <label class="luxe-label">Intensidad Crystal Blur</label>
+                      <input type="range" class="luxe-range" min="0" max="40" value="14" aria-label="Intensidad Crystal Blur">
                     </div>
                     <div class="luxe-input-group">
-                      <label>Ambient Glow Intensity</label>
-                      <input type="range" class="luxe-range" min="0" max="30" value="8">
+                      <label class="luxe-label">Ambient Glow Intensity</label>
+                      <input type="range" class="luxe-range" min="0" max="30" value="8" aria-label="Ambient Glow Intensity">
                     </div>
                   </div>
                 </ui-card>
@@ -4128,9 +4195,9 @@ export class SettingsFeatureComponent {
     if (!/^[0-9a-fA-F]{6}$/.test(normalized)) {
       return '#0f172a';
     }
-    const r = parseInt(normalized.slice(0, 2), 16);
-    const g = parseInt(normalized.slice(2, 4), 16);
-    const b = parseInt(normalized.slice(4, 6), 16);
+    const r = Number.parseInt(normalized.slice(0, 2), 16);
+    const g = Number.parseInt(normalized.slice(2, 4), 16);
+    const b = Number.parseInt(normalized.slice(4, 6), 16);
     const mix = (c: number) =>
       Math.max(0, Math.min(255, Math.round(c * (1 - factor))));
     return `#${mix(r).toString(16).padStart(2, '0')}${mix(g).toString(16).padStart(2, '0')}${mix(b).toString(16).padStart(2, '0')}`;
