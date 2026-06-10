@@ -12,9 +12,12 @@
       "credentials": [
         {
           "type": "password",
-          "value": "admin123"
+          "value": "admin"
         }
       ],
+      "attributes": {
+        "tenant_id": ["c363035a-2a98-4054-9207-38c8aa5732d9"]
+      },
       "clientRoles": {
         "josanz-web-app-spa": ["admin", "user"]
       }
@@ -32,6 +35,9 @@
           "temporary": false
         }
       ],
+      "attributes": {
+        "tenant_id": ["c363035a-2a98-4054-9207-38c8aa5732d9"]
+      },
       "clientRoles": {
         "josanz-web-app-spa": ["user"]
       }
@@ -50,6 +56,16 @@
       "serviceAccountsEnabled": false,
       "webOrigins": ["http://localhost:4200", "http://localhost:4201"],
       "redirectUris": ["http://localhost:4200/*", "http://localhost:4201/*"],
+      "defaultClientScopes": [
+        "web-origins",
+        "roles",
+        "profile",
+        "email",
+        "openid"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
       },
@@ -59,7 +75,8 @@
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-attribute-mapper",
           "config": {
-            "userinfo.token claim": "true",
+            "user.attribute": "tenant_id",
+            "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true",
             "claim.name": "tenant_id",
@@ -72,7 +89,9 @@
           "protocolMapper": "oidc-usermodel-client-role-mapper",
           "config": {
             "multivalued": "true",
-            "userinfo.token claim": "true",
+            "claim.name": "client_roles",
+            "client.id": "josanz-web-app-spa",
+            "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true"
           }
@@ -94,6 +113,130 @@
   ],
   "clientScopes": [
     {
+      "name": "openid",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "name": "profile",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "username",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "preferred_username",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "first name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "firstName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "given_name",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "last name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "lastName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "family_name",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "email",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "email",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "emailVerified",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "email_verified",
+            "jsonType.label": "boolean"
+          }
+        }
+      ]
+    },
+    {
+      "name": "roles",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "realm_access.roles",
+            "jsonType.label": "String"
+          }
+        }
+      ]
+    },
+    {
+      "name": "web-origins",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false"
+      }
+    },
+    {
       "name": "josanz-platform-owner",
       "description": "Platform Owner scope",
       "protocol": "openid-connect"
@@ -103,6 +246,6 @@
     "realm": [
       {"name": "PlatformOwner"},
       {"name": "PlatformAdmin"}
-   ]
+    ]
   }
 }

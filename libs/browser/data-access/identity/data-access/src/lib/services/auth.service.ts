@@ -43,6 +43,40 @@ const KEYCLOAK_TO_ERP_PERMISSION_MAP: Record<string, string[]> = {
   clientAdmin: ['clients.users.manage', 'clients.settings.write'],
 };
 
+function mapKeycloakTokenToUserPayload(
+  payload: Record<string, unknown>,
+  fallbackEmail: string = '',
+): { user: UserPayload; tenantId: string } {
+  const rawRoles = (payload['realm_access'] as any)?.roles ?? [];
+  const clientRoles = (payload['client_roles'] as any) ?? {};
+  const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r: unknown): r is string => typeof r === 'string');
+
+  const erpRoles: string[] = [];
+  const permissions = new Set<string>();
+  for (const kcRole of allKeycloakRoles) {
+    const erpRole = KEYCLOAK_TO_ERP_ROLE_MAP[kcRole];
+    if (erpRole && !erpRoles.includes(erpRole)) {
+      erpRoles.push(erpRole);
+    }
+  }
+  for (const erpRole of erpRoles) {
+    const rolePerms = KEYCLOAK_TO_ERP_PERMISSION_MAP[erpRole] || [];
+    rolePerms.forEach((p) => permissions.add(p));
+  }
+  const resolvedEmail =
+    (typeof payload['email'] === 'string' && payload['email']) ||
+    (typeof payload['preferred_username'] === 'string' && payload['preferred_username']) ||
+    fallbackEmail;
+  const user: UserPayload = {
+    id: String(payload['sub']),
+    email: resolvedEmail,
+    roles: erpRoles.length > 0 ? erpRoles : ['authenticated'],
+    permissions: Array.from(permissions),
+  };
+  const tenantId = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
+  return { user, tenantId };
+}
+
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
 export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
@@ -80,39 +114,12 @@ export class AuthService {
           if (!payload || typeof payload['sub'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
-          const rawRoles = (payload['realm_access'] as any)?.roles ?? [];
-          const clientRoles = (payload['client_roles'] as any) ?? {};
-          const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r: unknown): r is string => typeof r === 'string');
-
-          const erpRoles: string[] = [];
-          const permissions = new Set<string>();
-          for (const kcRole of allKeycloakRoles) {
-            const erpRole = KEYCLOAK_TO_ERP_ROLE_MAP[kcRole];
-            if (erpRole && !erpRoles.includes(erpRole)) {
-              erpRoles.push(erpRole);
-            }
-          }
-          for (const erpRole of erpRoles) {
-            const rolePerms = KEYCLOAK_TO_ERP_PERMISSION_MAP[erpRole] || [];
-            rolePerms.forEach((p) => permissions.add(p));
-          }
-          // Use email if present, fallback to preferred_username, then to the input used
-          const resolvedEmail =
-            (typeof payload['email'] === 'string' && payload['email']) ||
-            (typeof payload['preferred_username'] === 'string' && payload['preferred_username']) ||
-            email;
-          const user: UserPayload = {
-            id: String(payload['sub']),
-            email: resolvedEmail,
-            roles: erpRoles.length > 0 ? erpRoles : ['authenticated'],
-            permissions: Array.from(permissions),
-          };
-          const tidFromJwt = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
+          const { user, tenantId } = mapKeycloakTokenToUserPayload(payload, email);
           return new Observable<AuthResponse>(subscriber => {
             subscriber.next({
               accessToken: access_token,
               user,
-              tenantId: tidFromJwt,
+              tenantId,
             });
             subscriber.complete();
           });
@@ -161,7 +168,7 @@ export class AuthService {
       return null;
     }
     const payload = decodeJwtPayload(token);
-    if (!payload || typeof payload['sub'] !== 'string' || typeof payload['email'] !== 'string') {
+    if (!payload || typeof payload['sub'] !== 'string') {
       this.removeToken();
       return null;
     }
@@ -170,25 +177,41 @@ export class AuthService {
       this.removeToken();
       return null;
     }
-    const rawRoles = payload['roles'];
-    const roles = Array.isArray(rawRoles)
-      ? rawRoles.filter((r): r is string => typeof r === 'string')
-      : [];
-    const rawPerms = payload['permissions'];
-    const permissions = Array.isArray(rawPerms)
-      ? rawPerms.filter((p): p is string => typeof p === 'string')
-      : [];
-    const user: UserPayload = {
-      id: payload['sub'],
-      email: payload['email'],
-      roles,
-      permissions,
-    };
-    const tidFromJwt =
-      typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
-    if (tidFromJwt) {
-      setStoredTenantId(tidFromJwt);
+
+    const isKeycloakToken = payload['iss'] && String(payload['iss']).includes('/realms/');
+    
+    let user: UserPayload;
+    let tenantId = '';
+
+    if (isKeycloakToken) {
+      const mapped = mapKeycloakTokenToUserPayload(payload);
+      user = mapped.user;
+      tenantId = mapped.tenantId;
+    } else {
+      const rawRoles = payload['roles'];
+      const roles = Array.isArray(rawRoles)
+        ? rawRoles.filter((r): r is string => typeof r === 'string')
+        : [];
+      const rawPerms = payload['permissions'];
+      const permissions = Array.isArray(rawPerms)
+        ? rawPerms.filter((p): p is string => typeof p === 'string')
+        : [];
+      
+      const emailVal = typeof payload['email'] === 'string' ? payload['email'] : '';
+      user = {
+        id: payload['sub'],
+        email: emailVal,
+        roles,
+        permissions,
+      };
+      
+      const tidFromJwt = typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
+      tenantId = tidFromJwt;
     }
-    return { user, tenantId: getStoredTenantId() ?? tidFromJwt ?? '' };
+
+    if (tenantId) {
+      setStoredTenantId(tenantId);
+    }
+    return { user, tenantId: getStoredTenantId() ?? tenantId ?? '' };
   }
 }
