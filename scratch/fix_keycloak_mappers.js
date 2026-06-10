@@ -228,9 +228,9 @@ async function main() {
       const clientRolesMapper = clientMappers.find(m => m.name === 'client_roles');
 
       if (tenantIdMapper) {
-        // Fix potential userinfo claim typo
         tenantIdMapper.config = {
           ...tenantIdMapper.config,
+          'user.attribute': 'tenant_id', // CRITICAL FIX
           'userinfo.token.claim': 'true',
           'access.token.claim': 'true',
           'id.token.claim': 'true'
