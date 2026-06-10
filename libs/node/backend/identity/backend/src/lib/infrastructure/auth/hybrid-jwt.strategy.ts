@@ -238,7 +238,13 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // DB is unavailable but the Keycloak token is valid — grant full access
     // to recognised admin realm-roles so the admin is never locked out.
     const realmRoles = kcToken.realm_access?.roles ?? [];
-    const isAdmin = realmRoles.some((r) =>
+    const clientRoles = Array.isArray(kcToken.client_roles)
+      ? kcToken.client_roles
+      : kcToken.client_roles && typeof kcToken.client_roles === 'object'
+        ? Object.values(kcToken.client_roles).flat()
+        : [];
+    const allRoles = [...realmRoles, ...clientRoles];
+    const isAdmin = allRoles.some((r) =>
       ['PlatformAdmin', 'PlatformOwner', 'TenantAdmin', 'admin'].includes(r),
     );
 

@@ -119,10 +119,7 @@ function uniquePermissions(perms: readonly string[]): string[] {
 }
 
 /** `*` más todo el catálogo granular (SuperAdmin / Administrador). */
-const FULL_ACCESS_ROLE_PERMISSIONS = uniquePermissions([
-  '*',
-  ...ALL_APP_PERMISSIONS,
-]);
+const FULL_ACCESS_ROLE_PERMISSIONS = uniquePermissions(['*', ...ALL_APP_PERMISSIONS]);
 
 /** Sin comodín: aprobaciones y contexto de lectura. */
 const RESPONSABLE_ROLE_PERMISSIONS = uniquePermissions([
@@ -238,8 +235,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
         name: 'SuperAdmin',
         type: 'SUPERADMIN',
         permissions: FULL_ACCESS_ROLE_PERMISSIONS,
-        description:
-          'Super administrador: acceso total y configuración de roles y permisos',
+        description: 'Super administrador: acceso total y configuración de roles y permisos',
       },
     });
   } else {
@@ -258,9 +254,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
       'dashboard.view',
       'reports.view',
     ]);
-    let ba = await prisma.role.findFirst({
-      where: { tenantId, name: 'Admin Babooni' },
-    });
+    let ba = await prisma.role.findFirst({ where: { tenantId, name: 'Admin Babooni' } });
     if (!ba) {
       ba = await prisma.role.create({
         data: {
@@ -279,9 +273,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
     }
   }
 
-  let adminRole = await prisma.role.findFirst({
-    where: { tenantId, name: 'Administrador' },
-  });
+  let adminRole = await prisma.role.findFirst({ where: { tenantId, name: 'Administrador' } });
   if (!adminRole) {
     adminRole = await prisma.role.create({
       data: {
@@ -299,9 +291,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
     });
   }
 
-  let respRole = await prisma.role.findFirst({
-    where: { tenantId, name: 'Responsable' },
-  });
+  let respRole = await prisma.role.findFirst({ where: { tenantId, name: 'Responsable' } });
   if (!respRole) {
     respRole = await prisma.role.create({
       data: {
@@ -319,9 +309,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
     });
   }
 
-  let userRole = await prisma.role.findFirst({
-    where: { tenantId, name: 'Usuario' },
-  });
+  let userRole = await prisma.role.findFirst({ where: { tenantId, name: 'Usuario' } });
   if (!userRole) {
     userRole = await prisma.role.create({
       data: {
@@ -355,10 +343,7 @@ async function main() {
     },
   });
 
-  const babooniAdminRole = await ensureDefaultRoles(
-    babooniTenant.id,
-    'babooni',
-  );
+  const babooniAdminRole = await ensureDefaultRoles(babooniTenant.id, 'babooni');
 
   const hashedPassword = await bcrypt.hash('Admin123!', 10);
 
@@ -382,13 +367,11 @@ async function main() {
     },
   });
 
-  // 2. Main Demo Tenant (Josanz) - Uses fixed UUID to match Keycloak realm config
-  const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
+  // 2. Main Demo Tenant (Josanz)
   const tenant = await prisma.tenant.upsert({
-    where: { id: JOSANZ_TENANT_ID },
+    where: { slug: 'josanz' },
     update: {},
     create: {
-      id: JOSANZ_TENANT_ID,
       name: 'Josanz Audiovisuales',
       slug: 'josanz',
     },
@@ -401,9 +384,7 @@ async function main() {
 
   // 3. Create Admin Users for both
   const babooniAdmin = await prisma.user.upsert({
-    where: {
-      tenantId_email: { tenantId: babooniTenant.id, email: 'root@babooni.com' },
-    },
+    where: { tenantId_email: { tenantId: babooniTenant.id, email: 'root@babooni.com' } },
     update: { password: hashedPassword },
     create: {
       tenantId: babooniTenant.id,
@@ -419,12 +400,7 @@ async function main() {
   });
 
   await prisma.userRole.upsert({
-    where: {
-      userId_roleId: {
-        userId: babooniAdmin.id,
-        roleId: babooniSuperAdminRole.id,
-      },
-    },
+    where: { userId_roleId: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id } },
     update: {},
     create: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id },
   });
@@ -681,8 +657,7 @@ async function main() {
       eventId: event1.id,
       clientId: clients[0].id,
       title: 'Informe de Montaje - Lanzamiento Tech',
-      content:
-        'El montaje se completó según lo previsto. Todos los equipos de audio y video están operativos. Se recomienda personal adicional para el desmontaje.',
+      content: 'El montaje se completó según lo previsto. Todos los equipos de audio y video están operativos. Se recomienda personal adicional para el desmontaje.',
       authorId: admin.id,
     },
   });
@@ -706,8 +681,7 @@ async function main() {
       eventId: event2.id,
       clientId: clients[1].id,
       title: 'Desglose Técnico - Set de Rodaje Comercial',
-      content:
-        'Revisión final completada. Iluminación y plató listos para rodaje cerrado. Queda pendiente la calibración final del proyector láser en la escena nocturna. Cliente (Carlos) firmó el checklist.',
+      content: 'Revisión final completada. Iluminación y plató listos para rodaje cerrado. Queda pendiente la calibración final del proyector láser en la escena nocturna. Cliente (Carlos) firmó el checklist.',
       authorId: admin.id,
     },
   });
@@ -715,18 +689,8 @@ async function main() {
   const productDefs = [
     { name: 'Proyector Láser 4K', price: 1500, stock: 10, sku: 'PRJ-4K-001' },
     { name: 'Pantalla LED 100"', price: 800, stock: 5, sku: 'LED-100-001' },
-    {
-      name: 'Set de Sonido Premium',
-      price: 600,
-      stock: 15,
-      sku: 'SND-PRM-001',
-    },
-    {
-      name: 'Altavoz Autoamplificado',
-      price: 300,
-      stock: 0,
-      sku: 'SPK-AUTO-000',
-    }, // Low stock for tests
+    { name: 'Set de Sonido Premium', price: 600, stock: 15, sku: 'SND-PRM-001' },
+    { name: 'Altavoz Autoamplificado', price: 300, stock: 0, sku: 'SPK-AUTO-000' }, // Low stock for tests
     { name: 'Lote de Cableado HDMI', price: 50, stock: 50, sku: 'CBL-HDMI-50' },
   ];
 
@@ -1300,7 +1264,7 @@ async function main() {
   }
 
   // Seed technicians
-
+  
   const userDani = await prisma.user.create({
     data: {
       tenantId: tenant.id,
@@ -1462,10 +1426,10 @@ async function main() {
       rentalItems: {
         create: [
           { productId: insertedProducts[0].id, quantity: 2 },
-          { productId: insertedProducts[1].id, quantity: 1 },
-        ],
-      },
-    },
+          { productId: insertedProducts[1].id, quantity: 1 }
+        ]
+      }
+    }
   });
 
   // Link events to projects
@@ -1580,16 +1544,8 @@ async function seedBabooniTenantDemo(tenantId: string) {
   });
   const userByEmail = new Map(babooniOpsUsers.map((u) => [u.email, u]));
 
-  const technicianSeeds: {
-    email: string;
-    hourlyRate: number;
-    skills: string[];
-  }[] = [
-    {
-      email: 'root@babooni.com',
-      hourlyRate: 55,
-      skills: ['DIRECTOR', 'SISTEMAS'],
-    },
+  const technicianSeeds: { email: string; hourlyRate: number; skills: string[] }[] = [
+    { email: 'root@babooni.com', hourlyRate: 55, skills: ['DIRECTOR', 'SISTEMAS'] },
     {
       email: 'florina.mahalean@babooni.com',
       hourlyRate: 48,
@@ -1615,9 +1571,7 @@ async function seedBabooniTenantDemo(tenantId: string) {
   for (const row of technicianSeeds) {
     const u = userByEmail.get(row.email);
     if (!u) {
-      console.warn(
-        `- Babooni seed: usuario no encontrado para técnico ${row.email}`,
-      );
+      console.warn(`- Babooni seed: usuario no encontrado para técnico ${row.email}`);
       continue;
     }
     await prisma.technician.upsert({
@@ -1637,9 +1591,7 @@ async function seedBabooniTenantDemo(tenantId: string) {
       },
     });
   }
-  console.log(
-    '- Babooni: técnicos / operarios AV (usuarios semilla vinculados)',
-  );
+  console.log('- Babooni: técnicos / operarios AV (usuarios semilla vinculados)');
 
   const [clientA, clientB] = await prisma.$transaction([
     prisma.client.create({
@@ -1723,27 +1675,9 @@ async function seedBabooniTenantDemo(tenantId: string) {
     price: number;
     dailyRate: number;
   }[] = [
-    {
-      name: 'Micrófono inalámbrico doble',
-      sku: 'BB-MIC-01',
-      stock: 12,
-      price: 450,
-      dailyRate: 15,
-    },
-    {
-      name: 'Mesa digital 16 canales',
-      sku: 'BB-MIX-01',
-      stock: 4,
-      price: 3200,
-      dailyRate: 95,
-    },
-    {
-      name: 'Truss aluminio 3 m',
-      sku: 'BB-TRS-01',
-      stock: 24,
-      price: 180,
-      dailyRate: 8,
-    },
+    { name: 'Micrófono inalámbrico doble', sku: 'BB-MIC-01', stock: 12, price: 450, dailyRate: 15 },
+    { name: 'Mesa digital 16 canales', sku: 'BB-MIX-01', stock: 4, price: 3200, dailyRate: 95 },
+    { name: 'Truss aluminio 3 m', sku: 'BB-TRS-01', stock: 24, price: 180, dailyRate: 8 },
   ];
 
   const inserted: Product[] = [];
@@ -1871,9 +1805,7 @@ async function seedBabooniTenantDemo(tenantId: string) {
       status: 'DRAFT',
       total: 6400,
       items: {
-        create: [
-          { productId: inserted[1].id, quantity: 2, price: 3200, tax: 21 },
-        ],
+        create: [{ productId: inserted[1].id, quantity: 2, price: 3200, tax: 21 }],
       },
     },
   });
