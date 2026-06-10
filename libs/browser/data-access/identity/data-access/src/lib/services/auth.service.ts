@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, switchMap } from 'rxjs';
+import { Observable, catchError, switchMap, of } from 'rxjs';
 import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
 import {
@@ -114,15 +114,29 @@ export class AuthService {
           if (!payload || typeof payload['sub'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
-          const { user, tenantId } = mapKeycloakTokenToUserPayload(payload, email);
-          return new Observable<AuthResponse>(subscriber => {
-            subscriber.next({
-              accessToken: access_token,
-              user,
-              tenantId,
-            });
-            subscriber.complete();
-          });
+          const { user: localUser, tenantId } = mapKeycloakTokenToUserPayload(payload, email);
+
+          // Store the Keycloak token NOW so the interceptor can send it as Bearer
+          // when we call /api/auth/session below.
+          this.setToken(access_token);
+          if (tenantId) {
+            this.setTenantId(tenantId);
+          }
+
+          // Enrich with real DB permissions via the backend session endpoint.
+          // The HybridJwtStrategy will look up (or auto-provision) the user in
+          // Postgres and return their actual roles + permissions.
+          return this.http.get<AuthResponse>(`${this.apiUrl}/session`).pipe(
+            catchError(() =>
+              // If the session call fails (e.g. backend down), fall back to the
+              // locally-decoded Keycloak payload — still lets the user in.
+              of({
+                accessToken: access_token,
+                user: localUser,
+                tenantId,
+              } as AuthResponse),
+            ),
+          );
         }),
         catchError(() => {
           return this.traditionalLogin(email, password, tenantSlug);
