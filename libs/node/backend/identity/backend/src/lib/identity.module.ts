@@ -15,12 +15,14 @@ import { UsersService } from './application/services/users.service';
 import { RolesService } from './application/services/roles.service';
 import { TenantModulesService } from './application/services/tenant-modules.service';
 import { TenantModulesNotifierService } from './application/services/tenant-modules-notifier.service';
+import { TenantRealmSyncService } from './application/services/tenant-realm-sync.service';
 import { TenantIdentityNotifierService } from './application/services/tenant-identity-notifier.service';
 import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-modules-realtime.gateway';
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
 import { PlatformJwtGuard } from './presentation/guards/platform-jwt.guard';
 import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { HybridJwtStrategy } from './infrastructure/auth/hybrid-jwt.strategy';
+import { PlatformJwtStrategy } from './infrastructure/auth/platform-jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
@@ -67,6 +69,8 @@ export class IdentityModule {
         RolesService,
         TenantModulesService,
         TenantModulesNotifierService,
+        TenantRealmSyncService,
+        PlatformJwtStrategy,
         TenantIdentityNotifierService,
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,

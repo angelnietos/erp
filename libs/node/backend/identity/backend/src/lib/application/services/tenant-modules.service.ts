@@ -23,6 +23,26 @@ export class TenantModulesService {
     return [...DEFAULT_TENANT_MODULE_IDS];
   }
 
+  async getAllTenants(): Promise<Array<{ id: string; name: string; slug: string; isActive: boolean; createdAt: Date; enabledModuleIds: string[] }>> {
+    const rows = await this.prisma.tenant.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        isActive: true,
+        createdAt: true,
+        enabledModuleIds: true,
+      },
+      orderBy: { name: 'asc' },
+    });
+    return Promise.all(
+      rows.map(async (row) => ({
+        ...row,
+        enabledModuleIds: this.effectiveModuleIds(row.enabledModuleIds),
+      })),
+    );
+  }
+
   async getEnabledModuleIds(tenantId: string): Promise<string[]> {
     const row = await this.prisma.tenant.findUnique({
       where: { id: tenantId },

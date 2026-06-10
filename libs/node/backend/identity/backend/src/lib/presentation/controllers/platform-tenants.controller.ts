@@ -1,66 +1,47 @@
 import {
-  Body,
   Controller,
   Get,
-  Param,
-  ParseUUIDPipe,
   Put,
+  Param,
+  Body,
   UseGuards,
 } from '@nestjs/common';
-import { IsArray, IsString } from 'class-validator';
-import {
-  JwtAuthGuard,
-  PrismaService,
-  SkipTenantGuard,
-} from '@josanz-erp/shared-infrastructure';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
-import { PlatformOwnerGuard } from '../guards/platform-owner.guard';
+import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
+import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
+import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 
 class UpdateTenantModulesDto {
-  @IsArray()
-  @IsString({ each: true })
   enabledModuleIds!: string[];
 }
 
-/**
- * Panel SaaS: listar tenants y asignar módulos por tenant (rol `PlatformOwner`).
- * Rutas bajo prefijo global `/api`.
- */
-@Controller('platform')
-@SkipTenantGuard()
-@UseGuards(JwtAuthGuard, PlatformOwnerGuard)
+@UseGuards(PlatformJwtGuard)
+@Controller('platform/tenants')
 export class PlatformTenantsController {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly tenantModules: TenantModulesService,
+    private readonly tenantModulesService: TenantModulesService,
+    private readonly tenantRealmSyncService: TenantRealmSyncService,
   ) {}
 
-  @Get('tenants')
-  async listTenants() {
-    const rows = await this.prisma.tenant.findMany({
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isActive: true,
-        createdAt: true,
-      },
-      orderBy: { name: 'asc' },
-    });
-    /** Misma lógica que GET /tenant/modules (vacío en BD → catálogo por defecto). */
-    return Promise.all(
-      rows.map(async (row) => ({
-        ...row,
-        enabledModuleIds: await this.tenantModules.getEnabledModuleIds(row.id),
-      })),
-    );
+  @Get()
+  async getAllTenants() {
+    const tenants = await this.tenantModulesService.getAllTenants();
+    return tenants;
   }
 
-  @Put('tenants/:tenantId/modules')
-  async putTenantModules(
-    @Param('tenantId', ParseUUIDPipe) tenantId: string,
+  @Put(':tenantId/modules')
+  async updateTenantModules(
+    @Param('tenantId') tenantId: string,
     @Body() body: UpdateTenantModulesDto,
   ) {
-    return this.tenantModules.updateEnabledModuleIds(tenantId, body);
+    const { enabledModuleIds } = body;
+    const normalized = normalizeTenantModuleIds(enabledModuleIds);
+
+    await this.tenantModulesService.updateEnabledModuleIds(tenantId, {
+      enabledModuleIds: normalized,
+    });
+    await this.tenantRealmSyncService.syncTenantModules(tenantId, normalized);
+
+    return { tenantId, enabledModuleIds: normalized };
   }
 }
