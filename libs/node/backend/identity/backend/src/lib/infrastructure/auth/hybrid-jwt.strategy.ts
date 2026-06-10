@@ -78,7 +78,8 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKeyProvider: async (request, rawJwtToken) => {
+      secretOrKeyProvider: (request, rawJwtToken, done) => {
+        const secret = configService.get<string>('JWT_SECRET') ?? 'default_secret';
         try {
           const decoded = jwt.decode(rawJwtToken, { complete: true }) as any;
           const iss = decoded?.payload?.iss;
@@ -95,14 +96,18 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
               cacheMaxEntries: 5,
             });
 
-            const key = await client.getSigningKey(decoded.header.kid);
-            const signingKey = key.getPublicKey();
-            return signingKey;
+            client.getSigningKey(decoded.header.kid)
+              .then((key) => {
+                done(null, key.getPublicKey());
+              })
+              .catch((err) => {
+                done(err);
+              });
+          } else {
+            done(null, secret);
           }
-
-          return configService.get<string>('JWT_SECRET') ?? 'default_secret';
-        } catch {
-          return configService.get<string>('JWT_SECRET') ?? 'default_secret';
+        } catch (err) {
+          done(null, secret);
         }
       },
     });

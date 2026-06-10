@@ -13,6 +13,7 @@ import {
   tenantInterceptor,
   AuthService,
   AuthStore,
+  AUTH_KEYCLOAK_CONFIG,
   TenantModulesApiService,
   TenantModulesRealtimeService,
   TENANT_MODULES_REALTIME_API_ORIGIN,
@@ -191,6 +192,10 @@ export const appConfig: ApplicationConfig = {
     {
       provide: TENANT_MODULES_REALTIME_API_ORIGIN,
       useFactory: () => environment.apiOrigin?.replace(/\/$/, '') ?? '',
+    },
+    {
+      provide: AUTH_KEYCLOAK_CONFIG,
+      useValue: environment.keycloak || { enabled: false, url: '', realm: '', clientId: '' },
     },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),

@@ -89,8 +89,8 @@ export class LoginComponent implements OnInit {
   private readonly theme = inject(ThemeService);
 
   readonly loginForm = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    email: ['', [Validators.required]],
+    password: ['', [Validators.required]],
   });
 
   private readonly aiBotStore = inject(AIBotStore);

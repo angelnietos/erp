@@ -7,4 +7,10 @@ export const environment = {
   verifactuApiKey: '',
   aiApiKey: '',
   googleApiKey: '',
+  keycloak: {
+    url: '',
+    realm: 'josanz-web-app-realm',
+    clientId: 'josanz-web-app-spa',
+    enabled: false,
+  },
 };

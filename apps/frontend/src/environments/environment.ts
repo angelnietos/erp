@@ -12,4 +12,10 @@ export const environment = {
   verifactuApiKey: '',
   aiApiKey: '',
   googleApiKey: '',
+  keycloak: {
+    url: 'http://localhost:8081',
+    realm: 'josanz-web-app-realm',
+    clientId: 'josanz-web-app-spa',
+    enabled: true,
+  },
 };

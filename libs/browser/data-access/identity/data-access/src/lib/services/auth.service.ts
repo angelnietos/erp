@@ -2,12 +2,19 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, switchMap } from 'rxjs';
 import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
-import { environment } from '../../environments/environment';
+import { InjectionToken } from '@angular/core';
 import {
   clearStoredTenantId,
   getStoredTenantId,
   setStoredTenantId,
 } from '../interceptors/tenant.interceptor';
+
+export const AUTH_KEYCLOAK_CONFIG = new InjectionToken<{
+  url: string;
+  realm: string;
+  clientId: string;
+  enabled: boolean;
+}>('AUTH_KEYCLOAK_CONFIG');
 
 function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
@@ -45,16 +52,18 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = '/api/auth';
 
+  private readonly keycloakConfig = inject(AUTH_KEYCLOAK_CONFIG, { optional: true });
+
   login(
     email: string,
     password: string,
     tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
   ): Observable<AuthResponse> {
-    if (environment.keycloak?.enabled) {
-      const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
+    if (this.keycloakConfig?.enabled) {
+      const tokenUrl = `${this.keycloakConfig.url}/realms/${this.keycloakConfig.realm}/protocol/openid-connect/token`;
       const body = new URLSearchParams();
       body.set('grant_type', 'password');
-      body.set('client_id', environment.keycloak.clientId);
+      body.set('client_id', this.keycloakConfig.clientId);
       body.set('username', email);
       body.set('password', password);
 
@@ -70,8 +79,8 @@ export class AuthService {
           if (!payload || typeof payload['email'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
-          const rawRoles = payload['realm_access']?.['roles'] ?? [];
-          const clientRoles = payload['client_roles'] ?? {};
+          const rawRoles = (payload['realm_access'] as any)?.roles ?? [];
+          const clientRoles = (payload['client_roles'] as any) ?? {};
           const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r: unknown): r is string => typeof r === 'string');
 
           const erpRoles: string[] = [];
@@ -95,7 +104,7 @@ export class AuthService {
           const tidFromJwt = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
           return new Observable<AuthResponse>(subscriber => {
             subscriber.next({
-              token: access_token,
+              accessToken: access_token,
               user,
               tenantId: tidFromJwt,
             });
@@ -161,7 +170,7 @@ export class AuthService {
       : [];
     const rawPerms = payload['permissions'];
     const permissions = Array.isArray(rawPerms)
-      ? rawPerms.filter((p): r is string => typeof p === 'string')
+      ? rawPerms.filter((p): p is string => typeof p === 'string')
       : [];
     const user: UserPayload = {
       id: payload['sub'],

@@ -13,7 +13,7 @@
     "dev:backend": "nx serve backend",
     "dev:frontend": "nx serve frontend",
     "dev:saas-platform": "nx serve saas-platform",
-    "services:up": "docker compose up -d postgres redis",
+    "services:up": "docker compose up -d postgres redis keycloak",
     "docker:build:backend": "docker build -f docker/backend/Dockerfile --build-arg NX_PROJECT=backend -t josanz-backend:local .",
     "docker:build:verifactu-api": "docker build -f docker/backend/Dockerfile --build-arg NX_PROJECT=verifactu-api -t josanz-verifactu-api:local .",
     "docker:build:verifactu-worker": "docker build -f docker/backend/Dockerfile --build-arg NX_PROJECT=verifactu-worker -t josanz-verifactu-worker:local .",

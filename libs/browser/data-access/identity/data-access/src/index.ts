@@ -2,6 +2,7 @@
 export { AuthStore } from './lib/store/auth.store';
 export {
   AuthService,
+  AUTH_KEYCLOAK_CONFIG,
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
 } from './lib/services/auth.service';
