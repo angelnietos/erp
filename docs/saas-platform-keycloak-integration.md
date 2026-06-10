@@ -138,6 +138,7 @@ export class PlatformTenantsController {
     private readonly tenantRealmSyncService: TenantRealmSyncService,
     private readonly cls: ClsService<PlatformContext>,
   ) {}
+  
 
   @Put(':tenantId/modules')
   async updateTenantModules(

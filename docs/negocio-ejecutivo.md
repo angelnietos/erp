@@ -8,12 +8,17 @@ Plataforma integrada para gestionar el ciclo operativo de una empresa de servici
 
 ## 2. Valor para el negocio
 
+
+
+
 - **Un solo lugar** para operación y trazabilidad: menos hojas de cálculo y menos errores entre ventas, logística y administración.
 - **Trazabilidad de entregas**: albaranes firmados (texto o imagen) como evidencia frente a clientes e incidencias.
 - **Cumplimiento fiscal**: línea de trabajo Verifactu orientada a registrar y consultar el estado de envío de facturas al sistema público, reduciendo riesgo de incumplimiento y facilitando auditorías.
 - **Multi-tenant**: mismo producto sirve a varias empresas o marcas con aislamiento lógico de datos (clave para SaaS o grupos empresariales).
 
 ## 3. Módulos en lenguaje de negocio
+
+
 
 | Módulo | Utilidad |
 |--------|----------|
