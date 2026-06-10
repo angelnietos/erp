@@ -18,6 +18,23 @@
       "clientRoles": {
         "josanz-web-app-spa": ["admin", "user"]
       }
+    },
+    {
+      "username": "user",
+      "enabled": true,
+      "email": "user@josanz-erp.local",
+      "firstName": "Regular",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "josanz-web-app-spa": ["user"]
+      }
     }
   ],
   "clients": [
