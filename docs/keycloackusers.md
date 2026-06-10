@@ -29,6 +29,7 @@ Al ejecutar `docker-compose up`, Keycloak importará automáticamente el realm y
    - **IMPORTANTE**: Desmarca la casilla Temporary
    - Haz clic en Save y confirma
 
+
 5. (Opcional) Asignar Roles de ERP:
    - Ve a la pestaña Role mapping del usuario
    - Asigna el rol `admin` o `TenantAdmin`
