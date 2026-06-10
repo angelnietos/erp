@@ -6,16 +6,18 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
+import { SkipTenantGuard } from '@josanz-erp/shared-infrastructure';
+import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
-import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 class UpdateTenantModulesDto {
   enabledModuleIds!: string[];
 }
 
-@UseGuards(PlatformJwtGuard)
+@UseGuards(AuthGuard('platform-jwt'), PlatformJwtGuard)
 @Controller('platform/tenants')
 export class PlatformTenantsController {
   constructor(
@@ -23,12 +25,14 @@ export class PlatformTenantsController {
     private readonly tenantRealmSyncService: TenantRealmSyncService,
   ) {}
 
+  @SkipTenantGuard()
   @Get()
   async getAllTenants() {
     const tenants = await this.tenantModulesService.getAllTenants();
     return tenants;
   }
 
+  @SkipTenantGuard()
   @Put(':tenantId/modules')
   async updateTenantModules(
     @Param('tenantId') tenantId: string,

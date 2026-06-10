@@ -51,7 +51,7 @@ export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jw
         rawJwtToken: string,
         done: (err: Error | null, secretOrKey?: string) => void,
       ) => {
-        const secret = configService.get<string>('PLATFORM_JWT_SECRET') ?? 'platform_dev_secret';
+        const secret = configService.get<string>('JWT_SECRET') ?? 'default_secret';
         try {
           const decoded = jwt.decode(rawJwtToken, { complete: true }) as any;
           const iss = decoded?.payload?.iss;
