@@ -5,6 +5,7 @@ export const environment = {
     url: '/auth/realms',
     realm: 'josanz-web-app-realm',
     clientId: 'josanz-web-app-spa',
+    enabled: false,
   },
   grafanaDashboardUrl: '' as string,
 };

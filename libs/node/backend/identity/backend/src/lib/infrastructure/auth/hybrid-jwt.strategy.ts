@@ -2,6 +2,8 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
+import jwksRsa from 'jwks-rsa';
+import jwt from 'jsonwebtoken';
 
 interface KeycloakToken {
   sub: string;
@@ -76,7 +78,33 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET') ?? 'default_secret',
+      secretOrKeyProvider: async (request, rawJwtToken) => {
+        try {
+          const decoded = jwt.decode(rawJwtToken, { complete: true }) as any;
+          const iss = decoded?.payload?.iss;
+          const isKeycloak = typeof iss === 'string' && iss.includes('/realms/');
+
+          if (isKeycloak) {
+            const keycloakUrl = configService.get<string>('KEYCLOAK_AUTH_SERVER_URL')?.replace(/\/$/, '') || 'http://localhost:8081';
+            const keycloakRealm = configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
+            const jwksUri = `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/certs`;
+
+            const client = jwksRsa({
+              jwksUri,
+              cache: true,
+              cacheMaxEntries: 5,
+            });
+
+            const key = await client.getSigningKey(decoded.header.kid);
+            const signingKey = key.getPublicKey();
+            return signingKey;
+          }
+
+          return configService.get<string>('JWT_SECRET') ?? 'default_secret';
+        } catch {
+          return configService.get<string>('JWT_SECRET') ?? 'default_secret';
+        }
+      },
     });
     this.jwtSecret = configService.get<string>('JWT_SECRET') ?? 'default_secret';
   }

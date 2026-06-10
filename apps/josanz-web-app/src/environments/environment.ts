@@ -5,6 +5,7 @@ export const environment = {
     url: 'http://localhost:8081',
     realm: 'josanz-web-app-realm',
     clientId: 'josanz-web-app-spa',
+    enabled: true,
   },
   grafanaDashboardUrl: '' as string,
 };

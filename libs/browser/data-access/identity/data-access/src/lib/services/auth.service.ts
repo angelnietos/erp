@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, switchMap } from 'rxjs';
 import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
+import { environment } from '../../environments/environment';
 import {
   clearStoredTenantId,
   getStoredTenantId,
@@ -23,19 +24,93 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
-/** Default slug matches `prisma/seed.ts` tenant (`slug: 'josanz'`). */
+const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
+  PlatformOwner: 'platformAdmin',
+  PlatformAdmin: 'platformAdmin',
+  TenantAdmin: 'clientAdmin',
+  admin: 'clientAdmin',
+};
+
+const KEYCLOAK_TO_ERP_PERMISSION_MAP: Record<string, string[]> = {
+  platformAdmin: ['platform.tenants.manage', 'platform.modules.configure'],
+  clientAdmin: ['clients.users.manage', 'clients.settings.write'],
+};
+
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
-/** `sessionStorage`: tenant elegido en la pantalla previa (`/auth/tenant`). */
 export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
-  /** Ruta relativa: `apiOriginInterceptor` antepone `environment.apiOrigin` si está definido. */
   private readonly apiUrl = '/api/auth';
 
   login(
+    email: string,
+    password: string,
+    tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
+  ): Observable<AuthResponse> {
+    if (environment.keycloak?.enabled) {
+      const tokenUrl = `${environment.keycloak.url}/realms/${environment.keycloak.realm}/protocol/openid-connect/token`;
+      const body = new URLSearchParams();
+      body.set('grant_type', 'password');
+      body.set('client_id', environment.keycloak.clientId);
+      body.set('username', email);
+      body.set('password', password);
+
+      return this.http.post(tokenUrl, body.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      }).pipe(
+        switchMap((tokenResponse: any) => {
+          const access_token = tokenResponse?.access_token;
+          if (!access_token) {
+            throw new Error('No access token from Keycloak');
+          }
+          const payload = decodeJwtPayload(access_token);
+          if (!payload || typeof payload['email'] !== 'string') {
+            throw new Error('Invalid Keycloak token payload');
+          }
+          const rawRoles = payload['realm_access']?.['roles'] ?? [];
+          const clientRoles = payload['client_roles'] ?? {};
+          const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r: unknown): r is string => typeof r === 'string');
+
+          const erpRoles: string[] = [];
+          const permissions = new Set<string>();
+          for (const kcRole of allKeycloakRoles) {
+            const erpRole = KEYCLOAK_TO_ERP_ROLE_MAP[kcRole];
+            if (erpRole && !erpRoles.includes(erpRole)) {
+              erpRoles.push(erpRole);
+            }
+          }
+          for (const erpRole of erpRoles) {
+            const rolePerms = KEYCLOAK_TO_ERP_PERMISSION_MAP[erpRole] || [];
+            rolePerms.forEach((p) => permissions.add(p));
+          }
+          const user: UserPayload = {
+            id: String(payload['sub'] ?? ''),
+            email: payload['email'],
+            roles: erpRoles.length > 0 ? erpRoles : ['authenticated'],
+            permissions: Array.from(permissions),
+          };
+          const tidFromJwt = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
+          return new Observable<AuthResponse>(subscriber => {
+            subscriber.next({
+              token: access_token,
+              user,
+              tenantId: tidFromJwt,
+            });
+            subscriber.complete();
+          });
+        }),
+        catchError(() => {
+          return this.traditionalLogin(email, password, tenantSlug);
+        }),
+      );
+    }
+    return this.traditionalLogin(email, password, tenantSlug);
+  }
+
+  private traditionalLogin(
     email: string,
     password: string,
     tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
@@ -65,10 +140,6 @@ export class AuthService {
     setStoredTenantId(tenantId);
   }
 
-  /**
-   * Restores user + tenant from localStorage when a valid JWT is present.
-   * Clears stored credentials if the token is missing required claims or expired.
-   */
   readPersistedSession(): { user: UserPayload; tenantId: string } | null {
     const token = this.getToken();
     if (!token) {
@@ -90,7 +161,7 @@ export class AuthService {
       : [];
     const rawPerms = payload['permissions'];
     const permissions = Array.isArray(rawPerms)
-      ? rawPerms.filter((p): p is string => typeof p === 'string')
+      ? rawPerms.filter((p): r is string => typeof p === 'string')
       : [];
     const user: UserPayload = {
       id: payload['sub'],
@@ -98,7 +169,6 @@ export class AuthService {
       roles,
       permissions,
     };
-    /** Alinear localStorage con el JWT (si falta `tenant_id`, las APIs no enviaban `x-tenant-id`). */
     const tidFromJwt =
       typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
     if (tidFromJwt) {
