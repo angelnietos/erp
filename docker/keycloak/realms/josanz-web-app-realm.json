@@ -6,7 +6,7 @@
     {
       "username": "admin",
       "enabled": true,
-      "email": "admin@josanz-erp.local",
+      "email": "admin@josanz.com",
       "firstName": "Admin",
       "lastName": "User",
       "credentials": [
