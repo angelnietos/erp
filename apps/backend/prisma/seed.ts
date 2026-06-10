@@ -404,6 +404,7 @@ async function main() {
     where: {
       tenantId_email: { tenantId: babooniTenant.id, email: 'root@babooni.com' },
     },
+  
     update: { password: hashedPassword },
     create: {
       tenantId: babooniTenant.id,
