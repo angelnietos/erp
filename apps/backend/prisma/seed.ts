@@ -210,6 +210,7 @@ async function clearTenantDemoData(tenantId: string) {
   await (prisma as any).clientContact.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
+  await prisma.userRole.deleteMany({ where: { user: { tenantId } } });
   await prisma.outboxEvent.deleteMany({});
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
