@@ -246,6 +246,22 @@ export class AuthService {
       tenantId: effectiveTenantId,
     };
 
+    const displayName = [user.firstName, user.lastName]
+      .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      .join(' ')
+      .trim();
+    void this.auditLogWriter
+      .record(user.id.value, {
+        action: 'LOGIN',
+        targetEntity: 'Auth:session',
+        changesJson: {
+          entityType: 'USER',
+          entityName: displayName || user.email,
+          details: 'Inicio de sesión',
+        },
+      })
+      .catch(() => undefined);
+
     return {
       accessToken: await this.jwtService.signAsync(payload),
       user: {
