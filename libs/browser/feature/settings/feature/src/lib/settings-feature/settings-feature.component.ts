@@ -3916,11 +3916,9 @@ export class SettingsFeatureComponent {
         .filter((id) => id !== '*' && id !== permissionId);
       permissions = allPerms;
     } else {
-      if (permissions.includes(permissionId)) {
-        permissions = permissions.filter((p: string) => p !== permissionId);
-      } else {
-        permissions.push(permissionId);
-      }
+      permissions = permissions.includes(permissionId)
+        ? permissions.filter((p: string) => p !== permissionId)
+        : [...permissions, permissionId];
     }
 
     this._rolesService.update(roleId, { permissions }).subscribe({
