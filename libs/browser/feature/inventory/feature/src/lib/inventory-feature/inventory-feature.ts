@@ -1,11 +1,10 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   MainListLayoutComponent,
   AdaptiveListRowsComponent,
   ButtonComponent,
-  ModalComponent,
   type JosanzAdaptiveListItem,
 } from '@josanz-erp/josanz-ui';
 
@@ -17,7 +16,6 @@ import {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     ButtonComponent,
-    ModalComponent,
   ],
   template: `
     @if (showSuccessToast) {
@@ -117,7 +115,6 @@ import {
 })
 export class InventoryFeature implements OnInit {
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
 
   activeCategory = signal('Todos');
   currentPage = signal(1);
@@ -191,13 +188,12 @@ export class InventoryFeature implements OnInit {
   ];
 
   ngOnInit(): void {
-    if (this.route.snapshot.queryParamMap.get('created') === '1') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('created') === '1') {
       this.showSuccessToast = true;
-      void this.router.navigate([], {
-        relativeTo: this.route,
-        queryParams: {},
-        replaceUrl: true,
-      });
+      const url = new URL(window.location.href);
+      url.searchParams.delete('created');
+      void this.router.navigateByUrl(url.pathname + url.search, { replaceUrl: true });
     }
   }
 

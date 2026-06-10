@@ -230,16 +230,16 @@ interface PluginDescriptor {
 
                   <div class="identity-form">
                     <div class="luxe-input-group">
-                      <label class="luxe-label">Identificador Nominal</label>
-                      <input type="text" [value]="_authStore.user()?.firstName + ' ' + _authStore.user()?.lastName" class="luxe-underlined-input" readonly aria-label="Identificador Nominal">
+                      <label class="luxe-label" for="profile-name">Identificador Nominal</label>
+                      <input id="profile-name" type="text" [value]="_authStore.user()?.firstName + ' ' + _authStore.user()?.lastName" class="luxe-underlined-input" readonly aria-label="Identificador Nominal">
                     </div>
                     <div class="luxe-input-group">
-                      <label class="luxe-label">Canal de Comunicación</label>
-                      <input type="email" [value]="_authStore.user()?.email" class="luxe-underlined-input" readonly aria-label="Canal de Comunicación">
+                      <label class="luxe-label" for="profile-email">Canal de Comunicación</label>
+                      <input id="profile-email" type="email" [value]="_authStore.user()?.email" class="luxe-underlined-input" readonly aria-label="Canal de Comunicación">
                     </div>
                     <div class="luxe-input-group">
-                      <label class="luxe-label">Descriptor de Rol</label>
-                      <input type="text" [value]="_authStore.user()?.roles?.[0] || 'Miembro Plataforma'" class="luxe-underlined-input" readonly aria-label="Descriptor de Rol">
+                      <label class="luxe-label" for="profile-role">Descriptor de Rol</label>
+                      <input id="profile-role" type="text" [value]="_authStore.user()?.roles?.[0] || 'Miembro Plataforma'" class="luxe-underlined-input" readonly aria-label="Descriptor de Rol">
                     </div>
                     
                     <div class="form-footer mt-8">
@@ -265,8 +265,11 @@ interface PluginDescriptor {
                   <ui-card variant="glass" class="role-status-card">
                     <div class="role-info">
                       <div class="role-icon">
-                        <lucide-icon name="crown" size="28" *ngIf="canSeeRolesAdmin()"></lucide-icon>
-                        <lucide-icon name="user" size="28" *ngIf="!canSeeRolesAdmin()"></lucide-icon>
+                        @if (canSeeRolesAdmin()) {
+                          <lucide-icon name="crown" size="28"></lucide-icon>
+                        } @else {
+                          <lucide-icon name="user" size="28"></lucide-icon>
+                        }
                       </div>
                       <div class="role-text">
                         <h3>{{ _authStore.user()?.roles?.[0] }}</h3>
@@ -419,28 +422,24 @@ interface PluginDescriptor {
               <div class="identity-main-card mb-12">
                 <div class="identity-form pr-12">
                   <div class="grid grid-cols-2 gap-6">
-                    <div class="luxe-input-group">
-                      <label class="luxe-label">Proveedor Base</label>
-                      <ui-select
-                        [options]="aiBotStore.aiModelOptions()"
-                        [ngModel]="aiBotStore.selectedModelId()"
-                        (ngModelChange)="aiBotStore.setAIModel($event)"
-                      ></ui-select>
-                    </div>
-                    <div class="luxe-input-group">
-                      <label class="luxe-label">Agente Principal</label>
-                      <ui-select
-                        [options]="botOptions()"
-                        [ngModel]="aiBotStore.activeBotFeature()"
-                        (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
-                      ></ui-select>
-                    </div>
+                    <ui-select
+                      [options]="aiBotStore.aiModelOptions()"
+                      [ngModel]="aiBotStore.selectedModelId()"
+                      (ngModelChange)="aiBotStore.setAIModel($event)"
+                      label="Proveedor Base"
+                    ></ui-select>
+                    <ui-select
+                      [options]="botOptions()"
+                      [ngModel]="aiBotStore.activeBotFeature()"
+                      (ngModelChange)="aiBotStore.activeBotFeature.set($event)"
+                      label="Agente Principal"
+                    ></ui-select>
                   </div>
 
                   @if (aiBotStore.needsApiKey()) {
                     <div class="luxe-input-group mt-8">
-                      <label class="luxe-label">Token de Acceso Seguro (API KEY)</label>
-                      <input type="password" [ngModel]="aiBotStore.providerApiKey()" (ngModelChange)="aiBotStore.providerApiKey.set($event)" class="luxe-underlined-input" placeholder="AIzaSy... •••••" aria-label="Token de Acceso Seguro (API KEY)">
+                      <label class="luxe-label" for="api-key-input">Token de Acceso Seguro (API KEY)</label>
+                      <input id="api-key-input" type="password" [ngModel]="aiBotStore.providerApiKey()" (ngModelChange)="aiBotStore.providerApiKey.set($event)" class="luxe-underlined-input" placeholder="AIzaSy... •••••" aria-label="Token de Acceso Seguro (API KEY)">
                     </div>
                   }
                   
@@ -1861,11 +1860,11 @@ interface PluginDescriptor {
 
                   <div class="mt-6">
                     <div class="luxe-input-group mb-4">
-                      <label class="luxe-label">Intensidad Crystal Blur</label>
+                      <span class="luxe-label">Intensidad Crystal Blur</span>
                       <input type="range" class="luxe-range" min="0" max="40" value="14" aria-label="Intensidad Crystal Blur">
                     </div>
                     <div class="luxe-input-group">
-                      <label class="luxe-label">Ambient Glow Intensity</label>
+                      <span class="luxe-label">Ambient Glow Intensity</span>
                       <input type="range" class="luxe-range" min="0" max="30" value="8" aria-label="Ambient Glow Intensity">
                     </div>
                   </div>
@@ -3907,24 +3906,20 @@ export class SettingsFeatureComponent {
 
     if (permissionId === '*') {
       if (permissions.includes('*')) {
-        permissions = []; // Turn off wildcard -> zero access
+        permissions = [];
       } else {
-        permissions = ['*']; // Turn on wildcard -> wipe granular rules
+        permissions = ['*'];
       }
+    } else if (permissions.includes('*')) {
+      const allPerms = this.permissionsCatalogForUi()
+        .map((p) => p.id)
+        .filter((id) => id !== '*' && id !== permissionId);
+      permissions = allPerms;
     } else {
-      if (permissions.includes('*')) {
-        // User is trying to disable a specific permission while having wildcard.
-        // We must explode the wildcard into explicit permissions, excluding the one clicked.
-        const allPerms = this.permissionsCatalogForUi()
-          .map((p) => p.id)
-          .filter((id) => id !== '*' && id !== permissionId);
-        permissions = allPerms;
+      if (permissions.includes(permissionId)) {
+        permissions = permissions.filter((p: string) => p !== permissionId);
       } else {
-        if (permissions.includes(permissionId)) {
-          permissions = permissions.filter((p: string) => p !== permissionId);
-        } else {
-          permissions.push(permissionId);
-        }
+        permissions.push(permissionId);
       }
     }
 
