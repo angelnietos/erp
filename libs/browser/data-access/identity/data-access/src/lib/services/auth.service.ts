@@ -66,6 +66,7 @@ export class AuthService {
       body.set('client_id', this.keycloakConfig.clientId);
       body.set('username', email);
       body.set('password', password);
+      body.set('scope', 'openid email profile');
 
       return this.http.post(tokenUrl, body.toString(), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -76,7 +77,7 @@ export class AuthService {
             throw new Error('No access token from Keycloak');
           }
           const payload = decodeJwtPayload(access_token);
-          if (!payload || typeof payload['email'] !== 'string') {
+          if (!payload || typeof payload['sub'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
           const rawRoles = (payload['realm_access'] as any)?.roles ?? [];
@@ -95,9 +96,14 @@ export class AuthService {
             const rolePerms = KEYCLOAK_TO_ERP_PERMISSION_MAP[erpRole] || [];
             rolePerms.forEach((p) => permissions.add(p));
           }
+          // Use email if present, fallback to preferred_username, then to the input used
+          const resolvedEmail =
+            (typeof payload['email'] === 'string' && payload['email']) ||
+            (typeof payload['preferred_username'] === 'string' && payload['preferred_username']) ||
+            email;
           const user: UserPayload = {
-            id: String(payload['sub'] ?? ''),
-            email: payload['email'],
+            id: String(payload['sub']),
+            email: resolvedEmail,
             roles: erpRoles.length > 0 ? erpRoles : ['authenticated'],
             permissions: Array.from(permissions),
           };
