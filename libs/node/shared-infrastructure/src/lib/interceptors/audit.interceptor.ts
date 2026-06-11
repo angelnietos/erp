@@ -83,7 +83,13 @@ export class AuditInterceptor implements NestInterceptor {
         undefined;
       const targetId = response?.id || url.split('/').pop() || 'unknown';
 
-      await this.auditLogWriter.record(user.sub ?? 'unknown', {
+      // Skip audit if userId is "unknown" (platform users without platformUser record)
+      const userId = user.sub;
+      if (!userId || userId === 'unknown') {
+        return;
+      }
+
+      await this.auditLogWriter.record(userId, {
         action,
         targetEntity: `${entity}:${targetId}`,
         changesJson: {
