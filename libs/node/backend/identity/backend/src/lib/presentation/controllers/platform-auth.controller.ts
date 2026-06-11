@@ -9,6 +9,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { AuthService } from '../../application/services/auth.service';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
 import {
@@ -33,8 +34,29 @@ export class PlatformAuthController {
   @SkipTenantGuard()
   @UseGuards(JwtAuthGuard, PlatformJwtGuard)
   @Get('session')
-  async session(@Req() req: { user?: { sub?: string; id?: string } }) {
-    const userId = req.user?.sub ?? req.user?.id;
+  async session(@Req() req: Request) {
+    const user = req.user as { sub?: string; id?: string; kind?: string; roles?: string[]; permissions?: string[]; email?: string; firstName?: string; lastName?: string } | undefined;
+    // For Keycloak platform users, return the JWT user directly
+    if (user?.kind === 'platform' || user?.roles?.some(r => ['PlatformOwner', 'PlatformAdmin'].includes(r))) {
+      const userId = user.sub ?? user.id;
+      if (!userId) {
+        throw new UnauthorizedException();
+      }
+      return {
+        accessToken: req.headers.authorization?.substring(7) ?? '',
+        user: {
+          id: userId,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roles: user.roles ?? [],
+          permissions: user.permissions ?? [],
+          extraPermissions: undefined,
+        },
+        tenantId: undefined,
+      };
+    }
+    const userId = user?.sub ?? user?.id;
     if (!userId) {
       throw new UnauthorizedException();
     }

@@ -94,8 +94,9 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
             const keycloakUrl =
               configService.get<string>('KEYCLOAK_AUTH_SERVER_URL')?.replace(/\/$/, '') ||
               'http://localhost:8081';
-            const keycloakRealm =
-              configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
+            // Extract realm from the token issuer URL (e.g., "http://localhost:8081/realms/babooni-platform")
+            const realmFromIss = iss.split('/realms/')[1]?.split('/')[0];
+            const keycloakRealm = realmFromIss || configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
             const jwksUri = `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/certs`;
 
             const client = jwksRsa({
@@ -160,11 +161,38 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    */
   private async validateKeycloakUser(kcToken: KeycloakToken): Promise<ErpMappedUser> {
     const email = kcToken.email || kcToken.preferred_username || '';
-    const tenantId = kcToken.tenant_id?.trim() ?? '';
+    const realmRoles = kcToken.realm_access?.roles ?? [];
+    const clientRoles = Array.isArray(kcToken.client_roles)
+      ? kcToken.client_roles
+      : kcToken.client_roles && typeof kcToken.client_roles === 'object'
+        ? Object.values(kcToken.client_roles).flat()
+        : [];
+    const allRoles = [...realmRoles, ...clientRoles];
+    const isPlatformAdmin = allRoles.some((r) =>
+      ['PlatformAdmin', 'PlatformOwner'].includes(r),
+    );
 
     if (!email) {
       throw new UnauthorizedException('Keycloak token missing email claim');
     }
+
+    // Platform admins without tenant_id: grant full access immediately
+    if (isPlatformAdmin && !kcToken.tenant_id) {
+      const originalRoles = allRoles.filter((r) =>
+        ['PlatformAdmin', 'PlatformOwner'].includes(r),
+      );
+      return {
+        id: kcToken.sub,
+        email,
+        firstName: kcToken.given_name,
+        lastName: kcToken.family_name,
+        roles: originalRoles.length > 0 ? originalRoles : ['Administrador'],
+        permissions: ALL_APP_PERMISSIONS,
+        tenantId: undefined,
+      };
+    }
+
+    const tenantId = kcToken.tenant_id?.trim() ?? '';
 
     try {
       // ── 1. Look up user in the local DB ──────────────────────────────────
@@ -244,15 +272,8 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     // ── 4. Safe fallback ────────────────────────────────────────────────────
     // DB is unavailable but the Keycloak token is valid — grant full access
     // to recognised admin realm-roles so the admin is never locked out.
-    const realmRoles = kcToken.realm_access?.roles ?? [];
-    const clientRoles = Array.isArray(kcToken.client_roles)
-      ? kcToken.client_roles
-      : kcToken.client_roles && typeof kcToken.client_roles === 'object'
-        ? Object.values(kcToken.client_roles).flat()
-        : [];
-    const allRoles = [...realmRoles, ...clientRoles];
-    const isAdmin = allRoles.some((r) =>
-      ['PlatformAdmin', 'PlatformOwner', 'TenantAdmin', 'admin'].includes(r),
+    const isAdmin = isPlatformAdmin || allRoles.some((r) =>
+      ['TenantAdmin', 'admin'].includes(r),
     );
 
     return {

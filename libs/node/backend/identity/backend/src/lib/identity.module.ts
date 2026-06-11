@@ -20,7 +20,6 @@ import { TenantIdentityNotifierService } from './application/services/tenant-ide
 import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-modules-realtime.gateway';
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
 import { PlatformJwtGuard } from './presentation/guards/platform-jwt.guard';
-import { JwtStrategy } from './infrastructure/auth/jwt.strategy';
 import { HybridJwtStrategy } from './infrastructure/auth/hybrid-jwt.strategy';
 import { PlatformJwtStrategy } from './infrastructure/auth/platform-jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
@@ -70,12 +69,11 @@ providers: [
         TenantModulesService,
         TenantModulesNotifierService,
         TenantRealmSyncService,
-        PlatformJwtStrategy,
         TenantIdentityNotifierService,
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,
         PlatformJwtGuard,
-        useKeycloak ? HybridJwtStrategy : JwtStrategy,
+        HybridJwtStrategy, // Always use hybrid strategy (supports both JWT types)
         {
           provide: USER_REPOSITORY,
           useClass: PrismaUserRepository,
@@ -85,7 +83,7 @@ providers: [
           useValue: options || {},
         },
       ],
-      exports: [AuthService, useKeycloak ? HybridJwtStrategy : JwtStrategy],
+      exports: [AuthService, HybridJwtStrategy],
     };
   }
 }

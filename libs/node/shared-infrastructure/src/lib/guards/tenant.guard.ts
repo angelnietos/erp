@@ -5,7 +5,7 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { SKIP_TENANT_GUARD_KEY } from '../decorators/skip-tenant.decorator';
 import { TenantContext } from '../middleware/tenant.middleware';
 import { PrismaService } from '../prisma/prisma.service';
-import { JwtRequestUser } from '../utils/request-tenant';
+import { JwtRequestUser, isPlatformAdmin } from '../utils/request-tenant';
 import { isTenantUuid } from '../utils/tenant-uuid';
 
 @Injectable()
@@ -41,6 +41,34 @@ export class TenantGuard implements CanActivate {
     return null;
   }
 
+  private hasPlatformAdminRoles(request: any): boolean {
+    const authHeader = request.headers?.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return false;
+    }
+    const token = authHeader.substring(7);
+    try {
+      const parts = token.split('.');
+      if (parts.length < 2) return false;
+      let payload = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      const pad = payload.length % 4;
+      if (pad) payload += '='.repeat(4 - pad);
+      const decoded = JSON.parse(Buffer.from(payload, 'base64').toString('utf-8'));
+      const realmRoles = decoded?.realm_access?.roles ?? [];
+      const clientRoles = Array.isArray(decoded?.client_roles)
+        ? decoded.client_roles
+        : decoded?.client_roles && typeof decoded.client_roles === 'object'
+          ? Object.values(decoded.client_roles).flat()
+          : [];
+      const allRoles = [...realmRoles, ...clientRoles];
+      return allRoles.some((r: string) =>
+        ['PlatformAdmin', 'PlatformOwner'].includes(r),
+      );
+    } catch {
+      return false;
+    }
+  }
+
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -59,12 +87,24 @@ export class TenantGuard implements CanActivate {
       return true;
     }
 
+    const request = context.switchToHttp().getRequest();
+
+    // Check if user is platform admin (cross-tenant access) - check JWT without relying on JwtAuthGuard
+    if (this.hasPlatformAdminRoles(request)) {
+      return true;
+    }
+    
+    // Check from CLS/user (if JwtAuthGuard already ran)
+    const user = request.user as JwtRequestUser | undefined;
+    if (user && isPlatformAdmin(user as JwtRequestUser)) {
+      return true;
+    }
+
     // Primero intentar conseguir tenantId del CLS (establecido por middleware)
     let tenantId = this.cls.get('tenantId');
     
     // Si no hay en CLS, intentar obtener del JWT (para Keycloak tokens sin header)
     if (!tenantId) {
-      const request = context.switchToHttp().getRequest();
       tenantId = this.extractTenantIdFromJwt(request);
       if (tenantId) {
         this.cls.set('tenantId', tenantId);
@@ -73,8 +113,6 @@ export class TenantGuard implements CanActivate {
     
     // Finalmente, intentar desde req.user (si ya fue autenticado por JwtAuthGuard)
     if (!tenantId) {
-      const request = context.switchToHttp().getRequest();
-      const user = request.user as JwtRequestUser | undefined;
       if (user?.tenantId && isTenantUuid(user.tenantId)) {
         tenantId = user.tenantId.trim();
         this.cls.set('tenantId', tenantId);

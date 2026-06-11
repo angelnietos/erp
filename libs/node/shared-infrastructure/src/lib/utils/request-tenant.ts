@@ -7,6 +7,10 @@ export type JwtRequestUser = {
   tenantId?: string;
   sub?: string;
   email?: string;
+  roles?: string[];
+  firstName?: string;
+  lastName?: string;
+  permissions?: string[];
 };
 
 /**
@@ -15,6 +19,7 @@ export type JwtRequestUser = {
  * Si el JWT trae `tenantId` (usuario de tenant), **ese valor manda** frente a `x-tenant-id`:
  * el header puede quedar desalineado con `localStorage` tras login o cambio de sesión.
  * Sin JWT (p. ej. rutas públicas) se usa solo la cabecera.
+ * Usuarios con roles PlatformOwner/PlatformAdmin pueden acceder sin tenant (cross-tenant access).
  */
 export function getRequestTenantId(req: Request): string | undefined {
   const user = req.user as JwtRequestUser | undefined;
@@ -38,4 +43,11 @@ export function requireRequestTenantId(req: Request): string {
     );
   }
   return id;
+}
+
+/** Check if user has platform admin role for cross-tenant access */
+export function isPlatformAdmin(user?: JwtRequestUser): boolean {
+  return user?.roles?.some((r) =>
+    ['PlatformOwner', 'PlatformAdmin'].includes(r),
+  ) ?? false;
 }

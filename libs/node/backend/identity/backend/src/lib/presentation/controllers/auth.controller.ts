@@ -15,7 +15,7 @@ import { LoginDto } from '../../application/dtos/login.dto';
 import { PublicTenant, JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
 
 type SessionRequest = Request & {
-  user?: { id?: string; sub?: string; tenantId?: string };
+  user?: { sub?: string; id?: string; firstName?: string; lastName?: string; email?: string; roles?: string[]; permissions?: string[]; tenantId?: string };
 };
 
 @Controller('auth')
@@ -41,8 +41,25 @@ export class AuthController {
         : Array.isArray(rawTenant)
           ? rawTenant[0]
           : undefined;
-    // El tenantId también puede venir del JWT (Keycloak) si no hay header
     const tenantId = headerTenant ?? user?.tenantId;
+    // Platform admins don't need a tenant - return JWT user directly
+    const isPlatAdmin = user?.roles?.some(r => ['PlatformOwner', 'PlatformAdmin'].includes(r));
+    if (user && isPlatAdmin) {
+      const token = req.headers.authorization?.substring(7) ?? '';
+      return {
+        accessToken: token,
+        user: {
+          id: userId,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          roles: user.roles ?? [],
+          permissions: user.permissions ?? [],
+          extraPermissions: undefined,
+        },
+        tenantId: tenantId || undefined,
+      };
+    }
     if (!userId || !tenantId) {
       throw new UnauthorizedException('Invalid session context');
     }
