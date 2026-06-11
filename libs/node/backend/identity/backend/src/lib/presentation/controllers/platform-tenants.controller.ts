@@ -43,7 +43,6 @@ export class PlatformTenantsController {
   ) {
     const { enabledModuleIds } = body;
     const normalized = normalizeTenantModuleIds(enabledModuleIds);
-
     await this.tenantModulesService.updateEnabledModuleIds(tenantId, {
       enabledModuleIds: normalized,
     });
