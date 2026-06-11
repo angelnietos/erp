@@ -2,7 +2,7 @@ import { Component, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { PluginStore } from '@josanz-erp/shared-data-access';
+import { PluginStore, GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
@@ -335,16 +335,24 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 })
 export class SidebarComponent {
   private readonly identityAuth = inject(AuthStore);
+  private readonly globalAuth = inject(GlobalAuthStore);
   private readonly pluginStore = inject(PluginStore);
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
-  /** Entradas del menú: solo módulos/plugins activos. RBAC aplica en features y listas, no aquí. */
+  /** Entradas del menú: solo módulos/plugins activos y con permisos requeridos. */
   filteredNavItems = computed(() => {
     return this.navItems.filter((item) => {
+      // 1. Filtrar por plugins habilitados
       if (item.id !== 'dashboard' && item.id !== 'ai-insights' && !this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
+      
+      // 2. Filtrar por permisos del usuario
+      if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
+        return false;
+      }
+
       return true;
     });
   });

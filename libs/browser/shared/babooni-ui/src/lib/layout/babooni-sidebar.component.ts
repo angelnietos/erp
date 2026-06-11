@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
-import { PluginStore } from '@josanz-erp/shared-data-access';
+import { PluginStore, GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
 
@@ -101,12 +101,14 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
 })
 export class BabooniSidebarComponent {
   private readonly identityAuth = inject(AuthStore);
+  private readonly globalAuth = inject(GlobalAuthStore);
   private readonly pluginStore = inject(PluginStore);
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
   readonly filteredNavItems = computed(() =>
     this.navItems.filter((item) => {
+      // 1. Filtrar por plugins habilitados
       if (
         item.id !== 'dashboard' &&
         item.id !== 'ai-insights' &&
@@ -114,6 +116,12 @@ export class BabooniSidebarComponent {
       ) {
         return false;
       }
+      
+      // 2. Filtrar por permisos del usuario
+      if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
+        return false;
+      }
+
       return true;
     }),
   );
