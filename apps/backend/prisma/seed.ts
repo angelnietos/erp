@@ -383,17 +383,35 @@ async function main() {
     },
   });
 
-  // 2. Main Demo Tenant (Josanz) - Uses fixed UUID to match Keycloak realm config
-  const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
-  const tenant = await prisma.tenant.upsert({
-    where: { id: JOSANZ_TENANT_ID },
-    update: {},
-    create: {
-      id: JOSANZ_TENANT_ID,
-      name: 'Josanz Audiovisuales',
-      slug: 'josanz',
-    },
-  });
+// 2. Main Demo Tenant (Josanz) - Uses fixed UUID to match Keycloak realm config
+   const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
+   const tenant = await prisma.tenant.upsert({
+     where: { id: JOSANZ_TENANT_ID },
+     update: {},
+     create: {
+       id: JOSANZ_TENANT_ID,
+       name: 'Josanz Audiovisuales',
+       slug: 'josanz',
+       enabledModuleIds: [
+         'dashboard',
+         'clients',
+         'projects',
+         'events',
+         'identity',
+         'availability',
+         'services',
+         'reports',
+         'audit',
+         'inventory',
+         'budgets',
+         'delivery',
+         'fleet',
+         'rentals',
+         'billing',
+         'verifactu',
+       ],
+     },
+   });
 
   await ensureDefaultRoles(tenant.id, 'josanz');
   const josanzSuperAdminRole = await prisma.role.findFirstOrThrow({
