@@ -28,6 +28,7 @@ interface ErpMappedUser {
   roles: string[];
   permissions: string[];
   tenantId?: string;
+  kind?: string;
 }
 
 const ALL_APP_PERMISSIONS: string[] = [
@@ -132,7 +133,7 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       return this.validateKeycloakUser(payload as unknown as KeycloakToken);
     }
 
-    // Standard ERP JWT (HS256)
+    // Standard ERP JWT (HS256) - preserve kind for platform users
     return {
       id: String(payload.sub),
       email: String(payload.email ?? ''),
@@ -145,6 +146,7 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         ? payload.permissions.filter((p): p is string => typeof p === 'string')
         : [],
       tenantId: payload.tenantId as string | undefined,
+      kind: payload.kind as string | undefined,
     };
   }
 
@@ -189,6 +191,7 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         roles: originalRoles.length > 0 ? originalRoles : ['Administrador'],
         permissions: ALL_APP_PERMISSIONS,
         tenantId: undefined,
+        kind: 'platform',
       };
     }
 
@@ -284,7 +287,7 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       roles: isAdmin ? ['Administrador'] : ['authenticated'],
       permissions: isAdmin ? ALL_APP_PERMISSIONS : [],
       tenantId: tenantId || undefined,
+      kind: isPlatformAdmin ? 'platform' : undefined,
     };
   }
 }
-

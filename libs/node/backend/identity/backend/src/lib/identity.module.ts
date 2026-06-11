@@ -62,7 +62,7 @@ export class IdentityModule {
         PlatformTenantsController,
         PlatformAuthController,
       ],
-providers: [
+      providers: [
         AuthService,
         UsersService,
         RolesService,
@@ -74,6 +74,7 @@ providers: [
         PlatformOwnerGuard,
         PlatformJwtGuard,
         HybridJwtStrategy, // Always use hybrid strategy (supports both JWT types)
+        PlatformJwtStrategy, // Platform admin authentication (Keycloak)
         {
           provide: USER_REPOSITORY,
           useClass: PrismaUserRepository,

@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common';
 import { SkipTenantGuard } from '@josanz-erp/shared-infrastructure';
 import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
+import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
-import { AuthGuard } from '@nestjs/passport';
 import { IsArray, IsString } from 'class-validator';
 
 class UpdateTenantModulesDto {
@@ -20,7 +20,7 @@ class UpdateTenantModulesDto {
   enabledModuleIds!: string[];
 }
 
-@UseGuards(AuthGuard('platform-jwt'), PlatformJwtGuard)
+@UseGuards(JwtAuthGuard, PlatformJwtGuard)
 @Controller('platform/tenants')
 export class PlatformTenantsController {
   constructor(
