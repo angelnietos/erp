@@ -346,7 +346,7 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 1. BABOONI Tenant
+  // 1. BABOONI Tenant — 10 activated modules (events, availability, fleet, rentals, billing, verifactu deactivated)
   const babooniTenant = await prisma.tenant.upsert({
     where: { slug: 'babooni' },
     update: {},
@@ -357,19 +357,13 @@ async function main() {
         'dashboard',
         'clients',
         'projects',
-        'events',
         'identity',
-        'availability',
         'services',
         'reports',
         'audit',
         'inventory',
         'budgets',
         'delivery',
-        'fleet',
-        'rentals',
-        'billing',
-        'verifactu',
       ],
     },
   });

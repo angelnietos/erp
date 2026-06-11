@@ -15,13 +15,8 @@ export class App {
   private readonly pluginStore = inject(PluginStore);
 
   constructor() {
-    // Fast initial render from cached JWT (may have stale permissions)
+    // Fast initial render from cached JWT (may have stale tenant context)
     this.authStore.loadUserFromToken();
-    this.pluginStore.loadFromStorage();
-
-    // ALWAYS refresh from DB immediately – overwrites stale JWT permissions.
-    // This runs async so the initial fast render above is not blocked.
-    // The sidebar and guards will re-evaluate once this resolves.
-    this.authStore.refreshSession();
+    // Defer plugin loading until session is refreshed - the APP_INITIALIZER handles this
   }
 }

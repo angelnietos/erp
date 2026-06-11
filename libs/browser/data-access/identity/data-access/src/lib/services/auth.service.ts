@@ -51,9 +51,10 @@ function mapKeycloakTokenToUserPayload(
   payload: Record<string, unknown>,
   fallbackEmail = '',
 ): { user: UserPayload; tenantId: string; isPlatformAdmin: boolean } {
-  const rawRoles = payload['realm_access']?.roles ?? [];
-  const clientRoles = payload['client_roles'] ?? {};
-  const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r): r is string => typeof r === 'string');
+  const realmAccess = payload['realm_access'] as { roles?: unknown } | undefined;
+  const rawRoles = (realmAccess?.roles as string[]) ?? [];
+  const clientRoles = payload['client_roles'] as { [key: string]: unknown } | undefined;
+  const allKeycloakRoles = [...rawRoles, ...(Object.values(clientRoles ?? {}).flat() as string[])].filter((r): r is string => typeof r === 'string');
 
   const erpRoles: string[] = [];
   const permissions = new Set<string>();
@@ -196,9 +197,10 @@ export class AuthService {
     if (!payload) return false;
     const isKeycloak = payload['iss'] && String(payload['iss']).includes('/realms/');
     if (isKeycloak) {
-      const rawRoles = payload['realm_access']?.roles ?? [];
-      const clientRoles = payload['client_roles'] ?? {};
-      const allRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r): r is string => typeof r === 'string');
+      const realmAccess = payload['realm_access'] as { roles?: unknown } | undefined;
+      const rawRoles = (realmAccess?.roles as string[]) ?? [];
+      const clientRoles = payload['client_roles'] as { [key: string]: unknown } | undefined;
+      const allRoles = [...rawRoles, ...(Object.values(clientRoles ?? {}).flat() as string[])].filter((r): r is string => typeof r === 'string');
       return allRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r));
     }
     const roles = payload['roles'];

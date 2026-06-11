@@ -39,15 +39,6 @@ export class AuthService {
   ) {}
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
-    const fromHeader = this.cls.get('tenantId');
-    if (fromHeader && isTenantUuid(fromHeader)) {
-      const tenant = await this.prisma.tenant.findFirst({
-        where: { id: fromHeader.trim(), isActive: true },
-      });
-      if (tenant) {
-        return tenant.id;
-      }
-    }
     if (dto.tenantSlug) {
       const tenant = await this.prisma.tenant.findUnique({
         where: { slug: dto.tenantSlug },
@@ -56,6 +47,15 @@ export class AuthService {
         throw new BadRequestException(`Unknown tenant slug: ${dto.tenantSlug}`);
       }
       return tenant.id;
+    }
+    const fromHeader = this.cls.get('tenantId');
+    if (fromHeader && isTenantUuid(fromHeader)) {
+      const tenant = await this.prisma.tenant.findFirst({
+        where: { id: fromHeader.trim(), isActive: true },
+      });
+      if (tenant) {
+        return tenant.id;
+      }
     }
     throw new BadRequestException(
       'Tenant is required: send a valid x-tenant-id (UUID) or tenantSlug in the login body (e.g. "josanz" for the default seed tenant).',
@@ -66,6 +66,7 @@ export class AuthService {
     accessToken: string;
     user: AuthenticatedUserView;
     tenantId: string;
+    tenantSlug?: string;
   }> {
     const tenantId = await this.resolveLoginTenantId(dto);
     const user = await this.userRepository.findByEmail(dto.email, tenantId);
@@ -108,6 +109,11 @@ export class AuthService {
       })
       .catch(() => undefined);
 
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { slug: true },
+    });
+
     return {
       accessToken: await this.jwtService.signAsync(payload),
       user: {
@@ -120,6 +126,7 @@ export class AuthService {
         extraPermissions: user.extraPermissions,
       },
       tenantId,
+      tenantSlug: tenant?.slug,
     };
   }
 
@@ -221,6 +228,7 @@ export class AuthService {
     accessToken: string;
     user: AuthenticatedUserView;
     tenantId: string;
+    tenantSlug?: string;
   }> {
     const user = await this.userRepository.findById(userId, tenantId);
     if (!user) {
@@ -266,6 +274,11 @@ export class AuthService {
       })
       .catch(() => undefined);
 
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: effectiveTenantId },
+      select: { slug: true },
+    });
+
     return {
       accessToken: await this.jwtService.signAsync(payload),
       user: {
@@ -278,6 +291,7 @@ export class AuthService {
         extraPermissions: user.extraPermissions,
       },
       tenantId: effectiveTenantId,
+      tenantSlug: tenant?.slug,
     };
   }
 

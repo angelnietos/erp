@@ -71,9 +71,17 @@ export const AuthStore = signalStore(
                   permissions: response.user.permissions,
                 });
 
+                if (response.tenantSlug) {
+                  if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
+                  }
+                  syncErpTenantHtmlTheme();
+                  themeService.reapplyTheme();
+                }
+
                 // Only fetch tenant modules if we have a tenant context
                 if (response.tenantId || getStoredTenantId()) {
-                  tenantModulesApi.fetchEnabledModules().subscribe({
+                  tenantModulesApi.fetchEnabledModules(response.tenantId ?? getStoredTenantId()!).subscribe({
                     next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
                     error: () => pluginStore.loadFromStorage(),
                   });
@@ -141,6 +149,14 @@ export const AuthStore = signalStore(
             }
             patchState(store, { user: response.user });
 
+            if (response.tenantSlug) {
+              if (typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
+              }
+              syncErpTenantHtmlTheme();
+              themeService.reapplyTheme();
+            }
+
             const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
             globalAuthStore.setUser({
               id: response.user.id,
@@ -152,7 +168,7 @@ export const AuthStore = signalStore(
 
             // Only fetch tenant modules if we have a tenant context
             if (response.tenantId || getStoredTenantId()) {
-              tenantModulesApi.fetchEnabledModules().subscribe({
+              tenantModulesApi.fetchEnabledModules(response.tenantId ?? getStoredTenantId()!).subscribe({
                 next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
                 error: () => pluginStore.loadFromStorage(),
               });

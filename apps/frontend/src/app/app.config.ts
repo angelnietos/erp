@@ -19,8 +19,9 @@ import {
   TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
   syncErpTenantHtmlTheme,
+  ERP_TENANT_SLUG_SESSION_KEY,
 } from '@josanz-erp/identity-data-access';
-import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
 import { firstValueFrom, catchError, of, tap } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
@@ -216,6 +217,7 @@ export const appConfig: ApplicationConfig = {
         const tenantModulesRealtime = inject(TenantModulesRealtimeService);
         const authStore = inject(AuthStore);
         const pluginStore = inject(PluginStore);
+        const themeService = inject(ThemeService);
         tenantModulesRealtime.registerIdentityRefresh(() => {
           authStore.refreshSession();
         });
@@ -233,6 +235,11 @@ export const appConfig: ApplicationConfig = {
               authService.setToken(response.accessToken);
               if (response.tenantId) {
                 authService.setTenantId(response.tenantId);
+              }
+              if (response.tenantSlug && typeof sessionStorage !== 'undefined') {
+                sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
+                syncErpTenantHtmlTheme();
+                themeService.reapplyTheme();
               }
               const u = response.user;
               const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;

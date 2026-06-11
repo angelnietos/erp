@@ -39,6 +39,8 @@ export interface AuthResponse {
   user: UserPayload;
   /** Tenant cliente (UUID). Vacío en login del panel SaaS (`platform_users`). */
   tenantId?: string;
+  /** Tenant slug resuelto desde el backend (ej. "josanz", "babooni"). */
+  tenantSlug?: string;
 }
 
 // DTOs shared between Backend and Frontend (no decorators - pure types)
