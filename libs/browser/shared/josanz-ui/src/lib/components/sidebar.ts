@@ -41,10 +41,16 @@ export class SidebarComponent {
 
   readonly filteredNavItems = computed(() => {
     return this.navItems.filter((item) => {
-      if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
-        return false;
+      // If no permission required, always show
+      if (!item.permission) {
+        return true;
       }
-      return true;
+      // Check if user has permission, but don't filter if GlobalAuthStore has no user
+      const user = this.globalAuth.user();
+      if (!user) {
+        return true;
+      }
+      return this.globalAuth.hasPermission(item.permission);
     });
   });
 
