@@ -158,6 +158,17 @@ const BASIC_USER_ROLE_PERMISSIONS = uniquePermissions([
 
 /** Removes demo rows for this tenant so `prisma db seed` is idempotent. */
 async function clearTenantDemoData(tenantId: string) {
+  /** Cuentas semilla que no deben borrarse al repetir `db seed`. */
+  const SEED_PROTECTED_USER_EMAILS = [
+    'admin@josanz.com',
+    'admin@josanz-erp.local',
+    'root@babooni.com',
+    'florina.mahalean@babooni.com',
+    'alvaro.ballesteros@babooni.com',
+    'alejandro.ballesteros@babooni.com',
+    'angel.nieto@babooni.com',
+  ] as const;
+
   await prisma.integrationWebhookDelivery.deleteMany({ where: { tenantId } });
   await prisma.integrationWebhook.deleteMany({ where: { tenantId } });
   await prisma.domainEventRecord.deleteMany({ where: { tenantId } });
@@ -210,19 +221,17 @@ async function clearTenantDemoData(tenantId: string) {
   await (prisma as any).clientContact.deleteMany({ where: { tenantId } });
   await prisma.client.deleteMany({ where: { tenantId } });
 
-  await prisma.userRole.deleteMany({ where: { user: { tenantId } } });
+  await prisma.userRole.deleteMany({
+    where: {
+      user: {
+        tenantId,
+        email: { notIn: [...SEED_PROTECTED_USER_EMAILS] },
+      },
+    },
+  });
   await prisma.outboxEvent.deleteMany({});
   await prisma.idempotencyKey.deleteMany({});
   await prisma.auditLog.deleteMany({});
-  /** Cuentas semilla que no deben borrarse al repetir `db seed`. */
-  const SEED_PROTECTED_USER_EMAILS = [
-    'admin@josanz.com',
-    'root@babooni.com',
-    'florina.mahalean@babooni.com',
-    'alvaro.ballesteros@babooni.com',
-    'alejandro.ballesteros@babooni.com',
-    'angel.nieto@babooni.com',
-  ] as const;
   await prisma.user.deleteMany({
     where: { tenantId, email: { notIn: [...SEED_PROTECTED_USER_EMAILS] } },
   });
@@ -531,6 +540,25 @@ async function main() {
   await prisma.userRole.deleteMany({ where: { userId: admin.id } });
   await prisma.userRole.create({
     data: { userId: admin.id, roleId: josanzSuperAdminRole.id },
+  });
+
+  const adminLocal = await prisma.user.upsert({
+    where: {
+      tenantId_email: { tenantId: tenant.id, email: 'admin@josanz-erp.local' },
+    },
+    update: { password: hashedPassword },
+    create: {
+      tenantId: tenant.id,
+      email: 'admin@josanz-erp.local',
+      password: hashedPassword,
+      firstName: 'Josanz ERP',
+      lastName: 'Local Admin',
+    },
+  });
+
+  await prisma.userRole.deleteMany({ where: { userId: adminLocal.id } });
+  await prisma.userRole.create({
+    data: { userId: adminLocal.id, roleId: josanzSuperAdminRole.id },
   });
 
   const rawApiKey = 'vf_dev_josanz_key';

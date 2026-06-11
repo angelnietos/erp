@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
+import * as bcrypt from 'bcrypt';
 import { config as loadEnv } from 'dotenv';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -15,29 +16,25 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  console.log('--- Roles in DB ---');
-  const roles = await prisma.role.findMany({
+  console.log('\n--- Users ---');
+  const users = await prisma.user.findMany({
     include: {
-      tenant: true
-    }
-  });
-  for (const r of roles) {
-    console.log(`Role ID: ${r.id}, Tenant: ${r.tenant?.slug ?? 'null'}, Name: ${r.name}, Type: ${r.type}`);
-  }
-
-  console.log('\n--- UserRoles in DB ---');
-  const userRoles = await prisma.userRole.findMany({
-    include: {
-      user: {
+      tenant: true,
+      roles: {
         include: {
-          tenant: true
+          role: true,
         }
-      },
-      role: true
+      }
     }
   });
-  for (const ur of userRoles) {
-    console.log(`User: ${ur.user.email} (${ur.user.tenant?.slug ?? 'null'}), Role: ${ur.role.name} (tenantId: ${ur.role.tenantId})`);
+
+  for (const u of users) {
+    const isPasswordMatch = await bcrypt.compare('Admin123!', u.password);
+    console.log(`User: ${u.email}`);
+    console.log(`  Tenant: ${u.tenant?.slug} (${u.tenantId})`);
+    console.log(`  Password Match (Admin123!): ${isPasswordMatch}`);
+    console.log(`  Is Active: ${u.isActive}`);
+    console.log(`  Roles: ${u.roles.map(r => r.role.name).join(', ')}`);
   }
 }
 
