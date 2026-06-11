@@ -10,6 +10,10 @@ import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
 import { PlatformLoginDto } from '../dtos/platform-login.dto';
+import {
+  DEFAULT_TENANT_MODULE_IDS,
+  isPermissionAllowedForModules,
+} from '@josanz-erp/identity-api';
 
 const PLATFORM_JWT_ROLES = ['PlatformOwner'] as const;
 const PLATFORM_JWT_PERMISSIONS = ['platform.tenants.manage'] as const;
@@ -287,6 +291,18 @@ export class AuthService {
       select: { permissions: true },
     });
     const fromRoles = rolesData.flatMap((r) => r.permissions);
-    return Array.from(new Set([...fromRoles, ...extraPermissions]));
+
+    // Filter by tenant's enabled modules
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { enabledModuleIds: true },
+    });
+    const effectiveModules = tenant?.enabledModuleIds ?? DEFAULT_TENANT_MODULE_IDS;
+
+    const filteredPerms = [...new Set([...fromRoles, ...extraPermissions])].filter(
+      (p) => isPermissionAllowedForModules(p, effectiveModules),
+    );
+
+    return filteredPerms;
   }
 }

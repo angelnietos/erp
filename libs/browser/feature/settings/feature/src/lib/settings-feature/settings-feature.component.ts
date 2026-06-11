@@ -3723,6 +3723,12 @@ export class SettingsFeatureComponent {
     return p.includes('*') || p.includes('roles.manage');
   });
 
+  /** Sólo usuarios de plataforma pueden modificar módulos activos. */
+  readonly canManageModules = computed(() => {
+    const p = this._authStore.user()?.permissions ?? [];
+    return p.includes('platform.tenants.manage');
+  });
+
   readonly activeTab = signal<
     | 'general'
     | 'ai'
@@ -4104,14 +4110,10 @@ export class SettingsFeatureComponent {
       : 'NO PUEDES DESACTIVAR ESTE MÓDULO',
   );
 
-  /** Activar módulos: administradores con gestión de usuarios/roles. */
+  /** Activar módulos: solo administradores de plataforma. */
   readonly canActivateTenantModules = computed(() => {
     const p = this._authStore.user()?.permissions ?? [];
-    return (
-      p.includes('*') ||
-      p.includes('users.manage') ||
-      p.includes('roles.manage')
-    );
+    return p.includes('platform.tenants.manage');
   });
 
   /** Desactivar módulos: solo rol SuperAdmin (coincide con matriz de roles). */
