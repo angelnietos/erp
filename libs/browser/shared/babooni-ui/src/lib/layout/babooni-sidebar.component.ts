@@ -101,8 +101,8 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
 })
 export class BabooniSidebarComponent {
   private readonly identityAuth = inject(AuthStore);
-  private readonly globalAuth = inject(GlobalAuthStore);
   private readonly pluginStore = inject(PluginStore);
+  private readonly globalAuth = inject(GlobalAuthStore);
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
@@ -116,7 +116,7 @@ export class BabooniSidebarComponent {
       ) {
         return false;
       }
-      
+
       // 2. Filtrar por permisos del usuario
       if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
         return false;
