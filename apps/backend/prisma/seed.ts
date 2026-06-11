@@ -353,6 +353,24 @@ async function main() {
     create: {
       name: 'Babooni Technologies',
       slug: 'babooni',
+      enabledModuleIds: [
+        'dashboard',
+        'clients',
+        'projects',
+        'events',
+        'identity',
+        'availability',
+        'services',
+        'reports',
+        'audit',
+        'inventory',
+        'budgets',
+        'delivery',
+        'fleet',
+        'rentals',
+        'billing',
+        'verifactu',
+      ],
     },
   });
 

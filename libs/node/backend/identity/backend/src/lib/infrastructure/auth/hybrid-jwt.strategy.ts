@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
-import { isPermissionAllowedForModules } from '@josanz-erp/identity-api';
+import { DEFAULT_TENANT_MODULE_IDS, isPermissionAllowedForModules } from '@josanz-erp/identity-api';
 
 interface KeycloakToken {
   sub: string;
@@ -221,9 +221,10 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           where: { id: dbUser.tenantId ?? tenantId },
           select: { enabledModuleIds: true },
         });
+        const effectiveModules = enabledModules?.enabledModuleIds ?? [...DEFAULT_TENANT_MODULE_IDS];
         const permissions = Array.from(
           new Set(dbUser.roles.flatMap((ur) => ur.role.permissions)),
-        ).filter((p) => isPermissionAllowedForModules(p, enabledModules?.enabledModuleIds ?? []));
+        ).filter((p) => isPermissionAllowedForModules(p, effectiveModules));
         const roleNames = dbUser.roles.map((ur) => ur.role.name);
 
         return {
