@@ -71,28 +71,22 @@ export const appRoutes: Route[] = [
       {
         path: 'budgets',
         loadChildren: () =>
-          import('@josanz-erp/josanz-budgets-feature-list').then(
-            (m) => m.josanzBudgetsRoutes,
-          ),
+          import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
       },
       {
         path: 'delivery-notes',
         loadChildren: () =>
-          import('@josanz-erp/josanz-delivery-notes-feature-list').then(
-            (m) => m.josanzDeliveryNotesRoutes,
-          ),
+          import('@josanz-erp/delivery-shell').then((m) => m.deliveryShellRoutes),
       },
       {
         path: 'events',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then(
-            (m) => m.josanzEventsRoutes,
-          ),
+          import('@josanz-erp/events-shell').then((m) => m.eventsShellRoutes),
       },
       {
         path: 'equipment',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then(() => [
+          import('@josanz-erp/events-shell').then(() => [
             {
               path: '',
               loadComponent: () =>
@@ -112,7 +106,7 @@ export const appRoutes: Route[] = [
       {
         path: 'vehicles',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then(() => [
+          import('@josanz-erp/fleet-shell').then(() => [
             {
               path: '',
               loadComponent: () =>
@@ -132,7 +126,7 @@ export const appRoutes: Route[] = [
       {
         path: 'staff',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then(() => [
+          import('@josanz-erp/events-shell').then(() => [
             {
               path: '',
               loadComponent: () =>
@@ -152,7 +146,7 @@ export const appRoutes: Route[] = [
       {
         path: 'billing',
         loadChildren: () =>
-          import('@josanz-erp/josanz-events-feature-list').then(() => [
+          import('@josanz-erp/billing-shell').then(() => [
             {
               path: '',
               loadComponent: () =>
