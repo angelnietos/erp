@@ -41,6 +41,7 @@ export class PlatformTenantsController {
     @Param('tenantId') tenantId: string,
     @Body() body: UpdateTenantModulesDto,
   ) {
+    
     const { enabledModuleIds } = body;
     const normalized = normalizeTenantModuleIds(enabledModuleIds);
     await this.tenantModulesService.updateEnabledModuleIds(tenantId, {
