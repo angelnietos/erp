@@ -12,8 +12,11 @@ import { TenantModulesService } from '../../application/services/tenant-modules.
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
 import { AuthGuard } from '@nestjs/passport';
+import { IsArray, IsString } from 'class-validator';
 
 class UpdateTenantModulesDto {
+  @IsArray()
+  @IsString({ each: true })
   enabledModuleIds!: string[];
 }
 
