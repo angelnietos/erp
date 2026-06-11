@@ -222,7 +222,7 @@ export class AuthService {
     user: AuthenticatedUserView;
     tenantId: string;
   }> {
-    const user = await this.userRepository.findById(userId);
+    const user = await this.userRepository.findById(userId, tenantId);
     if (!user) {
       throw new UnauthorizedException('Usuario no encontrado');
     }

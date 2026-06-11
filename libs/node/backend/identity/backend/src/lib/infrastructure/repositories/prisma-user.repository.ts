@@ -45,14 +45,14 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return data ? this.mapToDomain(data) : null;
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: string, explicitTenantId?: string): Promise<User | null> {
+    const tenantId = explicitTenantId ?? this.requireTenantId();
     const data = await this.prisma.user.findUnique({
       where: { id },
       include: { roles: { include: { role: true } } },
     });
     if (!data) return null;
     // Verify the user belongs to the current tenant
-    const tenantId = this.requireTenantId();
     if (data.tenantId !== tenantId) return null;
     return this.mapToDomain(data);
   }
