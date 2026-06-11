@@ -109,11 +109,7 @@ export class BabooniSidebarComponent {
   readonly filteredNavItems = computed(() =>
     this.navItems.filter((item) => {
       // 1. Filtrar por plugins habilitados
-      if (
-        item.id !== 'dashboard' &&
-        item.id !== 'ai-insights' &&
-        !this.pluginStore.enabledPlugins().includes(item.id || '')
-      ) {
+      if (!this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
 

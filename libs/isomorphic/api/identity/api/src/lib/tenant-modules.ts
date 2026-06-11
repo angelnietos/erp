@@ -4,6 +4,7 @@
 /** Etiquetas para UI (p. ej. panel SaaS). */
 export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
   dashboard: 'Dashboard',
+  'ai-insights': 'AI Insights',
   clients: 'Clientes',
   projects: 'Proyectos',
   events: 'Eventos',
@@ -23,6 +24,7 @@ export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
 
 export const DEFAULT_TENANT_MODULE_IDS: readonly string[] = [
   'dashboard',
+  'ai-insights',
   'clients',
   'projects',
   'events',
@@ -48,7 +50,7 @@ export const DEFAULT_TENANT_MODULE_IDS: readonly string[] = [
 const PERMISSION_REQUIRES_MODULES: Record<string, readonly string[]> = {
   '*': [],
   'dashboard.view': ['dashboard'],
-  'ai.view': ['dashboard'],
+  'ai.view': ['ai-insights'],
   'users.view': ['identity'],
   'users.manage': ['identity'],
   'roles.manage': ['identity'],
@@ -119,9 +121,5 @@ export function normalizeTenantModuleIds(
   ids: readonly string[],
 ): string[] {
   const allowed = new Set(DEFAULT_TENANT_MODULE_IDS);
-  const next = [...new Set(ids.filter((id) => allowed.has(id)))];
-  if (!next.includes('dashboard')) {
-    next.unshift('dashboard');
-  }
-  return next;
+  return [...new Set(ids.filter((id) => allowed.has(id)))];
 }

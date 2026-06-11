@@ -364,6 +364,7 @@ async function main() {
       slug: 'babooni',
       enabledModuleIds: [
         'dashboard',
+        'ai-insights',
         'clients',
         'projects',
         'identity',
@@ -415,6 +416,7 @@ async function main() {
        slug: 'josanz',
        enabledModuleIds: [
          'dashboard',
+         'ai-insights',
          'clients',
          'projects',
          'events',

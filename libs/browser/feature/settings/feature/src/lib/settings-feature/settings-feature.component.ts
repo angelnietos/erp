@@ -4001,6 +4001,20 @@ export class SettingsFeatureComponent {
 
   readonly plugins: PluginDescriptor[] = [
     {
+      id: 'dashboard',
+      name: 'Dashboard',
+      description: 'Panel principal con KPIs y resumen operativo del tenant.',
+      icon: 'layout-dashboard',
+      category: 'core',
+    },
+    {
+      id: 'ai-insights',
+      name: 'AI Insights',
+      description: 'Módulo de inteligencia artificial con análisis predictivo.',
+      icon: 'cpu',
+      category: 'experimental',
+    },
+    {
       id: 'clients',
       name: 'Gestión de Clientes',
       description: 'Módulo CRM para seguimiento de clientes y leads.',
@@ -4232,7 +4246,6 @@ export class SettingsFeatureComponent {
 
   /** Activa un módulo inactivo (permisos de administración). */
   onRequestActivateModule(pluginId: string): void {
-    if (pluginId === 'dashboard') return;
     if (!this.canActivateTenantModules()) return;
     this.applyTenantPluginToggle(pluginId);
   }
@@ -4242,7 +4255,6 @@ export class SettingsFeatureComponent {
    * si no, mensaje informativo).
    */
   onRequestDeactivateModule(pluginId: string): void {
-    if (pluginId === 'dashboard') return;
     if (!this.isPluginEnabled(pluginId)) return;
     this.pendingPluginDisableId.set(pluginId);
     if (this.canDeactivateTenantModules()) {
@@ -4271,13 +4283,11 @@ export class SettingsFeatureComponent {
 
   /** Persiste módulos en el tenant (API) y sincroniza PluginStore. */
   private applyTenantPluginToggle(pluginId: string): void {
-    if (pluginId === 'dashboard') return;
     const current = this._pluginStore.enabledPlugins();
     const next = current.includes(pluginId)
       ? current.filter((i) => i !== pluginId)
       : [...current, pluginId];
-    const ensured = next.includes('dashboard') ? next : ['dashboard', ...next];
-    this._tenantModulesApi.updateEnabledModules(ensured).subscribe({
+    this._tenantModulesApi.updateEnabledModules(next).subscribe({
       next: (r) => {
         this.pluginsTabError.set(null);
         this._pluginStore.setPlugins(r.enabledModuleIds);

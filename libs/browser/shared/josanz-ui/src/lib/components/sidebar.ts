@@ -33,7 +33,7 @@ export class SidebarComponent {
     { path: '/dashboard', label: 'Inicio', icon: 'home' },
     { path: '/events', label: 'Eventos', icon: 'events', permission: 'events.view' },
     { path: '/clients', label: 'Clientes', icon: 'clients', permission: 'clients.view' },
-    { path: '/equipment', label: 'Material AV', icon: 'mic', permission: 'inventory.view' },
+    { path: '/equipment', label: 'Material AV', icon: 'mic', permission: 'products.view' },
     { path: '/vehicles', label: 'Vehículos', icon: 'truck', permission: 'fleet.view' },
     { path: '/staff', label: 'Staff', icon: 'staff', permission: 'users.view' },
     { path: '/billing', label: 'Facturación', icon: 'billing', permission: 'billing.view' },

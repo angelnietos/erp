@@ -7,6 +7,7 @@ export const ERP_MAIN_NAV_ITEMS: NavMenuItem[] = [
     label: 'Dashboard',
     icon: 'layout-dashboard',
     route: '/',
+    permission: 'dashboard.view',
   },
   { id: 'clients', label: 'Clientes', icon: 'users', route: '/clients', permission: 'clients.view' },
   {
@@ -39,7 +40,7 @@ export const ERP_MAIN_NAV_ITEMS: NavMenuItem[] = [
     label: 'Inventario',
     icon: 'package',
     route: '/inventory',
-    permission: 'inventory.view'
+    permission: 'products.view'
   },
   {
     id: 'budgets',
@@ -64,5 +65,6 @@ export const ERP_MAIN_NAV_ITEMS: NavMenuItem[] = [
     label: 'AI Insights',
     icon: 'cpu',
     route: '/ai-insights',
+    permission: 'ai.view',
   },
 ];

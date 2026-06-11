@@ -15,7 +15,7 @@ export interface PluginState {
 }
 
 const initialState: PluginState = {
-  enabledPlugins: ['dashboard', 'clients', 'projects', 'events', 'identity', 'availability', 'services', 'reports', 'audit', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
+  enabledPlugins: ['dashboard', 'ai-insights', 'clients', 'projects', 'events', 'identity', 'availability', 'services', 'reports', 'audit', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
   realtimeSync: true,
   highPerformanceMode: false,
 };
@@ -25,8 +25,6 @@ export const PluginStore = signalStore(
   withState(initialState),
   withMethods((store) => ({
     togglePlugin(pluginId: string) {
-      if (pluginId === 'dashboard') return;
-      
       const current = store.enabledPlugins();
       const next = current.includes(pluginId)
         ? current.filter(id => id !== pluginId)

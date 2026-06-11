@@ -344,10 +344,10 @@ export class SidebarComponent {
   filteredNavItems = computed(() => {
     return this.navItems.filter((item) => {
       // 1. Filtrar por plugins habilitados
-      if (item.id !== 'dashboard' && item.id !== 'ai-insights' && !this.pluginStore.enabledPlugins().includes(item.id || '')) {
+      if (!this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
-      
+
       // 2. Filtrar por permisos del usuario
       if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
         return false;
