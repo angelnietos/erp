@@ -3,6 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, switchMap, of } from 'rxjs';
 import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
+
+interface KeycloakTokenResponse {
+  access_token?: string;
+}
 import {
   clearStoredTenantId,
   getStoredTenantId,
@@ -45,11 +49,11 @@ const KEYCLOAK_TO_ERP_PERMISSION_MAP: Record<string, string[]> = {
 
 function mapKeycloakTokenToUserPayload(
   payload: Record<string, unknown>,
-  fallbackEmail: string = '',
-): { user: UserPayload; tenantId: string } {
-  const rawRoles = (payload['realm_access'] as any)?.roles ?? [];
-  const clientRoles = (payload['client_roles'] as any) ?? {};
-  const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r: unknown): r is string => typeof r === 'string');
+  fallbackEmail = '',
+): { user: UserPayload; tenantId: string; isPlatformAdmin: boolean } {
+  const rawRoles = payload['realm_access']?.roles ?? [];
+  const clientRoles = payload['client_roles'] ?? {};
+  const allKeycloakRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r): r is string => typeof r === 'string');
 
   const erpRoles: string[] = [];
   const permissions = new Set<string>();
@@ -74,7 +78,8 @@ function mapKeycloakTokenToUserPayload(
     permissions: Array.from(permissions),
   };
   const tenantId = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
-  return { user, tenantId };
+  const isPlatformAdmin = allKeycloakRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r));
+  return { user, tenantId, isPlatformAdmin };
 }
 
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
@@ -93,19 +98,20 @@ export class AuthService {
     password: string,
     tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
   ): Observable<AuthResponse> {
-    if (this.keycloakConfig?.enabled) {
-      const tokenUrl = `${this.keycloakConfig.url}/realms/${this.keycloakConfig.realm}/protocol/openid-connect/token`;
+    const keycloakConfig = this.keycloakConfig;
+    if (keycloakConfig?.enabled) {
+      const tokenUrl = `${keycloakConfig.url}/realms/${keycloakConfig.realm}/protocol/openid-connect/token`;
       const body = new URLSearchParams();
       body.set('grant_type', 'password');
-      body.set('client_id', this.keycloakConfig.clientId);
+      body.set('client_id', keycloakConfig.clientId);
       body.set('username', email);
       body.set('password', password);
       body.set('scope', 'openid email profile');
 
-      return this.http.post(tokenUrl, body.toString(), {
+      return this.http.post<KeycloakTokenResponse>(tokenUrl, body.toString(), {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       }).pipe(
-        switchMap((tokenResponse: any) => {
+        switchMap((tokenResponse) => {
           const access_token = tokenResponse?.access_token;
           if (!access_token) {
             throw new Error('No access token from Keycloak');
@@ -114,11 +120,33 @@ export class AuthService {
           if (!payload || typeof payload['sub'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
-          const { user: localUser, tenantId } = mapKeycloakTokenToUserPayload(payload, email);
+
+          const isPlatformRealm = keycloakConfig.realm === 'babooni-platform';
 
           // Store the Keycloak token NOW so the interceptor can send it as Bearer
-          // when we call /api/auth/session below.
+          // when we call the appropriate session endpoint below.
           this.setToken(access_token);
+
+          if (isPlatformRealm) {
+            // Platform admin login - use /api/platform/auth/session
+            return this.http.get<AuthResponse>(`/api/platform/auth/session`).pipe(
+              catchError(() =>
+                // If session fails, return basic user info
+                of({
+                  accessToken: access_token,
+                  user: {
+                    id: String(payload['sub']),
+                    email: typeof payload['email'] === 'string' ? payload['email'] : email,
+                    roles: ['platformAdmin'],
+                    permissions: ['platform.tenants.manage', 'platform.modules.configure'],
+                  },
+                  tenantId: undefined,
+                } as AuthResponse),
+              ),
+            );
+          }
+
+          const { user: localUser, tenantId } = mapKeycloakTokenToUserPayload(payload, email);
           if (tenantId) {
             this.setTenantId(tenantId);
           }
@@ -156,7 +184,25 @@ export class AuthService {
   }
 
   refreshSession(): Observable<AuthResponse> {
-    return this.http.get<AuthResponse>(`${this.apiUrl}/session`);
+    // Check if current user is a platform admin (no tenantId in token)
+    const token = this.getToken();
+    const isPlatformAdmin = token ? this.isPlatformAdminToken(token) : false;
+    const url = isPlatformAdmin ? '/api/platform/auth/session' : `${this.apiUrl}/session`;
+    return this.http.get<AuthResponse>(url);
+  }
+
+  private isPlatformAdminToken(token: string): boolean {
+    const payload = decodeJwtPayload(token);
+    if (!payload) return false;
+    const isKeycloak = payload['iss'] && String(payload['iss']).includes('/realms/');
+    if (isKeycloak) {
+      const rawRoles = payload['realm_access']?.roles ?? [];
+      const clientRoles = payload['client_roles'] ?? {};
+      const allRoles = [...rawRoles, ...Object.values(clientRoles).flat()].filter((r): r is string => typeof r === 'string');
+      return allRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r));
+    }
+    const roles = payload['roles'];
+    return Array.isArray(roles) && roles.includes('PlatformOwner');
   }
 
   setToken(token: string): void {
@@ -193,7 +239,7 @@ export class AuthService {
     }
 
     const isKeycloakToken = payload['iss'] && String(payload['iss']).includes('/realms/');
-    
+
     let user: UserPayload;
     let tenantId = '';
 
@@ -210,7 +256,7 @@ export class AuthService {
       const permissions = Array.isArray(rawPerms)
         ? rawPerms.filter((p): p is string => typeof p === 'string')
         : [];
-      
+
       const emailVal = typeof payload['email'] === 'string' ? payload['email'] : '';
       user = {
         id: payload['sub'],
@@ -218,7 +264,7 @@ export class AuthService {
         roles,
         permissions,
       };
-      
+
       const tidFromJwt = typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
       tenantId = tidFromJwt;
     }

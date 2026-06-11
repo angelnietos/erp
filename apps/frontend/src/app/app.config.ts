@@ -243,15 +243,21 @@ export const appConfig: ApplicationConfig = {
                 tenantId: response.tenantId || getStoredTenantId() || '',
                 permissions: u.permissions,
               });
-              await firstValueFrom(
-                tenantModulesApi.fetchEnabledModules().pipe(
-                  tap((r) => pluginStore.setPlugins(r.enabledModuleIds)),
-                  catchError(() => {
-                    pluginStore.loadFromStorage();
-                    return of(null);
-                  })
-                )
-              );
+              // Only fetch tenant modules if we have a tenant context
+              const currentTenantId = response.tenantId || getStoredTenantId() || undefined;
+              if (currentTenantId) {
+                await firstValueFrom(
+                  tenantModulesApi.fetchEnabledModules(currentTenantId).pipe(
+                    tap((r) => pluginStore.setPlugins(r.enabledModuleIds)),
+                    catchError(() => {
+                      pluginStore.loadFromStorage();
+                      return of(null);
+                    })
+                  )
+                );
+              } else {
+                pluginStore.loadFromStorage();
+              }
               tenantModulesRealtime.connect(
                 environment.apiOrigin?.replace(/\/$/, '') ?? '',
               );

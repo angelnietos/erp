@@ -27,6 +27,7 @@ import {
   PERMISSIONS_CATALOG,
   AuthStore,
   TenantModulesApiService,
+  getStoredTenantId,
 } from '@josanz-erp/identity-data-access';
 import { isPermissionAllowedForModules } from '@josanz-erp/identity-api';
 import { RoleType } from '@josanz-erp/identity-core';
@@ -3834,9 +3835,17 @@ export class SettingsFeatureComponent {
       if (this.activeTab() !== 'plugins') {
         return;
       }
+      // For platform admins (no tenant context), skip loading tenant-specific modules
+      const currentTenantId = getStoredTenantId() ?? '';
+      if (this.canManageModules() && !currentTenantId) {
+        this.pluginsTabError.set(
+          'Selecciona un tenant desde el panel SaaS para configurar módulos.',
+        );
+        return;
+      }
       this._pluginsTabModulesSub?.unsubscribe();
       this._pluginsTabModulesSub = this._tenantModulesApi
-        .fetchEnabledModules()
+        .fetchEnabledModules(currentTenantId || undefined)
         .subscribe({
           next: (r) => {
             this.pluginsTabError.set(null);
@@ -3882,7 +3891,7 @@ export class SettingsFeatureComponent {
   /** Reintento manual desde el banner de módulos (misma petición que al abrir la pestaña). */
   reloadTenantModulesFromApi(): void {
     this.pluginsTabError.set(null);
-    this._tenantModulesApi.fetchEnabledModules().subscribe({
+    this._tenantModulesApi.fetchEnabledModules(getStoredTenantId() || undefined).subscribe({
       next: (r) => {
         this.pluginsTabError.set(null);
         this._pluginStore.setPlugins(r.enabledModuleIds);

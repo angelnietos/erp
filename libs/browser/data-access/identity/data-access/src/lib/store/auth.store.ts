@@ -61,7 +61,7 @@ export const AuthStore = signalStore(
                   authService.setTenantId(response.tenantId);
                 }
                 patchState(store, { user: response.user, loading: false });
-                
+
                 const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
                 globalAuthStore.setUser({
                   id: response.user.id,
@@ -71,10 +71,13 @@ export const AuthStore = signalStore(
                   permissions: response.user.permissions,
                 });
 
-                tenantModulesApi.fetchEnabledModules().subscribe({
-                  next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
-                  error: () => pluginStore.loadFromStorage(),
-                });
+                // Only fetch tenant modules if we have a tenant context
+                if (response.tenantId || getStoredTenantId()) {
+                  tenantModulesApi.fetchEnabledModules().subscribe({
+                    next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
+                    error: () => pluginStore.loadFromStorage(),
+                  });
+                }
                 tenantModulesRealtime.afterAccessTokenChanged();
 
                 router.navigate(['/']);
@@ -147,10 +150,13 @@ export const AuthStore = signalStore(
               permissions: response.user.permissions,
             });
 
-            tenantModulesApi.fetchEnabledModules().subscribe({
-              next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
-              error: () => pluginStore.loadFromStorage(),
-            });
+            // Only fetch tenant modules if we have a tenant context
+            if (response.tenantId || getStoredTenantId()) {
+              tenantModulesApi.fetchEnabledModules().subscribe({
+                next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
+                error: () => pluginStore.loadFromStorage(),
+              });
+            }
             tenantModulesRealtime.afterAccessTokenChanged();
           })
         )

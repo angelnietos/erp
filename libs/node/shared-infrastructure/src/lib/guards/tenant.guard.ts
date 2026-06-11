@@ -90,23 +90,38 @@ export class TenantGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     // Check if user is platform admin (cross-tenant access) - check JWT without relying on JwtAuthGuard
-    if (this.hasPlatformAdminRoles(request)) {
+    const isPlatformAdminJwt = this.hasPlatformAdminRoles(request);
+    if (isPlatformAdminJwt) {
+      // Still extract tenantId from JWT for platform admins to access tenant-specific endpoints
+      const extractedId = this.extractTenantIdFromJwt(request);
+      if (extractedId) {
+        this.cls.set('tenantId', extractedId);
+        return true;
+      }
+      // Platform admins can provide tenantId via query/header - allow them to proceed
       return true;
     }
     
     // Check from CLS/user (if JwtAuthGuard already ran)
     const user = request.user as JwtRequestUser | undefined;
     if (user && isPlatformAdmin(user as JwtRequestUser)) {
+      // Still extract tenantId from user for platform admins
+      if (user.tenantId && isTenantUuid(user.tenantId)) {
+        this.cls.set('tenantId', user.tenantId.trim());
+        return true;
+      }
+      // Platform admins can provide tenantId via query/header - allow them to proceed
       return true;
     }
 
     // Primero intentar conseguir tenantId del CLS (establecido por middleware)
-    let tenantId = this.cls.get('tenantId');
+    let tenantId: string | undefined = this.cls.get('tenantId');
     
     // Si no hay en CLS, intentar obtener del JWT (para Keycloak tokens sin header)
     if (!tenantId) {
-      tenantId = this.extractTenantIdFromJwt(request);
-      if (tenantId) {
+      const extractedId = this.extractTenantIdFromJwt(request);
+      if (extractedId) {
+        tenantId = extractedId;
         this.cls.set('tenantId', tenantId);
       }
     }
