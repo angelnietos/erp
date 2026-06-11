@@ -5,6 +5,8 @@ import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
 import { SKIP_TENANT_GUARD_KEY } from '../decorators/skip-tenant.decorator';
 import { TenantContext } from '../middleware/tenant.middleware';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtRequestUser } from '../utils/request-tenant';
+import { isTenantUuid } from '../utils/tenant-uuid';
 
 @Injectable()
 export class TenantGuard implements CanActivate {
@@ -32,7 +34,20 @@ export class TenantGuard implements CanActivate {
       return true;
     }
 
-    const tenantId = this.cls.get('tenantId');
+    // Primero intentar conseguir tenantId del CLS (establecido por middleware)
+    let tenantId = this.cls.get('tenantId');
+    
+    // Si no hay en CLS, intentar obtener del JWT (para Keycloak tokens sin header)
+    if (!tenantId) {
+      const request = context.switchToHttp().getRequest();
+      const user = request.user as JwtRequestUser | undefined;
+      if (user?.tenantId && isTenantUuid(user.tenantId)) {
+        tenantId = user.tenantId.trim();
+        // Establecer en CLS para usos posteriores
+        this.cls.set('tenantId', tenantId);
+      }
+    }
+    
     if (!tenantId) {
       throw new UnauthorizedException(
         'Missing or invalid x-tenant-id: send the tenant UUID from login (not a slug or external code like TENANT-PRO-2026).',

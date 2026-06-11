@@ -63,7 +63,7 @@ export class IdentityModule {
         PlatformTenantsController,
         PlatformAuthController,
       ],
-      providers: [
+providers: [
         AuthService,
         UsersService,
         RolesService,

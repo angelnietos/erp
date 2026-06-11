@@ -41,6 +41,7 @@ export class AuthController {
         : Array.isArray(rawTenant)
           ? rawTenant[0]
           : undefined;
+    // El tenantId también puede venir del JWT (Keycloak) si no hay header
     const tenantId = headerTenant ?? user?.tenantId;
     if (!userId || !tenantId) {
       throw new UnauthorizedException('Invalid session context');

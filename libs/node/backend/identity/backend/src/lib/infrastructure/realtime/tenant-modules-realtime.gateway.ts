@@ -1,5 +1,7 @@
 import { Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import jwksRsa from 'jwks-rsa';
+import jwt from 'jsonwebtoken';
 import {
   ConnectedSocket,
   MessageBody,
@@ -15,10 +17,12 @@ import { TenantIdentityNotifierService } from '../../application/services/tenant
 interface JwtPayload {
   sub?: string;
   tenantId?: string;
+  iss?: string;
 }
 
 /**
  * Namespace `/realtime` — los clientes ERP se unen a la sala `tenant:<uuid>` tras autenticar.
+ * Soporta tokens de Keycloak (RS256) y tokens ERP estándar (HS256).
  * Eventos: `tenant.modules.updated` { tenantId, enabledModuleIds };
  * `tenant.identity.updated` { tenantId } (roles / usuarios / permisos).
  */
@@ -36,12 +40,15 @@ export class TenantModulesRealtimeGateway
   server!: Server;
 
   private readonly log = new Logger(TenantModulesRealtimeGateway.name);
+  private readonly jwtSecret: string;
 
   constructor(
-    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
     private readonly notifier: TenantModulesNotifierService,
     private readonly identityNotifier: TenantIdentityNotifierService,
-  ) {}
+  ) {
+    this.jwtSecret = this.configService.get<string>('JWT_SECRET') ?? 'default_secret';
+  }
 
   onModuleInit(): void {
     this.notifier.setBroadcaster((tenantId, enabledModuleIds) => {
@@ -66,24 +73,59 @@ export class TenantModulesRealtimeGateway
   }
 
   @SubscribeMessage('authenticate')
-  handleAuth(
+  async handleAuth(
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { token?: string },
-  ): { ok: boolean; error?: string } {
+  ): Promise<{ ok: boolean; error?: string }> {
     const raw = body?.token?.trim();
     if (!raw) {
       return { ok: false, error: 'missing_token' };
     }
+
     try {
-      const payload = this.jwtService.verify<JwtPayload>(raw);
-      const tenantId = payload.tenantId;
+      const decoded = jwt.decode(raw, { complete: true }) as any;
+      const iss = decoded?.payload?.iss ?? '';
+      const isKeycloak = typeof iss === 'string' && iss.includes('/realms/');
+
+      let payload: JwtPayload | null = null;
+
+      if (isKeycloak) {
+        payload = await this.verifyKeycloakToken(raw);
+      } else {
+        payload = jwt.verify(raw, this.jwtSecret) as JwtPayload;
+      }
+
+      const tenantId = payload?.tenantId;
       if (!tenantId || typeof tenantId !== 'string') {
         return { ok: false, error: 'invalid_token' };
       }
-      void client.join(`tenant:${tenantId}`);
+      await client.join(`tenant:${tenantId}`);
       return { ok: true };
     } catch {
       return { ok: false, error: 'invalid_token' };
     }
+  }
+
+  private async verifyKeycloakToken(token: string): Promise<JwtPayload | null> {
+    const decoded = jwt.decode(token, { complete: true }) as any;
+    if (!decoded?.header?.kid) {
+      return null;
+    }
+
+    const keycloakUrl =
+      this.configService.get<string>('KEYCLOAK_AUTH_SERVER_URL')?.replace(/\/$/, '') ||
+      'http://localhost:8081';
+    const keycloakRealm =
+      this.configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
+    const jwksUri = `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/certs`;
+
+    const client = jwksRsa({
+      jwksUri,
+      cache: true,
+      cacheMaxEntries: 5,
+    });
+
+    const key = await client.getSigningKey(decoded.header.kid);
+    return jwt.verify(token, key.getPublicKey()) as JwtPayload;
   }
 }

@@ -1,24 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import {
-  ClsTenantFromJwtInterceptor,
-  SharedInfrastructureModule,
-  TenantGuard,
-} from '@josanz-erp/shared-infrastructure';
+import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
-import { ClsModule } from 'nestjs-cls';
 import { InventoryModule } from '@josanz-erp/inventory-backend';
 import { RentalsModule } from '@josanz-erp/rentals-backend';
 import { DeliveryModule } from '@josanz-erp/delivery-backend';
 import { BillingModule } from '@josanz-erp/billing-backend';
 import { FleetModule } from '@josanz-erp/fleet-backend';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
 import { ProjectsBackendModule } from '@josanz-erp/projects-backend';
 import { ServicesBackendModule } from '@josanz-erp/services-backend';
+import { ReceiptsBackendModule } from '@josanz-erp/receipts-backend';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { Phase3Module } from './phase3/phase3.module';
 import { HealthModule } from './health/health.module';
@@ -28,10 +22,12 @@ import { TechniciansModule } from './technicians/technicians.module';
 import { TimeOffModule } from './time-off/time-off.module';
 import { AuditModule } from './audit/audit.module';
 import { DocumentGeneratorBackendModule } from '@josanz-erp/document-generator-backend';
+import { ClsModule } from 'nestjs-cls';
+import { TenantGuard } from '@josanz-erp/shared-infrastructure';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    // Load .env globally
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
     ClsModule.forRoot({
@@ -46,9 +42,7 @@ import { DocumentGeneratorBackendModule } from '@josanz-erp/document-generator-b
         },
       },
     }),
-    // Shared infra
     SharedInfrastructureModule,
-    // Business domains
     IdentityModule.forRoot(),
     ClientsModule.forRoot(),
     BudgetBackendModule.forRoot({ enableApprovalFlow: true }),
@@ -74,10 +68,6 @@ import { DocumentGeneratorBackendModule } from '@josanz-erp/document-generator-b
     {
       provide: APP_GUARD,
       useClass: TenantGuard,
-    },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: ClsTenantFromJwtInterceptor,
     },
   ],
 })
