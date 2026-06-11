@@ -25,8 +25,13 @@ export class TenantRealmSyncService {
 
   async syncTenantModules(tenantId: string, enabledModuleIds: string[]): Promise<void> {
     const roles = this.mapModulesToClientRoles(enabledModuleIds);
-    const tenantRealm = `tenant-${tenantId}`;
+    const tenantRealm = this.getTenantRealm(tenantId);
     await this.updateKeycloakClientRoles(tenantRealm, roles);
+  }
+
+  private getTenantRealm(tenantId: string): string {
+    const realmBase = this.configService.get<string>('KEYCLOAK_TENANT_REALM_BASE') || 'josanz-web-app-realm';
+    return realmBase;
   }
 
   mapModulesToClientRoles(moduleIds: string[]): string[] {
