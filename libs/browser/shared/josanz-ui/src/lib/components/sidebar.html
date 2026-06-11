@@ -24,7 +24,7 @@
   </button>
 
   <nav class="josanz-sidebar__nav" aria-label="Navegación principal">
-    @for (item of navItems; track item.path) {
+    @for (item of filteredNavItems(); track item.path) {
       <a
         [routerLink]="item.path"
         routerLinkActive="active-link"
