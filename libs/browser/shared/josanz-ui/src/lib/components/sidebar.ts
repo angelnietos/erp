@@ -11,7 +11,6 @@ interface JosanzSidebarItem {
   permission?: string;
 }
 
-
 @Component({
   selector: 'josanz-sidebar',
   standalone: true,
