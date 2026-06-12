@@ -352,14 +352,17 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
   return adminRole;
 }
 
+const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+
 async function main() {
   console.log('🌱 Seeding database...');
 
   // 1. BABOONI Tenant — 10 activated modules (events, availability, fleet, rentals, billing, verifactu deactivated)
-  const babooniTenant = await prisma.tenant.upsert({
-    where: { slug: 'babooni' },
+   const babooniTenant = await prisma.tenant.upsert({
+    where: { id: BABOONI_TENANT_ID },
     update: {},
     create: {
+      id: BABOONI_TENANT_ID,
       name: 'Babooni Technologies',
       slug: 'babooni',
       enabledModuleIds: [

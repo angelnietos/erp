@@ -1,0 +1,117 @@
+{
+  "realm": "babooni-tenant",
+  "enabled": true,
+  "displayName": "Babooni ERP Tenant",
+  "users": [
+    {
+      "username": "root",
+      "enabled": true,
+      "email": "root@babooni.com",
+      "firstName": "Babooni",
+      "lastName": "Root",
+      "credentials": [
+        { "type": "password", "value": "Admin123!" }
+      ],
+      "attributes": { "tenant_id": ["a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"] },
+      "clientRoles": {
+        "josanz-web-app-spa": ["admin", "user"]
+      }
+    },
+    {
+      "username": "florina",
+      "enabled": true,
+      "email": "florina.mahalean@babooni.com",
+      "firstName": "Florina",
+      "lastName": "Mahalean",
+      "credentials": [
+        { "type": "password", "value": "Admin123!" }
+      ],
+      "attributes": { "tenant_id": ["a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"] },
+      "clientRoles": { "josanz-web-app-spa": ["user"] }
+    },
+    {
+      "username": "alvaro",
+      "enabled": true,
+      "email": "alvaro.ballesteros@babooni.com",
+      "firstName": "Alvaro",
+      "lastName": "Ballesteros",
+      "credentials": [
+        { "type": "password", "value": "Admin123!" }
+      ],
+      "attributes": { "tenant_id": ["a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"] },
+      "clientRoles": { "josanz-web-app-spa": ["admin", "user"] }
+    },
+    {
+      "username": "alejandro",
+      "enabled": true,
+      "email": "alejandro.ballesteros@babooni.com",
+      "firstName": "Alejandro",
+      "lastName": "Ballesteros",
+      "credentials": [
+        { "type": "password", "value": "Admin123!" }
+      ],
+      "attributes": { "tenant_id": ["a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"] },
+      "clientRoles": { "josanz-web-app-spa": ["admin", "user"] }
+    },
+    {
+      "username": "angel",
+      "enabled": true,
+      "email": "angel.nieto@babooni.com",
+      "firstName": "Angel",
+      "lastName": "Nieto",
+      "credentials": [
+        { "type": "password", "value": "Admin123!" }
+      ],
+      "attributes": { "tenant_id": ["a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d"] },
+      "clientRoles": { "josanz-web-app-spa": ["user"] }
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "josanz-web-app-spa",
+      "name": "Josanz Web App SPA (Babooni)",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "webOrigins": ["http://localhost:4200"],
+      "redirectUris": ["http://localhost:4200/*"],
+      "defaultClientScopes": ["web-origins", "roles", "profile", "email", "openid"],
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "client_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "claim.name": "client_roles",
+            "client.id": "josanz-web-app-spa",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "clientScopes": {
+    "openid": { "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true" } },
+    "profile": { "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true" } },
+    "email": { "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true" } },
+    "roles": { "protocol": "openid-connect", "attributes": { "include.in.token.scope": "true" } }
+  },
+  "roles": { "realm": [] }
+}

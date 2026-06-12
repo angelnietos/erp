@@ -41,6 +41,44 @@
       "clientRoles": {
         "josanz-web-app-spa": ["user"]
       }
+    },
+    {
+      "username": "alex",
+      "enabled": true,
+      "email": "alex@josanz.com",
+      "firstName": "Alex",
+      "lastName": "Ilu",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin123!"
+        }
+      ],
+      "attributes": {
+        "tenant_id": ["c363035a-2a98-4054-9207-38c8aa5732d9"]
+      },
+      "clientRoles": {
+        "josanz-web-app-spa": ["admin", "user"]
+      }
+    },
+    {
+      "username": "dani",
+      "enabled": true,
+      "email": "dani@josanz.com",
+      "firstName": "Dani",
+      "lastName": "Sonido",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin123!"
+        }
+      ],
+      "attributes": {
+        "tenant_id": ["c363035a-2a98-4054-9207-38c8aa5732d9"]
+      },
+      "clientRoles": {
+        "josanz-web-app-spa": ["user"]
+      }
     }
   ],
   "clients": [

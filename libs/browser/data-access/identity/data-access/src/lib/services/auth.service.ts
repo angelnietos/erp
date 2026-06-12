@@ -37,14 +37,20 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 
 const KEYCLOAK_TENANT_CONFIG: Record<string, { realm: string; clientId: string }> = {
   josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
-  babooni: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
+  babooni: { realm: 'babooni-tenant', clientId: 'josanz-web-app-spa' },
 };
 
 const EMAIL_TO_USERNAME_MAP: Record<string, string> = {
   'admin@josanz.com': 'admin',
   'user@josanz-erp.local': 'user',
-  'platform@babooni.com': 'platform',
   'alex@josanz.com': 'alex',
+  'dani@josanz.com': 'dani',
+  'platform@babooni.com': 'platform',
+  'root@babooni.com': 'root',
+  'florina.mahalean@babooni.com': 'florina',
+  'alvaro.ballesteros@babooni.com': 'alvaro',
+  'alejandro.ballesteros@babooni.com': 'alejandro',
+  'angel.nieto@babooni.com': 'angel',
 };
 
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
