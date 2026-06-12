@@ -12,7 +12,7 @@ export const pluginGuard = (pluginId: string): CanActivateFn => {
       return true;
     }
 
-    void router.navigate(['/']);
+    void router.navigate(['/auth/login']);
     return false;
   };
 };
@@ -26,12 +26,11 @@ export const permissionGuard = (permission: string): CanActivateFn => {
       return true;
     }
 
-    void router.navigate(['/']);
+    void router.navigate(['/auth/login']);
     return false;
   };
 };
 
-/** Shell `/users`: módulos identity y/o availability activos en PluginStore. RBAC en pantallas hijas. */
 export const usersShellGuard: CanActivateFn = () => {
   const store = inject(PluginStore);
   const router = inject(Router);
@@ -43,6 +42,6 @@ export const usersShellGuard: CanActivateFn = () => {
     return true;
   }
 
-  void router.navigate(['/']);
+  void router.navigate(['/auth/login']);
   return false;
 };
