@@ -71,97 +71,37 @@ export const appRoutes: Route[] = [
       {
         path: 'budgets',
         loadChildren: () =>
-          import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
+          import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
       },
       {
         path: 'delivery-notes',
         loadChildren: () =>
-          import('@josanz-erp/delivery-shell').then((m) => m.deliveryShellRoutes),
+          import('@josanz-erp/josanz-delivery-notes-shell').then((m) => m.josanzDeliveryNotesRoutes),
       },
       {
         path: 'events',
         loadChildren: () =>
-          import('@josanz-erp/events-shell').then((m) => m.eventsShellRoutes),
+          import('@josanz-erp/josanz-events-shell').then((m) => m.josanzEventsRoutes),
       },
       {
         path: 'equipment',
         loadChildren: () =>
-          import('@josanz-erp/events-shell').then(() => [
-            {
-              path: '',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEquipmentListComponent,
-                ),
-            },
-            {
-              path: ':id',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzEquipmentDetailComponent,
-                ),
-            },
-          ]),
+          import('@josanz-erp/josanz-events-shell').then((m) => m.josanzEquipmentRoutes),
       },
       {
         path: 'vehicles',
         loadChildren: () =>
-          import('@josanz-erp/fleet-shell').then(() => [
-            {
-              path: '',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzVehiclesListComponent,
-                ),
-            },
-            {
-              path: ':id',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzVehiclesDetailComponent,
-                ),
-            },
-          ]),
+          import('@josanz-erp/josanz-events-shell').then((m) => m.josanzVehiclesRoutes),
       },
       {
         path: 'staff',
         loadChildren: () =>
-          import('@josanz-erp/events-shell').then(() => [
-            {
-              path: '',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzStaffListComponent,
-                ),
-            },
-            {
-              path: ':id',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzStaffDetailComponent,
-                ),
-            },
-          ]),
+          import('@josanz-erp/josanz-events-shell').then((m) => m.josanzStaffRoutes),
       },
       {
         path: 'billing',
         loadChildren: () =>
-          import('@josanz-erp/billing-shell').then(() => [
-            {
-              path: '',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzBillingListComponent,
-                ),
-            },
-            {
-              path: ':id',
-              loadComponent: () =>
-                import('@josanz-erp/josanz-events-feature-list').then(
-                  (m) => m.JosanzBillingDetailComponent,
-                ),
-            },
-          ]),
+          import('@josanz-erp/josanz-events-shell').then((m) => m.josanzBillingRoutes),
       },
     ],
   },
