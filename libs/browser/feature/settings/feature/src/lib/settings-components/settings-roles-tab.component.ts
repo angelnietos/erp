@@ -4,9 +4,7 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
   UiButtonComponent,
-  UiInputComponent,
   UiLoaderComponent,
-  UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { RolesService, AuthStore, type Role } from '@josanz-erp/identity-data-access';
 import { PERMISSIONS_CATALOG } from '@josanz-erp/identity-data-access';
@@ -17,7 +15,7 @@ import { RoleType } from '@josanz-erp/identity-core';
 @Component({
   selector: 'lib-settings-roles-tab',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiInputComponent, UiLoaderComponent, UiBadgeComponent],
+  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiLoaderComponent],
   template: `
     <section class="content-section roles-management animate-fade-in">
       <div class="roles-header-main">
