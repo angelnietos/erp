@@ -35,6 +35,18 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
+const KEYCLOAK_TENANT_CONFIG: Record<string, { realm: string; clientId: string }> = {
+  josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
+  babooni: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
+};
+
+const EMAIL_TO_USERNAME_MAP: Record<string, string> = {
+  'admin@josanz.com': 'admin',
+  'user@josanz-erp.local': 'user',
+  'platform@babooni.com': 'platform',
+  'alex@josanz.com': 'alex',
+};
+
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
   PlatformOwner: 'platformAdmin',
   PlatformAdmin: 'platformAdmin',
@@ -101,11 +113,12 @@ export class AuthService {
   ): Observable<AuthResponse> {
     const keycloakConfig = this.keycloakConfig;
     if (keycloakConfig?.enabled) {
-      const tokenUrl = `${keycloakConfig.url}/realms/${keycloakConfig.realm}/protocol/openid-connect/token`;
+      const tenantCfg = KEYCLOAK_TENANT_CONFIG[tenantSlug] ?? { realm: keycloakConfig.realm, clientId: keycloakConfig.clientId };
+      const tokenUrl = `${keycloakConfig.url}/realms/${tenantCfg.realm}/protocol/openid-connect/token`;
       const body = new URLSearchParams();
       body.set('grant_type', 'password');
-      body.set('client_id', keycloakConfig.clientId);
-      body.set('username', email);
+      body.set('client_id', tenantCfg.clientId);
+      body.set('username', EMAIL_TO_USERNAME_MAP[email] ?? email);
       body.set('password', password);
       body.set('scope', 'openid email profile');
 
@@ -122,7 +135,7 @@ export class AuthService {
             throw new Error('Invalid Keycloak token payload');
           }
 
-          const isPlatformRealm = keycloakConfig.realm === 'babooni-platform';
+          const isPlatformRealm = tenantCfg.realm === 'babooni-platform';
 
           // Store the Keycloak token NOW so the interceptor can send it as Bearer
           // when we call the appropriate session endpoint below.
