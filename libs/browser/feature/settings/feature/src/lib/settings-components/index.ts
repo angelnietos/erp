@@ -1,0 +1,12 @@
+export { SettingsSidebarComponent } from './settings-sidebar.component';
+export { SettingsProfileTabComponent } from './settings-profile-tab.component';
+export { SettingsPluginsTabComponent } from './settings-plugins-tab.component';
+export { SettingsAiTabComponent } from './settings-ai-tab.component';
+export { SettingsBuddyTabComponent } from './settings-buddy-tab.component';
+export { SettingsGeneralTabComponent } from './settings-general-tab.component';
+export { SettingsNotificationsTabComponent } from './settings-notifications-tab.component';
+export { SettingsSecurityTabComponent } from './settings-security-tab.component';
+export { SettingsRolesTabComponent } from './settings-roles-tab.component';
+export { SettingsLabsTabComponent } from './settings-labs-tab.component';
+export { SettingsAppearanceTabComponent } from './settings-appearance-tab.component';
+export type { SettingsTab } from './settings-sidebar.component';

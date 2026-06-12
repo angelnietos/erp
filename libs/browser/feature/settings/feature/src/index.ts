@@ -1,1 +1,13 @@
-export * from './lib/settings-feature/settings-feature.component';
+export { SettingsFeatureComponent } from './lib/settings-feature/settings-feature.component';
+export { SettingsSidebarComponent } from './lib/settings-components/settings-sidebar.component';
+export type { SettingsTab } from './lib/settings-components/settings-sidebar.component';
+export { SettingsProfileTabComponent } from './lib/settings-components/settings-profile-tab.component';
+export { SettingsPluginsTabComponent } from './lib/settings-components/settings-plugins-tab.component';
+export { SettingsAiTabComponent } from './lib/settings-components/settings-ai-tab.component';
+export { SettingsBuddyTabComponent } from './lib/settings-components/settings-buddy-tab.component';
+export { SettingsGeneralTabComponent } from './lib/settings-components/settings-general-tab.component';
+export { SettingsNotificationsTabComponent } from './lib/settings-components/settings-notifications-tab.component';
+export { SettingsSecurityTabComponent } from './lib/settings-components/settings-security-tab.component';
+export { SettingsRolesTabComponent } from './lib/settings-components/settings-roles-tab.component';
+export { SettingsLabsTabComponent } from './lib/settings-components/settings-labs-tab.component';
+export { SettingsAppearanceTabComponent } from './lib/settings-components/settings-appearance-tab.component';
