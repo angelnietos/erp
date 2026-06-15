@@ -250,5 +250,6 @@ export class SettingsPluginsTabComponent {
   }
 
   reloadTenantModulesFromApi(): void {
+    // TODO: Implement API reload for tenant modules
   }
 }

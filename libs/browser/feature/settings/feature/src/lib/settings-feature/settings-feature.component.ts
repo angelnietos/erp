@@ -263,9 +263,8 @@ export class SettingsFeatureComponent {
     this.closeDeactivatePluginModal();
   }
 
-  private applyTenantPluginToggle(pluginId: string): void {
-    const current = this._pluginStore.enabledPlugins();
-    // Persist modules in tenant (API) and sync PluginStore
+  private applyTenantPluginToggle(_pluginId: string): void {
+    // TODO: Implement tenant plugin toggle persistence
   }
 
   togglePremium() {

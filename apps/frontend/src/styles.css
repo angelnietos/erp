@@ -2274,7 +2274,7 @@ html {
   }
 }
 
-/* Enhanced Feature Page Layout */
+/* Enhanced Feature Page Layout - theme-aware overrides */
 .feature-page-shell {
   width: 100%;
   max-width: var(--feature-page-max-width);
@@ -2287,10 +2287,14 @@ html {
   flex-direction: column;
   gap: var(--feature-page-gap);
   background:
-    linear-gradient(135deg, var(--surface) 0%, rgba(255, 255, 255, 0.8) 100%);
+    linear-gradient(
+      135deg,
+      var(--surface) 0%,
+      color-mix(in srgb, var(--surface) 92%, var(--brand-ambient)) 100%
+    );
   border-radius: var(--radius-xl) 0 0 0;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
     0 0 40px var(--brand-ambient);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -2309,7 +2313,46 @@ html {
     radial-gradient(circle at 80% 20%, var(--accent-ambient, var(--brand-ambient)) 0%, transparent 50%);
   pointer-events: none;
   border-radius: inherit;
+  z-index: 0;
 }
+
+/* Ensure children are above the pseudo-element */
+.feature-page-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Inventory container: overrides for grid min-column width ─── */
+.inventory-container {
+  --grid-min-col-width: 340px;
+}
+
+@media (max-width: 1024px) {
+  .inventory-container {
+    --grid-min-col-width: 300px;
+  }
+}
+
+@media (max-width: 640px) {
+  .inventory-container {
+    --grid-min-col-width: 100%;
+  }
+}
+
+/* Babooni inventory container overrides */
+html[data-erp-tenant='babooni'] .inventory-container {
+  --grid-min-col-width: 300px;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+html[data-erp-tenant='babooni'] .inventory-container::before {
+  display: none;
+}
+
 
 .section-header {
   margin-bottom: 0.75rem;

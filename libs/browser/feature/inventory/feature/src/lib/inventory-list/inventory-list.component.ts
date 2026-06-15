@@ -277,46 +277,207 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
   `,
   styles: [
     `
+      :host {
+        display: block;
+        width: 100%;
+      }
+
       .flex-1 {
         flex: 1;
       }
 
+      /* ─── Product meta badge (SKU) dentro de las tarjetas ─── */
       .product-meta {
-        margin-top: 0.5rem;
-        font-family: var(--font-mono);
-        font-size: 0.7rem;
-        color: var(--text-muted);
-        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-top: 0.6rem;
+        padding: 4px 10px;
+        background: color-mix(in srgb, var(--brand) 6%, var(--surface-secondary) 94%);
+        border: 1px solid color-mix(in srgb, var(--brand) 14%, var(--border-soft) 86%);
+        border-radius: 6px;
+        display: inline-flex;
+        width: fit-content;
       }
 
+      .sku {
+        font-family: 'Share Tech Mono', ui-monospace, monospace;
+        font-size: 0.68rem;
+        font-weight: 600;
+        color: color-mix(in srgb, var(--brand) 80%, var(--text-muted) 20%);
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      /* ─── Pagination footer ─── */
       .pagination-footer {
-        margin-top: 3rem;
+        margin-top: 2.5rem;
+        padding-top: 1.5rem;
         display: flex;
         justify-content: center;
+        border-top: 1px solid var(--border-soft);
       }
 
-      /* BABOONI LUXE INVENTORY OVERRIDES */
+      /* ─── Error banner (carga parcial) ─── */
+      .feature-load-error-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1.25rem;
+        background: color-mix(in srgb, var(--warning) 8%, var(--surface) 92%);
+        border: 1px solid color-mix(in srgb, var(--warning) 25%, var(--border-soft) 75%);
+        border-radius: 12px;
+        font-size: 0.875rem;
+        color: var(--text-primary);
+      }
+
+      .feature-load-error-banner__icon {
+        color: var(--warning);
+        flex-shrink: 0;
+      }
+
+      .feature-load-error-banner__text {
+        flex: 1;
+      }
+
+      /* ─── Error screen (sin datos) ─── */
+      .feature-error-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 340px;
+        gap: 1.25rem;
+        text-align: center;
+        padding: 3rem;
+        background: color-mix(in srgb, var(--danger) 5%, var(--surface) 95%);
+        border: 1px dashed color-mix(in srgb, var(--danger) 30%, var(--border-soft) 70%);
+        border-radius: 20px;
+      }
+
+      .feature-error-screen__icon {
+        color: var(--danger-muted);
+        opacity: 0.7;
+      }
+
+      .feature-error-screen h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .feature-error-screen p {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+        margin: 0;
+        max-width: 36rem;
+      }
+
+      /* ─── Loader wrap ─── */
+      .feature-loader-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 340px;
+      }
+
+      /* ─── Empty states ─── */
+      .feature-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+        gap: 1rem;
+        text-align: center;
+        padding: 3rem 2rem;
+        border: 1px dashed var(--border-soft);
+        border-radius: 16px;
+        background: color-mix(in srgb, var(--brand) 3%, var(--surface) 97%);
+        transition: background 0.3s ease;
+      }
+
+      .feature-empty--wide {
+        grid-column: 1 / -1;
+      }
+
+      .feature-empty__icon {
+        color: var(--text-muted);
+        opacity: 0.45;
+      }
+
+      .feature-empty h3 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+      }
+
+      .feature-empty p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0;
+        max-width: 32rem;
+        line-height: 1.6;
+      }
+
+      /* ─── BABOONI LUXE INVENTORY OVERRIDES ─── */
       :host-context(html[data-erp-tenant='babooni']) .product-meta {
         background: color-mix(in srgb, var(--surface) 85%, transparent);
-        padding: 4px 10px;
-        border-radius: 6px;
-        border: 1px solid rgba(0,0,0,0.03);
-        display: inline-block;
+        border-color: rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
         margin-top: 0.75rem;
+        padding: 5px 12px;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .sku {
         color: var(--brand);
-        font-weight: 850;
+        font-weight: 700;
         font-size: 0.65rem;
         letter-spacing: 0.08em;
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .selection-header {
-        background: color-mix(in srgb, var(--surface) 40%, transparent);
-        border-radius: 12px;
-        padding: 0.75rem 1.25rem;
-        margin-bottom: 1rem;
+      :host-context(html[data-erp-tenant='babooni']) .feature-empty {
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(8px);
+        border-color: color-mix(in srgb, var(--border-soft) 40%, transparent);
+        border-radius: 20px;
+        padding: 4rem 2rem;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .feature-empty h3 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .feature-empty p {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .pagination-footer {
+        border-top-color: color-mix(in srgb, var(--border-soft) 40%, transparent);
+      }
+
+      /* ─── Responsive ─── */
+      @media (max-width: 640px) {
+        .feature-empty {
+          min-height: 240px;
+          padding: 2rem 1rem;
+        }
+
+        .pagination-footer {
+          margin-top: 1.5rem;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .product-meta,
+        .feature-empty {
+          transition: none;
+        }
       }
      `,
   ],
