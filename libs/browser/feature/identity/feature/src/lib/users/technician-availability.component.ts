@@ -1320,7 +1320,7 @@ interface PersonalGridCell {
       border-right: 2px solid rgba(255,255,255,0.08); background: inherit; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden;
     }
     
-    /* When board-tech is collapsed in team view */
+/* When board-tech is collapsed in team view */
     .board-tech-collapsed .board-tech-info,
     .board-tech-collapsed .sticky-col {
       width: 0 !important;
@@ -1332,8 +1332,8 @@ interface PersonalGridCell {
       opacity: 0;
       pointer-events: none;
     }
-    }
-    .mini-avatar { 
+
+    .mini-avatar {
       width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center;
       color: #fff; font-weight: 900; font-size: 0.75rem; flex-shrink: 0;
     }
