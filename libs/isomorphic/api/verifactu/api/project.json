@@ -15,8 +15,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/verifactu/api/jest.config.cts",
-        "tsConfig": "libs/verifactu/api/tsconfig.spec.json"
+        "jestConfig": "libs\\isomorphic\\api\\verifactu\\api/jest.config.cts",
+        "tsConfig": "libs\\isomorphic\\api\\verifactu\\api/tsconfig.spec.json"
       }
     },
     "lint": {

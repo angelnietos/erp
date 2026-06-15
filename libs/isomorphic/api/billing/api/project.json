@@ -1,7 +1,7 @@
 {
   "name": "billing-api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/billing/api/src",
+  "sourceRoot": "libs\\isomorphic\\api\\billing\\api/src",
   "projectType": "library",
   "tags": [
     "scope:billing",
@@ -15,8 +15,8 @@
       ],
       "options": {
         "outputPath": "dist/libs/billing/api",
-        "main": "libs/billing/api/src/index.ts",
-        "tsConfig": "libs/billing/api/tsconfig.lib.json",
+        "main": "libs\\isomorphic\\api\\billing\\api/src/index.ts",
+        "tsConfig": "libs\\isomorphic\\api\\billing\\api/tsconfig.lib.json",
         "assets": [
           "libs/billing/api/*.md"
         ]
@@ -28,7 +28,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/billing/api/jest.config.cts"
+        "jestConfig": "libs\\isomorphic\\api\\billing\\api/jest.config.cts"
       }
     }
   }

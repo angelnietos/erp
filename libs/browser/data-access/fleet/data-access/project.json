@@ -1,7 +1,7 @@
 {
   "name": "fleet-data-access",
   "$schema": "../../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/fleet/data-access/src",
+  "sourceRoot": "libs\\browser\\data-access\\fleet\\data-access/src",
   "prefix": "lib",
   "projectType": "library",
   "tags": [
@@ -16,7 +16,7 @@
       ],
       "options": {
         "jestConfig": "libs/fleet/data-access/jest.config.cts",
-        "tsConfig": "libs/fleet/data-access/tsconfig.spec.json"
+        "tsConfig": "libs\\browser\\data-access\\fleet\\data-access/tsconfig.spec.json"
       }
     },
     "lint": {
@@ -24,9 +24,3 @@
     }
   }
 }
-
-
-
-
-
-

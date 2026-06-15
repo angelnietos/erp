@@ -1,7 +1,7 @@
 {
   "name": "shared-cqrs",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/cqrs/src",
+  "sourceRoot": "libs\\browser\\shared\\cqrs/src",
   "projectType": "library",
   "tags": [
     "scope:shared",
@@ -15,8 +15,8 @@
       ],
       "options": {
         "outputPath": "dist/libs/shared/cqrs",
-        "main": "libs/shared/cqrs/src/index.ts",
-        "tsConfig": "libs/shared/cqrs/tsconfig.lib.json",
+        "main": "libs\\browser\\shared\\cqrs/src/index.ts",
+        "tsConfig": "libs\\browser\\shared\\cqrs/tsconfig.lib.json",
         "assets": [
           "libs/shared/cqrs/*.md"
         ]
@@ -28,7 +28,7 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/shared/cqrs/jest.config.cts"
+        "jestConfig": "libs\\browser\\shared\\cqrs/jest.config.cts"
       }
     },
     "lint": {
@@ -36,7 +36,3 @@
     }
   }
 }
-
-
-
-
