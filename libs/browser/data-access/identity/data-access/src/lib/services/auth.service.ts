@@ -509,4 +509,11 @@ export class AuthService {
       newPassword,
     });
   }
+
+  updateMyProfile(data: {
+    firstName?: string;
+    lastName?: string;
+  }): Observable<{ user: UserPayload }> {
+    return this.http.patch<{ user: UserPayload }>(`${this.apiUrl}/profile`, data);
+  }
 }

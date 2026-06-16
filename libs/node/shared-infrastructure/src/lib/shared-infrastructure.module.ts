@@ -7,6 +7,8 @@ import { PiiCryptoService } from './privacy/pii-crypto.service';
 import { PermissionsGuard } from './guards/permissions.guard';
 import { EMAIL_PORT } from './email/email.port';
 import { ConsoleEmailAdapter } from './email/console-email.adapter';
+import { SmtpEmailAdapter } from './email/smtp-email.adapter';
+import { provideEmailPort } from './email/provide-email-port';
 
 @Global()
 @Module({
@@ -18,7 +20,8 @@ import { ConsoleEmailAdapter } from './email/console-email.adapter';
     PiiCryptoService,
     PermissionsGuard,
     ConsoleEmailAdapter,
-    { provide: EMAIL_PORT, useExisting: ConsoleEmailAdapter },
+    SmtpEmailAdapter,
+    provideEmailPort(),
   ],
   exports: [
     PrismaModule,

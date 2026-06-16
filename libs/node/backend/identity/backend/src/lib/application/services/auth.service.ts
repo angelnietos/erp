@@ -300,6 +300,56 @@ export class AuthService {
     };
   }
 
+  async updateMyProfile(
+    userId: string,
+    tenantId: string,
+    dto: { firstName?: string; lastName?: string },
+  ): Promise<{ user: AuthenticatedUserView }> {
+    const user = await this.userRepository.findById(userId, tenantId);
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    user.updateProfile(dto.firstName, dto.lastName, undefined);
+    await this.userRepository.save(user);
+
+    const displayName = [user.firstName, user.lastName]
+      .filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+      .join(' ')
+      .trim();
+    void this.auditLogWriter
+      .record(user.id.value, {
+        action: 'PROFILE_UPDATE',
+        targetEntity: 'Auth:profile',
+        changesJson: {
+          entityType: 'USER',
+          entityName: displayName || user.email,
+          details: 'Perfil actualizado desde configuración',
+        },
+      })
+      .catch(() => undefined);
+
+    const permissions = await this.mergeEffectivePermissions(
+      tenantId,
+      user.roles,
+      user.extraPermissions ?? [],
+      user.deniedPermissions ?? [],
+    );
+
+    return {
+      user: {
+        id: user.id.value,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roles,
+        permissions,
+        extraPermissions: user.extraPermissions,
+        deniedPermissions: user.deniedPermissions,
+      },
+    };
+  }
+
   /**
    * Tras login Keycloak: el `sub` del token no coincide con el UUID en Postgres.
    * Resuelve (o auto-provisiona) el usuario por email + tenant, como HybridJwtStrategy.

@@ -37,6 +37,9 @@ import {
   Landmark,
   LeafyGreen,
   MemoryStick,
+  ChevronDown,
+  ChevronUp,
+  Code2,
 } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
@@ -117,10 +120,17 @@ export class LoginComponent implements OnInit {
     Landmark,
     LeafyGreen,
     MemoryStick,
+    ChevronDown,
+    ChevronUp,
+    Code2,
   };
 
   readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
-  
+
+  /** Babooni: selector de fondo colapsado por defecto para no recortar el modal. */
+  readonly showThemePicker = signal(false);
+  readonly showAllThemes = signal(false);
+  readonly isBabooniTenant = computed(() => this.tenantSlug() === 'babooni');
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
 
@@ -195,6 +205,17 @@ export class LoginComponent implements OnInit {
     }
     return [...this.josanzThemeList, ...this.babooniOnlyThemes];
   });
+
+  readonly visibleBackgroundThemes = computed<BackgroundThemeOption[]>(() => {
+    if (this.isBabooniTenant() && !this.showAllThemes()) {
+      return this.babooniOnlyThemes;
+    }
+    return this.backgroundThemes();
+  });
+
+  toggleThemePicker(): void {
+    this.showThemePicker.update((v) => !v);
+  }
 
   setBackgroundTheme(theme: BackgroundTheme) {
     this.backgroundTheme.set(theme);

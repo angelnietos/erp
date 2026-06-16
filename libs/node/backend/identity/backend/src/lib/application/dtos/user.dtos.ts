@@ -62,6 +62,10 @@ export class CreateUserDto implements ICreateUserDto {
   @MinLength(1)
   @MaxLength(50)
   category?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  sendInviteEmail?: boolean;
 }
 
 /**

@@ -106,32 +106,29 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     '🎚️',
   ];
 
-  /** Pool para tema Babooni */
+  /** Pool visual Babooni (software + estética arcade, sin fauna/jungla). */
   private readonly babooniSymbolPool = [
-    '🐒',
-    '🦍',
-    '🌴',
-    '🌿',
-    '🐾',
-    '🌺',
-    '🍌',
-    '🏞️',
-    '🐅',
-    '🦁',
-    '🦒',
-    '🌳',
-    '🍃',
-    '🌸',
-    '🐘',
-    '🦏',
-    '🪵',
-    '🥥',
-    '🦜',
-    '🐢',
-    '🦎',
-    '🪲',
-    '🪻',
-    '🌞',
+    '💻',
+    '⚡',
+    '🚀',
+    '☁️',
+    '🔧',
+    '🛠️',
+    '📦',
+    '🔒',
+    '📊',
+    '✨',
+    '🟢',
+    '🔗',
+    '📡',
+    '⚙️',
+    '🧩',
+    '🎯',
+    '💾',
+    '🔑',
+    '📈',
+    '🧪',
+    '🎮',
     '⭐',
     '🌙',
     '☀️',
@@ -149,60 +146,68 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   ];
 
   private readonly babooniPhrases = [
-    '¡BABOONI!',
-    'BABOON!',
-    'JUNGLA',
-    '¡CÓRTALO!',
-    'A JUGAR',
-    'MANDRIL',
-    'BOSQUE',
-    'FOLLAJE',
-    'BANANAS',
-    '¡AÚPA!',
+    'Build verde',
+    'Sprint OK',
+    'API estable',
+    'Zero downtime',
+    'Deploy limpio',
+    'QA aprobado',
+    'Ticket #42',
+    'Logs sin drama',
+    'SaaS mode ON',
+    'Ctrl+S siempre',
   ];
 
   private readonly babooniGamePhrases = [
-    'WORLD 1-1',
-    '1UP',
-    'BONUS',
-    'CHECK',
-    'LIANA',
-    'COINS',
-    'BOUNCE',
-    'GOT IT!',
+    'Nivel prod',
+    'Bonus release',
+    'Checkpoint CI',
+    'Power-up API',
+    'Sync OK',
+    'Level up',
+    'Game saved',
+    'High score',
+    'Respawn… no',
+    'Extra slot',
   ];
 
   private readonly babooniRuinPhrases = [
-    'Templo',
-    'Mítico',
-    'Cofre',
-    '¡Cuidado!',
-    'Antigüedad',
-    'Sigilo',
-    'Húmedo',
-    'Ecos',
+    'Legacy mode',
+    'Deuda técnica',
+    'Monolito viejo',
+    'Excel olvidado',
+    'Backup sagrado',
+    'Migration pending',
+    'Rollback listo',
+    'Datos arqueo',
+    'Hotfix incoming',
+    'Refactor soon',
   ];
 
   private readonly babooniMistPhrases = [
-    'Bruma',
-    'Hondo',
-    'Misterio',
-    'Niebla',
-    'Sigilo',
-    'Tranquilo',
-    'Caverna',
-    'Eco…',
+    'Staging bruma',
+    'Prod en niebla',
+    'Timeout lejano',
+    'Cache miss',
+    'Silent deploy',
+    'Latency alta',
+    'Trace perdido',
+    'Log difuso',
+    'Incident open',
+    'On-call…',
   ];
 
   private readonly babooniArcadePhrases = [
-    'CREDIT 00',
-    'HI-SCORE',
-    'READY?',
-    'INSERT JUNGLE',
-    '1 COIN = 1 BAN',
-    'PIXEL',
-    'GREEN PLS',
-    'GGA',
+    'INSERT TOKEN',
+    'HI-SCORE API',
+    'PLAYER 1',
+    'GREEN STACK',
+    'RUN DEV',
+    'GG WP',
+    'PRESS START',
+    'ARCADE MODE',
+    'Babooni OS',
+    '1 CREDIT',
   ];
 
   /** Símbolos + frases por variante de fondo (login) — ThemeConfigInternal exige `symbols` y `phrases`. */
@@ -632,7 +637,10 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
   /** Frases de las burbujas del mini crew según el fondo elegido. */
   private getThemePhrases(): readonly string[] {
     const p = this.getThemeConfig().phrases;
-    return p.length > 0 ? p : this.crewPhrases;
+    if (p.length > 0) {
+      return p;
+    }
+    return this.isBabooniLogin() ? this.babooniPhrases : this.crewPhrases;
   }
 
   /** Capas: fondo mueve poco, primer plano más (efecto profundidad). */
@@ -2522,18 +2530,53 @@ export class AnimatedBackgroundComponent implements AfterViewInit, OnDestroy, On
     const sn = this.shiftNear(w, h);
     const bounce1 = Math.sin(this.time * 5.2) * 7;
     const cx1 = w * 0.14 + sn.x * 1.14;
-    const cy1 = h * 0.73 + bounce1 + sn.y * 1.06;
+    const cy1 = h * (this.isBabooniLogin() ? 0.68 : 0.73) + bounce1 + sn.y * 1.06;
     const i1 = Math.floor(this.time / 2.6) % n;
-    this.drawSpeechBubble(cx1 + 48, cy1 - 88, phrases[i1] ?? '', 'rgba(255, 248, 252, 0.94)');
+    this.drawSpeechBubble(cx1 + 48, cy1 - 96, phrases[i1] ?? '', 'rgba(255, 248, 252, 0.94)');
 
     const bounce2 = Math.sin(this.time * 4.5 + 1.2) * 5.5;
     const cx2 = w * 0.84 + sn.x * 1.14;
-    const cy2 = h * 0.72 + bounce2 + sn.y * 1.06;
+    const cy2 = h * (this.isBabooniLogin() ? 0.67 : 0.72) + bounce2 + sn.y * 1.06;
     const i2 = Math.floor(this.time / 3.1 + 2) % n;
-    this.drawSpeechBubble(cx2 - 52, cy2 - 82, phrases[i2] ?? '', 'rgba(236, 253, 250, 0.92)');
+    this.drawSpeechBubble(cx2 - 52, cy2 - 90, phrases[i2] ?? '', 'rgba(236, 253, 250, 0.92)');
   }
 
   private drawForegroundGlow(w: number, h: number) {
+    if (this.isBabooniLogin()) {
+      const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.55, h * 0.75);
+      bottomGlow.addColorStop(0, 'hsla(140, 55%, 28%, 0.22)');
+      bottomGlow.addColorStop(0.45, 'hsla(160, 40%, 18%, 0.1)');
+      bottomGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = bottomGlow;
+      this.ctx.fillRect(0, 0, w, h);
+
+      const leftGlow = this.ctx.createRadialGradient(0, h * 0.5, 0, 0, h * 0.5, h * 0.7);
+      leftGlow.addColorStop(0, 'hsla(120, 50%, 32%, 0.14)');
+      leftGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = leftGlow;
+      this.ctx.fillRect(0, 0, w * 0.4, h);
+
+      const rightGlow = this.ctx.createRadialGradient(w, h * 0.38, 0, w, h * 0.38, h * 0.6);
+      rightGlow.addColorStop(0, 'hsla(85, 45%, 35%, 0.12)');
+      rightGlow.addColorStop(1, 'transparent');
+      this.ctx.fillStyle = rightGlow;
+      this.ctx.fillRect(w * 0.6, 0, w * 0.4, h);
+
+      const vignette = this.ctx.createRadialGradient(
+        w * 0.5,
+        h * 0.4,
+        Math.min(w, h) * 0.3,
+        w * 0.5,
+        h * 0.5,
+        Math.max(w, h) * 0.8,
+      );
+      vignette.addColorStop(0, 'transparent');
+      vignette.addColorStop(0.65, 'rgba(0,0,0,0.06)');
+      vignette.addColorStop(1, 'rgba(0,0,0,0.18)');
+      this.ctx.fillStyle = vignette;
+      this.ctx.fillRect(0, 0, w, h);
+      return;
+    }
     // Bottom warm glow
     const bottomGlow = this.ctx.createRadialGradient(w * 0.5, h, 0, w * 0.5, h * 0.55, h * 0.75);
     bottomGlow.addColorStop(0, 'hsla(280, 45%, 34%, 0.18)');

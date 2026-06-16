@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Post,
+  Patch,
   HttpCode,
   HttpStatus,
   Get,
@@ -18,6 +19,7 @@ import {
   ForgotPasswordDto,
   ResetPasswordDto,
 } from '../../application/dtos/password-reset.dto';
+import { UpdateMyProfileDto } from '../../application/dtos/update-my-profile.dto';
 import { PublicTenant, JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
 
 type SessionRequest = Request & {
@@ -111,5 +113,23 @@ export class AuthController {
       dto.currentPassword,
       dto.newPassword,
     );
+  }
+
+  @UseGuards(JwtAuthGuard, TenantGuard)
+  @Patch('profile')
+  updateProfile(@Req() req: SessionRequest, @Body() dto: UpdateMyProfileDto) {
+    const userId = req.user?.id ?? req.user?.sub;
+    const rawTenant = req.headers['x-tenant-id'];
+    const headerTenant =
+      typeof rawTenant === 'string'
+        ? rawTenant
+        : Array.isArray(rawTenant)
+          ? rawTenant[0]
+          : undefined;
+    const tenantId = headerTenant ?? req.user?.tenantId;
+    if (!userId || !tenantId) {
+      throw new UnauthorizedException('Invalid session context');
+    }
+    return this.authService.updateMyProfile(userId, tenantId, dto);
   }
 }

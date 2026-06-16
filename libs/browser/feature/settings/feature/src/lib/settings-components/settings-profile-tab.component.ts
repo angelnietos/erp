@@ -1,9 +1,11 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
   UIMascotComponent,
+  UiButtonComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { AuthStore, AuthService } from '@josanz-erp/identity-data-access';
 import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
@@ -11,7 +13,7 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
 @Component({
   selector: 'lib-settings-profile-tab',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UIMascotComponent],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, UiCardComponent, UIMascotComponent, UiButtonComponent],
   template: `
     <section class="content-section profile-hub">
       <div class="section-breadcrumb">
@@ -53,10 +55,14 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
             </button>
           </div>
 
-          <div class="identity-form">
+          <div class="identity-form" [formGroup]="profileForm">
             <div class="luxe-input-group">
-              <label class="luxe-label" for="profile-name">Identificador Nominal</label>
-              <input id="profile-name" type="text" [value]="userName()" class="luxe-underlined-input" readonly aria-label="Identificador Nominal">
+              <label class="luxe-label" for="profile-first">Nombre</label>
+              <input id="profile-first" type="text" formControlName="firstName" class="luxe-underlined-input editable" aria-label="Nombre">
+            </div>
+            <div class="luxe-input-group">
+              <label class="luxe-label" for="profile-last">Apellidos</label>
+              <input id="profile-last" type="text" formControlName="lastName" class="luxe-underlined-input editable" aria-label="Apellidos">
             </div>
             <div class="luxe-input-group">
               <label class="luxe-label" for="profile-email">Canal de Comunicación</label>
@@ -84,6 +90,19 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
                 }
               </div>
             }
+            <div class="profile-actions">
+              @if (saveMessage()) {
+                <span class="save-msg" [class.save-msg--error]="saveError()">{{ saveMessage() }}</span>
+              }
+              <ui-button
+                type="button"
+                [disabled]="profileForm.invalid || profileForm.pristine || saving()"
+                [loading]="saving()"
+                (click)="saveProfile()"
+              >
+                Guardar perfil
+              </ui-button>
+            </div>
           </div>
         </div>
 
@@ -315,6 +334,29 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
         transition: all 0.4s ease;
       }
 
+      .luxe-underlined-input.editable:focus {
+        outline: none;
+        border-bottom-color: var(--brand);
+      }
+
+      .profile-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: -0.5rem;
+      }
+
+      .save-msg {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #059669;
+      }
+
+      .save-msg--error {
+        color: #dc2626;
+      }
+
       .identity-sidebar-cards {
         display: flex;
         flex-direction: column;
@@ -473,6 +515,60 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
 export class SettingsProfileTabComponent {
   protected readonly _authStore = inject(AuthStore);
   private readonly _authService = inject(AuthService);
+  private readonly _fb = inject(FormBuilder);
+
+  readonly profileForm = this._fb.nonNullable.group({
+    firstName: ['', [Validators.required, Validators.maxLength(80)]],
+    lastName: ['', [Validators.maxLength(80)]],
+  });
+
+  readonly saving = signal(false);
+  readonly saveMessage = signal<string | null>(null);
+  readonly saveError = signal(false);
+
+  constructor() {
+    effect(() => {
+      const u = this._authStore.user();
+      if (!u) {
+        return;
+      }
+      this.profileForm.patchValue(
+        {
+          firstName: u.firstName ?? '',
+          lastName: u.lastName ?? '',
+        },
+        { emitEvent: false },
+      );
+    });
+  }
+
+  saveProfile(): void {
+    if (this.profileForm.invalid || this.profileForm.pristine) {
+      return;
+    }
+    this.saving.set(true);
+    this.saveMessage.set(null);
+    this.saveError.set(false);
+    const { firstName, lastName } = this.profileForm.getRawValue();
+    this._authService
+      .updateMyProfile({
+        firstName: firstName.trim(),
+        lastName: lastName.trim() || undefined,
+      })
+      .subscribe({
+        next: () => {
+          this._authStore.refreshSession();
+          this.saving.set(false);
+          this.profileForm.markAsPristine();
+          this.saveMessage.set('Perfil actualizado');
+        },
+        error: () => {
+          this.saving.set(false);
+          this.saveError.set(true);
+          this.saveMessage.set('No se pudo guardar el perfil');
+        },
+      });
+  }
 
   readonly userName = computed(() => {
     const u = this._authStore.user();

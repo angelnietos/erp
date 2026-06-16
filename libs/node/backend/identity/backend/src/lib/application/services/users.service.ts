@@ -30,6 +30,7 @@ import {
   UpdateUserDto,
 } from '../dtos/user.dtos';
 import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
+import { PasswordResetService } from './password-reset.service';
 
 @Injectable()
 export class UsersService {
@@ -39,6 +40,7 @@ export class UsersService {
     private readonly prisma: PrismaService,
     private readonly cls: ClsService<TenantContext>,
     private readonly identityNotifier: TenantIdentityNotifierService,
+    private readonly passwordReset: PasswordResetService,
   ) {}
 
   private requireTenantId(): string {
@@ -222,7 +224,19 @@ export class UsersService {
     await this.userRepository.save(user);
     this.identityNotifier.notifyIdentityUpdated(tenantId);
 
-    return this.findById(user.id.value);
+    const created = await this.findById(user.id.value);
+
+    if (dto.sendInviteEmail !== false) {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: { slug: true },
+      });
+      void this.passwordReset
+        .sendAccountInvite(user.id.value, tenant?.slug ?? 'josanz')
+        .catch(() => undefined);
+    }
+
+    return created;
   }
 
   async update(id: string, dto: UpdateUserDto): Promise<UserApi> {

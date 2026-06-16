@@ -273,6 +273,29 @@ export const AuthStore = signalStore(
           })
         )
       ),
+
+      updateProfile: rxMethod<{ firstName?: string; lastName?: string }>(
+        pipe(
+          switchMap((data) =>
+            authService.updateMyProfile(data).pipe(
+              tap(({ user }) => {
+                patchState(store, { user });
+                const displayName =
+                  [user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
+                  user.email;
+                globalAuthStore.setUser({
+                  id: user.id,
+                  email: user.email,
+                  name: displayName,
+                  tenantId: getStoredTenantId() || '',
+                  permissions: user.permissions,
+                });
+              }),
+              catchError(() => of(null)),
+            ),
+          ),
+        ),
+      ),
     };
   }),
 );

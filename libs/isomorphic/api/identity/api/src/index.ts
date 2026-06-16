@@ -76,6 +76,8 @@ export interface CreateUserDto {
   extraPermissions?: string[];
   deniedPermissions?: string[];
   category?: string;
+  /** Si true (default), envía email de invitación para establecer contraseña. */
+  sendInviteEmail?: boolean;
 }
 
 export interface UpdateUserDto {

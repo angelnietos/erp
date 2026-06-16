@@ -1,4 +1,8 @@
-<div class="auth-wrapper" [class.auth-wrapper--figma]="useFigmaShellLogin()">
+<div
+  class="auth-wrapper"
+  [class.auth-wrapper--figma]="useFigmaShellLogin()"
+  [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin()"
+>
   @if (useFigmaShellLogin()) {
     <div class="auth-figma-hero" aria-hidden="true"></div>
   } @else {
@@ -19,13 +23,14 @@
     class="auth-card"
     [class.glass]="!useFigmaShellLogin()"
     [class.auth-card--figma]="useFigmaShellLogin()"
+    [class.auth-card--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin()"
   >
     <div class="auth-header">
       <div
         class="logo-circle animate-in stagger-1"
         [class.logo-circle--babooni]="tenantSlug() === 'babooni'">
         @if (tenantSlug() === 'babooni') {
-          <lucide-icon [name]="icons.Banana" class="logo-icon"></lucide-icon>
+          <lucide-icon [name]="icons.Code2" class="logo-icon"></lucide-icon>
         } @else {
           <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
         }
@@ -55,25 +60,42 @@
     </div>
 
     @if (!useFigmaShellLogin()) {
-    <!-- Theme Selector -->
-    <div class="theme-selector-container animate-in stagger-3">
-      <div class="theme-label">
+    <div class="theme-picker-shell animate-in stagger-3">
+      <button
+        type="button"
+        class="theme-picker-toggle"
+        (click)="toggleThemePicker()"
+        [attr.aria-expanded]="showThemePicker()"
+      >
         <lucide-icon [name]="icons.Palette" size="14"></lucide-icon>
-        <span>Estilo de Fondo</span>
-      </div>
-      <div class="theme-options">
-        @for (t of backgroundThemes(); track t.id) {
-          <button 
-            type="button"
-            class="theme-opt"
-            [class.active]="backgroundTheme() === t.id"
-            (click)="setBackgroundTheme(t.id)"
-            [title]="t.name">
-            <div class="theme-color-dot" [style.background]="t.color"></div>
-            <lucide-icon [name]="t.icon" size="14"></lucide-icon>
-          </button>
-        }
-      </div>
+        <span>{{ showThemePicker() ? 'Ocultar fondo' : 'Personalizar fondo' }}</span>
+        <lucide-icon [name]="showThemePicker() ? icons.ChevronUp : icons.ChevronDown" size="14"></lucide-icon>
+      </button>
+      @if (showThemePicker()) {
+        <div class="theme-selector-container">
+          <div class="theme-label">
+            <span>Estilo de fondo</span>
+            @if (isBabooniTenant() && !showAllThemes()) {
+              <button type="button" class="theme-more-link" (click)="showAllThemes.set(true)">
+                Ver todos
+              </button>
+            }
+          </div>
+          <div class="theme-options" [class.theme-options--compact]="isBabooniTenant()">
+            @for (t of visibleBackgroundThemes(); track t.id) {
+              <button
+                type="button"
+                class="theme-opt"
+                [class.active]="backgroundTheme() === t.id"
+                (click)="setBackgroundTheme(t.id)"
+                [title]="t.name">
+                <div class="theme-color-dot" [style.background]="t.color"></div>
+                <lucide-icon [name]="t.icon" size="14"></lucide-icon>
+              </button>
+            }
+          </div>
+        </div>
+      }
     </div>
     }
 
@@ -131,7 +153,7 @@
     </div>
   </div>
   
-  @if (!useFigmaShellLogin()) {
+  @if (!useFigmaShellLogin() && tenantSlug() !== 'babooni') {
   <!-- Buddy Assistant accessible from Login! -->
   <ui-ai-assistant feature="dashboard"></ui-ai-assistant>
   }

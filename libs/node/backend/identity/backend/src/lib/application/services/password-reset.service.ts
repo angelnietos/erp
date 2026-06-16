@@ -114,6 +114,71 @@ export class PasswordResetService {
     return isDev ? { ok: true, devResetUrl: resetUrl } : { ok: true };
   }
 
+  /** Invitación al crear usuario: enlace para establecer contraseña inicial. */
+  async sendAccountInvite(
+    userId: string,
+    tenantSlug: string,
+  ): Promise<{ devInviteUrl?: string }> {
+    const slug = tenantSlug.trim().toLowerCase();
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { slug },
+      select: { id: true, isActive: true, name: true },
+    });
+    if (!tenant?.isActive) {
+      return {};
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, tenantId: tenant.id, isActive: true },
+      select: { id: true, email: true, password: true, firstName: true },
+    });
+    if (!user || isKeycloakManagedPassword(user.password)) {
+      return {};
+    }
+
+    await this.prisma.passwordResetToken.updateMany({
+      where: { userId: user.id, usedAt: null },
+      data: { usedAt: new Date() },
+    });
+
+    const rawToken = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + RESET_TTL_MS);
+
+    await this.prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        tenantId: tenant.id,
+        tokenHash: hashToken(rawToken),
+        expiresAt,
+      },
+    });
+
+    const inviteUrl = `${this.frontendBaseUrl()}/auth/reset-password?token=${encodeURIComponent(rawToken)}&tenant=${encodeURIComponent(slug)}`;
+    const orgName = tenant.name?.trim() || 'Babooni ERP';
+    const html = `
+      <p>Hola${user.firstName ? ` ${user.firstName}` : ''},</p>
+      <p>Te han invitado a <strong>${orgName}</strong> en Babooni ERP.</p>
+      <p><a href="${inviteUrl}">Activar cuenta y elegir contraseña</a></p>
+      <p>El enlace caduca en 1 hora. Si no esperabas este correo, puedes ignorarlo.</p>
+    `;
+
+    try {
+      await this.email?.send({
+        to: user.email,
+        subject: `Invitación a ${orgName} — Babooni ERP`,
+        html,
+        referenceType: 'USER_INVITE',
+        referenceId: user.id,
+      });
+    } catch (err) {
+      this.logger.warn(`Invite email failed for ${user.email}: ${String(err)}`);
+    }
+
+    this.logger.log(`Account invite sent for ${user.email} (tenant=${slug})`);
+    const isDev = this.config.get<string>('NODE_ENV') !== 'production';
+    return isDev ? { devInviteUrl: inviteUrl } : {};
+  }
+
   async resetWithToken(token: string, newPassword: string): Promise<{ ok: true }> {
     this.assertPasswordStrength(newPassword);
     const tokenHash = hashToken(token.trim());

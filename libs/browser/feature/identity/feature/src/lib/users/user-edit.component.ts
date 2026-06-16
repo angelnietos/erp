@@ -116,6 +116,15 @@ import { HttpErrorResponse } from '@angular/common/http';
               [attr.autocomplete]="'new-password'"
             />
             <p class="pw-hint">Mínimo 6 caracteres. El usuario podrá iniciar sesión con este correo.</p>
+            <div class="toggle-row">
+              <label class="chk">
+                <input type="checkbox" [(ngModel)]="draft.sendInviteEmail" name="sendInviteEmail" />
+                <span>Enviar invitación por email</span>
+              </label>
+              <p class="pw-hint invite-hint">
+                Se enviará un enlace para activar la cuenta y elegir contraseña.
+              </p>
+            </div>
           }
           @if (!createMode()) {
             <div class="toggle-row">
@@ -326,6 +335,9 @@ import { HttpErrorResponse } from '@angular/common/http';
         font-size: 0.8rem;
         color: var(--text-muted);
       }
+      .invite-hint {
+        margin: 0.35rem 0 0 1.65rem;
+      }
       .toggle-row {
         padding: 0.5rem 0;
       }
@@ -527,6 +539,7 @@ export class UserEditComponent implements OnInit {
     isActive?: boolean;
     password?: string;
     passwordConfirm?: string;
+    sendInviteEmail?: boolean;
     roleNames: string[];
     extraPermissions: string[];
     deniedPermissions: string[];
@@ -608,6 +621,7 @@ export class UserEditComponent implements OnInit {
             email: '',
             password: '',
             passwordConfirm: '',
+            sendInviteEmail: true,
             isActive: true,
             roleNames: [],
             extraPermissions: [],
@@ -822,6 +836,7 @@ export class UserEditComponent implements OnInit {
         this.draft.extraPermissions.length > 0 ? this.draft.extraPermissions : undefined,
       deniedPermissions:
         this.draft.deniedPermissions.length > 0 ? this.draft.deniedPermissions : undefined,
+      sendInviteEmail: this.draft.sendInviteEmail !== false,
     };
     this.usersService.create(body).subscribe({
       next: (u) => {
