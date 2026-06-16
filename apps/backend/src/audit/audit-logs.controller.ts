@@ -4,6 +4,8 @@ import { Prisma } from '@prisma/client';
 import { Request } from 'express';
 import {
   JwtAuthGuard,
+  PermissionsGuard,
+  RequirePermissions,
   PrismaService,
   requireRequestTenantId,
 } from '@josanz-erp/shared-infrastructure';
@@ -64,7 +66,8 @@ function mapRow(
 
 @ApiTags('audit-logs')
 @Controller('audit-logs')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermissions('audit.view', '*')
 export class AuditLogsController {
   constructor(private readonly prisma: PrismaService) {}
 

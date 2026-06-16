@@ -13,6 +13,9 @@ export * from './lib/date/date-formatter';
 // String utilities
 export * from './lib/string/string-utils';
 
+// Privacy / PII (RGPD, enmascaramiento)
+export * from './lib/privacy/pii-redaction';
+
 // Validation utilities
 export * from './lib/validation/validators';
 

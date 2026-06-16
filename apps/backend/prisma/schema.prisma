@@ -448,12 +448,16 @@ model Vehicle {
 model AuditLog {
   id            String   @id @default(uuid()) @db.Uuid
   userId        String   @map("user_id") @db.Uuid
+  tenantId      String?  @map("tenant_id") @db.Uuid
   action        String
   targetEntity  String   @map("target_entity")
   correlationId String   @map("correlation_id")
   changesJson   Json     @map("changes_json")
+  ipAddress     String?  @map("ip_address") @db.VarChar(45)
+  userAgent     String?  @map("user_agent") @db.VarChar(512)
   createdAt     DateTime @default(now()) @map("created_at")
 
+  @@index([tenantId, createdAt(sort: Desc)])
   @@map("audit_logs")
 }
 

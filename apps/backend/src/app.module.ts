@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
-import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
+import { SharedInfrastructureModule, AuditInterceptor, PiiRedactionInterceptor } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
@@ -21,10 +21,11 @@ import { AiInsightsModule } from './ai-insights/ai-insights.module';
 import { TechniciansModule } from './technicians/technicians.module';
 import { TimeOffModule } from './time-off/time-off.module';
 import { AuditModule } from './audit/audit.module';
+import { PrivacyModule } from './privacy/privacy.module';
 import { DocumentGeneratorBackendModule } from '@josanz-erp/document-generator-backend';
 import { ClsModule } from 'nestjs-cls';
 import { TenantGuard } from '@josanz-erp/shared-infrastructure';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -62,12 +63,21 @@ import { APP_GUARD } from '@nestjs/core';
     TechniciansModule,
     TimeOffModule,
     AuditModule,
+    PrivacyModule,
     DocumentGeneratorBackendModule,
   ],
   providers: [
     {
       provide: APP_GUARD,
       useClass: TenantGuard,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PiiRedactionInterceptor,
     },
   ],
 })

@@ -8,8 +8,10 @@ import {
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Request } from 'express';
+import { Prisma } from '@prisma/client';
 import { AuditLogWriterService } from '../audit/audit-log-writer.service';
 import { JwtRequestUser, getRequestTenantId } from '../utils/request-tenant';
+import { redactPiiDeep } from '@josanz-erp/shared-utils';
 
 /**
  * Interceptor global para auditar automáticamente mutaciones (POST, PUT, PATCH, DELETE).
@@ -40,17 +42,23 @@ export class AuditInterceptor implements NestInterceptor {
     if (
       url.includes('/audit-logs') ||
       url.includes('/health') ||
-      url.includes('/docs')
+      url.includes('/docs') ||
+      url.includes('/privacy')
     ) {
       return next.handle();
     }
 
     const tenantId = getRequestTenantId(request);
+    const ipAddress =
+      (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      request.ip ||
+      request.socket?.remoteAddress;
+    const userAgent = request.headers['user-agent'];
 
     return next.handle().pipe(
       tap({
         next: (response) => {
-          this.logAction(user, method, url, body, response, tenantId);
+          this.logAction(user, method, url, body, response, tenantId, ipAddress, userAgent);
         },
         error: (err) => {
           // Opcional: auditar intentos fallidos con flag de error
@@ -66,22 +74,35 @@ export class AuditInterceptor implements NestInterceptor {
     user: JwtRequestUser,
     method: string,
     url: string,
-    body: any,
-    response: any,
+    body: unknown,
+    response: unknown,
     tenantId?: string,
+    ipAddress?: string,
+    userAgent?: string,
   ) {
     try {
       const action = this.mapMethodToAction(method);
       const entity = this.inferEntityFromUrl(url);
+      const safeBody =
+        body && typeof body === 'object' ? redactPiiDeep(body) : body;
+      const safeResponse =
+        response && typeof response === 'object'
+          ? redactPiiDeep(response)
+          : response;
 
-      // Intentamos extraer un nombre legible si es una creación/actualización
+      const bodyRec = safeBody as Record<string, unknown> | undefined;
+      const responseRec = safeResponse as Record<string, unknown> | undefined;
+
       const entityName =
-        body?.name ||
-        body?.title ||
-        response?.name ||
-        response?.title ||
+        (bodyRec?.['name'] as string | undefined) ||
+        (bodyRec?.['title'] as string | undefined) ||
+        (responseRec?.['name'] as string | undefined) ||
+        (responseRec?.['title'] as string | undefined) ||
         undefined;
-      const targetId = response?.id || url.split('/').pop() || 'unknown';
+      const targetId =
+        (responseRec?.['id'] as string | undefined) ||
+        url.split('/').pop() ||
+        'unknown';
 
       // Skip audit if userId is "unknown" (platform users without platformUser record)
       const userId = user.sub;
@@ -92,16 +113,20 @@ export class AuditInterceptor implements NestInterceptor {
       await this.auditLogWriter.record(userId, {
         action,
         targetEntity: `${entity}:${targetId}`,
+        tenantId,
+        ipAddress,
+        userAgent,
         changesJson: {
-          tenantId, // Guardamos el tenantId explícitamente para búsquedas y Platform Users
+          tenantId,
           entityType: entity.toUpperCase(),
           entityName,
           details: `Acción automática via API: ${method} ${url}`,
+          requestBody: safeBody as Prisma.InputJsonValue,
           metadata: {
             path: url,
             method,
           },
-        },
+        } as Prisma.InputJsonValue,
       });
     } catch (err) {
       this.logger.error('Failed to auto-audit action', err);

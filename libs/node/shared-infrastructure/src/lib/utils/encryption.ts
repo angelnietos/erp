@@ -2,11 +2,16 @@ import * as crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
-const ENCRYPTION_KEY = process.env['WEBHOOK_ENCRYPTION_KEY'] || '0'.repeat(32); 
+const ENCRYPTION_KEY =
+  process.env['PII_ENCRYPTION_KEY'] ||
+  process.env['WEBHOOK_ENCRYPTION_KEY'] ||
+  '0'.repeat(32); 
 
 export function encrypt(text: string): string {
   if (ENCRYPTION_KEY === '0'.repeat(32) && process.env['NODE_ENV'] === 'production') {
-    throw new Error('WEBHOOK_ENCRYPTION_KEY must be set in production');
+    throw new Error(
+      'PII_ENCRYPTION_KEY or WEBHOOK_ENCRYPTION_KEY must be set in production',
+    );
   }
   
   const iv = crypto.randomBytes(IV_LENGTH);

@@ -24,6 +24,9 @@ export type {
 
 export { UiLoaderComponent } from './lib/loader/loader.component';
 
+export { PiiMaskPipe } from './lib/pipes/pii-mask.pipe';
+export type { PiiMaskType } from './lib/pipes/pii-mask.pipe';
+
 export { UiTableComponent } from './lib/table/table.component';
 
 export { UiSearchComponent } from './lib/search/search.component';
