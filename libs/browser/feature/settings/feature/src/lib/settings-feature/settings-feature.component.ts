@@ -296,8 +296,7 @@ import {
         gap: 1rem !important;
       }
 
-      :host ::ng-deep .avatar-projection-area,
-      :host ::ng-deep .stage-card {
+      :host ::ng-deep .avatar-projection-area {
         width: 180px !important;
         height: 180px !important;
         background: color-mix(in srgb, #020617 88%, transparent) !important;
@@ -309,6 +308,26 @@ import {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
+      }
+
+      :host ::ng-deep .stage-card {
+        width: 220px !important;
+        height: 220px !important;
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        isolation: isolate !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      :host ::ng-deep .stage-mascot {
+        width: 150px !important;
+        height: 150px !important;
+        flex-shrink: 0 !important;
+        transform: none !important;
+        animation: none !important;
+        opacity: 1 !important;
       }
 
       :host ::ng-deep .identity-mascot {
