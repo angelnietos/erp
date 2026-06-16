@@ -159,6 +159,7 @@ import {
                 [avatarBackground]="getStatusGradient(user.isActive)"
                 [status]="user.isActive ? 'active' : 'offline'"
                 [badgeLabel]="user.roles[0] || 'SIN ROL'"
+                [showEdit]="canManageUsers()"
                 (detailClicked)="onRowClick(user)"
                 (editClicked)="onEdit(user)"
                 (deleteClicked)="onDelete(user)"

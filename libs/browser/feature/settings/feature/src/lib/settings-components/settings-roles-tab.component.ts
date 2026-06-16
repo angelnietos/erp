@@ -1,21 +1,23 @@
 import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   UiCardComponent,
   UiButtonComponent,
   UiLoaderComponent,
+  UiModalComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { RolesService, AuthStore, type Role } from '@josanz-erp/identity-data-access';
 import { PERMISSIONS_CATALOG } from '@josanz-erp/identity-data-access';
 import { isPermissionAllowedForModules } from '@josanz-erp/identity-api';
-import { PluginStore } from '@josanz-erp/shared-data-access';
+import { PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { RoleType } from '@josanz-erp/identity-core';
 
 @Component({
   selector: 'lib-settings-roles-tab',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiLoaderComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, UiCardComponent, UiButtonComponent, UiLoaderComponent, UiModalComponent],
   template: `
     <section class="content-section roles-management animate-fade-in">
       <div class="roles-header-main">
@@ -23,7 +25,7 @@ import { RoleType } from '@josanz-erp/identity-core';
           <h2>Gestión de Roles y Permisos</h2>
           <p>Define quién puede hacer qué en cada módulo del sistema</p>
         </div>
-        <ui-button variant="filled" size="sm" (clicked)="createNewRole()">
+        <ui-button variant="filled" size="sm" (clicked)="openCreateRoleModal()">
           <lucide-icon name="plus" size="16" aria-hidden="true"></lucide-icon> Nuevo Rol
         </ui-button>
       </div>
@@ -79,7 +81,7 @@ import { RoleType } from '@josanz-erp/identity-core';
                   <span class="role-name-text">{{ role.name }}</span>
                   <div class="role-actions-btns">
                     @if (!isSelectedRoleSuperAdmin()) {
-                      <ui-button variant="outline" size="sm" (clicked)="deleteRole(role.id)">
+                      <ui-button variant="outline" size="sm" (clicked)="openDeleteRoleModal(role.id)">
                         <lucide-icon name="trash-2" size="14" aria-hidden="true"></lucide-icon> Eliminar Rol
                       </ui-button>
                     }
@@ -141,6 +143,49 @@ import { RoleType } from '@josanz-erp/identity-core';
         </div>
       </div>
     </section>
+
+    <ui-modal
+      [isOpen]="createRoleModalOpen()"
+      title="Nuevo rol"
+      shape="glass"
+      (closed)="closeCreateRoleModal()"
+    >
+      <p class="role-modal-lead">Define un nombre único para el rol. Podrás asignar permisos después.</p>
+      <label class="role-modal-field">
+        <span>Nombre del rol</span>
+        <input
+          type="text"
+          class="role-modal-input"
+          placeholder="Ej. Responsable comercial"
+          [(ngModel)]="newRoleNameDraft"
+          (keydown.enter)="confirmCreateRole()"
+        />
+      </label>
+      <div modal-footer>
+        <ui-button variant="outline" (clicked)="closeCreateRoleModal()">Cancelar</ui-button>
+        <ui-button variant="filled" [disabled]="!newRoleNameDraft.trim() || creatingRole()" (clicked)="confirmCreateRole()">
+          Crear rol
+        </ui-button>
+      </div>
+    </ui-modal>
+
+    <ui-modal
+      [isOpen]="deleteRoleModalOpen()"
+      title="Eliminar rol"
+      color="danger"
+      shape="glass"
+      (closed)="closeDeleteRoleModal()"
+    >
+      <p class="role-modal-lead">
+        ¿Eliminar el rol <strong>{{ pendingDeleteRoleName() }}</strong>? Los usuarios que lo tengan asignado perderán esos permisos de rol.
+      </p>
+      <div modal-footer>
+        <ui-button variant="outline" (clicked)="closeDeleteRoleModal()">Cancelar</ui-button>
+        <ui-button variant="filled" [disabled]="deletingRole()" (clicked)="confirmDeleteRole()">
+          Eliminar
+        </ui-button>
+      </div>
+    </ui-modal>
   `,
   styles: [
     `
@@ -249,6 +294,35 @@ import { RoleType } from '@josanz-erp/identity-core';
       .permission-toggle-box.active .toggle-pill { left: 27px; background: var(--text-on-brand, #fff); box-shadow: 0 0 15px rgba(255, 255, 255, 0.8); }
 
       .no-role-selected { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); text-align: center; }
+
+      .role-modal-lead {
+        margin: 0 0 1rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+      }
+
+      .role-modal-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+
+      .role-modal-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-soft, rgba(148, 163, 184, 0.25));
+        background: var(--surface, rgba(15, 23, 42, 0.4));
+        color: inherit;
+        font-size: 1rem;
+        font-weight: 600;
+      }
     `,
   ],
 })
@@ -256,11 +330,18 @@ export class SettingsRolesTabComponent implements OnInit {
   private readonly _pluginStore = inject(PluginStore);
   private readonly _rolesService = inject(RolesService);
   private readonly _authStore = inject(AuthStore);
+  private readonly _toast = inject(ToastService);
 
   readonly roles = signal<Role[]>([]);
   readonly selectedRoleId = signal<string | null>(null);
   readonly isLoadingRoles = signal(false);
   readonly rolesLoadError = signal<string | null>(null);
+  readonly createRoleModalOpen = signal(false);
+  readonly deleteRoleModalOpen = signal(false);
+  newRoleNameDraft = '';
+  readonly pendingDeleteRoleId = signal<string | null>(null);
+  readonly creatingRole = signal(false);
+  readonly deletingRole = signal(false);
 
   readonly selectedRole = computed(() => this.roles().find(r => r.id === this.selectedRoleId()) || null);
   readonly currentUserRoleNames = computed(() => this._authStore.user()?.roles ?? []);
@@ -285,6 +366,12 @@ export class SettingsRolesTabComponent implements OnInit {
   });
 
   readonly isSelectedRoleSuperAdmin = computed(() => this.selectedRole()?.type === RoleType.SUPERADMIN);
+
+  readonly pendingDeleteRoleName = computed(() => {
+    const id = this.pendingDeleteRoleId();
+    if (!id) return '';
+    return this.roles().find((r) => r.id === id)?.name ?? '';
+  });
 
   ngOnInit(): void {
     this.loadRoles();
@@ -327,32 +414,78 @@ export class SettingsRolesTabComponent implements OnInit {
     this._rolesService.update(roleId, { permissions }).subscribe({
       next: (updated: Role) => {
         this.roles.update(list => list.map(r => r.id === roleId ? updated : r));
-        this._authStore.refreshSession();
+        if (this.roleAffectsCurrentUser(role)) {
+          void this._authStore.refreshSession();
+        }
+      },
+      error: () => {
+        this._toast.show('No se pudo actualizar el permiso del rol.', 'error');
       },
     });
   }
 
-  createNewRole(): void {
-    const name = prompt('Nombre del nuevo rol:');
-    if (!name) return;
+  openCreateRoleModal(): void {
+    this.newRoleNameDraft = '';
+    this.createRoleModalOpen.set(true);
+  }
+
+  closeCreateRoleModal(): void {
+    this.createRoleModalOpen.set(false);
+    this.newRoleNameDraft = '';
+  }
+
+  confirmCreateRole(): void {
+    const name = this.newRoleNameDraft.trim();
+    if (!name || this.creatingRole()) return;
+    this.creatingRole.set(true);
     this._rolesService.create({ name, type: RoleType.USER, permissions: [] }).subscribe({
       next: (newRole: Role) => {
         this.roles.update(list => [...list, newRole]);
         this.selectedRoleId.set(newRole.id);
+        this.closeCreateRoleModal();
+        this.creatingRole.set(false);
+        this._toast.show('Rol creado correctamente.', 'success');
+      },
+      error: () => {
+        this.creatingRole.set(false);
+        this._toast.show('No se pudo crear el rol. Comprueba que el nombre sea único.', 'error');
       },
     });
   }
 
-  deleteRole(id: string): void {
+  openDeleteRoleModal(id: string): void {
     const r = this.roles().find(x => x.id === id);
     if (r?.type === RoleType.SUPERADMIN) return;
-    if (!confirm('¿Estás seguro de que deseas eliminar este rol?')) return;
+    this.pendingDeleteRoleId.set(id);
+    this.deleteRoleModalOpen.set(true);
+  }
+
+  closeDeleteRoleModal(): void {
+    this.deleteRoleModalOpen.set(false);
+    this.pendingDeleteRoleId.set(null);
+  }
+
+  confirmDeleteRole(): void {
+    const id = this.pendingDeleteRoleId();
+    if (!id || this.deletingRole()) return;
+    const affectedCurrentUser = this.roleAffectsCurrentUser(this.roles().find(r => r.id === id)!);
+    this.deletingRole.set(true);
     this._rolesService.delete(id).subscribe({
       next: () => {
         this.roles.update(list => list.filter(r => r.id !== id));
         if (this.selectedRoleId() === id) {
           this.selectedRoleId.set(this.roles()[0]?.id || null);
         }
+        this.closeDeleteRoleModal();
+        this.deletingRole.set(false);
+        this._toast.show('Rol eliminado.', 'success');
+        if (affectedCurrentUser) {
+          void this._authStore.refreshSession();
+        }
+      },
+      error: () => {
+        this.deletingRole.set(false);
+        this._toast.show('No se pudo eliminar el rol. Puede estar asignado a usuarios.', 'error');
       },
     });
   }

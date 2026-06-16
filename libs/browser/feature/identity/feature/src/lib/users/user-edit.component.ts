@@ -22,11 +22,13 @@ import {
 } from '@josanz-erp/identity-data-access';
 import {
   ALL_APP_PERMISSION_IDS,
-  filterPermissionsToEnabledModules,
+  isPermissionAllowedForModules,
+  mergeEffectiveUserPermissions,
   User,
   UpdateUserDto,
   CreateUserDto,
 } from '@josanz-erp/identity-api';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -426,12 +428,15 @@ import { HttpErrorResponse } from '@angular/common/http';
       .perm-row.effective {
         background: rgba(16, 185, 129, 0.06);
       }
-      .perm-row.denied span {
+      .perm-row.denied.blocked span {
         color: #b91c1c;
       }
       .perm-row.denied.blocked {
         background: rgba(185, 28, 28, 0.12);
         border-color: rgba(248, 113, 113, 0.28);
+      }
+      .perm-row.denied.blocked.effective {
+        background: rgba(185, 28, 28, 0.18);
       }
       .effective-preview {
         border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
@@ -483,6 +488,7 @@ export class UserEditComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly rolesApi = inject(RolesService);
   private readonly toast = inject(ToastService);
+  private readonly authStore = inject(AuthStore);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -498,7 +504,10 @@ export class UserEditComponent implements OnInit {
   private readonly savedEffectivePermissions = signal<string[]>([]);
 
   permissionGroups = computed(() => {
-    const list = this.permCatalog().filter((p) => p.id !== '*');
+    const enabled = this.pluginStore.enabledPlugins();
+    const list = this.permCatalog().filter(
+      (p) => p.id !== '*' && isPermissionAllowedForModules(p.id, enabled),
+    );
     const map = new Map<string, { id: string; label: string; group: string }[]>();
     for (const p of list) {
       const g = p.group || 'General';
@@ -544,31 +553,14 @@ export class UserEditComponent implements OnInit {
     return rolePermissions.sort().slice(0, 18);
   });
 
-  effectivePermissionIds = computed(() => {
-    const denied = new Set(this.draft.deniedPermissions);
-    if (denied.has('*')) {
-      return [];
-    }
-
-    const rolePermissions = this.selectedRolePermissions();
-    const hasWildcard =
-      rolePermissions.includes('*') || this.draft.extraPermissions.includes('*');
-
-    if (hasWildcard) {
-      const expanded = ALL_APP_PERMISSION_IDS.filter((p) => !denied.has(p));
-      const merged = denied.size === 0 ? ['*', ...expanded] : expanded;
-      return filterPermissionsToEnabledModules(merged, this.pluginStore.enabledPlugins());
-    }
-
-    const merged = new Set<string>();
-    for (const p of rolePermissions) {
-      if (!denied.has(p)) merged.add(p);
-    }
-    for (const p of this.draft.extraPermissions) {
-      if (!denied.has(p)) merged.add(p);
-    }
-    return filterPermissionsToEnabledModules(Array.from(merged), this.pluginStore.enabledPlugins()).sort();
-  });
+  effectivePermissionIds = computed(() =>
+    mergeEffectiveUserPermissions(
+      this.selectedRolePermissions(),
+      this.draft.extraPermissions,
+      this.draft.deniedPermissions,
+      this.pluginStore.enabledPlugins(),
+    ).sort(),
+  );
 
   effectivePermissionPreview = computed(() => {
     const ids = this.effectivePermissionIds();
@@ -779,6 +771,9 @@ export class UserEditComponent implements OnInit {
     this.usersService.update(id, body).subscribe({
       next: () => {
         this.toast.show('Usuario actualizado', 'success');
+        if (this.authStore.user()?.id === id) {
+          void this.authStore.refreshSession();
+        }
         void this.router.navigate(['/users']);
         this.saving.set(false);
       },

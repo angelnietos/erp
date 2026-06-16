@@ -56,7 +56,10 @@ import {
   ],
   template: `
     <div class="settings-layout">
-      <lib-settings-sidebar [(activeTab)]="activeTab" />
+      <lib-settings-sidebar
+        [activeTab]="activeTab()"
+        (activeTabChange)="onTabChange($event)"
+      />
 
       <main class="settings-content">
         @if (accessDeniedBanner()) {
@@ -585,6 +588,19 @@ export class SettingsFeatureComponent implements OnInit {
   readonly activeTab = signal<SettingsTab>('profile');
   readonly accessDeniedBanner = signal(false);
 
+  private static readonly VALID_TABS = new Set<SettingsTab>([
+    'general',
+    'ai',
+    'buddy',
+    'plugins',
+    'notifications',
+    'security',
+    'roles',
+    'labs',
+    'profile',
+    'appearance',
+  ]);
+
   // Expose signals from stores
   public readonly realtimeSync = this._pluginStore.realtimeSync;
   public readonly highPerformanceMode = this._pluginStore.highPerformanceMode;
@@ -647,6 +663,31 @@ export class SettingsFeatureComponent implements OnInit {
       this.accessDeniedBanner.set(true);
       this.activeTab.set('profile');
     }
+
+    const tabParam = this._route.snapshot.queryParamMap.get('tab');
+    if (tabParam && SettingsFeatureComponent.VALID_TABS.has(tabParam as SettingsTab)) {
+      this.activeTab.set(tabParam as SettingsTab);
+    }
+
+    this._route.queryParamMap.subscribe((params) => {
+      const tab = params.get('tab');
+      if (tab && SettingsFeatureComponent.VALID_TABS.has(tab as SettingsTab)) {
+        const next = tab as SettingsTab;
+        if (this.activeTab() !== next) {
+          this.activeTab.set(next);
+        }
+      }
+    });
+  }
+
+  onTabChange(tab: SettingsTab): void {
+    this.activeTab.set(tab);
+    void this._router.navigate([], {
+      relativeTo: this._route,
+      queryParams: { tab: tab === 'profile' ? null : tab },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   dismissAccessDeniedBanner(): void {

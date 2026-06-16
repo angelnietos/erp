@@ -14,8 +14,8 @@ import {
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
-import { User } from '@josanz-erp/identity-api';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ALL_APP_PERMISSION_IDS, User } from '@josanz-erp/identity-api';
+import { ThemeService, PluginStore, GlobalAuthStore, rbacAllows } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-user-detail',
@@ -59,9 +59,11 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             <h1 class="title">{{ fullName(u) }}</h1>
             <p class="meta">{{ u.email }}</p>
           </div>
-          <ui-button variant="solid" size="sm" icon="pencil" (clicked)="onEdit()">
-            Editar
-          </ui-button>
+          @if (canManageUsers()) {
+            <ui-button variant="solid" size="sm" icon="pencil" (clicked)="onEdit()">
+              Editar
+            </ui-button>
+          }
         </div>
 
         <div class="info-card">
@@ -88,6 +90,41 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
             <span>{{ u.createdAt | date: 'medium' }}</span>
           </div>
         </div>
+
+        <section class="abac-card">
+          <h2 class="abac-title">Control de acceso (ABAC)</h2>
+          <div class="row">
+            <span class="lbl">Permisos efectivos</span>
+            <span>{{ effectivePermissionsSummary(u) }}</span>
+          </div>
+          @if ((u.extraPermissions?.length ?? 0) > 0) {
+            <div class="abac-block">
+              <span class="lbl">Permisos extra</span>
+              <div class="perm-tags">
+                @for (p of u.extraPermissions; track p) {
+                  <span class="perm-tag extra">+ {{ p }}</span>
+                }
+              </div>
+            </div>
+          }
+          @if ((u.deniedPermissions?.length ?? 0) > 0) {
+            <div class="abac-block">
+              <span class="lbl">Permisos bloqueados</span>
+              <div class="perm-tags">
+                @for (p of u.deniedPermissions; track p) {
+                  <span class="perm-tag denied">− {{ p }}</span>
+                }
+              </div>
+            </div>
+          }
+          @if (canManageUsers()) {
+            <div class="abac-actions">
+              <ui-button variant="outline" size="sm" icon="shield" (clicked)="onEdit()">
+                Gestionar permisos
+              </ui-button>
+            </div>
+          }
+        </section>
       }
     </div>
   `,
@@ -191,6 +228,49 @@ import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
         font-size: 0.75rem;
         word-break: break-all;
       }
+      .abac-card {
+        margin-top: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .abac-title {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .abac-block {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .perm-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+      .perm-tag {
+        font-family: var(--font-mono, monospace);
+        font-size: 0.68rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+      }
+      .perm-tag.extra {
+        background: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+      }
+      .perm-tag.denied {
+        background: rgba(185, 28, 28, 0.1);
+        color: #b91c1c;
+      }
+      .abac-actions {
+        margin-top: 0.25rem;
+      }
     `,
   ],
 })
@@ -198,8 +278,11 @@ export class UserDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
+  private readonly authStore = inject(GlobalAuthStore);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+
+  readonly canManageUsers = rbacAllows(this.authStore, 'users.manage');
 
   user = signal<User | null>(null);
   isLoading = signal(true);
@@ -245,5 +328,14 @@ export class UserDetailComponent implements OnInit {
 
   fullName(u: User): string {
     return `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim() || u.email;
+  }
+
+  effectivePermissionsSummary(u: User): string {
+    const perms = u.permissions ?? [];
+    if (perms.includes('*')) {
+      return `Acceso total (${ALL_APP_PERMISSION_IDS.length} permisos)`;
+    }
+    const count = perms.length;
+    return count === 1 ? '1 permiso' : `${count} permisos`;
   }
 }

@@ -495,3 +495,60 @@ html[data-erp-tenant='babooni'] .feature-load-error-banner {
     border-width: 2px !important;
   }
 }
+
+/* Settings — alinear con superficie Babooni (no forzar dark global) */
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-layout {
+  background: var(--babooni-bg, #f8fafc) !important;
+  min-height: calc(100vh - 64px);
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-content {
+  background: transparent !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-sidebar {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .nav-item {
+  color: var(--text-muted) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .nav-item.active {
+  background: color-mix(in srgb, var(--brand, #2563eb) 12%, var(--babooni-surface)) !important;
+  color: var(--brand, #2563eb) !important;
+  border-color: color-mix(in srgb, var(--brand, #2563eb) 25%, transparent) !important;
+  box-shadow: none !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .content-section {
+  color: var(--text-primary) !important;
+}
+
+/* Usuarios — edición ABAC y detalle */
+html[data-erp-tenant='babooni'] lib-user-edit .section,
+html[data-erp-tenant='babooni'] lib-user-detail .info-card,
+html[data-erp-tenant='babooni'] lib-user-detail .abac-card {
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-user-edit .perm-row {
+  background: color-mix(in srgb, var(--babooni-surface) 92%, var(--brand, #2563eb) 8%) !important;
+  border-color: var(--babooni-border) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-user-edit .perm-row.effective {
+  background: color-mix(in srgb, #10b981 8%, var(--babooni-surface)) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-user-edit .perm-row.denied.blocked {
+  background: color-mix(in srgb, #dc2626 8%, var(--babooni-surface)) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-user-edit .perm-row.denied.blocked span {
+  color: #b91c1c !important;
+}

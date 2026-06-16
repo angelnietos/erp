@@ -5,7 +5,8 @@ import {
   UiCardComponent,
   UIMascotComponent,
 } from '@josanz-erp/shared-ui-kit';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { AuthStore, AuthService } from '@josanz-erp/identity-data-access';
+import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
 
 @Component({
   selector: 'lib-settings-profile-tab',
@@ -58,9 +59,27 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
               <input id="profile-email" type="email" [value]="userEmail()" class="luxe-underlined-input" readonly aria-label="Canal de Comunicación">
             </div>
             <div class="luxe-input-group">
-              <label class="luxe-label" for="profile-role">Descriptor de Rol</label>
-              <input id="profile-role" type="text" [value]="userRole()" class="luxe-underlined-input" readonly aria-label="Descriptor de Rol">
+              <label class="luxe-label" for="profile-role">Roles asignados</label>
+              <input id="profile-role" type="text" [value]="userRolesLabel()" class="luxe-underlined-input" readonly aria-label="Roles asignados">
             </div>
+            <div class="luxe-input-group">
+              <label class="luxe-label" for="profile-perms">Permisos efectivos</label>
+              <input id="profile-perms" type="text" [value]="effectivePermissionsLabel()" class="luxe-underlined-input" readonly aria-label="Permisos efectivos">
+            </div>
+            <div class="luxe-input-group">
+              <label class="luxe-label" for="profile-auth">Modo de autenticación</label>
+              <input id="profile-auth" type="text" [value]="authModeLabel()" class="luxe-underlined-input" readonly aria-label="Modo de autenticación">
+            </div>
+            @if (hasAbacOverrides()) {
+              <div class="abac-overrides">
+                @if (extraPermissionsCount() > 0) {
+                  <span class="override-pill extra">+{{ extraPermissionsCount() }} extra</span>
+                }
+                @if (deniedPermissionsCount() > 0) {
+                  <span class="override-pill denied">−{{ deniedPermissionsCount() }} bloqueados</span>
+                }
+              </div>
+            }
           </div>
         </div>
 
@@ -87,8 +106,8 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
                 }
               </div>
               <div class="role-text">
-                <h3>{{ userRole() }}</h3>
-                <p>Nivel de acceso autorizado</p>
+                <h3>{{ primaryRoleLabel() }}</h3>
+                <p>{{ userRolesLabel() }}</p>
               </div>
             </div>
             <div class="active-pulse mt-6">
@@ -400,11 +419,40 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
       }
 
       .text-brand { color: var(--brand); }
+
+      .abac-overrides {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: -1rem;
+      }
+
+      .override-pill {
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.35rem 0.75rem;
+        border-radius: 99px;
+      }
+
+      .override-pill.extra {
+        background: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+      }
+
+      .override-pill.denied {
+        background: rgba(185, 28, 28, 0.1);
+        color: #b91c1c;
+        border: 1px solid rgba(185, 28, 28, 0.22);
+      }
     `,
   ],
 })
 export class SettingsProfileTabComponent {
   protected readonly _authStore = inject(AuthStore);
+  private readonly _authService = inject(AuthService);
 
   readonly userName = computed(() => {
     const u = this._authStore.user();
@@ -413,7 +461,54 @@ export class SettingsProfileTabComponent {
 
   readonly userEmail = computed(() => this._authStore.user()?.email || '');
 
-  readonly userRole = computed(() => this._authStore.user()?.roles?.[0] || 'Miembro Plataforma');
+  readonly userRolesLabel = computed(() => {
+    const roles = this._authStore.user()?.roles ?? [];
+    return roles.length > 0 ? roles.join(' · ') : 'Sin roles asignados';
+  });
+
+  readonly primaryRoleLabel = computed(() => {
+    const roles = this._authStore.user()?.roles ?? [];
+    return roles[0] || 'Miembro Plataforma';
+  });
+
+  readonly effectivePermissionsLabel = computed(() => {
+    const perms = this._authStore.user()?.permissions ?? [];
+    if (perms.includes('*')) {
+      return `Acceso total (${ALL_APP_PERMISSION_IDS.length} permisos)`;
+    }
+    const count = perms.length;
+    return count === 1 ? '1 permiso efectivo' : `${count} permisos efectivos`;
+  });
+
+  readonly authModeLabel = computed(() => {
+    if (this._authService.isBffMode()) {
+      const inner = this._authStore.authMode();
+      const provider =
+        inner === 'keycloak' ? 'Keycloak' : inner === 'local' ? 'local ERP' : 'híbrido';
+      return `BFF seguro (${provider}) · cookies HttpOnly`;
+    }
+    const mode = this._authStore.authMode();
+    switch (mode) {
+      case 'keycloak':
+        return 'Enterprise SSO (Keycloak)';
+      case 'local':
+        return 'Credenciales locales (ERP)';
+      default:
+        return 'Sin sesión activa';
+    }
+  });
+
+  readonly extraPermissionsCount = computed(
+    () => this._authStore.user()?.extraPermissions?.length ?? 0,
+  );
+
+  readonly deniedPermissionsCount = computed(
+    () => this._authStore.user()?.deniedPermissions?.length ?? 0,
+  );
+
+  readonly hasAbacOverrides = computed(
+    () => this.extraPermissionsCount() > 0 || this.deniedPermissionsCount() > 0,
+  );
 
   readonly userId = computed(() => this._authStore.user()?.id || '');
 

@@ -15,6 +15,11 @@ export {
 } from './lib/permissions-catalog';
 export type { PermissionCatalogEntry } from './lib/permissions-catalog';
 
+export {
+  mergeEffectiveUserPermissions,
+  userHasAnyPermission,
+} from './lib/permission-merge';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;
