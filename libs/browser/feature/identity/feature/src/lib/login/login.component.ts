@@ -14,6 +14,7 @@ import {
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
   syncErpTenantHtmlTheme,
+  usesJosanzFigmaLogin,
 } from '@josanz-erp/identity-data-access';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
@@ -134,22 +135,26 @@ export class LoginComponent implements OnInit {
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
 
-  /** Login claro en dos columnas según export Figma `Login.svg` (solo tenant Josanz). */
-  readonly useFigmaShellLogin = computed(() => this.tenantSlug() === 'josanz');
+  /** Login claro en dos columnas según export Figma `Login.svg` (tenants josanz-figma). */
+  readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
 
   readonly tenantLabel = computed(() => {
     const slug = this.tenantSlug();
     const known: Record<string, string> = {
       josanz: 'Josanz Audiovisuales',
       babooni: 'Babooni Technologies',
+      alexis: 'Alexis',
     };
     return known[slug] ?? slug;
   });
 
   /** Subtítulo de la tarjeta: según tenant, no fijo a Josanz. */
-  readonly brandTagline = computed(() =>
-    this.tenantSlug() === 'babooni' ? 'Babooni Technologies' : 'Josanz Audiovisuales'
-  );
+  readonly brandTagline = computed(() => {
+    const slug = this.tenantSlug();
+    if (slug === 'babooni') return 'Babooni Technologies';
+    if (slug === 'alexis') return 'Alexis';
+    return 'Josanz Audiovisuales';
+  });
 
   readonly authModeLabel = computed(() => {
     if (this.store.loading()) {

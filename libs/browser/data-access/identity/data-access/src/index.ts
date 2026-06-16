@@ -22,6 +22,18 @@ export {
   getErpTenantSlug,
   syncErpTenantHtmlTheme,
 } from './lib/utils/erp-tenant-theme';
+export {
+  getTenantUiShell,
+  usesJosanzFigmaLogin,
+  isBabooniUiShell,
+  isJosanzFigmaUiShell,
+  TENANT_UI_SHELL_BY_SLUG,
+  type ErpTenantUiShell,
+} from './lib/utils/tenant-ui-shell';
+export {
+  josanzFigmaShellCanMatch,
+  classicErpShellCanMatch,
+} from './lib/guards/tenant-shell-match.guards';
 
 // Users
 export { UsersService } from './lib/services/users.service';

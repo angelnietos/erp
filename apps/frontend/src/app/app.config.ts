@@ -24,6 +24,8 @@ import {
   getStoredTenantId,
   syncErpTenantHtmlTheme,
   ERP_TENANT_SLUG_SESSION_KEY,
+  getErpTenantSlug,
+  isJosanzFigmaUiShell,
 } from '@josanz-erp/identity-data-access';
 import {
   bffAuthInterceptor,
@@ -31,6 +33,7 @@ import {
   BffAuthClient,
 } from '@josanz-erp/shared-auth-keycloak';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
+import { JosanzThemeService } from '@josanz-erp/josanz-ui';
 import { firstValueFrom, catchError, of, tap } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
@@ -210,6 +213,9 @@ export const appConfig: ApplicationConfig = {
       multi: true,
       useFactory: () => () => {
         syncErpTenantHtmlTheme();
+        if (isJosanzFigmaUiShell(getErpTenantSlug())) {
+          inject(JosanzThemeService).setTheme('luxe-rounded');
+        }
       },
     },
     {
@@ -276,6 +282,9 @@ export const appConfig: ApplicationConfig = {
                 sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
                 syncErpTenantHtmlTheme();
                 themeService.reapplyTheme();
+                if (isJosanzFigmaUiShell(response.tenantSlug)) {
+                  inject(JosanzThemeService).setTheme('luxe-rounded');
+                }
               }
               const u = response.user;
               const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ').trim() || u.email;

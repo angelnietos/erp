@@ -386,6 +386,39 @@ async function main() {
     },
   });
 
+  const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
+  const alexisTenant = await prisma.tenant.upsert({
+    where: { id: ALEXIS_TENANT_ID },
+    update: {
+      name: 'Alexis',
+      slug: 'alexis',
+    },
+    create: {
+      id: ALEXIS_TENANT_ID,
+      name: 'Alexis',
+      slug: 'alexis',
+      enabledModuleIds: [
+        'dashboard',
+        'ai-insights',
+        'clients',
+        'projects',
+        'events',
+        'identity',
+        'availability',
+        'services',
+        'reports',
+        'audit',
+        'inventory',
+        'budgets',
+        'delivery',
+        'fleet',
+        'rentals',
+        'billing',
+        'verifactu',
+      ],
+    },
+  });
+
   const babooniAdminRole = await ensureDefaultRoles(
     babooniTenant.id,
     'babooni',
@@ -479,6 +512,35 @@ async function main() {
     update: {},
     create: { userId: babooniAdmin.id, roleId: babooniSuperAdminRole.id },
   });
+
+  await ensureDefaultRoles(alexisTenant.id, 'alexis');
+  const alexisSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: alexisTenant.id, name: 'SuperAdmin' },
+  });
+  const alexisAdmin = await prisma.user.upsert({
+    where: {
+      tenantId_email: { tenantId: alexisTenant.id, email: 'admin@alexis.local' },
+    },
+    update: { password: hashedPassword },
+    create: {
+      tenantId: alexisTenant.id,
+      email: 'admin@alexis.local',
+      password: hashedPassword,
+      firstName: 'Alexis',
+      lastName: 'Admin',
+    },
+  });
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: alexisAdmin.id,
+        roleId: alexisSuperAdminRole.id,
+      },
+    },
+    update: {},
+    create: { userId: alexisAdmin.id, roleId: alexisSuperAdminRole.id },
+  });
+  console.log('- Tenant alexis + admin@alexis.local (shell josanz-figma)');
 
   const babooniResponsibleRole = await prisma.role.findFirstOrThrow({
     where: { tenantId: babooniTenant.id, name: 'Responsable' },

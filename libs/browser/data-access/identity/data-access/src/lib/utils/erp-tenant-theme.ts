@@ -1,4 +1,5 @@
 import { ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
+import { getTenantUiShell } from './tenant-ui-shell';
 
 /**
  * Slug del tenant ERP actual (`sessionStorage` tras login, o atributo en `<html>`).
@@ -21,7 +22,7 @@ export function getErpTenantSlug(): string {
 
 /**
  * Marca el tenant ERP en `<html>` para estilos condicionales.
- * `babooni` → paleta Biosstel (referencia front-biosstel); el resto mantiene el look Josanz actual.
+ * `babooni` → paleta Biosstel; `alexis` → shell Figma (`josanz-ui`); resto → clásico.
  */
 export function syncErpTenantHtmlTheme(): void {
   if (typeof document === 'undefined') {
@@ -37,5 +38,9 @@ export function syncErpTenantHtmlTheme(): void {
   document.documentElement.setAttribute(
     'data-erp-tenant',
     slug.trim().toLowerCase(),
+  );
+  document.documentElement.setAttribute(
+    'data-erp-ui-shell',
+    getTenantUiShell(slug),
   );
 }

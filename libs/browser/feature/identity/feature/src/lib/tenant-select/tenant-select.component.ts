@@ -35,17 +35,22 @@ export class TenantSelectComponent {
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
 
-  /** Alineado con seed: `josanz`, `babooni` en `prisma/seed.ts`. */
+  /** Alineado con seed: `josanz`, `babooni`, `alexis` en `prisma/seed.ts`. */
   readonly tenants: TenantChoice[] = [
     {
       slug: 'josanz',
       name: 'Josanz Audiovisuales',
-      description: 'Entorno demo principal del ERP.',
+      description: 'ERP con diseño Figma (josanz-ui).',
     },
     {
       slug: 'babooni',
       name: 'Babooni Technologies',
-      description: 'Organización alternativa (plataforma / pruebas).',
+      description: 'Organización SaaS / plataforma (shell Biosstel).',
+    },
+    {
+      slug: 'alexis',
+      name: 'Alexis',
+      description: 'Tenant demo con la app Figma independiente integrada.',
     },
   ];
 

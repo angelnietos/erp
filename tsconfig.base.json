@@ -332,6 +332,18 @@
       ],
       "@josanz-erp/josanz-delivery-notes-shell": [
         "libs/browser/feature/delivery/josanz/shell/src/index.ts"
+      ],
+      "@josanz-erp/josanz-figma-dashboard-inicio": [
+        "apps/josanz-web-app/src/app/pages/josanz-dashboard-inicio.component.ts"
+      ],
+      "@josanz-erp/josanz-figma-settings": [
+        "apps/josanz-web-app/src/app/pages/josanz-settings-placeholder.component.ts"
+      ],
+      "@josanz-erp/josanz-figma-export-center": [
+        "apps/josanz-web-app/src/app/pages/josanz-export-center.component.ts"
+      ],
+      "@josanz-erp/josanz-figma-report-new": [
+        "apps/josanz-web-app/src/app/pages/josanz-report-new.component.ts"
       ]
     }
   },

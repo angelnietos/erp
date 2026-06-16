@@ -59,7 +59,10 @@
           "buildTarget": "josanz-web-app:build:development"
         }
       },
-      "defaultConfiguration": "development"
+      "defaultConfiguration": "development",
+      "options": {
+        "port": 4300
+      }
     },
     "lint": {
       "executor": "@nx/eslint:lint"

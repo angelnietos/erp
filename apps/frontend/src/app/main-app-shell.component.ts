@@ -3,19 +3,37 @@ import { Router, NavigationEnd } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
-import { AppLayoutComponent } from '@josanz-erp/shared-ui-shell';
+import {
+  AppLayoutComponent,
+  JosanzFigmaAppShellComponent,
+} from '@josanz-erp/shared-ui-shell';
 import { BabooniAppLayoutComponent } from '@josanz-erp/babooni-ui';
-import { AuthStore, getErpTenantSlug } from '@josanz-erp/identity-data-access';
+import {
+  AuthStore,
+  getErpTenantSlug,
+  getTenantUiShell,
+} from '@josanz-erp/identity-data-access';
 
 @Component({
   selector: 'app-main-app-shell',
   standalone: true,
-  imports: [RouterModule, AppLayoutComponent, BabooniAppLayoutComponent],
+  imports: [
+    RouterModule,
+    AppLayoutComponent,
+    BabooniAppLayoutComponent,
+    JosanzFigmaAppShellComponent,
+  ],
   template: `
-    @if (isBabooniTenant()) {
-      <lib-babooni-app-layout />
-    } @else {
-      <josanz-app-layout (logoutClick)="auth.logout()" />
+    @switch (uiShell()) {
+      @case ('babooni') {
+        <lib-babooni-app-layout />
+      }
+      @case ('josanz-figma') {
+        <josanz-figma-app-shell />
+      }
+      @default {
+        <josanz-app-layout (logoutClick)="auth.logout()" />
+      }
     }
   `,
 })
@@ -26,9 +44,8 @@ export class MainAppShellComponent {
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
   );
 
-  /** Tenant `babooni` → shell Biosstel (`@josanz-erp/babooni-ui`); resto → Josanz gaming. */
-  readonly isBabooniTenant = computed(() => {
+  readonly uiShell = computed(() => {
     this.navRefresh();
-    return getErpTenantSlug() === 'babooni';
+    return getTenantUiShell(getErpTenantSlug());
   });
 }

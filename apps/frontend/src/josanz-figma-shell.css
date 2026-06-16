@@ -1,0 +1,47 @@
+/**
+ * Layout global alineado con apps/josanz-web-app cuando el tenant usa shell Figma.
+ */
+html[data-erp-ui-shell='josanz-figma'],
+html[data-erp-ui-shell='josanz-figma'] body {
+  height: 100%;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--josanz-text-muted) 35%, transparent) transparent;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--josanz-text-muted) 30%, transparent);
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--josanz-text-muted) 50%, transparent);
+}
+
+/* Evitar que estilos gaming del ERP pisen el main Figma */
+html[data-erp-ui-shell='josanz-figma'] .josanz-page-main {
+  background: var(--josanz-bg, #f7f9fb);
+  color: var(--josanz-text, #0f172a);
+}
