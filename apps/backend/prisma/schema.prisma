@@ -673,6 +673,7 @@ model User {
   tenant        Tenant         @relation(fields: [tenantId], references: [id])
   timeOffRequestsRequested TimeOffRequest[] @relation("TimeOffRequester")
   timeOffRequestsDecided   TimeOffRequest[] @relation("TimeOffDecider")
+  passwordResetTokens      PasswordResetToken[]
 
   @@unique([tenantId, email])
   @@map("users")
@@ -708,6 +709,21 @@ model UserRole {
 
   @@id([userId, roleId])
   @@map("user_roles")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tenantId  String    @map("tenant_id") @db.Uuid
+  tokenHash String    @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([tokenHash], map: "idx_password_reset_token_hash")
+  @@index([userId], map: "idx_password_reset_user")
+  @@map("password_reset_tokens")
 }
 
 /// Recibos ERP (Fase 4) — desacoplado de factura real; invoiceId es referencia lógica.

@@ -9,6 +9,12 @@
   --error: #EF4444;
 }
 
+.field-error {
+  color: var(--error, #ef4444);
+  font-size: 0.85rem;
+  margin: -0.5rem 0 0.5rem;
+}
+
 .tenant-context {
   display: flex;
   flex-direction: column;

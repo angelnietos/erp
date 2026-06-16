@@ -23,8 +23,9 @@ import type {
   DpiaDocumentDto,
 } from '@josanz-erp/shared-data-access';
 import { downloadPrivacyJsonExport } from '@josanz-erp/shared-data-access';
+import { AuthStore, AuthService, IDENTITY_AUTH_MODE_SESSION_KEY } from '@josanz-erp/identity-data-access';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { forkJoin, firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'lib-settings-security-tab',
@@ -116,6 +117,61 @@ import { forkJoin } from 'rxjs';
           </div>
         </ui-card>
       </div>
+
+      <ui-card variant="glass" class="prefs-card password-card">
+        <h3 class="config-subtitle">
+          <lucide-icon name="key" size="16" aria-hidden="true"></lucide-icon>
+          Contraseña
+        </h3>
+        @if (canChangeLocalPassword()) {
+          <div class="password-form">
+            <div class="form-group">
+              <label class="form-label" for="current-pw">Contraseña actual</label>
+              <input
+                id="current-pw"
+                type="password"
+                class="luxe-input"
+                [(ngModel)]="changePwCurrent"
+                autocomplete="current-password"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="new-pw">Nueva contraseña</label>
+              <input
+                id="new-pw"
+                type="password"
+                class="luxe-input"
+                [(ngModel)]="changePwNew"
+                autocomplete="new-password"
+                minlength="8"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="confirm-pw">Confirmar nueva contraseña</label>
+              <input
+                id="confirm-pw"
+                type="password"
+                class="luxe-input"
+                [(ngModel)]="changePwConfirm"
+                autocomplete="new-password"
+              />
+            </div>
+            <ui-button
+              variant="primary"
+              [loading]="changingPassword()"
+              [disabled]="!canSubmitPasswordChange()"
+              (clicked)="submitPasswordChange()"
+            >
+              Actualizar contraseña
+            </ui-button>
+          </div>
+        } @else {
+          <p class="password-hint">
+            Tu cuenta usa <strong>Keycloak SSO</strong>. Para cambiar la contraseña, usa el portal de
+            identidad de tu organización o contacta al administrador.
+          </p>
+        }
+      </ui-card>
 
       <ui-card variant="glass" class="privacy-card">
         <h3 class="config-subtitle">
@@ -661,6 +717,43 @@ import { forkJoin } from 'rxjs';
         color: #94a3b8;
         margin-top: 0.15rem;
       }
+      .password-card {
+        margin-bottom: 1.5rem;
+      }
+      .password-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        max-width: 420px;
+      }
+      .form-label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.35rem;
+        color: #64748b;
+      }
+      .luxe-input {
+        width: 100%;
+        padding: 0.65rem 0;
+        border: none;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+        background: transparent;
+        color: inherit;
+        font-size: 0.95rem;
+      }
+      .luxe-input:focus {
+        outline: none;
+        border-bottom-color: var(--brand-primary, #f03e3e);
+      }
+      .password-hint {
+        font-size: 0.9rem;
+        color: #64748b;
+        line-height: 1.5;
+        margin: 0;
+      }
     `,
   ],
 })
@@ -669,6 +762,8 @@ export class SettingsSecurityTabComponent implements OnInit {
   private readonly privacyApi = inject(PrivacyApiService);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(GlobalAuthStore);
+  private readonly authStore = inject(AuthStore);
+  private readonly authService = inject(AuthService);
 
   readonly loading = signal(true);
   readonly exporting = signal(false);
@@ -682,6 +777,20 @@ export class SettingsSecurityTabComponent implements OnInit {
   readonly executingId = signal<string | null>(null);
   readonly ropa = signal<RopaDocumentDto | null>(null);
   readonly dpia = signal<DpiaDocumentDto | null>(null);
+  readonly changingPassword = signal(false);
+  changePwCurrent = '';
+  changePwNew = '';
+  changePwConfirm = '';
+
+  readonly canChangeLocalPassword = computed(() => {
+    const mode = this.authStore.authMode();
+    if (mode === 'keycloak') return false;
+    if (mode === 'local') return true;
+    if (typeof sessionStorage !== 'undefined') {
+      return sessionStorage.getItem(IDENTITY_AUTH_MODE_SESSION_KEY) !== 'keycloak';
+    }
+    return true;
+  });
 
   readonly canManagePrivacy = computed(() => {
     const p = this.auth.permissions();
@@ -856,5 +965,36 @@ export class SettingsSecurityTabComponent implements OnInit {
         this.toast.show('No se pudo anonimizar la telemetría', 'error');
       },
     });
+  }
+
+  canSubmitPasswordChange(): boolean {
+    return (
+      this.changePwCurrent.trim().length > 0 &&
+      this.changePwNew.length >= 8 &&
+      this.changePwNew === this.changePwConfirm
+    );
+  }
+
+  async submitPasswordChange(): Promise<void> {
+    if (!this.canSubmitPasswordChange()) {
+      this.toast.show('Revisa los campos de contraseña', 'error');
+      return;
+    }
+    this.changingPassword.set(true);
+    try {
+      await firstValueFrom(
+        this.authService.changePassword(this.changePwCurrent, this.changePwNew),
+      );
+      this.changePwCurrent = '';
+      this.changePwNew = '';
+      this.changePwConfirm = '';
+      this.toast.show('Contraseña actualizada', 'success');
+    } catch (err: unknown) {
+      const raw = (err as { error?: { message?: string | string[] } })?.error?.message;
+      const msg = Array.isArray(raw) ? raw.join(', ') : raw;
+      this.toast.show(msg ?? 'No se pudo cambiar la contraseña', 'error');
+    } finally {
+      this.changingPassword.set(false);
+    }
   }
 }

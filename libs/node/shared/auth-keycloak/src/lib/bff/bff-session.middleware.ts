@@ -16,6 +16,8 @@ const CSRF_EXEMPT_PREFIXES = [
   '/api/bff/platform/auth/login',
   '/api/bff/platform/auth/logout',
   '/api/auth/login',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/platform/auth/login',
   '/api/health',
 ];

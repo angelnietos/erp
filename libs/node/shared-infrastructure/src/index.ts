@@ -19,4 +19,6 @@ export * from './lib/prisma/prisma.module';
 export * from './lib/prisma/prisma.service';
 export * from './lib/outbox/outbox.service';
 export * from './lib/outbox/outbox.module';
+export * from './lib/email/email.port';
+export * from './lib/email/console-email.adapter';
 export * from './lib/utils/encryption';

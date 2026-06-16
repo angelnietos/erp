@@ -16,6 +16,16 @@ export const identityRoutes: Routes = [
     loadComponent: () =>
       import('@josanz-erp/identity-feature').then((m) => m.LoginComponent),
   },
+  {
+    path: 'forgot-password',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.ResetPasswordComponent),
+  },
 ];
 
 export const usersRoutes: Routes = [

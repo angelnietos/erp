@@ -11,7 +11,13 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthService } from '../../application/services/auth.service';
+import { PasswordResetService } from '../../application/services/password-reset.service';
 import { LoginDto } from '../../application/dtos/login.dto';
+import {
+  ChangePasswordDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
+} from '../../application/dtos/password-reset.dto';
 import { PublicTenant, JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
 
 type SessionRequest = Request & {
@@ -20,7 +26,10 @@ type SessionRequest = Request & {
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly passwordReset: PasswordResetService,
+  ) {}
 
   @PublicTenant()
   @HttpCode(HttpStatus.OK)
@@ -64,5 +73,43 @@ export class AuthController {
       throw new UnauthorizedException('Invalid session context');
     }
     return await this.authService.refreshSession(userId, tenantId);
+  }
+
+  @PublicTenant()
+  @HttpCode(HttpStatus.OK)
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.passwordReset.requestReset(dto.email, dto.tenantSlug);
+  }
+
+  @PublicTenant()
+  @HttpCode(HttpStatus.OK)
+  @Post('reset-password')
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.passwordReset.resetWithToken(dto.token, dto.newPassword);
+  }
+
+  @UseGuards(JwtAuthGuard, TenantGuard)
+  @HttpCode(HttpStatus.OK)
+  @Post('change-password')
+  changePassword(@Req() req: SessionRequest, @Body() dto: ChangePasswordDto) {
+    const userId = req.user?.id ?? req.user?.sub;
+    const rawTenant = req.headers['x-tenant-id'];
+    const headerTenant =
+      typeof rawTenant === 'string'
+        ? rawTenant
+        : Array.isArray(rawTenant)
+          ? rawTenant[0]
+          : undefined;
+    const tenantId = headerTenant ?? req.user?.tenantId;
+    if (!userId || !tenantId) {
+      throw new UnauthorizedException('Invalid session context');
+    }
+    return this.passwordReset.changePassword(
+      userId,
+      tenantId,
+      dto.currentPassword,
+      dto.newPassword,
+    );
   }
 }

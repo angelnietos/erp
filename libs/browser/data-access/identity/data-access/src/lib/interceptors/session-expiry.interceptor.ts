@@ -21,6 +21,8 @@ const AUTH_EXEMPT_URL_PARTS = [
   '/bff/platform/auth/logout',
   '/bff/platform/auth/session',
   '/api/auth/login',
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/platform/auth/login',
   '/api/platform/auth/session',
 ];

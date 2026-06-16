@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { PrismaModule } from '@josanz-erp/shared-infrastructure';
+import { PrismaModule, SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
@@ -28,7 +28,7 @@ import { PlatformJwtStrategy } from './infrastructure/auth/platform-jwt.strategy
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { ErpBffSessionRenewer } from './infrastructure/bff/erp-bff-session-renewer';
-import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
+import { PasswordResetService } from './application/services/password-reset.service';
 
 export interface IdentityConfig {
   _isIdentityConfig?: boolean;
@@ -72,6 +72,7 @@ export class IdentityModule {
       providers: [
         AuthService,
         BffAuthService,
+        PasswordResetService,
         UsersService,
         RolesService,
         TenantModulesService,

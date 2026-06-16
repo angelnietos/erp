@@ -488,4 +488,25 @@ export class AuthService {
       tenantSlug: res.tenantSlug,
     };
   }
+
+  forgotPassword(email: string, tenantSlug: string): Observable<{ ok: true; devResetUrl?: string }> {
+    return this.http.post<{ ok: true; devResetUrl?: string }>(`${this.apiUrl}/forgot-password`, {
+      email,
+      tenantSlug,
+    });
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ ok: true }> {
+    return this.http.post<{ ok: true }>(`${this.apiUrl}/reset-password`, {
+      token,
+      newPassword,
+    });
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<{ ok: true }> {
+    return this.http.post<{ ok: true }>(`${this.apiUrl}/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
 }

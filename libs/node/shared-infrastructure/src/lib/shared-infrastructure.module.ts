@@ -5,6 +5,8 @@ import { AuditInterceptor } from './interceptors/audit.interceptor';
 import { PiiRedactionInterceptor } from './interceptors/pii-redaction.interceptor';
 import { PiiCryptoService } from './privacy/pii-crypto.service';
 import { PermissionsGuard } from './guards/permissions.guard';
+import { EMAIL_PORT } from './email/email.port';
+import { ConsoleEmailAdapter } from './email/console-email.adapter';
 
 @Global()
 @Module({
@@ -15,6 +17,8 @@ import { PermissionsGuard } from './guards/permissions.guard';
     PiiRedactionInterceptor,
     PiiCryptoService,
     PermissionsGuard,
+    ConsoleEmailAdapter,
+    { provide: EMAIL_PORT, useExisting: ConsoleEmailAdapter },
   ],
   exports: [
     PrismaModule,
@@ -23,6 +27,7 @@ import { PermissionsGuard } from './guards/permissions.guard';
     PiiRedactionInterceptor,
     PiiCryptoService,
     PermissionsGuard,
+    EMAIL_PORT,
   ],
 })
 export class SharedInfrastructureModule {}
