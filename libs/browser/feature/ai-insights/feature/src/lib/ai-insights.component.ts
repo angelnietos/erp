@@ -102,67 +102,61 @@ const EVENT_LABELS: Record<string, string> = {
           <ui-button variant="outline" size="sm" (clicked)="toggleLiveRefresh()">
             {{ liveRefresh() ? 'Pausar' : 'Activar' }} auto-refresh
           </ui-button>
-          <ui-button variant="solid" size="sm" icon="refresh-cw" (clicked)="refreshAll(true)" [disabled]="initialLoading()">
+          <ui-button variant="solid" size="sm" icon="refresh-cw" (clicked)="refreshAll(true)" [disabled]="refreshing()">
             Actualizar
           </ui-button>
         </div>
       </header>
 
-      @if (initialLoading()) {
-        <section class="skeleton-zone" aria-busy="true" aria-label="Cargando telemetría AI">
-          <div class="stats-skeleton-row">
-            @for (i of skeletonSlots; track i) {
-              <div class="sk-stat"></div>
-            }
+      <section class="demo-workflows-section">
+        <div class="demo-workflows-head">
+          <div>
+            <h2>Workflows demo</h2>
+            <p>Ejecuta escenarios predefinidos con un clic. Buddy orquestará navegación, bots especialistas y notificaciones — ideal para demos y para generar telemetría aquí.</p>
           </div>
-          <div class="sk-toolbar"></div>
-          @for (i of skeletonFeedSlots; track i) {
-            <div class="sk-feed-card"></div>
+        </div>
+        <div class="demo-workflows-grid">
+          @for (w of demoWorkflows; track w.id) {
+            <article class="demo-workflow-card">
+              <div class="demo-workflow-card__top">
+                <span class="demo-badge">{{ w.badge }}</span>
+                <lucide-icon [name]="w.icon" size="20"></lucide-icon>
+              </div>
+              <h3>{{ w.title }}</h3>
+              <p>{{ w.description }}</p>
+              <ui-button
+                variant="solid"
+                size="sm"
+                icon="play"
+                [disabled]="!!runningWorkflow()"
+                (clicked)="runDemoWorkflow(w)"
+              >
+                @if (runningWorkflow() === w.id) {
+                  Ejecutando…
+                } @else {
+                  Ejecutar demo
+                }
+              </ui-button>
+            </article>
           }
-        </section>
-      } @else {
-        <section class="demo-workflows-section">
-          <div class="demo-workflows-head">
-            <div>
-              <h2>Workflows demo</h2>
-              <p>Ejecuta escenarios predefinidos con un clic. Buddy orquestará navegación, bots especialistas y notificaciones — ideal para demos y para generar telemetría aquí.</p>
-            </div>
-          </div>
-          <div class="demo-workflows-grid">
-            @for (w of demoWorkflows; track w.id) {
-              <article class="demo-workflow-card">
-                <div class="demo-workflow-card__top">
-                  <span class="demo-badge">{{ w.badge }}</span>
-                  <lucide-icon [name]="w.icon" size="20"></lucide-icon>
-                </div>
-                <h3>{{ w.title }}</h3>
-                <p>{{ w.description }}</p>
-                <ui-button
-                  variant="solid"
-                  size="sm"
-                  icon="play"
-                  [disabled]="!!runningWorkflow()"
-                  (clicked)="runDemoWorkflow(w)"
-                >
-                  @if (runningWorkflow() === w.id) {
-                    Ejecutando…
-                  } @else {
-                    Ejecutar demo
-                  }
-                </ui-button>
-              </article>
-            }
-          </div>
-        </section>
+        </div>
+      </section>
 
-        @if (showOnboarding()) {
+      @if (feedLoading()) {
+        <div class="telemetry-loading-hint" aria-busy="true" aria-live="polite">
+          <lucide-icon name="loader-circle" size="16" class="spin"></lucide-icon>
+          <span>Cargando telemetría en segundo plano…</span>
+        </div>
+      }
+
+      @if (showOnboarding()) {
         <section class="onboarding-panel onboarding-panel--compact">
           <p class="onboarding-lead">
             Tras ejecutar un demo, vuelve a esta pantalla (o espera el auto-refresh) para ver el evento registrado con tu usuario.
             También puedes hablar con <strong>Buddy</strong> manualmente en cualquier módulo.
           </p>
         </section>
-        } @else {
+      } @else if (!feedLoading()) {
         @if (hasData()) {
           <ui-feature-stats>
             <ui-stat-card label="Total eventos" [value]="statTotal()" icon="database" />
@@ -359,7 +353,6 @@ const EVENT_LABELS: Record<string, string> = {
             </ui-card>
           }
           }
-        }
         }
       }
     </ui-feature-page-shell>
@@ -907,6 +900,26 @@ const EVENT_LABELS: Record<string, string> = {
         margin: 0 auto;
       }
 
+      .telemetry-loading-hint {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 0 1.5rem 1rem;
+        padding: 0.55rem 0.85rem;
+        max-width: 420px;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        border-radius: 999px;
+        border: 1px solid var(--border-soft);
+        background: color-mix(in srgb, var(--surface) 90%, var(--brand) 4%);
+      }
+
+      .telemetry-loading-hint .spin {
+        animation: spin 0.9s linear infinite;
+        color: var(--brand);
+      }
+
       .demo-workflows-head h2 {
         margin: 0 0 0.35rem;
         font-size: 1.05rem;
@@ -1138,8 +1151,7 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   userActivity = signal<AiInsightUserActivityDto[]>([]);
 
   runningWorkflow = signal<string | null>(null);
-  loading = signal(true);
-  initialLoading = signal(true);
+  feedLoading = signal(false);
   refreshing = signal(false);
   tabLoading = signal<InsightsTab | null>(null);
   liveRefresh = signal(true);
@@ -1148,9 +1160,6 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   eventFilter = signal('');
   featureFilter = signal('');
   userFilter = signal('');
-
-  readonly skeletonSlots = [1, 2, 3, 4] as const;
-  readonly skeletonFeedSlots = [1, 2, 3] as const;
 
   hasData = computed(
     () =>
@@ -1167,7 +1176,7 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
 
   showOnboarding = computed(
     () =>
-      !this.initialLoading() && !this.hasData() && !this.hasActiveFilters(),
+      !this.feedLoading() && !this.hasData() && !this.hasActiveFilters(),
   );
 
   filteredInsights = computed(() => {
@@ -1223,12 +1232,11 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   async refreshAll(silent = false) {
     if (!silent) {
       if (this.insights().length === 0 && !this.summary()) {
-        this.initialLoading.set(true);
+        this.feedLoading.set(true);
       } else {
         this.refreshing.set(true);
       }
     }
-    this.loading.set(true);
 
     const eventType = this.eventFilter() || undefined;
     const feature = this.featureFilter() || undefined;
@@ -1243,7 +1251,7 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
         }),
       );
       this.insights.set(list ?? []);
-      this.initialLoading.set(false);
+      this.feedLoading.set(false);
 
       void firstValueFrom(this.insightsApi.getSummary()).then((sum) => {
         this.summary.set(sum);
@@ -1256,9 +1264,8 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
       }
     } catch (e) {
       console.error('[AiInsights]', e);
-      this.initialLoading.set(false);
+      this.feedLoading.set(false);
     } finally {
-      this.loading.set(false);
       this.refreshing.set(false);
     }
   }

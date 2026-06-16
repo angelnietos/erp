@@ -189,6 +189,9 @@ import {
   Shrink,
   Maximize2,
   Expand,
+  LoaderCircle,
+  Table,
+  UserCircle,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 import { environment } from '../environments/environment';
@@ -460,6 +463,9 @@ export const appConfig: ApplicationConfig = {
         Shrink,
         Maximize2,
         Expand,
+        LoaderCircle,
+        Table,
+        UserCircle,
       }),
     ),
     { provide: VERIFACTU_API_BASE_URL, useValue: 'http://localhost:3110/api' },
