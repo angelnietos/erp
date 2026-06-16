@@ -16,8 +16,11 @@ export type EditorSurface = 'legacy' | 'blocks';
   selector: 'app-document-editor-canvas',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, DocumentBlockEditorComponent],
+  host: {
+    class: 'document-editor-column',
+  },
   template: `
-    <div class="document-editor-column" [formGroup]="documentForm()">
+    <div class="document-editor-column__inner" [formGroup]="documentForm()">
       <div class="document-editor-column__bar">
         <div
           class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between w-full"
@@ -94,14 +97,19 @@ export type EditorSurface = 'legacy' | 'blocks';
         <button
           type="button"
           (click)="toggleFullscreen.emit()"
-          class="hover:text-brand transition-colors"
+          class="fullscreen-btn shrink-0"
         >
-          Pantalla completa
+          {{
+            fullscreenActive()
+              ? 'Salir pantalla completa'
+              : 'Pantalla completa'
+          }}
         </button>
       </div>
 
       @if (editorSurface() === 'blocks') {
         <lib-document-block-editor
+          class="document-editor-block-editor"
           [initialHtml]="blockHtml()"
           [placeholder]="editorPlaceholder()"
           [disabled]="isAiGenerating()"
@@ -120,7 +128,7 @@ export type EditorSurface = 'legacy' | 'blocks';
             rows="24"
             spellcheck="true"
             [attr.disabled]="isAiGenerating() ? true : null"
-            class="document-editor-textarea w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-surface font-mono text-sm resize-vertical"
+            class="document-editor-textarea dg-field font-mono text-sm resize-y flex-1 min-h-[20rem]"
             (input)="contentInput.emit()"
             (keydown)="onTextareaKeydown($event)"
           ></textarea>
@@ -131,7 +139,7 @@ export type EditorSurface = 'legacy' | 'blocks';
           }
           @if (isAiGenerating()) {
             <div
-              class="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 rounded-xl"
+              class="absolute inset-0 flex items-center justify-center rounded-xl dg-loading-overlay"
               aria-live="polite"
               aria-label="La IA está procesando el documento"
             >
@@ -169,8 +177,32 @@ export type EditorSurface = 'legacy' | 'blocks';
   `,
   styles: [
     `
+      :host {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+        min-width: 0;
+      }
+
+      .document-editor-column__inner {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        gap: 0.5rem;
+      }
+
       .document-editor-textarea-wrap {
         position: relative;
+        flex: 1 1 auto;
+        min-height: clamp(20rem, 50vh, 44rem);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .document-editor-block-editor {
+        flex: 1 1 auto;
+        min-height: clamp(20rem, 50vh, 44rem);
       }
       .slash-menu-host {
         position: absolute;
@@ -203,6 +235,7 @@ export class DocumentEditorCanvasComponent {
   readonly editorPlaceholder = input('');
   readonly isAiGenerating = input(false);
   readonly showSlashCommands = input(false);
+  readonly fullscreenActive = input(false);
 
   readonly modeChange = output<ContentEditorMode>();
   readonly editorSurfaceChange = output<EditorSurface>();

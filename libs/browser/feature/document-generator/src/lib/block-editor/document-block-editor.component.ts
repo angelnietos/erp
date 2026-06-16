@@ -50,11 +50,20 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
   `,
   styles: [
     `
+      :host {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        min-width: 0;
+      }
+
       .block-editor-shell {
         display: flex;
         flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
         gap: 0.5rem;
-        min-height: 420px;
       }
       .block-editor-toolbar {
         display: flex;
@@ -84,8 +93,8 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
         margin: 0 0.15rem;
       }
       .block-editor-host {
-        flex: 1;
-        min-height: 360px;
+        flex: 1 1 auto;
+        min-height: 12rem;
         padding: 1rem 1.1rem;
         border: 1px solid rgba(148, 163, 184, 0.55);
         border-radius: 12px;

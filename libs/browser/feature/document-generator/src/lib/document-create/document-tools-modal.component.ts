@@ -32,36 +32,42 @@ import { ImageInsertComponent } from './image-insert.component';
     ImageInsertComponent,
   ],
   template: `
-    <div
-      class="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 transition-all duration-300"
-      [class.opacity-0]="!active()"
-      [class.opacity-0]="!active()"
-      [class.pointer-events-none]="!active()"
-    >
+    @if (active()) {
       <div
-        class="bg-white rounded-2xl border border-slate-100 shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col transition-all duration-300 transform"
-        [class.scale-95]="!active()"
-        [class.scale-100]="active()"
+        class="fixed inset-0 z-[1000] flex items-center justify-center dg-overlay backdrop-blur-sm p-4"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="modalTitle()"
       >
         <div
-          class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50"
+          class="dg-modal rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
         >
-          <div>
-            <h2 class="text-base font-bold text-slate-800">
-              {{ modalTitle() }}
-            </h2>
-            <p class="text-xs text-slate-500 mt-0.5">{{ modalSubtitle() }}</p>
-          </div>
-          <button
-            type="button"
-            class="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
-            (click)="closeAll.emit()"
+          <div
+            class="dg-modal__header px-6 py-4 flex justify-between items-center"
           >
-            <span class="text-lg">×</span>
-          </button>
-        </div>
+            <div>
+              <h2 class="text-base font-bold text-primary">
+                {{ modalTitle() }}
+              </h2>
+              <p class="dg-modal__subtitle text-xs mt-0.5">
+                {{ modalSubtitle() }}
+              </p>
+            </div>
+            <button
+              type="button"
+              class="p-2 rounded-full transition-colors text-muted hover:text-primary"
+              style="background: transparent"
+              (click)="closeAll.emit()"
+              aria-label="Cerrar"
+            >
+              <span class="text-lg leading-none">×</span>
+            </button>
+          </div>
 
-        <div class="flex-1 overflow-y-auto p-6 bg-slate-50/30">
+          <div
+            class="flex-1 overflow-y-auto p-6"
+            style="background: color-mix(in srgb, var(--bg-tertiary, var(--bg-secondary)) 50%, transparent)"
+          >
           @if (showCoverEditor()) {
             <app-cover-editor
               #coverEditorRef
@@ -69,16 +75,12 @@ import { ImageInsertComponent } from './image-insert.component';
               (configChanged)="coverConfigChange.emit($event)"
             ></app-cover-editor>
             <div class="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-secondary text-xs" (click)="closeAll.emit()">
                 Cerrar
               </button>
               <button
                 type="button"
-                class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700"
+                class="dg-btn-primary text-xs"
                 (click)="insertCover.emit(); closeAll.emit()"
               >
                 Insertar en Documento
@@ -93,16 +95,12 @@ import { ImageInsertComponent } from './image-insert.component';
               (configChanged)="signatureConfigChange.emit($event)"
             ></app-signature-editor>
             <div class="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-secondary text-xs" (click)="closeAll.emit()">
                 Cerrar
               </button>
               <button
                 type="button"
-                class="px-4 py-2 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700"
+                class="dg-btn-primary text-xs"
                 (click)="insertSignature.emit(); closeAll.emit()"
               >
                 Insertar en Documento
@@ -117,11 +115,7 @@ import { ImageInsertComponent } from './image-insert.component';
               (configChanged)="headerFooterConfigChange.emit($event)"
             ></app-header-footer-editor>
             <div class="mt-4 flex justify-end">
-              <button
-                type="button"
-                class="px-4 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-primary text-xs" (click)="closeAll.emit()">
                 Aceptar
               </button>
             </div>
@@ -130,16 +124,12 @@ import { ImageInsertComponent } from './image-insert.component';
           @if (showTableBuilder()) {
             <app-table-builder #tableBuilderRef></app-table-builder>
             <div class="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-secondary text-xs" (click)="closeAll.emit()">
                 Cancelar
               </button>
               <button
                 type="button"
-                class="px-4 py-2 bg-green-600 text-white text-xs font-semibold rounded-lg hover:bg-green-700"
+                class="dg-btn-primary text-xs"
                 (click)="insertTable.emit(); closeAll.emit()"
               >
                 Insertar Tabla
@@ -150,16 +140,12 @@ import { ImageInsertComponent } from './image-insert.component';
           @if (showImageInsert()) {
             <app-image-insert #imageInsertRef></app-image-insert>
             <div class="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-secondary text-xs" (click)="closeAll.emit()">
                 Cancelar
               </button>
               <button
                 type="button"
-                class="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700"
+                class="dg-btn-primary text-xs"
                 (click)="insertImage.emit(); closeAll.emit()"
               >
                 Insertar Imagen
@@ -174,25 +160,22 @@ import { ImageInsertComponent } from './image-insert.component';
               (configChanged)="watermarkConfigChange.emit($event)"
             ></app-watermark-dialog>
             <div class="mt-4 flex justify-end gap-3">
-              <button
-                type="button"
-                class="px-4 py-2 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-50"
-                (click)="closeAll.emit()"
-              >
+              <button type="button" class="dg-btn-secondary text-xs" (click)="closeAll.emit()">
                 Cerrar
               </button>
               <button
                 type="button"
-                class="px-4 py-2 bg-cyan-600 text-white text-xs font-semibold rounded-lg hover:bg-cyan-700"
+                class="dg-btn-primary text-xs"
                 (click)="insertWatermark.emit(); closeAll.emit()"
               >
                 Insertar marca de agua
               </button>
             </div>
           }
+          </div>
         </div>
       </div>
-    </div>
+    }
   `,
 })
 export class DocumentToolsModalComponent {

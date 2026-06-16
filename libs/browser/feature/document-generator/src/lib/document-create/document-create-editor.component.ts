@@ -5,6 +5,7 @@ import {
   ViewEncapsulation,
   inject,
   isDevMode,
+  OnDestroy,
   OnInit,
   ViewChild,
   ElementRef,
@@ -141,7 +142,7 @@ interface SelectedTextFormat {
   styleUrl: './document-create-editor.component.css',
   encapsulation: ViewEncapsulation.None,
 })
-export class DocumentCreateEditorComponent implements OnInit {
+export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   selectedType: DocumentType | null = null;
   documentForm: FormGroup;
   isGenerating = false;
@@ -169,7 +170,6 @@ export class DocumentCreateEditorComponent implements OnInit {
   /** Feedback breve tras copiar Markdown al portapapeles. */
   copyMarkdownFeedback = false;
   fullscreenMode = false;
-  fullscreenTab: 'editor' | 'preview' = 'editor';
   contentEditorMode: ContentEditorMode = 'markdown';
   editorSurface: EditorSurface = 'legacy';
   importFeedback = '';
@@ -2709,6 +2709,11 @@ ${PDF_COVER_SHARED_CSS}
 
   @HostListener('document:keydown', ['$event'])
   handleGlobalKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.fullscreenMode) {
+      event.preventDefault();
+      this.toggleFullscreen();
+      return;
+    }
     if (event.ctrlKey && event.key === 's') {
       event.preventDefault();
       void this.saveDraft();
@@ -3493,8 +3498,21 @@ blockquote {
 
   toggleFullscreen() {
     this.fullscreenMode = !this.fullscreenMode;
-    if (this.fullscreenMode) {
-      this.fullscreenTab = 'editor';
+    this.applyFullscreenBodyLock(this.fullscreenMode);
+  }
+
+  ngOnDestroy(): void {
+    this.applyFullscreenBodyLock(false);
+  }
+
+  private applyFullscreenBodyLock(active: boolean): void {
+    const root = document.documentElement;
+    if (active) {
+      root.classList.add('dg-editor-fullscreen');
+      document.body.style.overflow = 'hidden';
+    } else {
+      root.classList.remove('dg-editor-fullscreen');
+      document.body.style.overflow = '';
     }
   }
 

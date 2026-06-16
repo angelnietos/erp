@@ -90,3 +90,249 @@ html[data-erp-ui-shell='document-generator'] .doc-chat-bubble-bot {
   background: rgba(255, 255, 255, 0.96);
   border: 1px solid #e2e8f0;
 }
+
+/* Temas claros del selector docs (latte, paper, pearl…) */
+html[data-erp-ui-shell='document-generator'][data-theme-is-light='true'] {
+  color-scheme: light;
+}
+
+html[data-erp-ui-shell='document-generator'][data-theme-is-light='false'] {
+  color-scheme: dark;
+}
+
+html[data-erp-ui-shell='document-generator'][data-theme='latte'],
+html[data-erp-ui-shell='document-generator'][data-theme='paper'],
+html[data-erp-ui-shell='document-generator'][data-theme='pearl'] {
+  --text-primary: var(--text-primary);
+  --text-secondary: var(--text-secondary);
+  --text-muted: var(--text-muted);
+  --border-soft: var(--border-soft);
+}
+
+/* --- Componentes semánticos (sin depender de dark: del SO) --- */
+html[data-erp-ui-shell='document-generator'] .dg-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-solid, var(--bg-secondary));
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-field::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-field:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--brand) 55%, var(--border-soft));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 18%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-ai-panel {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--brand) 22%, var(--border-soft));
+  background: color-mix(in srgb, var(--brand) 5%, var(--bg-secondary));
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 18px color-mix(in srgb, var(--text-primary) 6%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-ai-panel__title {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-ai-panel__body,
+html[data-erp-ui-shell='document-generator'] .dg-ai-panel p {
+  color: var(--text-secondary);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-ai-panel a {
+  color: var(--brand);
+  font-weight: 600;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-on-brand, #fff) !important;
+  background: var(--brand);
+  border: none;
+  cursor: pointer;
+  transition: filter 0.15s ease;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary) !important;
+  background: var(--surface-solid, var(--bg-secondary));
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-btn-secondary:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--border-soft));
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-template-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-solid, var(--bg-secondary));
+  color: var(--text-primary);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--text-primary) 5%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-template-btn:hover {
+  border-color: color-mix(in srgb, var(--brand) 40%, var(--border-soft));
+  background: color-mix(in srgb, var(--brand) 6%, var(--surface-solid, var(--bg-secondary)));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--brand) 10%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-template-btn__title {
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-template-btn__desc {
+  margin-top: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--text-secondary);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-alert-error {
+  color: color-mix(in srgb, var(--danger, #dc2626) 85%, #000);
+  background: color-mix(in srgb, var(--danger, #dc2626) 8%, var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--danger, #dc2626) 28%, var(--border-soft));
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.875rem;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-alert-success {
+  color: color-mix(in srgb, var(--success, #16a34a) 90%, #000);
+  background: color-mix(in srgb, var(--success, #16a34a) 10%, var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--success, #16a34a) 30%, var(--border-soft));
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.8125rem;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-alert-info {
+  color: color-mix(in srgb, var(--warning, #b45309) 90%, #000);
+  background: color-mix(in srgb, var(--warning, #f59e0b) 10%, var(--bg-secondary));
+  border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 30%, var(--border-soft));
+  border-radius: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.8125rem;
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-loading-overlay {
+  background: color-mix(in srgb, var(--bg-secondary) 88%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-overlay {
+  background: color-mix(in srgb, var(--text-primary) 55%, transparent);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-modal {
+  background: var(--surface-solid, var(--bg-secondary));
+  border: 1px solid var(--border-soft);
+  color: var(--text-primary);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-modal__header {
+  background: color-mix(in srgb, var(--bg-tertiary, var(--bg-secondary)) 80%, transparent);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+html[data-erp-ui-shell='document-generator'] .dg-modal__subtitle {
+  color: var(--text-muted);
+}
+
+html[data-erp-ui-shell='document-generator'] .document-create-page {
+  padding-bottom: 2rem;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-create-shell {
+  color: var(--text-primary);
+}
+
+html[data-erp-ui-shell='document-generator'] .document-create-shell label,
+html[data-erp-ui-shell='document-generator'] .document-create-shell h2,
+html[data-erp-ui-shell='document-generator'] .document-create-shell h3 {
+  color: var(--text-primary);
+}
+
+html[data-erp-ui-shell='document-generator'] .document-create-shell .text-secondary,
+html[data-erp-ui-shell='document-generator'] .document-create-shell p.text-secondary {
+  color: var(--text-secondary) !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-create-shell .text-muted {
+  color: var(--text-muted) !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-textarea,
+html[data-erp-ui-shell='document-generator'] .document-css-panel__textarea {
+  background: var(--surface-solid, var(--bg-secondary)) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-soft) !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-editor-canvas,
+html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-live-preview,
+html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-editor-toolbar {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-editor-canvas,
+html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-live-preview {
+  min-height: clamp(28rem, 62vh, 52rem);
+}
+
+html[data-erp-ui-shell='document-generator'] .document-preview-pane--iframe {
+  flex: 1 1 auto;
+  width: 100%;
+  border: none;
+  background: color-mix(in srgb, var(--bg-secondary) 92%, #e8ecf1);
+}

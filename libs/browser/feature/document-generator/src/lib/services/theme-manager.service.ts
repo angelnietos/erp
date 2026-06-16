@@ -143,10 +143,13 @@ export class ThemeManagerService {
 
       const root = document.documentElement;
       const isLight = theme.category === 'light';
-      root.style.setProperty(
-        '--text-muted',
-        isLight ? '#64748b' : 'rgba(255, 255, 255, 0.66)',
-      );
+      root.style.setProperty('--text-muted', this.resolveTextMuted(theme));
+      root.style.setProperty('--bg-tertiary', this.resolveBgTertiary(theme));
+      root.style.setProperty('--surface-hover', this.resolveSurfaceHover(theme));
+      root.style.setProperty('--surface-solid', theme.colors.bgSecondary);
+      root.style.setProperty('--danger', '#dc2626');
+      root.style.setProperty('--warning', '#d97706');
+      root.style.setProperty('--success', '#16a34a');
       root.style.setProperty('--text-on-brand', pickTextOnBrand(brandHex));
       root.style.setProperty(
         '--ring-focus',
@@ -158,6 +161,31 @@ export class ThemeManagerService {
   setTheme(theme: Theme): void {
     this.currentTheme.set(theme);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(theme));
+  }
+
+  /** Contraste legible para texto secundario según categoría del tema. */
+  private resolveTextMuted(theme: Theme): string {
+    const isLight = theme.category === 'light';
+    if (isLight) {
+      return `color-mix(in srgb, ${theme.colors.textPrimary} 38%, #475569)`;
+    }
+    return 'rgba(255, 255, 255, 0.78)';
+  }
+
+  private resolveBgTertiary(theme: Theme): string {
+    const isLight = theme.category === 'light';
+    if (isLight) {
+      return `color-mix(in srgb, ${theme.colors.bgSecondary} 88%, ${theme.colors.textPrimary} 4%)`;
+    }
+    return `color-mix(in srgb, ${theme.colors.bgSecondary} 92%, #ffffff 4%)`;
+  }
+
+  private resolveSurfaceHover(theme: Theme): string {
+    const isLight = theme.category === 'light';
+    if (isLight) {
+      return `color-mix(in srgb, ${theme.colors.bgSecondary} 96%, ${theme.colors.textPrimary} 2%)`;
+    }
+    return `color-mix(in srgb, ${theme.colors.surface} 88%, #ffffff 6%)`;
   }
 
   setThemeById(id: string): void {
@@ -320,7 +348,7 @@ export class ThemeManagerService {
         bgSecondary: '#3e3d32',
         surface: 'rgba(62, 61, 50, 0.85)',
         textPrimary: '#f8f8f2',
-        textSecondary: '#75715e',
+        textSecondary: '#cfcfc2',
         accent: '#a6e22e',
         border: 'rgba(248, 248, 242, 0.08)',
       },
@@ -439,7 +467,7 @@ export class ThemeManagerService {
         bgSecondary: '#fefce8',
         surface: 'rgba(254, 252, 232, 0.9)',
         textPrimary: '#451a03',
-        textSecondary: '#92400e',
+        textSecondary: '#78350f',
         accent: '#d97706',
         border: 'rgba(69, 26, 3, 0.08)',
       },
