@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -17,7 +17,12 @@ import {
 import type {
   PrivacyPolicyDto,
   PrivacySecurityStatusDto,
+  PrivacyRequestDto,
+  PrivacyRequestStatus,
+  RopaDocumentDto,
+  DpiaDocumentDto,
 } from '@josanz-erp/shared-data-access';
+import { downloadPrivacyJsonExport } from '@josanz-erp/shared-data-access';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 
@@ -176,7 +181,143 @@ import { forkJoin } from 'rxjs';
           La exportación incluye perfil, actividad de auditoría reciente y telemetría IA.
           La anonimización no elimina facturas ni registros con obligación legal de conservación.
         </p>
+
+        <h4 class="policy-sub">Solicitar borrado de cuenta</h4>
+        <p class="privacy-lead compact">
+          Abre una solicitud en la cola DPO. Un responsable revisará obligaciones legales antes de ejecutar.
+        </p>
+        <ui-button
+          variant="outline"
+          size="sm"
+          color="danger"
+          icon="user-x"
+          [loading]="requestingAccountErasure()"
+          (clicked)="requestAccountErasure()"
+        >
+          Solicitar borrado de cuenta (DPO)
+        </ui-button>
+
+        @if (myRequests().length) {
+          <h4 class="policy-sub">Mis solicitudes</h4>
+          <ul class="request-list">
+            @for (r of myRequests(); track r.id) {
+              <li>
+                <span>{{ r.type }} · {{ r.status }}</span>
+                <small>{{ r.createdAt | date: 'short' }}</small>
+              </li>
+            }
+          </ul>
+        }
       </ui-card>
+
+      @if (canManagePrivacy()) {
+        <ui-card variant="glass" class="privacy-card dpo-card">
+          <h3 class="config-subtitle">
+            <lucide-icon name="clipboard-list" size="16" aria-hidden="true"></lucide-icon>
+            Cola DPO (admin)
+          </h3>
+          @if (dpoQueue().length === 0) {
+            <p class="privacy-lead compact">No hay solicitudes pendientes.</p>
+          } @else {
+            <ul class="dpo-queue">
+              @for (item of dpoQueue(); track item.id) {
+                <li class="dpo-item">
+                  <div class="dpo-item-head">
+                    <ui-badge [variant]="statusVariant(item.status)">{{ item.status }}</ui-badge>
+                    <strong>{{ item.type }}</strong>
+                    <small>{{ item.createdAt | date: 'short' }}</small>
+                  </div>
+                  @if (item.userMessage) {
+                    <p class="dpo-msg">{{ item.userMessage }}</p>
+                  }
+                  <div class="dpo-actions">
+                    @if (item.status === 'PENDING' || item.status === 'IN_REVIEW') {
+                      <ui-button size="sm" variant="ghost" (clicked)="review(item.id, 'APPROVED')">
+                        Aprobar
+                      </ui-button>
+                      <ui-button size="sm" variant="ghost" color="danger" (clicked)="review(item.id, 'REJECTED')">
+                        Rechazar
+                      </ui-button>
+                    }
+                    @if (item.status === 'APPROVED') {
+                      <ui-button
+                        size="sm"
+                        variant="solid"
+                        color="danger"
+                        [loading]="executingId() === item.id"
+                        (clicked)="execute(item.id)"
+                      >
+                        Ejecutar
+                      </ui-button>
+                    }
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </ui-card>
+      }
+
+      @if (ropa(); as ropaDoc) {
+        <ui-card variant="glass" class="privacy-card compliance-card">
+          <h3 class="config-subtitle">
+            <lucide-icon name="file-text" size="16" aria-hidden="true"></lucide-icon>
+            ROPA — Registro de tratamientos (art. 30)
+          </h3>
+          <p class="privacy-lead compact">
+            Versión {{ ropaDoc.version }} · Actualizado {{ ropaDoc.updatedAt }}
+          </p>
+          <div class="compliance-table-wrap">
+            <table class="compliance-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tratamiento</th>
+                  <th>Base legal</th>
+                  <th>Retención</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (t of ropaDoc.treatments; track t.id) {
+                  <tr>
+                    <td>{{ t.id }}</td>
+                    <td>{{ t.name }}</td>
+                    <td>{{ t.lawfulBasis }}</td>
+                    <td>{{ t.retentionDays ? t.retentionDays + ' d' : '—' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <ui-button variant="ghost" size="sm" icon="download" (clicked)="downloadRopa()">
+            Descargar ROPA (JSON)
+          </ui-button>
+        </ui-card>
+      }
+
+      @if (dpia(); as dpiaDoc) {
+        <ui-card variant="glass" class="privacy-card compliance-card">
+          <h3 class="config-subtitle">
+            <lucide-icon name="shield-check" size="16" aria-hidden="true"></lucide-icon>
+            DPIA — Evaluación de impacto (art. 35)
+          </h3>
+          <p class="privacy-lead compact">{{ dpiaDoc.conclusion }}</p>
+          <ui-badge [variant]="dpiaDoc.acceptable ? 'success' : 'warning'">
+            {{ dpiaDoc.acceptable ? 'Riesgo residual admisible' : 'Revisión requerida' }}
+          </ui-badge>
+          <ul class="dpia-risks">
+            @for (r of dpiaDoc.risks; track r.id) {
+              <li>
+                <strong>{{ r.id }}</strong> — {{ r.description }}
+                <span class="risk-meta">{{ r.level }} · {{ r.status }}</span>
+              </li>
+            }
+          </ul>
+          <ui-button variant="ghost" size="sm" icon="download" (clicked)="downloadDpia()">
+            Descargar DPIA (JSON)
+          </ui-button>
+        </ui-card>
+      }
     </section>
 
     <ui-modal
@@ -435,6 +576,91 @@ import { forkJoin } from 'rxjs';
         gap: 0.75rem;
         width: 100%;
       }
+
+      .privacy-lead.compact {
+        margin-bottom: 0.75rem;
+      }
+
+      .request-list,
+      .dpo-queue {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .request-list li {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.82rem;
+        padding: 0.35rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        color: #475569;
+      }
+
+      .dpo-card {
+        margin-top: 1.5rem;
+      }
+      .dpo-item {
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      }
+      .dpo-item-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .dpo-msg {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin: 0 0 0.5rem;
+      }
+      .dpo-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .compliance-card {
+        margin-top: 1.5rem;
+      }
+      .compliance-table-wrap {
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .compliance-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.78rem;
+      }
+      .compliance-table th,
+      .compliance-table td {
+        padding: 0.45rem 0.6rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        text-align: left;
+        color: #475569;
+      }
+      .compliance-table th {
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .dpia-risks {
+        list-style: none;
+        margin: 1rem 0;
+        padding: 0;
+      }
+      .dpia-risks li {
+        font-size: 0.82rem;
+        color: #475569;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+      .risk-meta {
+        display: block;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 0.15rem;
+      }
     `,
   ],
 })
@@ -450,6 +676,17 @@ export class SettingsSecurityTabComponent implements OnInit {
   readonly erasureModalOpen = signal(false);
   readonly policy = signal<PrivacyPolicyDto | null>(null);
   readonly securityStatus = signal<PrivacySecurityStatusDto | null>(null);
+  readonly myRequests = signal<PrivacyRequestDto[]>([]);
+  readonly dpoQueue = signal<PrivacyRequestDto[]>([]);
+  readonly requestingAccountErasure = signal(false);
+  readonly executingId = signal<string | null>(null);
+  readonly ropa = signal<RopaDocumentDto | null>(null);
+  readonly dpia = signal<DpiaDocumentDto | null>(null);
+
+  readonly canManagePrivacy = computed(() => {
+    const p = this.auth.permissions();
+    return p.includes('*') || p.includes('privacy.manage');
+  });
 
   readonly sessionTimeoutOptions = [
     { value: 15, label: '15 Minutos' },
@@ -469,15 +706,86 @@ export class SettingsSecurityTabComponent implements OnInit {
     forkJoin({
       policy: this.privacyApi.getPolicy(),
       status: this.privacyApi.getSecurityStatus(),
+      mine: this.privacyApi.myRequests(),
+      ropa: this.privacyApi.getRopa(),
+      dpia: this.privacyApi.getDpia(),
     }).subscribe({
-      next: ({ policy, status }) => {
+      next: ({ policy, status, mine, ropa, dpia }) => {
         this.policy.set(policy);
         this.securityStatus.set(status);
+        this.myRequests.set(mine);
+        this.ropa.set(ropa);
+        this.dpia.set(dpia);
         this.loading.set(false);
+        if (this.canManagePrivacy()) {
+          this.loadDpoQueue();
+        }
       },
       error: () => {
         this.loading.set(false);
         this.toast.show('No se pudo cargar la información de privacidad', 'error');
+      },
+    });
+  }
+
+  loadDpoQueue(): void {
+    this.privacyApi.listDpoQueue().subscribe({
+      next: (rows) => this.dpoQueue.set(rows),
+      error: () => this.toast.show('No se pudo cargar la cola DPO', 'error'),
+    });
+  }
+
+  statusVariant(status: PrivacyRequestStatus): string {
+    if (status === 'APPROVED' || status === 'COMPLETED') return 'success';
+    if (status === 'REJECTED') return 'danger';
+    if (status === 'PARTIAL') return 'warning';
+    return 'info';
+  }
+
+  requestAccountErasure(): void {
+    this.requestingAccountErasure.set(true);
+    this.privacyApi
+      .createRequest({
+        type: 'ACCOUNT_ERASURE',
+        userMessage: 'Solicitud de borrado de cuenta desde Configuración',
+      })
+      .subscribe({
+        next: (r) => {
+          this.requestingAccountErasure.set(false);
+          this.myRequests.update((list) => [r, ...list]);
+          this.toast.show('Solicitud enviada a la cola DPO', 'success');
+          if (this.canManagePrivacy()) this.loadDpoQueue();
+        },
+        error: () => {
+          this.requestingAccountErasure.set(false);
+          this.toast.show('No se pudo crear la solicitud', 'error');
+        },
+      });
+  }
+
+  review(id: string, status: PrivacyRequestStatus): void {
+    this.privacyApi.reviewRequest(id, { status }).subscribe({
+      next: () => {
+        this.toast.show(`Solicitud ${status}`, 'success');
+        this.loadDpoQueue();
+        this.privacyApi.myRequests().subscribe((m) => this.myRequests.set(m));
+      },
+      error: () => this.toast.show('Error al revisar solicitud', 'error'),
+    });
+  }
+
+  execute(id: string): void {
+    this.executingId.set(id);
+    this.privacyApi.executeRequest(id).subscribe({
+      next: (r) => {
+        this.executingId.set(null);
+        this.toast.show(`Ejecutada (${r.status})`, 'success');
+        this.loadDpoQueue();
+        this.privacyApi.myRequests().subscribe((m) => this.myRequests.set(m));
+      },
+      error: () => {
+        this.executingId.set(null);
+        this.toast.show('Error al ejecutar solicitud', 'error');
       },
     });
   }
@@ -500,15 +808,10 @@ export class SettingsSecurityTabComponent implements OnInit {
     this.exporting.set(true);
     this.privacyApi.exportMyData().subscribe({
       next: (data) => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `josanz-datos-${this.auth.user()?.id ?? 'usuario'}-${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        downloadPrivacyJsonExport(
+          data,
+          `josanz-datos-${this.auth.user()?.id ?? 'usuario'}`,
+        );
         this.exporting.set(false);
         this.toast.show('Exportación completada', 'success');
       },
@@ -517,6 +820,16 @@ export class SettingsSecurityTabComponent implements OnInit {
         this.toast.show('Error al exportar datos', 'error');
       },
     });
+  }
+
+  downloadRopa(): void {
+    const doc = this.ropa();
+    if (doc) downloadPrivacyJsonExport(doc, 'ropa-josanz');
+  }
+
+  downloadDpia(): void {
+    const doc = this.dpia();
+    if (doc) downloadPrivacyJsonExport(doc, 'dpia-josanz');
   }
 
   openErasureModal(): void {

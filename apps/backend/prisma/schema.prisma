@@ -291,6 +291,7 @@ model Tenant {
   eventReports                 EventReport[]
   roles                        Role[]
   timeOffRequests              TimeOffRequest[]
+  privacyRequests              PrivacyRequest[]
 
   @@map("tenants")
 }
@@ -828,6 +829,30 @@ model AiInsight {
   @@index([tenantId, userId], map: "idx_ai_insights_tenant_user")
   @@index([tenantId, eventType], map: "idx_ai_insights_tenant_event")
   @@map("ai_insights")
+}
+
+/** Cola DPO — solicitudes RGPD (supresión, exportación, revisión legal). */
+model PrivacyRequest {
+  id               String    @id @default(uuid()) @db.Uuid
+  tenantId         String    @map("tenant_id") @db.Uuid
+  requesterUserId  String    @map("requester_user_id") @db.Uuid
+  type             String
+  status           String    @default("PENDING")
+  subjectType      String?   @map("subject_type")
+  subjectId        String?   @map("subject_id") @db.Uuid
+  userMessage      String?   @map("user_message")
+  dpoNotes         String?   @map("dpo_notes")
+  legalHold        Json?     @map("legal_hold")
+  reviewedByUserId String?   @map("reviewed_by_user_id") @db.Uuid
+  reviewedAt       DateTime? @map("reviewed_at")
+  completedAt      DateTime? @map("completed_at")
+  resultSummary    Json?     @map("result_summary")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, status, createdAt(sort: Desc)], map: "idx_privacy_requests_tenant_status")
+  @@map("privacy_requests")
 }
 
 enum ReferenceType {

@@ -6,7 +6,6 @@ export * from './lib/bff/keycloak-token.client';
 export * from './lib/bff/bff-session.middleware';
 
 export * from './lib/auth-keycloak.module';
-export * from './lib/domain/entities/keycloak-token.entity';
 export * from './lib/domain/ports/keycloak-user.port';
 export * from './lib/domain/ports/keycloak.config';
 export * from './lib/infrastructure/keycloak.strategy';

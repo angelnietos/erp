@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -10,7 +11,8 @@ import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import {
   ERP_BFF_COOKIE_NAMES,
   PLATFORM_BFF_COOKIE_NAMES,
-  InMemoryBffSessionStore,
+  BFF_SESSION_STORE,
+  BffSessionStorePort,
   KeycloakTokenClient,
   clearBffSessionCookies,
   setBffSessionCookies,
@@ -31,7 +33,7 @@ const TENANT_KEYCLOAK: Record<string, { realm: string; clientId: string }> = {
 export class BffAuthService {
   constructor(
     private readonly authService: AuthService,
-    private readonly sessions: InMemoryBffSessionStore,
+    @Inject(BFF_SESSION_STORE) private readonly sessions: BffSessionStorePort,
     private readonly keycloak: KeycloakTokenClient,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
@@ -120,7 +122,7 @@ export class BffAuthService {
     }
 
     const csrf = this.newCsrf();
-    const session = this.sessions.create({
+    const session = await this.sessions.create({
       kind: authMode === 'keycloak' ? 'keycloak' : 'local',
       accessToken,
       refreshToken,
@@ -190,7 +192,7 @@ export class BffAuthService {
     }
 
     const csrf = this.newCsrf();
-    const session = this.sessions.create({
+    const session = await this.sessions.create({
       kind: 'platform',
       accessToken,
       refreshToken,
@@ -203,27 +205,27 @@ export class BffAuthService {
     return { user: enriched.user, authMode, csrfToken: csrf };
   }
 
-  logoutErp(
+  async logoutErp(
     res: Response,
     cookies: Record<string, string | undefined>,
     sessionId?: string,
-  ): { ok: true } {
+  ): Promise<{ ok: true }> {
     const sid = sessionId ?? readCookie(cookies, ERP_BFF_COOKIE_NAMES.session);
     if (sid) {
-      this.sessions.delete(sid);
+      await this.sessions.delete(sid);
     }
     clearBffSessionCookies(res, ERP_BFF_COOKIE_NAMES);
     return { ok: true };
   }
 
-  logoutPlatform(
+  async logoutPlatform(
     res: Response,
     cookies: Record<string, string | undefined>,
     sessionId?: string,
-  ): { ok: true } {
+  ): Promise<{ ok: true }> {
     const sid = sessionId ?? readCookie(cookies, PLATFORM_BFF_COOKIE_NAMES.session);
     if (sid) {
-      this.sessions.delete(sid);
+      await this.sessions.delete(sid);
     }
     clearBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES);
     return { ok: true };

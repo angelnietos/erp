@@ -16,7 +16,7 @@ import {
   UiFeaturePageShellComponent,
   PiiMaskPipe,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore, GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, GlobalAuthStore, PrivacyApiService, ToastService, downloadPrivacyJsonExport } from '@josanz-erp/shared-data-access';
 
 import {
   Budget,
@@ -73,6 +73,27 @@ import {
                 <lucide-icon name="shield-check" size="12" aria-hidden="true"></lucide-icon>
                 Datos protegidos
               </ui-badge>
+            }
+            @if (canExportPrivacy()) {
+              <ui-button
+                variant="outline"
+                size="sm"
+                icon="download"
+                [loading]="exportingPrivacy()"
+                (clicked)="exportClientRgpd()"
+              >
+                Export RGPD
+              </ui-button>
+              <ui-button
+                variant="ghost"
+                size="sm"
+                color="danger"
+                icon="user-x"
+                [loading]="requestingErasure()"
+                (clicked)="requestClientErasure()"
+              >
+                Solicitar borrado DPO
+              </ui-button>
             }
             <ui-button variant="solid" size="sm" icon="pencil" (click)="onEdit()">Editar</ui-button>
           </div>
@@ -719,6 +740,8 @@ export class ClientsDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly clientService = inject(ClientService);
+  private readonly privacyApi = inject(PrivacyApiService);
+  private readonly toast = inject(ToastService);
 
   currentTheme = this.themeService.currentThemeData;
   client = signal<Client | null>(null);
@@ -726,10 +749,21 @@ export class ClientsDetailComponent implements OnInit {
   loadError = signal<string | null>(null);
   activeTab = signal('general');
   tabs = signal<{ id: string; label: string; badge?: number }[]>([]);
+  exportingPrivacy = signal(false);
+  requestingErasure = signal(false);
 
   readonly canViewUnmaskedPii = computed(() => {
     const perms = this.auth.permissions();
     return perms.includes('*') || perms.includes('pii.view_unmasked');
+  });
+
+  readonly canExportPrivacy = computed(() => {
+    const perms = this.auth.permissions();
+    return (
+      perms.includes('*') ||
+      perms.includes('privacy.manage') ||
+      perms.includes('privacy.export')
+    );
   });
 
   ngOnInit() {
@@ -844,5 +878,45 @@ export class ClientsDetailComponent implements OnInit {
       style: 'currency',
       currency: 'EUR',
     }).format(value);
+  }
+
+  exportClientRgpd(): void {
+    const id = this.client()?.id;
+    if (!id) return;
+    this.exportingPrivacy.set(true);
+    this.privacyApi.exportClientAdmin(id).subscribe({
+      next: (data) => {
+        downloadPrivacyJsonExport(data, `cliente-rgpd-${id.slice(0, 8)}`);
+        this.exportingPrivacy.set(false);
+        this.toast.show('Export RGPD del cliente completada', 'success');
+      },
+      error: () => {
+        this.exportingPrivacy.set(false);
+        this.toast.show('No se pudo exportar datos del cliente', 'error');
+      },
+    });
+  }
+
+  requestClientErasure(): void {
+    const id = this.client()?.id;
+    if (!id) return;
+    this.requestingErasure.set(true);
+    this.privacyApi
+      .createRequest({
+        type: 'CLIENT_ERASURE',
+        subjectType: 'CLIENT',
+        subjectId: id,
+        userMessage: `Borrado cliente ${this.client()?.name ?? id} desde detalle CRM`,
+      })
+      .subscribe({
+        next: () => {
+          this.requestingErasure.set(false);
+          this.toast.show('Solicitud enviada a la cola DPO', 'success');
+        },
+        error: () => {
+          this.requestingErasure.set(false);
+          this.toast.show('No se pudo crear la solicitud DPO', 'error');
+        },
+      });
   }
 }

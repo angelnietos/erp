@@ -1,13 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   PrismaService,
   AuditLogWriterService,
+  PiiCryptoService,
   requireRequestTenantId,
   requireRequestUserId,
 } from '@josanz-erp/shared-infrastructure';
 import { Request } from 'express';
 import { PrivacySecurityStatusDto } from './privacy-status.dto';
+import { BusinessDataExportDto } from './privacy-request.dto';
+import {
+  DPIA_ACTION_PLAN,
+  DPIA_RISKS,
+  DpiaDocumentDto,
+  ROPA_RIGHTS,
+  ROPA_TREATMENTS,
+  RopaDocumentDto,
+} from './privacy-compliance.data';
 
 export interface PrivacyPolicyDto {
   version: string;
@@ -34,28 +44,8 @@ export class PrivacyService {
     private readonly prisma: PrismaService,
     private readonly auditWriter: AuditLogWriterService,
     private readonly config: ConfigService,
+    private readonly piiCrypto: PiiCryptoService,
   ) {}
-
-  getSecurityStatus(): PrivacySecurityStatusDto {
-    const policy = this.getPolicy();
-    const piiKey =
-      this.config.get<string>('PII_ENCRYPTION_KEY') ??
-      this.config.get<string>('WEBHOOK_ENCRYPTION_KEY');
-    return {
-      encryptionAtRest: !!piiKey && piiKey.length >= 32,
-      piiRedactionEnabled: true,
-      auditInterceptorEnabled: true,
-      auditRetentionDays: parseInt(
-        this.config.get<string>('AUDIT_LOG_RETENTION_DAYS') ?? '730',
-        10,
-      ),
-      domainEventsRetentionDays: parseInt(
-        this.config.get<string>('DOMAIN_EVENTS_RETENTION_DAYS') ?? '365',
-        10,
-      ),
-      policyVersion: policy.version,
-    };
-  }
 
   getPolicy(): PrivacyPolicyDto {
     return {
@@ -86,6 +76,52 @@ export class PrivacyService {
         'Oposición (contactar DPO)',
       ],
       contactDpo: process.env['DPO_CONTACT_EMAIL'] ?? 'dpo@josanz.com',
+    };
+  }
+
+  getSecurityStatus(): PrivacySecurityStatusDto {
+    const policy = this.getPolicy();
+    const piiKey =
+      this.config.get<string>('PII_ENCRYPTION_KEY') ??
+      this.config.get<string>('WEBHOOK_ENCRYPTION_KEY');
+    return {
+      encryptionAtRest: !!piiKey && piiKey.length >= 32,
+      piiRedactionEnabled: true,
+      auditInterceptorEnabled: true,
+      auditRetentionDays: parseInt(
+        this.config.get<string>('AUDIT_LOG_RETENTION_DAYS') ?? '730',
+        10,
+      ),
+      domainEventsRetentionDays: parseInt(
+        this.config.get<string>('DOMAIN_EVENTS_RETENTION_DAYS') ?? '365',
+        10,
+      ),
+      policyVersion: policy.version,
+    };
+  }
+
+  getRopa(): RopaDocumentDto {
+    const policy = this.getPolicy();
+    return {
+      version: policy.version,
+      updatedAt: '2026-06-16',
+      dpoContact: policy.contactDpo,
+      treatments: ROPA_TREATMENTS,
+      dataSubjectRights: ROPA_RIGHTS,
+      markdownPath: 'docs/compliance/ROPA.md',
+    };
+  }
+
+  getDpia(): DpiaDocumentDto {
+    return {
+      version: '2026-06',
+      updatedAt: '2026-06-16',
+      conclusion:
+        'Tratamiento ADMISIBLE con controles implementados; Key Vault y DPA en producción obligatorios.',
+      acceptable: true,
+      risks: DPIA_RISKS,
+      actionPlan: DPIA_ACTION_PLAN,
+      markdownPath: 'docs/compliance/DPIA.md',
     };
   }
 
@@ -170,6 +206,166 @@ export class PrivacyService {
     });
 
     return { ok: true, anonymizedInsights: result.count };
+  }
+
+  async exportUserDataAdmin(
+    req: Request,
+    targetUserId: string,
+  ): Promise<BusinessDataExportDto> {
+    const actorId = requireRequestUserId(req);
+    const tenantId = requireRequestTenantId(req);
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: targetUserId, tenantId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        isActive: true,
+        createdAt: true,
+        roles: { include: { role: { select: { name: true } } } },
+      },
+    });
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const auditRows = await this.prisma.auditLog.findMany({
+      where: { userId: targetUserId },
+      orderBy: { createdAt: 'desc' },
+      take: 300,
+    });
+    const aiRows = await this.prisma.aiInsight.findMany({
+      where: { userId: targetUserId, tenantId },
+      orderBy: { createdAt: 'desc' },
+      take: 300,
+    });
+
+    await this.auditWriter.record(actorId, {
+      action: 'PRIVACY_ADMIN_EXPORT',
+      targetEntity: `User:${targetUserId}`,
+      tenantId,
+      ipAddress: this.clientIp(req),
+      changesJson: {
+        entityType: 'PRIVACY',
+        details: 'Exportación RGPD admin (usuario)',
+      },
+    });
+
+    return {
+      exportedAt: new Date().toISOString(),
+      exportedBy: actorId,
+      tenantId,
+      subjectType: 'USER',
+      subjectId: targetUserId,
+      data: {
+        profile: user,
+        auditActivity: auditRows,
+        aiTelemetry: aiRows,
+      },
+      legalRetentionNote:
+        'Datos de facturación del tenant no incluidos; conservación según obligación legal.',
+    };
+  }
+
+  async exportClientDataAdmin(
+    req: Request,
+    clientId: string,
+  ): Promise<BusinessDataExportDto> {
+    const actorId = requireRequestUserId(req);
+    const tenantId = requireRequestTenantId(req);
+
+    const client = await this.prisma.client.findFirst({
+      where: { id: clientId, tenantId },
+      include: {
+        contacts: true,
+        budgets: {
+          include: {
+            invoices: {
+              select: {
+                id: true,
+                invoiceNumber: true,
+                status: true,
+                total: true,
+                createdAt: true,
+              },
+            },
+            deliveryNotes: {
+              select: { id: true, status: true, createdAt: true },
+            },
+          },
+        },
+        eventReports: { take: 50, orderBy: { createdAt: 'desc' } },
+        rentals: { take: 50, orderBy: { createdAt: 'desc' } },
+      },
+    });
+    if (!client) {
+      throw new NotFoundException('Cliente no encontrado');
+    }
+
+    const decrypted = {
+      ...client,
+      taxId: this.piiCrypto.decryptField(client.taxId),
+      email: this.piiCrypto.decryptField(client.email),
+      phone: this.piiCrypto.decryptField(client.phone),
+      address: this.piiCrypto.decryptField(client.address),
+      contacts: client.contacts.map((c) => ({
+        ...c,
+        email: this.piiCrypto.decryptField(c.email),
+        phone: this.piiCrypto.decryptField(c.phone),
+        notes: this.piiCrypto.decryptField(c.notes),
+      })),
+    };
+
+    const invoiceIds: string[] = [];
+    for (const b of client.budgets) {
+      for (const inv of b.invoices) {
+        invoiceIds.push(inv.id);
+      }
+    }
+    const verifactuLogs =
+      invoiceIds.length > 0
+        ? await this.prisma.verifactuLog.findMany({
+            where: { tenantId, invoiceId: { in: invoiceIds } },
+            orderBy: { createdAt: 'desc' },
+            take: 100,
+          })
+        : [];
+
+    const invoiceSummary = {
+      count: invoiceIds.length,
+      totalAmount: client.budgets.reduce(
+        (sum, b) => sum + b.invoices.reduce((s, i) => s + (i.total ?? 0), 0),
+        0,
+      ),
+    };
+
+    await this.auditWriter.record(actorId, {
+      action: 'PRIVACY_ADMIN_EXPORT',
+      targetEntity: `Client:${clientId}`,
+      tenantId,
+      ipAddress: this.clientIp(req),
+      changesJson: {
+        entityType: 'PRIVACY',
+        details: 'Exportación RGPD admin (cliente / datos de negocio)',
+      },
+    });
+
+    return {
+      exportedAt: new Date().toISOString(),
+      exportedBy: actorId,
+      tenantId,
+      subjectType: 'CLIENT',
+      subjectId: clientId,
+      data: {
+        client: decrypted,
+        invoiceSummary,
+        verifactuComplianceLogs: verifactuLogs,
+      },
+      legalRetentionNote:
+        'Facturas incluidas como metadatos; PDF/XML conservados según Verifactu (6+ años).',
+    };
   }
 
   private clientIp(req: Request): string | undefined {

@@ -195,6 +195,7 @@
     "express": "^5.2.1",
     "helmet": "^8.1.0",
     "html2pdf.js": "^0.14.0",
+    "ioredis": "^5.11.1",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.2",
     "lucide-angular": "^1.0.0",

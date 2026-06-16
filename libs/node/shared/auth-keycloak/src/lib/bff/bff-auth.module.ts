@@ -1,6 +1,10 @@
 import { DynamicModule, Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { InMemoryBffSessionStore } from './bff-session.store';
+import {
+  InMemoryBffSessionStore,
+  provideBffSessionStore,
+  BFF_SESSION_STORE,
+} from './bff-session.store';
 import { KeycloakTokenClient } from './keycloak-token.client';
 import { BffSessionMiddleware } from './bff-session.middleware';
 
@@ -28,8 +32,18 @@ export class BffAuthModule implements NestModule {
       module: BffAuthModule,
       global: true,
       imports: [ConfigModule],
-      providers: [InMemoryBffSessionStore, KeycloakTokenClient, BffSessionMiddleware],
-      exports: [InMemoryBffSessionStore, KeycloakTokenClient, BffSessionMiddleware],
+      providers: [
+        InMemoryBffSessionStore,
+        provideBffSessionStore(),
+        KeycloakTokenClient,
+        BffSessionMiddleware,
+      ],
+      exports: [
+        InMemoryBffSessionStore,
+        BFF_SESSION_STORE,
+        KeycloakTokenClient,
+        BffSessionMiddleware,
+      ],
     };
   }
 

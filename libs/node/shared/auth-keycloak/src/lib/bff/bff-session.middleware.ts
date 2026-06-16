@@ -1,12 +1,11 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger, Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { InMemoryBffSessionStore } from './bff-session.store';
+import { BFF_SESSION_STORE, BffSessionStorePort } from './bff-session.store';
 import { ERP_BFF_COOKIE_NAMES, PLATFORM_BFF_COOKIE_NAMES } from './bff-session.entity';
 import { readCookie } from './bff-cookie.util';
 
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
-/** Rutas públicas de login/logout BFF (sin CSRF previo). */
 const CSRF_EXEMPT_PREFIXES = [
   '/api/bff/auth/login',
   '/api/bff/auth/logout',
@@ -25,9 +24,11 @@ function isCsrfExempt(path: string): boolean {
 export class BffSessionMiddleware implements NestMiddleware {
   private readonly logger = new Logger(BffSessionMiddleware.name);
 
-  constructor(private readonly sessions: InMemoryBffSessionStore) {}
+  constructor(
+    @Inject(BFF_SESSION_STORE) private readonly sessions: BffSessionStorePort,
+  ) {}
 
-  use(req: Request, res: Response, next: NextFunction): void {
+  async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const path = (req.originalUrl ?? req.url ?? req.path ?? '').split('?')[0];
     const cookies = (req as Request & { cookies?: Record<string, string> }).cookies ?? {};
 
@@ -37,7 +38,7 @@ export class BffSessionMiddleware implements NestMiddleware {
     const cookieNames = platformSid ? PLATFORM_BFF_COOKIE_NAMES : ERP_BFF_COOKIE_NAMES;
 
     if (sessionId) {
-      const session = this.sessions.get(sessionId);
+      const session = await this.sessions.get(sessionId);
       if (session) {
         if (!req.headers.authorization) {
           req.headers.authorization = `Bearer ${session.accessToken}`;

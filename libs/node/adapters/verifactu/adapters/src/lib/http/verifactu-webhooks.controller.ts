@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { encrypt } from '@josanz-erp/shared-infrastructure';
 import { VerifactuApiKeyGuard } from '../security/verifactu-api-key.guard';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 
@@ -32,10 +33,11 @@ export class VerifactuWebhooksController {
 
   @Get(':tenantId')
   async list(@Param('tenantId') tenantId: string) {
-    return this.prisma.verifactuWebhookEndpoint.findMany({
+    const rows = await this.prisma.verifactuWebhookEndpoint.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
+    return rows.map(({ secret: _secret, ...rest }) => rest);
   }
 
   @Post()
@@ -45,7 +47,7 @@ export class VerifactuWebhooksController {
         tenantId: dto.tenantId,
         eventType: dto.eventType,
         url: dto.url,
-        secret: dto.secret,
+        secret: encrypt(dto.secret),
         isActive: dto.isActive ?? true,
       },
     });

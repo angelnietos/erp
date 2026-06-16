@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { encrypt } from '@josanz-erp/shared-infrastructure';
 import {
   SubmitVerifactuInvoiceDto,
   VerifactuQrService,
@@ -110,11 +111,12 @@ export class VerifactuRuntimeFacade {
     return this.queueService.processPending(limit ?? 20);
   }
 
-  listWebhookEndpoints(tenantId: string) {
-    return this.prisma.verifactuWebhookEndpoint.findMany({
+  async listWebhookEndpoints(tenantId: string) {
+    const rows = await this.prisma.verifactuWebhookEndpoint.findMany({
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
+    return rows.map(({ secret: _s, ...rest }) => rest);
   }
 
   createWebhookEndpoint(dto: CreateWebhookEndpointDto) {
@@ -123,7 +125,7 @@ export class VerifactuRuntimeFacade {
         tenantId: dto.tenantId,
         eventType: dto.eventType,
         url: dto.url,
-        secret: dto.secret,
+        secret: encrypt(dto.secret),
         isActive: dto.isActive ?? true,
       },
     });

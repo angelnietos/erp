@@ -33,6 +33,21 @@ Tras el build del backend, si usas `copy-workspace-modules`: `pnpm run backend:c
 ## Retención de datos
 
 - `DOMAIN_EVENTS_RETENTION_DAYS`: job semanal purga filas antiguas en `domain_events` (0 = no purgar).
+- `AUDIT_LOG_RETENTION_DAYS`: purga semanal de `audit_logs` (default 730).
+- Ver [docs/compliance/README.md](../docs/compliance/README.md) para ROPA y DPIA.
+
+## Privacidad / cumplimiento (producción)
+
+| Variable | Obligatorio prod | Descripción |
+|----------|------------------|-------------|
+| `PII_ENCRYPTION_KEY` | Sí | Cifrado PII clientes + compatible webhooks (≥32 chars) |
+| `DPO_CONTACT_EMAIL` | Sí | Contacto DPO en política y UI |
+| `JWT_SECRET` | Sí | Tokens API |
+| `REDIS_URL` | Multi-nodo | Sesiones BFF centralizadas |
+
+Migración cola DPO: `20260616200000_privacy_dpo_requests`.
+
+API cumplimiento: `GET /api/privacy/ropa`, `GET /api/privacy/dpia`, cola DPO `/api/privacy/requests`.
 
 ## CORS
 

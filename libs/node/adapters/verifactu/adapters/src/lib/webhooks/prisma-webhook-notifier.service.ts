@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { decrypt } from '@josanz-erp/shared-infrastructure';
 import { WebhookNotifierPort, VerifactuWebhookEvent } from '@josanz-erp/verifactu-core';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 import { createHmac } from 'crypto';
@@ -19,7 +20,9 @@ export class PrismaWebhookNotifierService implements WebhookNotifierPort {
         invoiceId: event.invoiceId,
         payload: event.payload,
       });
-      const signature = createHmac('sha256', endpoint.secret).update(body).digest('hex');
+      const signature = createHmac('sha256', decrypt(endpoint.secret))
+        .update(body)
+        .digest('hex');
 
       let statusCode = 0;
       let ok = false;

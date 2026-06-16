@@ -4,6 +4,7 @@ import {
   inject,
   signal,
   ChangeDetectionStrategy,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -15,7 +16,7 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { UsersService } from '@josanz-erp/identity-data-access';
 import { ALL_APP_PERMISSION_IDS, User } from '@josanz-erp/identity-api';
-import { ThemeService, PluginStore, GlobalAuthStore, rbacAllows } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, GlobalAuthStore, rbacAllows, PrivacyApiService, ToastService, downloadPrivacyJsonExport } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'lib-user-detail',
@@ -62,6 +63,17 @@ import { ThemeService, PluginStore, GlobalAuthStore, rbacAllows } from '@josanz-
           @if (canManageUsers()) {
             <ui-button variant="solid" size="sm" icon="pencil" (clicked)="onEdit()">
               Editar
+            </ui-button>
+          }
+          @if (canExportPrivacy()) {
+            <ui-button
+              variant="outline"
+              size="sm"
+              icon="download"
+              [loading]="exportingPrivacy()"
+              (clicked)="exportUserRgpd()"
+            >
+              Export RGPD
             </ui-button>
           }
         </div>
@@ -279,14 +291,25 @@ export class UserDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly usersService = inject(UsersService);
   private readonly authStore = inject(GlobalAuthStore);
+  private readonly privacyApi = inject(PrivacyApiService);
+  private readonly toast = inject(ToastService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
   readonly canManageUsers = rbacAllows(this.authStore, 'users.manage');
+  readonly canExportPrivacy = computed(() => {
+    const p = this.authStore.permissions();
+    return (
+      p.includes('*') ||
+      p.includes('privacy.manage') ||
+      p.includes('privacy.export')
+    );
+  });
 
   user = signal<User | null>(null);
   isLoading = signal(true);
   error = signal<string | null>(null);
+  exportingPrivacy = signal(false);
 
   ngOnInit(): void {
     this.reload();
@@ -337,5 +360,22 @@ export class UserDetailComponent implements OnInit {
     }
     const count = perms.length;
     return count === 1 ? '1 permiso' : `${count} permisos`;
+  }
+
+  exportUserRgpd(): void {
+    const id = this.user()?.id;
+    if (!id) return;
+    this.exportingPrivacy.set(true);
+    this.privacyApi.exportUserAdmin(id).subscribe({
+      next: (data) => {
+        downloadPrivacyJsonExport(data, `usuario-rgpd-${id.slice(0, 8)}`);
+        this.exportingPrivacy.set(false);
+        this.toast.show('Export RGPD del usuario completada', 'success');
+      },
+      error: () => {
+        this.exportingPrivacy.set(false);
+        this.toast.show('No se pudo exportar datos del usuario', 'error');
+      },
+    });
   }
 }
