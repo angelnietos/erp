@@ -1,12 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
   TENANT_MODULE_CATALOG,
+  TENANT_MODULE_CATEGORY_LABELS_ES,
   type TenantModuleCatalogEntry,
+  type TenantModuleCategory,
 } from './tenant-module-catalog';
 
 type TenantRow = {
@@ -14,6 +16,12 @@ type TenantRow = {
   name: string;
   slug: string;
   enabledModuleIds: string[];
+};
+
+type ModuleCategoryGroup = {
+  id: TenantModuleCategory;
+  label: string;
+  modules: readonly TenantModuleCatalogEntry[];
 };
 
 @Component({
@@ -31,6 +39,13 @@ type TenantRow = {
       </header>
 
       <div class="main">
+      @if (success()) {
+        <div class="banner banner--success" role="status">
+          <span class="banner-icon banner-icon--success" aria-hidden="true">✓</span>
+          {{ success() }}
+        </div>
+      }
+
       @if (error()) {
         <div class="banner banner--error" role="alert">
           <span class="banner-icon" aria-hidden="true">!</span>
@@ -53,8 +68,31 @@ type TenantRow = {
           </p>
         </div>
       } @else {
+        <div class="toolbar">
+          <label class="search-field">
+            <span>Buscar tenant</span>
+            <input
+              type="search"
+              [ngModel]="tenantSearch()"
+              (ngModelChange)="tenantSearch.set($event)"
+              placeholder="Nombre o slug"
+            />
+          </label>
+          <div class="toolbar-count">
+            {{ filteredTenants().length }} de {{ tenants().length }} tenants
+          </div>
+        </div>
+
+        @if (filteredTenants().length === 0) {
+          <div class="state state--empty" role="status">
+            <p class="state-empty-title">Sin resultados</p>
+            <p class="state-empty-lede">
+              No hay tenants que coincidan con la búsqueda actual.
+            </p>
+          </div>
+        } @else {
         <div class="grid">
-          @for (t of tenants(); track t.id) {
+          @for (t of filteredTenants(); track t.id) {
             <article class="tile">
               <div class="tile-accent"></div>
               <div class="tile-head">
@@ -66,23 +104,45 @@ type TenantRow = {
               </div>
 
               <p class="section-label">Módulos contratados</p>
-              <div class="chip-grid" role="group" [attr.aria-label]="'Módulos para ' + t.name">
-                @for (m of catalog; track m.id) {
-                  <label class="chip" [class.chip--on]="isOn(t, m.id)">
-                    <input
-                      type="checkbox"
-                      class="chip-input"
-                      [ngModel]="isOn(t, m.id)"
-                      (ngModelChange)="toggle(t, m.id, $event)"
-                    />
-                    <span class="chip-glow"></span>
-                    <span class="chip-body">
-                      <span class="chip-dot" [class.chip-dot--on]="isOn(t, m.id)"></span>
-                      <span class="chip-label">{{ m.label }}</span>
-                    </span>
-                  </label>
+              <div class="module-groups" role="group" [attr.aria-label]="'Módulos para ' + t.name">
+                @for (group of catalogByCategory(); track group.id) {
+                  <section class="module-group">
+                    <div class="module-group-head">
+                      <span>{{ group.label }}</span>
+                      <span>{{ countEnabledInGroup(t, group.modules) }} / {{ group.modules.length }}</span>
+                    </div>
+                    <div class="chip-grid">
+                      @for (m of group.modules; track m.id) {
+                        <label class="chip" [class.chip--on]="isOn(t, m.id)">
+                          <input
+                            type="checkbox"
+                            class="chip-input"
+                            [ngModel]="isOn(t, m.id)"
+                            (ngModelChange)="toggle(t, m.id, $event)"
+                          />
+                          <span class="chip-glow"></span>
+                          <span class="chip-body">
+                            <span class="chip-icon" aria-hidden="true">{{ moduleIcon(m.icon) }}</span>
+                            <span class="chip-label">{{ m.label }}</span>
+                          </span>
+                        </label>
+                      }
+                    </div>
+                  </section>
                 }
               </div>
+
+              @if (hasPendingChanges(t)) {
+                <div class="pending-diff">
+                  <p>Cambios pendientes</p>
+                  @if (addedModules(t).length) {
+                    <span class="diff-pill diff-pill--add">+ {{ addedModules(t).join(', ') }}</span>
+                  }
+                  @if (removedModules(t).length) {
+                    <span class="diff-pill diff-pill--remove">- {{ removedModules(t).join(', ') }}</span>
+                  }
+                </div>
+              }
 
               @if (saveErrorByTenant()[t.id]) {
                 <p class="inline-error">{{ saveErrorByTenant()[t.id] }}</p>
@@ -92,7 +152,7 @@ type TenantRow = {
                 <button
                   type="button"
                   class="btn-primary"
-                  [disabled]="savingByTenant()[t.id]"
+                  [disabled]="savingByTenant()[t.id] || !hasPendingChanges(t)"
                   (click)="save(t)"
                 >
                   {{ savingByTenant()[t.id] ? 'Guardando…' : 'Guardar módulos' }}
@@ -101,6 +161,7 @@ type TenantRow = {
             </article>
           }
         </div>
+        }
       }
       </div>
     </div>
@@ -191,6 +252,63 @@ type TenantRow = {
         background: rgba(230, 0, 18, 0.1);
         border-color: rgba(230, 0, 18, 0.38);
         color: var(--sp-danger-text);
+      }
+
+      .banner--success {
+        background: rgba(78, 202, 114, 0.1);
+        border-color: rgba(78, 202, 114, 0.35);
+        color: #b8f3c7;
+      }
+
+      .banner-icon--success {
+        background: rgba(78, 202, 114, 0.35);
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.2rem;
+        padding: 1rem;
+        border: 1px solid var(--sp-line);
+        border-radius: var(--sp-radius-md);
+        background: linear-gradient(165deg, rgba(18, 21, 30, 0.55), rgba(8, 9, 14, 0.35));
+      }
+
+      .search-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        width: min(100%, 360px);
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--sp-muted);
+      }
+
+      .search-field input {
+        width: 100%;
+        padding: 0.72rem 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.11);
+        border-radius: var(--sp-radius-sm);
+        background: rgba(0, 0, 0, 0.26);
+        color: var(--sp-text);
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+      }
+
+      .search-field input:focus {
+        border-color: rgba(89, 168, 244, 0.65);
+        box-shadow: var(--sp-focus);
+      }
+
+      .toolbar-count {
+        color: var(--sp-muted);
+        font-size: 0.82rem;
+        font-weight: 600;
       }
 
       .state {
@@ -326,12 +444,35 @@ type TenantRow = {
         color: var(--sp-muted);
       }
 
-      .chip-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-        gap: 0.55rem;
+      .module-groups {
+        display: flex;
+        flex-direction: column;
+        gap: 0.9rem;
         padding: 0 1.3rem 1.05rem;
         flex: 1;
+      }
+
+      .module-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+
+      .module-group-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        color: rgba(232, 234, 239, 0.72);
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .chip-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.55rem;
       }
 
       .chip {
@@ -389,17 +530,17 @@ type TenantRow = {
         border-color: rgba(89, 168, 244, 0.45);
       }
 
-      .chip-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.28);
+      .chip-icon {
+        width: 1.35rem;
+        height: 1.35rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
-      }
-
-      .chip-dot--on {
-        background: var(--sp-accent-secondary);
-        box-shadow: 0 0 12px rgba(89, 168, 244, 0.75);
+        border-radius: 8px;
+        color: rgba(232, 234, 239, 0.86);
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 0.82rem;
       }
 
       .chip-label {
@@ -412,6 +553,40 @@ type TenantRow = {
         margin: 0 1.3rem 0.8rem;
         font-size: 0.82rem;
         color: #ff8a90;
+      }
+
+      .pending-diff {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin: 0 1.3rem 0.9rem;
+        padding: 0.72rem 0.82rem;
+        border: 1px dashed rgba(201, 162, 39, 0.38);
+        border-radius: var(--sp-radius-sm);
+        background: rgba(201, 162, 39, 0.08);
+      }
+
+      .pending-diff p {
+        margin: 0;
+        color: var(--sp-gold);
+        font-size: 0.68rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .diff-pill {
+        display: block;
+        font-size: 0.78rem;
+        line-height: 1.45;
+      }
+
+      .diff-pill--add {
+        color: #9be7b0;
+      }
+
+      .diff-pill--remove {
+        color: #ffb1b6;
       }
 
       .tile-actions {
@@ -460,13 +635,36 @@ export class TenantsPageComponent {
 
   readonly apiBase = environment.apiOrigin.replace(/\/$/, '');
   readonly catalog: readonly TenantModuleCatalogEntry[] = TENANT_MODULE_CATALOG;
+  readonly catalogByCategory = computed<readonly ModuleCategoryGroup[]>(() => {
+    const groups = new Map<TenantModuleCategory, TenantModuleCatalogEntry[]>();
+    for (const module of this.catalog) {
+      groups.set(module.category, [...(groups.get(module.category) ?? []), module]);
+    }
+    return Array.from(groups.entries()).map(([id, modules]) => ({
+      id,
+      label: TENANT_MODULE_CATEGORY_LABELS_ES[id],
+      modules,
+    }));
+  });
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly success = signal<string | null>(null);
   readonly tenants = signal<TenantRow[]>([]);
+  readonly tenantSearch = signal('');
+  readonly filteredTenants = computed(() => {
+    const query = this.tenantSearch().trim().toLowerCase();
+    if (!query) {
+      return this.tenants();
+    }
+    return this.tenants().filter((tenant) =>
+      `${tenant.name} ${tenant.slug}`.toLowerCase().includes(query),
+    );
+  });
 
   readonly savingByTenant = signal<Record<string, boolean>>({});
   readonly saveErrorByTenant = signal<Record<string, string | undefined>>({});
+  private readonly originalModuleIdsByTenant = signal<Record<string, string[]>>({});
 
   constructor() {
     void this.refresh();
@@ -474,6 +672,13 @@ export class TenantsPageComponent {
 
   countEnabled(t: TenantRow): number {
     return t.enabledModuleIds.length;
+  }
+
+  countEnabledInGroup(
+    t: TenantRow,
+    modules: readonly TenantModuleCatalogEntry[],
+  ): number {
+    return modules.filter((module) => this.isOn(t, module.id)).length;
   }
 
   isOn(t: TenantRow, moduleId: string): boolean {
@@ -488,6 +693,48 @@ export class TenantsPageComponent {
       set.delete(moduleId);
     }
     this.patchTenantLocal(t.id, Array.from(set));
+    this.success.set(null);
+  }
+
+  hasPendingChanges(t: TenantRow): boolean {
+    return this.addedModules(t).length > 0 || this.removedModules(t).length > 0;
+  }
+
+  addedModules(t: TenantRow): string[] {
+    const original = new Set(this.originalModuleIdsByTenant()[t.id] ?? []);
+    return t.enabledModuleIds
+      .filter((id) => !original.has(id))
+      .map((id) => this.moduleLabel(id));
+  }
+
+  removedModules(t: TenantRow): string[] {
+    const current = new Set(t.enabledModuleIds);
+    return (this.originalModuleIdsByTenant()[t.id] ?? [])
+      .filter((id) => !current.has(id))
+      .map((id) => this.moduleLabel(id));
+  }
+
+  moduleIcon(icon: string): string {
+    const icons: Record<string, string> = {
+      grid: 'G',
+      users: 'U',
+      briefcase: 'P',
+      key: 'K',
+      calendar: 'E',
+      clock: 'T',
+      wrench: 'S',
+      box: 'I',
+      truck: 'D',
+      car: 'F',
+      repeat: 'R',
+      calculator: '#',
+      receipt: '$',
+      shield: 'V',
+      sparkles: '*',
+      chart: '^',
+      history: 'A',
+    };
+    return icons[icon] ?? 'G';
   }
 
   private patchTenantLocal(tenantId: string, enabledModuleIds: string[]): void {
@@ -504,6 +751,7 @@ export class TenantsPageComponent {
         this.http.get<TenantRow[]>(`${this.apiBase}/api/platform/tenants`),
       );
       this.tenants.set(rows ?? []);
+      this.originalModuleIdsByTenant.set(this.snapshotRows(rows ?? []));
     } catch (e: unknown) {
       const msg = this.httpErrorMessage(e);
       this.error.set(msg);
@@ -513,6 +761,22 @@ export class TenantsPageComponent {
   }
 
   async save(t: TenantRow): Promise<void> {
+    if (!this.hasPendingChanges(t)) {
+      return;
+    }
+    const summary = [
+      ...this.addedModules(t).map((name) => `+ ${name}`),
+      ...this.removedModules(t).map((name) => `- ${name}`),
+    ];
+    const confirmed =
+      typeof window === 'undefined' ||
+      window.confirm(
+        `Guardar cambios de módulos para ${t.name}?\n\n${summary.join('\n')}`,
+      );
+    if (!confirmed) {
+      return;
+    }
+
     this.savingByTenant.update((m) => ({ ...m, [t.id]: true }));
     this.saveErrorByTenant.update((m) => ({ ...m, [t.id]: undefined }));
     try {
@@ -521,12 +785,28 @@ export class TenantsPageComponent {
           enabledModuleIds: t.enabledModuleIds,
         }),
       );
+      this.originalModuleIdsByTenant.update((m) => ({
+        ...m,
+        [t.id]: [...t.enabledModuleIds],
+      }));
+      this.success.set(`Módulos actualizados para ${t.name}.`);
     } catch (e: unknown) {
       const msg = this.httpErrorMessage(e);
       this.saveErrorByTenant.update((m) => ({ ...m, [t.id]: msg }));
     } finally {
       this.savingByTenant.update((m) => ({ ...m, [t.id]: false }));
     }
+  }
+
+  private snapshotRows(rows: TenantRow[]): Record<string, string[]> {
+    return rows.reduce<Record<string, string[]>>((acc, row) => {
+      acc[row.id] = [...row.enabledModuleIds];
+      return acc;
+    }, {});
+  }
+
+  private moduleLabel(moduleId: string): string {
+    return this.catalog.find((module) => module.id === moduleId)?.label ?? moduleId;
   }
 
   private httpErrorMessage(e: unknown): string {

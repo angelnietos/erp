@@ -1,11 +1,21 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { getPlatformToken } from './platform-auth.interceptor';
+import {
+  clearPlatformToken,
+  getPlatformToken,
+  isPlatformTokenExpired,
+} from './platform-auth.interceptor';
 
 export const platformAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
-  if (getPlatformToken()) {
+  const token = getPlatformToken();
+  if (token && !isPlatformTokenExpired(token)) {
     return true;
   }
-  return router.createUrlTree(['/login']);
+  if (token) {
+    clearPlatformToken();
+  }
+  return router.createUrlTree(['/login'], {
+    queryParams: token ? { reason: 'expired' } : undefined,
+  });
 };

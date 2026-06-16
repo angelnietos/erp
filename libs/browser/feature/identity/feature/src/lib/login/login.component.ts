@@ -140,6 +140,31 @@ export class LoginComponent implements OnInit {
     this.tenantSlug() === 'babooni' ? 'Babooni Technologies' : 'Josanz Audiovisuales'
   );
 
+  readonly authModeLabel = computed(() => {
+    if (this.store.loading()) {
+      return 'Verificando Keycloak SSO';
+    }
+    if (this.store.authMode() === 'keycloak') {
+      return 'Keycloak SSO activo';
+    }
+    if (this.store.authMode() === 'local') {
+      return this.store.keycloakAvailable() === false
+        ? 'Acceso local: Keycloak no disponible'
+        : 'Acceso local de respaldo';
+    }
+    return 'Keycloak SSO + acceso local';
+  });
+
+  readonly authModeTone = computed(() => {
+    if (this.store.authMode() === 'keycloak') {
+      return 'keycloak';
+    }
+    if (this.store.authMode() === 'local') {
+      return 'local';
+    }
+    return this.store.keycloakAvailable() === false ? 'local' : 'neutral';
+  });
+
   /** Fondos temáticos estilo videojuego (Babooni). */
   private readonly babooniOnlyThemes: BackgroundThemeOption[] = [
     { id: 'babooni-platform', name: 'Plataforma 2D', icon: LayoutGrid, color: '#2d7a3e' },

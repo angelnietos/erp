@@ -5,6 +5,10 @@ export {
   AUTH_KEYCLOAK_CONFIG,
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
+  IDENTITY_AUTH_MODE_SESSION_KEY,
+  IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY,
+  type IdentityAuthMeta,
+  type IdentityAuthMode,
 } from './lib/services/auth.service';
 export {
   getErpTenantSlug,

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, switchMap, of } from 'rxjs';
+import { Observable, catchError, map, switchMap, of, throwError, timeout } from 'rxjs';
 import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
 
@@ -38,19 +38,6 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
 const KEYCLOAK_TENANT_CONFIG: Record<string, { realm: string; clientId: string }> = {
   josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
   babooni: { realm: 'babooni-tenant', clientId: 'josanz-web-app-spa' },
-};
-
-const EMAIL_TO_USERNAME_MAP: Record<string, string> = {
-  'admin@josanz.com': 'admin',
-  'user@josanz-erp.local': 'user',
-  'alex@josanz.com': 'alex',
-  'dani@josanz.com': 'dani',
-  'platform@babooni.com': 'platform',
-  'root@babooni.com': 'root',
-  'florina.mahalean@babooni.com': 'florina',
-  'alvaro.ballesteros@babooni.com': 'alvaro',
-  'alejandro.ballesteros@babooni.com': 'alejandro',
-  'angel.nieto@babooni.com': 'angel',
 };
 
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
@@ -104,6 +91,14 @@ function mapKeycloakTokenToUserPayload(
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
 export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
+export type IdentityAuthMode = 'keycloak' | 'local' | 'none';
+export const IDENTITY_AUTH_MODE_SESSION_KEY = 'identity_auth_mode';
+export const IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY = 'identity_keycloak_available';
+
+export interface IdentityAuthMeta {
+  authMode: IdentityAuthMode;
+  keycloakAvailable: boolean | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -120,17 +115,88 @@ export class AuthService {
     const keycloakConfig = this.keycloakConfig;
     if (keycloakConfig?.enabled) {
       const tenantCfg = KEYCLOAK_TENANT_CONFIG[tenantSlug] ?? { realm: keycloakConfig.realm, clientId: keycloakConfig.clientId };
-      const tokenUrl = `${keycloakConfig.url}/realms/${tenantCfg.realm}/protocol/openid-connect/token`;
-      const body = new URLSearchParams();
-      body.set('grant_type', 'password');
-      body.set('client_id', tenantCfg.clientId);
-      body.set('username', EMAIL_TO_USERNAME_MAP[email] ?? email);
-      body.set('password', password);
-      body.set('scope', 'openid email profile');
+      return this.isKeycloakAvailable(tenantCfg.realm).pipe(
+        switchMap((available) => {
+          if (!available) {
+            return this.traditionalLogin(email, password, tenantSlug, false);
+          }
+          return this.keycloakLogin(email, password, tenantCfg).pipe(
+            catchError((keycloakError: unknown) =>
+              this.traditionalLogin(email, password, tenantSlug, true).pipe(
+                catchError((localError: unknown) =>
+                  throwError(() => this.mergeLoginErrors(keycloakError, localError)),
+                ),
+              ),
+            ),
+          );
+        }),
+      );
+    }
+    return this.traditionalLogin(email, password, tenantSlug, false);
+  }
 
-      return this.http.post<KeycloakTokenResponse>(tokenUrl, body.toString(), {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      }).pipe(
+  isKeycloakAvailable(realm = this.keycloakConfig?.realm ?? ''): Observable<boolean> {
+    const keycloakConfig = this.keycloakConfig;
+    if (!keycloakConfig?.enabled || !keycloakConfig.url || !realm) {
+      return of(false);
+    }
+    const base = keycloakConfig.url.replace(/\/$/, '');
+    return this.http
+      .get<unknown>(`${base}/realms/${realm}/.well-known/openid-configuration`)
+      .pipe(
+        timeout(2500),
+        map(() => true),
+        catchError(() => of(false)),
+      );
+  }
+
+  getPersistedAuthMeta(): IdentityAuthMeta {
+    if (typeof sessionStorage === 'undefined') {
+      return { authMode: 'none', keycloakAvailable: null };
+    }
+    const rawMode = sessionStorage.getItem(IDENTITY_AUTH_MODE_SESSION_KEY);
+    const rawAvailable = sessionStorage.getItem(IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY);
+    const authMode: IdentityAuthMode =
+      rawMode === 'keycloak' || rawMode === 'local' ? rawMode : 'none';
+    return {
+      authMode,
+      keycloakAvailable: rawAvailable === null ? null : rawAvailable === 'true',
+    };
+  }
+
+  describeLoginError(error: unknown): string {
+    if (error instanceof Error && error.message.trim()) {
+      return error.message;
+    }
+    if (error && typeof error === 'object' && 'error' in error) {
+      const err = (error as { error?: { message?: unknown } }).error;
+      if (typeof err?.message === 'string' && err.message.trim()) {
+        return err.message;
+      }
+    }
+    return 'No se pudo iniciar sesión.';
+  }
+
+  private keycloakLogin(
+    email: string,
+    password: string,
+    tenantCfg: { realm: string; clientId: string },
+  ): Observable<AuthResponse> {
+    const keycloakConfig = this.keycloakConfig;
+    if (!keycloakConfig?.enabled) {
+      return throwError(() => new Error('Keycloak no está configurado.'));
+    }
+    const tokenUrl = `${keycloakConfig.url.replace(/\/$/, '')}/realms/${tenantCfg.realm}/protocol/openid-connect/token`;
+    const body = new URLSearchParams();
+    body.set('grant_type', 'password');
+    body.set('client_id', tenantCfg.clientId);
+    body.set('username', email.trim());
+    body.set('password', password);
+    body.set('scope', 'openid email profile');
+
+    return this.http.post<KeycloakTokenResponse>(tokenUrl, body.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    }).pipe(
         switchMap((tokenResponse) => {
           const access_token = tokenResponse?.access_token;
           if (!access_token) {
@@ -140,6 +206,7 @@ export class AuthService {
           if (!payload || typeof payload['sub'] !== 'string') {
             throw new Error('Invalid Keycloak token payload');
           }
+          this.persistAuthMeta('keycloak', true);
 
           const isPlatformRealm = tenantCfg.realm === 'babooni-platform';
 
@@ -186,21 +253,48 @@ export class AuthService {
             ),
           );
         }),
-        catchError(() => {
-          return this.traditionalLogin(email, password, tenantSlug);
-        }),
       );
-    }
-    return this.traditionalLogin(email, password, tenantSlug);
   }
 
   private traditionalLogin(
     email: string,
     password: string,
     tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
+    keycloakAvailable = false,
   ): Observable<AuthResponse> {
     const body: LoginCredentials = { email, password, tenantSlug };
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, body);
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, body).pipe(
+      map((response) => {
+        this.persistAuthMeta('local', keycloakAvailable);
+        return response;
+      }),
+    );
+  }
+
+  private persistAuthMeta(mode: IdentityAuthMode, keycloakAvailable: boolean): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+    sessionStorage.setItem(IDENTITY_AUTH_MODE_SESSION_KEY, mode);
+    sessionStorage.setItem(IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY, String(keycloakAvailable));
+  }
+
+  private mergeLoginErrors(keycloakError: unknown, localError: unknown): Error {
+    const keycloakStatus = this.readHttpStatus(keycloakError);
+    const localStatus = this.readHttpStatus(localError);
+    if (keycloakStatus === 400 || keycloakStatus === 401 || localStatus === 400 || localStatus === 401) {
+      return new Error('Credenciales incorrectas para Keycloak y acceso local.');
+    }
+    if (localStatus === 0) {
+      return new Error('Keycloak responde, pero el backend local no está disponible para fallback.');
+    }
+    return new Error(this.describeLoginError(localError));
+  }
+
+  private readHttpStatus(error: unknown): number | null {
+    return error && typeof error === 'object' && 'status' in error
+      ? Number((error as { status?: unknown }).status)
+      : null;
   }
 
   refreshSession(): Observable<AuthResponse> {
@@ -236,6 +330,10 @@ export class AuthService {
 
   removeToken(): void {
     localStorage.removeItem('auth_token');
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.removeItem(IDENTITY_AUTH_MODE_SESSION_KEY);
+      sessionStorage.removeItem(IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY);
+    }
     clearStoredTenantId();
   }
 

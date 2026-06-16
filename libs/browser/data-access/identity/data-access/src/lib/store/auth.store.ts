@@ -3,7 +3,11 @@ import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of } from 'rxjs';
-import { AuthService, ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
+import {
+  AuthService,
+  ERP_TENANT_SLUG_SESSION_KEY,
+  type IdentityAuthMode,
+} from '../services/auth.service';
 import { syncErpTenantHtmlTheme } from '../utils/erp-tenant-theme';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
@@ -15,12 +19,16 @@ export interface IdentityAuthState {
   user: UserPayload | null;
   loading: boolean;
   error: string | null;
+  authMode: IdentityAuthMode;
+  keycloakAvailable: boolean | null;
 }
 
 const initialState: IdentityAuthState = {
   user: null,
   loading: false,
   error: null,
+  authMode: 'none',
+  keycloakAvailable: null,
 };
 
 export const AuthStore = signalStore(
@@ -39,8 +47,9 @@ export const AuthStore = signalStore(
       loadUserFromToken() {
         const session = authService.readPersistedSession();
         if (!session) return;
+        const authMeta = authService.getPersistedAuthMeta();
         
-        patchState(store, { user: session.user });
+        patchState(store, { user: session.user, ...authMeta });
         globalAuthStore.setUser({
           id: session.user.id,
           email: session.user.email,
@@ -52,15 +61,20 @@ export const AuthStore = signalStore(
 
       login: rxMethod<{ email: string; password: string; tenantSlug?: string }>(
         pipe(
-          tap(() => patchState(store, { loading: true, error: null })),
+          tap(() => patchState(store, { loading: true, error: null, keycloakAvailable: null })),
           switchMap(({ email, password, tenantSlug }) =>
             authService.login(email, password, tenantSlug).pipe(
               tap((response) => {
+                const authMeta = authService.getPersistedAuthMeta();
                 authService.setToken(response.accessToken);
                 if (response.tenantId) {
                   authService.setTenantId(response.tenantId);
                 }
-                patchState(store, { user: response.user, loading: false });
+                patchState(store, {
+                  user: response.user,
+                  loading: false,
+                  ...authMeta,
+                });
 
                 const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
                 globalAuthStore.setUser({
@@ -91,9 +105,11 @@ export const AuthStore = signalStore(
                 router.navigate(['/']);
               }),
               catchError((error) => {
+                const authMeta = authService.getPersistedAuthMeta();
                 patchState(store, {
                   loading: false,
-                  error: error.error?.message || 'Login failed',
+                  error: authService.describeLoginError(error),
+                  ...authMeta,
                 });
                 return of(null);
               }),
@@ -105,7 +121,11 @@ export const AuthStore = signalStore(
       logout() {
         tenantModulesRealtime.disconnect();
         authService.removeToken();
-        patchState(store, { user: null });
+        patchState(store, {
+          user: null,
+          authMode: 'none',
+          keycloakAvailable: null,
+        });
         globalAuthStore.logout();
         if (typeof sessionStorage !== 'undefined') {
           sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);

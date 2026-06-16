@@ -45,6 +45,15 @@
       </button>
     </div>
 
+    <div
+      class="auth-mode-pill animate-in stagger-3"
+      [class.auth-mode-pill--keycloak]="authModeTone() === 'keycloak'"
+      [class.auth-mode-pill--local]="authModeTone() === 'local'"
+    >
+      <span class="auth-mode-pill__dot" aria-hidden="true"></span>
+      <span>{{ authModeLabel() }}</span>
+    </div>
+
     @if (!useFigmaShellLogin()) {
     <!-- Theme Selector -->
     <div class="theme-selector-container animate-in stagger-3">

@@ -1,10 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { setPlatformToken } from './platform-auth.interceptor';
+import { KeycloakAuthService } from './keycloak-auth.service';
 
 @Component({
   standalone: true,
@@ -24,6 +24,14 @@ import { setPlatformToken } from './platform-auth.interceptor';
         <p class="lede">
           Administración de organizaciones, módulos y observabilidad (Babooni).
         </p>
+        <div
+          class="auth-status"
+          [class.auth-status--local]="authMode() === 'local'"
+          [class.auth-status--keycloak]="authMode() === 'keycloak'"
+        >
+          <span class="auth-status-dot"></span>
+          <span>{{ authStatusLabel() }}</span>
+        </div>
 
         <label class="field-label" for="pf-email">Email</label>
         <input
@@ -50,7 +58,7 @@ import { setPlatformToken } from './platform-auth.interceptor';
               <span class="sp-loading-dots" aria-hidden="true">
                 <span></span><span></span><span></span>
               </span>
-              Entrando
+              {{ loadingLabel() }}
             </span>
           } @else {
             Entrar
@@ -205,10 +213,46 @@ import { setPlatformToken } from './platform-auth.interceptor';
       }
 
       .lede {
-        margin: 0 0 1.6rem;
+        margin: 0 0 1rem;
         font-size: 0.92rem;
         line-height: 1.55;
         color: var(--sp-muted);
+      }
+
+      .auth-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0 1.4rem;
+        padding: 0.38rem 0.62rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.11);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--sp-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .auth-status--keycloak {
+        color: #9be7b0;
+        border-color: rgba(78, 202, 114, 0.32);
+        background: rgba(78, 202, 114, 0.08);
+      }
+
+      .auth-status--local {
+        color: #ffd784;
+        border-color: rgba(201, 162, 39, 0.38);
+        background: rgba(201, 162, 39, 0.1);
+      }
+
+      .auth-status-dot {
+        width: 0.48rem;
+        height: 0.48rem;
+        border-radius: 999px;
+        background: currentColor;
+        box-shadow: 0 0 12px currentColor;
       }
 
       .field-label {
@@ -339,33 +383,74 @@ import { setPlatformToken } from './platform-auth.interceptor';
   ],
 })
 export class LoginComponent {
-  private readonly http = inject(HttpClient);
+  private readonly auth = inject(KeycloakAuthService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   email = 'platform@babooni.com';
   password = '';
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly authMode = this.auth.authMode;
+  readonly loadingLabel = signal('Verificando Keycloak');
+  readonly authStatusLabel = computed(() => {
+    const mode = this.auth.authMode();
+    const available = this.auth.keycloakAvailable();
+    if (this.loading()) {
+      return this.loadingLabel();
+    }
+    if (mode === 'keycloak') {
+      return 'Keycloak SSO activo';
+    }
+    if (mode === 'local') {
+      return available === false
+        ? 'Acceso local: Keycloak no disponible'
+        : 'Acceso local de respaldo';
+    }
+    return available === false
+      ? 'Keycloak no disponible'
+      : 'Keycloak SSO + fallback local';
+  });
+
+  constructor() {
+    if (this.route.snapshot.queryParamMap.get('reason') === 'expired') {
+      this.error.set('La sesión ha caducado. Vuelve a iniciar sesión.');
+    }
+  }
 
   submit(): void {
     this.error.set(null);
+    this.loadingLabel.set('Verificando Keycloak');
     this.loading.set(true);
-    this.http
-      .post<{ accessToken: string }>('/api/platform/auth/login', {
-        email: this.email,
-        password: this.password,
-      })
+    this.auth
+      .login(this.email, this.password)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (r) => {
-          setPlatformToken(r.accessToken);
+        next: (result) => {
+          setPlatformToken(result.accessToken);
+          this.loadingLabel.set(
+            result.mode === 'keycloak'
+              ? 'Entrando con Keycloak'
+              : 'Entrando con acceso local',
+          );
           void this.router.navigateByUrl('/tenants');
         },
-        error: (e: { error?: { message?: string } }) => {
-          this.error.set(
-            e?.error?.message ?? 'No se pudo iniciar sesión.',
-          );
+        error: (e: unknown) => {
+          this.error.set(this.errorMessage(e));
         },
       });
+  }
+
+  private errorMessage(e: unknown): string {
+    if (e instanceof Error && e.message.trim()) {
+      return e.message;
+    }
+    if (e && typeof e === 'object' && 'error' in e) {
+      const err = (e as { error?: { message?: unknown } }).error;
+      if (typeof err?.message === 'string' && err.message.trim()) {
+        return err.message;
+      }
+    }
+    return 'No se pudo iniciar sesión.';
   }
 }
