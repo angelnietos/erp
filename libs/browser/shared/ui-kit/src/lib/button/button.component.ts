@@ -447,8 +447,8 @@ export class UiButtonComponent {
     if (['primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(val)) {
       this.color = val as ButtonColor;
       this.shape = 'auto';
-    } else if (['glass', 'outline', 'ghost', 'gradient', 'soft', 'link', 'flat', 'neumorphic', 'solid'].includes(val)) {
-      this.shape = val as ButtonShape;
+    } else if (['glass', 'outline', 'ghost', 'gradient', 'soft', 'link', 'flat', 'neumorphic', 'solid', 'filled'].includes(val)) {
+      this.shape = val === 'filled' ? 'solid' : (val as ButtonShape);
     } else if (val?.startsWith('outline-')) {
       this.shape = 'outline';
       const parts = val.split('-');
@@ -471,7 +471,7 @@ export class UiButtonComponent {
   getIconName(): string | null {
     if (this.icon) return this.icon;
     // Legacy support: if variant is not a known structural keyword, use it as icon name
-    if (this.variant && !['glass', 'solid', 'outline', 'ghost', 'link', 'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(this.variant)) {
+    if (this.variant && !['glass', 'solid', 'filled', 'outline', 'ghost', 'link', 'primary', 'secondary', 'danger', 'success', 'warning', 'info', 'app', 'default'].includes(this.variant)) {
       return this.variant;
     }
     return null;

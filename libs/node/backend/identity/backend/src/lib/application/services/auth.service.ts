@@ -300,6 +300,58 @@ export class AuthService {
     };
   }
 
+  /**
+   * Tras login Keycloak: el `sub` del token no coincide con el UUID en Postgres.
+   * Resuelve (o auto-provisiona) el usuario por email + tenant, como HybridJwtStrategy.
+   */
+  async resolveDbUserIdFromKeycloakClaims(params: {
+    email: string;
+    tenantId: string;
+    sub: string;
+    firstName?: string;
+    lastName?: string;
+  }): Promise<string> {
+    const email = params.email.trim();
+    if (!email) {
+      throw new UnauthorizedException('Token Keycloak sin email');
+    }
+
+    const existing = await this.userRepository.findByEmail(email, params.tenantId);
+    if (existing) {
+      return existing.id.value;
+    }
+
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: params.tenantId },
+      select: { id: true },
+    });
+    if (!tenant) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const adminRole = await this.prisma.role.findFirst({
+      where: {
+        tenantId: params.tenantId,
+        name: { in: ['Administrador', 'SuperAdmin'] },
+      },
+      orderBy: { name: 'asc' },
+    });
+
+    const created = await this.prisma.user.create({
+      data: {
+        email,
+        firstName: params.firstName ?? '',
+        lastName: params.lastName ?? '',
+        password: `keycloak:${params.sub}`,
+        tenantId: params.tenantId,
+        ...(adminRole ? { roles: { create: [{ roleId: adminRole.id }] } } : {}),
+      },
+      select: { id: true },
+    });
+
+    return created.id;
+  }
+
   private async mergeEffectivePermissions(
     tenantId: string,
     roleNames: string[],

@@ -88,15 +88,24 @@ export class BffAuthService {
     if (accessToken) {
       const keycloakAccessToken = accessToken;
       const payload = this.decodeJwt(keycloakAccessToken);
-      const userId = payload?.sub as string | undefined;
-      const tenantFromToken =
-        typeof payload?.tenant_id === 'string' ? payload.tenant_id : undefined;
-      if (!userId) {
+      if (!payload?.sub) {
         throw new UnauthorizedException('Token Keycloak inválido');
       }
+      const email =
+        (typeof payload.email === 'string' && payload.email) ||
+        (typeof payload.preferred_username === 'string' && payload.preferred_username) ||
+        dto.email;
       const tenantId =
-        tenantFromToken ?? (await this.resolveTenantIdFromSlug(slug));
-      enriched = await this.authService.refreshSession(userId, tenantId);
+        (typeof payload.tenant_id === 'string' ? payload.tenant_id : undefined) ??
+        (await this.resolveTenantIdFromSlug(slug));
+      const dbUserId = await this.authService.resolveDbUserIdFromKeycloakClaims({
+        email,
+        tenantId,
+        sub: String(payload.sub),
+        firstName: typeof payload.given_name === 'string' ? payload.given_name : undefined,
+        lastName: typeof payload.family_name === 'string' ? payload.family_name : undefined,
+      });
+      enriched = await this.authService.refreshSession(dbUserId, tenantId);
       accessToken = keycloakAccessToken;
     } else {
       const local = await this.authService.login(dto);
