@@ -18,7 +18,11 @@
         "main": "libs/isomorphic/api/rentals/api/src/index.ts",
         "tsConfig": "libs/isomorphic/api/rentals/api/tsconfig.lib.json",
         "assets": [
-          "libs/rentals/api/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/api/rentals/api",
+            "output": "."
+          }
         ]
       }
     },
@@ -33,5 +37,3 @@
     }
   }
 }
-
-

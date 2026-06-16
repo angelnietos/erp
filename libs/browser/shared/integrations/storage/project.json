@@ -18,7 +18,11 @@
         "main": "libs\\browser\\shared\\integrations\\storage/src/index.ts",
         "tsConfig": "libs\\browser\\shared\\integrations\\storage/tsconfig.lib.json",
         "assets": [
-          "libs/shared/integrations/storage/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/browser/shared/integrations/storage",
+            "output": "."
+          }
         ]
       }
     },

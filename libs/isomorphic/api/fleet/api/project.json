@@ -18,7 +18,11 @@
         "main": "libs/isomorphic/api/fleet/api/src/index.ts",
         "tsConfig": "libs/isomorphic/api/fleet/api/tsconfig.lib.json",
         "assets": [
-          "libs/fleet/api/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/api/fleet/api",
+            "output": "."
+          }
         ]
       }
     },
@@ -33,5 +37,3 @@
     }
   }
 }
-
-

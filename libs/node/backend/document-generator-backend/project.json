@@ -3,22 +3,35 @@
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/backend/document-generator-backend/src",
   "projectType": "library",
-  "tags": ["scope:document-generator", "type:backend"],
+  "tags": [
+    "scope:document-generator",
+    "type:backend"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/node/backend/document-generator-backend",
         "tsConfig": "libs/node/backend/document-generator-backend/tsconfig.json",
         "packageJson": "libs/node/backend/document-generator-backend/package.json",
         "main": "libs/node/backend/document-generator-backend/src/index.ts",
-        "assets": ["libs/node/backend/document-generator-backend/*.md"]
+        "assets": [
+          {
+            "glob": "*.md",
+            "input": "libs/node/backend/document-generator-backend",
+            "output": "."
+          }
+        ]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/document-generator-backend"],
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/node/backend/document-generator-backend"
+      ],
       "options": {
         "jestConfig": "libs/node/backend/document-generator-backend/jest.config.cts",
         "passWithNoTests": true

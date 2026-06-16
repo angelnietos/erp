@@ -18,7 +18,11 @@
         "main": "libs\\browser\\shared\\integrations\\email/src/index.ts",
         "tsConfig": "libs\\browser\\shared\\integrations\\email/tsconfig.lib.json",
         "assets": [
-          "libs/shared/integrations/email/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/browser/shared/integrations/email",
+            "output": "."
+          }
         ]
       }
     },

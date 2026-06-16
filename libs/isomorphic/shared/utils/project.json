@@ -17,8 +17,13 @@
         "main": "libs\\isomorphic\\shared\\utils/src/index.ts",
         "tsConfig": "libs\\isomorphic\\shared\\utils/tsconfig.lib.json",
         "assets": [
-          "libs/shared/utils/*.md"
-        ]
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/shared/utils",
+            "output": "."
+          }
+        ],
+        "outputPath": "dist/libs\\isomorphic\\shared\\utils"
       }
     },
     "test": {

@@ -18,7 +18,11 @@
         "main": "libs\\isomorphic\\shared\\events/src/index.ts",
         "tsConfig": "libs\\isomorphic\\shared\\events/tsconfig.lib.json",
         "assets": [
-          "libs/shared/events/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/shared/events",
+            "output": "."
+          }
         ]
       }
     },

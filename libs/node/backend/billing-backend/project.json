@@ -3,23 +3,36 @@
   "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/node/backend/billing-backend/src",
   "projectType": "library",
-  "tags": ["scope:billing", "type:backend"],
+  "tags": [
+    "scope:billing",
+    "type:backend"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
         "outputPath": "dist/libs/node/backend/billing-backend",
         "tsConfig": "libs/node/backend/billing-backend/tsconfig.lib.json",
         "packageJson": "libs/node/backend/billing-backend/package.json",
         "main": "libs/node/backend/billing-backend/src/index.ts",
-        "assets": ["libs/node/backend/billing-backend/*.md"]
+        "assets": [
+          {
+            "glob": "*.md",
+            "input": "libs/node/backend/billing-backend",
+            "output": "."
+          }
+        ]
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "options": {
-        "lintFilePatterns": ["libs/node/backend/billing-backend/**/*.ts"]
+        "lintFilePatterns": [
+          "libs/node/backend/billing-backend/**/*.ts"
+        ]
       }
     },
     "test": {
@@ -28,12 +41,9 @@
         "jestConfig": "libs/node/backend/billing-backend/jest.config.cts",
         "passWithNoTests": true
       },
-      "outputs": ["{workspaceRoot}/coverage/libs/node/backend/billing-backend"]
+      "outputs": [
+        "{workspaceRoot}/coverage/libs/node/backend/billing-backend"
+      ]
     }
   }
 }
-
-
-
-
-

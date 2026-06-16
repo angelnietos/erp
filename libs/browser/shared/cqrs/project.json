@@ -18,7 +18,11 @@
         "main": "libs\\browser\\shared\\cqrs/src/index.ts",
         "tsConfig": "libs\\browser\\shared\\cqrs/tsconfig.lib.json",
         "assets": [
-          "libs/shared/cqrs/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/browser/shared/cqrs",
+            "output": "."
+          }
         ]
       }
     },

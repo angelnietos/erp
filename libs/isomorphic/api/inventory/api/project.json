@@ -18,7 +18,11 @@
         "main": "libs/isomorphic/api/inventory/api/src/index.ts",
         "tsConfig": "libs/isomorphic/api/inventory/api/tsconfig.lib.json",
         "assets": [
-          "libs/inventory/api/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/api/inventory/api",
+            "output": "."
+          }
         ]
       }
     },
@@ -33,5 +37,3 @@
     }
   }
 }
-
-

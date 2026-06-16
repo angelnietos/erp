@@ -18,7 +18,11 @@
         "main": "libs\\isomorphic\\api\\billing\\api/src/index.ts",
         "tsConfig": "libs\\isomorphic\\api\\billing\\api/tsconfig.lib.json",
         "assets": [
-          "libs/billing/api/*.md"
+          {
+            "glob": "*.md",
+            "input": "libs/isomorphic/api/billing/api",
+            "output": "."
+          }
         ]
       }
     },
