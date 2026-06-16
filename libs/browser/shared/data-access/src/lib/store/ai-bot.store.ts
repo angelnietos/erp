@@ -28,6 +28,7 @@ import { AIMemoryService } from '../services/ai/ai-memory.service';
 import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
 import { OrchestrationBus } from '../services/ai/orchestration-bus.service';
+import { AiInsightsApiService } from '../services/ai-insights-api.service';
 
 const DYNAMIC_CANVAS_STORAGE_KEY = 'ai_dynamic_canvas';
 /** Overlay HTML en la pantalla de login: no se persiste (solo sesión SPA; Buddy puede inyectar bajo demanda). */
@@ -59,6 +60,7 @@ export class AIBotStore {
   private predictive = inject(AIPredictiveService);
   private masterFilterService = inject(MasterFilterService);
   private orchestrationBus = inject(OrchestrationBus);
+  private insightsApi = inject(AiInsightsApiService);
 
   // Expose Service Signals for Backward Compatibility or Direct Access
   readonly selectedProvider = this.inference.selectedProvider;
@@ -286,14 +288,58 @@ export class AIBotStore {
 
   async executeAction(
     actionStr: string,
-    opts?: { /** Bot cuyo chat ejecutó el [ACTION] (p. ej. buddy, events) */ sourceFeature?: string },
-  ): Promise<void> {
+    opts?: {
+      /** Bot cuyo chat ejecutó el [ACTION] (p. ej. buddy, events) */
+      sourceFeature?: string;
+      /** Resumen legible para AI Insights (p. ej. texto del bot antes del [ACTION]) */
+      summary?: string;
+    },
+  ): Promise<string[]> {
+    const logLenBefore = this.orchestrationBus.log().length;
     this.workflow.workflowOrchestratorFeature = opts?.sourceFeature ?? null;
     try {
-      return await this.workflow.executeAction(actionStr);
+      await this.workflow.executeAction(actionStr);
     } finally {
       this.workflow.workflowOrchestratorFeature = null;
     }
+    const newSteps = this.sliceNewOrchestrationLog(logLenBefore);
+    if (newSteps.length > 0) {
+      this.recordWorkflowInsight(opts?.sourceFeature, opts?.summary ?? '', newSteps);
+    }
+    return newSteps;
+  }
+
+  /** Entradas nuevas del log (orden cronológico: primero el paso más antiguo). */
+  private sliceNewOrchestrationLog(beforeLen: number): string[] {
+    const log = this.orchestrationBus.log();
+    const added = log.length - beforeLen;
+    if (added <= 0) return [];
+    return log.slice(0, added).reverse();
+  }
+
+  private recordWorkflowInsight(
+    sourceFeature: string | undefined,
+    summary: string,
+    steps: string[],
+  ): void {
+    const feature = sourceFeature ?? 'buddy';
+    const bot = this.getBotByFeature(feature);
+    const stepText = steps.join(' → ');
+    this.insightsApi
+      .record({
+        botId: bot?.id ?? feature,
+        feature,
+        title: `Orquestación: ${steps.length} paso${steps.length === 1 ? '' : 's'}`,
+        summary:
+          summary.trim().slice(0, 480) ||
+          stepText.replace(/\[\d{1,2}:\d{2}:\d{2}\]\s*/g, '').slice(0, 480),
+        metrics: { steps: steps.length },
+        metadata: { trace: stepText.slice(0, 500) },
+        priority: steps.some((s) => s.includes('⚠️') || s.includes('❌'))
+          ? 'HIGH'
+          : 'MEDIUM',
+      })
+      .subscribe();
   }
 
   getActionSystemPrompt(): string {

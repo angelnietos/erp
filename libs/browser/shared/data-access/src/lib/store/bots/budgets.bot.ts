@@ -25,7 +25,7 @@ export const BUDGETS_BOT: AIBot = {
     'Análisis de ROI',
     'Control de Gastos',
   ],
-  status: 'inactive',
+  status: 'active',
   color: '#34d399',
   secondaryColor: '#065f46',
   mascotType: 'budget',

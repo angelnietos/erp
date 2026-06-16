@@ -407,3 +407,105 @@
   font-size: 0.8rem;
   color: #fff;
 }
+
+.window-actions .action-btn.orchestration {
+  position: relative;
+}
+
+.window-actions .action-btn.orchestration.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--brand);
+}
+
+.orch-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 0.6rem;
+  line-height: 14px;
+  text-align: center;
+}
+
+.orchestration-panel {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.25);
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.orch-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.45rem;
+}
+
+.orch-pending {
+  margin-left: auto;
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.orch-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.orch-log-list {
+  margin: 0;
+  padding-left: 1rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+}
+
+.orch-log-list li {
+  margin-bottom: 0.2rem;
+}
+
+.workflow-trace {
+  margin-top: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-left: 3px solid;
+  border-radius: 0 8px 8px 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.workflow-trace-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+
+.workflow-steps {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.35;
+}
+
+.workflow-steps li {
+  margin-bottom: 0.2rem;
+}

@@ -41,6 +41,8 @@ type ChatMessageItem = {
   role: 'user' | 'bot';
   reasoning?: string;
   feedbackSubmitted?: boolean;
+  /** Pasos ejecutados tras un bloque [ACTION] */
+  workflowSteps?: string[];
 };
 
 type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
@@ -154,11 +156,24 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   readonly isOpen = signal(false);
   readonly messages = signal<ChatMessageItem[]>([]);
   readonly currentReasoning = signal<string>('');
+  readonly showOrchestrationLog = signal(false);
+  readonly recentOrchestrationLog = computed(() =>
+    this.orchestrationBus.log().slice(0, 10),
+  );
+  readonly pendingOrchestrationTasks = computed(() =>
+    this.orchestrationBus
+      .tasks()
+      .filter((t) => t.status === 'pending' || t.status === 'running'),
+  );
   hfToken = signal<string>(localStorage.getItem('hf_token') || '');
   currentInput = '';
 
   minimize() {
     this.isOpen.set(false);
+  }
+
+  toggleOrchestrationLog() {
+    this.showOrchestrationLog.update((v) => !v);
   }
 
   closeSession() {
@@ -518,12 +533,46 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         }
       }
 
+      let dashboardSnapshot = '';
+      const injectDashboard =
+        this.assistantRole === 'buddy' ||
+        this.feature === 'dashboard' ||
+        this.domainFeature() === 'dashboard';
+      if (injectDashboard) {
+        try {
+          const dash = await firstValueFrom(this.dashboardService.getSummary());
+          if (dash) {
+            dashboardSnapshot =
+              `\n\nKPIs del panel (API /api/analytics/dashboard-summary, ${dash.generatedAt}):\n` +
+              `- Ingresos totales: ${dash.metrics.totalRevenue.toLocaleString('es-ES')} €\n` +
+              `- Proyectos activos: ${dash.metrics.activeProjects}\n` +
+              `- Clientes: ${dash.metrics.totalClients}\n` +
+              `- Eventos completados: ${dash.metrics.completedEvents}\n` +
+              `- Tendencia ingresos: ${dash.trends.revenueChangePercent > 0 ? '+' : ''}${dash.trends.revenueChangePercent}%\n` +
+              (dash.charts.revenueByClient.length > 0
+                ? `- Top clientes: ${dash.charts.revenueByClient
+                    .slice(0, 3)
+                    .map((c) => `${c.name} (${c.revenue.toLocaleString('es-ES')} €)`)
+                    .join(', ')}\n`
+                : '');
+          }
+        } catch {
+          dashboardSnapshot =
+            '\n\n(No se pudieron cargar KPIs del dashboard; el usuario puede estar fuera del módulo o sin sesión.)\n';
+        }
+      }
+
       const domainHint =
         this.assistantRole === 'buddy'
           ? ` El usuario está ahora en el módulo **${this.domainFeature()}** del ERP; prioriza ese contexto en ejemplos y acciones.`
           : '';
       const botFeature = this.bot()?.feature ?? this.feature;
-      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${botFeature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Si el usuario pregunta sobre tus capacidades, menciona los comandos disponibles como cálculos matemáticos, búsqueda web, generación de imágenes, resumen de texto, hora y fecha actual. ${this.aiBotStore.getActionSystemPrompt()}${userLayerBlock}`;
+      const includeOrchestration =
+        this.assistantRole === 'buddy' || botFeature === 'buddy';
+      const orchestrationBlock = includeOrchestration
+        ? this.aiBotStore.getActionSystemPrompt()
+        : '';
+      const systemPrompt = `Eres ${displayName}, un asistente de IA especializado en ${botFeature}.${domainHint} Responde de manera útil, precisa y en español. Mantén el contexto de la conversación anterior. Para cálculos, hora/fecha y resúmenes cortos usa las capacidades locales; búsqueda web e imágenes están en modo demo (sin API externa conectada). ${orchestrationBlock}${userLayerBlock}`;
 
       const context =
         `${systemPrompt}\n\nHistorial de conversación reciente:\n${conversationHistory}\n\n` +
@@ -537,7 +586,8 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               )
               .join('\n')}\n\n`
           : '') +
-        technicianSnapshot;
+        technicianSnapshot +
+        dashboardSnapshot;
 
       // Generar respuesta usando proveedores gratuitos con contexto
       const response = await this.aiBotStore.generateFreeResponse(
@@ -547,22 +597,38 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
       // Detectar y procesar acciones del bot
       let displayResponse = response;
+      let workflowSteps: string[] | undefined;
       if (response.includes('[ACTION]')) {
         const parts = response.split('[ACTION]');
         displayResponse = parts[0].trim();
         const actionStr = parts[1].trim();
 
-        // Ejecutar la acción técnica en el sistema (Workflow)
-        await this.aiBotStore.executeAction(actionStr, {
+        workflowSteps = await this.aiBotStore.executeAction(actionStr, {
           sourceFeature: this.feature,
+          summary: displayResponse,
         });
+        if (
+          workflowSteps &&
+          workflowSteps.length > 0 &&
+          this.assistantRole === 'buddy'
+        ) {
+          this.showOrchestrationLog.set(true);
+        }
       }
 
       // Actualizar mensaje con respuesta (limpia de metadatos de acción)
       this.messages.update((m) =>
         m.map((msg) =>
           msg.id === typingId
-            ? { ...msg, text: displayResponse, id: Date.now().toString() }
+            ? {
+                ...msg,
+                text: displayResponse,
+                id: Date.now().toString(),
+                workflowSteps:
+                  workflowSteps && workflowSteps.length > 0
+                    ? workflowSteps
+                    : undefined,
+              }
             : msg,
         ),
       );
@@ -967,16 +1033,17 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
 
         case 'web_search': {
           const query = String(args['query'] ?? '');
-          reasoning = `Realizando búsqueda web para: ${query}`;
-          botResponse = `Buscando información sobre "${query}"... Para búsquedas avanzadas, considera usar Gemini como proveedor de IA.`;
-          // Aquí podrías integrar una API de búsqueda si tienes acceso
+          reasoning = `Modo demo: búsqueda web no conectada a API externa.`;
+          botResponse =
+            `En esta demo no hay búsqueda web en vivo conectada. Puedo ayudarte con datos del ERP, workflows multi-bot y KPIs del panel. Si quieres explorar **"${query}"**, te sugiero usar el proveedor Gemini con navegación manual o reformular la pregunta sobre inventario, clientes o eventos.`;
           break;
         }
 
         case 'generate_image': {
           const prompt = String(args['prompt'] ?? '');
-          reasoning = `Generando imagen con el prompt: ${prompt}`;
-          botResponse = `Generando imagen de "${prompt}"... Esta función requiere integración con servicios de IA como DALL-E o Stable Diffusion.`;
+          reasoning = `Modo demo: generación de imágenes no conectada.`;
+          botResponse =
+            `La generación de imágenes (**"${prompt}"**) no está conectada en esta demo. Puedo ayudarte con mascotas, temas, cálculos y orquestación de bots sobre la aplicación.`;
           break;
         }
 

@@ -80,6 +80,19 @@
           </div>
         </div>
         <div class="window-actions">
+          @if (assistantRole === 'buddy') {
+          <button
+            class="action-btn orchestration"
+            (click)="toggleOrchestrationLog()"
+            [class.active]="showOrchestrationLog()"
+            [title]="showOrchestrationLog() ? 'Ocultar bus de orquestación' : 'Ver bus de orquestación'"
+          >
+            <lucide-icon name="network" size="18"></lucide-icon>
+            @if (pendingOrchestrationTasks().length > 0) {
+            <span class="orch-badge">{{ pendingOrchestrationTasks().length }}</span>
+            }
+          </button>
+          }
           <button
             class="action-btn minimize"
             (click)="minimize()"
@@ -96,12 +109,34 @@
           </button>
         </div>
       </div>
+
+      @if (assistantRole === 'buddy' && showOrchestrationLog()) {
+      <div class="orchestration-panel" [style.border-color]="bot()!.color + '44'">
+        <div class="orch-panel-header">
+          <lucide-icon name="activity" size="14"></lucide-icon>
+          <span>Bus de orquestación</span>
+          @if (pendingOrchestrationTasks().length > 0) {
+          <span class="orch-pending">{{ pendingOrchestrationTasks().length }} en curso</span>
+          }
+        </div>
+        @if (recentOrchestrationLog().length === 0) {
+        <p class="orch-empty">Sin actividad reciente. Ejecuta un workflow con [ACTION] para ver pasos aquí.</p>
+        } @else {
+        <ul class="orch-log-list">
+          @for (line of recentOrchestrationLog(); track line) {
+          <li>{{ line }}</li>
+          }
+        </ul>
+        }
+      </div>
+      }
+
       <div class="chat-messages">
         <div class="message bot-msg">
           <p>
             ¡Hola! Soy {{ bot()!.name }}.
             @if (assistantRole === 'buddy') {
-              Estoy contigo en el módulo **{{ domainFeature() }}** del ERP. ¿En qué puedo ayudarte?
+              Estoy contigo en el módulo **{{ domainFeature() }}** del ERP. Puedo orquestar bots, navegar, filtrar datos y ejecutar workflows multi-paso. ¿En qué puedo ayudarte?
             } @else {
               Estoy analizando tus datos de **{{ bot()!.feature }}** en tiempo real. ¿En qué puedo ayudarte hoy?
             }
@@ -122,15 +157,14 @@
             <p><strong>Comandos disponibles:</strong></p>
             <ul>
               <li><code>calcula [expresión]</code> - Cálculos matemáticos</li>
-              <li><code>busca [término]</code> - Búsqueda web</li>
+              <li><code>busca [término]</code> - Modo demo (sin API web externa)</li>
               <li>
-                <code>genera imagen de [descripción]</code> - Generación de
-                imágenes
+                <code>genera imagen de [descripción]</code> - Modo demo (sin generador conectado)
               </li>
               <li><code>resume [texto]</code> - Resumen de texto</li>
-              <li><code>qué hora es</code> - Hora actual</li>
-              <li><code>qué fecha es</code> - Fecha actual</li>
+              <li><code>qué hora es</code> / <code>qué fecha es</code></li>
               <li><code>cambiar tema</code> - Cambiar apariencia</li>
+              <li>Workflows ERP: pide stock crítico, bajas médicas, presupuestos…</li>
             </ul>
           </div>
           }
@@ -162,6 +196,20 @@
             class="msg-content"
             [innerHTML]="msg.text"
           ></p>
+          }
+
+          @if (msg.workflowSteps && msg.workflowSteps.length > 0) {
+          <div class="workflow-trace" [style.border-color]="bot()!.color + '55'">
+            <div class="workflow-trace-header">
+              <lucide-icon name="list-checks" size="14"></lucide-icon>
+              <span>Workflow ejecutado ({{ msg.workflowSteps.length }} pasos)</span>
+            </div>
+            <ol class="workflow-steps">
+              @for (step of msg.workflowSteps; track step) {
+              <li>{{ step }}</li>
+              }
+            </ol>
+          </div>
           }
 
           <!-- Typing Indicator -->

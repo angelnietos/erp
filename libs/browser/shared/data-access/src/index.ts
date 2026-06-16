@@ -45,4 +45,6 @@ export type {
   OrchestrationTask,
   OrchestrationType,
 } from './lib/services/ai/orchestration-bus.service';
+export { AiInsightsApiService } from './lib/services/ai-insights-api.service';
+export type { CreateAiInsightPayload } from './lib/services/ai-insights-api.service';
 export { getAiFeatureFromUrl } from './lib/utils/ai-route-feature';

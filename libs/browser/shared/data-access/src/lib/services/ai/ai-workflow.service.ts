@@ -5,6 +5,7 @@ import { MasterFilterService } from '../master-filter.service';
 import { AIFormBridgeService } from '../ai-form-bridge.service';
 import { TechnicianApiService } from '../technician-api.service';
 import { OrchestrationBus } from './orchestration-bus.service';
+import { ToastService, ToastVariant } from '../toast.service';
 
 // Delegate handler registered by AIBotStore to avoid circular dependency
 type DelegateHandler = (
@@ -23,6 +24,7 @@ export class AIWorkflowService {
   private aiFormBridge = inject(AIFormBridgeService);
   private technicianApiService = inject(TechnicianApiService);
   private orchestrationBus = inject(OrchestrationBus);
+  private toast = inject(ToastService);
 
   // Registered by AIBotStore to handle delegate without circular dep
   private delegateHandler: DelegateHandler | null = null;
@@ -246,10 +248,14 @@ export class AIWorkflowService {
         break;
       }
 
-      // ─── Notify the user via toast (read from ToastService if registered) ─────
+      // ─── Notify the user via toast ────────────────────────────────────────────
       case 'notify': {
         const msg = (payload['message'] as string) ?? '';
-        if (msg) this.orchestrationBus.addLog(`💬 Notificación: ${msg}`);
+        const variant = ((payload['variant'] as string) ?? 'info') as ToastVariant;
+        if (msg) {
+          this.orchestrationBus.addLog(`💬 Notificación: ${msg}`);
+          this.toast.show(msg, variant === 'success' || variant === 'error' ? variant : 'info');
+        }
         break;
       }
 

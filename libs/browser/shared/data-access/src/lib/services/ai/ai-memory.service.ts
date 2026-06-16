@@ -1,6 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { AIRangeMemory } from '../../models/ai-bot.model';
 
+const STORAGE_KEY = 'ai_memory_persist_v1';
+
 @Injectable({ providedIn: 'root' })
 export class AIMemoryService {
   private readonly _globalMemories = signal<AIRangeMemory[]>([]);
@@ -17,6 +19,12 @@ export class AIMemoryService {
     >
   >({});
   readonly botWorkspaces = this._botWorkspaces.asReadonly();
+
+  private persistTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    this.hydrateFromStorage();
+  }
 
   remember(feature: string, text: string, importance = 5, isGlobal = false) {
     const memory: AIRangeMemory = {
@@ -46,6 +54,52 @@ export class AIMemoryService {
     });
 
     this.autoSummarizeMemories(feature);
+    this.schedulePersist();
+  }
+
+  private hydrateFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw) as {
+        global?: AIRangeMemory[];
+        workspaces?: Record<
+          string,
+          {
+            memories: AIRangeMemory[];
+            lastTasks: unknown[];
+            contextFiles: Record<string, unknown>;
+          }
+        >;
+      };
+      if (Array.isArray(data.global)) {
+        this._globalMemories.set(data.global);
+      }
+      if (data.workspaces && typeof data.workspaces === 'object') {
+        this._botWorkspaces.set(data.workspaces);
+      }
+    } catch {
+      /* ignore corrupt storage */
+    }
+  }
+
+  private schedulePersist() {
+    if (this.persistTimer) clearTimeout(this.persistTimer);
+    this.persistTimer = setTimeout(() => this.persistToStorage(), 400);
+  }
+
+  private persistToStorage() {
+    try {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          global: this._globalMemories(),
+          workspaces: this._botWorkspaces(),
+        }),
+      );
+    } catch {
+      /* quota or private mode */
+    }
   }
 
   private autoSummarizeMemories(feature: string) {
@@ -69,6 +123,7 @@ export class AIMemoryService {
           .slice(0, 100);
         return { ...current, [feature]: { ...ws, memories: limited } };
       });
+      this.schedulePersist();
     }
   }
 
