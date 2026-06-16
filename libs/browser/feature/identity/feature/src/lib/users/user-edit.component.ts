@@ -116,15 +116,6 @@ import { HttpErrorResponse } from '@angular/common/http';
               [attr.autocomplete]="'new-password'"
             />
             <p class="pw-hint">Mínimo 6 caracteres. El usuario podrá iniciar sesión con este correo.</p>
-            <div class="toggle-row">
-              <label class="chk">
-                <input type="checkbox" [(ngModel)]="draft.sendInviteEmail" name="sendInviteEmail" />
-                <span>Enviar invitación por email</span>
-              </label>
-              <p class="pw-hint invite-hint">
-                Se enviará un enlace para activar la cuenta y elegir contraseña.
-              </p>
-            </div>
           }
           @if (!createMode()) {
             <div class="toggle-row">
@@ -134,6 +125,32 @@ import { HttpErrorResponse } from '@angular/common/http';
               </label>
             </div>
           }
+
+          <section class="section invite-section">
+            <h2 class="section-title">Invitación por email</h2>
+            @if (createMode()) {
+              <label class="chk">
+                <input type="checkbox" [(ngModel)]="draft.sendInviteEmail" name="sendInviteEmail" />
+                <span>Enviar invitación al crear el usuario</span>
+              </label>
+              <p class="section-hint">
+                Se enviará un enlace al correo indicado para activar la cuenta y elegir contraseña.
+              </p>
+            } @else {
+              <p class="section-hint">
+                Envía (o reenvía) un enlace a <strong>{{ draft.email || 'este usuario' }}</strong> para activar la cuenta o restablecer la contraseña.
+              </p>
+              <ui-button
+                type="button"
+                variant="outline"
+                size="sm"
+                [loading]="sendingInvite()"
+                (clicked)="sendInviteEmail()"
+              >
+                Enviar invitación por email
+              </ui-button>
+            }
+          </section>
 
           <section class="section">
             <h2 class="section-title">Roles del tenant</h2>
@@ -338,6 +355,15 @@ import { HttpErrorResponse } from '@angular/common/http';
       .invite-hint {
         margin: 0.35rem 0 0 1.65rem;
       }
+      .invite-section {
+        padding: 1rem 1.1rem;
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
+        background: color-mix(in srgb, var(--surface) 92%, var(--brand) 8%);
+      }
+      .invite-section .section-title {
+        margin-top: 0;
+      }
       .toggle-row {
         padding: 0.5rem 0;
       }
@@ -509,6 +535,7 @@ export class UserEditComponent implements OnInit {
   createMode = signal(false);
   isLoading = signal(true);
   saving = signal(false);
+  sendingInvite = signal(false);
   error = signal<string | null>(null);
 
   tenantRoles = signal<Role[]>([]);
@@ -763,6 +790,39 @@ export class UserEditComponent implements OnInit {
       }
     }
     return true;
+  }
+
+  sendInviteEmail(): void {
+    const id = this.userId();
+    const email = (this.draft.email ?? '').trim();
+    if (!id) {
+      return;
+    }
+    if (!email) {
+      this.toast.show('Indica un correo electrónico antes de enviar la invitación.', 'error');
+      return;
+    }
+    this.sendingInvite.set(true);
+    this.usersService.sendInvite(id).subscribe({
+      next: (res) => {
+        this.sendingInvite.set(false);
+        const devHint = res.devInviteUrl
+          ? ` Enlace (dev): ${res.devInviteUrl}`
+          : '';
+        this.toast.show(`Invitación enviada a ${email}.${devHint}`, 'success');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.sendingInvite.set(false);
+        const payload = err.error as { message?: string | string[] } | undefined;
+        const m = payload?.message;
+        const detail = Array.isArray(m)
+          ? m.join(' ')
+          : typeof m === 'string'
+            ? m
+            : err.message;
+        this.toast.show(detail || 'No se pudo enviar la invitación.', 'error');
+      },
+    });
   }
 
   save(): void {

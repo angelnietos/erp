@@ -97,4 +97,11 @@ export class UsersService {
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  sendInvite(id: string): Observable<{ ok: true; devInviteUrl?: string }> {
+    return this.http.post<{ ok: true; devInviteUrl?: string }>(
+      `${this.apiUrl}/${id}/send-invite`,
+      {},
+    );
+  }
 }

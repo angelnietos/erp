@@ -294,6 +294,27 @@ export class UsersService {
     return this.findById(id);
   }
 
+  async sendInviteEmail(
+    id: string,
+  ): Promise<{ ok: true; devInviteUrl?: string }> {
+    const tenantId = this.requireTenantId();
+    const user = await this.userRepository.findById(id);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    const tenant = await this.prisma.tenant.findUnique({
+      where: { id: tenantId },
+      select: { slug: true },
+    });
+
+    const result = await this.passwordReset.sendAccountInvite(
+      id,
+      tenant?.slug ?? 'josanz',
+    );
+    return { ok: true, ...result };
+  }
+
   async delete(id: string): Promise<void> {
     const tenantId = this.requireTenantId();
     const user = await this.userRepository.findById(id);

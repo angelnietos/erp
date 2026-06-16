@@ -9,6 +9,8 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { Request } from 'express';
 import { UsersService } from '../../application/services/users.service';
@@ -58,6 +60,16 @@ export class UsersController {
   ) {
     assertUserPermissions(req.user, ['users.manage']);
     return this.usersService.update(id, dto);
+  }
+
+  @Post(':id/send-invite')
+  @HttpCode(HttpStatus.OK)
+  sendInvite(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    assertUserPermissions(req.user, ['users.manage']);
+    return this.usersService.sendInviteEmail(id);
   }
 
   @Delete(':id')
