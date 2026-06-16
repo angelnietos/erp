@@ -351,6 +351,21 @@ export class AuthService {
   }
 
   /**
+   * Login ERP BFF: el usuario debe existir en el tenant elegido (slug del picker).
+   * Keycloak solo valida credenciales; no se usa `tenant_id` del token ni auto-provisión.
+   */
+  async resolveExistingUserIdByEmail(email: string, tenantId: string): Promise<string> {
+    const user = await this.userRepository.findByEmail(email.trim(), tenantId);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is deactivated');
+    }
+    return user.id.value;
+  }
+
+  /**
    * Tras login Keycloak: el `sub` del token no coincide con el UUID en Postgres.
    * Resuelve (o auto-provisiona) el usuario por email + tenant, como HybridJwtStrategy.
    */

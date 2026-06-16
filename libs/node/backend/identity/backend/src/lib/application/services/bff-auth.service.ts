@@ -59,13 +59,13 @@ export class BffAuthService {
     csrfToken: string;
   }> {
     const slug = dto.tenantSlug?.trim().toLowerCase() || 'josanz';
-    const kcConfig = TENANT_KEYCLOAK[slug] ?? TENANT_KEYCLOAK['josanz'];
+    const kcConfig = TENANT_KEYCLOAK[slug];
     let accessToken: string | null = null;
     let refreshToken: string | undefined;
     let expiresAt = Date.now() + this.sessionMaxAgeMs();
     let authMode: 'keycloak' | 'local' = 'local';
 
-    if (this.keycloak.isEnabled()) {
+    if (kcConfig && this.keycloak.isEnabled()) {
       const reachable = await this.keycloak.isRealmReachable(kcConfig.realm);
       if (reachable) {
         const secret = this.config.get<string>('KEYCLOAK_SPA_CLIENT_SECRET');
@@ -95,16 +95,8 @@ export class BffAuthService {
         (typeof payload.email === 'string' && payload.email) ||
         (typeof payload.preferred_username === 'string' && payload.preferred_username) ||
         dto.email;
-      const tenantId =
-        (typeof payload.tenant_id === 'string' ? payload.tenant_id : undefined) ??
-        (await this.resolveTenantIdFromSlug(slug));
-      const dbUserId = await this.authService.resolveDbUserIdFromKeycloakClaims({
-        email,
-        tenantId,
-        sub: String(payload.sub),
-        firstName: typeof payload.given_name === 'string' ? payload.given_name : undefined,
-        lastName: typeof payload.family_name === 'string' ? payload.family_name : undefined,
-      });
+      const tenantId = await this.resolveTenantIdFromSlug(slug);
+      const dbUserId = await this.authService.resolveExistingUserIdByEmail(email, tenantId);
       enriched = await this.authService.refreshSession(dbUserId, tenantId);
       // JWT local firmado por el ERP (incluye tenantId/roles); Keycloak solo valida identidad.
       accessToken = enriched.accessToken;
