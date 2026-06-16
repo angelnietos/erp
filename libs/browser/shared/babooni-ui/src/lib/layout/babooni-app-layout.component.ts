@@ -23,6 +23,7 @@ import {
   NotificationDrawerComponent,
   CommandPaletteComponent,
   ToastStackComponent,
+  WorkflowProgressBarComponent,
 } from '@josanz-erp/shared-ui-shell';
 import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import { BabooniSidebarComponent } from './babooni-sidebar.component';
@@ -38,10 +39,12 @@ import { BabooniSidebarComponent } from './babooni-sidebar.component';
     NotificationDrawerComponent,
     CommandPaletteComponent,
     ToastStackComponent,
+    WorkflowProgressBarComponent,
     UIAIChatComponent,
   ],
   template: `
     <josanz-toast-stack />
+    <josanz-workflow-progress-bar />
     <div class="bb-shell">
       <a href="#erp-main-content" class="erp-skip-link">Saltar al contenido principal</a>
       <lib-babooni-sidebar />

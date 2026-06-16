@@ -1332,6 +1332,7 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
         sourceFeature: 'buddy',
         summary: workflow.summary,
         progressFeedback: true,
+        progressTitle: workflow.title,
       });
 
       const hadError = steps.some((s) => s.includes('❌'));

@@ -316,6 +316,8 @@ export class AIBotStore {
       summary?: string;
       /** Toast por paso (demos desde AI Insights) */
       progressFeedback?: boolean;
+      /** Título en la barra de progreso */
+      progressTitle?: string;
     },
   ): Promise<string[]> {
     const logLenBefore = this.orchestrationBus.log().length;
@@ -323,6 +325,11 @@ export class AIBotStore {
     try {
       const result = await this.workflow.executeAction(actionStr, {
         progressFeedback: opts?.progressFeedback,
+        progressTitle:
+          opts?.progressTitle ??
+          (opts?.summary?.trim()
+            ? opts.summary.trim().slice(0, 64)
+            : 'Workflow Buddy'),
       });
       if (result.hadErrors) {
         console.warn(

@@ -6,6 +6,7 @@ import { AIFormBridgeService } from '../ai-form-bridge.service';
 import { TechnicianApiService } from '../technician-api.service';
 import { OrchestrationBus } from './orchestration-bus.service';
 import { ToastService, ToastVariant } from '../toast.service';
+import { WorkflowProgressService } from '../workflow-progress.service';
 
 // Delegate handler registered by AIBotStore to avoid circular dependency
 type DelegateHandler = (
@@ -19,6 +20,8 @@ type DelegateHandler = (
 export interface ExecuteWorkflowOptions {
   /** Muestra toast por cada paso (demos / workflows largos). */
   progressFeedback?: boolean;
+  /** Título en la barra de progreso global. */
+  progressTitle?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -30,6 +33,7 @@ export class AIWorkflowService {
   private technicianApiService = inject(TechnicianApiService);
   private orchestrationBus = inject(OrchestrationBus);
   private toast = inject(ToastService);
+  private workflowProgress = inject(WorkflowProgressService);
 
   // Registered by AIBotStore to handle delegate without circular dep
   private delegateHandler: DelegateHandler | null = null;
@@ -54,8 +58,16 @@ export class AIWorkflowService {
       const actions = Array.isArray(parsed) ? parsed : [parsed];
       let hadErrors = false;
 
+      this.workflowProgress.start(
+        opts?.progressTitle ?? 'Workflow Buddy',
+        actions.length,
+      );
+
       for (let i = 0; i < actions.length; i++) {
         const normalizedAction = this.normalizeAction(actions[i]);
+        const stepLabel = this.shortStepLabel(normalizedAction.type);
+        this.workflowProgress.setStep(i + 1, stepLabel);
+
         if (isDevMode()) {
           console.log('🤖 Bot executing workflow step:', normalizedAction);
         }
@@ -78,13 +90,20 @@ export class AIWorkflowService {
           const label = `Error en paso ${i + 1} (${normalizedAction.type}): ${msg}`;
           this.orchestrationBus.addLog(`❌ ${label}`);
           this.toast.show(label, 'error');
+          this.workflowProgress.setStep(i + 1, label.slice(0, 120));
         }
       }
+
+      this.workflowProgress.finish(
+        !hadErrors,
+        hadErrors ? 'Completado con avisos' : 'Workflow completado',
+      );
 
       return { stepCount: actions.length, hadErrors };
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error('Failed to parse/execute bot workflow:', actionStr, e);
+      this.workflowProgress.finish(false, 'Workflow inválido');
       this.toast.show(`Workflow inválido: ${msg}`, 'error');
       throw e;
     }
@@ -372,6 +391,21 @@ export class AIWorkflowService {
       notify: `${prefix} notificando…`,
     };
     return labels[type] ?? `${prefix} ${type}…`;
+  }
+
+  private shortStepLabel(type: string): string {
+    const labels: Record<string, string> = {
+      navigate: 'Navegando al módulo…',
+      navigateAndFilter: 'Navegando y aplicando filtro…',
+      applyFilter: 'Aplicando filtro…',
+      delegate: 'Delegando a bot especialista…',
+      fillForm: 'Rellenando formulario…',
+      fillBudget: 'Preparando presupuesto…',
+      setAvailabilityRange: 'Actualizando disponibilidad…',
+      wait: 'Esperando…',
+      notify: 'Enviando notificación…',
+    };
+    return labels[type] ?? `Ejecutando ${type}…`;
   }
 
   getActionSystemPrompt(): string {

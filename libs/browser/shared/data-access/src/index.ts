@@ -20,6 +20,7 @@ export * from './lib/services/theme.service';
 export * from './lib/services/technician-api.service';
 export * from './lib/services/time-off-api.service';
 export * from './lib/services/toast.service';
+export * from './lib/services/workflow-progress.service';
 export * from './lib/services/master-filter.service';
 export * from './lib/tokens/filter.tokens';
 export * from './lib/store/notification-feed.store';

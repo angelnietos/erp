@@ -6,3 +6,4 @@ export * from './lib/notification-drawer.component';
 export * from './lib/erp-nav-items';
 export * from './lib/command-palette.component';
 export * from './lib/toast-stack.component';
+export * from './lib/workflow-progress-bar.component';

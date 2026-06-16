@@ -26,6 +26,7 @@ import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
 import { ToastStackComponent } from './toast-stack.component';
+import { WorkflowProgressBarComponent } from './workflow-progress-bar.component';
 import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
 @Component({
@@ -40,11 +41,13 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
     CommandPaletteComponent,
     CrmBackgroundComponent,
     ToastStackComponent,
+    WorkflowProgressBarComponent,
     UIAIChatComponent,
   ],
   template: `
     <josanz-crm-background></josanz-crm-background>
     <josanz-toast-stack />
+    <josanz-workflow-progress-bar />
     <div class="app-layout" style="position: relative; z-index: 1;">
       <a href="#erp-main-content" class="erp-skip-link">Saltar al contenido principal</a>
       <!-- Sidebar -->

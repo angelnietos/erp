@@ -576,6 +576,12 @@ html[data-erp-tenant='babooni'] josanz-ai-insights .demo-workflow-card {
   border-color: var(--babooni-border) !important;
 }
 
+html[data-erp-tenant='babooni'] josanz-workflow-progress-bar .wf-progress {
+  background: color-mix(in srgb, var(--babooni-surface) 94%, var(--brand) 3%) !important;
+  border-color: color-mix(in srgb, var(--brand) 35%, var(--babooni-border)) !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
 html[data-erp-tenant='babooni'] josanz-ai-insights .onboarding-panel {
   background: var(--babooni-surface) !important;
   border-color: var(--babooni-border) !important;
