@@ -1,7 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, switchMap, of, throwError, timeout } from 'rxjs';
-import { AuthResponse, LoginCredentials, UserPayload } from '@josanz-erp/identity-api';
+import {
+  ALL_APP_PERMISSION_IDS,
+  AuthResponse,
+  LoginCredentials,
+  UserPayload,
+} from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
 
 interface KeycloakTokenResponse {
@@ -47,32 +52,42 @@ const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
   admin: 'clientAdmin',
 };
 
-const KEYCLOAK_TO_ERP_PERMISSION_MAP: Record<string, string[]> = {
-  platformAdmin: ['platform.tenants.manage', 'platform.modules.configure'],
-  clientAdmin: ['clients.users.manage', 'clients.settings.write'],
-};
+const ALL_APP_PERMISSIONS: string[] = ['*', ...ALL_APP_PERMISSION_IDS];
+
+function extractKeycloakRoles(payload: Record<string, unknown>): string[] {
+  const realmAccess = payload['realm_access'] as { roles?: unknown } | undefined;
+  const rawRoles = (realmAccess?.roles as string[]) ?? [];
+  const clientRoles = payload['client_roles'] as { [key: string]: unknown } | undefined;
+  return [...rawRoles, ...(Object.values(clientRoles ?? {}).flat() as string[])].filter(
+    (r): r is string => typeof r === 'string',
+  );
+}
+
+/** Alineado con HybridJwtStrategy: admins no quedan bloqueados si /session falla. */
+function resolveKeycloakFallbackPermissions(allKeycloakRoles: string[]): string[] {
+  if (allKeycloakRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r))) {
+    return ALL_APP_PERMISSIONS;
+  }
+  if (allKeycloakRoles.some((r) => ['TenantAdmin', 'admin'].includes(r))) {
+    return ALL_APP_PERMISSIONS;
+  }
+  return [];
+}
 
 function mapKeycloakTokenToUserPayload(
   payload: Record<string, unknown>,
   fallbackEmail = '',
 ): { user: UserPayload; tenantId: string; isPlatformAdmin: boolean } {
-  const realmAccess = payload['realm_access'] as { roles?: unknown } | undefined;
-  const rawRoles = (realmAccess?.roles as string[]) ?? [];
-  const clientRoles = payload['client_roles'] as { [key: string]: unknown } | undefined;
-  const allKeycloakRoles = [...rawRoles, ...(Object.values(clientRoles ?? {}).flat() as string[])].filter((r): r is string => typeof r === 'string');
+  const allKeycloakRoles = extractKeycloakRoles(payload);
 
   const erpRoles: string[] = [];
-  const permissions = new Set<string>();
   for (const kcRole of allKeycloakRoles) {
     const erpRole = KEYCLOAK_TO_ERP_ROLE_MAP[kcRole];
     if (erpRole && !erpRoles.includes(erpRole)) {
       erpRoles.push(erpRole);
     }
   }
-  for (const erpRole of erpRoles) {
-    const rolePerms = KEYCLOAK_TO_ERP_PERMISSION_MAP[erpRole] || [];
-    rolePerms.forEach((p) => permissions.add(p));
-  }
+  const permissions = resolveKeycloakFallbackPermissions(allKeycloakRoles);
   const resolvedEmail =
     (typeof payload['email'] === 'string' && payload['email']) ||
     (typeof payload['preferred_username'] === 'string' && payload['preferred_username']) ||
@@ -81,10 +96,12 @@ function mapKeycloakTokenToUserPayload(
     id: String(payload['sub']),
     email: resolvedEmail,
     roles: erpRoles.length > 0 ? erpRoles : ['authenticated'],
-    permissions: Array.from(permissions),
+    permissions,
   };
   const tenantId = typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '';
-  const isPlatformAdmin = allKeycloakRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r));
+  const isPlatformAdmin = allKeycloakRoles.some((r) =>
+    ['PlatformOwner', 'PlatformAdmin'].includes(r),
+  );
   return { user, tenantId, isPlatformAdmin };
 }
 

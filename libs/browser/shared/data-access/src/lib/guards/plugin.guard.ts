@@ -8,6 +8,10 @@ function redirectWhenAccessDenied(
   authStore: InstanceType<typeof GlobalAuthStore>,
 ): void {
   if (authStore.isAuthenticated()) {
+    const url = router.url.split('?')[0];
+    if (url === '/settings' || url.startsWith('/settings/')) {
+      return;
+    }
     void router.navigate(['/settings'], {
       queryParams: { access: 'denied' },
       replaceUrl: true,

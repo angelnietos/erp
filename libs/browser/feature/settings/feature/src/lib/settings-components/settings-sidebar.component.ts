@@ -89,18 +89,21 @@ export type SettingsTab =
   styles: [
     `
       .settings-sidebar {
-        background: rgba(3, 7, 18, 0.96);
-        border-right: 1px solid rgba(245, 158, 11, 0.18);
+        background:
+          linear-gradient(180deg, rgba(4, 8, 19, 0.98), rgba(2, 6, 23, 0.96));
+        border-right: 1px solid rgba(148, 163, 184, 0.12);
         display: flex;
         flex-direction: column;
-        padding: 2rem 1.25rem;
-        box-shadow: 20px 0 60px rgba(0, 0, 0, 0.3);
+        padding: 1.25rem 0.9rem;
+        box-shadow: 18px 0 46px rgba(0, 0, 0, 0.22);
         min-height: calc(100vh - 64px);
+        overflow: hidden;
       }
 
       .sidebar-header {
-        margin-bottom: 3rem;
-        padding-left: 1rem;
+        margin-bottom: 1.25rem;
+        padding: 0.75rem 0.75rem 1rem;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.1);
       }
 
       .sidebar-header h1 {
@@ -121,55 +124,60 @@ export type SettingsTab =
       }
 
       .nav-section-label {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
         font-weight: 800;
         color: #94a3b8;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin: 1.5rem 0 0.5rem 1rem;
-        opacity: 0.8;
+        letter-spacing: 0.12em;
+        margin: 1rem 0 0.35rem 0.75rem;
+        opacity: 0.72;
       }
 
       .settings-nav {
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.15rem;
+        overflow-y: auto;
+        padding-right: 0.15rem;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(251, 113, 133, 0.45) transparent;
       }
 
       .nav-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem 1rem;
+        gap: 0.7rem;
+        padding: 0.68rem 0.75rem;
         border-radius: 12px;
         color: #cbd5e1;
-        font-size: 0.88rem;
+        font-size: 0.82rem;
         font-weight: 600;
-        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         cursor: pointer;
-        border: none;
+        border: 1px solid transparent;
         background: transparent;
         text-align: left;
       }
 
       .nav-item:hover {
-        background: rgba(245, 158, 11, 0.12);
-        color: var(--brand);
-        transform: translateX(4px);
+        background: rgba(251, 113, 133, 0.08);
+        color: #f8fafc;
+        border-color: rgba(251, 113, 133, 0.16);
       }
 
       .nav-item.active {
-        background: #f8fafc;
-        color: var(--brand);
-        box-shadow: 0 12px 30px rgba(245, 158, 11, 0.18);
-        transform: translateX(6px);
+        background: linear-gradient(135deg, rgba(251, 113, 133, 0.95), rgba(244, 63, 94, 0.9));
+        color: #fff;
+        border-color: rgba(253, 164, 175, 0.5);
+        box-shadow: 0 12px 28px rgba(244, 63, 94, 0.2);
       }
 
       .sidebar-footer {
-        margin-top: auto;
-        padding: 1rem;
+        margin-top: 1rem;
+        padding: 0.75rem;
         opacity: 0.85;
+        border-top: 1px solid rgba(148, 163, 184, 0.1);
       }
 
       .status-indicator {

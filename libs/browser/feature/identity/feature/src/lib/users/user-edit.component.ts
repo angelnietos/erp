@@ -20,7 +20,13 @@ import {
   RolesService,
   Role,
 } from '@josanz-erp/identity-data-access';
-import { User, UpdateUserDto, CreateUserDto } from '@josanz-erp/identity-api';
+import {
+  ALL_APP_PERMISSION_IDS,
+  filterPermissionsToEnabledModules,
+  User,
+  UpdateUserDto,
+  CreateUserDto,
+} from '@josanz-erp/identity-api';
 import { ThemeService, PluginStore, ToastService } from '@josanz-erp/shared-data-access';
 import { forkJoin } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -123,17 +129,36 @@ import { HttpErrorResponse } from '@angular/common/http';
             <p class="section-hint">Un usuario puede tener varios roles; los permisos se unen.</p>
             <div class="role-grid">
               @for (r of tenantRoles(); track r.id) {
-                <label class="role-pill">
+                <label class="role-pill" [class.selected]="isRoleSelected(r.name)">
                   <input
                     type="checkbox"
                     [checked]="isRoleSelected(r.name)"
                     (change)="toggleRole(r.name, checkboxChecked($event))"
                   />
-                  <span>{{ r.name }}</span>
+                  <span class="role-copy">
+                    <strong>{{ r.name }}</strong>
+                    <small>{{ rolePermissionSummary(r) }}</small>
+                  </span>
                   <span class="role-type">{{ r.type }}</span>
                 </label>
               }
             </div>
+          </section>
+
+          <section class="section role-source-preview">
+            <h2 class="section-title">Permisos concedidos por roles seleccionados</h2>
+            <p class="section-hint">
+              Esto es solo lo que aportan los roles. Los permisos extra suman y los bloqueados restan.
+            </p>
+            @if (selectedRolePermissionPreview().length > 0) {
+              <div class="effective-tags">
+                @for (p of selectedRolePermissionPreview(); track p) {
+                  <span class="effective-tag role-source">{{ permissionDisplay(p) }}</span>
+                }
+              </div>
+            } @else {
+              <p class="empty-note">Selecciona un rol para ver sus permisos base.</p>
+            }
           </section>
 
           <section class="section">
@@ -146,13 +171,20 @@ import { HttpErrorResponse } from '@angular/common/http';
                 <h3 class="perm-group-title">{{ g.name }}</h3>
                 <div class="perm-grid">
                   @for (p of g.items; track p.id) {
-                    <label class="perm-row">
+                    <label
+                      class="perm-row"
+                      [class.from-role]="isPermissionFromSelectedRoles(p.id)"
+                      [class.effective]="isPermissionEffective(p.id)"
+                    >
                       <input
                         type="checkbox"
                         [checked]="draft.extraPermissions.includes(p.id)"
                         (change)="toggleExtra(p.id, checkboxChecked($event))"
                       />
                       <span>{{ p.label }}</span>
+                      @if (isPermissionFromSelectedRoles(p.id)) {
+                        <small>Ya viene de rol</small>
+                      }
                     </label>
                   }
                 </div>
@@ -170,7 +202,11 @@ import { HttpErrorResponse } from '@angular/common/http';
                 <h3 class="perm-group-title">{{ g.name }}</h3>
                 <div class="perm-grid">
                   @for (p of g.items; track p.id) {
-                    <label class="perm-row denied">
+                    <label
+                      class="perm-row denied"
+                      [class.effective]="isPermissionEffective(p.id)"
+                      [class.blocked]="draft.deniedPermissions.includes(p.id)"
+                    >
                       <input
                         type="checkbox"
                         [checked]="draft.deniedPermissions.includes(p.id)"
@@ -186,11 +222,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 
           <section class="section effective-preview">
             <h2 class="section-title">Permisos efectivos (vista previa)</h2>
-            <p class="section-hint">{{ effectivePermissionCount() }} permisos tras roles + extra − bloqueados.</p>
+            <p class="section-hint">
+              {{ effectivePermissionCount() }} permisos tras roles + extra - bloqueados.
+              @if (effectiveHasWildcard()) {
+                Acceso total sin bloqueos explícitos.
+              }
+            </p>
+            @if (permissionsMismatch()) {
+              <div class="sync-warning" role="status">
+                La vista previa local no coincide con el último estado guardado. Guarda o recarga para sincronizar.
+              </div>
+            }
             @if (effectivePermissionPreview().length > 0) {
               <div class="effective-tags">
                 @for (p of effectivePermissionPreview(); track p) {
-                  <span class="effective-tag">{{ p }}</span>
+                  <span class="effective-tag">{{ permissionDisplay(p) }}</span>
                 }
               </div>
             }
@@ -318,6 +364,24 @@ import { HttpErrorResponse } from '@angular/common/http';
         cursor: pointer;
         font-size: 0.85rem;
       }
+      .role-pill.selected {
+        border-color: rgba(251, 113, 133, 0.55);
+        background: rgba(251, 113, 133, 0.12);
+        box-shadow: 0 12px 30px rgba(251, 113, 133, 0.12);
+      }
+      .role-copy {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        gap: 0.1rem;
+      }
+      .role-copy strong {
+        line-height: 1.1;
+      }
+      .role-copy small {
+        color: var(--text-muted);
+        font-size: 0.65rem;
+      }
       .role-type {
         font-size: 0.65rem;
         opacity: 0.7;
@@ -346,9 +410,28 @@ import { HttpErrorResponse } from '@angular/common/http';
         gap: 0.5rem;
         font-size: 0.9rem;
         cursor: pointer;
+        padding: 0.55rem 0.65rem;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.025);
+      }
+      .perm-row small {
+        margin-left: auto;
+        font-size: 0.65rem;
+        color: var(--text-muted);
+      }
+      .perm-row.from-role {
+        border-color: rgba(59, 130, 246, 0.24);
+      }
+      .perm-row.effective {
+        background: rgba(16, 185, 129, 0.06);
       }
       .perm-row.denied span {
         color: #b91c1c;
+      }
+      .perm-row.denied.blocked {
+        background: rgba(185, 28, 28, 0.12);
+        border-color: rgba(248, 113, 113, 0.28);
       }
       .effective-preview {
         border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
@@ -366,6 +449,24 @@ import { HttpErrorResponse } from '@angular/common/http';
         border-radius: 6px;
         background: rgba(255, 255, 255, 0.06);
         color: var(--text-muted);
+      }
+      .effective-tag.role-source {
+        color: #bfdbfe;
+        background: rgba(59, 130, 246, 0.12);
+      }
+      .sync-warning {
+        margin-bottom: 1rem;
+        padding: 0.85rem 1rem;
+        border-radius: 12px;
+        border: 1px solid rgba(251, 191, 36, 0.28);
+        background: rgba(251, 191, 36, 0.1);
+        color: #fde68a;
+        font-size: 0.82rem;
+      }
+      .empty-note {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.85rem;
       }
       .actions {
         display: flex;
@@ -394,6 +495,7 @@ export class UserEditComponent implements OnInit {
 
   tenantRoles = signal<Role[]>([]);
   private readonly permCatalog = signal<{ id: string; label: string; group: string }[]>([]);
+  private readonly savedEffectivePermissions = signal<string[]>([]);
 
   permissionGroups = computed(() => {
     const list = this.permCatalog().filter((p) => p.id !== '*');
@@ -425,29 +527,72 @@ export class UserEditComponent implements OnInit {
     deniedPermissions: [],
   };
 
-  effectivePermissionPreview = computed(() => {
-    const denied = new Set(this.draft.deniedPermissions);
+  selectedRolePermissions = computed(() => {
     const merged = new Set<string>();
     for (const roleName of this.draft.roleNames) {
       const role = this.tenantRoles().find((r) => r.name === roleName);
-      if (!role) continue;
-      if (role.permissions.includes('*')) {
-        return ['* (acceso total por rol)'];
-      }
-      role.permissions.forEach((p) => {
-        if (!denied.has(p)) merged.add(p);
-      });
+      role?.permissions.forEach((p) => merged.add(p));
+    }
+    return Array.from(merged);
+  });
+
+  selectedRolePermissionPreview = computed(() => {
+    const rolePermissions = this.selectedRolePermissions();
+    if (rolePermissions.includes('*')) {
+      return ['*', ...ALL_APP_PERMISSION_IDS].slice(0, 18);
+    }
+    return rolePermissions.sort().slice(0, 18);
+  });
+
+  effectivePermissionIds = computed(() => {
+    const denied = new Set(this.draft.deniedPermissions);
+    if (denied.has('*')) {
+      return [];
+    }
+
+    const rolePermissions = this.selectedRolePermissions();
+    const hasWildcard =
+      rolePermissions.includes('*') || this.draft.extraPermissions.includes('*');
+
+    if (hasWildcard) {
+      const expanded = ALL_APP_PERMISSION_IDS.filter((p) => !denied.has(p));
+      const merged = denied.size === 0 ? ['*', ...expanded] : expanded;
+      return filterPermissionsToEnabledModules(merged, this.pluginStore.enabledPlugins());
+    }
+
+    const merged = new Set<string>();
+    for (const p of rolePermissions) {
+      if (!denied.has(p)) merged.add(p);
     }
     for (const p of this.draft.extraPermissions) {
       if (!denied.has(p)) merged.add(p);
     }
-    return Array.from(merged).sort();
+    return filterPermissionsToEnabledModules(Array.from(merged), this.pluginStore.enabledPlugins()).sort();
+  });
+
+  effectivePermissionPreview = computed(() => {
+    const ids = this.effectivePermissionIds();
+    if (ids.includes('*')) {
+      return ['*', ...ids.filter((p) => p !== '*').slice(0, 17)];
+    }
+    return ids.slice(0, 18);
   });
 
   effectivePermissionCount = computed(() => {
-    const preview = this.effectivePermissionPreview();
-    if (preview.length === 1 && preview[0]?.startsWith('*')) return 1;
-    return preview.length;
+    const ids = this.effectivePermissionIds();
+    return ids.includes('*') ? ALL_APP_PERMISSION_IDS.length : ids.length;
+  });
+
+  effectiveHasWildcard = computed(() => this.effectivePermissionIds().includes('*'));
+
+  permissionsMismatch = computed(() => {
+    if (this.createMode()) {
+      return false;
+    }
+    return !this.samePermissionSet(
+      this.savedEffectivePermissions(),
+      this.effectivePermissionIds(),
+    );
   });
 
   ngOnInit(): void {
@@ -476,6 +621,7 @@ export class UserEditComponent implements OnInit {
             extraPermissions: [],
             deniedPermissions: [],
           };
+          this.savedEffectivePermissions.set([]);
           this.tenantRoles.set(roles);
           this.permCatalog.set(catalog);
           this.isLoading.set(false);
@@ -530,6 +676,7 @@ export class UserEditComponent implements OnInit {
       extraPermissions: [...(u.extraPermissions || [])],
       deniedPermissions: [...(u.deniedPermissions || [])],
     };
+    this.savedEffectivePermissions.set([...(u.permissions || [])]);
   }
 
   isRoleSelected(name: string): boolean {
@@ -568,6 +715,48 @@ export class UserEditComponent implements OnInit {
       set.delete(id);
     }
     this.draft.deniedPermissions = Array.from(set);
+  }
+
+  rolePermissionSummary(role: Role): string {
+    if (role.permissions.includes('*')) {
+      return 'Acceso total';
+    }
+    const count = role.permissions.length;
+    return `${count} ${count === 1 ? 'permiso' : 'permisos'}`;
+  }
+
+  permissionDisplay(id: string): string {
+    if (id === '*') {
+      return '* acceso total';
+    }
+    const found = this.permCatalog().find((p) => p.id === id);
+    return found ? `${found.label} · ${id}` : id;
+  }
+
+  isPermissionFromSelectedRoles(id: string): boolean {
+    if (this.selectedRolePermissions().includes('*')) {
+      return ALL_APP_PERMISSION_IDS.includes(id);
+    }
+    return this.selectedRolePermissions().includes(id);
+  }
+
+  isPermissionEffective(id: string): boolean {
+    const effective = this.effectivePermissionIds();
+    return effective.includes('*') || effective.includes(id);
+  }
+
+  private samePermissionSet(a: readonly string[], b: readonly string[]): boolean {
+    const left = new Set(a);
+    const right = new Set(b);
+    if (left.size !== right.size) {
+      return false;
+    }
+    for (const p of left) {
+      if (!right.has(p)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   save(): void {

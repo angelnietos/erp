@@ -1,4 +1,7 @@
-import { filterPermissionsToEnabledModules } from '@josanz-erp/identity-api';
+import {
+  ALL_APP_PERMISSION_IDS,
+  filterPermissionsToEnabledModules,
+} from '@josanz-erp/identity-api';
 
 /** Fusiona permisos de roles + extra, resta denegados y filtra por módulos activos. */
 export function mergeEffectiveUserPermissions(
@@ -8,6 +11,22 @@ export function mergeEffectiveUserPermissions(
   enabledModuleIds: readonly string[],
 ): string[] {
   const denied = new Set(deniedPermissions);
+  if (denied.has('*')) {
+    return [];
+  }
+
+  const hasWildcard =
+    rolePermissions.includes('*') || extraPermissions.includes('*');
+
+  if (hasWildcard) {
+    const expanded = ALL_APP_PERMISSION_IDS.filter((p) => !denied.has(p));
+    const merged =
+      denied.size === 0
+        ? ['*', ...expanded]
+        : expanded;
+    return filterPermissionsToEnabledModules(merged, enabledModuleIds);
+  }
+
   const merged = new Set<string>();
   for (const p of rolePermissions) {
     if (!denied.has(p)) {
