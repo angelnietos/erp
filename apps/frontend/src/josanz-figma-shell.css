@@ -1,10 +1,21 @@
 /**
  * Layout global alineado con apps/josanz-web-app cuando el tenant usa shell Figma.
  */
-html[data-erp-ui-shell='josanz-figma'],
-html[data-erp-ui-shell='josanz-figma'] body {
+html[data-erp-ui-shell='josanz-figma']:not([data-erp-route='auth']),
+html[data-erp-ui-shell='josanz-figma']:not([data-erp-route='auth']) body {
   height: 100%;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Login / auth: scroll vertical para que la tarjeta no quede recortada */
+html[data-erp-ui-shell='josanz-figma'][data-erp-route='auth'],
+html[data-erp-ui-shell='josanz-figma'][data-erp-route='auth'] body {
+  height: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
   -webkit-tap-highlight-color: transparent;
 }
 

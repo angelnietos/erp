@@ -23,6 +23,7 @@ import {
   TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
   syncErpTenantHtmlTheme,
+  syncErpRoutePhaseFromPath,
   getErpTenantSlug,
   isJosanzFigmaUiShell,
   resolveTenantSlugFromId,
@@ -213,6 +214,9 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       multi: true,
       useFactory: () => () => {
+        syncErpRoutePhaseFromPath(
+          typeof window !== 'undefined' ? window.location.pathname : '/',
+        );
         const slugFromId = resolveTenantSlugFromId(getStoredTenantId());
         if (slugFromId) {
           setErpTenantSlug(slugFromId);

@@ -1,7 +1,8 @@
 :host {
   display: block;
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
+  height: auto;
   --primary: #f03e3e;
   --primary-hover: #d93636;
   --bg-dark: #0F172A;
@@ -698,9 +699,13 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 .auth-wrapper--figma {
   background-color: #fffefe;
   align-items: stretch;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
-  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .auth-figma-hero {
@@ -713,13 +718,15 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 @media (min-width: 900px) {
   .auth-wrapper--figma {
     flex-direction: row;
-    align-items: stretch;
+    align-items: flex-start;
     justify-content: flex-start;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
   }
 
   .auth-figma-hero {
     display: block;
-    min-height: 100vh;
+    min-height: 100dvh;
     flex: 1 1 58%;
     max-width: 62%;
   }
@@ -727,7 +734,9 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 
 @media (max-width: 899px) {
   .auth-wrapper--figma {
-    padding: 2rem 1.25rem 2.5rem;
+    padding: 1.25rem 1rem 2rem;
+    justify-content: flex-start;
+    align-items: center;
   }
 }
 
@@ -743,14 +752,47 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   border-radius: 20px;
   max-width: 360px;
   width: 100%;
+  padding: 1.5rem 1.35rem 1.65rem;
+  flex-shrink: 0;
 }
 
 @media (min-width: 900px) {
   .auth-wrapper--figma .auth-card--figma {
-    align-self: center;
+    align-self: flex-start;
     margin: 0 6vw 0 1.5rem;
     flex: 0 0 auto;
   }
+}
+
+.auth-wrapper--figma .auth-header {
+  margin-bottom: 1rem;
+}
+
+.auth-wrapper--figma .logo-circle {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+}
+
+.auth-wrapper--figma .tenant-context {
+  margin-bottom: 0.65rem;
+}
+
+.auth-wrapper--figma .auth-mode-pill {
+  margin-bottom: 0.75rem;
+}
+
+.auth-wrapper--figma .dev-login-hint {
+  margin-bottom: 0.85rem;
+  padding: 0.6rem 0.7rem;
+}
+
+.auth-wrapper--figma .auth-form {
+  gap: 0.65rem;
+}
+
+.auth-wrapper--figma .auth-footer {
+  margin-top: 1rem;
 }
 
 .auth-card--figma {

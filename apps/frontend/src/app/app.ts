@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core'; // Re-syncing chunks
 import { RouterModule } from '@angular/router';
 import { PluginStore } from '@josanz-erp/shared-data-access';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { AuthStore, ErpRouteThemeService } from '@josanz-erp/identity-data-access';
 
 @Component({
   imports: [RouterModule],
@@ -15,6 +15,7 @@ export class App {
   private readonly pluginStore = inject(PluginStore);
 
   constructor() {
+    inject(ErpRouteThemeService);
     // Fast initial render from cached JWT (may have stale tenant context)
     this.authStore.loadUserFromToken();
     // Defer plugin loading until session is refreshed - the APP_INITIALIZER handles this

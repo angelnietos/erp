@@ -10,6 +10,7 @@ export {
   type IdentityAuthMeta,
   type IdentityAuthMode,
 } from './lib/services/auth.service';
+export { ErpRouteThemeService } from './lib/services/erp-route-theme.service';
 export {
   ERP_BFF_AUTH,
   ERP_AUTH_SESSION_MODE,
@@ -22,6 +23,7 @@ export {
   getErpTenantSlug,
   setErpTenantSlug,
   syncErpTenantHtmlTheme,
+  syncErpRoutePhaseFromPath,
   resolveTenantSlugFromId,
   TENANT_ID_TO_SLUG,
 } from './lib/utils/erp-tenant-theme';

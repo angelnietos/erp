@@ -16,6 +16,7 @@ import {
   ERP_TENANT_SLUG_SESSION_KEY,
   setErpTenantSlug,
   syncErpTenantHtmlTheme,
+  syncErpRoutePhaseFromPath,
   usesJosanzFigmaLogin,
   getPrimaryDevLoginHintForTenant,
   getDevLoginHintsForTenant,
@@ -271,6 +272,7 @@ export class LoginComponent implements OnInit {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     }
     setErpTenantSlug(slug);
+    syncErpRoutePhaseFromPath(this.router.url || '/auth/login');
     this.theme.reapplyTheme();
   }
 

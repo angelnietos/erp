@@ -64,3 +64,17 @@ export function syncErpTenantHtmlTheme(): void {
   document.documentElement.setAttribute('data-erp-tenant', slug);
   document.documentElement.setAttribute('data-erp-ui-shell', getTenantUiShell(slug));
 }
+
+/** Rutas `/auth/*`: permiten scroll en body (login no debe quedar recortado). */
+export function syncErpRoutePhaseFromPath(pathname: string): void {
+  if (typeof document === 'undefined') {
+    return;
+  }
+  const path = (pathname || '').split('?')[0]?.split('#')[0] ?? '';
+  const isAuth = path === '/auth' || path.startsWith('/auth/');
+  if (isAuth) {
+    document.documentElement.setAttribute('data-erp-route', 'auth');
+  } else {
+    document.documentElement.removeAttribute('data-erp-route');
+  }
+}
