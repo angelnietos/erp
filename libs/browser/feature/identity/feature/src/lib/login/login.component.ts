@@ -5,6 +5,7 @@ import {
   signal,
   computed,
   OnInit,
+  isDevMode,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -16,6 +17,9 @@ import {
   setErpTenantSlug,
   syncErpTenantHtmlTheme,
   usesJosanzFigmaLogin,
+  getPrimaryDevLoginHintForTenant,
+  getDevLoginHintsForTenant,
+  getDevLoginEmailPlaceholder,
 } from '@josanz-erp/identity-data-access';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
@@ -138,6 +142,17 @@ export class LoginComponent implements OnInit {
 
   /** Login claro en dos columnas según export Figma `Login.svg` (tenants josanz-figma). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
+
+  readonly isDev = isDevMode();
+  readonly devLoginHint = computed(() =>
+    getPrimaryDevLoginHintForTenant(this.tenantSlug()),
+  );
+  readonly devLoginAlternates = computed(() =>
+    getDevLoginHintsForTenant(this.tenantSlug()).filter((h) => !h.primary),
+  );
+  readonly emailPlaceholder = computed(() =>
+    getDevLoginEmailPlaceholder(this.tenantSlug()),
+  );
 
   readonly tenantLabel = computed(() => {
     const slug = this.tenantSlug();
@@ -276,6 +291,17 @@ export class LoginComponent implements OnInit {
 
   onLoginCanvasAutoCleared(): void {
     this.aiBotStore.clearLoginDynamicOverlay();
+  }
+
+  fillDevCredentials(): void {
+    const hint = this.devLoginHint();
+    if (!hint) {
+      return;
+    }
+    this.loginForm.patchValue({
+      email: hint.email,
+      password: hint.password,
+    });
   }
 
   onSubmit() {

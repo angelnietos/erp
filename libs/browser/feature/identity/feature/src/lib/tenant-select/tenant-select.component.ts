@@ -4,6 +4,7 @@ import {
   computed,
   inject,
   signal,
+  isDevMode,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -13,6 +14,8 @@ import {
   ERP_TENANT_SLUG_SESSION_KEY,
   setErpTenantSlug,
   syncErpTenantHtmlTheme,
+  DEV_TENANT_LOGIN_HINTS,
+  DEV_TENANT_LOGIN_PASSWORD,
 } from '@josanz-erp/identity-data-access';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
@@ -57,6 +60,11 @@ export class TenantSelectComponent {
 
   readonly customSlug = signal('');
   readonly selectedSlug = signal<string | null>(null);
+
+  /** Cuentas seed para acceso rápido en desarrollo. */
+  readonly isDev = isDevMode();
+  readonly devLoginHints = DEV_TENANT_LOGIN_HINTS;
+  readonly devLoginPassword = DEV_TENANT_LOGIN_PASSWORD;
 
   /** Previsualizar selva al elegir babooni en el grid. */
   readonly backgroundTheme = computed<BackgroundTheme>(() =>

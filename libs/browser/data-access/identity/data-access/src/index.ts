@@ -34,6 +34,14 @@ export {
   type ErpTenantUiShell,
 } from './lib/utils/tenant-ui-shell';
 export {
+  DEV_TENANT_LOGIN_PASSWORD,
+  DEV_TENANT_LOGIN_HINTS,
+  getDevLoginHintsForTenant,
+  getPrimaryDevLoginHintForTenant,
+  getDevLoginEmailPlaceholder,
+  type DevTenantLoginHint,
+} from './lib/utils/dev-tenant-login-hints';
+export {
   josanzFigmaShellCanMatch,
   classicErpShellCanMatch,
 } from './lib/guards/tenant-shell-match.guards';

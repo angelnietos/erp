@@ -111,12 +111,35 @@
       </ui-alert>
     }
 
+    @if (isDev && devLoginHint(); as hint) {
+      <div
+        class="dev-login-hint animate-in stagger-3"
+        [class.dev-login-hint--figma]="useFigmaShellLogin()"
+      >
+        <p class="dev-login-hint__label">Cuenta demo (dev)</p>
+        <p class="dev-login-hint__credentials">
+          <code>{{ hint.email }}</code>
+          <span class="dev-login-hint__sep">·</span>
+          contraseña <code>{{ hint.password }}</code>
+        </p>
+        @for (alt of devLoginAlternates(); track alt.email) {
+          <p class="dev-login-hint__alt">
+            {{ alt.note ?? 'Alternativa' }}:
+            <code>{{ alt.email }}</code>
+          </p>
+        }
+        <button type="button" class="dev-login-hint__fill" (click)="fillDevCredentials()">
+          Rellenar acceso rápido
+        </button>
+      </div>
+    }
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <ui-input
         id="email"
         label="E-mail"
         type="email"
-        placeholder="Introduce tu e-mail"
+        [placeholder]="emailPlaceholder()"
         icon="user"
         formControlName="email"
         [shape]="useFigmaShellLogin() ? 'solid' : 'glass'"

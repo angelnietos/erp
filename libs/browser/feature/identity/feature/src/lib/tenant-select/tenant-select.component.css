@@ -284,6 +284,70 @@
   cursor: not-allowed;
 }
 
+.dev-accounts {
+  margin-top: 1.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px dashed rgba(148, 163, 184, 0.35);
+  text-align: left;
+}
+
+.dev-accounts__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(248, 250, 252, 0.9);
+}
+
+.dev-accounts__list {
+  margin: 0;
+  padding: 0 0 0 1rem;
+  font-size: 0.72rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.dev-accounts__list li {
+  margin-bottom: 0.25rem;
+}
+
+.dev-accounts__badge {
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+}
+
+.dev-accounts__note {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.66rem;
+  opacity: 0.85;
+}
+
+.dev-accounts__password {
+  margin: 0.55rem 0 0;
+  font-size: 0.72rem;
+  color: rgba(248, 250, 252, 0.85);
+}
+
+.dev-accounts code {
+  font-size: 0.95em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(248, 250, 252, 0.95);
+  word-break: break-all;
+}
+
 .tenant-hint {
   margin: 1.25rem 0 0;
   font-size: 0.72rem;

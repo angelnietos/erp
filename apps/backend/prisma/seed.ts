@@ -1691,6 +1691,12 @@ async function main() {
   await seedBabooniTenantDemo(babooniTenant.id);
 
   console.log('✅ Database seeded successfully!');
+  console.log('\n📋 Cuentas de prueba (contraseña: Admin123!):');
+  console.log('  josanz  → admin@josanz.com');
+  console.log('           admin@josanz-erp.local (solo login local)');
+  console.log('  babooni → root@babooni.com');
+  console.log('  alexis  → admin@alexis.local');
+  console.log('  platform → platform@babooni.com (panel SaaS)\n');
 }
 
 /**
