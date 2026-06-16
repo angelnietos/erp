@@ -45,9 +45,14 @@ import { RoleType } from '@josanz-erp/identity-core';
       <div class="roles-layout-grid">
         <div class="roles-selector-card">
           <div class="selector-header">Roles Disponibles</div>
+          <div class="current-user-rbac-note">
+            <span>Sesión actual</span>
+            <strong>{{ currentUserRolesLabel() }}</strong>
+          </div>
           <div class="roles-list-scroll">
             @for (role of roles(); track role.id) {
               <div class="role-item-btn" [class.active]="selectedRoleId() === role.id" 
+                [class.current-user-role]="roleAffectsCurrentUser(role)"
                 (click)="selectedRoleId.set(role.id)" 
                 (keydown.enter)="selectedRoleId.set(role.id)"
                 (keydown.space)="selectedRoleId.set(role.id)"
@@ -56,6 +61,9 @@ import { RoleType } from '@josanz-erp/identity-core';
                 <div class="role-label-content">
                   <span class="role-name-text">{{ role.name }}</span>
                   <span class="role-type-pill">{{ role.type }}</span>
+                  @if (roleAffectsCurrentUser(role)) {
+                    <span class="current-role-pill">Tu sesión</span>
+                  }
                 </div>
                 <lucide-icon name="chevron-right" size="14" class="chevron" aria-hidden="true"></lucide-icon>
               </div>
@@ -79,6 +87,11 @@ import { RoleType } from '@josanz-erp/identity-core';
                 </div>
                 @if (isSelectedRoleSuperAdmin()) {
                   <p class="role-locked-notice">El rol <strong>SuperAdmin</strong> está protegido: el acceso total no se modifica desde aquí.</p>
+                }
+                @if (!selectedRoleAffectsCurrentUser()) {
+                  <p class="role-session-notice">
+                    Este rol no pertenece a la sesión actual. Cambiarlo afectará a usuarios con <strong>{{ role.name }}</strong>, pero no al menú de <strong>{{ currentUserEmail() }}</strong>.
+                  </p>
                 }
                 <p class="role-description-hint">
                   @if (!isSelectedRoleSuperAdmin()) { Configura los permisos para el rol <strong>{{ role.name }}</strong> }
@@ -157,6 +170,10 @@ import { RoleType } from '@josanz-erp/identity-core';
 
       .selector-header { padding: 1.75rem; font-weight: 900; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.25em; color: var(--brand); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
 
+      .current-user-rbac-note { margin: 1rem 1.25rem 0; padding: 0.85rem 0.95rem; border-radius: 16px; background: rgba(251, 113, 133, 0.08); border: 1px solid rgba(251, 113, 133, 0.18); display: flex; flex-direction: column; gap: 0.25rem; }
+      .current-user-rbac-note span { font-size: 0.58rem; font-weight: 900; color: #fda4af; text-transform: uppercase; letter-spacing: 0.16em; }
+      .current-user-rbac-note strong { color: #f8fafc; font-size: 0.82rem; line-height: 1.3; }
+
       .roles-list-scroll { flex: 1; overflow-y: auto; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
       .role-item-btn {
@@ -164,6 +181,7 @@ import { RoleType } from '@josanz-erp/identity-core';
       }
       .role-item-btn:hover { background: rgba(255, 255, 255, 0.06); transform: translateX(6px); border-color: rgba(255, 255, 255, 0.08); }
       .role-item-btn.active { background: color-mix(in srgb, var(--brand) 12%, var(--surface)); border-color: color-mix(in srgb, var(--brand) 45%, transparent); box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.4); }
+      .role-item-btn.current-user-role { border-color: rgba(34, 197, 94, 0.3); }
       .role-item-btn.active::after { content: ''; position: absolute; left: 0; top: 25%; height: 50%; width: 3px; background: var(--brand); border-radius: 0 4px 4px 0; box-shadow: 0 0 15px var(--brand); }
 
       .role-icon-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; position: relative; background: currentColor; }
@@ -176,6 +194,7 @@ import { RoleType } from '@josanz-erp/identity-core';
       .role-label-content { flex: 1; display: flex; flex-direction: column; gap: 0.25rem; }
       .role-name-text { font-weight: 800; font-size: 0.9rem; color: var(--text-primary); letter-spacing: -0.01em; }
       .role-type-pill { font-size: 0.6rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; opacity: 0.6; }
+      .current-role-pill { width: fit-content; font-size: 0.55rem; font-weight: 900; color: #86efac; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.22); border-radius: 999px; padding: 0.18rem 0.42rem; text-transform: uppercase; letter-spacing: 0.12em; }
 
       .role-item-btn .chevron { opacity: 0.2; transition: all 0.3s ease; color: #fff; }
       .role-item-btn.active .chevron { opacity: 0.8; transform: translateX(4px) scale(1.2); color: var(--brand); }
@@ -193,6 +212,7 @@ import { RoleType } from '@josanz-erp/identity-core';
       .role-description-hint { font-size: 0.95rem; color: var(--text-secondary) !important; margin-top: 0.75rem; max-width: 600px; line-height: 1.6; }
 
       .role-locked-notice { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin-bottom: 1.5rem; padding: 1.25rem 1.5rem; background: color-mix(in srgb, var(--brand) 12%, transparent); border-radius: 16px; border-left: 4px solid var(--brand); backdrop-filter: blur(10px); }
+      .role-session-notice { font-size: 0.8rem; font-weight: 700; color: #fde68a; margin: 0 0 1rem; padding: 1rem 1.25rem; background: rgba(251, 191, 36, 0.1); border-radius: 14px; border-left: 4px solid #fbbf24; }
 
       .permissions-matrix-container { padding: 3rem; display: flex; flex-direction: column; gap: 4rem; }
 
@@ -243,6 +263,16 @@ export class SettingsRolesTabComponent implements OnInit {
   readonly rolesLoadError = signal<string | null>(null);
 
   readonly selectedRole = computed(() => this.roles().find(r => r.id === this.selectedRoleId()) || null);
+  readonly currentUserRoleNames = computed(() => this._authStore.user()?.roles ?? []);
+  readonly currentUserEmail = computed(() => this._authStore.user()?.email ?? 'tu usuario');
+  readonly currentUserRolesLabel = computed(() => {
+    const roles = this.currentUserRoleNames();
+    return roles.length > 0 ? roles.join(', ') : 'Sin roles asignados';
+  });
+  readonly selectedRoleAffectsCurrentUser = computed(() => {
+    const role = this.selectedRole();
+    return !!role && this.roleAffectsCurrentUser(role);
+  });
 
   readonly permissionCategoryOrder = [
     'Sistema', 'General', 'Identidad', 'CRM/Clientes', 'Inventario',
@@ -268,6 +298,10 @@ export class SettingsRolesTabComponent implements OnInit {
     const role = this.roles().find(r => r.id === roleId);
     if (!role) return false;
     return role.permissions.includes('*') || role.permissions.includes(permissionId);
+  }
+
+  roleAffectsCurrentUser(role: Role): boolean {
+    return this.currentUserRoleNames().includes(role.name);
   }
 
   togglePermission(roleId: string, permissionId: string): void {
@@ -330,7 +364,8 @@ export class SettingsRolesTabComponent implements OnInit {
       next: (roles: Role[]) => {
         this.roles.set(roles);
         if (roles.length > 0 && !this.selectedRoleId()) {
-          this.selectedRoleId.set(roles[0].id);
+          const currentRole = roles.find((role) => this.roleAffectsCurrentUser(role));
+          this.selectedRoleId.set(currentRole?.id ?? roles[0].id);
         }
         this.isLoadingRoles.set(false);
       },

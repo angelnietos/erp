@@ -62,6 +62,7 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
 
       <div class="bb-sidebar__footer">
         <ul class="bb-sidebar__list">
+          @if (canAccessSettings()) {
           <li>
             <a
               routerLink="/settings"
@@ -78,6 +79,7 @@ import { ERP_MAIN_NAV_ITEMS } from '@josanz-erp/shared-ui-shell';
               }
             </a>
           </li>
+          }
           <li>
             <button
               type="button"
@@ -106,15 +108,32 @@ export class BabooniSidebarComponent {
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
+  readonly canAccessSettings = computed(() => {
+    const permissions = this.globalAuth.permissions();
+    return (
+      permissions.includes('*') ||
+      permissions.includes('users.view') ||
+      permissions.includes('users.manage') ||
+      permissions.includes('roles.manage') ||
+      permissions.includes('modules.manage')
+    );
+  });
+
   readonly filteredNavItems = computed(() =>
     this.navItems.filter((item) => {
+      const permissions = this.globalAuth.permissions();
+
       // 1. Filtrar por plugins habilitados
       if (!this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
 
       // 2. Filtrar por permisos del usuario
-      if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
+      if (
+        item.permission &&
+        !permissions.includes('*') &&
+        !permissions.includes(item.permission)
+      ) {
         return false;
       }
 

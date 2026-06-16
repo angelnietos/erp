@@ -69,6 +69,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
       <!-- Footer Actions -->
       <div class="footer-area">
         <ul class="nav-list">
+          @if (canAccessSettings()) {
           <li class="nav-item">
             <a
               routerLink="/settings"
@@ -84,6 +85,7 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
               }
             </a>
           </li>
+          }
           <li class="nav-item">
             <button
               type="button"
@@ -340,16 +342,33 @@ export class SidebarComponent {
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
 
+  readonly canAccessSettings = computed(() => {
+    const permissions = this.globalAuth.permissions();
+    return (
+      permissions.includes('*') ||
+      permissions.includes('users.view') ||
+      permissions.includes('users.manage') ||
+      permissions.includes('roles.manage') ||
+      permissions.includes('modules.manage')
+    );
+  });
+
   /** Entradas del menú: solo módulos/plugins activos y con permisos requeridos. */
   filteredNavItems = computed(() => {
     return this.navItems.filter((item) => {
+      const permissions = this.globalAuth.permissions();
+
       // 1. Filtrar por plugins habilitados
       if (!this.pluginStore.enabledPlugins().includes(item.id || '')) {
         return false;
       }
 
       // 2. Filtrar por permisos del usuario
-      if (item.permission && !this.globalAuth.hasPermission(item.permission)) {
+      if (
+        item.permission &&
+        !permissions.includes('*') &&
+        !permissions.includes(item.permission)
+      ) {
         return false;
       }
 
