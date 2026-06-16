@@ -3682,3 +3682,72 @@ html[data-erp-tenant='babooni'] body {
   font-family: var(--font-main);
   line-height: 1.35;
 }
+
+/* ── Pulido global ERP (todas las features) ── */
+html[data-erp-tenant='babooni'] .glow-text,
+html[data-erp-tenant='babooni'] h1.glow-text,
+html[data-erp-tenant='babooni'] .page-title.glow-text {
+  text-shadow: none !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  color: var(--text-primary) !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+html[data-erp-tenant='babooni'] .display-xl {
+  font-size: clamp(1.65rem, 2vw, 2.25rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em !important;
+}
+
+html[data-erp-tenant='babooni'] .text-uppercase {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+html[data-erp-tenant='babooni'] .page-header::after {
+  box-shadow: none !important;
+}
+
+html[data-erp-tenant='babooni'] .ui-glass,
+html[data-erp-tenant='babooni'] .ui-glass-premium,
+html[data-erp-tenant='babooni'] .ui-glass-panel {
+  background: var(--surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-erp-tenant='babooni'] .ui-neon,
+html[data-erp-tenant='babooni'] .ui-glass.ui-neon {
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-erp-tenant='babooni'] .filters-bar,
+html[data-erp-tenant='babooni'] .navigation-bar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--surface) !important;
+  border-radius: 12px !important;
+}
+
+html[data-erp-tenant='babooni'] .table-card {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06) !important;
+}
+
+html[data-erp-tenant='babooni'] .table-footer {
+  text-transform: none !important;
+  letter-spacing: 0.01em !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+}
+
+html[data-erp-tenant='babooni'] lib-dashboard .dashboard-wrapper {
+  max-width: 1240px;
+  margin: 0 auto;
+}

@@ -207,7 +207,7 @@ interface PersonalGridCell {
                    [routerLink]="['/users/availability', 'request']"
                    [queryParams]="pedirDiasQueryParams()"
                  >
-                   <lucide-icon name="calendar-plus" size="20" aria-hidden="true" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2))"></lucide-icon>
+                   <lucide-icon name="calendar-plus" size="18" aria-hidden="true"></lucide-icon>
                    Pedir días
                  </a>
                </div>
@@ -323,7 +323,7 @@ interface PersonalGridCell {
                   <div class="header-meta">
                     @if (getSelectedTechName(); as name) {
                       <div class="tech-selector-info">
-                        <span class="label" style="text-transform: uppercase; font-size: 0.7rem; font-weight: 950; color: var(--brand); letter-spacing: 0.1em; opacity: 0.8;">Operario Seleccionado</span>
+                        <span class="label selected-tech-label">Operario seleccionado</span>
                         <h2 class="tech-display-name">{{ name }}</h2>
                         @if (personalMonthSummary(); as pm) {
                           <div class="personal-month-summary-grid">
@@ -672,11 +672,150 @@ interface PersonalGridCell {
       --color-unavail: #ef4444;
       --color-holiday: #3b82f6;
       --color-incident: #f59e0b;
-      
+      --avail-panel-radius: 14px;
+      --avail-soft-border: color-mix(in srgb, var(--border-soft) 80%, transparent);
+
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
-      animation: availFadeIn 0.5s var(--ease-out-expo) forwards;
+      gap: 1.15rem;
+      animation: availFadeIn 0.45s var(--ease-out-expo) forwards;
+    }
+
+    .legal-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--info, #3b82f6) 22%, var(--border-soft));
+      background: color-mix(in srgb, var(--info, #3b82f6) 7%, var(--surface));
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      line-height: 1.5;
+    }
+
+    .legal-hint lucide-icon {
+      flex-shrink: 0;
+      margin-top: 0.1rem;
+      color: color-mix(in srgb, var(--info, #3b82f6) 75%, var(--text-primary));
+    }
+
+    .sync-degraded-banner {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--border-soft));
+      background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+
+    .sync-degraded-banner--partial {
+      border-color: color-mix(in srgb, var(--warning) 30%, var(--border-soft));
+      background: color-mix(in srgb, var(--warning) 9%, var(--surface));
+    }
+
+    .availability-panel {
+      position: relative;
+      min-width: 0;
+    }
+
+    .main-content {
+      min-width: 0;
+    }
+
+    .sidebar-search {
+      margin-bottom: 0.35rem;
+    }
+
+    .sidebar-search ui-feature-filter-bar {
+      margin-bottom: 0 !important;
+    }
+
+    .calendar-card-header {
+      padding: 1.15rem 1.25rem 0.85rem;
+      border-bottom: 1px solid var(--avail-soft-border);
+    }
+
+    .selected-tech-label {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .tech-display-name {
+      margin: 0;
+      font-size: clamp(1.15rem, 1vw + 0.9rem, 1.45rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .availability-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.35rem;
+      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      border: 1px dashed var(--avail-soft-border);
+      background: color-mix(in srgb, var(--surface) 92%, var(--bg-secondary));
+      color: var(--text-muted);
+    }
+
+    .availability-empty__title {
+      margin: 0.35rem 0 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .availability-empty__hint {
+      margin: 0;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      max-width: 16rem;
+    }
+
+    .availability-empty__btn {
+      margin-top: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--avail-soft-border);
+      background: var(--surface);
+      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .availability-empty__btn:hover {
+      border-color: color-mix(in srgb, var(--brand) 30%, var(--border-soft));
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--brand) 6%, var(--surface));
+    }
+
+    .tech-chevron {
+      flex-shrink: 0;
+      opacity: 0.35;
+      color: var(--text-muted);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .tech-card:hover .tech-chevron,
+    .tech-card.selected .tech-chevron {
+      opacity: 0.85;
+      color: var(--brand);
+      transform: translateX(2px);
     }
 
     @keyframes availFadeIn {
@@ -686,21 +825,16 @@ interface PersonalGridCell {
 
     /* TOOLBAR & ACTIONS */
     .dashboard-toolbar {
-      background: color-mix(in srgb, var(--surface) 95%, white 2%);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 28px;
-      padding: 1.5rem 2rem;
-      box-shadow: 
-        0 20px 40px rgba(0,0,0,0.3),
-        inset 0 1px 0 rgba(255,255,255,0.05);
-      backdrop-filter: blur(35px);
+      background: var(--surface);
+      border: 1px solid var(--avail-soft-border);
+      border-radius: var(--avail-panel-radius);
+      padding: 0.85rem 1.15rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06);
       position: relative;
-      overflow: hidden;
     }
 
     .dashboard-toolbar::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      display: none;
     }
 
     .header-actions {
@@ -708,7 +842,7 @@ interface PersonalGridCell {
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 2rem;
+      gap: 1rem 1.25rem;
       position: relative;
       z-index: 1;
     }
@@ -716,99 +850,89 @@ interface PersonalGridCell {
     .month-navigator {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.35rem;
       background: var(--bg-secondary);
-      padding: 0.35rem;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
+      padding: 0.25rem;
+      border-radius: 10px;
+      border: 1px solid var(--avail-soft-border);
     }
 
     .current-month-display {
-      min-width: 140px;
+      min-width: 120px;
       text-align: center;
       display: flex;
       flex-direction: column;
-      line-height: 1.1;
+      line-height: 1.15;
+      padding: 0 0.25rem;
     }
-    .m-name { font-weight: 900; font-size: 0.95rem; color: var(--text-primary); text-transform: capitalize; }
-    .m-year { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); opacity: 0.8; }
+    .m-name { font-weight: 700; font-size: 0.875rem; color: var(--text-primary); text-transform: capitalize; }
+    .m-year { font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); }
 
     .nav-btn {
-      width: 36px; height: 36px; border-radius: 12px;
+      width: 34px; height: 34px; border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      background: var(--surface); border: 1px solid var(--border-soft);
-      color: var(--text-primary); transition: all 0.2s ease;
+      background: var(--surface); border: 1px solid var(--avail-soft-border);
+      color: var(--text-secondary); transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
     }
-    .nav-btn:hover { background: var(--bg-hover); color: var(--brand); transform: translateY(-1px); }
+    .nav-btn:hover { background: color-mix(in srgb, var(--brand) 7%, var(--surface)); color: var(--brand); border-color: color-mix(in srgb, var(--brand) 22%, var(--border-soft)); transform: none; }
     
     .today-jump-btn { 
-      width: auto !important; padding: 0 1rem; gap: 0.5rem; font-size: 0.75rem; font-weight: 800; 
-      background: var(--brand-ambient); color: var(--brand); border-color: var(--brand-border-soft);
+      width: auto !important; padding: 0 0.75rem; gap: 0.4rem; font-size: 0.75rem; font-weight: 600; 
+      background: color-mix(in srgb, var(--brand) 8%, var(--surface)); color: color-mix(in srgb, var(--brand) 80%, var(--text-primary)); border-color: color-mix(in srgb, var(--brand) 18%, var(--border-soft));
     }
 
     .personal-scope-toggle, .view-toggle {
       display: flex;
       background: var(--bg-secondary);
       padding: 3px;
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      border: 1px solid var(--avail-soft-border);
       gap: 2px;
     }
 
     .scope-btn, .toggle-btn {
-      padding: 0.5rem 1rem; border-radius: 11px; border: none;
+      padding: 0.45rem 0.85rem; border-radius: 8px; border: none;
       background: transparent; color: var(--text-muted);
-      font-size: 0.725rem; font-weight: 850; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; letter-spacing: 0.03em;
+      font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+      display: flex; align-items: center; gap: 0.4rem; text-transform: none; letter-spacing: 0.01em;
     }
     .scope-btn.active, .toggle-btn.active {
-      background: var(--surface); color: var(--brand);
-      box-shadow: var(--shadow-sm); transform: scale(1.02);
+      background: var(--surface); color: var(--text-primary);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06); transform: none;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
     }
-    .scope-btn:hover:not(.active), .toggle-btn:hover:not(.active) { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+    .scope-btn:hover:not(.active), .toggle-btn:hover:not(.active) { background: color-mix(in srgb, var(--text-primary) 4%, transparent); color: var(--text-primary); }
 
     a.request-days-btn,
     .request-days-btn {
-      background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), var(--brand);
-      color: #ffffff !important;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.4);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 0.75rem 1.75rem;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 950;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--brand) 92%, #fff) 0%,
+        color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
+      );
+      color: #fff !important;
+      border: 1px solid color-mix(in srgb, var(--brand) 50%, rgba(255, 255, 255, 0.1));
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.01em;
       display: inline-flex;
       align-items: center;
-      gap: 0.65rem;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 8px 25px -5px color-mix(in srgb, var(--brand) 50%, transparent);
+      gap: 0.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 16px -4px color-mix(in srgb, var(--brand) 35%, transparent);
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
       text-decoration: none;
-    }
-
-    a.request-days-btn::after,
-    .request-days-btn::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
-      opacity: 0;
-      transition: opacity 0.3s ease;
+      white-space: nowrap;
     }
 
     a.request-days-btn:hover,
     .request-days-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 15px 35px -8px color-mix(in srgb, var(--brand) 60%, transparent);
-      filter: brightness(1.08);
-    }
-    a.request-days-btn:hover::after,
-    .request-days-btn:hover::after {
-      opacity: 1;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.08), 0 10px 22px -6px color-mix(in srgb, var(--brand) 40%, transparent);
+      filter: none;
     }
 
     /* VIBRANT STATUSES - SOLID COLORS WITH GLOW */
@@ -818,15 +942,14 @@ interface PersonalGridCell {
     .status-marker.SICK_LEAVE { background: rgba(245, 158, 11, 0.08); border-left: 6px solid #f59e0b; }
 
     .dot { 
-      width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; 
-      border: 2px solid rgba(255,255,255,0.4); 
-      transition: all 0.3s var(--transition-spring);
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; 
+      border: 1.5px solid color-mix(in srgb, var(--surface) 80%, transparent);
+      box-shadow: none;
     }
-    .dot.AVAILABLE { background: #10b981 !important; box-shadow: 0 0 12px rgba(16, 185, 129, 0.6); }
-    .dot.UNAVAILABLE { background: #ef4444 !important; box-shadow: 0 0 12px rgba(239, 68, 68, 0.6); }
-    .dot.HOLIDAY { background: #3b82f6 !important; box-shadow: 0 0 12px rgba(59, 130, 246, 0.6); }
-    .dot.SICK_LEAVE { background: #f59e0b !important; box-shadow: 0 0 12px rgba(245, 158, 11, 0.6); }
+    .dot.AVAILABLE { background: #10b981 !important; }
+    .dot.UNAVAILABLE { background: #ef4444 !important; }
+    .dot.HOLIDAY { background: #3b82f6 !important; }
+    .dot.SICK_LEAVE { background: #f59e0b !important; }
 
     .header-actions-extra {
       display: flex;
@@ -852,7 +975,6 @@ interface PersonalGridCell {
       border-radius: 10px;
     }
 
-    /* Un solo bloque segmentado (mejor que 4 cápsulas en fila). */
     .calendar-legend {
       display: inline-flex;
       flex-direction: row;
@@ -867,8 +989,8 @@ interface PersonalGridCell {
       -webkit-overflow-scrolling: touch;
       gap: 0;
       padding: 0;
-      background: color-mix(in srgb, var(--surface) 75%, rgba(0, 0, 0, 0.15));
-      border: 1px solid color-mix(in srgb, var(--border-soft) 90%, transparent);
+      background: var(--bg-secondary);
+      border: 1px solid var(--avail-soft-border);
       border-radius: 10px;
     }
 
@@ -879,18 +1001,18 @@ interface PersonalGridCell {
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
       margin: 0;
-      padding: 0.48rem 0.72rem;
+      padding: 0.42rem 0.65rem;
       background: transparent;
       border: none;
       border-radius: 0;
-      border-right: 1px solid color-mix(in srgb, var(--border-soft) 70%, rgba(255, 255, 255, 0.04));
-      font-size: 0.62rem;
-      font-weight: 800;
+      border-right: 1px solid var(--avail-soft-border);
+      font-size: 0.6875rem;
+      font-weight: 600;
       color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      text-transform: none;
+      letter-spacing: 0.01em;
       white-space: nowrap;
       transition: background 0.15s ease, color 0.15s ease;
     }
@@ -919,14 +1041,13 @@ interface PersonalGridCell {
       flex-shrink: 1;
     }
 
-     /* LAYOUT & SIDEBAR */
      .dashboard-layout {
        display: grid;
-       grid-template-columns: 300px minmax(0, 1fr);
-       gap: 2rem;
+       grid-template-columns: 280px minmax(0, 1fr);
+       gap: 1.25rem;
        align-items: start;
        position: relative;
-       transition: grid-template-columns 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+       transition: grid-template-columns 0.35s ease;
      }
      .dashboard-layout.sidebar-collapsed,
      .dashboard-layout--team {
@@ -1030,10 +1151,10 @@ interface PersonalGridCell {
        padding-right: 2.25rem;
      }
      .sidebar-header h3 { 
-       font-size: 0.85rem; 
-       font-weight: 950; 
+       font-size: 0.75rem; 
+       font-weight: 700; 
        text-transform: uppercase; 
-       letter-spacing: 0.1em; 
+       letter-spacing: 0.06em; 
        color: var(--text-muted); 
        margin: 0;
      }
@@ -1095,35 +1216,33 @@ interface PersonalGridCell {
      }
 
     .technician-list {
-      display: flex; flex-direction: column; gap: 0.85rem;
-      max-height: calc(100vh - 400px); 
+      display: flex; flex-direction: column; gap: 0.5rem;
+      max-height: calc(100vh - 380px); 
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 0.5rem;
+      padding: 0.15rem;
     }
 
     .tech-card {
-      display: flex; align-items: center; gap: 1.25rem;
-      padding: 1rem 1.25rem; background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 24px;
-      cursor: pointer; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      text-align: left; position: relative; overflow: hidden;
-      backdrop-filter: blur(10px);
+      display: flex; align-items: center; gap: 0.85rem;
+      padding: 0.75rem 0.9rem; background: var(--surface);
+      border: 1px solid var(--avail-soft-border); border-radius: 12px;
+      cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      text-align: left; position: relative;
     }
-    .tech-card::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent); opacity: 0; transition: opacity 0.3s ease; }
-    .tech-card:hover { transform: scale(1.02); border-color: rgba(var(--brand-rgb), 0.4); background: rgba(255,255,255,0.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-    .tech-card:hover::before { opacity: 1; }
-    .tech-card.selected { background: rgba(var(--brand-rgb), 0.1); border-color: var(--brand); box-shadow: 0 0 20px rgba(var(--brand-rgb), 0.2), inset 0 0 0 1px var(--brand); }
-    .tech-card.selected .tech-name { color: var(--brand); }
-    .tech-card.selected .tech-avatar { box-shadow: 0 0 15px rgba(var(--brand-rgb), 0.4); }
+    .tech-card::before { display: none; }
+    .tech-card:hover { border-color: color-mix(in srgb, var(--brand) 28%, var(--border-soft)); background: color-mix(in srgb, var(--brand) 4%, var(--surface)); box-shadow: 0 2px 8px -4px rgba(15, 23, 42, 0.08); transform: none; }
+    .tech-card.selected { background: color-mix(in srgb, var(--brand) 6%, var(--surface)); border-color: color-mix(in srgb, var(--brand) 45%, var(--border-soft)); box-shadow: inset 3px 0 0 var(--brand), 0 2px 8px -4px rgba(15, 23, 42, 0.06); }
+    .tech-card.selected .tech-name { color: var(--text-primary); font-weight: 700; }
+    .tech-card.selected .tech-avatar { box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.12); }
 
     .tech-avatar-wrapper { position: relative; }
     .tech-avatar {
-      width: 46px; height: 46px; border-radius: 14px;
+      width: 42px; height: 42px; border-radius: 10px;
       flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-      font-weight: 950; color: #fff; font-size: 1.1rem;
-      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.2);
+      font-weight: 700; color: #fff; font-size: 0.95rem;
+      box-shadow: 0 2px 6px -2px rgba(15, 23, 42, 0.15);
+      border: 1px solid rgba(255,255,255,0.15);
     }
     .status-indicator { position: absolute; bottom: -2px; right: -2px; width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--surface); }
     .status-indicator.online { background: #10b981; }
@@ -1131,148 +1250,148 @@ interface PersonalGridCell {
     .status-indicator.away { background: #f59e0b; }
 
     .tech-body { flex: 1; min-width: 0; position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; }
-    .tech-name { display: block; font-weight: 950; font-size: 1rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
-    .tech-role { display: block; font-size: 0.65rem; font-weight: 850; color: var(--text-muted); text-transform: uppercase; margin-top: 0.15rem; opacity: 0.8; letter-spacing: 0.05em; }
+    .tech-name { display: block; font-weight: 600; font-size: 0.9rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.01em; }
+    .tech-role { display: block; font-size: 0.6875rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; margin-top: 0.1rem; letter-spacing: 0.04em; }
 
     /* CALENDAR CARD & SUMMARY */
     .calendar-card {
-      background: rgba(15, 23, 42, 0.6) !important;
-      border: 1px solid rgba(255, 255, 255, 0.08) !important;
-      border-radius: 40px !important;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-      backdrop-filter: blur(35px);
+      background: var(--surface) !important;
+      border: 1px solid var(--avail-soft-border) !important;
+      border-radius: var(--avail-panel-radius) !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px -8px rgba(15, 23, 42, 0.08);
       position: relative; 
       overflow: hidden;
     }
 
     .personal-month-summary-grid {
-      display: flex; gap: 0.75rem; margin-top: 1rem; flex-wrap: wrap;
+      display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap;
     }
     
     .summary-card {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding: 0.65rem 1rem; border-radius: 14px;
-      background: rgba(255, 255, 255, 0.03); 
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.5rem 0.75rem; border-radius: 10px;
+      background: var(--bg-secondary); 
+      border: 1px solid var(--avail-soft-border);
+      transition: border-color 0.2s ease;
     }
-    .summary-card:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.06); }
+    .summary-card:hover { transform: none; background: var(--bg-secondary); border-color: color-mix(in srgb, var(--border-soft) 90%, transparent); }
     
     .status-avail { border-bottom: 2px solid #10b981; }
     .status-unavail { border-bottom: 2px solid #ef4444; }
     .status-holiday { border-bottom: 2px solid #3b82f6; }
     .status-other { border-bottom: 2px solid #f59e0b; }
 
-    .summary-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .summary-dot.AVAILABLE { background: #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.8); }
-    .summary-dot.UNAVAILABLE { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
-    .summary-dot.HOLIDAY { background: #3b82f6; box-shadow: 0 0 12px rgba(59, 130, 246, 0.8); }
-    .summary-dot.SICK_LEAVE { background: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
+    .summary-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .summary-dot.AVAILABLE { background: #10b981; }
+    .summary-dot.UNAVAILABLE { background: #ef4444; }
+    .summary-dot.HOLIDAY { background: #3b82f6; }
+    .summary-dot.SICK_LEAVE { background: #f59e0b; }
 
     .summary-data { display: flex; flex-direction: column; line-height: 1.1; }
-    .summary-val { font-size: 1.15rem; font-weight: 950; font-family: var(--font-gaming, var(--font-mono)); color: var(--text-primary); }
-    .summary-lbl { font-size: 0.6rem; font-weight: 850; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
+    .summary-val { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .summary-lbl { font-size: 0.625rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.03em; }
 
     .calendar-grid-header { 
       display: grid; 
       grid-template-columns: repeat(7, 1fr); 
-      margin-bottom: 1rem; 
-      gap: 1rem; 
+      margin-bottom: 0.65rem; 
+      gap: 0.5rem; 
     }
     .grid-day-label { 
       text-align: center; 
-      font-size: 0.65rem; 
-      font-weight: 950; 
+      font-size: 0.6875rem; 
+      font-weight: 600; 
       color: var(--text-muted); 
-      opacity: 0.7; 
-      letter-spacing: 0.15em;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--avail-soft-border);
     }
 
     .calendar-grid { 
       display: grid; 
       grid-template-columns: repeat(7, minmax(0, 1fr)); 
-      gap: 0.85rem; 
-    }
-    .calendar-cell {
-      min-height: 130px; 
-      background: rgba(255, 255, 255, 0.02); 
-      border: 1px solid rgba(255, 255, 255, 0.04); 
-      border-radius: 20px;
-      padding: 1rem; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 0.75rem;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-      position: relative; 
-      overflow: hidden;
-      backdrop-filter: blur(8px);
-    }
-    .calendar-cell::before {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .calendar-cell:hover { 
-      border-color: rgba(255,255,255,0.15); 
-      transform: translateY(-4px) scale(1.02); 
-      box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); 
-      z-index: 10; 
-    }
-    .calendar-cell:hover::before { opacity: 1; }
-    .calendar-cell.today { 
-      border-color: var(--brand); 
-      background: rgba(var(--brand-rgb), 0.05);
-      box-shadow: 0 0 25px rgba(var(--brand-rgb), 0.15), inset 0 0 0 1px var(--brand);
+      gap: 0.5rem; 
     }
 
-    .day-number { font-size: 1.35rem; font-weight: 950; font-family: var(--font-gaming, var(--font-sans)); color: var(--text-primary); }
-    .today-tag { font-size: 0.5rem; font-weight: 950; background: var(--brand); color: #fff; padding: 3px 8px; border-radius: 8px; margin-left: 0.5rem; letter-spacing: 0.1em; display: inline-flex; align-items: center; align-self: flex-start; }
+    .calendar-grid--week {
+      gap: 0.45rem;
+    }
+
+    .calendar-cell {
+      min-height: 6.5rem; 
+      background: var(--bg-secondary); 
+      border: 1px solid var(--avail-soft-border); 
+      border-radius: 10px;
+      padding: 0.65rem 0.75rem; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 0.45rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease; 
+      position: relative; 
+    }
+    .calendar-cell::before { display: none; }
+    .calendar-cell:hover { 
+      border-color: color-mix(in srgb, var(--brand) 25%, var(--border-soft)); 
+      transform: none; 
+      box-shadow: 0 2px 8px -4px rgba(15, 23, 42, 0.08); 
+      z-index: 1; 
+    }
+    .calendar-cell.today { 
+      border-color: color-mix(in srgb, var(--brand) 45%, var(--border-soft)); 
+      background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 20%, transparent);
+    }
+
+    .calendar-grid--week .calendar-cell {
+      min-height: 5.25rem;
+      padding: 0.55rem 0.65rem;
+    }
+
+    .day-number { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .today-tag { font-size: 0.5625rem; font-weight: 700; background: var(--brand); color: #fff; padding: 2px 6px; border-radius: 6px; margin-left: 0.4rem; letter-spacing: 0.04em; display: inline-flex; align-items: center; align-self: flex-start; }
     
     .calendar-cell__top { display: flex; align-items: center; }
 
     .status-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.4rem 0.65rem; border-radius: 8px;
-      background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.28rem 0.5rem; border-radius: 6px;
+      background: var(--surface); border: 1px solid var(--avail-soft-border);
       margin-top: auto; align-self: flex-start; width: fit-content;
     }
-    .status-badge.AVAILABLE { background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2); }
-    .status-badge.UNAVAILABLE { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
-    .status-badge.HOLIDAY { background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); }
-    .status-badge.SICK_LEAVE { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); }
+    .status-badge.AVAILABLE { background: color-mix(in srgb, #10b981 10%, var(--surface)); border-color: color-mix(in srgb, #10b981 22%, transparent); }
+    .status-badge.UNAVAILABLE { background: color-mix(in srgb, #ef4444 10%, var(--surface)); border-color: color-mix(in srgb, #ef4444 22%, transparent); }
+    .status-badge.HOLIDAY { background: color-mix(in srgb, #3b82f6 10%, var(--surface)); border-color: color-mix(in srgb, #3b82f6 22%, transparent); }
+    .status-badge.SICK_LEAVE { background: color-mix(in srgb, #f59e0b 10%, var(--surface)); border-color: color-mix(in srgb, #f59e0b 22%, transparent); }
 
     .status-badge-dot { width: 6px; height: 6px; border-radius: 50%; }
-    .AVAILABLE .status-badge-dot { background: #10b981; box-shadow: 0 0 8px #10b981; }
-    .UNAVAILABLE .status-badge-dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-    .HOLIDAY .status-badge-dot { background: #3b82f6; box-shadow: 0 0 8px #3b82f6; }
-    .SICK_LEAVE .status-badge-dot { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+    .AVAILABLE .status-badge-dot { background: #10b981; }
+    .UNAVAILABLE .status-badge-dot { background: #ef4444; }
+    .HOLIDAY .status-badge-dot { background: #3b82f6; }
+    .SICK_LEAVE .status-badge-dot { background: #f59e0b; }
 
-    .status-label { font-size: 0.65rem; font-weight: 900; text-transform: uppercase; color: var(--text-primary); letter-spacing: 0.05em; }
-    .cell-notes { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; line-height: 1.3; margin-top: 0.5rem; opacity: 0.7; }
+    .status-label { font-size: 0.625rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.03em; }
+    .cell-notes { font-size: 0.625rem; color: var(--text-muted); font-weight: 500; line-height: 1.35; margin-top: 0.35rem; }
+
+    .calendar-container {
+      padding: 0.85rem 1rem 1.1rem;
+    }
 
     /* TEAM BOARD MATRIX - PANORAMIC VIEW */
     .team-board-toolbar {
-      padding: 2rem 2.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--avail-soft-border);
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 1rem 1.5rem;
-      background: rgba(255, 255, 255, 0.02);
+      gap: 0.85rem 1rem;
+      background: var(--bg-secondary);
     }
 
-    .team-board-toolbar__meta {
-      flex: 1 1 220px;
-      min-width: 0;
-    }
-    .team-board-title { font-size: 1.75rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.03em; }
-    .team-board-month { color: var(--brand); margin-left: 0.65rem; opacity: 0.9; }
-    .team-board-hint { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; font-weight: 700; margin-top: 0.5rem; opacity: 0.6; }
+    .team-board-title { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+    .team-board-month { color: var(--brand); margin-left: 0.5rem; font-weight: 600; }
+    .team-board-hint { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem; font-weight: 500; margin-top: 0.35rem; }
     
     .team-board-matrix { 
       width: max-content; 
@@ -1356,138 +1475,130 @@ interface PersonalGridCell {
     .sticky-col { position: sticky; left: 0; z-index: 20; background: inherit; box-shadow: 4px 0 8px -4px rgba(0,0,0,0.1); }
     
     .team-board-scroll-wrap { 
-      position: relative; width: 100%; border-radius: var(--radius-lg); 
-      overflow: hidden; border: 1px solid var(--border-soft); 
+      position: relative; width: 100%; border-radius: var(--avail-panel-radius); 
+      overflow: hidden; border: 1px solid var(--avail-soft-border); 
       background: var(--surface);
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(10px);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px -8px rgba(15, 23, 42, 0.08);
     }
     .team-board-scroll { overflow-x: auto; width: 100%; display: block; scroll-behavior: smooth; }
 
-    /* BABOONI / BIOSSTEL LUXE MODE OVERRIDES */
+    .team-board-toolbar__meta {
+      flex: 1 1 220px;
+      min-width: 0;
+    }
+
+    /* BABOONI — refinado alineado con el resto del ERP */
     :host-context(html[data-erp-tenant='babooni']) {
-      --avail-card-bg: color-mix(in srgb, var(--surface) 65%, transparent);
-      --avail-border: color-mix(in srgb, var(--border-soft) 50%, transparent);
+      --avail-card-bg: var(--surface);
+      --avail-border: color-mix(in srgb, var(--border-soft) 75%, transparent);
+      --avail-panel-radius: 12px;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .dashboard-toolbar {
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
-      backdrop-filter: blur(16px);
-      border: 1px solid var(--avail-border);
-      border-radius: 20px;
-      padding: 1rem 1.5rem;
-      box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.05);
+      background: var(--surface);
+      border-color: var(--avail-border);
+      border-radius: var(--avail-panel-radius);
+      padding: 0.75rem 1rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06);
+      backdrop-filter: none;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .dashboard-toolbar::before { display: none; }
+    :host-context(html[data-erp-tenant='babooni']) .legal-hint {
+      background: color-mix(in srgb, var(--info, #3b82f6) 6%, var(--surface));
+      border-color: color-mix(in srgb, var(--info, #3b82f6) 18%, var(--border-soft));
+    }
 
     :host-context(html[data-erp-tenant='babooni']) .nav-btn,
     :host-context(html[data-erp-tenant='babooni']) .month-navigator,
     :host-context(html[data-erp-tenant='babooni']) .personal-scope-toggle,
     :host-context(html[data-erp-tenant='babooni']) .view-toggle {
-      border-radius: 12px;
+      border-radius: 10px;
       border-color: var(--avail-border);
-      background: color-mix(in srgb, var(--surface) 50%, transparent);
+      background: var(--bg-secondary);
     }
 
     :host-context(html[data-erp-tenant='babooni']) a.request-days-btn,
     :host-context(html[data-erp-tenant='babooni']) .request-days-btn {
-      border-radius: 12px;
-      padding: 0.65rem 1.25rem;
-      box-shadow: 0 4px 12px rgba(var(--brand-rgb), 0.2);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 6px 16px -4px color-mix(in srgb, var(--brand) 32%, transparent);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-legend {
-      background: color-mix(in srgb, var(--surface) 45%, transparent);
+      background: var(--bg-secondary);
       border-color: var(--avail-border);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .legend-item {
-      border-right-color: rgba(0, 0, 0, 0.06);
-      color: var(--text-primary);
+      border-right-color: var(--avail-border);
+      color: var(--text-secondary);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .legend-item:hover {
-      background: color-mix(in srgb, var(--surface) 70%, transparent);
+      background: color-mix(in srgb, var(--brand) 5%, var(--surface));
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card {
-      background: color-mix(in srgb, var(--surface) 45%, transparent);
-      backdrop-filter: blur(12px);
-      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
-      border-radius: 16px;
-      box-shadow: 0 4px 15px -5px rgba(0, 0, 0, 0.05);
-      padding: 0.85rem 1rem;
+      background: var(--surface);
+      backdrop-filter: none;
+      border: 1px solid var(--avail-border);
+      border-radius: 12px;
+      box-shadow: none;
+      padding: 0.7rem 0.85rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .tech-card.selected {
-      background: color-mix(in srgb, var(--surface) 90%, transparent);
-      border-color: var(--brand);
-      box-shadow: 0 8px 24px -12px rgba(var(--brand-rgb), 0.3);
-      transform: scale(1.03) translateY(-1px);
+      background: color-mix(in srgb, var(--brand) 5%, var(--surface));
+      border-color: color-mix(in srgb, var(--brand) 40%, var(--border-soft));
+      box-shadow: inset 3px 0 0 var(--brand);
+      transform: none;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .calendar-card,
     :host-context(html[data-erp-tenant='babooni']) .team-board-card {
-      background: color-mix(in srgb, var(--surface) 60%, transparent) !important;
-      backdrop-filter: blur(25px);
-      border: 1px solid color-mix(in srgb, var(--surface) 60%, transparent) !important;
-      border-radius: 36px !important;
-      box-shadow: 0 20px 50px -20px rgba(0, 0, 0, 0.1) !important;
+      background: var(--surface) !important;
+      backdrop-filter: none;
+      border: 1px solid var(--avail-border) !important;
+      border-radius: var(--avail-panel-radius) !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 20px -8px rgba(15, 23, 42, 0.08) !important;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .sidebar-header {
-      padding: 0.65rem 1rem;
-      padding-right: 2.75rem;
-      background: color-mix(in srgb, var(--surface) 35%, transparent);
-      backdrop-filter: blur(8px);
-      border-radius: 14px;
-      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
-      margin-bottom: 0.75rem;
-      box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.05);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .tech-avatar {
-      border-radius: 12px;
-      border: 2px solid var(--surface);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 0.55rem 0.85rem;
+      padding-right: 2.5rem;
+      background: var(--bg-secondary);
+      backdrop-filter: none;
+      border-radius: 10px;
+      border: 1px solid var(--avail-border);
+      margin-bottom: 0.5rem;
+      box-shadow: none;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .team-board-scroll-wrap {
-      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent);
-      box-shadow: 0 16px 40px -20px rgba(0, 0, 0, 0.08);
-      border-radius: 24px;
+      border-color: var(--avail-border);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 6px 18px -8px rgba(15, 23, 42, 0.08);
+      border-radius: var(--avail-panel-radius);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .status-chip {
-      width: 32px;
-      height: 6px;
-      border-radius: 3px;
-      border: none;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .board-row:nth-child(even) {
-      background: color-mix(in srgb, var(--text-primary) 1.5%, transparent);
-    }
-    :host-context(html[data-erp-tenant='babooni']) .sidebar-expand-btn {
-      background: color-mix(in srgb, var(--surface) 50%, transparent);
-      backdrop-filter: blur(16px);
-      border: 1px solid color-mix(in srgb, var(--surface) 60%, transparent);
-      color: var(--brand);
-      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
-    }
-    
     :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn {
       background: var(--surface);
-      color: var(--brand);
-      border: 1px solid color-mix(in srgb, var(--text-primary) 5%, transparent);
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+      color: var(--text-secondary);
+      border: 1px solid var(--avail-border);
+      box-shadow: none;
     }
-    
-    :host-context(html[data-erp-tenant='babooni']) .request-days-btn {
-      color: #fff !important; /* En Babooni el brand suele ser oscuro/azul */
-      background: var(--brand);
+
+    :host-context(html[data-erp-tenant='babooni']) .sidebar-toggle-btn:hover {
+      color: var(--brand);
+      border-color: color-mix(in srgb, var(--brand) 30%, var(--border-soft));
+      transform: translateY(-50%);
+      box-shadow: none;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .calendar-cell {
+      background: var(--bg-secondary);
+      border-color: var(--avail-border);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .calendar-cell.today {
+      background: color-mix(in srgb, var(--brand) 5%, var(--surface));
     }
   `]
 

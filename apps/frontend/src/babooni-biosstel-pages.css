@@ -69,6 +69,7 @@ html[data-erp-tenant='babooni'] .events-container,
 html[data-erp-tenant='babooni'] .users-container,
 html[data-erp-tenant='babooni'] .availability-container,
 html[data-erp-tenant='babooni'] .dashboard-container,
+html[data-erp-tenant='babooni'] .dashboard-wrapper,
 html[data-erp-tenant='babooni'] .page-container,
 html[data-erp-tenant='babooni'] .edit-container,
 html[data-erp-tenant='babooni'] .placeholder-container,
@@ -394,6 +395,35 @@ html[data-erp-tenant='babooni'] .loader-container {
   html[data-erp-tenant='babooni'] .feature-page-shell--fade-in {
     animation: none !important;
   }
+}
+
+html[data-erp-tenant='babooni'] .availability-container {
+  max-width: 1240px;
+}
+
+html[data-erp-tenant='babooni'] lib-technician-availability .dashboard-toolbar,
+html[data-erp-tenant='babooni'] lib-technician-availability .calendar-card,
+html[data-erp-tenant='babooni'] lib-technician-availability .team-board-card {
+  border-radius: 12px !important;
+}
+
+html[data-erp-tenant='babooni'] lib-technician-availability .legal-hint {
+  font-size: 0.8125rem;
+}
+
+html[data-erp-tenant='babooni'] lib-technician-availability ui-feature-filter-bar .feature-filter-bar--framed {
+  margin-bottom: 0 !important;
+  padding: 0.5rem 0.65rem !important;
+}
+
+/* ── Pulido global: detalle en styles.css + ui-kit ── */
+html[data-erp-tenant='babooni'] ui-card .card.hover-effect:hover,
+html[data-erp-tenant='babooni'] ui-card .card.ui-neon:hover {
+  transform: translateY(-2px) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-page-shell {
+  --feature-page-gap: 1.15rem;
 }
 
 /* ── Shell Babooni: contenido bajo topbar + toques de marca en topbar ── */

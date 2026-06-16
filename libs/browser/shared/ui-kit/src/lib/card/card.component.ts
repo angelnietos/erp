@@ -115,6 +115,48 @@ export type CardVariant = string;
       backdrop-filter: blur(30px) saturate(2);
       border-color: rgba(255, 255, 255, 0.08);
     }
+
+    :host-context(html[data-erp-tenant='babooni']) .card {
+      border-radius: 12px;
+      background: var(--surface);
+      border-color: color-mix(in srgb, var(--border-soft) 80%, transparent);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-header {
+      padding: 0.85rem 1.15rem;
+      background: transparent;
+      border-bottom-color: color-mix(in srgb, var(--border-soft) 75%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-header h3 {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-transform: none;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-body {
+      padding: 1rem 1.15rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .card-shape-glass {
+      background: var(--surface);
+      backdrop-filter: none;
+      border-color: color-mix(in srgb, var(--border-soft) 80%, transparent);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .hover-effect:hover {
+      transform: translateY(-2px);
+      background: var(--surface);
+      border-color: color-mix(in srgb, var(--brand) 25%, var(--border-soft));
+      box-shadow: 0 4px 16px -6px rgba(15, 23, 42, 0.08);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .hover-effect:hover::before {
+      width: 4px;
+    }
   `],
 })
 export class UiCardComponent {

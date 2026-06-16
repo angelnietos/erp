@@ -98,21 +98,18 @@ interface QuickAction {
       <section class="dashboard-hero animate-fade-in">
         <div class="hero-content">
           <div class="hero-text">
-            <div class="hero-badge">SISTEMA OPERATIVO v2.1</div>
-            <h1 class="display-xl glow-text">Panel Central</h1>
+            <div class="hero-badge">Panel ejecutivo</div>
+            <h1 class="display-xl">Panel Central</h1>
             <p class="body-lg hero-subtitle">Gestión ejecutiva y monitoreo de operaciones en tiempo real</p>
           </div>
           <div class="hero-meta">
             <div class="live-status">
-               <div class="pulse-ring"></div>
                <span class="pulse-dot"></span>
-               <span class="status-label">EN LÍNEA</span>
+               <span class="status-label">En línea</span>
             </div>
             <div class="system-date">{{ currentDate() }}</div>
           </div>
         </div>
-        <div class="hero-glow-layer layer-1"></div>
-        <div class="hero-glow-layer layer-2"></div>
       </section>
 
       <!-- Key Metrics -->
@@ -228,14 +225,14 @@ interface QuickAction {
           <ui-card class="actions-panel glass-panel">
             <div class="panel-header">
                <lucide-icon name="zap" size="18" aria-hidden="true"></lucide-icon>
-               <h3>Acciones Flash</h3>
+               <h3>Acciones rápidas</h3>
             </div>
             <div class="actions-list" role="list">
               @for (action of quickActions(); track action.title) {
                 <ui-button
                   [color]="action.color"
-                  variant="glass"
-                  size="md"
+                  variant="outline"
+                  size="sm"
                   class="action-btn flash-action"
                   (clicked)="goToRoute($event, action.route)"
                 >
@@ -334,109 +331,152 @@ interface QuickAction {
     }
 
     .dashboard-wrapper {
-      padding-bottom: 4rem;
+      padding-bottom: 2.5rem;
     }
 
-    /* Hero Styling — Rockstar Cinematic + Nintendo Launch */
+    /* Hero — compacto y profesional */
     .dashboard-hero {
       position: relative;
-      padding: 5rem 3rem 4rem;
-      margin-bottom: 2.5rem;
-      border-radius: 0 0 48px 48px;
+      padding: 1.35rem 1.5rem 1.15rem;
+      margin-bottom: 1.25rem;
+      border-radius: 14px;
       overflow: hidden;
-      background: linear-gradient(180deg, rgba(var(--brand-rgb), 0.12) 0%, transparent 100%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      box-shadow: 0 10px 40px -20px rgba(0, 0, 0, 0.5);
+      background: var(--surface);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 16px -6px rgba(15, 23, 42, 0.06);
     }
 
     .hero-content {
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
+      gap: 1.25rem;
+      flex-wrap: wrap;
       position: relative;
-      z-index: 2;
+      z-index: 1;
       max-width: 1400px;
       margin: 0 auto;
     }
 
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.55rem;
+      margin-bottom: 0.45rem;
+      border-radius: 6px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--bg-secondary);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 75%, transparent);
+    }
+
     .hero-text h1 {
-      font-size: clamp(3.5rem, 10vw, 6rem);
-      line-height: 0.9;
-      margin-bottom: 0.5rem;
+      font-size: clamp(1.65rem, 2.2vw, 2.25rem);
+      line-height: 1.15;
+      margin: 0 0 0.35rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      color: var(--text-primary);
     }
 
     .hero-text p {
-      font-size: 1.1rem;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      opacity: 0.8;
-      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--text-muted);
+      margin: 0;
+      max-width: 36rem;
+      line-height: 1.5;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.45rem;
     }
 
     .live-status {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 1rem;
-      background: rgba(0, 255, 170, 0.08);
-      padding: 0.75rem 1.5rem;
-      border-radius: 50px;
-      border: 1px solid rgba(0, 255, 170, 0.2);
-      backdrop-filter: blur(10px);
+      gap: 0.45rem;
+      background: color-mix(in srgb, var(--success, #10b981) 8%, var(--surface));
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--success, #10b981) 22%, var(--border-soft));
     }
 
     .pulse-dot {
-      width: 10px; height: 10px; background: #00ffaa; border-radius: 50%;
-      box-shadow: 0 0 15px #00ffaa;
-      animation: pulse 1s infinite;
+      width: 8px;
+      height: 8px;
+      background: var(--success, #10b981);
+      border-radius: 50%;
+      flex-shrink: 0;
     }
 
-    .status-label { font-size: 0.7rem; font-weight: 900; color: #00ffaa; letter-spacing: 0.2em; }
-    .system-date { font-family: var(--font-gaming); font-size: 1rem; color: var(--brand); font-weight: 900; letter-spacing: 0.1em; margin-top: 1rem; }
+    .status-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: color-mix(in srgb, var(--success, #10b981) 75%, var(--text-primary));
+      letter-spacing: 0.01em;
+      text-transform: none;
+    }
+
+    .system-date {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      letter-spacing: 0;
+      margin-top: 0;
+      text-transform: capitalize;
+    }
 
     /* Grid Layout */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 1fr 380px;
-      gap: 3rem;
-      padding: 0 3rem;
-      max-width: 1600px;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 1.25rem;
+      padding: 0 1.5rem;
+      max-width: 1400px;
       margin: 0 auto;
     }
 
-
     .glass-panel {
-      margin-bottom: 2.5rem;
-      background: rgba(255, 255, 255, 0.015) !important;
-      border: 1px solid rgba(255, 255, 255, 0.06) !important;
-      backdrop-filter: blur(35px);
-      border-radius: 36px !important;
-      box-shadow: 0 12px 40px -12px rgba(0, 0, 0, 0.3);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-bottom: 1.25rem;
+      background: var(--surface) !important;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent) !important;
+      backdrop-filter: none;
+      border-radius: 14px !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px -6px rgba(15, 23, 42, 0.06);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
 
     .glass-panel:hover {
-      background: rgba(255, 255, 255, 0.025) !important;
-      border-color: rgba(255, 255, 255, 0.1) !important;
-      box-shadow: 0 20px 60px -15px rgba(0, 0, 0, 0.4);
-      transform: translateY(-2px);
+      background: var(--surface) !important;
+      border-color: color-mix(in srgb, var(--brand) 22%, var(--border-soft)) !important;
+      box-shadow: 0 4px 16px -6px rgba(15, 23, 42, 0.08);
+      transform: none;
     }
 
     .panel-header {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
-      padding: 1.5rem 2rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 0.65rem;
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
     }
 
     .panel-header h3 {
       flex: 1;
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-transform: none;
+      color: var(--text-primary);
     }
 
     .panel-header > ui-button {
@@ -445,60 +485,70 @@ interface QuickAction {
     }
 
     /* Analytics Bars */
-    .analytics-content { padding: 2rem; gap: 3rem; }
+    .analytics-content { padding: 1.15rem; gap: 1.5rem; }
     
-    .data-row { display: grid; grid-template-columns: 160px 1fr 120px; gap: 2rem; margin-bottom: 1.5rem; }
-    .row-name { font-size: 0.85rem; font-weight: 700; }
-    .row-value { font-family: var(--font-gaming); font-size: 0.9rem; color: #fff; }
+    .data-row { display: grid; grid-template-columns: minmax(100px, 140px) 1fr minmax(72px, 100px); gap: 0.85rem; margin-bottom: 1rem; align-items: center; }
+    .row-name { font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); }
+    .row-value { font-size: 0.8125rem; font-weight: 700; color: var(--text-primary); text-align: right; }
     
     .progress-track {
-      height: 10px;
-      background: color-mix(in srgb, var(--text-muted) 12%, rgba(255, 255, 255, 0.06));
-      border-radius: 20px;
+      height: 8px;
+      background: color-mix(in srgb, var(--text-muted) 10%, var(--bg-secondary));
+      border-radius: 999px;
       overflow: hidden;
     }
     .progress-fill {
       min-width: 2%;
       height: 100%;
-      border-radius: 20px;
-      background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--brand) 80%, #fff 20%),
-        var(--brand)
-      );
-      box-shadow: 0 0 20px var(--brand-glow);
+      border-radius: 999px;
+      background: linear-gradient(90deg, color-mix(in srgb, var(--brand) 85%, #fff), var(--brand));
+      box-shadow: none;
     }
     .progress-fill.primary {
-      background: linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--success) 70%, var(--brand) 30%),
-        var(--success)
-      );
-      box-shadow: 0 0 16px color-mix(in srgb, var(--success) 50%, transparent);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--success) 80%, #fff), var(--success));
+      box-shadow: none;
+    }
+
+    .chart-label {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
     }
 
     /* Activity Feed */
     .feed-item {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
-      padding: 1.5rem 2rem;
-      border-bottom: 1px solid rgba(255,255,255,0.02);
+      gap: 0.85rem;
+      padding: 0.85rem 1.15rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
+      cursor: pointer;
+      transition: background 0.2s ease;
     }
-    .feed-item:hover { background: rgba(255,255,255,0.02); transform: translateX(10px); }
+    .feed-item:hover { background: color-mix(in srgb, var(--brand) 4%, var(--surface)); transform: none; }
 
     .item-icon {
-      width: 44px; height: 44px; border-radius: 14px;
+      width: 36px; height: 36px; border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.05);
+      background: var(--bg-secondary);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
+      color: var(--text-secondary);
     }
 
-    /* Acciones flash — mismo ancho, altura fija, lectura clara */
+    .item-title { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); }
+    .item-time { font-size: 0.6875rem; color: var(--text-muted); }
+    .item-desc { margin: 0.15rem 0 0; font-size: 0.8125rem; color: var(--text-muted); line-height: 1.4; }
+
+    /* Acciones rápidas */
     .actions-list {
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
-      padding: 1.5rem 1.5rem 1.75rem;
+      gap: 0.5rem;
+      padding: 0.85rem 1rem 1rem;
     }
     .action-btn {
       display: block;
@@ -506,21 +556,21 @@ interface QuickAction {
     }
     .action-btn ::ng-deep .btn {
       width: 100%;
-      min-height: 4.5rem;
+      min-height: 3.25rem;
       align-items: center;
       justify-content: flex-start;
       text-align: left;
-      border-radius: 20px;
-      padding: 0.8rem 1.25rem;
-      line-height: 1.2;
+      border-radius: 10px;
+      padding: 0.65rem 0.85rem;
+      line-height: 1.25;
       text-transform: none;
-      font-weight: 650;
-      letter-spacing: 0.02em;
+      font-weight: 600;
+      letter-spacing: 0;
     }
     .flash-action__inner {
       display: flex;
       align-items: center;
-      gap: 0.9rem;
+      gap: 0.75rem;
       width: 100%;
       min-width: 0;
     }
@@ -529,11 +579,11 @@ interface QuickAction {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 2.6rem;
-      height: 2.6rem;
-      border-radius: 14px;
-      background: color-mix(in srgb, #fff 14%, transparent);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      width: 2.15rem;
+      height: 2.15rem;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--brand) 8%, var(--bg-secondary));
+      box-shadow: none;
     }
     .flash-action__icon {
       color: currentColor;
@@ -543,104 +593,89 @@ interface QuickAction {
       flex-direction: column;
       align-items: flex-start;
       text-align: left;
-      gap: 0.2rem;
+      gap: 0.1rem;
       min-width: 0;
       flex: 1;
     }
     .a-title {
-      font-size: 0.81rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0;
+      text-transform: none;
     }
     .a-desc {
-      font-size: 0.7rem;
+      font-size: 0.6875rem;
       font-weight: 500;
-      letter-spacing: 0.02em;
+      letter-spacing: 0;
       text-transform: none;
-      opacity: 0.86;
+      opacity: 0.9;
+      color: var(--text-muted);
     }
 
     .info-teaser {
-       margin-top: 1.5rem; padding: 2rem; border-radius: var(--radius-lg);
-       background: linear-gradient(135deg, rgba(255,255,255,0.03), transparent);
-       border: 1px solid rgba(255,255,255,0.05);
+       margin-top: 1rem;
+       padding: 1rem 1.15rem;
+       border-radius: 12px;
+       background: var(--bg-secondary);
+       border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
     }
 
-    @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } 100% { transform: scale(1); opacity: 1; } }
+    .info-teaser .badge {
+      display: inline-block;
+      font-size: 0.625rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .info-teaser p {
+      margin: 0;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+      color: var(--text-secondary);
+    }
 
     @media (max-width: 1100px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
-      .sidebar-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+      .dashboard-grid { grid-template-columns: 1fr; padding: 0 1rem; }
+      .sidebar-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     }
     @media (max-width: 768px) {
       .sidebar-col { grid-template-columns: 1fr; }
-      .hero-content { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+      .hero-content { flex-direction: column; align-items: flex-start; }
+      .hero-meta { align-items: flex-start; }
+      .dashboard-hero { padding: 1.15rem 1rem; }
     }
 
     :host-context(html[data-theme-is-light='true']) .glass-panel {
-      background: color-mix(in srgb, var(--theme-surface, #fff) 94%, var(--brand) 4%) !important;
-      border-color: var(--border-soft, rgba(8, 8, 8, 0.08)) !important;
-      backdrop-filter: blur(12px);
-    }
-    :host-context(html[data-theme-is-light='true']) .panel-header {
-      border-bottom-color: var(--border-soft, rgba(8, 8, 8, 0.08));
-    }
-    :host-context(html[data-theme-is-light='true']) .row-value {
-      color: var(--text-primary);
-    }
-    :host-context(html[data-theme-is-light='true']) .item-title {
-      color: var(--text-primary);
+      background: var(--surface) !important;
+      border-color: var(--border-soft) !important;
     }
 
-    /* BABOONI LUXE DASHBOARD OVERRIDES */
     :host-context(html[data-erp-tenant='babooni']) .dashboard-hero {
-      background: linear-gradient(180deg, rgba(var(--brand-rgb), 0.08) 0%, transparent 100%);
-      padding: 6rem 3rem 4rem;
+      background: var(--surface);
+      border-color: color-mix(in srgb, var(--border-soft) 80%, transparent);
+      padding: 1.25rem 1.35rem 1.1rem;
+      margin-bottom: 1rem;
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .display-xl {
-      font-size: 3.25rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text-primary);
+    :host-context(html[data-erp-tenant='babooni']) .dashboard-grid {
+      padding: 0 clamp(0.75rem, 2vw, 1.25rem);
+      gap: 1rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .glass-panel {
-      background: color-mix(in srgb, var(--surface) 70%, transparent) !important;
-      backdrop-filter: blur(25px);
-      border: 1px solid color-mix(in srgb, var(--surface) 50%, transparent) !important;
-      border-radius: 36px;
-      box-shadow: 0 20px 50px -20px rgba(0,0,0,0.08);
+      border-radius: 12px !important;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .panel-header h3 {
-      font-weight: 700;
-      color: var(--text-primary);
-      opacity: 0.9;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .progress-track {
-      height: 8px;
-      background: color-mix(in srgb, var(--text-primary) 4%, transparent);
-      border-radius: 99px;
+      font-size: 0.8125rem;
+      font-weight: 600;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .progress-fill {
-      box-shadow: 0 0 15px rgba(var(--brand-rgb), 0.3);
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .actions-list {
-      gap: 0.65rem;
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .flash-action__icon-wrap {
-      background: color-mix(in srgb, var(--surface) 22%, color-mix(in srgb, var(--text-primary) 12%, transparent));
-    }
-
-    :host-context(html[data-erp-tenant='babooni']) .a-desc {
-      color: color-mix(in srgb, currentColor 50%, var(--text-primary) 50%);
-      opacity: 0.92;
+      box-shadow: none;
     }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
