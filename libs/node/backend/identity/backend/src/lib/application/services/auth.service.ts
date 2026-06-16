@@ -7,6 +7,7 @@ import {
   PrismaService,
 } from '@josanz-erp/shared-infrastructure';
 import { TenantContext, isTenantUuid } from '@josanz-erp/shared-infrastructure';
+import { normalizeAuthTenantSlug } from '@josanz-erp/identity-api';
 import { UserRepositoryPort, USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { LoginDto } from '../dtos/login.dto';
 import { PlatformLoginDto } from '../dtos/platform-login.dto';
@@ -41,7 +42,7 @@ export class AuthService {
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
     if (dto.tenantSlug) {
-      const slug = dto.tenantSlug.trim().toLowerCase();
+      const slug = normalizeAuthTenantSlug(dto.tenantSlug);
       const tenant = await this.prisma.tenant.findUnique({
         where: { slug },
       });

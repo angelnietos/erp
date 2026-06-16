@@ -18,16 +18,16 @@ import {
   setBffSessionCookies,
   readCookie,
 } from '@josanz-erp/auth-keycloak';
+import {
+  getTenantKeycloakConfig,
+  normalizeAuthTenantSlug,
+  tenantUsesKeycloakLogin,
+} from '@josanz-erp/identity-api';
 import { AuthService } from '../../application/services/auth.service';
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
-
-const TENANT_KEYCLOAK: Record<string, { realm: string; clientId: string }> = {
-  josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
-  babooni: { realm: 'babooni-tenant', clientId: 'josanz-web-app-spa' },
-};
 
 @Injectable()
 export class BffAuthService {
@@ -58,8 +58,10 @@ export class BffAuthService {
     authMode: 'keycloak' | 'local';
     csrfToken: string;
   }> {
-    const slug = dto.tenantSlug?.trim().toLowerCase() || 'josanz';
-    const kcConfig = TENANT_KEYCLOAK[slug];
+    const slug = normalizeAuthTenantSlug(dto.tenantSlug) || 'josanz';
+    const kcConfig = tenantUsesKeycloakLogin(slug)
+      ? getTenantKeycloakConfig(slug)
+      : undefined;
     let accessToken: string | null = null;
     let refreshToken: string | undefined;
     let expiresAt = Date.now() + this.sessionMaxAgeMs();

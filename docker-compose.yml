@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+  # BD del ERP (Prisma): tenants, usuarios, datos de negocio. Puerto 5435.
   postgres:
     image: postgres:16-alpine
     container_name: josanz_erp_db
@@ -26,6 +27,7 @@ services:
     ports:
       - '6379:6379'
 
+  # BD interna de Keycloak (realms, usuarios KC). Sin puerto público.
   keycloak-db:
     image: postgres:16-alpine
     environment:
@@ -37,6 +39,7 @@ services:
     networks:
       - keycloak-network
 
+  # IdP OIDC. Realms en docker/keycloak/realms/. Solo josanz/babooni usan KC en login ERP.
   keycloak:
     image: quay.io/keycloak/keycloak:24.0.2
     environment:

@@ -5,6 +5,9 @@
  * - `babooni` — layout Biosstel (`babooni-ui`)
  * - `josanz-figma` — layout Figma / `josanz-ui` (apps/josanz-web-app)
  * - `document-generator` — generador de documentos (apps/document-generator)
+ *
+ * Auth: ver {@link TENANT_KEYCLOAK_REALM} en `@josanz-erp/identity-api`.
+ * Slugs no listados allí (alexis, docs) → login local + usuarios solo en seed ERP.
  */
 export type ErpTenantUiShell =
   | 'classic'

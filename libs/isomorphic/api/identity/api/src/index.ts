@@ -20,6 +20,14 @@ export {
   userHasAnyPermission,
 } from './lib/permission-merge';
 
+export {
+  TENANT_KEYCLOAK_REALM,
+  tenantUsesKeycloakLogin,
+  getTenantKeycloakConfig,
+  normalizeAuthTenantSlug,
+  type TenantKeycloakBinding,
+} from './lib/tenant-auth-policy';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;

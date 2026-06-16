@@ -6,6 +6,7 @@ import {
   AuthResponse,
   LoginCredentials,
   UserPayload,
+  getTenantKeycloakConfig,
 } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
 import {
@@ -44,11 +45,6 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
     return null;
   }
 }
-
-const KEYCLOAK_TENANT_CONFIG: Record<string, { realm: string; clientId: string }> = {
-  josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
-  babooni: { realm: 'babooni-tenant', clientId: 'josanz-web-app-spa' },
-};
 
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
   PlatformOwner: 'platformAdmin',
@@ -151,8 +147,8 @@ export class AuthService {
     }
 
     const keycloakConfig = this.keycloakConfig;
-    if (keycloakConfig?.enabled) {
-      const tenantCfg = KEYCLOAK_TENANT_CONFIG[tenantSlug] ?? { realm: keycloakConfig.realm, clientId: keycloakConfig.clientId };
+    const tenantCfg = getTenantKeycloakConfig(tenantSlug);
+    if (keycloakConfig?.enabled && tenantCfg) {
       return this.isKeycloakAvailable(tenantCfg.realm).pipe(
         switchMap((available) => {
           if (!available) {
