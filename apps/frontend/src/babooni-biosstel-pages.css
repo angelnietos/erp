@@ -552,3 +552,14 @@ html[data-erp-tenant='babooni'] lib-user-edit .perm-row.denied.blocked {
 html[data-erp-tenant='babooni'] lib-user-edit .perm-row.denied.blocked span {
   color: #b91c1c !important;
 }
+
+html[data-erp-tenant='babooni'] lib-settings-profile-tab .avatar-projection-area {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-profile-tab .hologram-glow {
+  opacity: 0.1 !important;
+  filter: blur(20px) !important;
+}

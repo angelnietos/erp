@@ -25,7 +25,7 @@ export type {
   template: `
     <div
       class="mascot-container"
-      [ngClass]="['personality-' + personality, 'type-' + type]"
+      [ngClass]="['personality-' + personality, 'type-' + type, 'motion-' + motion]"
       [class.is-mushroom]="bodyShape.includes('mushroom')"
       [class.is-rage]="rageMode"
       [style.--mascot-color]="effectiveColor"
@@ -866,6 +866,38 @@ export type {
           transform: translateY(-6px) rotate(5deg);
         }
       }
+
+      /* Perfil / avatares estáticos: sin float ni glow agresivo al montar */
+      .mascot-container.motion-none .mascot-body-wrapper {
+        animation: none;
+      }
+
+      .mascot-container.motion-none .limbs-container .limb {
+        animation: none;
+      }
+
+      .mascot-container.motion-none .mascot-glow {
+        opacity: 0.28;
+        filter: blur(10px);
+        width: 120%;
+        height: 120%;
+      }
+
+      .mascot-container.motion-none .mascot-shadow {
+        animation: none;
+        opacity: 0.35;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .mascot-body-wrapper,
+        .limbs-container .limb,
+        .mascot-shadow,
+        .ear,
+        .antenna-tip,
+        .spore {
+          animation: none !important;
+        }
+      }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -878,6 +910,8 @@ export class UIMascotComponent {
   @Input() bodyShape: MascotBodyShape = 'round';
   @Input() eyesType: MascotEyesType = 'dots';
   @Input() mouthType: MascotMouthType = 'line';
+  /** `none` desactiva float/glow fuerte — ideal para avatares de perfil. */
+  @Input() motion: 'full' | 'none' = 'full';
 
   // Toxic / Rage configuration
   @Input() rageMode = false;

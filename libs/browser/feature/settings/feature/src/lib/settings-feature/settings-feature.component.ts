@@ -298,12 +298,26 @@ import {
 
       :host ::ng-deep .avatar-projection-area,
       :host ::ng-deep .stage-card {
-        width: 170px !important;
-        height: 170px !important;
-        background: rgba(2, 6, 23, 0.5) !important;
+        width: 180px !important;
+        height: 180px !important;
+        background: color-mix(in srgb, #020617 88%, transparent) !important;
         border: 1px solid rgba(148, 163, 184, 0.16) !important;
         border-radius: 26px !important;
         overflow: hidden !important;
+        isolation: isolate !important;
+        contain: layout paint !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+
+      :host ::ng-deep .identity-mascot {
+        width: 118px !important;
+        height: 118px !important;
+        flex-shrink: 0 !important;
+        transform: none !important;
+        animation: none !important;
+        opacity: 1 !important;
       }
 
       :host ::ng-deep .header-text h3,

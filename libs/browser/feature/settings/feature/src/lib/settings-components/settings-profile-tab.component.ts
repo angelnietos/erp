@@ -13,7 +13,7 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
   standalone: true,
   imports: [CommonModule, LucideAngularModule, UiCardComponent, UIMascotComponent],
   template: `
-    <section class="content-section animate-slide-up profile-hub">
+    <section class="content-section profile-hub">
       <div class="section-breadcrumb">
         <span>Cuenta</span>
         <lucide-icon name="chevron-right" size="12"></lucide-icon>
@@ -36,12 +36,16 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
       <div class="identity-grid">
         <div class="identity-main-card">
           <div class="avatar-projection-area">
-            <div class="hologram-ring"></div>
-            <div class="hologram-glow"></div>
+            <div class="avatar-backdrop" aria-hidden="true">
+              <div class="hologram-ring"></div>
+              <div class="hologram-glow"></div>
+            </div>
             <ui-mascot
               type="universal"
               color="#8b5cf6"
+              secondaryColor="#6d28d9"
               personality="happy"
+              motion="none"
               class="identity-mascot"
             />
             <button class="edit-avatar-btn" title="Actualizar Visualización">
@@ -202,39 +206,55 @@ import { ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        overflow: hidden;
+        border-radius: 26px;
+        background: color-mix(in srgb, var(--surface, #0f172a) 88%, transparent);
+        border: 1px solid color-mix(in srgb, var(--border-soft, #94a3b8) 35%, transparent);
+        isolation: isolate;
+        contain: layout paint;
+      }
+
+      .avatar-backdrop {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
       }
 
       .hologram-ring {
         position: absolute;
-        inset: -15px;
+        inset: 12%;
         border: 1.5px solid var(--brand);
         border-radius: 50%;
-        opacity: 0.12;
+        opacity: 0.14;
         animation: spin-slow 30s linear infinite;
       }
 
       .hologram-glow {
         position: absolute;
-        width: 160px;
-        height: 160px;
-        background: var(--brand);
-        filter: blur(60px);
-        opacity: 0.18;
+        inset: 18%;
+        background: var(--brand, #8b5cf6);
+        filter: blur(28px);
+        opacity: 0.14;
         border-radius: 50%;
       }
 
       @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-      .identity-mascot {
-        z-index: 2;
-        filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.25));
-        transform: scale(1.05) translateY(-8px);
-        animation: mascotAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      @media (prefers-reduced-motion: reduce) {
+        .hologram-ring {
+          animation: none;
+        }
       }
 
-      @keyframes mascotAppear {
-        from { opacity: 0; transform: scale(0.85) translateY(10px); }
-        to { opacity: 1; transform: scale(1.05) translateY(-8px); }
+      .identity-mascot {
+        position: relative;
+        z-index: 2;
+        width: 118px;
+        height: 118px;
+        flex-shrink: 0;
+        filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.18));
       }
 
       .edit-avatar-btn {
