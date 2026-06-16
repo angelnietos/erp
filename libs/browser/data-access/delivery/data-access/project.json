@@ -8,6 +8,7 @@
     "scope:delivery",
     "type:data-access"
   ],
+  
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
