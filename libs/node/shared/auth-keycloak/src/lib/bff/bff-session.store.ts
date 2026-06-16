@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import Redis from 'ioredis';
 import type { BffSessionRecord } from './bff-session.entity';
+import { resolveRedisUrl } from './resolve-redis-url';
 
 export interface BffSessionStorePort {
   create(session: Omit<BffSessionRecord, 'id' | 'createdAt'>): Promise<BffSessionRecord>;
@@ -100,7 +101,7 @@ export class RedisBffSessionStore implements BffSessionStorePort, OnModuleDestro
   private client: Redis | null = null;
 
   constructor(private readonly config: ConfigService) {
-    const url = this.config.get<string>('REDIS_URL');
+    const url = resolveRedisUrl(config);
     if (url) {
       this.client = new Redis(url, { maxRetriesPerRequest: 2, lazyConnect: true });
       this.client.connect().catch((err: Error) => {
@@ -181,10 +182,17 @@ export function provideBffSessionStore() {
   return {
     provide: BFF_SESSION_STORE,
     useFactory: (config: ConfigService, memory: InMemoryBffSessionStore) => {
-      const url = config.get<string>('REDIS_URL');
+      const logger = new Logger('BffSessionStore');
+      const url = resolveRedisUrl(config);
       if (url) {
+        const safe = url.replace(/\/\/([^:@/]+):([^@/]+)@/, '//$1:***@');
+        logger.log(`BFF sessions → Redis (${safe})`);
         return new RedisBffSessionStore(config);
       }
+      logger.warn(
+        'BFF sessions en memoria — se pierden al reiniciar el backend. ' +
+          'Define REDIS_URL o REDIS_HOST (+ docker compose up redis).',
+      );
       return memory;
     },
     inject: [ConfigService, InMemoryBffSessionStore],

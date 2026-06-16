@@ -1,10 +1,14 @@
-import { Injectable, NestMiddleware, Logger, Inject } from '@nestjs/common';
+import { Injectable, NestMiddleware, Logger, Inject, Optional } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
 import { BFF_SESSION_STORE, BffSessionStorePort } from './bff-session.store';
 import { ERP_BFF_COOKIE_NAMES, PLATFORM_BFF_COOKIE_NAMES } from './bff-session.entity';
 import { readCookie, clearBffSessionCookies } from './bff-cookie.util';
+import { BFF_SESSION_RENEWER, BffSessionRenewerPort } from './bff-session-renewer.port';
+import { readJwtExpiresAtMs } from './jwt-exp.util';
 
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+const RENEW_BEFORE_MS = 5 * 60 * 1000;
 
 const CSRF_EXEMPT_PREFIXES = [
   '/api/bff/auth/login',
@@ -20,13 +24,46 @@ function isCsrfExempt(path: string): boolean {
   return CSRF_EXEMPT_PREFIXES.some((p) => path === p || path.startsWith(p + '/'));
 }
 
+function sessionMaxAgeMs(config: ConfigService): number {
+  const hours = parseInt(config.get<string>('BFF_SESSION_MAX_AGE_HOURS') ?? '24', 10);
+  return Number.isFinite(hours) && hours > 0 ? hours * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
+}
+
 @Injectable()
 export class BffSessionMiddleware implements NestMiddleware {
   private readonly logger = new Logger(BffSessionMiddleware.name);
 
   constructor(
     @Inject(BFF_SESSION_STORE) private readonly sessions: BffSessionStorePort,
+    private readonly config: ConfigService,
+    @Optional() @Inject(BFF_SESSION_RENEWER) private readonly renewer?: BffSessionRenewerPort,
   ) {}
+
+  private async resolveAccessToken(
+    sessionId: string,
+    session: NonNullable<Awaited<ReturnType<BffSessionStorePort['get']>>>,
+  ): Promise<string> {
+    let accessToken = session.accessToken;
+    const expMs = readJwtExpiresAtMs(accessToken);
+    const needsRenew = !expMs || expMs - Date.now() < RENEW_BEFORE_MS;
+
+    if (needsRenew && this.renewer) {
+      const renewed = await this.renewer.renewAccessToken(session);
+      if (renewed) {
+        accessToken = renewed;
+      }
+    }
+
+    const patch: { accessToken?: string; expiresAt: number } = {
+      expiresAt: Date.now() + sessionMaxAgeMs(this.config),
+    };
+    if (accessToken !== session.accessToken) {
+      patch.accessToken = accessToken;
+    }
+    await this.sessions.update(sessionId, patch);
+
+    return accessToken;
+  }
 
   async use(req: Request, res: Response, next: NextFunction): Promise<void> {
     const path = (req.originalUrl ?? req.url ?? req.path ?? '').split('?')[0];
@@ -40,8 +77,10 @@ export class BffSessionMiddleware implements NestMiddleware {
     if (sessionId) {
       const session = await this.sessions.get(sessionId);
       if (session) {
+        const accessToken = await this.resolveAccessToken(sessionId, session);
+
         if (!req.headers.authorization) {
-          req.headers.authorization = `Bearer ${session.accessToken}`;
+          req.headers.authorization = `Bearer ${accessToken}`;
         }
         if (session.tenantId && !req.headers['x-tenant-id']) {
           req.headers['x-tenant-id'] = session.tenantId;

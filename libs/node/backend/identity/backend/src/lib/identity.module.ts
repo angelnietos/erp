@@ -4,7 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { type StringValue } from 'ms';
-import { BffAuthModule } from '@josanz-erp/auth-keycloak';
+import { BffAuthModule, BFF_SESSION_RENEWER } from '@josanz-erp/auth-keycloak';
 import { AuthController } from './presentation/controllers/auth.controller';
 import { BffAuthController, BffPlatformAuthController } from './presentation/controllers/bff-auth.controller';
 import { UsersController } from './presentation/controllers/users.controller';
@@ -27,6 +27,7 @@ import { HybridJwtStrategy } from './infrastructure/auth/hybrid-jwt.strategy';
 import { PlatformJwtStrategy } from './infrastructure/auth/platform-jwt.strategy';
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
+import { ErpBffSessionRenewer } from './infrastructure/bff/erp-bff-session-renewer';
 import { SharedInfrastructureModule } from '@josanz-erp/shared-infrastructure';
 
 export interface IdentityConfig {
@@ -89,6 +90,11 @@ export class IdentityModule {
         {
           provide: 'IDENTITY_CONFIG',
           useValue: options || {},
+        },
+        ErpBffSessionRenewer,
+        {
+          provide: BFF_SESSION_RENEWER,
+          useExisting: ErpBffSessionRenewer,
         },
       ],
       exports: [AuthService, HybridJwtStrategy],

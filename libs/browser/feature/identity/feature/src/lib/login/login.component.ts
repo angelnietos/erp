@@ -199,7 +199,16 @@ export class LoginComponent implements OnInit {
     this.backgroundTheme.set(theme);
   }
 
+  readonly sessionExpiredNotice = signal<string | null>(null);
+
   ngOnInit(): void {
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'expired') {
+      this.sessionExpiredNotice.set(
+        'Tu sesión ha caducado o el servidor se reinició. Vuelve a iniciar sesión.',
+      );
+    }
+
     const fromQuery = this.route.snapshot.queryParamMap.get('tenant');
     const fromStore =
       typeof sessionStorage !== 'undefined'

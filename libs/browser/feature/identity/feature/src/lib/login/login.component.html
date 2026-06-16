@@ -77,6 +77,12 @@
     </div>
     }
 
+    @if (sessionExpiredNotice()) {
+      <ui-alert variant="warning">
+        {{ sessionExpiredNotice() }}
+      </ui-alert>
+    }
+
     @if (store.error()) {
       <ui-alert variant="error">
         {{ store.error() }}

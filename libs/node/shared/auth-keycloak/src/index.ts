@@ -4,6 +4,9 @@ export * from './lib/bff/bff-session.store';
 export * from './lib/bff/bff-cookie.util';
 export * from './lib/bff/keycloak-token.client';
 export * from './lib/bff/bff-session.middleware';
+export * from './lib/bff/bff-session-renewer.port';
+export * from './lib/bff/jwt-exp.util';
+export * from './lib/bff/resolve-redis-url';
 
 export * from './lib/auth-keycloak.module';
 export * from './lib/domain/ports/keycloak-user.port';
