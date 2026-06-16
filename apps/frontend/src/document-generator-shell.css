@@ -24,3 +24,32 @@ html[data-erp-ui-shell='document-generator'] .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Login docs: tarjeta completa con scroll (mismo patrón que Figma/Alexis) */
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] .auth-wrapper {
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 100dvh;
+  padding-top: 1rem;
+  padding-bottom: 2.5rem;
+}
+
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] .auth-card {
+  flex-shrink: 0;
+  margin: 0 auto;
+}
+
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] .auth-header {
+  margin-bottom: 1rem;
+}
+
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] .logo-circle {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 10px;
+}
+
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] .dev-login-hint {
+  margin-bottom: 0.85rem;
+  padding: 0.6rem 0.7rem;
+}

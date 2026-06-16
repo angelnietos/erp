@@ -41,10 +41,11 @@ export class AuthService {
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
     if (dto.tenantSlug) {
+      const slug = dto.tenantSlug.trim().toLowerCase();
       const tenant = await this.prisma.tenant.findUnique({
-        where: { slug: dto.tenantSlug },
+        where: { slug },
       });
-      if (!tenant) {
+      if (!tenant?.isActive) {
         throw new BadRequestException(`Unknown tenant slug: ${dto.tenantSlug}`);
       }
       return tenant.id;
