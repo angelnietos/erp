@@ -356,43 +356,69 @@ html, body {
   color: #ff3131;
 }
 
-/* Tablas profesionales */
-.pdf-body-content.markdown-preview table {
+/* Tablas profesionales (corporativo Josanz + .doc-table) */
+.pdf-body-content.markdown-preview table,
+.pdf-body-content.markdown-preview .doc-table {
   width: 100%;
   border-collapse: collapse;
-  margin: 0.75rem 0;
+  margin: 0.85rem 0 1.1rem;
   page-break-inside: auto;
   break-inside: auto;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
 }
 
-.pdf-body-content.markdown-preview thead {
+.pdf-body-content.markdown-preview .doc-table--bordered {
+  border: 1px solid #e2e8f0;
+}
+
+.pdf-body-content.markdown-preview thead,
+.pdf-body-content.markdown-preview .doc-table-head {
   display: table-header-group;
 }
 
-.pdf-body-content.markdown-preview tr {
+.pdf-body-content.markdown-preview tr,
+.pdf-body-content.markdown-preview .doc-table-row {
   page-break-inside: avoid;
   break-inside: avoid-page;
 }
 
-.pdf-body-content.markdown-preview th:not([style*='color:']) {
-  background: #f8fafc;
+.pdf-body-content.markdown-preview th:not([style*='color:']),
+.pdf-body-content.markdown-preview .doc-table-header {
+  background: #7a0000;
   font-weight: 700;
-  color: #1e293b;
-  padding: 0.6rem 0.85rem;
-  border: 1px solid #e2e8f0;
+  color: #ffffff;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #5b0000;
   text-align: left;
   vertical-align: top;
+  font-size: 0.92em;
 }
 
-.pdf-body-content.markdown-preview td:not([style*='color:']) {
-  padding: 0.6rem 0.85rem;
+.pdf-body-content.markdown-preview td:not([style*='color:']),
+.pdf-body-content.markdown-preview .doc-table-cell {
+  padding: 0.65rem 0.9rem;
   border: 1px solid #e2e8f0;
   background: #ffffff;
   vertical-align: top;
+  color: #334155;
 }
 
-.pdf-body-content.markdown-preview tr:nth-child(even) td:not([style*='color:']) {
-  background: #f8fafc;
+.pdf-body-content.markdown-preview tr:nth-child(even) td:not([style*='color:']),
+.pdf-body-content.markdown-preview .doc-table--striped tr:nth-child(even) td:not([style*='color:']) {
+  background: #fafafa;
+}
+
+.pdf-body-content.markdown-preview .doc-table--compact th,
+.pdf-body-content.markdown-preview .doc-table--compact td {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.88em;
+}
+
+.pdf-body-content.markdown-preview .metadata-grid th {
+  width: 32%;
+  background: #5b0000;
 }
 
 /* Imágenes */

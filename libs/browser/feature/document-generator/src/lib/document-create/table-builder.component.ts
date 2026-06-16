@@ -1,10 +1,6 @@
 import {
   Component,
   signal,
-  inject,
-  viewChild,
-  ElementRef,
-  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,16 +13,18 @@ export interface TableConfig {
   alignment: 'left' | 'center' | 'right';
   bordered: boolean;
   compact: boolean;
+  style: 'corporate' | 'neutral';
 }
 
 const DEFAULT_CONFIG: TableConfig = {
-  rows: 3,
-  cols: 3,
+  rows: 4,
+  cols: 4,
   hasHeader: true,
   hasStripedRows: true,
   alignment: 'left',
-  bordered: false,
+  bordered: true,
   compact: false,
+  style: 'corporate',
 };
 
 @Component({
@@ -36,8 +34,13 @@ const DEFAULT_CONFIG: TableConfig = {
   styles: [
     `
       .table-builder-panel {
-        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-        border: 1px solid #bbf7d0;
+        background: linear-gradient(
+          135deg,
+          #fff5f5 0%,
+          #fef2f2 48%,
+          #fff 100%
+        );
+        border: 1px solid #fecaca;
         border-radius: 16px;
         padding: 1.5rem;
       }
@@ -45,9 +48,10 @@ const DEFAULT_CONFIG: TableConfig = {
       .table-preview {
         background: white;
         border: 1px solid #e5e7eb;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
         margin-bottom: 1rem;
+        box-shadow: 0 4px 14px rgba(122, 0, 0, 0.06);
       }
 
       .table-preview table {
@@ -55,10 +59,19 @@ const DEFAULT_CONFIG: TableConfig = {
         border-collapse: collapse;
       }
 
-      .table-preview th {
-        background: #16a34a;
+      .table-preview.corporate th {
+        background: #7a0000;
         color: white;
-        padding: 8px 12px;
+        border-color: #5b0000;
+      }
+
+      .table-preview.neutral th {
+        background: #1e293b;
+        color: white;
+      }
+
+      .table-preview th {
+        padding: 10px 12px;
         font-weight: 600;
         font-size: 0.8rem;
         text-align: left;
@@ -71,10 +84,11 @@ const DEFAULT_CONFIG: TableConfig = {
       }
 
       .table-preview td {
-        padding: 8px 12px;
+        padding: 10px 12px;
         border: 1px solid #e5e7eb;
         font-size: 0.8rem;
         background: white;
+        color: #334155;
       }
 
       .table-preview.bordered th,
@@ -83,17 +97,18 @@ const DEFAULT_CONFIG: TableConfig = {
       }
 
       .table-preview.striped tr:nth-child(even) td {
-        background: #f9fafb;
+        background: #fafafa;
       }
 
       .table-preview tr:hover td {
-        background: #f0fdf4;
+        background: #fff5f5;
       }
 
       .grid-size-control {
         display: flex;
         align-items: center;
         gap: 0.75rem;
+        flex-wrap: wrap;
       }
 
       .grid-size-btn {
@@ -102,18 +117,18 @@ const DEFAULT_CONFIG: TableConfig = {
         display: flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid #bbf7d0;
+        border: 1px solid #fecaca;
         border-radius: 6px;
         background: white;
         cursor: pointer;
         transition: all 0.15s;
-        color: #166534;
+        color: #7a0000;
       }
 
       .grid-size-btn:hover {
-        background: #16a34a;
+        background: #7a0000;
         color: white;
-        border-color: #16a34a;
+        border-color: #7a0000;
       }
 
       .grid-visualizer {
@@ -135,13 +150,13 @@ const DEFAULT_CONFIG: TableConfig = {
       }
 
       .grid-cell.active {
-        background: #16a34a;
-        border-color: #16a34a;
+        background: #7a0000;
+        border-color: #7a0000;
       }
 
       .grid-cell.header {
-        background: #15803d;
-        border-color: #15803d;
+        background: #5b0000;
+        border-color: #5b0000;
       }
 
       .form-group {
@@ -152,19 +167,23 @@ const DEFAULT_CONFIG: TableConfig = {
         display: block;
         font-size: 0.75rem;
         font-weight: 600;
-        color: #166534;
+        color: #7a0000;
         margin-bottom: 0.25rem;
       }
 
-      .alignment-options {
+      .alignment-options,
+      .style-options {
         display: flex;
         gap: 0.375rem;
+        flex-wrap: wrap;
       }
 
-      .alignment-option {
+      .alignment-option,
+      .style-option {
         flex: 1;
+        min-width: 4.5rem;
         padding: 0.375rem;
-        border: 1px solid #bbf7d0;
+        border: 1px solid #fecaca;
         border-radius: 6px;
         text-align: center;
         font-size: 0.7rem;
@@ -173,14 +192,17 @@ const DEFAULT_CONFIG: TableConfig = {
         background: white;
       }
 
-      .alignment-option:hover {
-        border-color: #16a34a;
+      .alignment-option:hover,
+      .style-option:hover {
+        border-color: #7a0000;
       }
 
-      .alignment-option.active {
-        border-color: #16a34a;
-        background: #f0fdf4;
-        color: #166534;
+      .alignment-option.active,
+      .style-option.active {
+        border-color: #7a0000;
+        background: #fff5f5;
+        color: #7a0000;
+        font-weight: 600;
       }
 
       .checkbox-group {
@@ -199,57 +221,61 @@ const DEFAULT_CONFIG: TableConfig = {
       }
 
       .checkbox-group input {
-        accent-color: #16a34a;
-      }
-
-      table-style-options {
-        display: flex;
-        gap: 0.375rem;
+        accent-color: #7a0000;
       }
     `,
   ],
   template: `
     <div class="table-builder-panel">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-sm font-semibold text-green-900">
-          Tabla Personalizada
-        </h3>
+      <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+        <div>
+          <h3 class="text-sm font-semibold text-[#5b0000]">
+            Tabla corporativa
+          </h3>
+          <p class="text-xs text-slate-600 mt-0.5">
+            Estilos alineados con preview y PDF Josanz (.doc-table)
+          </p>
+        </div>
         <button
+          type="button"
           (click)="insertTable()"
-          class="px-3 py-1.5 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+          class="px-3 py-1.5 bg-[#7a0000] text-white text-sm font-medium rounded-lg hover:bg-[#5b0000] transition-colors"
         >
-          Insertar Tabla
+          Insertar tabla
         </button>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="space-y-4">
+          <div class="form-group">
+            <label>Estilo</label>
+            <div class="style-options">
+              @for (style of tableStyles; track style.id) {
+                <div
+                  class="style-option"
+                  [class.active]="tableConfig().style === style.id"
+                  (click)="tableConfig.update((c) => ({ ...c, style: style.id }))"
+                >
+                  {{ style.label }}
+                </div>
+              }
+            </div>
+          </div>
+
           <div class="form-group">
             <label>Tamaño</label>
             <div class="grid-size-control">
               <div class="flex items-center gap-2">
-                <span class="text-xs text-green-700">Filas:</span>
-                <button class="grid-size-btn" (click)="decrementRow()">
-                  −
-                </button>
-                <span class="text-sm font-semibold w-6 text-center">{{
-                  tableConfig().rows
-                }}</span>
-                <button class="grid-size-btn" (click)="incrementRow()">
-                  +
-                </button>
+                <span class="text-xs text-[#7a0000]">Filas:</span>
+                <button type="button" class="grid-size-btn" (click)="decrementRow()">−</button>
+                <span class="text-sm font-semibold w-6 text-center">{{ tableConfig().rows }}</span>
+                <button type="button" class="grid-size-btn" (click)="incrementRow()">+</button>
               </div>
               <div class="flex items-center gap-2">
-                <span class="text-xs text-green-700">Cols:</span>
-                <button class="grid-size-btn" (click)="decrementCol()">
-                  −
-                </button>
-                <span class="text-sm font-semibold w-6 text-center">{{
-                  tableConfig().cols
-                }}</span>
-                <button class="grid-size-btn" (click)="incrementCol()">
-                  +
-                </button>
+                <span class="text-xs text-[#7a0000]">Cols:</span>
+                <button type="button" class="grid-size-btn" (click)="decrementCol()">−</button>
+                <span class="text-sm font-semibold w-6 text-center">{{ tableConfig().cols }}</span>
+                <button type="button" class="grid-size-btn" (click)="incrementCol()">+</button>
               </div>
             </div>
           </div>
@@ -257,7 +283,7 @@ const DEFAULT_CONFIG: TableConfig = {
           <div class="form-group">
             <label>Selecciona filas y columnas (clic)</label>
             <div
-              class="grid-visualizer grid-visualizer--picker"
+              class="grid-visualizer"
               [style.grid-template-columns]="'repeat(' + gridPickerSize + ', 1fr)'"
             >
               @for (row of gridPickerRows; track row) {
@@ -272,13 +298,13 @@ const DEFAULT_CONFIG: TableConfig = {
                 }
               }
             </div>
-            <p class="text-xs text-green-800 mt-1">
+            <p class="text-xs text-[#7a0000] mt-1">
               {{ tableConfig().rows }} filas × {{ tableConfig().cols }} columnas
             </p>
           </div>
 
           <div class="form-group">
-            <label>Alineación del texto</label>
+            <label>Alineación</label>
             <div class="alignment-options">
               @for (align of alignments; track align.id) {
                 <div
@@ -296,22 +322,35 @@ const DEFAULT_CONFIG: TableConfig = {
             <label>Opciones</label>
             <div class="checkbox-group">
               <label>
-                <input type="checkbox" [(ngModel)]="tableConfig().hasHeader" />
-                Fila de encabezado
+                <input
+                  type="checkbox"
+                  [ngModel]="tableConfig().hasHeader"
+                  (ngModelChange)="patchConfig({ hasHeader: $event })"
+                />
+                Encabezado
               </label>
               <label>
                 <input
                   type="checkbox"
-                  [(ngModel)]="tableConfig().hasStripedRows"
+                  [ngModel]="tableConfig().hasStripedRows"
+                  (ngModelChange)="patchConfig({ hasStripedRows: $event })"
                 />
                 Rayas alternas
               </label>
               <label>
-                <input type="checkbox" [(ngModel)]="tableConfig().bordered" />
+                <input
+                  type="checkbox"
+                  [ngModel]="tableConfig().bordered"
+                  (ngModelChange)="patchConfig({ bordered: $event })"
+                />
                 Bordes
               </label>
               <label>
-                <input type="checkbox" [(ngModel)]="tableConfig().compact" />
+                <input
+                  type="checkbox"
+                  [ngModel]="tableConfig().compact"
+                  (ngModelChange)="patchConfig({ compact: $event })"
+                />
                 Compacta
               </label>
             </div>
@@ -319,11 +358,11 @@ const DEFAULT_CONFIG: TableConfig = {
         </div>
 
         <div>
-          <label class="text-xs font-medium text-green-700 mb-2 block"
-            >Vista previa</label
-          >
+          <label class="text-xs font-medium text-[#7a0000] mb-2 block">Vista previa</label>
           <div
             class="table-preview"
+            [class.corporate]="tableConfig().style === 'corporate'"
+            [class.neutral]="tableConfig().style === 'neutral'"
             [class.striped]="tableConfig().hasStripedRows"
             [class.bordered]="tableConfig().bordered"
             [class.compact]="tableConfig().compact"
@@ -332,10 +371,7 @@ const DEFAULT_CONFIG: TableConfig = {
               @if (tableConfig().hasHeader) {
                 <thead>
                   <tr>
-                    @for (
-                      col of [].constructor(tableConfig().cols);
-                      track col
-                    ) {
+                    @for (col of colIndices; track col) {
                       <th [style.text-align]="tableConfig().alignment">
                         Columna {{ col + 1 }}
                       </th>
@@ -344,19 +380,9 @@ const DEFAULT_CONFIG: TableConfig = {
                 </thead>
               }
               <tbody>
-                @for (
-                  row of [].constructor(
-                    tableConfig().hasHeader
-                      ? tableConfig().rows - 1
-                      : tableConfig().rows
-                  );
-                  track row
-                ) {
+                @for (row of bodyRowIndices; track row) {
                   <tr>
-                    @for (
-                      col of [].constructor(tableConfig().cols);
-                      track col
-                    ) {
+                    @for (col of colIndices; track col) {
                       <td [style.text-align]="tableConfig().alignment">
                         Dato {{ row + 1 }}-{{ col + 1 }}
                       </td>
@@ -372,15 +398,10 @@ const DEFAULT_CONFIG: TableConfig = {
   `,
 })
 export class TableBuilderComponent {
-  protected readonly Math = Math;
   readonly gridPickerSize = 8;
-  readonly gridPickerRows = Array.from(
-    { length: 8 },
-    (_, index) => index + 1,
-  );
+  readonly gridPickerRows = Array.from({ length: 8 }, (_, i) => i + 1);
   readonly gridPickerCols = this.gridPickerRows;
   tableConfig = signal<TableConfig>({ ...DEFAULT_CONFIG });
-
   insert = signal(false);
 
   readonly alignments = [
@@ -388,6 +409,25 @@ export class TableBuilderComponent {
     { id: 'center' as const, label: 'Centro' },
     { id: 'right' as const, label: 'Der.' },
   ];
+
+  readonly tableStyles = [
+    { id: 'corporate' as const, label: 'Josanz' },
+    { id: 'neutral' as const, label: 'Neutro' },
+  ];
+
+  get colIndices(): number[] {
+    return Array.from({ length: this.tableConfig().cols }, (_, i) => i);
+  }
+
+  get bodyRowIndices(): number[] {
+    const c = this.tableConfig();
+    const count = c.hasHeader ? Math.max(c.rows - 1, 1) : c.rows;
+    return Array.from({ length: count }, (_, i) => i);
+  }
+
+  patchConfig(partial: Partial<TableConfig>): void {
+    this.tableConfig.update((c) => ({ ...c, ...partial }));
+  }
 
   incrementRow(): void {
     this.tableConfig.update((c) => ({ ...c, rows: Math.min(c.rows + 1, 20) }));
@@ -421,6 +461,19 @@ export class TableBuilderComponent {
     setTimeout(() => this.insert.set(false), 100);
   }
 
+  private tableClassNames(): string {
+    const c = this.tableConfig();
+    return [
+      'doc-table',
+      c.style === 'corporate' ? 'doc-table--corporate' : 'doc-table--neutral',
+      c.hasStripedRows ? 'doc-table--striped' : '',
+      c.bordered ? 'doc-table--bordered' : '',
+      c.compact ? 'doc-table--compact' : '',
+    ]
+      .filter(Boolean)
+      .join(' ');
+  }
+
   exportToMarkdown(): string {
     const c = this.tableConfig();
     let md = '\n';
@@ -432,7 +485,7 @@ export class TableBuilderComponent {
     md += '| ' + headerCells.join(' | ') + ' |\n';
     md += '| ' + headerCells.map(() => '---').join(' | ') + ' |\n';
 
-    const dataRows = c.hasHeader ? c.rows - 1 : c.rows;
+    const dataRows = c.hasHeader ? Math.max(c.rows - 1, 1) : c.rows;
     for (let i = 0; i < dataRows; i++) {
       const cells = Array.from(
         { length: c.cols },
@@ -447,24 +500,23 @@ export class TableBuilderComponent {
 
   exportToHtml(): string {
     const c = this.tableConfig();
-    let html =
-      '\n<table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">\n';
+    const classNames = this.tableClassNames();
+    let html = `\n<table class="${classNames}">\n`;
 
     if (c.hasHeader) {
-      html += '  <thead>\n    <tr>\n';
+      html += '  <thead class="doc-table-head">\n    <tr class="doc-table-row">\n';
       for (let i = 0; i < c.cols; i++) {
-        html += `      <th style="background: #16a34a; color: white; padding: ${c.compact ? '4px 8px' : '10px 12px'}; text-align: ${c.alignment}; font-weight: 600; border: 1px solid ${c.bordered ? '#cbd5e1' : 'transparent'};">Columna ${i + 1}</th>\n`;
+        html += `      <th class="doc-table-header" style="text-align: ${c.alignment};">Columna ${i + 1}</th>\n`;
       }
       html += '    </tr>\n  </thead>\n';
     }
 
-    html += '  <tbody>\n';
-    const dataRows = c.hasHeader ? c.rows - 1 : c.rows;
+    html += '  <tbody class="doc-table-body">\n';
+    const dataRows = c.hasHeader ? Math.max(c.rows - 1, 1) : c.rows;
     for (let i = 0; i < dataRows; i++) {
-      const bgColor = c.hasStripedRows && i % 2 !== 0 ? '#f9fafb' : '#ffffff';
-      html += '    <tr>\n';
+      html += '    <tr class="doc-table-row">\n';
       for (let j = 0; j < c.cols; j++) {
-        html += `      <td style="padding: ${c.compact ? '4px 8px' : '10px 12px'}; text-align: ${c.alignment}; background: ${bgColor}; border: 1px solid ${c.bordered ? '#cbd5e1' : '#e5e7eb'};">Dato ${i + 1}-${j + 1}</td>\n`;
+        html += `      <td class="doc-table-cell" style="text-align: ${c.alignment};">Dato ${i + 1}-${j + 1}</td>\n`;
       }
       html += '    </tr>\n';
     }

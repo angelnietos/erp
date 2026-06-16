@@ -32,6 +32,134 @@ export class TemplatesRegistryService {
       tags: ['básico'],
     },
     {
+      id: 'quote-corporate-josanz',
+      name: 'Presupuesto corporativo Josanz',
+      description:
+        'Presupuesto profesional con ficha de datos, partidas, totales e IVA',
+      icon: '💼',
+      category: 'business',
+      tags: ['presupuesto', 'corporativo', 'negocio', 'tablas'],
+      content: `# Presupuesto de servicios
+
+## Resumen ejecutivo
+
+Propuesta económica para **[Nombre del proyecto]** a favor de **[Cliente]**, con alcance, plazos y condiciones comerciales Josanz.
+
+| Campo | Detalle |
+|-------|---------|
+| Cliente | [Nombre del cliente] |
+| Proyecto | [Nombre del proyecto] |
+| Referencia | [PRES-2026-001] |
+| Fecha | [Fecha] |
+| Validez | 30 días naturales |
+| Responsable | [Nombre comercial] |
+
+## Alcance incluido
+
+- [Entregable o fase 1]
+- [Entregable o fase 2]
+- [Soporte / garantía incluida]
+
+## Desglose económico
+
+| Concepto | Descripción | Horas / Ud. | Precio unit. | Importe |
+|----------|-------------|-------------:|-------------:|--------:|
+| Análisis y diseño | Levantamiento y especificación | [h] | €[XXX] | €[XXX] |
+| Desarrollo / implementación | Ejecución principal | [h] | €[XXX] | €[XXX] |
+| Pruebas y puesta en marcha | QA y go-live | [h] | €[XXX] | €[XXX] |
+| **Subtotal** | | | | **€[XXX]** |
+
+| Concepto | Importe |
+|----------|--------:|
+| Base imponible | €[XXX] |
+| IVA 21% | €[XXX] |
+| **Total presupuesto** | **€[XXX]** |
+
+## Condiciones comerciales
+
+- Forma de pago: [30% inicio · 40% hito · 30% entrega]
+- Plazo estimado: [X semanas]
+- Exclusiones: [Licencias de terceros, hardware, etc.]
+
+## Aceptación
+
+| | |
+|---|---|
+| Por Josanz | Por el cliente |
+| Nombre: _______________ | Nombre: _______________ |
+| Fecha: _______________ | Fecha: _______________ |`,
+    },
+    {
+      id: 'proposal-corporate-josanz',
+      name: 'Propuesta comercial Josanz',
+      description:
+        'Propuesta completa: contexto, solución, cronograma, equipo, inversión y riesgos',
+      icon: '📊',
+      category: 'business',
+      tags: ['propuesta', 'corporativo', 'negocio', 'tablas'],
+      content: `# Propuesta comercial
+
+## 1. Contexto y objetivos
+
+**Cliente:** [Nombre del cliente]  
+**Proyecto:** [Nombre del proyecto]  
+**Fecha:** [Fecha]
+
+[Describe el reto del cliente y el resultado esperado en 2–3 párrafos.]
+
+## 2. Solución propuesta
+
+### Enfoque
+
+[Metodología, stack o servicios Josanz aplicables.]
+
+### Entregables
+
+| # | Entregable | Descripción | Fecha orientativa |
+|---|------------|-------------|-------------------|
+| 1 | [Entregable] | [Detalle] | [Semana X] |
+| 2 | [Entregable] | [Detalle] | [Semana Y] |
+| 3 | [Entregable] | [Detalle] | [Semana Z] |
+
+## 3. Cronograma e hitos
+
+| Hito | Actividad | Duración | Dependencias |
+|------|-----------|----------|--------------|
+| H1 | Kick-off y planificación | [X días] | — |
+| H2 | Diseño / arquitectura | [X días] | H1 |
+| H3 | Implementación | [X días] | H2 |
+| H4 | Entrega y cierre | [X días] | H3 |
+
+## 4. Equipo y gobernanza
+
+| Rol | Responsabilidad | Dedicación |
+|-----|-----------------|------------|
+| Director de proyecto | Coordinación y reporting | [X%] |
+| Consultor senior | Diseño y calidad | [X%] |
+| Especialista | Ejecución técnica | [X%] |
+
+## 5. Inversión
+
+| Concepto | Importe |
+|----------|--------:|
+| Servicios profesionales | €[XXX] |
+| Licencias / infra (si aplica) | €[XXX] |
+| **Total propuesta** | **€[XXX]** |
+
+## 6. Riesgos y mitigación
+
+| Riesgo | Impacto | Mitigación |
+|--------|---------|------------|
+| [Riesgo 1] | Alto/Medio/Bajo | [Acción] |
+| [Riesgo 2] | Alto/Medio/Bajo | [Acción] |
+
+## 7. Próximos pasos
+
+1. Revisión de alcance con el cliente  
+2. Ajuste de propuesta (si procede)  
+3. Firma y arranque del proyecto`,
+    },
+    {
       id: 'basic-structure',
       name: 'Estructura básica',
       description: 'Esquema básico de documento',
@@ -1612,6 +1740,47 @@ _______________________________
 
   getByCategory(category: DocumentTemplate['category']): DocumentTemplate[] {
     return this.templates().filter((t) => t.category === category);
+  }
+
+  /** Plantillas relevantes para un tipo de documento (prioriza tags específicos). */
+  getForDocumentType(typeId: string): DocumentTemplate[] {
+    const categoryMap: Record<string, DocumentTemplate['category']> = {
+      resume: 'hr',
+      interview: 'hr',
+      offer: 'hr',
+      documentation: 'technical',
+      architecture: 'technical',
+      quote: 'business',
+      proposal: 'business',
+    };
+    const typeTagMap: Record<string, string> = {
+      quote: 'presupuesto',
+      proposal: 'propuesta',
+      resume: 'cv',
+      interview: 'entrevista',
+      offer: 'oferta',
+      documentation: 'tecnico',
+      architecture: 'arquitectura',
+    };
+
+    const category = categoryMap[typeId];
+    const typeTag = typeTagMap[typeId];
+    let list = category
+      ? this.templates().filter((t) => t.category === category)
+      : [...this.templates()];
+
+    if (typeTag) {
+      const tagged = list.filter((t) =>
+        t.tags.some((tag) => tag.toLowerCase().includes(typeTag)),
+      );
+      if (tagged.length > 0) {
+        const taggedIds = new Set(tagged.map((t) => t.id));
+        const rest = list.filter((t) => !taggedIds.has(t.id));
+        list = [...tagged, ...rest];
+      }
+    }
+
+    return list;
   }
 
   getCategories(): {

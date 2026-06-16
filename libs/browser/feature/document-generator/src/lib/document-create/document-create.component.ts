@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ElementRef, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
@@ -100,13 +100,112 @@ interface DocumentType {
       .action-bar-panel {
         box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.65);
       }
+
+      .document-create-page {
+        padding-bottom: 2rem;
+      }
+
+      .create-hero {
+        padding: 1.5rem 1.75rem;
+      }
+
+      @media (min-width: 768px) {
+        .create-hero {
+          padding: 2rem 2.25rem;
+        }
+      }
+
+      .type-card {
+        min-height: 11rem;
+      }
+
+      .type-card:focus-visible {
+        outline: 2px solid var(--brand, #7a0000);
+        outline-offset: 2px;
+      }
+
+      .template-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.65rem;
+        min-height: 9.5rem;
+        padding: 1rem 1.1rem;
+        border-radius: 1rem;
+        border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 90%, transparent);
+        background: linear-gradient(
+          165deg,
+          color-mix(in srgb, var(--surface, #fff) 96%, #fff5f5) 0%,
+          var(--surface, #fff) 100%
+        );
+        text-decoration: none;
+        transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+
+      .template-card:hover {
+        border-color: color-mix(in srgb, var(--brand, #7a0000) 45%, transparent);
+        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand, #7a0000) 12%, transparent);
+        transform: translateY(-2px);
+      }
+
+      .template-card__icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, var(--brand, #7a0000) 10%, white);
+        font-size: 1.25rem;
+      }
+
+      .template-card__title {
+        font-weight: 700;
+        color: var(--text-primary, #111827);
+        line-height: 1.3;
+      }
+
+      .template-card__desc {
+        font-size: 0.8125rem;
+        color: var(--text-secondary, #4b5563);
+        line-height: 1.45;
+        flex: 1;
+      }
+
+      .template-card__tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+
+      .template-card__tag {
+        font-size: 0.65rem;
+        font-weight: 600;
+        padding: 0.15rem 0.45rem;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #475569;
+      }
+
+      .template-card__tag--featured {
+        background: #fff1f2;
+        color: #7a0000;
+      }
+
+      .template-card__cta {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--brand, #7a0000);
+      }
     `,
   ],
   selector: 'app-document-create',
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="space-y-8">
+    <div class="document-create-page space-y-6">
       <!-- Breadcrumb -->
       <nav class="flex items-center space-x-2 text-sm text-secondary">
         <a
@@ -132,10 +231,12 @@ interface DocumentType {
       </nav>
 
       <!-- Header -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
+      <div
+        class="create-hero bg-surface rounded-2xl shadow-xl border border-soft"
+      >
         <div class="text-center max-w-2xl mx-auto">
           <div
-            class="w-16 h-16 brand-gradient rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+            class="w-14 h-14 brand-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
           >
             <svg
               class="w-8 h-8 text-white"
@@ -152,13 +253,13 @@ interface DocumentType {
             </svg>
           </div>
           <h1
-            class="text-3xl font-bold bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent mb-3"
+            class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent mb-2"
           >
-            Crear Nuevo Documento
+            Crear nuevo documento
           </h1>
-          <p class="text-secondary text-lg">
-            Elige el tipo y una plantilla: el editor se abre en la siguiente
-            pantalla para que no tengas que hacer scroll.
+          <p class="text-secondary text-base sm:text-lg">
+            Elige el tipo y una plantilla corporativa. El editor se abre en la
+            siguiente pantalla con tablas, estilos Josanz y export PDF/DOCX.
           </p>
           <p class="text-sm text-muted mt-4">
             <a
@@ -172,13 +273,14 @@ interface DocumentType {
       </div>
 
       <!-- Document Type Selection -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8">
-        <div class="mb-8">
-          <h2 class="text-2xl font-bold text-primary mb-2">
+      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-5 sm:p-8">
+        <div class="mb-6">
+          <h2 class="text-xl sm:text-2xl font-bold text-primary mb-2">
             ¿Qué tipo de documento necesitas?
           </h2>
-          <p class="text-secondary">
-            Elige el tipo que mejor se adapte a tus necesidades
+          <p class="text-secondary text-sm sm:text-base">
+            {{ documentTypes.length }} tipos disponibles · selecciona uno para ver
+            plantillas recomendadas
           </p>
           <p class="text-xs text-muted mt-2 max-w-2xl mx-auto">
             En el editor tendrás la burbuja de ayuda (esquina): mismo chat e IA
@@ -186,7 +288,7 @@ interface DocumentType {
           </p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           @for (type of documentTypes; track type.id) {
             <div
               (click)="selectDocumentType(type)"
@@ -194,7 +296,7 @@ interface DocumentType {
               tabindex="0"
               role="button"
               [attr.aria-current]="selectedType?.id === type.id ? 'true' : null"
-              class="group relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105"
+              class="type-card group relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg"
               [class.border-blue-500]="selectedType?.id === type.id"
               [class.bg-gradient-to-br]="selectedType?.id === type.id"
               [class.from-blue-50]="selectedType?.id === type.id"
@@ -334,19 +436,32 @@ interface DocumentType {
 
       @if (selectedType) {
         <div
-          class="bg-surface rounded-2xl shadow-xl border border-soft p-8 animate-slide-up"
+          #templatesSection
+          class="bg-surface rounded-2xl shadow-xl border border-soft p-5 sm:p-8 animate-slide-up scroll-mt-24"
         >
-          <div class="mb-6">
-            <h2 class="text-2xl font-bold text-primary mb-2">
-              Elige una plantilla
-            </h2>
-            <p class="text-secondary">
-              Al elegir una se abre el editor en otra vista con el contenido
-              cargado. También puedes continuar sin plantilla.
-            </p>
+          <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p class="text-xs font-semibold uppercase tracking-wider text-brand mb-1">
+                {{ selectedType.name }}
+              </p>
+              <h2 class="text-xl sm:text-2xl font-bold text-primary mb-1">
+                Plantillas recomendadas
+              </h2>
+              <p class="text-secondary text-sm">
+                {{ templates.length }} plantillas · incluyen tablas corporativas
+                listas para editar
+              </p>
+            </div>
+            <a
+              [routerLink]="['/documents', 'create', 'edit']"
+              [queryParams]="{ type: selectedType.id }"
+              class="text-sm font-semibold text-brand hover:underline whitespace-nowrap"
+            >
+              Saltar plantillas →
+            </a>
           </div>
           <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
             role="list"
           >
             @for (template of templates; track template.id) {
@@ -354,14 +469,28 @@ interface DocumentType {
                 role="listitem"
                 [routerLink]="['/documents', 'create', 'edit']"
                 [queryParams]="editorQueryParams(template.id)"
-                class="block px-4 py-3 rounded-xl border border-soft bg-tertiary hover:border-brand hover:bg-brand/5 transition-all text-left no-underline focus:outline-none focus:ring-2 focus:ring-brand"
+                class="template-card focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                <div class="font-medium text-primary">
-                  {{ template.icon }} {{ template.name }}
+                <div class="template-card__icon" aria-hidden="true">
+                  {{ template.icon }}
                 </div>
-                <div class="text-xs text-secondary mt-1 line-clamp-2">
+                <div class="template-card__title">
+                  {{ template.name }}
+                </div>
+                <div class="template-card__desc">
                   {{ template.description }}
                 </div>
+                <div class="template-card__tags">
+                  @if (isFeaturedTemplate(template)) {
+                    <span class="template-card__tag template-card__tag--featured"
+                      >Recomendada</span
+                    >
+                  }
+                  @for (tag of template.tags.slice(0, 3); track tag) {
+                    <span class="template-card__tag">{{ tag }}</span>
+                  }
+                </div>
+                <span class="template-card__cta">Abrir en editor →</span>
               </a>
             }
           </div>
@@ -389,6 +518,8 @@ interface DocumentType {
 export class DocumentCreateComponent implements OnInit {
   selectedType: DocumentType | null = null;
   templates: DocumentTemplate[] = [];
+  private readonly templatesSection =
+    viewChild<ElementRef<HTMLElement>>('templatesSection');
   private readonly templatesService = inject(TemplatesRegistryService);
   private readonly assistantService = inject(AssistantContextService);
   private readonly route = inject(ActivatedRoute);
@@ -453,21 +584,33 @@ export class DocumentCreateComponent implements OnInit {
 
   selectDocumentType(type: DocumentType) {
     this.selectedType = type;
+    this.templates = this.templatesService.getForDocumentType(type.id);
 
-    const categoryMap: Record<string, DocumentTemplate['category']> = {
-      resume: 'hr',
-      interview: 'hr',
-      offer: 'hr',
-      documentation: 'technical',
-      architecture: 'technical',
-      quote: 'business',
-      proposal: 'business',
-    };
+    queueMicrotask(() => {
+      this.templatesSection()?.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+  }
 
-    const category = categoryMap[type.id];
-    this.templates = category
-      ? this.templatesService.getByCategory(category)
-      : this.templatesService.all();
+  isFeaturedTemplate(template: DocumentTemplate): boolean {
+    if (!this.selectedType) {
+      return false;
+    }
+    const featuredIds = new Set([
+      'quote-corporate-josanz',
+      'proposal-corporate-josanz',
+    ]);
+    if (featuredIds.has(template.id)) {
+      return true;
+    }
+    const tag = this.selectedType.id === 'quote' ? 'presupuesto' : 'propuesta';
+    return (
+      this.selectedType.id === 'quote' || this.selectedType.id === 'proposal'
+        ? template.tags.includes(tag) && template.id !== 'empty'
+        : false
+    );
   }
 
   clearSelectedType(): void {

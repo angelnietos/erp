@@ -1,10 +1,14 @@
 /**
  * Layout global tenant docs (apps/document-generator integrado en :4200).
+ * El contenido debe poder hacer scroll; el editor fullscreen gestiona su propio overflow.
  */
 html[data-erp-ui-shell='document-generator']:not([data-erp-route='auth']),
 html[data-erp-ui-shell='document-generator']:not([data-erp-route='auth']) body {
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 html[data-erp-ui-shell='document-generator'][data-erp-route='auth'],

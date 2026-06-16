@@ -31,6 +31,10 @@ import { ThemeSelectorComponent } from '../theme-selector/theme-selector.compone
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
       }
+
+      .doc-gen-main {
+        scroll-padding-bottom: 6rem;
+      }
     `,
   ],
   template: `
@@ -185,7 +189,7 @@ import { ThemeSelectorComponent } from '../theme-selector/theme-selector.compone
       </header>
 
       <!-- Main Content -->
-      <main class="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+      <main class="doc-gen-main max-w-7xl mx-auto py-6 sm:py-8 px-4 sm:px-6 lg:px-8 pb-28">
         <router-outlet></router-outlet>
       </main>
 
