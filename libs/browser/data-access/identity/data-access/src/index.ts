@@ -30,6 +30,7 @@ export {
 export {
   getTenantUiShell,
   usesJosanzFigmaLogin,
+  usesDocumentGeneratorLogin,
   isBabooniUiShell,
   isJosanzFigmaUiShell,
   isDocumentGeneratorUiShell,

@@ -18,6 +18,7 @@ import {
   syncErpTenantHtmlTheme,
   syncErpRoutePhaseFromPath,
   usesJosanzFigmaLogin,
+  usesDocumentGeneratorLogin,
   getPrimaryDevLoginHintForTenant,
   getDevLoginHintsForTenant,
   getDevLoginEmailPlaceholder,
@@ -47,6 +48,9 @@ import {
   ChevronDown,
   ChevronUp,
   Code2,
+  FileText,
+  FilePlus,
+  PenLine,
 } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
@@ -130,6 +134,9 @@ export class LoginComponent implements OnInit {
     ChevronDown,
     ChevronUp,
     Code2,
+    FileText,
+    FilePlus,
+    PenLine,
   };
 
   readonly backgroundTheme = signal<BackgroundTheme>('josanz-classic');
@@ -143,6 +150,26 @@ export class LoginComponent implements OnInit {
 
   /** Login claro en dos columnas según export Figma `Login.svg` (tenants josanz-figma). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
+
+  /** Login oscuro document-generator (tenant docs). */
+  readonly useDocsShellLogin = computed(() =>
+    usesDocumentGeneratorLogin(this.tenantSlug()),
+  );
+
+  readonly useSolidLoginFields = computed(
+    () => this.useFigmaShellLogin() || this.useDocsShellLogin(),
+  );
+
+  readonly loginHeading = computed(() =>
+    this.useDocsShellLogin() ? 'Acceso documentos' : 'Acceso ERP',
+  );
+
+  readonly loginSubtitle = computed(() => {
+    if (this.useDocsShellLogin()) {
+      return 'Editor IA · plantillas · PDF';
+    }
+    return this.brandTagline();
+  });
 
   readonly isDev = isDevMode();
   readonly devLoginHint = computed(() =>

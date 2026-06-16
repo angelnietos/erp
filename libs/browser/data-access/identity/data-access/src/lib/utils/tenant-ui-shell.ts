@@ -38,6 +38,11 @@ export function usesJosanzFigmaLogin(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'josanz-figma';
 }
 
+/** Login dedicado tenant docs (generador de documentos). */
+export function usesDocumentGeneratorLogin(slug: string | null | undefined): boolean {
+  return getTenantUiShell(slug) === 'document-generator';
+}
+
 export function isBabooniUiShell(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'babooni';
 }

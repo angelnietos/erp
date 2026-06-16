@@ -1,17 +1,53 @@
 <div
   class="auth-wrapper"
   [class.auth-wrapper--figma]="useFigmaShellLogin()"
-  [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin()"
+  [class.auth-wrapper--docs]="useDocsShellLogin()"
+  [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
 >
   @if (useFigmaShellLogin()) {
     <div class="auth-figma-hero" aria-hidden="true"></div>
+  } @else if (useDocsShellLogin()) {
+    <div class="auth-docs-hero" aria-hidden="true">
+      <div class="auth-docs-hero__glow"></div>
+      <div class="auth-docs-hero__content">
+        <span class="auth-docs-hero__badge">Generador de documentos</span>
+        <h2 class="auth-docs-hero__title">Informes, plantillas y exportación PDF</h2>
+        <p class="auth-docs-hero__lead">
+          Editor asistido por IA, vista previa en vivo y asistente contextual.
+        </p>
+        <ul class="auth-docs-hero__features">
+          <li>
+            <lucide-icon [name]="icons.FilePlus" size="16"></lucide-icon>
+            Crear y editar documentos
+          </li>
+          <li>
+            <lucide-icon [name]="icons.Sparkles" size="16"></lucide-icon>
+            Sugerencias del agente IA
+          </li>
+          <li>
+            <lucide-icon [name]="icons.PenLine" size="16"></lucide-icon>
+            Plantillas reutilizables
+          </li>
+        </ul>
+      </div>
+      <div class="auth-docs-hero__visual">
+        <div class="auth-docs-page auth-docs-page--back"></div>
+        <div class="auth-docs-page auth-docs-page--mid"></div>
+        <div class="auth-docs-page auth-docs-page--front">
+          <span class="auth-docs-page__line"></span>
+          <span class="auth-docs-page__line auth-docs-page__line--short"></span>
+          <span class="auth-docs-page__line"></span>
+          <span class="auth-docs-page__chip">PDF</span>
+        </div>
+      </div>
+    </div>
   } @else {
     <lib-animated-background
       [theme]="backgroundTheme()"
       [tenantSlug]="tenantSlug()"
     ></lib-animated-background>
   }
-  @if (!useFigmaShellLogin()) {
+  @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
     <ui-dynamic-canvas
       [htmlRef]="dynamicHtml()"
       [autoClearAfterMs]="loginBuddyCanvasTtlMs"
@@ -21,22 +57,31 @@
 
   <div
     class="auth-card"
-    [class.glass]="!useFigmaShellLogin()"
+    [class.glass]="!useFigmaShellLogin() && !useDocsShellLogin()"
     [class.auth-card--figma]="useFigmaShellLogin()"
-    [class.auth-card--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin()"
+    [class.auth-card--docs]="useDocsShellLogin()"
+    [class.auth-card--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
   >
     <div class="auth-header">
       <div
         class="logo-circle animate-in stagger-1"
-        [class.logo-circle--babooni]="tenantSlug() === 'babooni'">
+        [class.logo-circle--babooni]="tenantSlug() === 'babooni'"
+        [class.logo-circle--docs]="useDocsShellLogin()">
         @if (tenantSlug() === 'babooni') {
           <lucide-icon [name]="icons.Code2" class="logo-icon"></lucide-icon>
+        } @else if (useDocsShellLogin()) {
+          <lucide-icon [name]="icons.FileText" class="logo-icon"></lucide-icon>
         } @else {
           <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
         }
       </div>
-      <p class="brand-tag text-uppercase animate-in stagger-2">{{ brandTagline() }}</p>
-      <h1 class="animate-in stagger-2">Acceso ERP</h1>
+      @if (!useDocsShellLogin()) {
+        <p class="brand-tag text-uppercase animate-in stagger-2">{{ brandTagline() }}</p>
+      }
+      <h1 class="animate-in stagger-2">{{ loginHeading() }}</h1>
+      @if (useDocsShellLogin()) {
+        <p class="auth-subtitle animate-in stagger-2">{{ loginSubtitle() }}</p>
+      }
     </div>
 
     <div class="tenant-context animate-in stagger-3">
@@ -59,7 +104,7 @@
       <span>{{ authModeLabel() }}</span>
     </div>
 
-    @if (!useFigmaShellLogin()) {
+    @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
     <div class="theme-picker-shell animate-in stagger-3">
       <button
         type="button"
@@ -115,6 +160,7 @@
       <div
         class="dev-login-hint animate-in stagger-3"
         [class.dev-login-hint--figma]="useFigmaShellLogin()"
+        [class.dev-login-hint--docs]="useDocsShellLogin()"
       >
         <p class="dev-login-hint__label">Cuenta demo (dev)</p>
         <p class="dev-login-hint__credentials">
@@ -142,7 +188,7 @@
         [placeholder]="emailPlaceholder()"
         icon="user"
         formControlName="email"
-        [shape]="useFigmaShellLogin() ? 'solid' : 'glass'"
+        [shape]="useSolidLoginFields() ? 'solid' : 'glass'"
         [error]="!!(loginForm.get('email')?.invalid && loginForm.get('email')?.touched)"
         class="animate-in stagger-4"
       ></ui-input>
@@ -154,14 +200,14 @@
         placeholder="••••••••"
         icon="lock"
         formControlName="password"
-        [shape]="useFigmaShellLogin() ? 'solid' : 'glass'"
+        [shape]="useSolidLoginFields() ? 'solid' : 'glass'"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
         class="animate-in stagger-4"
       ></ui-input>
 
       <ui-button 
         type="submit" 
-        [shape]="useFigmaShellLogin() ? 'solid' : 'auto'"
+        [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
         icon="arrow-right"
@@ -176,8 +222,7 @@
     </div>
   </div>
   
-  @if (!useFigmaShellLogin() && tenantSlug() !== 'babooni') {
-  <!-- Buddy Assistant accessible from Login! -->
+  @if (!useFigmaShellLogin() && !useDocsShellLogin() && tenantSlug() !== 'babooni') {
   <ui-ai-assistant feature="dashboard"></ui-ai-assistant>
   }
 </div>
