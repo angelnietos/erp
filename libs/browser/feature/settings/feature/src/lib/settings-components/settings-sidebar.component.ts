@@ -141,7 +141,7 @@ export type SettingsTab =
         overflow-y: auto;
         padding-right: 0.15rem;
         scrollbar-width: thin;
-        scrollbar-color: rgba(251, 113, 133, 0.45) transparent;
+        scrollbar-color: color-mix(in srgb, var(--brand, #6366f1) 45%, transparent) transparent;
       }
 
       .nav-item {
@@ -161,16 +161,20 @@ export type SettingsTab =
       }
 
       .nav-item:hover {
-        background: rgba(251, 113, 133, 0.08);
+        background: color-mix(in srgb, var(--brand, #6366f1) 10%, transparent);
         color: #f8fafc;
-        border-color: rgba(251, 113, 133, 0.16);
+        border-color: color-mix(in srgb, var(--brand, #6366f1) 18%, transparent);
       }
 
       .nav-item.active {
-        background: linear-gradient(135deg, rgba(251, 113, 133, 0.95), rgba(244, 63, 94, 0.9));
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--brand, #6366f1) 88%, white),
+          var(--brand, #6366f1)
+        );
         color: #fff;
-        border-color: rgba(253, 164, 175, 0.5);
-        box-shadow: 0 12px 28px rgba(244, 63, 94, 0.2);
+        border-color: color-mix(in srgb, var(--brand, #6366f1) 55%, white);
+        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand, #6366f1) 28%, transparent);
       }
 
       .sidebar-footer {

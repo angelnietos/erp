@@ -563,3 +563,136 @@ html[data-erp-tenant='babooni'] lib-settings-profile-tab .hologram-glow {
   opacity: 0.1 !important;
   filter: blur(20px) !important;
 }
+
+/* Configuración Babooni — sistema visual unificado */
+html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(lib-settings-feature) ui-ai-assistant .mascot-trigger {
+  display: none !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-sidebar {
+  box-shadow: none !important;
+  border-right: 1px solid var(--babooni-border) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .sidebar-header h1 {
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .nav-item.active {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand, #d97706) 92%, #fff),
+    var(--brand, #d97706)
+  ) !important;
+  color: #fff !important;
+  border-color: color-mix(in srgb, var(--brand, #d97706) 40%, #fff) !important;
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--brand, #d97706) 25%, transparent) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .nav-item:hover {
+  background: color-mix(in srgb, var(--brand, #d97706) 8%, var(--babooni-surface)) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .section-breadcrumb {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
+  color: var(--text-muted) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .section-breadcrumb .current {
+  color: var(--brand, #d97706) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .hero-title,
+html[data-erp-tenant='babooni'] lib-settings-feature .hero-title span,
+html[data-erp-tenant='babooni'] lib-settings-feature h3 {
+  color: var(--text-primary) !important;
+  -webkit-text-fill-color: unset !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .hero-title span {
+  color: var(--brand, #d97706) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .hero-subtitle,
+html[data-erp-tenant='babooni'] lib-settings-feature .pick-desc,
+html[data-erp-tenant='babooni'] lib-settings-feature .buddy-skills-lead,
+html[data-erp-tenant='babooni'] lib-settings-feature .user-layer-lead {
+  color: var(--text-muted) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature ui-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .companion-stage,
+html[data-erp-tenant='babooni'] lib-settings-feature .companion-pick-btn,
+html[data-erp-tenant='babooni'] lib-settings-feature .identity-main-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .roles-selector-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .role-config-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .plugin-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .bot-crystal-card,
+html[data-erp-tenant='babooni'] lib-settings-feature .prefs-card {
+  background: var(--babooni-surface) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .companion-pick-btn.active {
+  border-color: color-mix(in srgb, var(--brand, #d97706) 45%, var(--babooni-border)) !important;
+  background: color-mix(in srgb, var(--brand, #d97706) 8%, var(--babooni-surface)) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .pick-name,
+html[data-erp-tenant='babooni'] lib-settings-feature .panel-title,
+html[data-erp-tenant='babooni'] lib-settings-feature .skill-name {
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .luxe-underlined-input,
+html[data-erp-tenant='babooni'] lib-settings-feature .user-agent-textarea,
+html[data-erp-tenant='babooni'] lib-settings-feature .preset-title-input {
+  background: color-mix(in srgb, var(--babooni-bg, #f8fafc) 65%, var(--babooni-surface)) !important;
+  border: 1px solid var(--babooni-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .form-label,
+html[data-erp-tenant='babooni'] lib-settings-feature .luxe-label {
+  color: var(--text-muted) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .stage-card {
+  background: color-mix(in srgb, var(--babooni-bg, #f8fafc) 55%, var(--babooni-surface)) !important;
+  border: 1px dashed color-mix(in srgb, var(--brand, #d97706) 25%, var(--babooni-border)) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .role-status-card {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand, #d97706) 88%, #000),
+    color-mix(in srgb, var(--brand, #d97706) 65%, #000)
+  ) !important;
+  border: none !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .id-code {
+  background: color-mix(in srgb, var(--babooni-bg, #f8fafc) 50%, var(--babooni-surface)) !important;
+  border-color: var(--babooni-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .toggle-wrapper.active {
+  background: var(--brand, #d97706) !important;
+  border-color: transparent !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .permission-toggle-box.active .toggle-ui {
+  background: var(--brand, #d97706) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .pick-icon,
+html[data-erp-tenant='babooni'] lib-settings-feature .plugin-icon {
+  background: color-mix(in srgb, var(--brand, #d97706) 10%, var(--babooni-surface)) !important;
+  border-color: color-mix(in srgb, var(--brand, #d97706) 22%, var(--babooni-border)) !important;
+  color: var(--brand, #d97706) !important;
+}

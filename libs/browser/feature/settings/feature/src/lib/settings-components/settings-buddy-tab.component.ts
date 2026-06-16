@@ -359,11 +359,16 @@ import { FormsModule } from '@angular/forms';
       }
       .section-breadcrumb .current { color: var(--brand); }
 
+      .content-section {
+        width: min(100%, 1180px);
+        margin: 0 auto 2.5rem;
+      }
+
       .profile-hero {
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        margin-bottom: 2rem;
+        margin-bottom: 1.75rem;
         gap: 1rem;
         flex-wrap: wrap;
       }
@@ -415,8 +420,9 @@ import { FormsModule } from '@angular/forms';
       }
       .companion-pick-btn:hover { background: rgba(255, 255, 255, 0.06); }
       .companion-pick-btn.active {
-        background: color-mix(in srgb, var(--brand) 12%, var(--surface));
-        border-color: var(--brand);
+        background: color-mix(in srgb, var(--brand) 10%, var(--surface, rgba(15, 23, 42, 0.5)));
+        border-color: color-mix(in srgb, var(--brand) 45%, transparent);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--brand) 20%, transparent);
       }
 
       .pick-icon {
@@ -470,10 +476,10 @@ import { FormsModule } from '@angular/forms';
 
       .stage-glow {
         position: absolute;
-        inset: 10%;
+        inset: 18%;
         border-radius: 50%;
-        filter: blur(32px);
-        opacity: 0.28;
+        filter: blur(24px);
+        opacity: 0.22;
         pointer-events: none;
       }
       .stage-rings { position: absolute; inset: 0; pointer-events: none; }

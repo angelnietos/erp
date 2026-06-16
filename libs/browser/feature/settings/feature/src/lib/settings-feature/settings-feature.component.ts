@@ -170,13 +170,13 @@ import {
           radial-gradient(circle at 20% 0%, rgba(148, 163, 184, 0.08), transparent 28rem),
           linear-gradient(180deg, rgba(8, 13, 26, 0.92), rgba(3, 7, 18, 0.98));
         scrollbar-width: thin;
-        scrollbar-color: var(--brand) transparent;
+        scrollbar-color: color-mix(in srgb, var(--brand, #6366f1) 50%, transparent) transparent;
         min-width: 0;
       }
 
       .content-section {
-        width: min(100%, 1120px);
-        margin: 0 auto 4rem;
+        width: min(100%, 1180px);
+        margin: 0 auto 2.5rem;
         color: #f8fafc;
       }
 
@@ -195,7 +195,7 @@ import {
       }
 
       :host ::ng-deep .section-breadcrumb .current {
-        color: #fda4af !important;
+        color: color-mix(in srgb, var(--brand, #6366f1) 78%, white) !important;
       }
 
       :host ::ng-deep .profile-hero,
@@ -222,7 +222,7 @@ import {
       }
 
       :host ::ng-deep .hero-title span {
-        color: #fb7185 !important;
+        color: var(--brand, #6366f1) !important;
         opacity: 1 !important;
       }
 
@@ -399,9 +399,9 @@ import {
       :host ::ng-deep .plugin-icon,
       :host ::ng-deep .pick-icon,
       :host ::ng-deep .role-icon {
-        background: rgba(251, 113, 133, 0.12) !important;
-        border: 1px solid rgba(251, 113, 133, 0.2) !important;
-        color: #fb7185 !important;
+        background: color-mix(in srgb, var(--brand, #6366f1) 14%, transparent) !important;
+        border: 1px solid color-mix(in srgb, var(--brand, #6366f1) 28%, transparent) !important;
+        color: var(--brand, #6366f1) !important;
       }
 
       :host ::ng-deep .pref-row,
@@ -430,8 +430,12 @@ import {
 
       :host ::ng-deep .toggle-wrapper.active,
       :host ::ng-deep .permission-toggle-box.active .toggle-ui {
-        background: linear-gradient(135deg, #fb7185, #f43f5e) !important;
-        border-color: rgba(251, 113, 133, 0.55) !important;
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--brand, #6366f1) 92%, white),
+          var(--brand, #6366f1)
+        ) !important;
+        border-color: color-mix(in srgb, var(--brand, #6366f1) 55%, transparent) !important;
       }
 
       :host ::ng-deep .security-badge {
@@ -473,8 +477,12 @@ import {
       }
 
       :host ::ng-deep .role-status-card {
-        background: linear-gradient(135deg, rgba(190, 18, 60, 0.92), rgba(124, 45, 18, 0.88)) !important;
-        border: 1px solid rgba(253, 164, 175, 0.22) !important;
+        background: linear-gradient(
+          135deg,
+          color-mix(in srgb, var(--brand, #6366f1) 88%, black),
+          color-mix(in srgb, var(--brand, #6366f1) 62%, black)
+        ) !important;
+        border: 1px solid color-mix(in srgb, var(--brand, #6366f1) 35%, transparent) !important;
       }
 
       :host ::ng-deep .role-config-card {
@@ -534,21 +542,59 @@ import {
 
       :host ::ng-deep .companion-studio {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 1rem !important;
+        grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) !important;
+        gap: 1.25rem !important;
+        align-items: start !important;
       }
 
       :host ::ng-deep .companion-stage {
-        display: grid !important;
-        grid-template-columns: 260px minmax(0, 1fr) !important;
+        display: flex !important;
+        flex-direction: column !important;
         align-items: center !important;
         gap: 1.25rem !important;
         padding: 1.5rem !important;
         border-radius: 24px !important;
       }
 
+      :host ::ng-deep .companion-panels {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        min-width: 0 !important;
+      }
+
+      :host ::ng-deep .companion-form-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+      }
+
+      :host ::ng-deep .panel-title {
+        font-size: 0.95rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.02em !important;
+        margin: 0 0 1rem !important;
+        padding-bottom: 0.65rem !important;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14) !important;
+      }
+
+      :host ::ng-deep .color-picker-grid {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+      }
+
+      :host ::ng-deep .user-agent-textarea,
+      :host ::ng-deep .preset-title-input {
+        background: rgba(2, 6, 23, 0.45) !important;
+        border: 1px solid rgba(148, 163, 184, 0.22) !important;
+        border-radius: 12px !important;
+        color: inherit !important;
+      }
+
       :host ::ng-deep .stage-controls {
         min-width: 0 !important;
+        width: 100% !important;
       }
 
       .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -561,6 +607,14 @@ import {
 
         .settings-content {
           padding: 1rem;
+        }
+
+        :host ::ng-deep .companion-studio {
+          grid-template-columns: 1fr !important;
+        }
+
+        :host ::ng-deep .companion-form-grid {
+          grid-template-columns: 1fr !important;
         }
 
         :host ::ng-deep .identity-grid,
