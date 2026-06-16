@@ -91,16 +91,14 @@ export class AuditLogsController {
     const rows = await this.prisma.auditLog.findMany({
       where: {
         OR: [
-          { userId: { in: userIds } },
-          { changesJson: { path: ['tenantId'], equals: tenantId } },
+          { tenantId },
+          { userId: { in: userIds }, tenantId: null },
         ],
         action: { not: 'SEED' },
       },
       orderBy: { createdAt: 'desc' },
       take: n,
     });
-
-    console.log(`[AuditLogsController] Found ${rows.length} rows for tenant ${tenantId} (users: ${userIds.length})`);
 
     const users = await this.prisma.user.findMany({
       where: { id: { in: [...new Set(rows.map((r) => r.userId))] } },
