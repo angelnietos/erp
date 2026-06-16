@@ -11,14 +11,15 @@ import { CommonModule } from '@angular/common';
       #fileInput
       hidden
       (change)="importFile.emit($event)"
-      accept=".md,.txt,.html,.htm"
-      title="Importar Markdown, HTML o texto plano"
+      accept=".md,.txt,.html,.htm,.docx,.doc,.pdf"
+      title="Importar Markdown, HTML, Word, PDF o texto plano"
     />
     <div class="flex flex-wrap gap-2">
       <button
         type="button"
         (click)="fileInput.click()"
         class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-brand text-white shadow-md hover:opacity-95 transition-opacity"
+        title="Word (.docx), PDF, Markdown, HTML o texto"
       >
         Importar
       </button>
@@ -28,6 +29,14 @@ import { CommonModule } from '@angular/common';
         class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
       >
         MD
+      </button>
+      <button
+        type="button"
+        (click)="exportFormat.emit('docx')"
+        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        title="Exportar Word (.docx) desde el mismo HTML que la vista previa"
+      >
+        DOCX
       </button>
       <button
         type="button"

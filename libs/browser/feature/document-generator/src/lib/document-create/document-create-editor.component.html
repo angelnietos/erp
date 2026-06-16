@@ -572,10 +572,14 @@
                      [documentForm]="documentForm"
                      [editorModeLabel]="editorModeLabel"
                      [contentEditorMode]="contentEditorMode"
+                     [editorSurface]="editorSurface"
+                     [blockHtml]="blockEditorHtml"
                      [editorPlaceholder]="editorPlaceholder"
                      [isAiGenerating]="isAiGenerating"
                      [showSlashCommands]="showSlashCommands"
                      (modeChange)="setContentEditorMode($event)"
+                     (editorSurfaceChange)="setEditorSurface($event)"
+                     (blockHtmlChange)="onBlockHtmlChange($event)"
                      (toggleFullscreen)="toggleFullscreen()"
                      (contentInput)="onEditorContentInput()"
                      (editorKeydown)="handleEditorKeydown($event)"
@@ -775,6 +779,14 @@
                   (importFile)="importDocument($event)"
                   (exportFormat)="exportDocument($event)"
                 />
+                @if (importFeedback) {
+                  <p
+                    class="text-xs text-amber-700 dark:text-amber-300 mt-2"
+                    role="status"
+                  >
+                    {{ importFeedback }}
+                  </p>
+                }
               </div>
 
               <div

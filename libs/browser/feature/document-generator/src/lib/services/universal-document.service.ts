@@ -1,7 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as ExcelJS from 'exceljs';
 import { escapeHtml } from '../utils/html-escape';
+import { WordImportService } from './word-import.service';
+import { PdfImportService } from './pdf-import.service';
+import { DocxExportService } from './docx-export.service';
 
 export enum DocumentFormat {
   DOCS20 = 'docs20',
@@ -36,6 +39,10 @@ export interface ImportResult {
 
 @Injectable({ providedIn: 'root' })
 export class UniversalDocumentService {
+  private readonly wordImport = inject(WordImportService);
+  private readonly pdfImport = inject(PdfImportService);
+  private readonly docxExport = inject(DocxExportService);
+
   async export(
     blocks: ExportBlock[],
     options: DocumentExportOptions,
@@ -51,6 +58,8 @@ export class UniversalDocumentService {
         return this.exportToHTML(blocks);
       case DocumentFormat.PLAINTEXT:
         return this.exportToPlainText(blocks);
+      case DocumentFormat.DOCX:
+        return this.exportToDocx(blocks);
       default:
         return this.exportToMarkdown(blocks);
     }
@@ -245,19 +254,36 @@ export class UniversalDocumentService {
     return new Blob([text], { type: 'text/plain' });
   }
 
+  private async exportToDocx(blocks: ExportBlock[]): Promise<Blob> {
+    const htmlBlock = blocks.find((b) => b.type === 'html');
+    if (htmlBlock) {
+      return this.docxExport.exportHtml(htmlBlock.content);
+    }
+    let html = '';
+    blocks.forEach((block) => {
+      const c = escapeHtml(String(block.content ?? ''));
+      switch (block.type) {
+        case 'heading':
+          html += `<h1>${c}</h1>`;
+          break;
+        case 'quote':
+          html += `<blockquote>${c}</blockquote>`;
+          break;
+        case 'code':
+          html += `<pre><code>${c}</code></pre>`;
+          break;
+        case 'list':
+          html += `<ul><li>${c}</li></ul>`;
+          break;
+        default:
+          html += `<p>${c}</p>`;
+      }
+    });
+    return this.docxExport.exportHtml(html);
+  }
+
   private async importPDF(file: File): Promise<ImportResult> {
-    return {
-      success: true,
-      blocks: [
-        {
-          type: 'text',
-          content:
-            'Importación PDF: Funcionalidad en desarrollo. Se extraerá automáticamente todo el texto, tablas e imágenes.',
-        },
-      ],
-      metadata: { filename: file.name, size: file.size },
-      warnings: ['PDF import estará disponible en la próxima versión'],
-    };
+    return this.pdfImport.importPdf(file);
   }
 
   private async importExcel(file: File): Promise<ImportResult> {
@@ -276,18 +302,7 @@ export class UniversalDocumentService {
   }
 
   private async importWord(file: File): Promise<ImportResult> {
-    return {
-      success: true,
-      blocks: [
-        {
-          type: 'text',
-          content:
-            'Importación Word: Funcionalidad en desarrollo. Se preservará 100% del formato, estilos y estructuras.',
-        },
-      ],
-      metadata: { filename: file.name, size: file.size },
-      warnings: ['Word import estará disponible en la próxima versión'],
-    };
+    return this.wordImport.toImportResult(file);
   }
 
   private async importMarkdown(file: File): Promise<ImportResult> {

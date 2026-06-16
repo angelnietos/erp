@@ -25,6 +25,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DocumentRenderService } from '../services/document-render.service';
 import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
 import { DocumentEditorHistory } from '../services/document-editor-history.service';
+import { DocxExportService } from '../services/docx-export.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import {
   AssistantContextService,
@@ -34,6 +35,7 @@ import {
   UniversalDocumentService,
   DocumentFormat,
 } from '../services/universal-document.service';
+import type { EditorSurface } from './document-editor-canvas.component';
 import {
   TemplatesRegistryService,
   DocumentTemplate,
@@ -169,6 +171,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   fullscreenMode = false;
   fullscreenTab: 'editor' | 'preview' = 'editor';
   contentEditorMode: ContentEditorMode = 'markdown';
+  editorSurface: EditorSurface = 'legacy';
+  importFeedback = '';
   customCss = '';
   selectedPdfStyle = 'default';
   selectedQuickStylePreset = '';
@@ -429,6 +433,7 @@ export class DocumentCreateEditorComponent implements OnInit {
   private readonly documentPersistence = inject(DocumentPersistenceService);
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
+  private readonly docxExport = inject(DocxExportService);
   private readonly documentAi = inject(DocumentAiService);
   private readonly viewportScroller = inject(ViewportScroller);
   private readonly sanitizer = inject(DomSanitizer);
@@ -437,6 +442,9 @@ export class DocumentCreateEditorComponent implements OnInit {
   private formHooksBound = false;
 
   get editorModeLabel(): string {
+    if (this.editorSurface === 'blocks') {
+      return 'Editor visual (TipTap)';
+    }
     switch (this.contentEditorMode) {
       case 'html':
         return 'Editor HTML';
@@ -1069,6 +1077,45 @@ this.documentForm.patchValue({ content: beautified });
     this.applyCustomCss();
     this.documentForm.patchValue(patch);
     this.syncAssistantFromFormNow();
+  }
+
+  get blockEditorHtml(): string {
+    const content = String(this.documentForm.get('content')?.value ?? '');
+    if (this.contentEditorMode === 'html') {
+      return content;
+    }
+    if (this.contentEditorMode === 'plain') {
+      return this.plainTextToHtml(content);
+    }
+    return this.convertMarkdownToHtmlForEditor(content);
+  }
+
+  async setEditorSurface(surface: EditorSurface): Promise<void> {
+    if (this.editorSurface === surface) {
+      return;
+    }
+
+    if (surface === 'blocks') {
+      const content = String(this.documentForm.get('content')?.value ?? '');
+      if (this.contentEditorMode === 'markdown' && content.trim()) {
+        this.documentForm.patchValue({
+          content: this.convertMarkdownToHtmlForEditor(content),
+        });
+      } else if (this.contentEditorMode === 'plain' && content.trim()) {
+        this.documentForm.patchValue({ content: this.plainTextToHtml(content) });
+      }
+      this.contentEditorMode = 'html';
+    }
+
+    this.editorSurface = surface;
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+    this.cdRef.markForCheck();
+  }
+
+  onBlockHtmlChange(html: string): void {
+    this.documentForm.patchValue({ content: html });
+    this.onEditorContentInput();
   }
 
   async setContentEditorMode(mode: ContentEditorMode): Promise<void> {
@@ -3670,6 +3717,21 @@ blockquote {
       return;
     }
 
+    if (format === 'docx') {
+      try {
+        const input = this.buildRenderInput(content);
+        const exportHtml = this.exportOrchestrator.buildExportHtml(input);
+        const blob = await this.docxExport.exportHtml(exportHtml, title);
+        this.universalDocument.download(blob, `${title}.docx`);
+      } catch (error) {
+        console.error('Error exporting DOCX:', error);
+        alert(
+          'No se pudo exportar a DOCX. Revisa el contenido e inténtalo de nuevo.',
+        );
+      }
+      return;
+    }
+
     const exportContent =
       format === 'markdown' ? content : this.getPlainContentForExport(content);
     const blocks = exportContent.split('\n\n').map((text: string) => ({
@@ -3709,14 +3771,24 @@ blockquote {
     const result = await this.universalDocument.import(file);
 
     if (result.success) {
-      const content = result.blocks.map((b) => b.content).join('\n\n');
+      const htmlBlock = result.blocks.find((b) => b.type === 'html');
+      const content = htmlBlock
+        ? htmlBlock.content
+        : result.blocks.map((b) => b.content).join('\n\n');
       this.contentEditorMode = this.inferEditorModeFromFile(file.name);
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (ext === 'docx' || ext === 'doc' || ext === 'pdf') {
+        this.editorSurface = 'blocks';
+      }
       this.documentForm.get('content')?.setValue(content);
       this.initEditorHistory(content);
       this.updatePreview();
       this.syncAssistantFromFormNow();
+      this.importFeedback =
+        result.warnings.length > 0 ? result.warnings.join(' · ') : '';
     } else if (result.warnings.length > 0) {
       alert(result.warnings.join('\n'));
+      this.importFeedback = result.warnings.join(' · ');
     }
 
     if (result.warnings.length > 0 && isDevMode()) {
@@ -3728,7 +3800,13 @@ blockquote {
 
   private inferEditorModeFromFile(fileName: string): ContentEditorMode {
     const extension = fileName.split('.').pop()?.toLowerCase();
-    if (extension === 'html' || extension === 'htm') {
+    if (
+      extension === 'html' ||
+      extension === 'htm' ||
+      extension === 'docx' ||
+      extension === 'doc' ||
+      extension === 'pdf'
+    ) {
       return 'html';
     }
     if (extension === 'txt') {
