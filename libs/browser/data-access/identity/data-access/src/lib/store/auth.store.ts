@@ -180,7 +180,10 @@ export const AuthStore = signalStore(
           }
           syncErpTenantHtmlTheme();
           themeService.reapplyTheme();
-          void router.navigateByUrl('/auth/login', { replaceUrl: true });
+          void router.navigate(['/auth/login'], {
+            queryParams: { reason: 'logout' },
+            replaceUrl: true,
+          });
         });
       },
 
@@ -199,7 +202,28 @@ export const AuthStore = signalStore(
             })
           )),
           tap((response: AuthResponse | null) => {
-            if (!response) return;
+            if (!response) {
+              if (globalAuthStore.isAuthenticated()) {
+                tenantModulesRealtime.disconnect();
+                authService.clearSessionForRelogin();
+                patchState(store, {
+                  user: null,
+                  authMode: 'none',
+                  keycloakAvailable: null,
+                });
+                globalAuthStore.logout();
+                if (typeof sessionStorage !== 'undefined') {
+                  sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
+                }
+                syncErpTenantHtmlTheme();
+                themeService.reapplyTheme();
+                void router.navigate(['/auth/login'], {
+                  queryParams: { reason: 'expired' },
+                  replaceUrl: true,
+                });
+              }
+              return;
+            }
 
             if (isDevMode()) {
               console.log(

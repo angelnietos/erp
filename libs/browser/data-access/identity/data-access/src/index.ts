@@ -29,6 +29,10 @@ export { UsersService } from './lib/services/users.service';
 // Interceptors
 export { authInterceptor } from './lib/interceptors/auth.interceptor';
 export { tenantInterceptor } from './lib/interceptors/tenant.interceptor';
+export { sessionExpiryInterceptor } from './lib/interceptors/session-expiry.interceptor';
+
+// Guards
+export { erpAuthGuard } from './lib/guards/erp-auth.guard';
 
 // Utils
 export {

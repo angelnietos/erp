@@ -11,6 +11,7 @@ import { appRoutes } from './app.routes';
 import {
   authInterceptor,
   tenantInterceptor,
+  sessionExpiryInterceptor,
   AuthService,
   AuthStore,
   AUTH_KEYCLOAK_CONFIG,
@@ -237,6 +238,7 @@ export const appConfig: ApplicationConfig = {
         bffAuthInterceptor,
         tenantInterceptor,
         authInterceptor,
+        sessionExpiryInterceptor,
       ]),
     ),
     {
@@ -301,9 +303,11 @@ export const appConfig: ApplicationConfig = {
                 environment.apiOrigin?.replace(/\/$/, '') ?? '',
               );
             } else {
+              globalAuthStore.logout();
               pluginStore.loadFromStorage();
             }
           } catch {
+            globalAuthStore.logout();
             pluginStore.loadFromStorage();
           }
         };

@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
 import { NotFoundComponent } from './not-found.component';
+import { erpAuthGuard } from '@josanz-erp/identity-data-access';
 import { pluginGuard, permissionGuard, usersShellGuard } from '@josanz-erp/shared-data-access';
 
 export const appRoutes: Route[] = [
@@ -17,6 +18,7 @@ export const appRoutes: Route[] = [
   {
     path: '',
     component: MainAppShellComponent,
+    canActivate: [erpAuthGuard],
     children: [
       {
         path: 'dashboard',
