@@ -328,13 +328,27 @@ export class AuthService {
     return localStorage.getItem('auth_token');
   }
 
-  removeToken(): void {
+  /** Limpia credenciales previas antes de un nuevo login (p. ej. cambiar de usuario sin cerrar sesión). */
+  clearSessionForRelogin(): void {
     localStorage.removeItem('auth_token');
+    clearStoredTenantId();
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(IDENTITY_AUTH_MODE_SESSION_KEY);
       sessionStorage.removeItem(IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY);
     }
-    clearStoredTenantId();
+  }
+
+  syncTenantIdFromAccessToken(): string | null {
+    const session = this.readPersistedSession();
+    if (session?.tenantId) {
+      this.setTenantId(session.tenantId);
+      return session.tenantId;
+    }
+    return null;
+  }
+
+  removeToken(): void {
+    this.clearSessionForRelogin();
   }
 
   setTenantId(tenantId: string): void {
@@ -384,7 +398,9 @@ export class AuthService {
         permissions,
       };
 
-      const tidFromJwt = typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
+      const tidFromJwt =
+        (typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '') ||
+        (typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '');
       tenantId = tidFromJwt;
     }
 

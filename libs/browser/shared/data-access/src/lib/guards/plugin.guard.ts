@@ -3,16 +3,31 @@ import { CanActivateFn, Router } from '@angular/router';
 import { PluginStore } from '../store/plugin.store';
 import { GlobalAuthStore } from '../store/auth.store';
 
+function redirectWhenAccessDenied(
+  router: Router,
+  authStore: InstanceType<typeof GlobalAuthStore>,
+): void {
+  if (authStore.isAuthenticated()) {
+    void router.navigate(['/settings'], {
+      queryParams: { access: 'denied' },
+      replaceUrl: true,
+    });
+    return;
+  }
+  void router.navigate(['/auth/login'], { replaceUrl: true });
+}
+
 export const pluginGuard = (pluginId: string): CanActivateFn => {
   return () => {
     const store = inject(PluginStore);
+    const authStore = inject(GlobalAuthStore);
     const router = inject(Router);
 
     if (store.enabledPlugins().includes(pluginId)) {
       return true;
     }
 
-    void router.navigate(['/auth/login']);
+    redirectWhenAccessDenied(router, authStore);
     return false;
   };
 };
@@ -26,13 +41,14 @@ export const permissionGuard = (permission: string): CanActivateFn => {
       return true;
     }
 
-    void router.navigate(['/auth/login']);
+    redirectWhenAccessDenied(router, authStore);
     return false;
   };
 };
 
 export const usersShellGuard: CanActivateFn = () => {
   const store = inject(PluginStore);
+  const authStore = inject(GlobalAuthStore);
   const router = inject(Router);
 
   const p = store.enabledPlugins();
@@ -42,6 +58,6 @@ export const usersShellGuard: CanActivateFn = () => {
     return true;
   }
 
-  void router.navigate(['/auth/login']);
+  redirectWhenAccessDenied(router, authStore);
   return false;
 };

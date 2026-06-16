@@ -2,13 +2,14 @@ import { inject, isDevMode } from '@angular/core';
 import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, tap, switchMap, catchError, of } from 'rxjs';
+import { pipe, tap, switchMap, catchError, of, map } from 'rxjs';
 import {
   AuthService,
   ERP_TENANT_SLUG_SESSION_KEY,
   type IdentityAuthMode,
 } from '../services/auth.service';
 import { syncErpTenantHtmlTheme } from '../utils/erp-tenant-theme';
+import { resolvePostLoginPath } from '../utils/post-login-navigation';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
@@ -61,48 +62,95 @@ export const AuthStore = signalStore(
 
       login: rxMethod<{ email: string; password: string; tenantSlug?: string }>(
         pipe(
-          tap(() => patchState(store, { loading: true, error: null, keycloakAvailable: null })),
+          tap(() => {
+            tenantModulesRealtime.disconnect();
+            authService.clearSessionForRelogin();
+            globalAuthStore.logout();
+            patchState(store, {
+              user: null,
+              loading: true,
+              error: null,
+              authMode: 'none',
+              keycloakAvailable: null,
+            });
+          }),
           switchMap(({ email, password, tenantSlug }) =>
             authService.login(email, password, tenantSlug).pipe(
-              tap((response) => {
+              switchMap((response) => {
                 const authMeta = authService.getPersistedAuthMeta();
                 authService.setToken(response.accessToken);
-                if (response.tenantId) {
-                  authService.setTenantId(response.tenantId);
+                const tenantId =
+                  response.tenantId ??
+                  authService.syncTenantIdFromAccessToken() ??
+                  getStoredTenantId() ??
+                  undefined;
+
+                if (tenantId) {
+                  authService.setTenantId(tenantId);
                 }
+
                 patchState(store, {
                   user: response.user,
-                  loading: false,
+                  loading: true,
                   ...authMeta,
                 });
 
-                const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
+                const displayName =
+                  [response.user.firstName, response.user.lastName]
+                    .filter(Boolean)
+                    .join(' ')
+                    .trim() || response.user.email;
                 globalAuthStore.setUser({
                   id: response.user.id,
                   email: response.user.email,
                   name: displayName,
-                  tenantId: response.tenantId ?? getStoredTenantId() ?? '',
+                  tenantId: tenantId ?? '',
                   permissions: response.user.permissions,
                 });
 
                 if (response.tenantSlug) {
                   if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
+                    sessionStorage.setItem(
+                      ERP_TENANT_SLUG_SESSION_KEY,
+                      response.tenantSlug,
+                    );
                   }
+                  syncErpTenantHtmlTheme();
+                  themeService.reapplyTheme();
+                } else if (tenantSlug && typeof sessionStorage !== 'undefined') {
+                  sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, tenantSlug);
                   syncErpTenantHtmlTheme();
                   themeService.reapplyTheme();
                 }
 
-                // Only fetch tenant modules if we have a tenant context
-                if (response.tenantId || getStoredTenantId()) {
-                  tenantModulesApi.fetchEnabledModules(response.tenantId ?? getStoredTenantId()!).subscribe({
-                    next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
-                    error: () => pluginStore.loadFromStorage(),
-                  });
-                }
-                tenantModulesRealtime.afterAccessTokenChanged();
+                const modules$ = tenantId
+                  ? tenantModulesApi.fetchEnabledModules(tenantId).pipe(
+                      catchError(() => {
+                        pluginStore.loadFromStorage();
+                        return of({
+                          enabledModuleIds: pluginStore.enabledPlugins(),
+                        });
+                      }),
+                    )
+                  : of({ enabledModuleIds: pluginStore.enabledPlugins() });
 
-                router.navigate(['/']);
+                return modules$.pipe(
+                  tap((modules) => pluginStore.setPlugins(modules.enabledModuleIds)),
+                  map(() => ({ response, authMeta })),
+                );
+              }),
+              tap(({ response, authMeta }) => {
+                patchState(store, {
+                  user: response.user,
+                  loading: false,
+                  ...authMeta,
+                });
+                tenantModulesRealtime.afterAccessTokenChanged();
+                const target = resolvePostLoginPath(
+                  pluginStore.enabledPlugins(),
+                  response.user.permissions ?? [],
+                );
+                void router.navigateByUrl(target, { replaceUrl: true });
               }),
               catchError((error) => {
                 const authMeta = authService.getPersistedAuthMeta();

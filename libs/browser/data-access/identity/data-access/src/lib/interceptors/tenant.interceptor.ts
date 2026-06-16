@@ -29,7 +29,8 @@ function readTenantIdFromAuthToken(): string | null {
     const json = atob(padded);
     const payload = JSON.parse(json) as Record<string, unknown>;
     const tid =
-      typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '';
+      (typeof payload['tenantId'] === 'string' ? payload['tenantId'].trim() : '') ||
+      (typeof payload['tenant_id'] === 'string' ? payload['tenant_id'].trim() : '');
     return isTenantUuid(tid) ? tid : null;
   } catch {
     return null;

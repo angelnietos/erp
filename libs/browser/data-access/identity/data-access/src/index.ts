@@ -10,6 +10,7 @@ export {
   type IdentityAuthMeta,
   type IdentityAuthMode,
 } from './lib/services/auth.service';
+export { resolvePostLoginPath } from './lib/utils/post-login-navigation';
 export {
   getErpTenantSlug,
   syncErpTenantHtmlTheme,
