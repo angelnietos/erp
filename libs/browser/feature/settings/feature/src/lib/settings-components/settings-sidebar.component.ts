@@ -1,5 +1,6 @@
 import { Component, signal, computed, inject, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 
@@ -18,9 +19,14 @@ export type SettingsTab =
 @Component({
   selector: 'lib-settings-sidebar',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RouterModule],
   template: `
     <aside class="settings-sidebar">
+      <a routerLink="/" class="settings-exit-link" title="Volver al panel principal">
+        <lucide-icon name="arrow-left" size="16" aria-hidden="true"></lucide-icon>
+        <span>Volver al ERP</span>
+      </a>
+
       <div class="sidebar-header">
         <h1 class="glow-text">Sistema</h1>
         <p class="subtitle">Panel de Control</p>
@@ -96,8 +102,37 @@ export type SettingsTab =
         flex-direction: column;
         padding: 1.25rem 0.9rem;
         box-shadow: 18px 0 46px rgba(0, 0, 0, 0.22);
-        min-height: calc(100vh - 64px);
-        overflow: hidden;
+        height: calc(100vh - var(--bb-topbar-height, 64px));
+        max-height: calc(100vh - var(--bb-topbar-height, 64px));
+        position: sticky;
+        top: 0;
+        align-self: start;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 30;
+        flex-shrink: 0;
+      }
+
+      .settings-exit-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0.75rem 0.85rem;
+        padding: 0.55rem 0.7rem;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.45);
+        color: #e2e8f0;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      }
+
+      .settings-exit-link:hover {
+        background: color-mix(in srgb, var(--brand, #6366f1) 14%, rgba(15, 23, 42, 0.6));
+        border-color: color-mix(in srgb, var(--brand, #6366f1) 35%, transparent);
+        color: #fff;
       }
 
       .sidebar-header {
@@ -196,19 +231,35 @@ export type SettingsTab =
 
       @media (max-width: 1100px) {
         .settings-sidebar {
-          min-height: unset;
-          padding: 1rem;
+          height: auto;
+          max-height: none;
+          position: sticky;
+          top: 0;
+          z-index: 40;
+          padding: 0.85rem 1rem 1rem;
           border-right: 0;
-          border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+          border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        .settings-exit-link {
+          margin: 0 0 0.65rem;
+          width: fit-content;
         }
 
         .settings-nav {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: 0.5rem;
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+          gap: 0.45rem;
+          max-height: 40vh;
+          overflow-y: auto;
         }
 
-        .nav-section-label,
+        .nav-section-label {
+          grid-column: 1 / -1;
+          margin: 0.65rem 0 0.15rem 0.25rem;
+        }
+
         .sidebar-footer {
           display: none;
         }

@@ -499,7 +499,8 @@ html[data-erp-tenant='babooni'] .feature-load-error-banner {
 /* Settings — alinear con superficie Babooni (no forzar dark global) */
 html[data-erp-tenant='babooni'] lib-settings-feature .settings-layout {
   background: var(--babooni-bg, #f8fafc) !important;
-  min-height: calc(100vh - 64px);
+  height: calc(100vh - var(--bb-topbar-height, 64px)) !important;
+  max-height: calc(100vh - var(--bb-topbar-height, 64px)) !important;
 }
 
 html[data-erp-tenant='babooni'] lib-settings-feature .settings-content {
@@ -565,13 +566,49 @@ html[data-erp-tenant='babooni'] lib-settings-profile-tab .hologram-glow {
 }
 
 /* Configuración Babooni — sistema visual unificado */
-html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(lib-settings-feature) ui-ai-assistant .mascot-trigger {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(lib-settings-feature) ui-ai-assistant .mascot-trigger,
+html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(josanz-ai-insights) ui-ai-assistant .mascot-trigger {
   display: none !important;
+}
+
+html[data-erp-tenant='babooni'] josanz-ai-insights .onboarding-panel {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
+  box-shadow: var(--babooni-shadow-soft) !important;
+}
+
+html[data-erp-tenant='babooni'] josanz-ai-insights .onboarding-steps li {
+  background: color-mix(in srgb, var(--babooni-bg) 88%, var(--brand) 4%) !important;
+  border-color: var(--babooni-border) !important;
+}
+
+html[data-erp-tenant='babooni'] josanz-ai-insights .sk-stat,
+html[data-erp-tenant='babooni'] josanz-ai-insights .sk-toolbar,
+html[data-erp-tenant='babooni'] josanz-ai-insights .sk-feed-card {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--babooni-border) 40%, transparent) 0%,
+    color-mix(in srgb, var(--babooni-border) 70%, transparent) 50%,
+    color-mix(in srgb, var(--babooni-border) 40%, transparent) 100%
+  ) !important;
+  background-size: 200% 100% !important;
 }
 
 html[data-erp-tenant='babooni'] lib-settings-feature .settings-sidebar {
   box-shadow: none !important;
   border-right: 1px solid var(--babooni-border) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-exit-link {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-tenant='babooni'] lib-settings-feature .settings-exit-link:hover {
+  background: color-mix(in srgb, var(--brand, #d97706) 10%, var(--babooni-surface)) !important;
+  border-color: color-mix(in srgb, var(--brand, #d97706) 35%, var(--babooni-border)) !important;
+  color: var(--brand, #d97706) !important;
 }
 
 html[data-erp-tenant='babooni'] lib-settings-feature .sidebar-header h1 {

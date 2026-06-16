@@ -408,6 +408,19 @@
   flex: 1;
   overflow-y: auto;
   background: var(--bb-page-bg);
+  min-height: 0;
+}
+
+:host:has(lib-settings-feature) .bb-scroll {
+  overflow: hidden;
+}
+
+:host:has(lib-settings-feature) .bb-content {
+  padding: 0;
+  max-width: none;
+  margin: 0;
+  height: 100%;
+  min-height: 0;
 }
 
 .bb-content {

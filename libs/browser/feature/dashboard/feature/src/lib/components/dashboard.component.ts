@@ -30,7 +30,10 @@ import {
   ThemeService,
   GlobalAuthStore,
   rbacAllows,
+  AiInsightsApiService,
+  AiInsightDto,
 } from '@josanz-erp/shared-data-access';
+import { firstValueFrom } from 'rxjs';
 
 interface MetricCard {
   title: string;
@@ -255,11 +258,34 @@ interface QuickAction {
             </div>
           </ui-card>
 
-          <!-- AI Insight -->
-          <div class="info-teaser ui-glass">
+          <!-- AI Insight (último evento del tenant) -->
+          <div
+            class="info-teaser ui-glass"
+            [class.info-teaser--clickable]="!!latestInsight()"
+            role="button"
+            tabindex="0"
+            (click)="goToAiInsights()"
+            (keydown.enter)="goToAiInsights()"
+            (keydown.space)="$event.preventDefault(); goToAiInsights()"
+            [attr.aria-label]="latestInsight() ? 'Ver insight en AI Insights' : 'Abrir AI Insights'"
+          >
              <div class="teaser-content">
                 <span class="badge">AI INSIGHT</span>
-                <p>Tu flujo de caja proyectado para el próximo mes es óptimo. Considera cerrar las facturas pendientes de Fleet.</p>
+                @if (latestInsight(); as insight) {
+                  <p class="insight-headline">{{ insight.title }}</p>
+                  <p class="insight-body">{{ insight.summary }}</p>
+                  <span class="insight-meta">
+                    {{ insightEventLabel(insight.eventType) }}
+                    @if (insight.userEmail) {
+                      · {{ insight.userEmail }}
+                    }
+                    · {{ insight.createdAt | date: 'short' }}
+                  </span>
+                } @else {
+                  <p class="insight-body insight-body--empty">
+                    Aún no hay insights registrados. Usa Buddy en cualquier módulo y aparecerán aquí en tiempo real.
+                  </p>
+                }
              </div>
           </div>
         </aside>
@@ -637,6 +663,36 @@ interface QuickAction {
       color: var(--text-secondary);
     }
 
+    .info-teaser--clickable {
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .info-teaser--clickable:hover {
+      border-color: color-mix(in srgb, var(--brand) 35%, var(--border-soft));
+      box-shadow: 0 4px 16px -6px color-mix(in srgb, var(--brand) 18%, transparent);
+    }
+
+    .insight-headline {
+      font-weight: 700;
+      color: var(--text-primary) !important;
+      margin: 0.35rem 0 0.25rem !important;
+    }
+
+    .insight-body--empty {
+      margin-top: 0.35rem !important;
+      font-size: 0.78rem !important;
+    }
+
+    .insight-meta {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.02em;
+    }
+
     @media (max-width: 1100px) {
       .dashboard-grid { grid-template-columns: 1fr; padding: 0 1rem; }
       .sidebar-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
@@ -687,7 +743,11 @@ export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly authStore = inject(GlobalAuthStore);
+  private readonly insightsApi = inject(AiInsightsApiService);
   readonly canAccess = rbacAllows(this.authStore, 'dashboard.view');
+
+  latestInsight = signal<AiInsightDto | null>(null);
+  private unsubscribeInsightBc: (() => void) | null = null;
 
   /** Primer fetch o refresco del resumen analítico. */
   isDashboardLoading = signal(true);
@@ -817,9 +877,42 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.refreshData();
+    void this.loadLatestInsight();
+    this.unsubscribeInsightBc = this.insightsApi.subscribeToLiveUpdates(() => {
+      void this.loadLatestInsight();
+    });
+    this.destroyRef.onDestroy(() => this.unsubscribeInsightBc?.());
     interval(300000)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this.refreshData());
+      .subscribe(() => {
+        this.refreshData();
+        void this.loadLatestInsight();
+      });
+  }
+
+  async loadLatestInsight() {
+    try {
+      const rows = await firstValueFrom(this.insightsApi.list({ limit: 1 }));
+      this.latestInsight.set(rows[0] ?? null);
+    } catch {
+      this.latestInsight.set(null);
+    }
+  }
+
+  insightEventLabel(type: string): string {
+    const labels: Record<string, string> = {
+      workflow: 'Workflow',
+      chat: 'Chat',
+      feedback: 'Feedback',
+      delegation: 'Delegación',
+      prediction: 'Predicción',
+      system: 'Sistema',
+    };
+    return labels[type] ?? type;
+  }
+
+  goToAiInsights() {
+    this.router.navigate(['/ai-insights']);
   }
 
   refreshData(): void {

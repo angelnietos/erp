@@ -149,10 +149,20 @@ import {
   `,
   styles: [
     `
+      :host {
+        display: block;
+        height: 100%;
+        min-height: 0;
+        box-sizing: border-box;
+      }
+
       .settings-layout {
         display: grid;
         grid-template-columns: 248px minmax(0, 1fr);
-        min-height: calc(100vh - 64px);
+        height: calc(100vh - var(--bb-topbar-height, 64px));
+        min-height: 0;
+        max-height: calc(100vh - var(--bb-topbar-height, 64px));
+        overflow: hidden;
         background:
           radial-gradient(circle at 8% 12%, rgba(245, 158, 11, 0.09), transparent 24rem),
           radial-gradient(circle at 82% 0%, rgba(236, 72, 153, 0.08), transparent 26rem),
@@ -603,10 +613,15 @@ import {
       @media (max-width: 1100px) {
         .settings-layout {
           grid-template-columns: 1fr;
+          grid-template-rows: auto minmax(0, 1fr);
+          height: calc(100vh - var(--bb-topbar-height, 64px));
+          max-height: calc(100vh - var(--bb-topbar-height, 64px));
+          overflow: hidden;
         }
 
         .settings-content {
           padding: 1rem;
+          min-height: 0;
         }
 
         :host ::ng-deep .companion-studio {

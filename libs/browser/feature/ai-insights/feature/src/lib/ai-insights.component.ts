@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { firstValueFrom, interval } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -47,6 +48,7 @@ const EVENT_LABELS: Record<string, string> = {
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     LucideAngularModule,
     UiFeatureFilterBarComponent,
     UiFeatureAccessDeniedComponent,
@@ -64,7 +66,7 @@ const EVENT_LABELS: Record<string, string> = {
         permissionHint="ai.view"
       />
     } @else {
-    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true" [extraClass]="'ai-insights-shell'">
+    <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="false" [extraClass]="'ai-insights-shell'">
       <header class="insights-hero">
         <div class="hero-main">
           <nav class="breadcrumb">Sistema / AI Insights</nav>
@@ -79,6 +81,12 @@ const EVENT_LABELS: Record<string, string> = {
           </div>
         </div>
         <div class="hero-actions">
+          @if (refreshing()) {
+            <span class="refresh-hint" aria-live="polite">
+              <lucide-icon name="loader-circle" size="14" class="spin"></lucide-icon>
+              Actualizando…
+            </span>
+          }
           <div class="live-pill" [class.live-pill--on]="liveRefresh()">
             <span class="pulse-dot"></span>
             {{ liveRefresh() ? 'En vivo' : 'Pausado' }}
@@ -86,21 +94,73 @@ const EVENT_LABELS: Record<string, string> = {
           <ui-button variant="outline" size="sm" (clicked)="toggleLiveRefresh()">
             {{ liveRefresh() ? 'Pausar' : 'Activar' }} auto-refresh
           </ui-button>
-          <ui-button variant="solid" size="sm" icon="refresh-cw" (clicked)="refreshAll()" [disabled]="loading()">
+          <ui-button variant="solid" size="sm" icon="refresh-cw" (clicked)="refreshAll(true)" [disabled]="initialLoading()">
             Actualizar
           </ui-button>
         </div>
       </header>
 
-      @if (loading() && !summary()) {
-        <div class="loading-wrap"><ui-loader message="Cargando telemetría AI…"></ui-loader></div>
+      @if (initialLoading()) {
+        <section class="skeleton-zone" aria-busy="true" aria-label="Cargando telemetría AI">
+          <div class="stats-skeleton-row">
+            @for (i of skeletonSlots; track i) {
+              <div class="sk-stat"></div>
+            }
+          </div>
+          <div class="sk-toolbar"></div>
+          @for (i of skeletonFeedSlots; track i) {
+            <div class="sk-feed-card"></div>
+          }
+        </section>
+      } @else if (showOnboarding()) {
+        <section class="onboarding-panel">
+          <div class="onboarding-icon">
+            <lucide-icon name="sparkles" size="36"></lucide-icon>
+          </div>
+          <h2>Tu telemetría AI aparecerá aquí</h2>
+          <p class="onboarding-lead">
+            Cada conversación con Buddy, workflow multi-paso, delegación entre bots y feedback 👍/👎 genera filas exportables para entrenar modelos.
+          </p>
+          <ol class="onboarding-steps">
+            <li>
+              <span class="step-num">1</span>
+              <div>
+                <strong>Abre Buddy</strong> en Inventario, Eventos o el panel principal.
+              </div>
+            </li>
+            <li>
+              <span class="step-num">2</span>
+              <div>
+                <strong>Pide un workflow</strong>, por ejemplo: «muéstrame stock crítico y prepara presupuesto».
+              </div>
+            </li>
+            <li>
+              <span class="step-num">3</span>
+              <div>
+                <strong>Vuelve aquí</strong> — los eventos se registran al instante con tu usuario y sesión.
+              </div>
+            </li>
+          </ol>
+          <div class="onboarding-actions">
+            <a routerLink="/" class="onboarding-btn onboarding-btn--primary">
+              <lucide-icon name="layout-dashboard" size="16"></lucide-icon>
+              Ir al panel
+            </a>
+            <a routerLink="/inventory" class="onboarding-btn">
+              <lucide-icon name="bot" size="16"></lucide-icon>
+              Probar con Buddy
+            </a>
+          </div>
+        </section>
       } @else {
-        <ui-feature-stats>
-          <ui-stat-card label="Total eventos" [value]="statTotal()" icon="database" />
-          <ui-stat-card label="Hoy" [value]="statToday()" icon="sun" [accent]="true" />
-          <ui-stat-card label="Últimos 7 días" [value]="statWeek()" icon="calendar-range" />
-          <ui-stat-card label="Usuarios activos" [value]="statUsers()" icon="users" />
-        </ui-feature-stats>
+        @if (hasData()) {
+          <ui-feature-stats>
+            <ui-stat-card label="Total eventos" [value]="statTotal()" icon="database" />
+            <ui-stat-card label="Hoy" [value]="statToday()" icon="sun" [accent]="true" />
+            <ui-stat-card label="Últimos 7 días" [value]="statWeek()" icon="calendar-range" />
+            <ui-stat-card label="Usuarios activos" [value]="statUsers()" icon="users" />
+          </ui-feature-stats>
+        }
 
         <div class="insights-toolbar">
           <div class="tab-row" role="tablist">
@@ -109,46 +169,47 @@ const EVENT_LABELS: Record<string, string> = {
                 type="button"
                 class="tab-btn"
                 [class.active]="activeTab() === t.id"
-                (click)="activeTab.set(t.id)"
+                (click)="selectTab(t.id)"
               >
                 <lucide-icon [name]="t.icon" size="16"></lucide-icon>
                 {{ t.label }}
               </button>
             }
           </div>
-          <ui-feature-filter-bar
-            [appearance]="'feature'"
-            [searchVariant]="'glass'"
-            placeholder="Buscar por título, resumen, usuario, bot…"
-            (searchChange)="searchTerm.set($event)"
-          />
-          <div class="filter-chips">
-            <select class="filter-select" [value]="eventFilter()" (change)="onEventFilter($event)">
-              <option value="">Todos los tipos</option>
-              @for (ev of eventTypes; track ev) {
-                <option [value]="ev">{{ eventLabel(ev) }}</option>
+          @if (activeTab() === 'feed') {
+            <ui-feature-filter-bar
+              [appearance]="'feature'"
+              [searchVariant]="'glass'"
+              placeholder="Buscar por título, resumen, usuario, bot…"
+              (searchChange)="searchTerm.set($event)"
+            />
+            <div class="filter-chips">
+              <select class="filter-select" [value]="eventFilter()" (change)="onEventFilter($event)">
+                <option value="">Todos los tipos</option>
+                @for (ev of eventTypes; track ev) {
+                  <option [value]="ev">{{ eventLabel(ev) }}</option>
+                }
+              </select>
+              <select class="filter-select" [value]="featureFilter()" (change)="onFeatureFilter($event)">
+                <option value="">Todos los módulos</option>
+                @for (f of featureOptions(); track f) {
+                  <option [value]="f">{{ f }}</option>
+                }
+              </select>
+              @if (hasActiveFilters()) {
+                <button type="button" class="filter-clear" (click)="clearFilters()">Limpiar filtros</button>
               }
-            </select>
-            <select class="filter-select" [value]="featureFilter()" (change)="onFeatureFilter($event)">
-              <option value="">Todos los módulos</option>
-              @for (f of featureOptions(); track f) {
-                <option [value]="f">{{ f }}</option>
-              }
-            </select>
-          </div>
+            </div>
+          }
         </div>
 
         @if (activeTab() === 'feed') {
           @if (filteredInsights().length === 0) {
-            <div class="empty-state">
-              <lucide-icon name="brain-circuit" size="48"></lucide-icon>
-              <h3>Sin eventos todavía</h3>
-              <p>
-                Usa <strong>Buddy</strong> en cualquier módulo: cada chat, workflow, delegación y feedback se registra aquí automáticamente.
-              </p>
-              @if (summary()?.lastInsightAt) {
-                <p class="empty-hint">Último evento: {{ summary()!.lastInsightAt | date: 'short' }}</p>
-              }
+            <div class="empty-state empty-state--filters">
+              <lucide-icon name="search-x" size="40"></lucide-icon>
+              <h3>Sin resultados</h3>
+              <p>No hay eventos que coincidan con los filtros actuales.</p>
+              <ui-button variant="outline" size="sm" (clicked)="clearFilters()">Limpiar filtros</ui-button>
             </div>
           } @else {
             <div class="feed-list">
@@ -195,6 +256,9 @@ const EVENT_LABELS: Record<string, string> = {
         }
 
         @if (activeTab() === 'training') {
+          @if (tabLoading() === 'training') {
+            <div class="tab-loading"><ui-loader message="Preparando dataset…"></ui-loader></div>
+          } @else {
           <ui-card class="training-panel">
             <div class="panel-head">
               <div>
@@ -237,9 +301,13 @@ const EVENT_LABELS: Record<string, string> = {
               <p class="dataset-meta">Generado: {{ trainingGeneratedAt() | date: 'medium' }} · {{ trainingRows().length }} filas</p>
             }
           </ui-card>
+          }
         }
 
         @if (activeTab() === 'users') {
+          @if (tabLoading() === 'users') {
+            <div class="tab-loading"><ui-loader message="Cargando actividad por usuario…"></ui-loader></div>
+          } @else {
           <div class="users-grid">
             @if (userActivity().length === 0) {
               <div class="empty-state compact">
@@ -279,6 +347,7 @@ const EVENT_LABELS: Record<string, string> = {
                 }
               </div>
             </ui-card>
+          }
           }
         }
       }
@@ -746,6 +815,203 @@ const EVENT_LABELS: Record<string, string> = {
         font-weight: 700;
         font-variant-numeric: tabular-nums;
       }
+
+      .refresh-hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+
+      .spin {
+        animation: spin 0.9s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      .skeleton-zone {
+        padding: 0 1.5rem 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .stats-skeleton-row {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .sk-stat,
+      .sk-toolbar,
+      .sk-feed-card {
+        border-radius: 12px;
+        background: linear-gradient(
+          90deg,
+          color-mix(in srgb, var(--text-muted) 8%, transparent) 0%,
+          color-mix(in srgb, var(--text-muted) 14%, transparent) 50%,
+          color-mix(in srgb, var(--text-muted) 8%, transparent) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.2s ease-in-out infinite;
+      }
+
+      .sk-stat {
+        height: 88px;
+      }
+
+      .sk-toolbar {
+        height: 44px;
+        margin-bottom: 1rem;
+        max-width: 720px;
+      }
+
+      .sk-feed-card {
+        height: 120px;
+        margin-bottom: 0.65rem;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+      }
+
+      .onboarding-panel {
+        max-width: 640px;
+        margin: 0.5rem auto 3rem;
+        padding: 2rem 1.75rem;
+        text-align: center;
+        border-radius: 20px;
+        border: 1px solid color-mix(in srgb, var(--brand) 22%, var(--border-soft));
+        background: color-mix(in srgb, var(--surface) 92%, var(--brand) 4%);
+        box-shadow: 0 12px 40px -24px color-mix(in srgb, var(--brand) 35%, transparent);
+      }
+
+      .onboarding-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: color-mix(in srgb, var(--brand) 14%, transparent);
+        color: var(--brand);
+      }
+
+      .onboarding-panel h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.35rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .onboarding-lead {
+        margin: 0 0 1.25rem;
+        font-size: 0.9rem;
+        line-height: 1.55;
+        color: var(--text-muted);
+      }
+
+      .onboarding-steps {
+        list-style: none;
+        margin: 0 0 1.5rem;
+        padding: 0;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .onboarding-steps li {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+        padding: 0.75rem 0.85rem;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
+        border: 1px solid var(--border-soft);
+        font-size: 0.85rem;
+        line-height: 1.45;
+        color: var(--text-secondary);
+      }
+
+      .step-num {
+        flex-shrink: 0;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.72rem;
+        font-weight: 800;
+        background: color-mix(in srgb, var(--brand) 18%, transparent);
+        color: var(--brand);
+      }
+
+      .onboarding-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        justify-content: center;
+      }
+
+      .onboarding-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--border-soft);
+        background: var(--surface);
+        color: var(--text-primary);
+        font-size: 0.8125rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+
+      .onboarding-btn--primary {
+        background: var(--brand);
+        border-color: color-mix(in srgb, var(--brand) 80%, #000);
+        color: var(--text-on-brand, #fff);
+      }
+
+      .onboarding-btn:hover {
+        border-color: color-mix(in srgb, var(--brand) 40%, var(--border-soft));
+      }
+
+      .filter-clear {
+        padding: 0.4rem 0.65rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-soft);
+        background: transparent;
+        color: var(--brand);
+        font-size: 0.8125rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .empty-state--filters {
+        padding: 2.5rem 1.5rem;
+      }
+
+      .tab-loading {
+        display: flex;
+        justify-content: center;
+        padding: 3rem 1rem;
+      }
+
+      @media (max-width: 900px) {
+        .stats-skeleton-row {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
     `,
   ],
 })
@@ -771,12 +1037,36 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   userActivity = signal<AiInsightUserActivityDto[]>([]);
 
   loading = signal(true);
+  initialLoading = signal(true);
+  refreshing = signal(false);
+  tabLoading = signal<InsightsTab | null>(null);
   liveRefresh = signal(true);
   searchTerm = signal('');
   activeTab = signal<InsightsTab>('feed');
   eventFilter = signal('');
   featureFilter = signal('');
   userFilter = signal('');
+
+  readonly skeletonSlots = [1, 2, 3, 4] as const;
+  readonly skeletonFeedSlots = [1, 2, 3] as const;
+
+  hasData = computed(
+    () =>
+      this.insights().length > 0 || (this.summary()?.total ?? 0) > 0,
+  );
+
+  hasActiveFilters = computed(
+    () =>
+      !!this.searchTerm().trim() ||
+      !!this.eventFilter() ||
+      !!this.featureFilter() ||
+      !!this.userFilter(),
+  );
+
+  showOnboarding = computed(
+    () =>
+      !this.initialLoading() && !this.hasData() && !this.hasActiveFilters(),
+  );
 
   filteredInsights = computed(() => {
     const term = this.searchTerm().toLowerCase().trim();
@@ -813,14 +1103,14 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   private unsubscribeBc: (() => void) | null = null;
 
   ngOnInit() {
-    void this.refreshAll();
+    void this.refreshAll(false);
     this.unsubscribeBc = this.insightsApi.subscribeToLiveUpdates(() => {
-      void this.refreshAll(false);
+      void this.refreshAll(true);
     });
     interval(15_000)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
-        if (this.liveRefresh()) void this.refreshAll(false);
+        if (this.liveRefresh()) void this.refreshAll(true);
       });
   }
 
@@ -828,34 +1118,91 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
     this.unsubscribeBc?.();
   }
 
-  async refreshAll(showLoader = true) {
-    if (showLoader) this.loading.set(true);
+  async refreshAll(silent = false) {
+    if (!silent) {
+      if (this.insights().length === 0 && !this.summary()) {
+        this.initialLoading.set(true);
+      } else {
+        this.refreshing.set(true);
+      }
+    }
+    this.loading.set(true);
+
+    const eventType = this.eventFilter() || undefined;
+    const feature = this.featureFilter() || undefined;
+
     try {
-      const eventType = this.eventFilter() || undefined;
-      const feature = this.featureFilter() || undefined;
-      const [list, sum, dataset, users] = await Promise.all([
-        firstValueFrom(
-          this.insightsApi.list({
-            limit: 150,
-            eventType,
-            feature,
-            userId: this.userFilter() || undefined,
-          }),
-        ),
-        firstValueFrom(this.insightsApi.getSummary()),
-        firstValueFrom(this.insightsApi.getTrainingDataset({ limit: 300, eventType })),
-        firstValueFrom(this.insightsApi.getUserActivity()),
-      ]);
+      const list = await firstValueFrom(
+        this.insightsApi.list({
+          limit: 80,
+          eventType,
+          feature,
+          userId: this.userFilter() || undefined,
+        }),
+      );
       this.insights.set(list ?? []);
-      this.summary.set(sum);
-      this.trainingRows.set(dataset?.rows ?? []);
-      this.trainingGeneratedAt.set(dataset?.generatedAt ?? null);
-      this.userActivity.set(users ?? []);
+      this.initialLoading.set(false);
+
+      void firstValueFrom(this.insightsApi.getSummary()).then((sum) => {
+        this.summary.set(sum);
+      });
+
+      if (this.activeTab() === 'training') {
+        void this.loadTrainingData();
+      } else if (this.activeTab() === 'users') {
+        void this.loadUserActivity();
+      }
     } catch (e) {
       console.error('[AiInsights]', e);
+      this.initialLoading.set(false);
     } finally {
       this.loading.set(false);
+      this.refreshing.set(false);
     }
+  }
+
+  selectTab(tab: InsightsTab) {
+    this.activeTab.set(tab);
+    if (tab === 'training' && this.trainingRows().length === 0) {
+      void this.loadTrainingData();
+    }
+    if (tab === 'users' && this.userActivity().length === 0) {
+      void this.loadUserActivity();
+    }
+  }
+
+  async loadTrainingData() {
+    this.tabLoading.set('training');
+    try {
+      const dataset = await firstValueFrom(
+        this.insightsApi.getTrainingDataset({
+          limit: 300,
+          eventType: this.eventFilter() || undefined,
+        }),
+      );
+      this.trainingRows.set(dataset?.rows ?? []);
+      this.trainingGeneratedAt.set(dataset?.generatedAt ?? null);
+    } finally {
+      this.tabLoading.set(null);
+    }
+  }
+
+  async loadUserActivity() {
+    this.tabLoading.set('users');
+    try {
+      const users = await firstValueFrom(this.insightsApi.getUserActivity());
+      this.userActivity.set(users ?? []);
+    } finally {
+      this.tabLoading.set(null);
+    }
+  }
+
+  clearFilters() {
+    this.searchTerm.set('');
+    this.eventFilter.set('');
+    this.featureFilter.set('');
+    this.userFilter.set('');
+    void this.refreshAll(true);
   }
 
   toggleLiveRefresh() {
@@ -864,18 +1211,19 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
 
   onEventFilter(ev: Event) {
     this.eventFilter.set((ev.target as HTMLSelectElement).value);
-    void this.refreshAll(false);
+    void this.refreshAll(true);
+    if (this.activeTab() === 'training') void this.loadTrainingData();
   }
 
   onFeatureFilter(ev: Event) {
     this.featureFilter.set((ev.target as HTMLSelectElement).value);
-    void this.refreshAll(false);
+    void this.refreshAll(true);
   }
 
   filterByUser(userId: string) {
     this.userFilter.set(userId);
     this.activeTab.set('feed');
-    void this.refreshAll(false);
+    void this.refreshAll(true);
   }
 
   exportTrainingJson() {
