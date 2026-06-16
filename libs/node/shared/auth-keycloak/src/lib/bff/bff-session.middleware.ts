@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware, Logger, Inject } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { BFF_SESSION_STORE, BffSessionStorePort } from './bff-session.store';
 import { ERP_BFF_COOKIE_NAMES, PLATFORM_BFF_COOKIE_NAMES } from './bff-session.entity';
-import { readCookie } from './bff-cookie.util';
+import { readCookie, clearBffSessionCookies } from './bff-cookie.util';
 
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
@@ -64,6 +64,7 @@ export class BffSessionMiddleware implements NestMiddleware {
         }
       } else {
         this.logger.debug(`Stale BFF session cookie: ${sessionId}`);
+        clearBffSessionCookies(res, cookieNames);
       }
     }
 

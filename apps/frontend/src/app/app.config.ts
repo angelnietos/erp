@@ -12,6 +12,7 @@ import {
   authInterceptor,
   tenantInterceptor,
   sessionExpiryInterceptor,
+  provideBffSessionKeepalive,
   AuthService,
   AuthStore,
   AUTH_KEYCLOAK_CONFIG,
@@ -224,6 +225,7 @@ export const appConfig: ApplicationConfig = {
       apiPrefix: '/api',
       defaultTenantSlug: 'josanz',
     }),
+    provideBffSessionKeepalive(),
     { provide: ERP_BFF_AUTH, useExisting: BffAuthClient },
     {
       provide: ERP_AUTH_SESSION_MODE,

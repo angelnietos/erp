@@ -29,7 +29,10 @@ export { UsersService } from './lib/services/users.service';
 // Interceptors
 export { authInterceptor } from './lib/interceptors/auth.interceptor';
 export { tenantInterceptor } from './lib/interceptors/tenant.interceptor';
-export { sessionExpiryInterceptor } from './lib/interceptors/session-expiry.interceptor';
+export { sessionExpiryInterceptor, resetSessionInvalidationGuard } from './lib/interceptors/session-expiry.interceptor';
+
+// Session keepalive (BFF)
+export { provideBffSessionKeepalive } from './lib/providers/bff-session-keepalive.provider';
 
 // Guards
 export { erpAuthGuard } from './lib/guards/erp-auth.guard';

@@ -19,9 +19,21 @@ export const BFF_SESSION_STORE = Symbol('BFF_SESSION_STORE');
 
 const KEY_PREFIX = 'bff:session:';
 
+/** En dev, sobrevive al hot-reload de Nest (mismo proceso). */
+function devSessionBackingStore(): Map<string, BffSessionRecord> {
+  const g = globalThis as typeof globalThis & {
+    __josanzBffSessions?: Map<string, BffSessionRecord>;
+  };
+  g.__josanzBffSessions ??= new Map();
+  return g.__josanzBffSessions;
+}
+
 @Injectable()
 export class InMemoryBffSessionStore implements BffSessionStorePort, OnModuleDestroy {
-  private readonly sessions = new Map<string, BffSessionRecord>();
+  private readonly sessions =
+    process.env['NODE_ENV'] === 'production'
+      ? new Map<string, BffSessionRecord>()
+      : devSessionBackingStore();
 
   async create(session: Omit<BffSessionRecord, 'id' | 'createdAt'>): Promise<BffSessionRecord> {
     const record: BffSessionRecord = {
@@ -75,7 +87,9 @@ export class InMemoryBffSessionStore implements BffSessionStorePort, OnModuleDes
   }
 
   onModuleDestroy(): void {
-    this.sessions.clear();
+    if (process.env['NODE_ENV'] === 'production') {
+      this.sessions.clear();
+    }
   }
 }
 

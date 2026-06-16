@@ -65,6 +65,10 @@ export class BffAuthController {
       ['PlatformOwner', 'PlatformAdmin'].includes(r),
     );
     if (user && isPlatAdmin) {
+      if (req.bffSessionId && req.headers.authorization?.startsWith('Bearer ')) {
+        const token = req.headers.authorization.slice(7);
+        await this.bffAuth.touchErpSession(req.bffSessionId, token);
+      }
       return {
         user: {
           id: userId,
@@ -82,6 +86,9 @@ export class BffAuthController {
       throw new UnauthorizedException('Invalid session context');
     }
     const session = await this.authService.refreshSession(userId, tenantId);
+    if (req.bffSessionId) {
+      await this.bffAuth.touchErpSession(req.bffSessionId, session.accessToken);
+    }
     return {
       user: session.user,
       tenantId: session.tenantId,
@@ -122,6 +129,9 @@ export class BffPlatformAuthController {
       throw new UnauthorizedException('Invalid session context');
     }
     const session = await this.authService.refreshPlatformSession(userId);
+    if (req.bffSessionId) {
+      await this.bffAuth.touchPlatformSession(req.bffSessionId, session.accessToken);
+    }
     return { user: session.user, csrfToken: req.bffCsrfToken };
   }
 

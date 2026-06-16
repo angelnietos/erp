@@ -10,6 +10,7 @@ import {
 } from '../services/auth.service';
 import { syncErpTenantHtmlTheme } from '../utils/erp-tenant-theme';
 import { resolvePostLoginPath } from '../utils/post-login-navigation';
+import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.interceptor';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
@@ -63,6 +64,7 @@ export const AuthStore = signalStore(
       login: rxMethod<{ email: string; password: string; tenantSlug?: string }>(
         pipe(
           tap(() => {
+            resetSessionInvalidationGuard();
             tenantModulesRealtime.disconnect();
             authService.clearSessionForRelogin();
             globalAuthStore.logout();
@@ -169,6 +171,7 @@ export const AuthStore = signalStore(
       logout() {
         tenantModulesRealtime.disconnect();
         authService.logout().subscribe(() => {
+          resetSessionInvalidationGuard();
           patchState(store, {
             user: null,
             authMode: 'none',

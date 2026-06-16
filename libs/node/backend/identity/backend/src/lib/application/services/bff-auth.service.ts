@@ -79,7 +79,6 @@ export class BffAuthService {
         if (token) {
           accessToken = token.accessToken;
           refreshToken = token.refreshToken;
-          expiresAt = Date.now() + token.expiresIn * 1000;
           authMode = 'keycloak';
         }
       }
@@ -122,6 +121,8 @@ export class BffAuthService {
     }
 
     const csrf = this.newCsrf();
+    const sessionTtlMs = this.sessionMaxAgeMs();
+    expiresAt = Date.now() + sessionTtlMs;
     const session = await this.sessions.create({
       kind: authMode === 'keycloak' ? 'keycloak' : 'local',
       accessToken,
@@ -132,7 +133,7 @@ export class BffAuthService {
       csrfToken: csrf,
     });
 
-    setBffSessionCookies(res, ERP_BFF_COOKIE_NAMES, session.id, csrf, this.sessionMaxAgeMs());
+    setBffSessionCookies(res, ERP_BFF_COOKIE_NAMES, session.id, csrf, sessionTtlMs);
 
     return {
       user: enriched.user,
@@ -169,7 +170,6 @@ export class BffAuthService {
         if (token) {
           accessToken = token.accessToken;
           refreshToken = token.refreshToken;
-          expiresAt = Date.now() + token.expiresIn * 1000;
           authMode = 'keycloak';
         }
       }
@@ -192,6 +192,8 @@ export class BffAuthService {
     }
 
     const csrf = this.newCsrf();
+    const sessionTtlMs = this.sessionMaxAgeMs();
+    expiresAt = Date.now() + sessionTtlMs;
     const session = await this.sessions.create({
       kind: 'platform',
       accessToken,
@@ -200,9 +202,26 @@ export class BffAuthService {
       csrfToken: csrf,
     });
 
-    setBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES, session.id, csrf, this.sessionMaxAgeMs());
+    setBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES, session.id, csrf, sessionTtlMs);
 
     return { user: enriched.user, authMode, csrfToken: csrf };
+  }
+
+  /** Renueva JWT en la sesión BFF (p. ej. tras GET /bff/auth/session). */
+  async touchErpSession(sessionId: string, accessToken: string): Promise<void> {
+    const ttlMs = this.sessionMaxAgeMs();
+    await this.sessions.update(sessionId, {
+      accessToken,
+      expiresAt: Date.now() + ttlMs,
+    });
+  }
+
+  async touchPlatformSession(sessionId: string, accessToken: string): Promise<void> {
+    const ttlMs = this.sessionMaxAgeMs();
+    await this.sessions.update(sessionId, {
+      accessToken,
+      expiresAt: Date.now() + ttlMs,
+    });
   }
 
   async logoutErp(

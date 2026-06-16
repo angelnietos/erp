@@ -8,6 +8,11 @@ import { AuthService } from '../services/auth.service';
 
 let sessionInvalidationInProgress = false;
 
+/** Permite volver a invalidar sesión tras un nuevo login. */
+export function resetSessionInvalidationGuard(): void {
+  sessionInvalidationInProgress = false;
+}
+
 const AUTH_EXEMPT_URL_PARTS = [
   '/bff/auth/login',
   '/bff/auth/logout',
