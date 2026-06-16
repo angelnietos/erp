@@ -12,9 +12,11 @@ html[data-erp-tenant='babooni'] {
   --babooni-muted: var(--text-muted, #64748b);
   --babooni-accent: var(--brand, #7c3aed);
   --babooni-accent-muted: #a78bfa;
-  --babooni-shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --babooni-shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --babooni-glow: rgba(124, 58, 237, 0.08);
+  --babooni-shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.06);
+  --babooni-shadow-medium: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --babooni-glow: color-mix(in srgb, var(--brand) 12%, transparent);
+  --feature-page-gap: 1.25rem;
+  --feature-page-padding: 0 clamp(0.75rem, 2vw, 1.25rem) 2rem;
   /**
    * Enhanced radius system for modern look with better proportions.
    */
@@ -77,6 +79,51 @@ html[data-erp-tenant='babooni'] .prefs-container {
   box-sizing: border-box;
 }
 
+/* Ritmo vertical coherente en todas las vistas feature */
+html[data-erp-tenant='babooni'] .feature-page-shell {
+  min-height: unset;
+  gap: var(--feature-page-gap);
+  padding: var(--feature-page-padding);
+}
+
+/* ── Cabecera pageHero (Proyectos, Eventos, …) ── */
+html[data-erp-tenant='babooni'] ui-feature-header .page-hero-header {
+  border-bottom-color: color-mix(in srgb, var(--babooni-border) 90%, transparent) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-header .page-hero-header .page-title {
+  background: none !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* ── Botones ghost en barras de filtro (Actualizar, Filtros, Ordenar) ── */
+html[data-erp-tenant='babooni'] ui-feature-filter-bar ui-button .btn-shape-ghost {
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--text-secondary) !important;
+  border-radius: 8px !important;
+  padding: 0.4rem 0.7rem !important;
+  min-height: 2rem !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-filter-bar ui-button .btn-shape-ghost:hover {
+  transform: none !important;
+  background: color-mix(in srgb, var(--brand) 7%, var(--surface)) !important;
+  color: color-mix(in srgb, var(--brand) 72%, var(--text-primary)) !important;
+  border-color: color-mix(in srgb, var(--brand) 16%, var(--babooni-border)) !important;
+  box-shadow: none !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-filter-bar ui-button .btn-shape-ghost.active,
+html[data-erp-tenant='babooni'] ui-feature-filter-bar ui-button.active .btn-shape-ghost {
+  background: color-mix(in srgb, var(--brand) 10%, var(--surface)) !important;
+  color: color-mix(in srgb, var(--brand) 80%, var(--text-primary)) !important;
+  border-color: color-mix(in srgb, var(--brand) 24%, var(--babooni-border)) !important;
+}
+
 /* ── Enhanced Cabecera de módulo (ui-feature-header) — modern design ── */
 html[data-erp-tenant='babooni'] ui-feature-header .header-content {
   background: var(--babooni-surface) !important;
@@ -91,14 +138,15 @@ html[data-erp-tenant='babooni'] ui-feature-header .header-content:hover {
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .main-title {
-  background: linear-gradient(135deg, var(--babooni-ink-soft), var(--babooni-accent)) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  color: var(--text-primary) !important;
   font-weight: 700 !important;
-  font-size: 1.65rem !important;
-  letter-spacing: -0.03em !important;
-  text-shadow: 0 0 20px var(--babooni-glow) !important;
+  font-size: clamp(1.35rem, 1.2vw + 0.9rem, 1.65rem) !important;
+  letter-spacing: -0.025em !important;
+  text-shadow: none !important;
 }
 
 html[data-erp-tenant='babooni'] ui-feature-header .subtitle {
@@ -155,9 +203,9 @@ html[data-erp-tenant='babooni'] ui-stat-card .stat-card::before {
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover {
-  transform: translateY(-3px) scale(1.01) !important;
-  border-color: rgba(124, 58, 237, 0.2) !important;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 0 20px var(--babooni-glow) !important;
+  transform: translateY(-2px) !important;
+  border-color: color-mix(in srgb, var(--brand) 22%, var(--babooni-border)) !important;
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.1) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-stat-card .stat-card:hover::before {
@@ -218,8 +266,14 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-default:not(.tabs-underline) .tab-
 
 /* Pestañas underline junto a la barra */
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline {
-  border-bottom-color: color-mix(in srgb, var(--border-soft) 80%, #e6e6e6) !important;
-  gap: 10px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  background: color-mix(in srgb, var(--bg-tertiary, #f4f4f5) 92%, var(--surface)) !important;
+  border: 1px solid var(--babooni-border) !important;
+  border-radius: 999px !important;
+  padding: 4px !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+  gap: 4px !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
@@ -227,17 +281,35 @@ html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item {
   font-weight: 600 !important;
   font-size: 0.8125rem !important;
   text-transform: none !important;
-  letter-spacing: 0.02em !important;
+  letter-spacing: 0.01em !important;
+  border-radius: 999px !important;
+  flex: 1 1 auto;
+  justify-content: center;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active {
-  color: var(--brand) !important;
+  color: var(--text-primary) !important;
+  background: var(--surface, #fff) !important;
+  border: 1px solid color-mix(in srgb, var(--babooni-border) 85%, transparent) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
 }
 
 html[data-erp-tenant='babooni'] ui-tabs .tabs-underline .tab-item.active .active-indicator {
-  background: var(--brand) !important;
-  height: 3px !important;
-  border-radius: 2px 2px 0 0;
+  display: none !important;
+}
+
+/* Tarjetas de listado (ui-feature-card) */
+html[data-erp-tenant='babooni'] ui-feature-card .feature-card {
+  border-radius: 14px !important;
+  box-shadow: var(--babooni-shadow-medium) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-card .feature-card:hover {
+  box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.1) !important;
+}
+
+html[data-erp-tenant='babooni'] ui-feature-grid .feature-grid {
+  gap: 1.25rem !important;
 }
 
 /* ── Enhanced Estados vacíos en grillas de módulo ── */

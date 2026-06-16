@@ -274,23 +274,39 @@ export type TabsVariant =
         transform: none;
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: none;
-        letter-spacing: 0.02em;
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline {
+        width: 100%;
+        max-width: 100%;
+        background: color-mix(in srgb, var(--bg-tertiary, #f4f4f5) 92%, var(--surface));
+        border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
+        border-radius: 999px;
+        padding: 4px;
+        gap: 4px;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
       }
 
-      :host-context(html[data-erp-tenant='babooni']) .tabs-underline {
-        background: color-mix(in srgb, var(--surface) 68%, transparent);
-        border-color: color-mix(in srgb, var(--border-soft, rgba(8, 8, 8, 0.1)) 85%, transparent);
-        box-shadow: 0 4px 10px -10px rgba(0, 0, 0, 0.2);
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item {
+        flex: 1 1 auto;
+        justify-content: center;
+        border-radius: 999px;
+        min-height: 2.125rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.01em;
+        color: var(--text-muted);
+      }
+
+      :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item:hover {
+        color: var(--text-primary);
+        background: color-mix(in srgb, var(--surface) 70%, transparent);
       }
 
       :host-context(html[data-erp-tenant='babooni']) .tabs-underline .tab-item.active {
-        background: color-mix(in srgb, var(--brand) 18%, var(--surface));
-        border-color: color-mix(in srgb, var(--brand) 35%, transparent);
-        color: color-mix(in srgb, var(--brand) 70%, var(--text-primary) 30%);
+        color: var(--text-primary);
+        background: var(--surface, #fff);
+        border: 1px solid color-mix(in srgb, var(--border-soft) 75%, transparent);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
       }
     `,
   ],

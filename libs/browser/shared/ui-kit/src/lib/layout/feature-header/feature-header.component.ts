@@ -167,29 +167,57 @@ export type UiFeatureHeaderLayout = 'card' | 'pageHero';
       font-weight: 700;
     }
 
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header {
+      margin-bottom: 1rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 85%, transparent);
+      align-items: center;
+    }
+
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .page-title {
-      font-size: clamp(1.5rem, 1.2vw + 1rem, 2rem);
+      font-size: clamp(1.5rem, 1.4vw + 1rem, 2rem);
       font-weight: 700;
       text-transform: none;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.025em;
       text-shadow: none !important;
       -webkit-text-fill-color: var(--text-primary);
       color: var(--text-primary);
-      margin-bottom: 0.15rem;
+      margin-bottom: 0.2rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb {
-      font-size: 0.72rem;
+      font-size: 0.6875rem;
       font-weight: 600;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       gap: 6px;
+      color: var(--text-muted);
     }
 
-    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb-single span {
-      font-size: 0.85rem;
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .breadcrumb .active {
+      color: color-mix(in srgb, var(--brand) 80%, var(--text-primary));
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header .hero-subtitle {
+      font-size: 0.875rem;
       font-weight: 500;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+      line-height: 1.5;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header ::ng-deep ui-button.primary-action .btn {
       text-transform: none;
+      letter-spacing: 0.02em;
+      font-weight: 600;
+      border-radius: 999px;
+      min-height: 2.625rem;
+      padding: 0.625rem 1.35rem;
+      font-size: 0.875rem;
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .page-hero-header ::ng-deep ui-button.primary-action .btn:hover {
+      transform: translateY(-1px);
     }
 
     .feature-header {

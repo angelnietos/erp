@@ -131,7 +131,7 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     :host-context(html[data-erp-tenant='babooni']) {
-      padding: 0 clamp(0.75rem, 2vw, 1.25rem);
+      padding: 0;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .stats-wrapper {
@@ -139,29 +139,33 @@ import { LucideAngularModule } from 'lucide-angular';
     }
 
     :host-context(html[data-erp-tenant='babooni']) .stats-grid {
-      gap: var(--feature-page-gap, 1rem);
+      gap: 1rem;
       grid-template-columns: repeat(auto-fit, minmax(var(--stat-grid-min-width, 240px), 1fr));
     }
 
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn {
-      background: color-mix(in srgb, var(--surface) 80%, transparent);
-      backdrop-filter: blur(8px);
-      border: 1px solid color-mix(in srgb, var(--border-soft) 60%, transparent);
+      background: color-mix(in srgb, var(--bg-tertiary, #f4f4f5) 90%, var(--surface));
+      backdrop-filter: none;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 80%, transparent);
       border-radius: 999px;
-      padding: 6px 18px;
-      color: var(--text-primary);
+      padding: 0.35rem 0.9rem;
+      color: var(--text-muted);
       font-size: 0.75rem;
       font-weight: 600;
-      letter-spacing: 0.02em;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      letter-spacing: 0.01em;
+      box-shadow: none;
     }
+
     :host-context(html[data-erp-tenant='babooni']) .collapse-btn:hover {
-      background: var(--surface-hover, color-mix(in srgb, var(--surface) 90%, var(--text-primary)));
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+      background: var(--surface);
+      border-color: color-mix(in srgb, var(--brand) 28%, var(--border-soft));
+      color: color-mix(in srgb, var(--brand) 75%, var(--text-primary));
+      transform: none;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
     }
+
     :host-context(html[data-erp-tenant='babooni']) .header-line {
-      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--bb-border) 40%, transparent), transparent);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--border-soft) 70%, transparent), transparent);
     }
 
     @media (prefers-reduced-motion: reduce) {

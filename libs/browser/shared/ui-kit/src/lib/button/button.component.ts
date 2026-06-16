@@ -19,6 +19,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       [attr.aria-label]="ariaLabel ?? null"
       [attr.title]="title ?? null"
       [attr.aria-busy]="loading ? true : null"
+      [class.btn-sm]="size === 'sm'"
+      [class.btn-md]="size === 'md'"
+      [class.btn-lg]="size === 'lg'"
       [class.btn-compact]="actualDensity === 'compact'"
       [class.btn-wide]="actualDensity === 'wide'"
       [class.btn-color-primary]="color === 'primary'"
@@ -100,9 +103,9 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       filter: brightness(0.9);
     }
 
-    .btn-sm { padding: 0.5rem 1rem; font-size: 0.7rem; }
-    .btn-md { padding: 0.875rem 1.75rem; font-size: 0.75rem; }
-    .btn-lg { padding: 1.25rem 2.5rem; font-size: 0.85rem; }
+    .btn-sm { padding: 0.45rem 0.85rem; font-size: 0.8125rem; min-height: 2rem; }
+    .btn-md { padding: 0.625rem 1.25rem; font-size: 0.875rem; min-height: 2.5rem; }
+    .btn-lg { padding: 0.875rem 1.75rem; font-size: 0.9375rem; min-height: 2.75rem; }
 
     /* Density Overrides */
     .btn-compact { 
@@ -309,37 +312,69 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
 
     :host-context(html[data-erp-tenant='babooni']) .btn {
       text-transform: none;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
       font-weight: 600;
-      border-radius: 10px;
+      border-radius: var(--btn-radius, 8px);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .btn:active {
+      transform: scale(0.98);
+      filter: brightness(0.97);
     }
     
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid,
-    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto {
-      background: linear-gradient(135deg, var(--brand) 0%, color-mix(in srgb, var(--brand) 72%, #0a0a0a) 100%);
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-primary.btn-shape-solid,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-primary.btn-shape-auto {
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--brand) 92%, #fff) 0%,
+        color-mix(in srgb, var(--brand) 78%, #0f172a) 100%
+      );
       color: #fff;
-      border: 1px solid color-mix(in srgb, var(--brand) 42%, rgba(255, 255, 255, 0.1));
+      border: 1px solid color-mix(in srgb, var(--brand) 55%, rgba(255, 255, 255, 0.12));
       box-shadow:
-        0 4px 18px color-mix(in srgb, var(--brand) 32%, transparent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        0 1px 2px rgba(15, 23, 42, 0.06),
+        0 6px 18px -4px color-mix(in srgb, var(--brand) 38%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.14);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-solid:hover,
-    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto:hover {
-      background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 95%, #fff) 0%, var(--brand) 100%);
-      filter: brightness(1.05);
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-app.btn-shape-auto:hover,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-primary.btn-shape-solid:hover,
+    :host-context(html[data-erp-tenant='babooni']) .btn-color-primary.btn-shape-auto:hover {
+      background: linear-gradient(
+        160deg,
+        color-mix(in srgb, var(--brand) 98%, #fff) 0%,
+        color-mix(in srgb, var(--brand) 85%, #0f172a) 100%
+      );
+      filter: none;
       transform: translateY(-1px);
-      box-shadow: 0 6px 22px color-mix(in srgb, var(--brand) 38%, transparent);
+      box-shadow:
+        0 2px 4px rgba(15, 23, 42, 0.08),
+        0 10px 24px -6px color-mix(in srgb, var(--brand) 42%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .btn-lg.btn-color-app,
+    :host-context(html[data-erp-tenant='babooni']) .btn-lg.btn-color-primary {
+      border-radius: 999px;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger) {
-      color: color-mix(in srgb, var(--text-primary) 70%, var(--brand) 30%);
-      background: color-mix(in srgb, var(--brand) 4%, transparent);
+      color: var(--text-secondary);
+      background: transparent;
+      border: 1px solid transparent;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-shape-ghost:not(.btn-color-danger):hover {
-      background: color-mix(in srgb, var(--brand) 10%, transparent);
-      color: var(--brand);
+      background: color-mix(in srgb, var(--brand) 8%, var(--surface, #fff));
+      color: color-mix(in srgb, var(--brand) 75%, var(--text-primary));
+      border-color: color-mix(in srgb, var(--brand) 18%, var(--border-soft));
+      transform: none;
+      box-shadow: none;
     }
 
     :host-context(html[data-erp-tenant='babooni']) .btn-color-danger.btn-shape-ghost {

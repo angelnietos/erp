@@ -58,7 +58,12 @@ import type { SearchVariant } from '../search/search.component';
       align-items: stretch;
       gap: 0.85rem;
       width: 100%;
-      margin-bottom: 2.5rem;
+      margin-bottom: var(--filter-bar-margin, 2.5rem);
+    }
+
+    :host-context(html[data-erp-tenant='babooni']) .feature-filter-bar {
+      --filter-bar-margin: 1.25rem;
+      gap: 0.65rem;
     }
 
     .feature-filter-bar--framed {

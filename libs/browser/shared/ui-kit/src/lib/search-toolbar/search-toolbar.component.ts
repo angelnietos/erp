@@ -56,7 +56,7 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
     }
 
     .search-toolbar--feature {
-      border-radius: 18px;
+      border-radius: var(--toolbar-radius, 14px);
       border: 1px solid color-mix(in srgb, var(--toolbar-bar-border) 88%, transparent);
       background: color-mix(in srgb, var(--theme-surface, #141722) 78%, transparent);
       backdrop-filter: blur(16px);
@@ -119,16 +119,16 @@ export type SearchToolbarAppearance = 'feature' | 'minimal';
 
     .search-toolbar--feature .search-toolbar__actions ::ng-deep .btn {
       --btn-accent: var(--brand);
-      border-radius: 999px;
+      border-radius: var(--toolbar-action-radius, 999px);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature {
+      --toolbar-radius: 12px;
+      --toolbar-action-radius: 8px;
       background: var(--input-bg, var(--surface-vibrant, var(--surface)));
-      border-color: var(--input-border, color-mix(in srgb, var(--border-soft) 40%, transparent));
-      box-shadow: 
-        var(--input-shadow, var(--shadow-sm)),
-        inset 0 1px 0 var(--surface-glow);
-      backdrop-filter: blur(10px);
+      border-color: var(--input-border, color-mix(in srgb, var(--border-soft) 55%, transparent));
+      box-shadow: var(--input-shadow, var(--shadow-sm));
+      backdrop-filter: blur(8px);
     }
 
     :host-context(html[data-erp-tenant='babooni']) .search-toolbar--feature:focus-within {
