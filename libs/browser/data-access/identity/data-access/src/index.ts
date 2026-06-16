@@ -10,6 +10,13 @@ export {
   type IdentityAuthMeta,
   type IdentityAuthMode,
 } from './lib/services/auth.service';
+export {
+  ERP_BFF_AUTH,
+  ERP_AUTH_SESSION_MODE,
+  type ErpBffAuthPort,
+  type ErpBffLoginResult,
+  type ErpAuthSessionMode,
+} from './lib/ports/erp-bff-auth.port';
 export { resolvePostLoginPath } from './lib/utils/post-login-navigation';
 export {
   getErpTenantSlug,

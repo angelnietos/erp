@@ -8,7 +8,11 @@ import {
   UserPayload,
 } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
-import { BffAuthClient, ENTERPRISE_AUTH_CONFIG } from '@josanz-erp/shared-auth-keycloak';
+import {
+  ERP_AUTH_SESSION_MODE,
+  ERP_BFF_AUTH,
+  ErpBffLoginResult,
+} from '../ports/erp-bff-auth.port';
 
 interface KeycloakTokenResponse {
   access_token?: string;
@@ -122,14 +126,14 @@ export interface IdentityAuthMeta {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = '/api/auth';
-  private readonly bff = inject(BffAuthClient, { optional: true });
-  private readonly enterpriseAuth = inject(ENTERPRISE_AUTH_CONFIG, { optional: true });
+  private readonly bff = inject(ERP_BFF_AUTH, { optional: true });
+  private readonly authSessionMode = inject(ERP_AUTH_SESSION_MODE, { optional: true });
 
   private readonly keycloakConfig = inject(AUTH_KEYCLOAK_CONFIG, { optional: true });
 
   /** BFF: cookies HttpOnly + CSRF; sin JWT en localStorage. */
   isBffMode(): boolean {
-    return this.bff?.isBffMode() ?? this.enterpriseAuth?.mode === 'bff';
+    return this.bff?.isBffMode() ?? this.authSessionMode?.mode === 'bff';
   }
 
   login(
@@ -476,11 +480,7 @@ export class AuthService {
     return { user, tenantId: getStoredTenantId() ?? tenantId ?? '' };
   }
 
-  private mapBffErpResponse(res: {
-    user: UserPayload;
-    tenantId?: string;
-    tenantSlug?: string;
-  }): AuthResponse {
+  private mapBffErpResponse(res: ErpBffLoginResult): AuthResponse {
     return {
       accessToken: '',
       user: res.user,

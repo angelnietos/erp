@@ -14,6 +14,8 @@ import {
   AuthService,
   AuthStore,
   AUTH_KEYCLOAK_CONFIG,
+  ERP_BFF_AUTH,
+  ERP_AUTH_SESSION_MODE,
   TenantModulesApiService,
   TenantModulesRealtimeService,
   TENANT_MODULES_REALTIME_API_ORIGIN,
@@ -24,6 +26,7 @@ import {
 import {
   bffAuthInterceptor,
   provideEnterpriseAuth,
+  BffAuthClient,
 } from '@josanz-erp/shared-auth-keycloak';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
 import { firstValueFrom, catchError, of, tap } from 'rxjs';
@@ -207,6 +210,11 @@ export const appConfig: ApplicationConfig = {
       apiPrefix: '/api',
       defaultTenantSlug: 'josanz',
     }),
+    { provide: ERP_BFF_AUTH, useExisting: BffAuthClient },
+    {
+      provide: ERP_AUTH_SESSION_MODE,
+      useValue: { mode: environment.auth?.mode ?? 'legacy' },
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(
