@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { KeycloakService, KeycloakUser } from '../services/keycloak.service';
+import { KeycloakService } from '../services/keycloak.service';
+import { KeycloakUser } from '../models/keycloak.config';
 import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import { UserPayload } from '@josanz-erp/identity-api';
 
@@ -29,7 +30,7 @@ export class KeycloakStateService {
         id: keycloakUser.id,
         email: keycloakUser.email,
         name: displayName,
-        tenantId: keycloakUser.tenantId,
+        tenantId: keycloakUser.tenantId ?? '',
         permissions: keycloakUser.permissions,
       });
     }

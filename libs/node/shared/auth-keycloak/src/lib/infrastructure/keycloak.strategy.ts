@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
-import * as jwksClient from 'jwks-rsa';
+import jwksClient from 'jwks-rsa';
 import { KeycloakToken, ErpMappedUser } from '../domain/entities/keycloak-token.entity';
 import { mapKeycloakRolesToErp } from '../utils/role-mapper';
 

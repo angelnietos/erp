@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, map, switchMap, of, throwError, timeout } from 'rxjs';
+import { Observable, catchError, map, switchMap, of, throwError, timeout, tap } from 'rxjs';
 import {
   ALL_APP_PERMISSION_IDS,
   AuthResponse,
@@ -8,6 +8,7 @@ import {
   UserPayload,
 } from '@josanz-erp/identity-api';
 import { InjectionToken } from '@angular/core';
+import { BffAuthClient, ENTERPRISE_AUTH_CONFIG } from '@josanz-erp/shared-auth-keycloak';
 
 interface KeycloakTokenResponse {
   access_token?: string;
@@ -121,14 +122,30 @@ export interface IdentityAuthMeta {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = '/api/auth';
+  private readonly bff = inject(BffAuthClient, { optional: true });
+  private readonly enterpriseAuth = inject(ENTERPRISE_AUTH_CONFIG, { optional: true });
 
   private readonly keycloakConfig = inject(AUTH_KEYCLOAK_CONFIG, { optional: true });
+
+  /** BFF: cookies HttpOnly + CSRF; sin JWT en localStorage. */
+  isBffMode(): boolean {
+    return this.bff?.isBffMode() ?? this.enterpriseAuth?.mode === 'bff';
+  }
 
   login(
     email: string,
     password: string,
     tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
   ): Observable<AuthResponse> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.erpLogin({ email, password, tenantSlug }).pipe(
+        map((res) => {
+          this.persistAuthMeta(res.authMode, res.authMode === 'keycloak');
+          return this.mapBffErpResponse(res);
+        }),
+      );
+    }
+
     const keycloakConfig = this.keycloakConfig;
     if (keycloakConfig?.enabled) {
       const tenantCfg = KEYCLOAK_TENANT_CONFIG[tenantSlug] ?? { realm: keycloakConfig.realm, clientId: keycloakConfig.clientId };
@@ -315,6 +332,10 @@ export class AuthService {
   }
 
   refreshSession(): Observable<AuthResponse> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.erpSession().pipe(map((res) => this.mapBffErpResponse(res)));
+    }
+
     // Check if current user is a platform admin (no tenantId in token)
     const token = this.getToken();
     const isPlatformAdmin = token ? this.isPlatformAdminToken(token) : false;
@@ -337,22 +358,47 @@ export class AuthService {
     return Array.isArray(roles) && roles.includes('PlatformOwner');
   }
 
+  /** Cierra sesión BFF (cookies) o limpia token local. */
+  logout(): Observable<void> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.erpLogout().pipe(
+        tap(() => this.clearSessionForRelogin()),
+        map(() => undefined),
+        catchError(() => {
+          this.clearSessionForRelogin();
+          return of(undefined);
+        }),
+      );
+    }
+    this.clearSessionForRelogin();
+    return of(undefined);
+  }
+
   setToken(token: string): void {
+    if (this.isBffMode()) {
+      return;
+    }
     localStorage.setItem('auth_token', token);
   }
 
   getToken(): string | null {
+    if (this.isBffMode()) {
+      return null;
+    }
     return localStorage.getItem('auth_token');
   }
 
   /** Limpia credenciales previas antes de un nuevo login (p. ej. cambiar de usuario sin cerrar sesión). */
   clearSessionForRelogin(): void {
-    localStorage.removeItem('auth_token');
+    if (!this.isBffMode()) {
+      localStorage.removeItem('auth_token');
+    }
     clearStoredTenantId();
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.removeItem(IDENTITY_AUTH_MODE_SESSION_KEY);
       sessionStorage.removeItem(IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY);
     }
+    this.bff?.clearErpCsrf();
   }
 
   syncTenantIdFromAccessToken(): string | null {
@@ -373,6 +419,9 @@ export class AuthService {
   }
 
   readPersistedSession(): { user: UserPayload; tenantId: string } | null {
+    if (this.isBffMode()) {
+      return null;
+    }
     const token = this.getToken();
     if (!token) {
       return null;
@@ -425,5 +474,18 @@ export class AuthService {
       setStoredTenantId(tenantId);
     }
     return { user, tenantId: getStoredTenantId() ?? tenantId ?? '' };
+  }
+
+  private mapBffErpResponse(res: {
+    user: UserPayload;
+    tenantId?: string;
+    tenantSlug?: string;
+  }): AuthResponse {
+    return {
+      accessToken: '',
+      user: res.user,
+      tenantId: res.tenantId,
+      tenantSlug: res.tenantSlug,
+    };
   }
 }

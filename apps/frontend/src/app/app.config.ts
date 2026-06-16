@@ -21,6 +21,10 @@ import {
   syncErpTenantHtmlTheme,
   ERP_TENANT_SLUG_SESSION_KEY,
 } from '@josanz-erp/identity-data-access';
+import {
+  bffAuthInterceptor,
+  provideEnterpriseAuth,
+} from '@josanz-erp/shared-auth-keycloak';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
 import { firstValueFrom, catchError, of, tap } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
@@ -198,12 +202,18 @@ export const appConfig: ApplicationConfig = {
       provide: AUTH_KEYCLOAK_CONFIG,
       useValue: environment.keycloak || { enabled: false, url: '', realm: '', clientId: '' },
     },
+    provideEnterpriseAuth({
+      mode: environment.auth?.mode ?? 'legacy',
+      apiPrefix: '/api',
+      defaultTenantSlug: 'josanz',
+    }),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(appRoutes),
     provideHttpClient(
       withInterceptors([
         apiOriginInterceptor,
         verifactuApiKeyInterceptor,
+        bffAuthInterceptor,
         tenantInterceptor,
         authInterceptor,
       ]),
@@ -222,8 +232,7 @@ export const appConfig: ApplicationConfig = {
           authStore.refreshSession();
         });
         return async () => {
-          const token = localStorage.getItem('auth_token');
-          if (!token) {
+          if (!authService.isBffMode() && !localStorage.getItem('auth_token')) {
             pluginStore.loadFromStorage();
             return;
           }
@@ -232,7 +241,9 @@ export const appConfig: ApplicationConfig = {
               authService.refreshSession().pipe(catchError(() => of(null)))
             );
             if (response) {
-              authService.setToken(response.accessToken);
+              if (!authService.isBffMode()) {
+                authService.setToken(response.accessToken);
+              }
               if (response.tenantId) {
                 authService.setTenantId(response.tenantId);
               }

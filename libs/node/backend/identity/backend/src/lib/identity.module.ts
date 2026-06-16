@@ -4,13 +4,16 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { type StringValue } from 'ms';
+import { BffAuthModule } from '@josanz-erp/auth-keycloak';
 import { AuthController } from './presentation/controllers/auth.controller';
+import { BffAuthController, BffPlatformAuthController } from './presentation/controllers/bff-auth.controller';
 import { UsersController } from './presentation/controllers/users.controller';
 import { RolesController } from './presentation/controllers/roles.controller';
 import { TenantModulesController } from './presentation/controllers/tenant-modules.controller';
 import { PlatformTenantsController } from './presentation/controllers/platform-tenants.controller';
 import { PlatformAuthController } from './presentation/controllers/platform-auth.controller';
 import { AuthService } from './application/services/auth.service';
+import { BffAuthService } from './application/services/bff-auth.service';
 import { UsersService } from './application/services/users.service';
 import { RolesService } from './application/services/roles.service';
 import { TenantModulesService } from './application/services/tenant-modules.service';
@@ -41,6 +44,7 @@ export class IdentityModule {
       imports: [
         PassportModule,
         PrismaModule,
+        BffAuthModule.forRoot(),
         SharedInfrastructureModule,
         JwtModule.registerAsync({
           inject: [ConfigService],
@@ -56,6 +60,8 @@ export class IdentityModule {
       ],
       controllers: [
         AuthController,
+        BffAuthController,
+        BffPlatformAuthController,
         UsersController,
         RolesController,
         TenantModulesController,
@@ -64,6 +70,7 @@ export class IdentityModule {
       ],
       providers: [
         AuthService,
+        BffAuthService,
         UsersService,
         RolesService,
         TenantModulesService,

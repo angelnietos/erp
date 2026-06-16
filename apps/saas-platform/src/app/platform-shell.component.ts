@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { clearPlatformToken } from './platform-auth.interceptor';
+import { KeycloakAuthService } from './keycloak-auth.service';
 
 @Component({
   standalone: true,
@@ -221,9 +222,12 @@ import { clearPlatformToken } from './platform-auth.interceptor';
 })
 export class PlatformShellComponent {
   private readonly router = inject(Router);
+  private readonly auth = inject(KeycloakAuthService);
 
   logout(): void {
-    clearPlatformToken();
-    void this.router.navigateByUrl('/login');
+    this.auth.logout().subscribe(() => {
+      clearPlatformToken();
+      void this.router.navigateByUrl('/login');
+    });
   }
 }

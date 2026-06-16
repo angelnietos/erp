@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -55,7 +56,12 @@ function attachPublicRateLimits(app: INestApplication) {
   );
   attachSlidingWindowRateLimit(
     app,
-    '/api/auth/login',
+    '/api/bff/auth/login',
+    'RATE_LIMIT_LOGIN_PER_MINUTE',
+  );
+  attachSlidingWindowRateLimit(
+    app,
+    '/api/bff/platform/auth/login',
     'RATE_LIMIT_LOGIN_PER_MINUTE',
   );
 }
@@ -66,6 +72,7 @@ async function bootstrap() {
 
   // Security headers (ADR-009)
   app.use(helmet());
+  app.use(cookieParser());
 
   attachPublicRateLimits(app);
 

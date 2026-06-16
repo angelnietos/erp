@@ -1,6 +1,9 @@
 export const environment = {
   production: true,
   apiOrigin: '',
+  auth: {
+    mode: 'bff' as const,
+  },
   keycloak: {
     enabled: false,
     url: '',

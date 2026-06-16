@@ -427,7 +427,9 @@ export class LoginComponent {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (result) => {
-          setPlatformToken(result.accessToken);
+          if (!this.auth.isBffMode()) {
+            setPlatformToken(result.accessToken);
+          }
           this.loadingLabel.set(
             result.mode === 'keycloak'
               ? 'Entrando con Keycloak'

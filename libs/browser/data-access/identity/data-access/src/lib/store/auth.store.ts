@@ -168,19 +168,20 @@ export const AuthStore = signalStore(
 
       logout() {
         tenantModulesRealtime.disconnect();
-        authService.removeToken();
-        patchState(store, {
-          user: null,
-          authMode: 'none',
-          keycloakAvailable: null,
+        authService.logout().subscribe(() => {
+          patchState(store, {
+            user: null,
+            authMode: 'none',
+            keycloakAvailable: null,
+          });
+          globalAuthStore.logout();
+          if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
+          }
+          syncErpTenantHtmlTheme();
+          themeService.reapplyTheme();
+          void router.navigateByUrl('/auth/login', { replaceUrl: true });
         });
-        globalAuthStore.logout();
-        if (typeof sessionStorage !== 'undefined') {
-          sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
-        }
-        syncErpTenantHtmlTheme();
-        themeService.reapplyTheme();
-        void router.navigateByUrl('/auth/login', { replaceUrl: true });
       },
 
       refreshSession: rxMethod<void>(

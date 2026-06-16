@@ -1,6 +1,9 @@
 export const environment = {
   production: false,
   apiOrigin: 'http://localhost:3000',
+  auth: {
+    mode: 'bff' as const,
+  },
   keycloak: {
     enabled: true,
     url: 'http://localhost:8081',

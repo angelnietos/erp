@@ -8,6 +8,10 @@
 export const environment = {
   production: false,
   apiOrigin: 'http://localhost:3000',
+  /** `bff`: cookies HttpOnly (estándar enterprise). `legacy`: JWT en localStorage. */
+  auth: {
+    mode: 'bff' as const,
+  },
   /** Opcional: si el verifactu-api exige VERIFACTU_REQUIRE_API_KEY, pegar aquí la clave del tenant. */
   verifactuApiKey: '',
   aiApiKey: '',

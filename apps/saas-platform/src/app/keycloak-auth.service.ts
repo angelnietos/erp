@@ -1,8 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, switchMap, throwError, timeout } from 'rxjs';
+import { BffAuthClient, ENTERPRISE_AUTH_CONFIG } from '@josanz-erp/shared-auth-keycloak';
 import { environment } from '../environments/environment';
-import { setPlatformToken } from './platform-auth.interceptor';
+import { clearPlatformToken, setPlatformToken } from './platform-auth.interceptor';
 
 export type PlatformAuthMode = 'keycloak' | 'local' | 'none';
 
@@ -26,6 +27,8 @@ const KEYCLOAK_AVAILABLE_KEY = 'saas_platform_keycloak_available';
 @Injectable({ providedIn: 'root' })
 export class KeycloakAuthService {
   private readonly http = inject(HttpClient);
+  private readonly bff = inject(BffAuthClient, { optional: true });
+  private readonly enterpriseAuth = inject(ENTERPRISE_AUTH_CONFIG, { optional: true });
   private readonly keycloak = environment.keycloak;
 
   private readonly mode = signal<PlatformAuthMode>(this.readStoredMode());
@@ -34,7 +37,27 @@ export class KeycloakAuthService {
   readonly authMode = computed(() => this.mode());
   readonly keycloakAvailable = computed(() => this.available());
 
+  isBffMode(): boolean {
+    return this.bff?.isBffMode() ?? this.enterpriseAuth?.mode === 'bff';
+  }
+
   login(email: string, password: string): Observable<PlatformLoginResult> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.platformLogin(email, password).pipe(
+        map((res) => {
+          this.remember(res.authMode, res.authMode === 'keycloak');
+          return {
+            accessToken: '',
+            mode: res.authMode,
+            keycloakAvailable: res.authMode === 'keycloak',
+          };
+        }),
+        catchError((error: unknown) =>
+          throwError(() => this.toLoginError(error, this.available() ?? false)),
+        ),
+      );
+    }
+
     if (!this.keycloak?.enabled) {
       this.remember('none', false);
       return this.localLogin(email, password, false);
@@ -53,7 +76,21 @@ export class KeycloakAuthService {
   }
 
   refreshPlatformSession(): Observable<unknown> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.platformSession();
+    }
     return this.http.get('/api/platform/auth/session');
+  }
+
+  logout(): Observable<void> {
+    if (this.isBffMode() && this.bff) {
+      return this.bff.platformLogout().pipe(
+        map(() => undefined),
+        catchError(() => of(undefined)),
+      );
+    }
+    clearPlatformToken();
+    return of(undefined);
   }
 
   isKeycloakAvailable(): Observable<boolean> {
@@ -125,6 +162,7 @@ export class KeycloakAuthService {
           if (!response?.accessToken) {
             throw new Error('El login local no devolvió token.');
           }
+          setPlatformToken(response.accessToken);
           this.remember('local', keycloakAvailable);
           return {
             accessToken: response.accessToken,

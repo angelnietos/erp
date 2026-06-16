@@ -2,24 +2,33 @@ import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { BffAuthClient, ENTERPRISE_AUTH_CONFIG } from '@josanz-erp/shared-auth-keycloak';
 
 const TOKEN_KEY = 'saas_platform_token';
 
 export const platformAuthInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  const token = localStorage.getItem(TOKEN_KEY);
-  const request =
-    token && req.url.includes('/api/')
-      ? req.clone({
+  const enterpriseAuth = inject(ENTERPRISE_AUTH_CONFIG, { optional: true });
+  const bff = inject(BffAuthClient, { optional: true });
+  const isBff = bff?.isBffMode() ?? enterpriseAuth?.mode === 'bff';
+
+  let request = req;
+  if (!isBff) {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (token && req.url.includes('/api/')) {
+      request = req.clone({
         setHeaders: { Authorization: `Bearer ${token}` },
-      })
-      : req;
+      });
+    }
+  }
 
   return next(request).pipe(
     catchError((error: unknown) => {
       const isAuthEndpoint =
         req.url.includes('/api/platform/auth/login') ||
-        req.url.includes('/api/platform/auth/session');
+        req.url.includes('/api/platform/auth/session') ||
+        req.url.includes('/api/bff/platform/auth/login') ||
+        req.url.includes('/api/bff/platform/auth/session');
       if (
         error instanceof HttpErrorResponse &&
         error.status === 401 &&

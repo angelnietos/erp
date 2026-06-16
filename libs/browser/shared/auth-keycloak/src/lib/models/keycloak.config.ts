@@ -5,3 +5,14 @@ export interface KeycloakConfig {
   realm: string;
   clientId: string;
 }
+
+export interface KeycloakUser {
+  id: string;
+  email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  roles: string[];
+  permissions: string[];
+  tenantId?: string;
+}

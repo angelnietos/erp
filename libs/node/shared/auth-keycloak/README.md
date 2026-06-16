@@ -1,71 +1,80 @@
-# Keycloak OIDC Authentication Library
+# @josanz-erp/auth-keycloak (Backend)
 
-Esta librería proporciona integración completa con Keycloak OIDC para el ecosistema Josanz ERP.
+Librería enterprise de autenticación: **Keycloak como IdP** + **BFF con cookies HttpOnly**.
 
-## Arquitectura
+## Arquitectura recomendada (producción)
 
 ```
-Angular (josanz-web-app, saas-platform)
-   ↓ (OIDC/OAuth2)
-Keycloak (realm por cliente)
-   ↓ (tokens)
-JWT tokens
-   ↓
-NestJS API (middleware de validación)
-   ↓
-Validación JWT + roles + tenant
+Angular SPA                    NestJS BFF + API
+     │                                │
+     │  POST /bff/auth/login          │
+     │  (withCredentials)             ├──► Keycloak (password grant, servidor)
+     │                                │◄── access_token
+     │◄── Set-Cookie: erp_sid (HttpOnly)
+     │    Set-Cookie: erp_csrf
+     │                                │
+     │  POST /api/... + X-CSRF-Token  │
+     │───────────────────────────────►│ Middleware: cookie → Bearer + tenant
 ```
 
-## Backend (libs/node/shared/auth-keycloak)
+El navegador **nunca** almacena JWT en `localStorage`.
 
-### Uso
+## Módulos
+
+### BffAuthModule
+
+Registrado en `identity-backend`:
 
 ```typescript
-// En app.module.ts
-import { KeycloakAuthModule } from '@josanz-erp/auth-keycloak';
+import { BffAuthModule } from '@josanz-erp/auth-keycloak';
 
-@Module({
-  imports: [
-    KeycloakAuthModule.forRoot({ enabled: true }),
-  ],
-})
-export class AppModule {}
+BffAuthModule.forRoot()
 ```
 
-## Frontend (libs/browser/shared/auth-keycloak)
+Incluye:
+- `InMemoryBffSessionStore` — sesiones en memoria (dev/single-node)
+- `BffSessionMiddleware` — inyecta `Authorization` y valida CSRF
+- `KeycloakTokenClient` — token exchange server-side
 
-### Uso
+### KeycloakAuthModule (legacy OIDC guard)
 
-```typescript
-// En app.config.ts
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { KeycloakInterceptor, KeycloakService } from '@josanz-erp/shared-auth-keycloak';
+Validación JWT vía JWKS para rutas que reciben Bearer directamente.
 
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideHttpClient(withInterceptors([KeycloakInterceptor])),
-    KeycloakService,
-  ],
-};
+## Cookies
+
+| App | Session (HttpOnly) | CSRF (legible JS*) |
+|-----|-------------------|-------------------|
+| ERP | `erp_sid` | `erp_csrf` |
+| Platform | `saas_sid` | `saas_csrf` |
+
+\*En cross-origin dev el CSRF se devuelve también en JSON (`csrfToken`).
+
+## Variables de entorno
+
+```env
+KEYCLOAK_ENABLED=true
+KEYCLOAK_AUTH_SERVER_URL=http://localhost:8081
+KEYCLOAK_SPA_CLIENT_SECRET=
+KEYCLOAK_PLATFORM_REALM=babooni-platform
+KEYCLOAK_PLATFORM_CLIENT_ID=babooni-saas-platform
+BFF_SESSION_MAX_AGE_HOURS=24
+NODE_ENV=production   # activa Secure en cookies
 ```
 
-## Variables de Entorno
+## Frontend
 
-### Backend (.env)
-- `KEYCLOAK_ENABLED=true|false` - Habilita/deshabilita Keycloak
-- `KEYCLOAK_REALM` - Nombre del realm configurado
-- `KEYCLOAK_AUTH_SERVER_URL` - URL del servidor Keycloak
-- `KEYCLOAK_SSL_REQUIRED` - none|external|all
-- `KEYCLOAK_RESOURCE` - Client ID del API
-- `KEYCLOAK_CREDENTIALS_SECRET` - Secret del client
+Ver `@josanz-erp/shared-auth-keycloak` y [docs/auth-enterprise-standard.md](../../../../docs/auth-enterprise-standard.md).
 
-### Frontend (environment.ts)
-```typescript
-export const environment = {
-  keycloak: {
-    url: 'http://localhost:8080',
-    realm: 'josanz-web-app-realm',
-    clientId: 'josanz-web-app-spa',
-  },
-};
-```
+## Migración desde legacy
+
+1. Backend: desplegar con `BffAuthModule` + `cookie-parser`
+2. Frontend: `provideEnterpriseAuth({ mode: 'bff' })` + `bffAuthInterceptor`
+3. CORS con `credentials: true`
+4. Verificar login/logout en ERP y Platform
+5. Desactivar `auth.mode: 'legacy'` en todos los entornos
+
+## Roadmap técnico
+
+- Redis session store
+- Authorization Code + PKCE (eliminar password grant)
+- Keycloak back-channel logout

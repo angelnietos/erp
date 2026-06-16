@@ -5,6 +5,10 @@ import { Observable } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
+  if (authService.isBffMode()) {
+    return next(req);
+  }
+
   const token = authService.getToken();
 
   if (token) {
