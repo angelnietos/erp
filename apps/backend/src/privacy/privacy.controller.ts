@@ -24,6 +24,13 @@ export class PrivacyController {
     return this.privacy.getPolicy();
   }
 
+  @Get('status')
+  @UseGuards(JwtAuthGuard, TenantGuard)
+  @ApiOperation({ summary: 'Estado de controles de seguridad y cumplimiento' })
+  getStatus() {
+    return this.privacy.getSecurityStatus();
+  }
+
   @Get('export/me')
   @UseGuards(JwtAuthGuard, TenantGuard)
   @ApiOperation({ summary: 'Exportar mis datos personales (RGPD art. 15)' })

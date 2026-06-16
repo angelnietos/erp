@@ -13,6 +13,9 @@ import {
 import { Request } from 'express';
 import {
   JwtAuthGuard,
+  TenantGuard,
+  PermissionsGuard,
+  RequirePermissions,
   requireRequestTenantId,
   requireRequestUserId,
 } from '@josanz-erp/shared-infrastructure';
@@ -21,7 +24,8 @@ import { ClientsService } from '../../application/clients.service';
 type AnyPayload = { [key: string]: string | number | boolean | unknown };
 
 @Controller('clients')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, TenantGuard, PermissionsGuard)
+@RequirePermissions('clients.view', 'clients.manage', '*')
 export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
@@ -36,6 +40,7 @@ export class ClientsController {
   }
 
   @Post()
+  @RequirePermissions('clients.manage', '*')
   async create(@Req() req: Request, @Body() data: AnyPayload) {
     return this.clientsService.create(
       requireRequestTenantId(req),
@@ -45,6 +50,7 @@ export class ClientsController {
   }
 
   @Put(':id')
+  @RequirePermissions('clients.manage', '*')
   async update(
     @Req() req: Request,
     @Param('id', ParseUUIDPipe) id: string,
@@ -59,6 +65,7 @@ export class ClientsController {
   }
 
   @Delete(':id')
+  @RequirePermissions('clients.manage', '*')
   async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
     return this.clientsService.delete(
       requireRequestTenantId(req),

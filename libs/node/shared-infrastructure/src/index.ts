@@ -14,6 +14,7 @@ export * from './lib/decorators/require-permissions.decorator';
 export * from './lib/interceptors/audit.interceptor';
 export * from './lib/interceptors/pii-redaction.interceptor';
 export * from './lib/privacy/pii-crypto.service';
+export * from './lib/privacy/pii-fields';
 export * from './lib/prisma/prisma.module';
 export * from './lib/prisma/prisma.service';
 export * from './lib/outbox/outbox.service';

@@ -66,7 +66,7 @@ export type SettingsTab =
         <div class="nav-section-label">Organización</div>
         <button type="button" class="nav-item" [class.active]="activeTabSig() === 'security'" (click)="setTab('security')">
           <lucide-icon name="lock" size="16" aria-hidden="true"></lucide-icon>
-          <span>Seguridad</span>
+          <span>Seguridad y privacidad</span>
         </button>
         @if (canSeeRolesAdmin()) {
           <button type="button" class="nav-item" [class.active]="activeTabSig() === 'roles'" (click)="setTab('roles')">

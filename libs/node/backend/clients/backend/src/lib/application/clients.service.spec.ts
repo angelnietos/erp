@@ -11,12 +11,17 @@ import {
 describe('ClientsService', () => {
   let prisma: ReturnType<typeof makePrismaClientMock>;
   let auditLogWriter: ReturnType<typeof makeAuditLogWriterMock>;
+  let piiCrypto: { encryptField: (v: string | null | undefined) => string | null; decryptField: (v: string | null | undefined) => string | null };
   let service: ClientsService;
 
   beforeEach(() => {
     prisma = makePrismaClientMock();
     auditLogWriter = makeAuditLogWriterMock();
-    service = new ClientsService(prisma as never, auditLogWriter as never);
+    piiCrypto = {
+      encryptField: (v) => v ?? null,
+      decryptField: (v) => v ?? null,
+    };
+    service = new ClientsService(prisma as never, auditLogWriter as never, piiCrypto as never);
   });
 
   it('finds active clients for the current tenant and maps compatibility fields', async () => {
@@ -39,7 +44,7 @@ describe('ClientsService', () => {
       name: 'Cliente Test',
       company: 'Cliente Test',
       status: 'active',
-      test_ping: 'pong',
+      piiEncryptedAtRest: true,
       createdAt: '2024-01-01T00:00:00.000Z',
       updatedAt: '2024-01-02T00:00:00.000Z',
     });

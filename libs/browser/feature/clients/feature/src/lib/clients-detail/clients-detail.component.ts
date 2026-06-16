@@ -4,6 +4,7 @@ import {
   signal,
   inject,
   ChangeDetectionStrategy,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
@@ -13,8 +14,9 @@ import {
   UiButtonComponent,
   UiBadgeComponent,
   UiFeaturePageShellComponent,
+  PiiMaskPipe,
 } from '@josanz-erp/shared-ui-kit';
-import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
+import { ThemeService, PluginStore, GlobalAuthStore } from '@josanz-erp/shared-data-access';
 
 import {
   Budget,
@@ -35,6 +37,7 @@ import {
     UiButtonComponent,
     UiBadgeComponent,
     UiFeaturePageShellComponent,
+    PiiMaskPipe,
   ],
   template: `
     <ui-feature-page-shell [variant]="'widthOnly'" [fadeIn]="true">
@@ -65,6 +68,12 @@ import {
             </p>
           </div>
           <div class="ns-header-actions">
+            @if (!canViewUnmaskedPii()) {
+              <ui-badge variant="info" class="ns-pii-badge">
+                <lucide-icon name="shield-check" size="12" aria-hidden="true"></lucide-icon>
+                Datos protegidos
+              </ui-badge>
+            }
             <ui-button variant="solid" size="sm" icon="pencil" (click)="onEdit()">Editar</ui-button>
           </div>
         </div>
@@ -114,15 +123,23 @@ import {
                   </div>
                   <div class="ns-info-row">
                     <span class="ns-info-label">Email</span>
-                    <span class="ns-info-value">{{
-                      client()?.email || '—'
-                    }}</span>
+                    <span class="ns-info-value">
+                      @if (canViewUnmaskedPii()) {
+                        {{ client()?.email || '—' }}
+                      } @else {
+                        {{ (client()?.email | piiMask: 'email') || '—' }}
+                      }
+                    </span>
                   </div>
                   <div class="ns-info-row">
                     <span class="ns-info-label">Teléfono</span>
-                    <span class="ns-info-value">{{
-                      client()?.phone || '—'
-                    }}</span>
+                    <span class="ns-info-value">
+                      @if (canViewUnmaskedPii()) {
+                        {{ client()?.phone || '—' }}
+                      } @else {
+                        {{ (client()?.phone | piiMask: 'phone') || '—' }}
+                      }
+                    </span>
                   </div>
                 </div>
               </div>
@@ -698,6 +715,7 @@ import {
 export class ClientsDetailComponent implements OnInit {
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
+  private readonly auth = inject(GlobalAuthStore);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly clientService = inject(ClientService);
@@ -708,6 +726,11 @@ export class ClientsDetailComponent implements OnInit {
   loadError = signal<string | null>(null);
   activeTab = signal('general');
   tabs = signal<{ id: string; label: string; badge?: number }[]>([]);
+
+  readonly canViewUnmaskedPii = computed(() => {
+    const perms = this.auth.permissions();
+    return perms.includes('*') || perms.includes('pii.view_unmasked');
+  });
 
   ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');

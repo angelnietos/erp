@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   AuditLogWriterService,
+  PiiCryptoService,
   PrismaService,
 } from '@josanz-erp/shared-infrastructure';
+import { CLIENT_CONTACT_PII_FIELDS } from '@josanz-erp/shared-infrastructure';
 
 /** HTTP body for create/update — fields are optional and coerced in handlers */
 interface ClientWriteBody {
@@ -34,7 +36,15 @@ interface ClientEntityPayload {
   description?: string | null;
   sector?: string | null;
   type?: string | null;
-  contacts?: unknown;
+  contacts?: Array<{
+    id?: string;
+    name?: string;
+    email?: string | null;
+    phone?: string | null;
+    notes?: string | null;
+    isPrimary?: boolean;
+    [key: string]: unknown;
+  }>;
   eventReports?: unknown;
   budgets?: unknown;
   projects?: unknown;
@@ -49,6 +59,7 @@ export class ClientsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditLogWriter: AuditLogWriterService,
+    private readonly piiCrypto: PiiCryptoService,
   ) {}
 
   async findAll(tenantId: string) {
@@ -57,12 +68,12 @@ export class ClientsService {
       include: {
         contacts: {
           where: { isPrimary: true },
-          take: 1
-        }
+          take: 1,
+        },
       },
       orderBy: { createdAt: 'desc' },
     });
-    return clients.map(c => this.mapToDto(c));
+    return clients.map((c) => this.mapToDto(this.decryptClientRow(c)));
   }
 
   async findOne(tenantId: string, id: string) {
@@ -77,47 +88,48 @@ export class ClientsService {
               select: {
                 firstName: true,
                 lastName: true,
-                email: true
-              }
-            }
+                email: true,
+              },
+            },
           },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         },
         budgets: {
           include: {
             invoices: true,
-            deliveryNotes: true
+            deliveryNotes: true,
           },
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         },
         projects: {
-          orderBy: { createdAt: 'desc' }
+          orderBy: { createdAt: 'desc' },
         },
         rentals: {
           include: {
             rentalItems: {
               include: {
-                product: true
-              }
-            }
+                product: true,
+              },
+            },
           },
-          orderBy: { createdAt: 'desc' }
-        }
+          orderBy: { createdAt: 'desc' },
+        },
       },
     });
     if (!client) throw new NotFoundException('Cliente no encontrado');
-    return this.mapToDto(client);
+    return this.mapToDto(this.decryptClientRow(client));
   }
 
   async create(tenantId: string, data: ClientWriteBody, actorUserId: string) {
+    const encrypted = this.encryptClientWrite(data);
     const client = await this.prisma.client.create({
       data: {
         tenantId,
         name: data.name || data.company || 'Nuevo Cliente',
-        taxId: data.taxId,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
+        taxId: encrypted.taxId,
+        email: encrypted.email,
+        phone: encrypted.phone,
+        address: encrypted.address,
         city: data.city,
         zipCode: data.zipCode,
         country: data.country || 'ES',
@@ -126,54 +138,62 @@ export class ClientsService {
         type: data.type || 'COMPANY',
       },
       include: {
-        contacts: true
-      }
+        contacts: true,
+      },
     });
     await this.auditLogWriter.record(actorUserId, {
       action: 'CREATE',
       targetEntity: `Client:${client.id}`,
+      tenantId,
       changesJson: {
         entityType: 'CLIENT',
         entityName: client.name,
-        details: 'Cliente creado',
+        details: 'Cliente creado (PII cifrado en reposo)',
       },
     });
-    return this.mapToDto(client);
+    return this.mapToDto(this.decryptClientRow(client));
   }
 
-  async update(tenantId: string, id: string, data: ClientWriteBody, actorUserId: string) {
+  async update(
+    tenantId: string,
+    id: string,
+    data: ClientWriteBody,
+    actorUserId: string,
+  ) {
+    const encrypted = this.encryptClientWrite(data);
     const client = await this.prisma.client.update({
       where: { id },
       data: {
         name: data.name || data.company,
-        taxId: data.taxId,
-        email: data.email,
-        phone: data.phone,
-        address: data.address,
+        taxId: encrypted.taxId,
+        email: encrypted.email,
+        phone: encrypted.phone,
+        address: encrypted.address,
         city: data.city,
         zipCode: data.zipCode,
         country: data.country,
         description: data.description,
         sector: data.sector || data.type,
-        type: data.type
+        type: data.type,
       },
       include: {
-        contacts: true
-      }
+        contacts: true,
+      },
     });
     await this.auditLogWriter.record(actorUserId, {
       action: 'UPDATE',
       targetEntity: `Client:${client.id}`,
+      tenantId,
       changesJson: {
         entityType: 'CLIENT',
         entityName: client.name,
         details: 'Cliente actualizado',
       },
     });
-    return this.mapToDto(client);
+    return this.mapToDto(this.decryptClientRow(client));
   }
 
-  async delete(_tenantId: string, id: string, actorUserId: string) {
+  async delete(tenantId: string, id: string, actorUserId: string) {
     const row = await this.prisma.client.findFirst({
       where: { id, deletedAt: null },
       select: { name: true },
@@ -186,6 +206,7 @@ export class ClientsService {
       await this.auditLogWriter.record(actorUserId, {
         action: 'DELETE',
         targetEntity: `Client:${id}`,
+        tenantId,
         changesJson: {
           entityType: 'CLIENT',
           entityName: row.name,
@@ -194,6 +215,46 @@ export class ClientsService {
       });
     }
     return { success: true };
+  }
+
+  private encryptClientWrite(data: ClientWriteBody): {
+    taxId?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  } {
+    return {
+      taxId: this.piiCrypto.encryptField(data.taxId),
+      email: this.piiCrypto.encryptField(data.email),
+      phone: this.piiCrypto.encryptField(data.phone),
+      address: this.piiCrypto.encryptField(data.address),
+    };
+  }
+
+  private decryptClientRow<T extends ClientEntityPayload>(row: T): T {
+    const decrypted: ClientEntityPayload = {
+      ...row,
+      taxId: this.piiCrypto.decryptField(row.taxId),
+      email: this.piiCrypto.decryptField(row.email),
+      phone: this.piiCrypto.decryptField(row.phone),
+      address: this.piiCrypto.decryptField(row.address),
+      contacts: (row.contacts ?? []).map((c) => this.decryptContact(c)),
+    };
+    return decrypted as T;
+  }
+
+  private decryptContact(
+    contact: NonNullable<ClientEntityPayload['contacts']>[number],
+  ) {
+    const out = { ...contact };
+    for (const field of CLIENT_CONTACT_PII_FIELDS) {
+      const v = out[field];
+      if (typeof v === 'string') {
+        (out as Record<string, unknown>)[field] =
+          this.piiCrypto.decryptField(v);
+      }
+    }
+    return out;
   }
 
   private mapToDto(client: ClientEntityPayload) {
@@ -215,13 +276,12 @@ export class ClientsService {
       budgets: client.budgets || [],
       projects: client.projects || [],
       rentals: client.rentals || [],
-      test_ping: 'pong',
-      // Compatibility fields
       company: client.name,
       status: client.deletedAt ? 'inactive' : 'active',
       createdAt: client.createdAt?.toISOString(),
       updatedAt: client.updatedAt?.toISOString(),
       avatarUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(client.name)}&background=random`,
+      piiEncryptedAtRest: true,
     };
   }
 }

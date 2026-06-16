@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   PrismaService,
   AuditLogWriterService,
@@ -6,6 +7,7 @@ import {
   requireRequestUserId,
 } from '@josanz-erp/shared-infrastructure';
 import { Request } from 'express';
+import { PrivacySecurityStatusDto } from './privacy-status.dto';
 
 export interface PrivacyPolicyDto {
   version: string;
@@ -31,7 +33,29 @@ export class PrivacyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditWriter: AuditLogWriterService,
+    private readonly config: ConfigService,
   ) {}
+
+  getSecurityStatus(): PrivacySecurityStatusDto {
+    const policy = this.getPolicy();
+    const piiKey =
+      this.config.get<string>('PII_ENCRYPTION_KEY') ??
+      this.config.get<string>('WEBHOOK_ENCRYPTION_KEY');
+    return {
+      encryptionAtRest: !!piiKey && piiKey.length >= 32,
+      piiRedactionEnabled: true,
+      auditInterceptorEnabled: true,
+      auditRetentionDays: parseInt(
+        this.config.get<string>('AUDIT_LOG_RETENTION_DAYS') ?? '730',
+        10,
+      ),
+      domainEventsRetentionDays: parseInt(
+        this.config.get<string>('DOMAIN_EVENTS_RETENTION_DAYS') ?? '365',
+        10,
+      ),
+      policyVersion: policy.version,
+    };
+  }
 
   getPolicy(): PrivacyPolicyDto {
     return {
