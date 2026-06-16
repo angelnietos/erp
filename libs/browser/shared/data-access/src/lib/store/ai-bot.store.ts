@@ -28,7 +28,8 @@ import { AIMemoryService } from '../services/ai/ai-memory.service';
 import { AIWorkflowService } from '../services/ai/ai-workflow.service';
 import { AIPredictiveService } from '../services/ai/ai-predictive.service';
 import { OrchestrationBus } from '../services/ai/orchestration-bus.service';
-import { AiInsightsApiService } from '../services/ai-insights-api.service';
+import { AiInsightsApiService, CreateAiInsightPayload } from '../services/ai-insights-api.service';
+import { GlobalAuthStore } from './auth.store';
 
 const DYNAMIC_CANVAS_STORAGE_KEY = 'ai_dynamic_canvas';
 /** Overlay HTML en la pantalla de login: no se persiste (solo sesión SPA; Buddy puede inyectar bajo demanda). */
@@ -61,6 +62,13 @@ export class AIBotStore {
   private masterFilterService = inject(MasterFilterService);
   private orchestrationBus = inject(OrchestrationBus);
   private insightsApi = inject(AiInsightsApiService);
+  private authStore = inject(GlobalAuthStore);
+
+  /** Sesión SPA para agrupar eventos de entrenamiento por visita. */
+  private readonly aiSessionId =
+    typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `sess-${Date.now()}`;
 
   // Expose Service Signals for Backward Compatibility or Direct Access
   readonly selectedProvider = this.inference.selectedProvider;
@@ -267,6 +275,17 @@ export class AIBotStore {
     // 1) Send via inter-bot queue (for open chat windows)
     this.sendInterBotMessage(fromFeature, targetFeature, instructionText);
 
+    this.recordInsightEvent({
+      botId: this.getBotByFeature(fromFeature)?.id ?? fromFeature,
+      feature: fromFeature,
+      eventType: 'delegation',
+      title: `Delegación → ${targetFeature}`,
+      summary: instructionText.slice(0, 480),
+      metrics: { targetFeature },
+      metadata: { to: targetFeature, from: fromFeature },
+      priority: 'MEDIUM',
+    });
+
     // 2) Also publish to OrchestrationBus (for programmatic sub-bot reaction)
     this.orchestrationBus.dispatch({
       from: fromFeature,
@@ -325,21 +344,72 @@ export class AIBotStore {
     const feature = sourceFeature ?? 'buddy';
     const bot = this.getBotByFeature(feature);
     const stepText = steps.join(' → ');
+    this.recordInsightEvent({
+      botId: bot?.id ?? feature,
+      feature,
+      eventType: 'workflow',
+      title: `Orquestación: ${steps.length} paso${steps.length === 1 ? '' : 's'}`,
+      summary:
+        summary.trim().slice(0, 480) ||
+        stepText.replace(/\[\d{1,2}:\d{2}:\d{2}\]\s*/g, '').slice(0, 480),
+      metrics: { steps: steps.length },
+      metadata: { trace: stepText.slice(0, 500) },
+      priority: steps.some((s) => s.includes('⚠️') || s.includes('❌'))
+        ? 'HIGH'
+        : 'MEDIUM',
+    });
+  }
+
+  /** Registro unificado con contexto de usuario/sesión para AI Insights. */
+  recordInsightEvent(payload: CreateAiInsightPayload): void {
+    const user = this.authStore.user();
     this.insightsApi
       .record({
-        botId: bot?.id ?? feature,
-        feature,
-        title: `Orquestación: ${steps.length} paso${steps.length === 1 ? '' : 's'}`,
-        summary:
-          summary.trim().slice(0, 480) ||
-          stepText.replace(/\[\d{1,2}:\d{2}:\d{2}\]\s*/g, '').slice(0, 480),
-        metrics: { steps: steps.length },
-        metadata: { trace: stepText.slice(0, 500) },
-        priority: steps.some((s) => s.includes('⚠️') || s.includes('❌'))
-          ? 'HIGH'
-          : 'MEDIUM',
+        ...payload,
+        userId: payload.userId ?? user?.id ?? this.currentUserKey(),
+        userEmail: payload.userEmail ?? user?.email ?? undefined,
+        sessionId: payload.sessionId ?? this.aiSessionId,
+        eventType: payload.eventType ?? 'system',
       })
       .subscribe();
+  }
+
+  recordChatInsight(
+    feature: string,
+    userQuery: string,
+    responsePreview: string,
+    opts?: { responseTimeMs?: number },
+  ): void {
+    const bot = this.getBotByFeature(feature);
+    this.recordInsightEvent({
+      botId: bot?.id ?? feature,
+      feature,
+      eventType: 'chat',
+      title: 'Interacción de chat',
+      summary: `Usuario: ${userQuery.slice(0, 200)} → Asistente: ${responsePreview.slice(0, 200)}`,
+      metrics: opts?.responseTimeMs
+        ? { responseTimeMs: opts.responseTimeMs }
+        : undefined,
+      metadata: { query: userQuery.slice(0, 300), response: responsePreview.slice(0, 300) },
+      priority: 'LOW',
+    });
+  }
+
+  recordFeedbackInsight(
+    feature: string,
+    sentiment: 'positive' | 'negative',
+    responseSnippet: string,
+  ): void {
+    const bot = this.getBotByFeature(feature);
+    this.recordInsightEvent({
+      botId: bot?.id ?? feature,
+      feature,
+      eventType: 'feedback',
+      title: `Feedback ${sentiment === 'positive' ? 'positivo' : 'negativo'}`,
+      summary: responseSnippet.slice(0, 480),
+      metadata: { sentiment, responseSnippet: responseSnippet.slice(0, 300) },
+      priority: sentiment === 'negative' ? 'HIGH' : 'MEDIUM',
+    });
   }
 
   getActionSystemPrompt(): string {
@@ -660,7 +730,9 @@ export class AIBotStore {
   }
 
   recordSuccessfulInteraction(feature: string, userId: string, query: string, tool: string, respTime: number) {
-    console.debug(`[AIBotStore] Interaction recorded: ${feature}, ${userId}, ${query}, ${tool}, ${respTime}ms`);
+    if (isDevMode()) {
+      console.debug(`[AIBotStore] Interaction recorded: ${feature}, ${userId}, ${query}, ${tool}, ${respTime}ms`);
+    }
   }
 
   // --- UI Helpers ---

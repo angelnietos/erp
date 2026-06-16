@@ -1618,10 +1618,104 @@ async function main() {
   });
   console.log('- Seeded erp_receipts (demo)');
 
+  await seedAiInsightsIfEmpty(tenant.id, admin.id, admin.email);
+
   await clearTenantDemoData(babooniTenant.id);
   await seedBabooniTenantDemo(babooniTenant.id);
 
   console.log('✅ Database seeded successfully!');
+}
+
+/**
+ * Insights AI de demo (solo si la tabla está vacía para el tenant).
+ * Los eventos en vivo los generan Buddy y los bots en runtime.
+ */
+async function seedAiInsightsIfEmpty(
+  tenantId: string,
+  adminUserId: string,
+  adminEmail: string,
+) {
+  const count = await prisma.aiInsight.count({ where: { tenantId } });
+  if (count > 0) return;
+
+  const dani = await prisma.user.findFirst({
+    where: { tenantId, email: 'dani@josanz.com' },
+  });
+
+  const hour = 60 * 60 * 1000;
+  const now = Date.now();
+
+  await prisma.aiInsight.createMany({
+    data: [
+      {
+        tenantId,
+        userId: adminUserId,
+        userEmail: adminEmail,
+        sessionId: 'seed-session-admin',
+        eventType: 'workflow',
+        botId: 'buddy-bot',
+        feature: 'buddy',
+        title: 'Orquestación: reposición de stock crítico',
+        summary:
+          'Buddy navegó a inventario, filtró stock 0 y delegó a Cali-Bot un borrador de compra con Audiovisuales Madrid.',
+        metrics: { steps: 4 },
+        metadata: {
+          trace: 'navigateAndFilter → wait → delegate(budgets) → notify',
+        },
+        priority: 'MEDIUM',
+        createdAt: new Date(now - 3 * hour),
+      },
+      {
+        tenantId,
+        userId: adminUserId,
+        userEmail: adminEmail,
+        sessionId: 'seed-session-admin',
+        eventType: 'chat',
+        botId: 'dash-bot',
+        feature: 'dashboard',
+        title: 'Interacción de chat',
+        summary:
+          'Usuario: Resume la situación del negocio → Asistente: Ingresos estables con 3 proyectos activos y tendencia positiva.',
+        metrics: { responseTimeMs: 1200 },
+        metadata: { query: 'Resume la situación del negocio' },
+        priority: 'LOW',
+        createdAt: new Date(now - 2 * hour),
+      },
+      {
+        tenantId,
+        userId: dani?.id ?? adminUserId,
+        userEmail: dani?.email ?? adminEmail,
+        sessionId: 'seed-session-dani',
+        eventType: 'feedback',
+        botId: 'events-bot',
+        feature: 'events',
+        title: 'Feedback positivo',
+        summary:
+          'El usuario valoró positivamente la sugerencia de sustituto AUDIO para Concierto Verano 2026.',
+        metadata: { sentiment: 'positive' },
+        priority: 'MEDIUM',
+        createdAt: new Date(now - 1 * hour),
+      },
+      {
+        tenantId,
+        userId: adminUserId,
+        userEmail: adminEmail,
+        sessionId: 'seed-session-admin',
+        eventType: 'delegation',
+        botId: 'buddy-bot',
+        feature: 'buddy',
+        title: 'Delegación → users',
+        summary:
+          'INSTRUCCIÓN: Busca técnico con habilidad AUDIO disponible para sustituir a Dani Sonido esta semana.',
+        metrics: { targetFeature: 'users' },
+        metadata: { from: 'buddy', to: 'users' },
+        priority: 'MEDIUM',
+        createdAt: new Date(now - 30 * 60 * 1000),
+      },
+    ],
+  });
+
+  console.log('- Seeded ai_insights (demo baseline)');
 }
 
 /**

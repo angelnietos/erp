@@ -190,6 +190,11 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       fbText,
       type === 'positive' ? 3 : 5,
     );
+    this.aiBotStore.recordFeedbackInsight(
+      this.contextFeature(),
+      type,
+      msg.text.replace(/<[^>]+>/g, '').slice(0, 400),
+    );
   }
 
   isListening = signal(false);
@@ -640,12 +645,10 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
       }
 
       // Registrar interacción exitosa
-      this.aiBotStore.recordSuccessfulInteraction(
+      this.aiBotStore.recordChatInsight(
         this.contextFeature(),
-        'current_user',
         userInput,
-        'chat_response',
-        Date.now(),
+        displayResponse.replace(/<[^>]+>/g, '').slice(0, 400),
       );
     } catch {
       this.messages.update((m) =>

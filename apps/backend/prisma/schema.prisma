@@ -803,8 +803,12 @@ model IntegrationWebhookQueueItem {
 model AiInsight {
   id        String   @id @default(uuid()) @db.Uuid
   tenantId  String   @map("tenant_id") @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  userEmail String?  @map("user_email")
+  sessionId String?  @map("session_id")
+  eventType String   @default("system") @map("event_type")
   botId     String   @map("bot_id")
-  feature   String   
+  feature   String
   title     String
   summary   String   @db.Text
   metrics   Json?
@@ -817,6 +821,8 @@ model AiInsight {
 
   @@index([tenantId, botId], map: "idx_ai_insights_tenant_bot")
   @@index([tenantId, createdAt(sort: Desc)], map: "idx_ai_insights_tenant_created")
+  @@index([tenantId, userId], map: "idx_ai_insights_tenant_user")
+  @@index([tenantId, eventType], map: "idx_ai_insights_tenant_event")
   @@map("ai_insights")
 }
 
