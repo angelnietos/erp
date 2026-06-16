@@ -282,6 +282,122 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
         width: 100%;
       }
 
+      :host ::ng-deep .inventory-container {
+        --grid-min-col-width: 280px;
+        width: min(100%, 1280px);
+        min-height: calc(100vh - 64px);
+        margin: 0 auto;
+        padding: clamp(1rem, 2.6vw, 2rem);
+        gap: 1.25rem;
+        background:
+          radial-gradient(circle at 78% 12%, rgba(245, 158, 11, 0.14), transparent 22rem),
+          linear-gradient(180deg, rgba(10, 10, 10, 0.96), rgba(2, 6, 23, 0.98));
+        border-radius: 0;
+        box-shadow: none;
+        backdrop-filter: none;
+      }
+
+      :host ::ng-deep .inventory-container::before {
+        display: none;
+      }
+
+      :host ::ng-deep ui-feature-header .feature-header {
+        margin: 0 0 1rem;
+      }
+
+      :host ::ng-deep ui-feature-header .header-content {
+        background: rgba(15, 23, 42, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 24px;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+      }
+
+      :host ::ng-deep ui-feature-header .header-content::before {
+        opacity: 0.35;
+      }
+
+      :host ::ng-deep ui-feature-header .main-title,
+      :host ::ng-deep ui-feature-header .subtitle {
+        color: #f8fafc;
+      }
+
+      :host ::ng-deep ui-feature-stats {
+        padding: 0;
+      }
+
+      :host ::ng-deep ui-feature-stats .stats-wrapper {
+        margin-bottom: 1rem;
+      }
+
+      :host ::ng-deep ui-feature-stats .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      :host ::ng-deep ui-feature-filter-bar .feature-filter-bar {
+        margin-bottom: 1rem;
+      }
+
+      :host ::ng-deep ui-feature-filter-bar .feature-filter-bar--framed,
+      :host ::ng-deep ui-search-toolbar .search-toolbar--feature {
+        background: rgba(15, 23, 42, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 20px;
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.24);
+        backdrop-filter: none;
+      }
+
+      :host ::ng-deep ui-tabs {
+        display: block;
+        max-width: 100%;
+      }
+
+      :host ::ng-deep ui-feature-grid .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(var(--grid-min-col-width), 1fr)) !important;
+        gap: 1rem;
+        margin-top: 1rem;
+        align-items: stretch;
+      }
+
+      :host ::ng-deep ui-feature-card .feature-card {
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        border-radius: 22px;
+        box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+      }
+
+      :host ::ng-deep ui-feature-card .feature-card:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--brand) 45%, rgba(148, 163, 184, 0.22));
+      }
+
+      :host ::ng-deep ui-feature-card .card-header {
+        padding: 1.1rem 1.1rem 0.75rem;
+      }
+
+      :host ::ng-deep ui-feature-card .card-body {
+        padding: 0 1.1rem 1rem;
+      }
+
+      :host ::ng-deep ui-feature-card .card-footer {
+        padding: 0.9rem 1.1rem;
+        background: rgba(2, 6, 23, 0.45);
+        border-top: 1px solid rgba(148, 163, 184, 0.16);
+      }
+
+      :host ::ng-deep ui-feature-card .item-name {
+        color: #f8fafc;
+        white-space: normal;
+      }
+
+      :host ::ng-deep ui-feature-card .subtitle,
+      :host ::ng-deep ui-feature-card .footer-item {
+        color: #cbd5e1;
+      }
+
       .flex-1 {
         flex: 1;
       }
@@ -424,8 +540,8 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
       /* ─── BABOONI LUXE INVENTORY OVERRIDES ─── */
       :host-context(html[data-erp-tenant='babooni']) .product-meta {
-        background: color-mix(in srgb, var(--surface) 85%, transparent);
-        border-color: rgba(0, 0, 0, 0.05);
+        background: rgba(2, 6, 23, 0.58);
+        border-color: rgba(245, 158, 11, 0.22);
         border-radius: 8px;
         margin-top: 0.75rem;
         padding: 5px 12px;
@@ -439,9 +555,8 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       }
 
       :host-context(html[data-erp-tenant='babooni']) .feature-empty {
-        background: rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(8px);
-        border-color: color-mix(in srgb, var(--border-soft) 40%, transparent);
+        background: rgba(15, 23, 42, 0.94);
+        border-color: rgba(148, 163, 184, 0.22);
         border-radius: 20px;
         padding: 4rem 2rem;
       }
@@ -449,7 +564,7 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
       :host-context(html[data-erp-tenant='babooni']) .feature-empty h3 {
         font-size: 1.35rem;
         font-weight: 700;
-        color: #0f172a;
+        color: #f8fafc;
       }
 
       :host-context(html[data-erp-tenant='babooni']) .feature-empty p {
@@ -463,6 +578,14 @@ import { INVENTORY_FEATURE_CONFIG } from '../inventory-feature.config';
 
       /* ─── Responsive ─── */
       @media (max-width: 640px) {
+        :host ::ng-deep ui-feature-stats .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        :host ::ng-deep ui-feature-grid .feature-grid {
+          grid-template-columns: 1fr !important;
+        }
+
         .feature-empty {
           min-height: 240px;
           padding: 2rem 1rem;

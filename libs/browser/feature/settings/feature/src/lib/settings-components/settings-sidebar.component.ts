@@ -89,13 +89,13 @@ export type SettingsTab =
   styles: [
     `
       .settings-sidebar {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(60px) saturate(1.5);
-        border-right: 1px solid rgba(0, 0, 0, 0.05);
+        background: rgba(3, 7, 18, 0.96);
+        border-right: 1px solid rgba(245, 158, 11, 0.18);
         display: flex;
         flex-direction: column;
-        padding: 3.5rem 1.75rem;
-        box-shadow: 15px 0 60px rgba(0, 0, 0, 0.02);
+        padding: 2rem 1.25rem;
+        box-shadow: 20px 0 60px rgba(0, 0, 0, 0.3);
+        min-height: calc(100vh - 64px);
       }
 
       .sidebar-header {
@@ -107,7 +107,7 @@ export type SettingsTab =
         font-size: 1.25rem;
         font-weight: 900;
         letter-spacing: -0.02em;
-        color: #0f172a;
+        color: #f8fafc;
         margin: 0;
       }
 
@@ -143,7 +143,7 @@ export type SettingsTab =
         gap: 0.75rem;
         padding: 0.75rem 1rem;
         border-radius: 12px;
-        color: #475569;
+        color: #cbd5e1;
         font-size: 0.88rem;
         font-weight: 600;
         transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -154,22 +154,22 @@ export type SettingsTab =
       }
 
       .nav-item:hover {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(245, 158, 11, 0.12);
         color: var(--brand);
         transform: translateX(4px);
       }
 
       .nav-item.active {
-        background: #ffffff;
+        background: #f8fafc;
         color: var(--brand);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 12px 30px rgba(245, 158, 11, 0.18);
         transform: translateX(6px);
       }
 
       .sidebar-footer {
         margin-top: auto;
         padding: 1rem;
-        opacity: 0.4;
+        opacity: 0.85;
       }
 
       .status-indicator {
@@ -179,7 +179,27 @@ export type SettingsTab =
         font-size: 0.6rem;
         font-weight: 800;
         text-transform: uppercase;
-        color: #64748b;
+        color: #94a3b8;
+      }
+
+      @media (max-width: 1100px) {
+        .settings-sidebar {
+          min-height: unset;
+          padding: 1rem;
+          border-right: 0;
+          border-bottom: 1px solid rgba(245, 158, 11, 0.18);
+        }
+
+        .settings-nav {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          gap: 0.5rem;
+        }
+
+        .nav-section-label,
+        .sidebar-footer {
+          display: none;
+        }
       }
     `,
   ],

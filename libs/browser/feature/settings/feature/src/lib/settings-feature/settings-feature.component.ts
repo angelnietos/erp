@@ -136,7 +136,9 @@ import {
         display: grid;
         grid-template-columns: 280px 1fr;
         min-height: calc(100vh - 64px);
-        background: var(--surface-1, #0f172a);
+        background:
+          radial-gradient(circle at 15% 0%, rgba(245, 158, 11, 0.12), transparent 32rem),
+          linear-gradient(135deg, #050505 0%, #111827 46%, #1f2937 100%);
         min-width: 0;
         box-sizing: border-box;
       }
@@ -144,18 +146,116 @@ import {
       * { box-sizing: border-box; }
 
       .settings-content {
-        padding: 3rem 4rem;
+        padding: clamp(1.5rem, 3vw, 3rem);
         overflow-y: auto;
-        background: color-mix(in srgb, var(--surface-2, #1e293b) 92%, #fff 8%);
+        background:
+          linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.96));
         scrollbar-width: thin;
         scrollbar-color: var(--brand) transparent;
         min-width: 0;
       }
 
-      .content-section { width: 100%; margin-bottom: 5rem; }
+      .content-section {
+        width: min(100%, 1180px);
+        margin: 0 auto 5rem;
+        color: #f8fafc;
+      }
+
+      :host ::ng-deep .section-breadcrumb {
+        color: #94a3b8 !important;
+        margin-bottom: 1rem !important;
+      }
+
+      :host ::ng-deep .section-title h2,
+      :host ::ng-deep .hero-title,
+      :host ::ng-deep .roles-header-main h2 {
+        color: #f8fafc !important;
+        text-shadow: none !important;
+        -webkit-text-fill-color: initial !important;
+      }
+
+      :host ::ng-deep .section-title p,
+      :host ::ng-deep .hero-subtitle,
+      :host ::ng-deep .role-description-hint {
+        color: #cbd5e1 !important;
+      }
+
+      :host ::ng-deep ui-card,
+      :host ::ng-deep .identity-main-card,
+      :host ::ng-deep .companion-stage,
+      :host ::ng-deep .roles-selector-card,
+      :host ::ng-deep .role-config-card,
+      :host ::ng-deep .plugin-card,
+      :host ::ng-deep .bot-crystal-card {
+        background: rgba(15, 23, 42, 0.94) !important;
+        border: 1px solid rgba(148, 163, 184, 0.24) !important;
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35) !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      :host ::ng-deep .plugin-card,
+      :host ::ng-deep .bot-crystal-card {
+        padding: 1.35rem !important;
+      }
+
+      :host ::ng-deep .header-text h3,
+      :host ::ng-deep .role-name-text,
+      :host ::ng-deep .perm-label,
+      :host ::ng-deep .pick-name,
+      :host ::ng-deep h3 {
+        color: #f8fafc !important;
+      }
+
+      :host ::ng-deep .plugin-desc,
+      :host ::ng-deep .pick-desc,
+      :host ::ng-deep .category-tag,
+      :host ::ng-deep .perm-id {
+        color: #94a3b8 !important;
+      }
+
+      :host ::ng-deep .luxe-underlined-input {
+        background: rgba(2, 6, 23, 0.5) !important;
+        border: 1px solid rgba(148, 163, 184, 0.25) !important;
+        border-radius: 14px !important;
+        color: #f8fafc !important;
+        padding: 0.85rem 1rem !important;
+      }
+
+      :host ::ng-deep .identity-grid,
+      :host ::ng-deep .roles-layout-grid,
+      :host ::ng-deep .companion-studio {
+        min-width: 0;
+      }
+
+      :host ::ng-deep .profile-hero {
+        margin-bottom: 2rem !important;
+      }
+
+      :host ::ng-deep .avatar-projection-area,
+      :host ::ng-deep .stage-card {
+        background: rgba(2, 6, 23, 0.58) !important;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
 
       .animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
       @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+      @media (max-width: 1100px) {
+        .settings-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .settings-content {
+          padding: 1rem;
+        }
+
+        :host ::ng-deep .identity-grid,
+        :host ::ng-deep .roles-layout-grid,
+        :host ::ng-deep .companion-studio {
+          grid-template-columns: 1fr !important;
+        }
+      }
 
       .settings-module-disable-lead { margin-bottom: 1rem; }
       .settings-module-disable-warning { font-size: 0.85rem; color: #94a3b8; margin-bottom: 1rem; }
