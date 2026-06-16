@@ -28,7 +28,7 @@ export class BffSessionMiddleware implements NestMiddleware {
   constructor(private readonly sessions: InMemoryBffSessionStore) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const path = req.path ?? req.url?.split('?')[0] ?? '';
+    const path = (req.originalUrl ?? req.url ?? req.path ?? '').split('?')[0];
     const cookies = (req as Request & { cookies?: Record<string, string> }).cookies ?? {};
 
     const platformSid = readCookie(cookies, PLATFORM_BFF_COOKIE_NAMES.session);

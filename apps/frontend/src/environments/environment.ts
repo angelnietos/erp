@@ -7,7 +7,8 @@
  */
 export const environment = {
   production: false,
-  apiOrigin: 'http://localhost:3000',
+  /** En modo BFF usar `''` para same-origin vía proxy (cookies HttpOnly). */
+  apiOrigin: '',
   /** `bff`: cookies HttpOnly (estándar enterprise). `legacy`: JWT en localStorage. */
   auth: {
     mode: 'bff' as const,

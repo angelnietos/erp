@@ -86,8 +86,7 @@ export class BffAuthService {
     let enriched: Awaited<ReturnType<AuthService['refreshSession']>> | null = null;
 
     if (accessToken) {
-      const keycloakAccessToken = accessToken;
-      const payload = this.decodeJwt(keycloakAccessToken);
+      const payload = this.decodeJwt(accessToken);
       if (!payload?.sub) {
         throw new UnauthorizedException('Token Keycloak inválido');
       }
@@ -106,7 +105,8 @@ export class BffAuthService {
         lastName: typeof payload.family_name === 'string' ? payload.family_name : undefined,
       });
       enriched = await this.authService.refreshSession(dbUserId, tenantId);
-      accessToken = keycloakAccessToken;
+      // JWT local firmado por el ERP (incluye tenantId/roles); Keycloak solo valida identidad.
+      accessToken = enriched.accessToken;
     } else {
       const local = await this.authService.login(dto);
       accessToken = local.accessToken;
@@ -176,14 +176,13 @@ export class BffAuthService {
     let enriched: Awaited<ReturnType<AuthService['refreshPlatformSession']>>;
 
     if (accessToken) {
-      const keycloakAccessToken = accessToken;
-      const payload = this.decodeJwt(keycloakAccessToken);
+      const payload = this.decodeJwt(accessToken);
       const userId = payload?.sub as string | undefined;
       if (!userId) {
         throw new UnauthorizedException('Token Keycloak inválido');
       }
       enriched = await this.authService.refreshPlatformSession(userId);
-      accessToken = keycloakAccessToken;
+      accessToken = enriched.accessToken;
     } else {
       enriched = await this.authService.platformLogin(dto);
       accessToken = enriched.accessToken;

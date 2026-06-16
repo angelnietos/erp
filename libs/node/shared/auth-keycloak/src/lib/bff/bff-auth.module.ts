@@ -1,4 +1,4 @@
-import { DynamicModule, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { DynamicModule, Global, MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { InMemoryBffSessionStore } from './bff-session.store';
 import { KeycloakTokenClient } from './keycloak-token.client';
@@ -9,6 +9,7 @@ export interface BffAuthModuleOptions {
   enabled?: boolean;
 }
 
+@Global()
 @Module({})
 export class BffAuthModule implements NestModule {
   static forRoot(options?: BffAuthModuleOptions): DynamicModule {
@@ -25,9 +26,10 @@ export class BffAuthModule implements NestModule {
 
     return {
       module: BffAuthModule,
+      global: true,
       imports: [ConfigModule],
-      providers: [InMemoryBffSessionStore, KeycloakTokenClient],
-      exports: [InMemoryBffSessionStore, KeycloakTokenClient],
+      providers: [InMemoryBffSessionStore, KeycloakTokenClient, BffSessionMiddleware],
+      exports: [InMemoryBffSessionStore, KeycloakTokenClient, BffSessionMiddleware],
     };
   }
 
@@ -37,6 +39,6 @@ export class BffAuthModule implements NestModule {
     }
     consumer
       .apply(BffSessionMiddleware)
-      .forRoutes({ path: 'api/*path', method: RequestMethod.ALL });
+      .forRoutes({ path: '{*path}', method: RequestMethod.ALL });
   }
 }
