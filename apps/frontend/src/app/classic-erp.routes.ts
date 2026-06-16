@@ -1,9 +1,18 @@
 import { Route } from '@angular/router';
 import { pluginGuard, permissionGuard, usersShellGuard } from '@josanz-erp/shared-data-access';
+import { redirectFigmaShellFromClassicRoutes } from '@josanz-erp/identity-data-access';
 import { NotFoundComponent } from './not-found.component';
 
+function classicRoute(route: Route): Route {
+  const guards = route.canActivate ?? [];
+  return {
+    ...route,
+    canActivate: [redirectFigmaShellFromClassicRoutes, ...guards],
+  };
+}
+
 /** Rutas ERP estándar (dashboard-feature, shells clásicos, etc.). */
-export const classicErpAppRoutes: Route[] = [
+const classicRoutes: Route[] = [
   {
     path: 'dashboard',
     loadChildren: () =>
@@ -112,3 +121,5 @@ export const classicErpAppRoutes: Route[] = [
     title: 'Página no encontrada',
   },
 ];
+
+export const classicErpAppRoutes: Route[] = classicRoutes.map(classicRoute);

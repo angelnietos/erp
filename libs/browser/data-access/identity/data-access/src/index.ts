@@ -20,7 +20,10 @@ export {
 export { resolvePostLoginPath } from './lib/utils/post-login-navigation';
 export {
   getErpTenantSlug,
+  setErpTenantSlug,
   syncErpTenantHtmlTheme,
+  resolveTenantSlugFromId,
+  TENANT_ID_TO_SLUG,
 } from './lib/utils/erp-tenant-theme';
 export {
   getTenantUiShell,
@@ -34,6 +37,7 @@ export {
   josanzFigmaShellCanMatch,
   classicErpShellCanMatch,
 } from './lib/guards/tenant-shell-match.guards';
+export { redirectFigmaShellFromClassicRoutes } from './lib/guards/figma-shell-route.guard';
 
 // Users
 export { UsersService } from './lib/services/users.service';

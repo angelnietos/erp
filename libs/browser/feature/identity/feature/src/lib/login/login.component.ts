@@ -13,6 +13,7 @@ import {
   AuthStore,
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
+  setErpTenantSlug,
   syncErpTenantHtmlTheme,
   usesJosanzFigmaLogin,
 } from '@josanz-erp/identity-data-access';
@@ -254,7 +255,7 @@ export class LoginComponent implements OnInit {
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     }
-    syncErpTenantHtmlTheme();
+    setErpTenantSlug(slug);
     this.theme.reapplyTheme();
   }
 

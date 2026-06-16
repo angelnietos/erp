@@ -8,7 +8,7 @@ import {
   ERP_TENANT_SLUG_SESSION_KEY,
   type IdentityAuthMode,
 } from '../services/auth.service';
-import { syncErpTenantHtmlTheme } from '../utils/erp-tenant-theme';
+import { syncErpTenantHtmlTheme, setErpTenantSlug, resolveTenantSlugFromId } from '../utils/erp-tenant-theme';
 import { resolvePostLoginPath } from '../utils/post-login-navigation';
 import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.interceptor';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
@@ -111,18 +111,17 @@ export const AuthStore = signalStore(
                 });
 
                 if (response.tenantSlug) {
-                  if (typeof sessionStorage !== 'undefined') {
-                    sessionStorage.setItem(
-                      ERP_TENANT_SLUG_SESSION_KEY,
-                      response.tenantSlug,
-                    );
+                  setErpTenantSlug(response.tenantSlug);
+                  themeService.reapplyTheme();
+                } else if (tenantSlug) {
+                  setErpTenantSlug(tenantSlug);
+                  themeService.reapplyTheme();
+                } else {
+                  const slugFromId = resolveTenantSlugFromId(tenantId);
+                  if (slugFromId) {
+                    setErpTenantSlug(slugFromId);
+                    themeService.reapplyTheme();
                   }
-                  syncErpTenantHtmlTheme();
-                  themeService.reapplyTheme();
-                } else if (tenantSlug && typeof sessionStorage !== 'undefined') {
-                  sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, tenantSlug);
-                  syncErpTenantHtmlTheme();
-                  themeService.reapplyTheme();
                 }
 
                 const modules$ = tenantId
@@ -138,10 +137,10 @@ export const AuthStore = signalStore(
 
                 return modules$.pipe(
                   tap((modules) => pluginStore.setPlugins(modules.enabledModuleIds)),
-                  map(() => ({ response, authMeta })),
+                  map(() => ({ response, authMeta, tenantId })),
                 );
               }),
-              tap(({ response, authMeta }) => {
+              tap(({ response, authMeta, tenantId }) => {
                 patchState(store, {
                   user: response.user,
                   loading: false,
@@ -151,6 +150,8 @@ export const AuthStore = signalStore(
                 const target = resolvePostLoginPath(
                   pluginStore.enabledPlugins(),
                   response.user.permissions ?? [],
+                  response.tenantSlug ??
+                    resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
                 );
                 void router.navigateByUrl(target, { replaceUrl: true });
               }),
@@ -246,11 +247,16 @@ export const AuthStore = signalStore(
             patchState(store, { user: response.user });
 
             if (response.tenantSlug) {
-              if (typeof sessionStorage !== 'undefined') {
-                sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
-              }
-              syncErpTenantHtmlTheme();
+              setErpTenantSlug(response.tenantSlug);
               themeService.reapplyTheme();
+            } else {
+              const slugFromId = resolveTenantSlugFromId(
+                response.tenantId ?? getStoredTenantId(),
+              );
+              if (slugFromId) {
+                setErpTenantSlug(slugFromId);
+                themeService.reapplyTheme();
+              }
             }
 
             const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;

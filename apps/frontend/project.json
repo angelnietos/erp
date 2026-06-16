@@ -43,6 +43,8 @@
         ],
         "styles": [
           "apps/frontend/src/styles.css",
+          "apps/frontend/src/josanz-figma-theme.scss",
+          "apps/frontend/src/josanz-tailwind.css",
           "apps/frontend/src/josanz-figma-shell.css"
         ],
         "budgets": [

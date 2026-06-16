@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { LucideAngularModule } from 'lucide-angular';
 import {
   ERP_TENANT_SLUG_SESSION_KEY,
+  setErpTenantSlug,
   syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
 import { ThemeService } from '@josanz-erp/shared-data-access';
@@ -74,7 +75,7 @@ export class TenantSelectComponent {
       this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!slug) return;
     sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
-    syncErpTenantHtmlTheme();
+    setErpTenantSlug(slug);
     this.theme.reapplyTheme();
     void this.router.navigate(['/auth/login'], {
       queryParams: { tenant: slug },

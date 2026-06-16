@@ -50,7 +50,8 @@ export const josanzFigmaAppRoutes: Route[] = [
   },
   {
     path: 'budgets',
-    loadChildren: () => import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
+    loadChildren: () =>
+      import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
   },
   {
     path: 'events',

@@ -42,6 +42,13 @@ html[data-erp-ui-shell='josanz-figma'] .josanz-scroll-quiet::-webkit-scrollbar-t
 
 /* Evitar que estilos gaming del ERP pisen el main Figma */
 html[data-erp-ui-shell='josanz-figma'] .josanz-page-main {
-  background: var(--josanz-bg, #f7f9fb);
-  color: var(--josanz-text, #0f172a);
+  background: var(--josanz-bg, #fefefe);
+  color: var(--josanz-text, #222222);
+}
+
+/* Aislar tipografía Figma del layout clásico */
+html[data-erp-ui-shell='josanz-figma'] body {
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

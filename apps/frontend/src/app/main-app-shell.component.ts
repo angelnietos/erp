@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -12,6 +12,7 @@ import {
   AuthStore,
   getErpTenantSlug,
   getTenantUiShell,
+  syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
 
 @Component({
@@ -37,15 +38,20 @@ import {
     }
   `,
 })
-export class MainAppShellComponent {
+export class MainAppShellComponent implements OnInit {
   readonly auth = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly navRefresh = toSignal(
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)),
   );
 
+  ngOnInit(): void {
+    syncErpTenantHtmlTheme();
+  }
+
   readonly uiShell = computed(() => {
     this.navRefresh();
+    syncErpTenantHtmlTheme();
     return getTenantUiShell(getErpTenantSlug());
   });
 }

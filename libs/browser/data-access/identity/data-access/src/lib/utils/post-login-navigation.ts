@@ -1,10 +1,13 @@
+import { getErpTenantSlug } from './erp-tenant-theme';
+import { isJosanzFigmaUiShell } from './tenant-ui-shell';
+
 export interface PostLoginRouteCandidate {
   path: string;
   plugin?: string;
   permission?: string;
 }
 
-/** Debe alinearse con `app.routes.ts` (plugin + permiso por módulo). */
+/** Rutas ERP clásico (gaming shell). */
 export const POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
   { path: '/dashboard', plugin: 'dashboard', permission: 'dashboard.view' },
   { path: '/projects', plugin: 'projects', permission: 'projects.view' },
@@ -26,6 +29,21 @@ export const POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
   { path: '/users', plugin: 'availability', permission: 'users.view' },
 ];
 
+/** Rutas apps/josanz-web-app (shell Figma / tenant alexis). */
+export const FIGMA_POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
+  { path: '/dashboard' },
+  { path: '/events', permission: 'events.view' },
+  { path: '/clients', permission: 'clients.view' },
+  { path: '/equipment', permission: 'products.view' },
+  { path: '/vehicles', permission: 'fleet.view' },
+  { path: '/staff', permission: 'users.view' },
+  { path: '/billing', permission: 'billing.view' },
+  { path: '/budgets', permission: 'budgets.view' },
+  { path: '/stock', permission: 'products.view' },
+  { path: '/users', permission: 'users.view' },
+  { path: '/settings' },
+];
+
 function hasPermission(permissions: readonly string[], permission: string): boolean {
   return permissions.includes('*') || permissions.includes(permission);
 }
@@ -33,14 +51,19 @@ function hasPermission(permissions: readonly string[], permission: string): bool
 export function resolvePostLoginPath(
   enabledPlugins: readonly string[],
   permissions: readonly string[],
+  tenantSlug?: string | null,
 ): string {
-  for (const route of POST_LOGIN_ROUTE_CANDIDATES) {
+  const slug = tenantSlug ?? getErpTenantSlug();
+  const candidates = isJosanzFigmaUiShell(slug)
+    ? FIGMA_POST_LOGIN_ROUTE_CANDIDATES
+    : POST_LOGIN_ROUTE_CANDIDATES;
+
+  for (const route of candidates) {
     const pluginOk = !route.plugin || enabledPlugins.includes(route.plugin);
-    const permissionOk =
-      !route.permission || hasPermission(permissions, route.permission);
+    const permissionOk = !route.permission || hasPermission(permissions, route.permission);
     if (pluginOk && permissionOk) {
       return route.path;
     }
   }
-  return '/settings';
+  return isJosanzFigmaUiShell(slug) ? '/dashboard' : '/settings';
 }

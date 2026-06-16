@@ -1,0 +1,52 @@
+/**
+ * Design system Josanz UI (Figma) para tenant Alexis.
+ * Solo layout/componentes `.josanz-*`; sin reset global de `body` (ERP clásico intacto).
+ */
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/themes/figma-neutral';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/sidebar';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/shell';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/list-template-row';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/list-view';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/list-search';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/figma-auth';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/figma-catalog';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/figma-detail';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/figma-home';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/layout/figma-client';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/components/button';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/components/card';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/components/form';
+@use '../../../libs/browser/shared/josanz-ui/src/lib/styles/components/modal';
+
+html[data-erp-ui-shell='josanz-figma'] {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: var(--josanz-text);
+    margin: 0;
+  }
+
+  .text-muted {
+    color: var(--josanz-text-muted);
+  }
+
+  .label-xs {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--josanz-text-muted);
+  }
+
+  .glass-effect {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}

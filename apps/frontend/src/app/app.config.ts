@@ -23,9 +23,10 @@ import {
   TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
   syncErpTenantHtmlTheme,
-  ERP_TENANT_SLUG_SESSION_KEY,
   getErpTenantSlug,
   isJosanzFigmaUiShell,
+  resolveTenantSlugFromId,
+  setErpTenantSlug,
 } from '@josanz-erp/identity-data-access';
 import {
   bffAuthInterceptor,
@@ -212,7 +213,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       multi: true,
       useFactory: () => () => {
-        syncErpTenantHtmlTheme();
+        const slugFromId = resolveTenantSlugFromId(getStoredTenantId());
+        if (slugFromId) {
+          setErpTenantSlug(slugFromId);
+        } else {
+          syncErpTenantHtmlTheme();
+        }
         if (isJosanzFigmaUiShell(getErpTenantSlug())) {
           inject(JosanzThemeService).setTheme('luxe-rounded');
         }
@@ -278,12 +284,22 @@ export const appConfig: ApplicationConfig = {
               if (response.tenantId) {
                 authService.setTenantId(response.tenantId);
               }
-              if (response.tenantSlug && typeof sessionStorage !== 'undefined') {
-                sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, response.tenantSlug);
-                syncErpTenantHtmlTheme();
+              if (response.tenantSlug) {
+                setErpTenantSlug(response.tenantSlug);
                 themeService.reapplyTheme();
                 if (isJosanzFigmaUiShell(response.tenantSlug)) {
                   inject(JosanzThemeService).setTheme('luxe-rounded');
+                }
+              } else {
+                const slugFromId = resolveTenantSlugFromId(
+                  response.tenantId ?? getStoredTenantId(),
+                );
+                if (slugFromId) {
+                  setErpTenantSlug(slugFromId);
+                  themeService.reapplyTheme();
+                  if (isJosanzFigmaUiShell(slugFromId)) {
+                    inject(JosanzThemeService).setTheme('luxe-rounded');
+                  }
                 }
               }
               const u = response.user;

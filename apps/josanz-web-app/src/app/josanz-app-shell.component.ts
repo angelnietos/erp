@@ -1,6 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { MobileTabBarComponent, SidebarComponent } from '@josanz-erp/josanz-ui';
+import {
+  MobileTabBarComponent,
+  SidebarComponent,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 import { JosanzDemoAuthService } from './auth/josanz-demo-auth.service';
 
 @Component({
@@ -10,9 +14,14 @@ import { JosanzDemoAuthService } from './auth/josanz-demo-auth.service';
   templateUrl: './josanz-app-shell.component.html',
   styleUrl: './josanz-app-shell.component.css',
 })
-export class JosanzAppShellComponent {
+export class JosanzAppShellComponent implements OnInit {
   private readonly auth = inject(JosanzDemoAuthService);
   private readonly router = inject(Router);
+  private readonly josanzTheme = inject(JosanzThemeService);
+
+  ngOnInit(): void {
+    this.josanzTheme.setTheme('luxe-rounded');
+  }
 
   onLogout(): void {
     this.auth.logout();

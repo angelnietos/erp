@@ -325,7 +325,7 @@
         "libs/browser/shared/auth-keycloak/src/index.ts"
       ],
       "@josanz-erp/josanz-budgets-shell": [
-        "libs/browser/shell/budget/josanz/src/index.ts"
+        "libs/browser/feature/budget/josanz/shell/src/index.ts"
       ],
       "@josanz-erp/josanz-events-shell": [
         "libs/browser/feature/events/josanz/shell/src/index.ts"

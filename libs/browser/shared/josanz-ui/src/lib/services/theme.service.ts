@@ -84,7 +84,6 @@ export class JosanzThemeService {
 
   constructor() {
     this.restorePreferences();
-    this.applyToDOM(false);
     this.setupStorybookBridge();
   }
 

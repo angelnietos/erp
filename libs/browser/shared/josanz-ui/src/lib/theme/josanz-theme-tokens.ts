@@ -787,8 +787,16 @@ export function applyJosanzThemeCssVariables(params: {
   primaryColor: string;
   themeName: string;
 }): void {
-  const { atmosphere, primaryColor, themeName } = params;
+  if (typeof document === 'undefined') {
+    return;
+  }
   const root = document.documentElement;
+  const erpShell = root.getAttribute('data-erp-ui-shell');
+  /** ERP multi-tenant: solo pintar Figma en tenant Alexis. `josanz-web-app` no marca el atributo. */
+  if (erpShell !== null && erpShell !== 'josanz-figma') {
+    return;
+  }
+  const { atmosphere, primaryColor, themeName } = params;
   const isDark = josanzAtmosphereIsDark(atmosphere);
   const effectiveText = ensureContrast(
     atmosphere.text,

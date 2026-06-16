@@ -1,8 +1,36 @@
 import { ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
+import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 import { getTenantUiShell } from './tenant-ui-shell';
 
+/** IDs fijos del seed (`apps/backend/prisma/seed.ts`) → slug. */
+export const TENANT_ID_TO_SLUG: Readonly<Record<string, string>> = {
+  'c363035a-2a98-4054-9207-38c8aa5732d9': 'josanz',
+  'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': 'babooni',
+  'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a': 'alexis',
+};
+
+export function resolveTenantSlugFromId(tenantId: string | null | undefined): string | null {
+  const id = (tenantId ?? '').trim().toLowerCase();
+  if (!id) {
+    return null;
+  }
+  return TENANT_ID_TO_SLUG[id] ?? null;
+}
+
+/** Persiste slug (login / refresh) y sincroniza `<html data-erp-*`. */
+export function setErpTenantSlug(slug: string | null | undefined): void {
+  const normalized = (slug ?? '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (!normalized || typeof sessionStorage === 'undefined') {
+    syncErpTenantHtmlTheme();
+    return;
+  }
+  sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, normalized);
+  syncErpTenantHtmlTheme();
+}
+
 /**
- * Slug del tenant ERP actual (`sessionStorage` tras login, o atributo en `<html>`).
+ * Slug del tenant ERP actual.
+ * Prioridad: sessionStorage (backend) → tenantId del JWT → atributo HTML → josanz.
  */
 export function getErpTenantSlug(): string {
   if (typeof sessionStorage !== 'undefined') {
@@ -10,6 +38,10 @@ export function getErpTenantSlug(): string {
     if (s) {
       return s.toLowerCase();
     }
+  }
+  const fromTenantId = resolveTenantSlugFromId(getStoredTenantId());
+  if (fromTenantId) {
+    return fromTenantId;
   }
   if (typeof document !== 'undefined') {
     const a = document.documentElement.getAttribute('data-erp-tenant')?.trim();
@@ -28,19 +60,7 @@ export function syncErpTenantHtmlTheme(): void {
   if (typeof document === 'undefined') {
     return;
   }
-  let slug =
-    typeof sessionStorage !== 'undefined'
-      ? sessionStorage.getItem(ERP_TENANT_SLUG_SESSION_KEY)
-      : null;
-  if (!slug?.trim()) {
-    slug = 'josanz';
-  }
-  document.documentElement.setAttribute(
-    'data-erp-tenant',
-    slug.trim().toLowerCase(),
-  );
-  document.documentElement.setAttribute(
-    'data-erp-ui-shell',
-    getTenantUiShell(slug),
-  );
+  const slug = getErpTenantSlug();
+  document.documentElement.setAttribute('data-erp-tenant', slug);
+  document.documentElement.setAttribute('data-erp-ui-shell', getTenantUiShell(slug));
 }
