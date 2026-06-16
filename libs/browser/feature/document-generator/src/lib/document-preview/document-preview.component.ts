@@ -11,7 +11,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { DocumentPersistenceService } from '../services/document-persistence.service';
-import { PdfGenerationService } from '../services/pdf-generation.service';
+import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
 import {
   buildPreviewBackgroundOverrideCss,
   buildPreviewPaneStyle,
@@ -521,7 +521,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly persistence = inject(DocumentPersistenceService);
-  private readonly pdfService = inject(PdfGenerationService);
+  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
   private readonly cdr = inject(ChangeDetectorRef);
 
   async ngOnInit(): Promise<void> {
@@ -711,31 +711,10 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     this.cdr.markForCheck();
     try {
       if (typeof d.content === 'string' && d.content.trim()) {
-        const background = readPdfBackgroundSettings(
+        const blob = await this.exportOrchestrator.exportPdfFromPersisted(
           d as unknown as Record<string, unknown>,
+          d.title || 'Documento',
         );
-        const blob = await this.pdfService.generateMarkdownPdf({
-          content: d.content,
-          title: d.title || 'Documento',
-          date: d.date ? String(d.date) : undefined,
-          client: d.client,
-          subtitle: d.client,
-          pdfStyleId: d.pdfStyleId,
-          quickStylePreset: d.quickStylePreset,
-          contentEditorMode: d.contentEditorMode,
-          customCss: d.customCss,
-          coverConfig: d.coverConfig,
-          signatureConfig: d.signatureConfig,
-          headerFooterConfig: d.headerFooterConfig,
-          pdfBackgroundMode: background.pdfBackgroundMode,
-          pdfBackgroundColor: background.pdfBackgroundColor,
-          pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
-          documentPaperColor: background.documentPaperColor,
-          documentTextColor: background.documentTextColor,
-          documentMutedColor: background.documentMutedColor,
-          documentAccentColor: background.documentAccentColor,
-          documentBorderColor: background.documentBorderColor,
-        });
         downloadPdfBlob(blob, `${d.title || 'documento'}.pdf`);
         return;
       }

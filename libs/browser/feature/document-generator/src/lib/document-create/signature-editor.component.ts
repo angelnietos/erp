@@ -569,4 +569,46 @@ export class SignatureEditorComponent {
   </div>
 </div>`;
   }
+
+  exportToMarkdown(): string {
+    const c = this.config();
+    if (!c.enabled) {
+      return '';
+    }
+
+    const block = (): string => {
+      const lines: string[] = [];
+      if (c.signatureImageUrl) {
+        lines.push(`![Firma](${c.signatureImageUrl})`, '');
+      }
+      if (c.showLine) {
+        lines.push('________________________', '');
+      }
+      lines.push(`**${c.name || 'Nombre del firmante'}**`);
+      if (c.title) {
+        lines.push(c.title);
+      }
+      if (c.company) {
+        lines.push(c.company);
+      }
+      const meta = [
+        c.showLocation && c.location ? c.location : '',
+        c.showDate && c.date ? c.date : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
+      if (meta) {
+        lines.push(`*${meta}*`);
+      }
+      return lines.join('\n');
+    };
+
+    const parts = ['', '## Firmas', ''];
+    if (c.layout === 'horizontal') {
+      parts.push(block(), '', '---', '', block());
+    } else {
+      parts.push(block());
+    }
+    return parts.join('\n');
+  }
 }

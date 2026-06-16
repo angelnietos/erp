@@ -255,33 +255,26 @@ const DEFAULT_CONFIG: TableConfig = {
           </div>
 
           <div class="form-group">
-            <label>Selecciona el tamaño visualmente</label>
+            <label>Selecciona filas y columnas (clic)</label>
             <div
-              class="grid-visualizer"
-              [style.grid-template-columns]="
-                'repeat(' + Math.min(tableConfig().cols, 6) + ', 1fr)'
-              "
+              class="grid-visualizer grid-visualizer--picker"
+              [style.grid-template-columns]="'repeat(' + gridPickerSize + ', 1fr)'"
             >
-              @for (
-                row of [].constructor(Math.min(tableConfig().rows, 6));
-                track row;
-                let rowIndex = $index
-              ) {
-                @for (
-                  col of [].constructor(Math.min(tableConfig().cols, 6));
-                  track col;
-                  let colIndex = $index
-                ) {
+              @for (row of gridPickerRows; track row) {
+                @for (col of gridPickerCols; track col) {
                   <div
                     class="grid-cell"
-                    [class.active]="
-                      rowIndex > 0 || tableConfig().hasHeader === false
-                    "
-                    [class.header]="rowIndex === 0 && tableConfig().hasHeader"
+                    [class.active]="row <= tableConfig().rows && col <= tableConfig().cols"
+                    [class.header]="row === 1 && tableConfig().hasHeader"
+                    (click)="selectGridSize(row, col)"
+                    [attr.title]="row + ' × ' + col"
                   ></div>
                 }
               }
             </div>
+            <p class="text-xs text-green-800 mt-1">
+              {{ tableConfig().rows }} filas × {{ tableConfig().cols }} columnas
+            </p>
           </div>
 
           <div class="form-group">
@@ -380,6 +373,12 @@ const DEFAULT_CONFIG: TableConfig = {
 })
 export class TableBuilderComponent {
   protected readonly Math = Math;
+  readonly gridPickerSize = 8;
+  readonly gridPickerRows = Array.from(
+    { length: 8 },
+    (_, index) => index + 1,
+  );
+  readonly gridPickerCols = this.gridPickerRows;
   tableConfig = signal<TableConfig>({ ...DEFAULT_CONFIG });
 
   insert = signal(false);
@@ -407,6 +406,14 @@ export class TableBuilderComponent {
 
   decrementCol(): void {
     this.tableConfig.update((c) => ({ ...c, cols: Math.max(c.cols - 1, 1) }));
+  }
+
+  selectGridSize(rows: number, cols: number): void {
+    this.tableConfig.update((c) => ({
+      ...c,
+      rows: Math.max(1, Math.min(rows, 20)),
+      cols: Math.max(1, Math.min(cols, 10)),
+    }));
   }
 
   insertTable(): void {

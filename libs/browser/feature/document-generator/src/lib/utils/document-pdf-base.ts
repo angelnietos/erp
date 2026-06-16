@@ -430,6 +430,53 @@ html, body {
   font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
+/* Callouts (notas, info, advertencia, éxito) */
+.pdf-body-content.markdown-preview .doc-callout {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  border-left: 4px solid #3b82f6;
+  background: #eff6ff;
+  color: #1e40af;
+  page-break-inside: avoid;
+}
+
+.pdf-body-content.markdown-preview .doc-callout--info {
+  border-left-color: #2563eb;
+  background: #eff6ff;
+  color: #1e3a8a;
+}
+
+.pdf-body-content.markdown-preview .doc-callout--warning {
+  border-left-color: #f59e0b;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.pdf-body-content.markdown-preview .doc-callout--success {
+  border-left-color: #16a34a;
+  background: #f0fdf4;
+  color: #166534;
+}
+
+.pdf-body-content.markdown-preview .doc-callout--note {
+  border-left-color: #6366f1;
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.pdf-body-content.markdown-preview .doc-checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.pdf-body-content.markdown-preview .doc-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.35rem 0;
+}
+
 /* Secciones con control de página */
 .pdf-body-content.markdown-preview .doc-block {
   page-break-inside: avoid;

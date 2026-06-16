@@ -550,7 +550,11 @@
                     [selectedQuickStylePreset]="selectedQuickStylePreset"
                     [isAiGenerating]="isAiGenerating"
                     [editorBlockTemplates]="editorBlockTemplates"
+                    [canUndo]="historyCanUndo"
+                    [canRedo]="historyCanRedo"
                     (formatAction)="handleToolbarFormatAction($event)"
+                    (undo)="undoEdit()"
+                    (redo)="redoEdit()"
                     (textColorChange)="selectedTextColor = $event"
                     (applyTextColor)="applyTextColor()"
                     (blockInsert)="insertEditorBlockFromSelect($event)"
@@ -570,21 +574,27 @@
                      [contentEditorMode]="contentEditorMode"
                      [editorPlaceholder]="editorPlaceholder"
                      [isAiGenerating]="isAiGenerating"
+                     [showSlashCommands]="showSlashCommands"
                      (modeChange)="setContentEditorMode($event)"
                      (toggleFullscreen)="toggleFullscreen()"
-                     (contentInput)="updatePreview()"
-                     (editorKeydown)="handleKeydown($event)"
+                     (contentInput)="onEditorContentInput()"
+                     (editorKeydown)="handleEditorKeydown($event)"
+                     (slashOpen)="openSlashCommands()"
                      (applyCorporateTemplate)="insertDefaultCssTemplate()"
-                   />
+                   >
+                    @if (showSlashCommands) {
+                      <app-slash-commands
+                        slashCommands
+                        (commandExecuted)="handleSlashCommand($event)"
+                        (dismissed)="closeSlashCommands()"
+                      />
+                    }
+                   </app-document-editor-canvas>
 
                   <app-document-live-preview
-                    [contentEditorMode]="contentEditorMode"
                     [wordCount]="wordCount"
                     [characterCount]="characterCount"
                     [htmlPreviewSrcdoc]="htmlPreviewSrcdoc"
-                    [previewHtml]="previewHtml"
-                    [previewPaneStyle]="previewPaneStyle"
-                    [pdfBackgroundMode]="pdfBackgroundMode"
                     [previewRenderKey]="previewRenderKey"
                   />
                 </div>
@@ -651,8 +661,8 @@
                            [placeholder]="editorPlaceholder"
                            [attr.disabled]="isAiGenerating ? true : null"
                            class="document-editor-textarea w-full h-full bg-surface font-mono text-sm resize-none border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                           (input)="updatePreview()"
-                           (keydown)="handleKeydown($event)"
+                           (input)="onEditorContentInput()"
+                           (keydown)="handleEditorKeydown($event)"
                          ></textarea>
                          @if (isAiGenerating) {
                            <div
@@ -695,23 +705,12 @@
                           {{ characterCount }} caracteres</span
                         >
                       </div>
-                      @if (contentEditorMode === 'html') {
-                        @if (previewRenderKey) {
-                          <iframe
-                            title="Vista previa HTML"
-                            class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-white shadow-inner"
-                            [srcdoc]="htmlPreviewSrcdoc"
-                          ></iframe>
-                        }
-                      } @else {
-                        <div
-                          class="document-preview-pane w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl overflow-auto markdown-preview shadow-inner"
-                          [class.document-preview-pane--isolated]="
-                            pdfBackgroundMode !== 'theme'
-                          "
-                          [ngStyle]="previewPaneStyle"
-                          [innerHTML]="previewHtml"
-                        ></div>
+                      @if (previewRenderKey) {
+                        <iframe
+                          title="Vista previa del documento"
+                          class="document-preview-pane document-preview-pane--iframe w-full flex-1 min-h-0 border border-[#e2e8f0] rounded-xl bg-[#e8ecf1] shadow-inner"
+                          [srcdoc]="htmlPreviewSrcdoc"
+                        ></iframe>
                       }
                     </div>
                   }

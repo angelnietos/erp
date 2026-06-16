@@ -6,10 +6,9 @@ import {
   DocumentListItem,
   DocumentPersistenceService,
 } from '../services/document-persistence.service';
-import { PdfGenerationService } from '../services/pdf-generation.service';
+import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
 import {
   downloadPdfBlob,
-  readPdfBackgroundSettings,
 } from '../utils/document-preview-css';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -419,7 +418,7 @@ export class DocumentListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly assistantCtx = inject(AssistantContextService);
   private readonly persistence = inject(DocumentPersistenceService);
-  private readonly pdfService = inject(PdfGenerationService);
+  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
 
   openFloatingHelp(): void {
     this.assistantCtx.openAssistant();
@@ -504,37 +503,10 @@ export class DocumentListComponent implements OnInit {
       const content = data['content'];
 
       if (typeof content === 'string' && content.trim()) {
-        const background = readPdfBackgroundSettings(data);
-        const blob = await this.pdfService.generateMarkdownPdf({
-          content,
+        const blob = await this.exportOrchestrator.exportPdfFromPersisted(
+          data,
           title,
-          date: data['date'] ? String(data['date']) : undefined,
-          client: data['client'] as string | undefined,
-          subtitle: data['client'] as string | undefined,
-          pdfStyleId: data['pdfStyleId'] as string | undefined,
-          quickStylePreset:
-            typeof data['quickStylePreset'] === 'string'
-              ? data['quickStylePreset']
-              : undefined,
-          contentEditorMode:
-            data['contentEditorMode'] === 'markdown' ||
-            data['contentEditorMode'] === 'html' ||
-            data['contentEditorMode'] === 'plain'
-              ? data['contentEditorMode']
-              : undefined,
-          customCss:
-            typeof data['customCss'] === 'string'
-              ? data['customCss']
-              : undefined,
-          pdfBackgroundMode: background.pdfBackgroundMode,
-          pdfBackgroundColor: background.pdfBackgroundColor,
-          pdfBackgroundImageUrl: background.pdfBackgroundImageUrl,
-          documentPaperColor: background.documentPaperColor,
-          documentTextColor: background.documentTextColor,
-          documentMutedColor: background.documentMutedColor,
-          documentAccentColor: background.documentAccentColor,
-          documentBorderColor: background.documentBorderColor,
-        });
+        );
         downloadPdfBlob(blob, `${title}.pdf`);
         return;
       }

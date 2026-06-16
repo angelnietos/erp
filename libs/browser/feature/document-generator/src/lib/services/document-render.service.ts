@@ -19,7 +19,7 @@ import {
   removeManagedStylePreset,
   stylePresetCss,
 } from '../utils/document-style-presets';
-import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base.css';
+import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base';
 
 import type {
   ContentEditorMode,
@@ -317,6 +317,33 @@ ${bodyHtml}
   </html>`;
   }
 
+  /** HTML idéntico al PDF (Playwright / descarga). */
+  buildPdfExportHtml(input: DocumentRenderInput): string {
+    const payload = this.buildPayload(input);
+    return payload.fullExportHtml;
+  }
+
+  /**
+   * Vista previa en iframe: misma base CSS que exportación + overrides responsivos
+   * para portada y lienzo (WYSIWYG con el PDF).
+   */
+  buildUnifiedPreviewSrcdoc(input: DocumentRenderInput): string {
+    const payload = this.buildPayload(input);
+    const previewStylesheet = [
+      payload.exportStylesheet,
+      this.previewScreenCss(),
+      this.previewCoverOverrideCssForExportBody(),
+    ]
+      .filter(Boolean)
+      .join('\n\n');
+
+    return this.buildFullExportHtml(
+      input.documentTitle ?? 'Documento',
+      payload.bodyHtml,
+      previewStylesheet,
+    );
+  }
+
   buildHtmlPreviewSrcdoc(
     contentHtml: string,
     stylesheet: string,
@@ -536,13 +563,19 @@ ${bodyHtml}
   }
 
   private previewCoverOverrideCss(): string {
+    return this.previewCoverOverrideCssForExportBody();
+  }
+
+  /** Overrides responsivos de portada/contenido para iframe (misma estructura que PDF). */
+  previewCoverOverrideCssForExportBody(): string {
     return `
 /* Cover styles (shared with PDF) */
 ${PDF_COVER_SHARED_CSS}
 
-/* Responsive preview overrides */
-.document-preview-render .pdf-cover,
-.document-preview-render .pdf-cover-page,
+/* Responsive preview: misma estructura .pdf-body-content que exportación */
+.pdf-body-content .pdf-cover,
+.pdf-body-content .pdf-cover-page,
+.pdf-body-content .cover,
 .pdf-cover,
 .pdf-cover-page {
   width: 100% !important;
@@ -551,8 +584,8 @@ ${PDF_COVER_SHARED_CSS}
   min-height: auto !important;
   aspect-ratio: 210/297 !important;
   padding: 32px !important;
-  border-radius: 24px !important;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.12) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   overflow: hidden !important;
 }
 
@@ -572,7 +605,7 @@ ${PDF_COVER_SHARED_CSS}
 }
 
 /* Watermark overlay for iframe preview */
-.document-preview-render .pdf-watermark {
+.pdf-body-content .pdf-watermark {
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
@@ -589,41 +622,61 @@ ${PDF_COVER_SHARED_CSS}
 }
 
 /* Content spacing - compact but professional (matches PDF) */
-.document-preview-render .pdf-body-content p {
+.pdf-body-content p {
   margin: 0.45rem 0 !important;
   line-height: 1.68 !important;
 }
 
-.document-preview-render .pdf-body-content ul,
-.document-preview-render .pdf-body-content ol {
+.pdf-body-content ul,
+.pdf-body-content ol {
   margin: 0.55rem 0 !important;
 }
 
-.document-preview-render .pdf-body-content li {
+.pdf-body-content li {
   margin: 0.25rem 0 !important;
 }
 
-/* Headers with tight spacing matching PDF */
-.document-preview-render .pdf-body-content h1 {
+.pdf-body-content h1 {
   margin: 1.25rem 0 0.5rem 0 !important;
 }
 
-.document-preview-render .pdf-body-content h2 {
+.pdf-body-content h2 {
   margin: 0.85rem 0 0.4rem 0 !important;
 }
 
-.document-preview-render .pdf-body-content h3 {
+.pdf-body-content h3 {
   margin: 0.7rem 0 0.35rem 0 !important;
 }
 
-/* Avoid page breaks before lists */
-.document-preview-render .pdf-body-content h1 + ul,
-.document-preview-render .pdf-body-content h2 + ul,
-.document-preview-render .pdf-body-content h3 + ul,
-.document-preview-render .pdf-body-content h1 + ol,
-.document-preview-render .pdf-body-content h2 + ol,
-.document-preview-render .pdf-body-content h3 + ol {
+.pdf-body-content h1 + ul,
+.pdf-body-content h2 + ul,
+.pdf-body-content h3 + ul,
+.pdf-body-content h1 + ol,
+.pdf-body-content h2 + ol,
+.pdf-body-content h3 + ol {
   margin-top: 0.25rem !important;
+}
+`;
+  }
+
+  /** Lienzo del iframe de vista previa (simula hoja sobre fondo gris). */
+  previewScreenCss(): string {
+    return `
+html, body {
+  margin: 0;
+  padding: 24px 16px 32px;
+  min-height: 100%;
+  background: #e8ecf1;
+}
+
+.pdf-body-content.markdown-preview {
+  max-width: 794px;
+  margin: 0 auto;
+  background: #ffffff;
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.08),
+    0 24px 48px -12px rgba(15, 23, 42, 0.18);
+  min-height: 200px;
 }
 `;
   }

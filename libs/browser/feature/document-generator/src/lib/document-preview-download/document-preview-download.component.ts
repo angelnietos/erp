@@ -1,6 +1,7 @@
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
 import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import { readPdfBackgroundSettings } from '../utils/document-preview-css';
@@ -27,6 +28,7 @@ export class DocumentPreviewDownloadComponent implements OnInit {
 
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
   private readonly pdfService = inject(PdfGenerationService);
   private readonly persistence = inject(DocumentPersistenceService);
   private readonly destroyRef = inject(DestroyRef);
@@ -89,20 +91,30 @@ export class DocumentPreviewDownloadComponent implements OnInit {
         documentBorderColor: background.documentBorderColor,
       };
       let pdfBlob: Blob;
+      const content =
+        typeof doc['content'] === 'string' ? doc['content'].trim() : '';
       const kind = typeof doc.type === 'string' ? doc.type : 'documentation';
-      switch (kind) {
-        case 'quote':
-          pdfBlob = await this.pdfService.generateQuotePdf(withStyles);
-          break;
-        case 'proposal':
-          pdfBlob = await this.pdfService.generateProposalPdf(withStyles);
-          break;
-        case 'documentation':
-        case 'architecture':
-          pdfBlob = await this.pdfService.generateDocumentationPdf(withStyles);
-          break;
-        default:
-          pdfBlob = await this.pdfService.generateMarkdownPdf(withStyles);
+
+      if (content) {
+        pdfBlob = await this.exportOrchestrator.exportPdfFromPersisted(
+          withStyles as Record<string, unknown>,
+          String(doc.title ?? 'Documento'),
+        );
+      } else {
+        switch (kind) {
+          case 'quote':
+            pdfBlob = await this.pdfService.generateQuotePdf(withStyles);
+            break;
+          case 'proposal':
+            pdfBlob = await this.pdfService.generateProposalPdf(withStyles);
+            break;
+          case 'documentation':
+          case 'architecture':
+            pdfBlob = await this.pdfService.generateDocumentationPdf(withStyles);
+            break;
+          default:
+            pdfBlob = await this.pdfService.generateMarkdownPdf(withStyles);
+        }
       }
 
       this.pdfUrl = URL.createObjectURL(pdfBlob);

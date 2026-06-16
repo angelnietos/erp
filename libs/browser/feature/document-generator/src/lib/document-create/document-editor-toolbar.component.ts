@@ -13,8 +13,6 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
       role="toolbar"
       aria-label="Herramientas de edición"
     >
-      <ng-content select="[toolbarPanels]"></ng-content>
-
       <div class="sidebar-section-title">
         Formato
         <span
@@ -28,6 +26,26 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
                 : 'MD'
           }}
         </span>
+      </div>
+      <div class="sidebar-format-grid sidebar-format-grid--history">
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="undo.emit()"
+          [disabled]="!canUndo()"
+          title="Deshacer (Ctrl+Z)"
+        >
+          <span style="font-size:13px;">↶</span><span style="font-size:0.65rem;">Undo</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="redo.emit()"
+          [disabled]="!canRedo()"
+          title="Rehacer (Ctrl+Shift+Z)"
+        >
+          <span style="font-size:13px;">↷</span><span style="font-size:0.65rem;">Redo</span>
+        </button>
       </div>
       <div class="sidebar-format-grid">
         <button
@@ -126,6 +144,23 @@ import type { EditorBlockTemplate } from '../models/document-render.models';
           title="Bloque de código"
         >
           <span style="font-size:11px;font-weight:600;">Blq</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('divider')"
+          title="Separador horizontal"
+        >
+          <span style="font-size:13px;font-weight:600;">—</span>
+        </button>
+        <button
+          class="sidebar-format-btn"
+          type="button"
+          (click)="formatAction.emit('checklist')"
+          title="Lista de tareas"
+          [disabled]="contentEditorMode() === 'html'"
+        >
+          <span style="font-size:12px;">☑</span>
         </button>
       </div>
 
@@ -310,8 +345,12 @@ export class DocumentEditorToolbarComponent {
   readonly selectedQuickStylePreset = input('');
   readonly isAiGenerating = input(false);
   readonly editorBlockTemplates = input<EditorBlockTemplate[]>([]);
+  readonly canUndo = input(false);
+  readonly canRedo = input(false);
 
   readonly formatAction = output<string>();
+  readonly undo = output<void>();
+  readonly redo = output<void>();
   readonly textColorChange = output<string>();
   readonly applyTextColor = output<void>();
   readonly blockInsert = output<Event>();

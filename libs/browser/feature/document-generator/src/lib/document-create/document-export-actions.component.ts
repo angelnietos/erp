@@ -11,7 +11,8 @@ import { CommonModule } from '@angular/common';
       #fileInput
       hidden
       (change)="importFile.emit($event)"
-      accept=".md,.txt,.pdf,.docx,.xlsx,.html"
+      accept=".md,.txt,.html,.htm"
+      title="Importar Markdown, HTML o texto plano"
     />
     <div class="flex flex-wrap gap-2">
       <button

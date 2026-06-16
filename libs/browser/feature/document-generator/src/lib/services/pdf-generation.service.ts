@@ -7,7 +7,7 @@ import {
   resolvePdfGenerationCss,
   type PdfBackgroundSettings,
 } from '../utils/document-preview-css';
-import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base.css';
+import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base';
 import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
@@ -377,6 +377,17 @@ export class PdfGenerationService {
    * Genera PDF PROFESIONAL desde contenido (Markdown o HTML)
    * El PDF es IDENTICO a la vista previa web
    */
+  /**
+   * Renderiza el HTML de exportación unificado (mismo que Playwright) vía html2pdf.
+   * Usado solo como fallback cuando el backend no está disponible.
+   */
+  async generateFromExportHtml(
+    fullHtml: string,
+    filename: string,
+  ): Promise<Blob> {
+    return this.htmlToPdfBlob(fullHtml, filename, null);
+  }
+
   async generateMarkdownPdf(data: DocumentData): Promise<Blob> {
     // Convertir todas las imágenes externas a Base64 asíncronamente para evitar errores CORS en html2canvas
     const dataCopy = { ...data };

@@ -22,9 +22,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { PdfGenerationService } from '../services/pdf-generation.service';
 import { DocumentRenderService } from '../services/document-render.service';
-import { DocumentPdfApiService } from '../services/document-pdf-api.service';
+import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
+import { DocumentEditorHistory } from '../services/document-editor-history.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
 import {
   AssistantContextService,
@@ -133,6 +133,7 @@ interface SelectedTextFormat {
     DocumentLivePreviewComponent,
     DocumentExportActionsComponent,
     DocumentToolsModalComponent,
+    SlashCommandsComponent,
   ],
   templateUrl: './document-create-editor.component.html',
   styleUrl: './document-create-editor.component.css',
@@ -193,6 +194,10 @@ export class DocumentCreateEditorComponent implements OnInit {
   showSlashCommands = false;
   slashMenuPosition = { x: 0, y: 0 };
   activeSidebarTab: 'styles' | 'blocks' | 'advanced' = 'blocks';
+  private readonly editorHistory = new DocumentEditorHistory();
+  private historySuspended = false;
+  historyCanUndo = false;
+  historyCanRedo = false;
 
   coverPanelEnabled = false;
   signaturePanelEnabled = false;
@@ -214,7 +219,9 @@ export class DocumentCreateEditorComponent implements OnInit {
   watermarkEditor?: WatermarkDialogComponent;
   @ViewChild(DocumentToolsModalComponent)
   toolsModal?: DocumentToolsModalComponent;
-  @ViewChild(SlashCommandsComponent) slashCommands!: SlashCommandsComponent;
+  @ViewChild(SlashCommandsComponent) slashCommands?: SlashCommandsComponent;
+  @ViewChild(DocumentEditorCanvasComponent)
+  editorCanvas?: DocumentEditorCanvasComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
     { id: 'paragraph', label: 'P�rrafo normal' },
     { id: 'h1', label: 'T�tulo H1' },
@@ -417,9 +424,8 @@ export class DocumentCreateEditorComponent implements OnInit {
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  readonly pdfService = inject(PdfGenerationService);
+  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
   private readonly documentRender = inject(DocumentRenderService);
-  private readonly documentPdfApi = inject(DocumentPdfApiService);
   private readonly documentPersistence = inject(DocumentPersistenceService);
   readonly assistantService = inject(AssistantContextService);
   readonly universalDocument = inject(UniversalDocumentService);
@@ -817,6 +823,15 @@ this.documentForm.patchValue({ content: beautified });
         this.applyAssistantSyncFromValues(values as Record<string, unknown>);
       });
 
+    this.documentForm.get('content')?.valueChanges
+      .pipe(debounceTime(400), takeUntilDestroyed(this.destroyRef))
+      .subscribe((content) => {
+        if (typeof content === 'string' && !this.historySuspended) {
+          this.editorHistory.push(content);
+          this.refreshHistoryFlags();
+        }
+      });
+
     this.assistantService.documentCommands$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((command) => this.applyAssistantDocumentCommand(command));
@@ -935,6 +950,9 @@ this.documentForm.patchValue({ content: beautified });
 
     queueMicrotask(() => this.viewportScroller.scrollToPosition([0, 0]));
     this.updatePreview();
+    this.initEditorHistory(
+      String(this.documentForm.get('content')?.value ?? ''),
+    );
   }
 
   private applyPayloadToForm(draftId: string, payload: unknown): void {
@@ -1253,20 +1271,10 @@ this.documentForm.patchValue({ content: beautified });
     const payload = this.documentRender.buildPayload(input);
 
     this.previewHtmlMarkup = payload.contentMarkup;
-
-    if (this.contentEditorMode === 'html') {
-      this.previewRenderCounter++;
-      this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
-        this.documentRender.buildHtmlPreviewSrcdoc(
-          payload.contentMarkup,
-          payload.previewStylesheet,
-          this.buildDocumentExtras(input.documentTitle),
-        ),
-      );
-    } else {
-      this.htmlPreviewSrcdoc = '';
-    }
-
+    this.previewRenderCounter++;
+    this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
+      this.exportOrchestrator.buildPreviewSrcdoc(input),
+    );
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(payload.bodyHtml);
     this.cdRef.detectChanges();
 
@@ -1274,6 +1282,60 @@ this.documentForm.patchValue({ content: beautified });
       .split(/\s+/)
       .filter((w: string) => w.length > 0).length;
     this.characterCount = content.length;
+  }
+
+  onEditorContentInput(): void {
+    this.updatePreview();
+  }
+
+  private initEditorHistory(content: string): void {
+    this.historySuspended = true;
+    this.editorHistory.reset(content);
+    this.historySuspended = false;
+    this.refreshHistoryFlags();
+  }
+
+  private refreshHistoryFlags(): void {
+    this.historyCanUndo = this.editorHistory.canUndo();
+    this.historyCanRedo = this.editorHistory.canRedo();
+    this.cdRef.markForCheck();
+  }
+
+  undoEdit(): void {
+    const previous = this.editorHistory.undo();
+    if (previous === null) {
+      return;
+    }
+    this.historySuspended = true;
+    this.documentForm.patchValue({ content: previous });
+    this.historySuspended = false;
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+    this.refreshHistoryFlags();
+  }
+
+  redoEdit(): void {
+    const next = this.editorHistory.redo();
+    if (next === null) {
+      return;
+    }
+    this.historySuspended = true;
+    this.documentForm.patchValue({ content: next });
+    this.historySuspended = false;
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+    this.refreshHistoryFlags();
+  }
+
+  openSlashCommands(): void {
+    this.showSlashCommands = true;
+    this.cdRef.detectChanges();
+  }
+
+  closeSlashCommands(): void {
+    this.showSlashCommands = false;
+    this.cdRef.detectChanges();
+    this.editorCanvas?.focusTextarea();
   }
 
   private buildRenderInput(
@@ -1314,31 +1376,6 @@ this.documentForm.patchValue({ content: beautified });
     };
   }
 
-  private buildDocumentExtras(documentTitle?: string) {
-    const input = this.buildRenderInput(
-      this.documentForm.get('content')?.value || '',
-    );
-    return {
-      coverConfig: input.coverConfig,
-      signatureConfig: input.signatureConfig,
-      headerFooterConfig: input.headerFooterConfig,
-      watermarkConfig: input.watermarkConfig,
-      coverPanelEnabled: input.coverPanelEnabled,
-      signaturePanelEnabled: input.signaturePanelEnabled,
-      headerFooterPanelEnabled: input.headerFooterPanelEnabled,
-      watermarkPanelEnabled: input.watermarkPanelEnabled,
-      documentTitle,
-    };
-  }
-
-  private buildExportPayload(
-    contentEditorMode: ContentEditorMode = this.contentEditorMode,
-  ) {
-    const content = this.documentForm.get('content')?.value || '';
-    const input = this.buildRenderInput(content, contentEditorMode);
-    return this.documentRender.buildPayload(input);
-  }
-
   private resolvePdfPreviewMode(source: PdfPreviewSource): ContentEditorMode {
     if (source === 'markdown') {
       return 'markdown';
@@ -1349,111 +1386,14 @@ this.documentForm.patchValue({ content: beautified });
     return this.contentEditorMode;
   }
 
-  private buildPdfHtmlForPreview(source: PdfPreviewSource): string {
-    const content = this.documentForm.get('content')?.value || '';
-    const title = String(this.documentForm.get('title')?.value ?? 'Documento');
-    const mode = this.resolvePdfPreviewMode(source);
-    const input = this.buildRenderInput(content, mode);
-    const payload = this.documentRender.buildPayload(input);
-
-    if (source === 'html' || mode === 'html') {
-      return this.documentRender.buildHtmlPreviewSrcdoc(
-        payload.contentMarkup,
-        payload.exportStylesheet,
-        {
-          coverConfig: input.coverConfig,
-          signatureConfig: input.signatureConfig,
-          headerFooterConfig: input.headerFooterConfig,
-          watermarkConfig: input.watermarkConfig,
-          coverPanelEnabled: input.coverPanelEnabled,
-          signaturePanelEnabled: input.signaturePanelEnabled,
-          headerFooterPanelEnabled: input.headerFooterPanelEnabled,
-          watermarkPanelEnabled: input.watermarkPanelEnabled,
-          documentTitle: input.documentTitle,
-        },
-      );
-    }
-
-    return `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${this.escapeHtml(title)}</title>
-  <style id="document-generator-preview-css">
-${payload.previewStylesheet}
-  </style>
-</head>
-<body class="document-create-shell">
-  <main class="document-preview-pane markdown-preview" style="${this.previewPaneStyleAttribute()}">
-${payload.bodyHtml}
-  </main>
-</body>
-</html>`;
-  }
-
-  private previewPaneStyleAttribute(): string {
-    return Object.entries(this.previewPaneStyle)
-      .map(([property, value]) => {
-        const cssProperty = property.replace(
-          /[A-Z]/g,
-          (match) => `-${match.toLowerCase()}`,
-        );
-        return `${cssProperty}: ${String(value).replace(/"/g, '&quot;')}`;
-      })
-      .join('; ');
-  }
-
   private async generatePdfBlob(
     title: string,
     source: PdfPreviewSource = 'current',
   ): Promise<Blob> {
-    const html = this.buildPdfHtmlForPreview(source);
-    const pdfMode = this.resolvePdfPreviewMode(source);
-    try {
-      return await this.documentPdfApi.exportPdf({
-        title,
-        html,
-      });
-    } catch (backendError) {
-      console.warn(
-        'Backend PDF failed, falling back to client renderer',
-        backendError,
-      );
-      const formValue = this.documentForm.value;
-      const client = this.clients.find((c) => c.id === formValue.clientId);
-      const backgroundSettings = this.documentBackgroundSettings();
-      return this.pdfService.generateMarkdownPdf({
-        content: this.documentRender.getRenderableContentForPdf(
-          String(formValue.content ?? ''),
-          pdfMode,
-          this.coverConfig,
-        ),
-        title,
-        date: formValue.date
-          ? String(formValue.date)
-          : new Date().toISOString().split('T')[0],
-        client: client?.name || 'Josanz ERP',
-        subtitle: client?.name || 'Josanz ERP',
-        pdfStyleId: this.selectedPdfStyle,
-        contentEditorMode: pdfMode,
-        quickStylePreset: this.selectedQuickStylePreset,
-        customCss: this.documentRender.customCssForDocument(
-          this.buildRenderInput(String(formValue.content ?? ''), pdfMode),
-        ),
-        coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
-        signatureConfig: this.signatureConfig?.enabled
-          ? this.signatureConfig
-          : undefined,
-        headerFooterConfig: this.headerFooterConfig?.enabled
-          ? this.headerFooterConfig
-          : undefined,
-        watermarkConfig: this.watermarkConfig?.enabled
-          ? this.watermarkConfig
-          : undefined,
-        ...backgroundSettings,
-      });
-    }
+    const content = this.documentForm.get('content')?.value || '';
+    const mode = this.resolvePdfPreviewMode(source);
+    const input = this.buildRenderInput(content, mode);
+    return this.exportOrchestrator.exportPdf(input, title);
   }
 
   private plainTextToHtml(content: string): string {
@@ -1985,9 +1925,11 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   insertMarkdown(before: string, after: string) {
-    const textarea = document.querySelector(
-      'textarea[formControlName="content"]',
-    ) as HTMLTextAreaElement;
+    const textarea =
+      this.editorCanvas?.getTextareaElement() ??
+      (document.querySelector(
+        'textarea[formControlName="content"]',
+      ) as HTMLTextAreaElement | null);
     if (!textarea) return;
 
     const start = textarea.selectionStart;
@@ -2208,12 +2150,95 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   handleToolbarFormatAction(action: string): void {
-    // Rod HTML en modo HTML, Markdown en otros modos
     if (this.contentEditorMode === 'html') {
       this.handleHtmlFormatAction(action);
+    } else if (this.contentEditorMode === 'plain') {
+      this.handlePlainFormatAction(action);
     } else {
       this.handleMarkdownFormatAction(action);
     }
+  }
+
+  private handlePlainFormatAction(action: string): void {
+    switch (action) {
+      case 'bold':
+        this.wrapPlainSelection('**', '**');
+        break;
+      case 'italic':
+        this.wrapPlainSelection('_', '_');
+        break;
+      case 'strike':
+        this.wrapPlainSelection('~~', '~~');
+        break;
+      case 'h1':
+      case 'h2':
+      case 'h3':
+        this.prefixPlainLine(
+          action === 'h1' ? '# ' : action === 'h2' ? '## ' : '### ',
+        );
+        break;
+      case 'quote':
+        this.prefixPlainLine('> ');
+        break;
+      case 'list':
+        this.prefixPlainLine('- ');
+        break;
+      case 'numbered-list':
+        this.prefixPlainLine('1. ');
+        break;
+      case 'link':
+        this.wrapPlainSelection('', ' (url)');
+        break;
+      case 'code':
+        this.wrapPlainSelection('`', '`');
+        break;
+      case 'code-block':
+        this.insertAtCursor('\n```\n', '\n```\n');
+        break;
+      case 'divider':
+        this.insertAtCursor('\n---\n');
+        break;
+      case 'checklist':
+        this.prefixPlainLine('- [ ] ');
+        break;
+      default:
+        break;
+    }
+  }
+
+  private wrapPlainSelection(before: string, after: string): void {
+    this.insertMarkdown(before, after);
+  }
+
+  private prefixPlainLine(prefix: string): void {
+    this.insertMarkdown(prefix, '');
+  }
+
+  private insertAtCursor(text: string, suffix = ''): void {
+    const textarea =
+      this.editorCanvas?.getTextareaElement() ??
+      (document.querySelector(
+        'textarea[formControlName="content"]',
+      ) as HTMLTextAreaElement | null);
+    if (!textarea) {
+      return;
+    }
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const content = this.documentForm.get('content')?.value || '';
+    const selected = content.substring(start, end);
+    const insertion = text + selected + suffix;
+    const newContent =
+      content.substring(0, start) + insertion + content.substring(end);
+    this.documentForm.patchValue({ content: newContent });
+    this.updatePreview();
+    this.syncAssistantFromFormNow();
+    setTimeout(() => {
+      textarea.focus();
+      const cursor = start + text.length + selected.length;
+      textarea.selectionStart = cursor;
+      textarea.selectionEnd = cursor;
+    }, 0);
   }
 
   private handleMarkdownFormatAction(action: string): void {
@@ -2254,15 +2279,22 @@ ${PDF_COVER_SHARED_CSS}
       case 'code-block':
         this.insertCodeBlock();
         break;
+      case 'divider':
+        this.insertMarkdown('\n---\n', '');
+        break;
+      case 'checklist':
+        this.insertMarkdown('- [ ] ', '');
+        break;
     }
   }
 
   private handleHtmlFormatAction(action: string): void {
-    const textarea = document.querySelector(
-      'textarea[formControlName="content"]',
-    ) as HTMLTextAreaElement;
+    const textarea =
+      this.editorCanvas?.getTextareaElement() ??
+      (document.querySelector(
+        'textarea[formControlName="content"]',
+      ) as HTMLTextAreaElement | null);
     if (!textarea) {
-      console.warn('Textarea not found');
       return;
     }
 
@@ -2271,29 +2303,14 @@ ${PDF_COVER_SHARED_CSS}
     const content = this.documentForm.get('content')?.value || '';
     let selectedText = content.substring(start, end);
 
-    console.log('HTML Format Action - Initial:', {
-      action,
-      start,
-      end,
-      selectedTextLength: selectedText.length,
-      trimmed: selectedText.trim(),
-    });
-
-    // If no selection, try to get current word/block
     if (start === end || !selectedText.trim()) {
       const range = this.getCurrentMarkdownBlockRange(content, start);
       start = range.start;
       end = range.end;
       selectedText = content.substring(start, end);
-      console.log('HTML Format Action - Auto-selected block:', {
-        start,
-        end,
-        selectedTextLength: selectedText.length,
-      });
     }
 
-    if (!selectedText.trim()) {
-      console.warn('Selection is still empty after auto-select');
+    if (!selectedText.trim() && action !== 'divider' && action !== 'checklist') {
       return;
     }
 
@@ -2331,19 +2348,19 @@ ${PDF_COVER_SHARED_CSS}
       case 'code-block':
         formattedText = `<pre><code>${this.escapeHtml(selectedText)}</code></pre>`;
         break;
+      case 'divider':
+        formattedText = '<hr />';
+        break;
+      case 'checklist':
+        formattedText =
+          '<ul class="doc-checklist"><li><input type="checkbox" disabled /> Tarea</li></ul>';
+        break;
       default:
-        console.warn('Unknown action:', action);
         return;
     }
 
     const newContent =
       content.substring(0, start) + formattedText + content.substring(end);
-
-    console.log('New content applied:', {
-      formattedTextLength: formattedText.length,
-      newContentLength: newContent.length,
-      formattedText,
-    });
 
     this.documentForm.patchValue({ content: newContent });
     this.updatePreview();
@@ -2606,23 +2623,48 @@ ${PDF_COVER_SHARED_CSS}
     return '#111827';
   }
 
-  @HostListener('document:keydown', ['$event'])
-  handleKeydown(event: KeyboardEvent) {
+  handleEditorKeydown(event: KeyboardEvent): void {
+    if (this.showSlashCommands && this.slashCommands?.handleKeydown(event)) {
+      return;
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.key === 'z' && !event.shiftKey) {
+      event.preventDefault();
+      this.undoEdit();
+      return;
+    }
+    if (
+      (event.ctrlKey || event.metaKey) &&
+      (event.key === 'y' || (event.key === 'z' && event.shiftKey))
+    ) {
+      event.preventDefault();
+      this.redoEdit();
+      return;
+    }
+
     if (event.ctrlKey && event.key === 'b') {
       event.preventDefault();
-      this.insertMarkdown('**', '**');
+      this.handleToolbarFormatAction('bold');
     }
     if (event.ctrlKey && event.key === 'i') {
       event.preventDefault();
-      this.insertMarkdown('*', '*');
+      this.handleToolbarFormatAction('italic');
     }
     if (event.ctrlKey && event.key === 's') {
       event.preventDefault();
       void this.saveDraft();
     }
-    if (event.ctrlKey && event.key === 'p' && this.showSlashCommands) {
+    if (event.key === 'Escape' && this.showSlashCommands) {
       event.preventDefault();
-      this.showSlashCommands = false;
+      this.closeSlashCommands();
+    }
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleGlobalKeydown(event: KeyboardEvent): void {
+    if (event.ctrlKey && event.key === 's') {
+      event.preventDefault();
+      void this.saveDraft();
     }
   }
 
@@ -2769,52 +2811,99 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   handleSlashCommand(command: SlashCommand): void {
-    this.showSlashCommands = false;
+    this.closeSlashCommands();
+    const html = this.contentEditorMode === 'html';
     switch (command.id) {
       case 'heading1':
-        this.insertMarkdown('# ', '');
+        html
+          ? this.insertAtCursor('<h1>', '</h1>')
+          : this.insertMarkdown('# ', '');
         break;
       case 'heading2':
-        this.insertMarkdown('## ', '');
+        html
+          ? this.insertAtCursor('<h2>', '</h2>')
+          : this.insertMarkdown('## ', '');
         break;
       case 'heading3':
-        this.insertMarkdown('### ', '');
+        html
+          ? this.insertAtCursor('<h3>', '</h3>')
+          : this.insertMarkdown('### ', '');
+        break;
+      case 'paragraph':
+        html
+          ? this.insertAtCursor('<p>', '</p>')
+          : this.insertMarkdown('\n\n', '');
         break;
       case 'bold':
-        this.insertMarkdown('**', '**');
+        this.handleToolbarFormatAction('bold');
         break;
       case 'italic':
-        this.insertMarkdown('*', '*');
+        this.handleToolbarFormatAction('italic');
         break;
       case 'quote':
-        this.insertMarkdown('> ', '');
+        html
+          ? this.insertAtCursor('<blockquote>', '</blockquote>')
+          : this.insertMarkdown('> ', '');
         break;
       case 'divider':
-        this.insertMarkdown('\n---\n', '');
+        html
+          ? this.insertAtCursor('\n<hr />\n')
+          : this.insertMarkdown('\n---\n', '');
         break;
       case 'code':
-        this.insertMarkdown('```\n', '\n```');
+        html
+          ? this.insertAtCursor('<pre><code>', '</code></pre>')
+          : this.insertMarkdown('```\n', '\n```');
         break;
       case 'bullet-list':
-        this.insertMarkdown('- ', '');
+        html
+          ? this.insertAtCursor('<ul>\n  <li>', '</li>\n</ul>')
+          : this.insertMarkdown('- ', '');
         break;
       case 'numbered-list':
-        this.insertMarkdown('1. ', '');
+        html
+          ? this.insertAtCursor('<ol>\n  <li>', '</li>\n</ol>')
+          : this.insertMarkdown('1. ', '');
         break;
       case 'checklist':
-        this.insertMarkdown('- [ ] ', '');
+        html
+          ? this.insertAtCursor(
+              '<ul class="doc-checklist"><li><input type="checkbox" disabled /> ',
+              '</li></ul>',
+            )
+          : this.insertMarkdown('- [ ] ', '');
         break;
       case 'callout':
-        this.insertMarkdown('> **Nota:** ', '');
+        html
+          ? this.insertAtCursor(
+              '<div class="doc-callout doc-callout--note"><strong>Nota:</strong> ',
+              '</div>',
+            )
+          : this.insertMarkdown('> **Nota:** ', '');
         break;
       case 'callout-info':
-        this.insertMarkdown('> ?? **Info:** ', '');
+        html
+          ? this.insertAtCursor(
+              '<div class="doc-callout doc-callout--info"><strong>Info:</strong> ',
+              '</div>',
+            )
+          : this.insertMarkdown('> **Info:** ', '');
         break;
       case 'callout-warning':
-        this.insertMarkdown('> ?? **Advertencia:** ', '');
+        html
+          ? this.insertAtCursor(
+              '<div class="doc-callout doc-callout--warning"><strong>Advertencia:</strong> ',
+              '</div>',
+            )
+          : this.insertMarkdown('> **Advertencia:** ', '');
         break;
       case 'callout-success':
-        this.insertMarkdown('> ? **�xito:** ', '');
+        html
+          ? this.insertAtCursor(
+              '<div class="doc-callout doc-callout--success"><strong>Éxito:</strong> ',
+              '</div>',
+            )
+          : this.insertMarkdown('> **Éxito:** ', '');
         break;
       case 'cover':
         this.toggleCoverEditor();
@@ -2876,11 +2965,9 @@ ${PDF_COVER_SHARED_CSS}
           content: currentContent + separator + signatureHtml,
         });
       } else {
+        const signatureMd = signatureEditor.exportToMarkdown();
         this.documentForm.patchValue({
-          content:
-            currentContent +
-            separator +
-            '\n\n## Firmas\n\n_Firma electr�nica_\n_',
+          content: currentContent + separator + signatureMd,
         });
       }
       this.updatePreview();
@@ -3509,41 +3596,10 @@ blockquote {
   }
 
   private exportStyledHtml(title: string): void {
-    const payload = this.buildExportPayload();
-    const safeTitle = this.escapeHtml(title || 'Documento');
-    const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${safeTitle}</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 48px 24px;
-      background: #f8fafc;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
-    .markdown-preview {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 48px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 24px;
-      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-    }
-    ${payload.previewStylesheet}
-  </style>
-</head>
-<body>
-  <main class="markdown-preview">
-    ${payload.bodyHtml}
-  </main>
-</body>
-</html>`;
-
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const input = this.buildRenderInput(
+      this.documentForm.get('content')?.value || '',
+    );
+    const blob = this.exportOrchestrator.exportHtmlFile(input, title);
     this.universalDocument.download(blob, `${title || 'documento'}.html`);
   }
 
@@ -3656,8 +3712,11 @@ blockquote {
       const content = result.blocks.map((b) => b.content).join('\n\n');
       this.contentEditorMode = this.inferEditorModeFromFile(file.name);
       this.documentForm.get('content')?.setValue(content);
+      this.initEditorHistory(content);
       this.updatePreview();
       this.syncAssistantFromFormNow();
+    } else if (result.warnings.length > 0) {
+      alert(result.warnings.join('\n'));
     }
 
     if (result.warnings.length > 0 && isDevMode()) {
