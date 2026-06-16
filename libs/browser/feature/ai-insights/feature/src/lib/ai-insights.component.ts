@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { firstValueFrom, interval } from 'rxjs';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -30,7 +30,15 @@ import {
   AiInsightsSummaryDto,
   AiTrainingRowDto,
   AiInsightUserActivityDto,
+  AIBotStore,
+  ToastService,
+  TechnicianApiService,
 } from '@josanz-erp/shared-data-access';
+import {
+  DEMO_WORKFLOWS,
+  DemoWorkflowDefinition,
+  createDemoWorkflowContext,
+} from './demo-workflows';
 
 type InsightsTab = 'feed' | 'training' | 'users';
 
@@ -112,47 +120,49 @@ const EVENT_LABELS: Record<string, string> = {
             <div class="sk-feed-card"></div>
           }
         </section>
-      } @else if (showOnboarding()) {
-        <section class="onboarding-panel">
-          <div class="onboarding-icon">
-            <lucide-icon name="sparkles" size="36"></lucide-icon>
+      } @else {
+        <section class="demo-workflows-section">
+          <div class="demo-workflows-head">
+            <div>
+              <h2>Workflows demo</h2>
+              <p>Ejecuta escenarios predefinidos con un clic. Buddy orquestará navegación, bots especialistas y notificaciones — ideal para demos y para generar telemetría aquí.</p>
+            </div>
           </div>
-          <h2>Tu telemetría AI aparecerá aquí</h2>
-          <p class="onboarding-lead">
-            Cada conversación con Buddy, workflow multi-paso, delegación entre bots y feedback 👍/👎 genera filas exportables para entrenar modelos.
-          </p>
-          <ol class="onboarding-steps">
-            <li>
-              <span class="step-num">1</span>
-              <div>
-                <strong>Abre Buddy</strong> en Inventario, Eventos o el panel principal.
-              </div>
-            </li>
-            <li>
-              <span class="step-num">2</span>
-              <div>
-                <strong>Pide un workflow</strong>, por ejemplo: «muéstrame stock crítico y prepara presupuesto».
-              </div>
-            </li>
-            <li>
-              <span class="step-num">3</span>
-              <div>
-                <strong>Vuelve aquí</strong> — los eventos se registran al instante con tu usuario y sesión.
-              </div>
-            </li>
-          </ol>
-          <div class="onboarding-actions">
-            <a routerLink="/" class="onboarding-btn onboarding-btn--primary">
-              <lucide-icon name="layout-dashboard" size="16"></lucide-icon>
-              Ir al panel
-            </a>
-            <a routerLink="/inventory" class="onboarding-btn">
-              <lucide-icon name="bot" size="16"></lucide-icon>
-              Probar con Buddy
-            </a>
+          <div class="demo-workflows-grid">
+            @for (w of demoWorkflows; track w.id) {
+              <article class="demo-workflow-card">
+                <div class="demo-workflow-card__top">
+                  <span class="demo-badge">{{ w.badge }}</span>
+                  <lucide-icon [name]="w.icon" size="20"></lucide-icon>
+                </div>
+                <h3>{{ w.title }}</h3>
+                <p>{{ w.description }}</p>
+                <ui-button
+                  variant="solid"
+                  size="sm"
+                  icon="play"
+                  [disabled]="!!runningWorkflow()"
+                  (clicked)="runDemoWorkflow(w)"
+                >
+                  @if (runningWorkflow() === w.id) {
+                    Ejecutando…
+                  } @else {
+                    Ejecutar demo
+                  }
+                </ui-button>
+              </article>
+            }
           </div>
         </section>
-      } @else {
+
+        @if (showOnboarding()) {
+        <section class="onboarding-panel onboarding-panel--compact">
+          <p class="onboarding-lead">
+            Tras ejecutar un demo, vuelve a esta pantalla (o espera el auto-refresh) para ver el evento registrado con tu usuario.
+            También puedes hablar con <strong>Buddy</strong> manualmente en cualquier módulo.
+          </p>
+        </section>
+        } @else {
         @if (hasData()) {
           <ui-feature-stats>
             <ui-stat-card label="Total eventos" [value]="statTotal()" icon="database" />
@@ -349,6 +359,7 @@ const EVENT_LABELS: Record<string, string> = {
             </ui-card>
           }
           }
+        }
         }
       }
     </ui-feature-page-shell>
@@ -880,6 +891,91 @@ const EVENT_LABELS: Record<string, string> = {
         100% { background-position: -100% 0; }
       }
 
+      .onboarding-panel--compact {
+        max-width: 900px;
+        padding: 1rem 1.25rem;
+        margin-top: 0;
+      }
+
+      .onboarding-panel--compact .onboarding-lead {
+        margin: 0;
+      }
+
+      .demo-workflows-section {
+        padding: 0 1.5rem 1.25rem;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .demo-workflows-head h2 {
+        margin: 0 0 0.35rem;
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+
+      .demo-workflows-head p {
+        margin: 0 0 1rem;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+        max-width: 52rem;
+      }
+
+      .demo-workflows-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .demo-workflow-card {
+        padding: 1rem;
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        background: color-mix(in srgb, var(--surface) 94%, var(--brand) 3%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        min-height: 100%;
+      }
+
+      .demo-workflow-card__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .demo-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--brand);
+        padding: 0.15rem 0.45rem;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--brand) 12%, transparent);
+      }
+
+      .demo-workflow-card h3 {
+        margin: 0;
+        font-size: 0.92rem;
+        font-weight: 700;
+        line-height: 1.3;
+      }
+
+      .demo-workflow-card p {
+        margin: 0;
+        flex: 1;
+        font-size: 0.78rem;
+        line-height: 1.45;
+        color: var(--text-muted);
+      }
+
+      .demo-workflow-card ui-button {
+        margin-top: 0.35rem;
+        align-self: flex-start;
+      }
+
       .onboarding-panel {
         max-width: 640px;
         margin: 0.5rem auto 3rem;
@@ -1019,8 +1115,13 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   private readonly insightsApi = inject(AiInsightsApiService);
   private readonly authStore = inject(GlobalAuthStore);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly aiBotStore = inject(AIBotStore);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly technicianApi = inject(TechnicianApiService);
 
   readonly canAccess = rbacAllows(this.authStore, 'ai.view');
+  readonly demoWorkflows = DEMO_WORKFLOWS;
 
   readonly tabs: { id: InsightsTab; label: string; icon: string }[] = [
     { id: 'feed', label: 'Actividad en vivo', icon: 'activity' },
@@ -1036,6 +1137,7 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
   trainingGeneratedAt = signal<string | null>(null);
   userActivity = signal<AiInsightUserActivityDto[]>([]);
 
+  runningWorkflow = signal<string | null>(null);
   loading = signal(true);
   initialLoading = signal(true);
   refreshing = signal(false);
@@ -1203,6 +1305,49 @@ export class AiInsightsComponent implements OnInit, OnDestroy {
     this.featureFilter.set('');
     this.userFilter.set('');
     void this.refreshAll(true);
+  }
+
+  async runDemoWorkflow(workflow: DemoWorkflowDefinition) {
+    if (this.runningWorkflow()) return;
+    this.runningWorkflow.set(workflow.id);
+    this.toast.show(`Iniciando demo «${workflow.title}»…`, 'info', 3500);
+    try {
+      let daniTechId: string | undefined;
+      try {
+        const techs = await firstValueFrom(this.technicianApi.getTechnicians());
+        daniTechId = techs.find((t) => t.user?.email === 'dani@josanz.com')?.id;
+      } catch {
+        /* demo sigue sin baja médica si no hay API */
+      }
+
+      const ctx = createDemoWorkflowContext(daniTechId);
+      const actions = workflow.buildActions(ctx);
+      const actionJson = JSON.stringify(actions);
+
+      this.aiBotStore.activeBotFeature.set('buddy');
+      await this.router.navigateByUrl(workflow.startRoute);
+      await new Promise((r) => setTimeout(r, 450));
+
+      const steps = await this.aiBotStore.executeAction(actionJson, {
+        sourceFeature: 'buddy',
+        summary: workflow.summary,
+        progressFeedback: true,
+      });
+
+      const hadError = steps.some((s) => s.includes('❌'));
+      this.toast.show(
+        hadError
+          ? `Demo «${workflow.title}» terminada con avisos (${steps.length} pasos)`
+          : `Demo «${workflow.title}» completada (${steps.length} pasos)`,
+        hadError ? 'error' : 'success',
+      );
+      window.setTimeout(() => void this.refreshAll(true), 1200);
+    } catch (e) {
+      console.error('[AiInsights] demo workflow failed', e);
+      this.toast.show('No se pudo ejecutar el workflow demo', 'error');
+    } finally {
+      this.runningWorkflow.set(null);
+    }
   }
 
   toggleLiveRefresh() {

@@ -1,5 +1,6 @@
 import { Injectable, signal, computed, effect } from '@angular/core';
 import { AI_CONFIG } from '../../configs/ai.config';
+import { resolveOfflineWorkflowResponse } from './ai-workflow.resolver';
 
 export type AIProvider =
   | 'gemini'
@@ -90,14 +91,18 @@ export class AIInferenceService {
       'ollama',
       'free',
     ];
-    return (
-      validProviders.includes(persisted || '') ? persisted : 'gemini'
-    ) as AIProvider;
+    if (validProviders.includes(persisted || '')) {
+      return persisted as AIProvider;
+    }
+    if (AI_CONFIG.google_api_key) return 'gemini';
+    return 'openrouter';
   }
 
   private getInitialModelId(): string {
     const model = localStorage.getItem('ai_selected_model_id');
-    return model === 'gemini' || !model ? 'gemini-2.5-flash' : model;
+    if (model && model !== 'gemini') return model;
+    if (AI_CONFIG.google_api_key) return 'gemini-2.5-flash';
+    return 'openrouter';
   }
 
   private getInitialApiKey(): string {
@@ -121,9 +126,13 @@ export class AIInferenceService {
 
   readonly aiModelOptions = computed(() => {
     const options = [
+      {
+        value: 'openrouter',
+        label: 'OpenRouter Gemma (Gratis — recomendado demo)',
+      },
+      { value: 'free', label: 'Modo offline (workflows sin API)' },
       { value: 'grok', label: 'Grok (xAI) - Gratuito' },
       { value: 'together', label: 'Together AI - Gratuito' },
-      { value: 'openrouter', label: 'OpenRouter (Gemma 4 FREE) - Gratuito' },
       { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash (Default)' },
       { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro (Calidad)' },
       { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash Lite' },
@@ -156,47 +165,99 @@ export class AIInferenceService {
     context?: string,
     options?: GenerateResponseOptions,
   ): Promise<string> {
-    // selectedModelId is the source of truth — it's what the Settings UI dropdown controls.
-    // selectedProvider is kept in sync by setAIModel, but may lag due to HMR or initialization order.
-    const modelId = this.selectedModelId();
-    let provider: AIProvider;
-
-    if (modelId.startsWith('ollama:')) {
-      provider = 'ollama';
-    } else if (modelId.startsWith('gemini')) {
-      provider = 'gemini';
-    } else {
-      provider = modelId as AIProvider;
+    const offlineFirst = resolveOfflineWorkflowResponse(prompt, context);
+    if (offlineFirst) {
+      console.info('✅ [AI Offline] Workflow resuelto sin LLM');
+      return offlineFirst;
     }
 
-    // Keep selectedProvider in sync silently
+    const provider = this.resolveProviderFromModelId(this.selectedModelId());
     if (this.selectedProvider() !== provider) {
       this.selectedProvider.set(provider);
     }
 
-    try {
-      switch (provider) {
-        case 'gemini':
-          return await this.generateWithGemini(prompt, context, options);
-        case 'openai':
-          return await this.generateWithOpenAI(prompt, context, options);
-        case 'ollama':
-          return await this.generateWithOllama(prompt, context, options);
-        case 'grok':
-          return await this.generateWithGrok(prompt, context);
-        case 'together':
-          return await this.generateWithTogether(prompt, context, options);
-        case 'openrouter':
-          return await this.generateWithOpenRouter(prompt, context, options);
-        case 'free':
-          return this.generateSmartFallback(prompt, context);
-        default:
-          return this.generateSmartFallback(prompt, context);
+    const chain = this.buildProviderFallbackChain(provider);
+    let lastError = 'No hay proveedores de IA disponibles';
+
+    for (const attempt of chain) {
+      try {
+        const text = await this.generateWithProvider(
+          attempt,
+          prompt,
+          context,
+          options,
+        );
+        if (text?.trim()) {
+          if (attempt !== provider) {
+            console.info(
+              `✅ [AI Fallback] Respuesta obtenida con proveedor alternativo: ${attempt}`,
+            );
+          }
+          return text;
+        }
+      } catch (error: unknown) {
+        lastError = error instanceof Error ? error.message : String(error);
+        console.warn(
+          `⚠️ [AI Fallback] Proveedor "${attempt}" falló: ${lastError}`,
+        );
       }
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      console.error(`🔴 Error con proveedor [${provider}]:`, msg);
-      throw new Error(`[🤖 ${provider.toUpperCase()}] ${msg}`);
+    }
+
+    const offlineRetry = resolveOfflineWorkflowResponse(
+      `${prompt}\ninstrucción de workflow`,
+      context,
+    );
+    if (offlineRetry) {
+      console.info('✅ [AI Offline] Workflow resuelto tras fallo de proveedores');
+      return offlineRetry;
+    }
+
+    return this.generateSmartFallback(prompt, context, lastError);
+  }
+
+  private resolveProviderFromModelId(modelId: string): AIProvider {
+    if (modelId.startsWith('ollama:')) return 'ollama';
+    if (modelId.startsWith('gemini')) return 'gemini';
+    return modelId as AIProvider;
+  }
+
+  /** Cadena de proveedores: primero el elegido, luego alternativas gratuitas. */
+  private buildProviderFallbackChain(primary: AIProvider): AIProvider[] {
+    const chain: AIProvider[] = [primary];
+    const add = (p: AIProvider) => {
+      if (!chain.includes(p)) chain.push(p);
+    };
+
+    if (primary !== 'openrouter') add('openrouter');
+    if (this.ollamaConfig().available) add('ollama');
+    if (primary !== 'free') add('free');
+
+    return chain;
+  }
+
+  private async generateWithProvider(
+    provider: AIProvider,
+    prompt: string,
+    context?: string,
+    options?: GenerateResponseOptions,
+  ): Promise<string> {
+    switch (provider) {
+      case 'gemini':
+        return await this.generateWithGemini(prompt, context, options);
+      case 'openai':
+        return await this.generateWithOpenAI(prompt, context, options);
+      case 'ollama':
+        return await this.generateWithOllama(prompt, context, options);
+      case 'grok':
+        return await this.generateWithGrok(prompt, context);
+      case 'together':
+        return await this.generateWithTogether(prompt, context, options);
+      case 'openrouter':
+        return await this.generateWithOpenRouter(prompt, context, options);
+      case 'free':
+        return this.generateSmartFallback(prompt, context);
+      default:
+        return this.generateSmartFallback(prompt, context);
     }
   }
 
@@ -435,27 +496,63 @@ export class AIInferenceService {
     context?: string,
     options?: GenerateResponseOptions,
   ): Promise<string> {
-    const apiKey = this.providerApiKey();
+    const apiKey =
+      AI_CONFIG.openrouter_api_key ||
+      this.providerApiKey() ||
+      'sk-or-v1-demo';
     const maxTokens = this.resolveMaxOutputTokens(options, 2048, 8192);
-    const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey || ''}`,
-        'HTTP-Referer': 'http://localhost:4200',
-        'X-Title': 'Josanz ERP',
-      },
-      body: JSON.stringify({
-        model: AI_CONFIG.openrouter_model,
-        messages: [
-          ...(context ? [{ role: 'system', content: context }] : []),
-          { role: 'user', content: prompt },
-        ],
-        max_tokens: maxTokens,
-      }),
-    });
-    const data = await resp.json();
-    return data.choices[0].message.content;
+    const freeModels = [
+      AI_CONFIG.openrouter_model,
+      'google/gemma-2-9b-it:free',
+      'meta-llama/llama-3.2-3b-instruct:free',
+    ];
+    let lastError = 'OpenRouter no respondió';
+
+    for (const model of [...new Set(freeModels)]) {
+      try {
+        const resp = await fetch(
+          'https://openrouter.ai/api/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              'HTTP-Referer': 'http://localhost:4200',
+              'X-Title': 'Josanz ERP',
+            },
+            body: JSON.stringify({
+              model,
+              messages: [
+                ...(context ? [{ role: 'system', content: context }] : []),
+                { role: 'user', content: prompt },
+              ],
+              max_tokens: maxTokens,
+            }),
+          },
+        );
+
+        if (!resp.ok) {
+          const errBody = await resp.json().catch(() => ({}));
+          lastError =
+            (errBody as { error?: { message?: string } }).error?.message ??
+            `HTTP ${resp.status}`;
+          continue;
+        }
+
+        const data = await resp.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (content?.trim()) {
+          if (model !== AI_CONFIG.openrouter_model) {
+            console.info(`✅ [OpenRouter] Modelo gratuito alternativo: ${model}`);
+          }
+          return content;
+        }
+      } catch (err: unknown) {
+        lastError = err instanceof Error ? err.message : String(err);
+      }
+    }
+
+    throw new Error(lastError);
   }
 
   async checkOllamaAvailability(force = false): Promise<boolean> {
@@ -508,17 +605,20 @@ export class AIInferenceService {
     }
   }
 
-  private generateBasicResponse(): string {
-    return 'Estoy funcionando en modo básico. Configura una API premium para mejores resultados.';
-  }
+  private generateSmartFallback(
+    prompt: string,
+    context?: string,
+    providerError?: string,
+  ): string {
+    const offline = resolveOfflineWorkflowResponse(prompt, context);
+    if (offline) return offline;
 
-  private generateSmartFallback(prompt: string, context?: string): string {
-    console.debug(
-      'Generating smart fallback for:',
-      prompt,
-      'with context:',
-      context?.length,
+    const hint = providerError
+      ? `\n\n_(El proveedor de IA no respondió: ${providerError.slice(0, 120)})_`
+      : '';
+    return (
+      `Estoy en **modo demo offline**. Puedes usar **Workflows demo** en AI Insights (botón «Ejecutar demo») o pedir tareas concretas: stock crítico, presupuesto, técnico AUDIO, eventos…${hint}\n\n` +
+      `Tu mensaje: «${prompt.slice(0, 160)}${prompt.length > 160 ? '…' : ''}»`
     );
-    return `[Modo Offline] Entiendo que preguntas sobre "${prompt}". Configura una API para una respuesta real.`;
   }
 }

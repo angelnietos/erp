@@ -172,6 +172,8 @@ export class AIBotStore {
       },
     );
 
+    void this.inference.checkOllamaAvailability();
+
     // Sincronización proactiva de filtros entre dominios
     effect(() => {
       const feature = this.activeBotFeature();
@@ -312,12 +314,24 @@ export class AIBotStore {
       sourceFeature?: string;
       /** Resumen legible para AI Insights (p. ej. texto del bot antes del [ACTION]) */
       summary?: string;
+      /** Toast por paso (demos desde AI Insights) */
+      progressFeedback?: boolean;
     },
   ): Promise<string[]> {
     const logLenBefore = this.orchestrationBus.log().length;
     this.workflow.workflowOrchestratorFeature = opts?.sourceFeature ?? null;
     try {
-      await this.workflow.executeAction(actionStr);
+      const result = await this.workflow.executeAction(actionStr, {
+        progressFeedback: opts?.progressFeedback,
+      });
+      if (result.hadErrors) {
+        console.warn(
+          `[Workflow] Completado con errores parciales (${result.stepCount} pasos)`,
+        );
+      }
+    } catch (e) {
+      console.error('[Workflow] executeAction failed', e);
+      throw e;
     } finally {
       this.workflow.workflowOrchestratorFeature = null;
     }
@@ -753,6 +767,8 @@ export class AIBotStore {
       const modelName = modelId.split(':')[1];
       this.inference.selectedProvider.set('ollama');
       this.inference.ollamaConfig.update(c => ({ ...c, model: modelName }));
+    } else if (modelId.startsWith('gemini')) {
+      this.inference.selectedProvider.set('gemini');
     } else {
       this.inference.selectedProvider.set(modelId as AIProvider);
     }

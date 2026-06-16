@@ -16,6 +16,11 @@ type DelegateHandler = (
   orchestratorFeature?: string,
 ) => void;
 
+export interface ExecuteWorkflowOptions {
+  /** Muestra toast por cada paso (demos / workflows largos). */
+  progressFeedback?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AIWorkflowService {
   private router = inject(Router);
@@ -39,22 +44,49 @@ export class AIWorkflowService {
     this.delegateHandler = handler;
   }
 
-  async executeAction(actionStr: string): Promise<void> {
+  async executeAction(
+    actionStr: string,
+    opts?: ExecuteWorkflowOptions,
+  ): Promise<{ stepCount: number; hadErrors: boolean }> {
     try {
       const cleaned = this.sanitizeActionPayload(actionStr);
       const parsed = JSON.parse(cleaned);
       const actions = Array.isArray(parsed) ? parsed : [parsed];
+      let hadErrors = false;
 
-      for (const action of actions) {
-        const normalizedAction = this.normalizeAction(action);
+      for (let i = 0; i < actions.length; i++) {
+        const normalizedAction = this.normalizeAction(actions[i]);
         if (isDevMode()) {
           console.log('🤖 Bot executing workflow step:', normalizedAction);
         }
         this.orchestrationBus.addLog(`⚙️ Ejecutando: ${normalizedAction.type}`);
-        await this.dispatchAction(normalizedAction);
+
+        if (opts?.progressFeedback) {
+          this.toast.show(
+            this.describeStep(normalizedAction.type, i + 1, actions.length),
+            'info',
+            2800,
+          );
+        }
+
+        try {
+          await this.dispatchAction(normalizedAction);
+        } catch (stepErr: unknown) {
+          hadErrors = true;
+          const msg =
+            stepErr instanceof Error ? stepErr.message : String(stepErr);
+          const label = `Error en paso ${i + 1} (${normalizedAction.type}): ${msg}`;
+          this.orchestrationBus.addLog(`❌ ${label}`);
+          this.toast.show(label, 'error');
+        }
       }
+
+      return { stepCount: actions.length, hadErrors };
     } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
       console.error('Failed to parse/execute bot workflow:', actionStr, e);
+      this.toast.show(`Workflow inválido: ${msg}`, 'error');
+      throw e;
     }
   }
 
@@ -324,6 +356,22 @@ export class AIWorkflowService {
       '/ajustes': '/settings',
     };
     return map[url.toLowerCase()] ?? url;
+  }
+
+  private describeStep(type: string, index: number, total: number): string {
+    const prefix = `Workflow ${index}/${total}:`;
+    const labels: Record<string, string> = {
+      navigate: `${prefix} navegando…`,
+      navigateAndFilter: `${prefix} navegando y filtrando…`,
+      applyFilter: `${prefix} aplicando filtro…`,
+      delegate: `${prefix} delegando a bot especialista…`,
+      fillForm: `${prefix} rellenando formulario…`,
+      fillBudget: `${prefix} preparando presupuesto…`,
+      setAvailabilityRange: `${prefix} actualizando disponibilidad…`,
+      wait: `${prefix} esperando…`,
+      notify: `${prefix} notificando…`,
+    };
+    return labels[type] ?? `${prefix} ${type}…`;
   }
 
   getActionSystemPrompt(): string {

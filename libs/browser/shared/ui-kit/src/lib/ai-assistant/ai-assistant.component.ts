@@ -24,6 +24,7 @@ import {
   InterBotMessage,
   OrchestrationBus,
   TechnicianApiService,
+  ToastService,
   getAiFeatureFromUrl,
   AIProvider,
   mascotMouthToUi,
@@ -98,6 +99,7 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
   aiBotStore = inject(AIBotStore);
   orchestrationBus = inject(OrchestrationBus);
   private technicianApi = inject(TechnicianApiService);
+  private toast = inject(ToastService);
   dashboardService = inject(DashboardAnalyticsService);
   themeService = inject(ThemeService);
   http = inject(HttpClient);
@@ -285,9 +287,18 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
               task.id,
               `Bot ${targetDomain} procesó la tarea`,
             );
+            this.toast.show(
+              `Tarea delegada completada (${targetDomain})`,
+              'success',
+              3500,
+            );
           } catch (e: unknown) {
             const message = e instanceof Error ? e.message : String(e);
             this.orchestrationBus.fail(task.id, message);
+            this.toast.show(
+              `Error en tarea delegada (${task.to}): ${message.slice(0, 80)}`,
+              'error',
+            );
           }
         });
       });
@@ -612,12 +623,14 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
           sourceFeature: this.feature,
           summary: displayResponse,
         });
-        if (
-          workflowSteps &&
-          workflowSteps.length > 0 &&
-          this.assistantRole === 'buddy'
-        ) {
-          this.showOrchestrationLog.set(true);
+        if (workflowSteps && workflowSteps.length > 0) {
+          this.toast.show(
+            `Workflow completado (${workflowSteps.length} pasos)`,
+            workflowSteps.some((s) => s.includes('❌')) ? 'error' : 'success',
+          );
+          if (this.assistantRole === 'buddy') {
+            this.showOrchestrationLog.set(true);
+          }
         }
       }
 
@@ -650,19 +663,24 @@ export class UIAIChatComponent implements OnInit, OnDestroy {
         userInput,
         displayResponse.replace(/<[^>]+>/g, '').slice(0, 400),
       );
-    } catch {
+    } catch (err: unknown) {
+      const detail = err instanceof Error ? err.message : String(err);
       this.messages.update((m) =>
         m.map((msg) =>
           msg.id === typingId
             ? {
                 ...msg,
-                text: 'Lo siento, ocurrió un error. Reintenta por favor.',
+                text:
+                  `No pude obtener respuesta del modelo (${this.aiBotStore.selectedModelId()}). ` +
+                  `Prueba **OpenRouter (gratis)** en Configuración → IA, o usa **Workflows demo** en AI Insights.\n\n` +
+                  `Detalle: ${detail}`,
                 id: Date.now().toString(),
               }
             : msg,
         ),
       );
       this.scrollToBottom();
+      this.toast.show('Error de IA — revisa el modelo en Configuración', 'error');
     }
   }
 

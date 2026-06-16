@@ -567,8 +567,13 @@ html[data-erp-tenant='babooni'] lib-settings-profile-tab .hologram-glow {
 
 /* Configuración Babooni — sistema visual unificado */
 html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(lib-settings-feature) ui-ai-assistant .mascot-trigger,
-html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(josanz-ai-insights) ui-ai-assistant .mascot-trigger {
+html[data-erp-tenant='babooni'] lib-babooni-app-layout:has(josanz-ai-insights) ui-ai-assistant {
   display: none !important;
+}
+
+html[data-erp-tenant='babooni'] josanz-ai-insights .demo-workflow-card {
+  background: var(--babooni-surface) !important;
+  border-color: var(--babooni-border) !important;
 }
 
 html[data-erp-tenant='babooni'] josanz-ai-insights .onboarding-panel {
