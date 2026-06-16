@@ -10,6 +10,7 @@ import {
   DEFAULT_TENANT_MODULE_IDS,
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
+  PERMISSIONS_CATALOG,
 } from '@josanz-erp/identity-api';
 import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
 
@@ -120,22 +121,10 @@ export class RolesService {
   }
 
   async getPermissionsList() {
-    // This could be dynamic based on discovered modules, but let's return a static list for now
-    return [
-      { id: 'dashboard.view', label: 'Ver Dashboard', group: 'General' },
-      { id: 'clients.view', label: 'Ver Clientes', group: 'Clientes' },
-      { id: 'clients.create', label: 'Crear Clientes', group: 'Clientes' },
-      { id: 'clients.edit', label: 'Editar Clientes', group: 'Clientes' },
-      { id: 'clients.delete', label: 'Eliminar Clientes', group: 'Clientes' },
-      { id: 'products.view', label: 'Ver Inventario', group: 'Inventario' },
-      { id: 'products.manage', label: 'Gestionar Inventario', group: 'Inventario' },
-      { id: 'budgets.view', label: 'Ver Presupuestos', group: 'Facturación' },
-      { id: 'budgets.create', label: 'Crear Presupuestos', group: 'Facturación' },
-      { id: 'budgets.approve', label: 'Aprobar Presupuestos', group: 'Facturación' },
-      { id: 'rentals.view', label: 'Ver Alquileres', group: 'Alquileres' },
-      { id: 'rentals.approve', label: 'Aprobar Alquileres', group: 'Alquileres' },
-      { id: 'users.manage', label: 'Gestionar Usuarios', group: 'Seguridad' },
-      { id: 'roles.manage', label: 'Gestionar Roles', group: 'Seguridad' },
-    ];
+    return PERMISSIONS_CATALOG.filter((p) => p.id !== '*').map((p) => ({
+      id: p.id,
+      label: p.label,
+      group: p.category,
+    }));
   }
 }

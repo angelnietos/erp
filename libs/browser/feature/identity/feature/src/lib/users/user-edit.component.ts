@@ -160,6 +160,42 @@ import { HttpErrorResponse } from '@angular/common/http';
             }
           </section>
 
+          <section class="section">
+            <h2 class="section-title">Permisos bloqueados</h2>
+            <p class="section-hint">
+              Revoca permisos que vienen de los roles sin quitar el rol (denegación explícita).
+            </p>
+            @for (g of permissionGroups(); track g.name) {
+              <div class="perm-group">
+                <h3 class="perm-group-title">{{ g.name }}</h3>
+                <div class="perm-grid">
+                  @for (p of g.items; track p.id) {
+                    <label class="perm-row denied">
+                      <input
+                        type="checkbox"
+                        [checked]="draft.deniedPermissions.includes(p.id)"
+                        (change)="toggleDenied(p.id, checkboxChecked($event))"
+                      />
+                      <span>{{ p.label }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </section>
+
+          <section class="section effective-preview">
+            <h2 class="section-title">Permisos efectivos (vista previa)</h2>
+            <p class="section-hint">{{ effectivePermissionCount() }} permisos tras roles + extra − bloqueados.</p>
+            @if (effectivePermissionPreview().length > 0) {
+              <div class="effective-tags">
+                @for (p of effectivePermissionPreview(); track p) {
+                  <span class="effective-tag">{{ p }}</span>
+                }
+              </div>
+            }
+          </section>
+
           <div class="actions">
             <ui-button type="button" variant="ghost" routerLink="/users">Cancelar</ui-button>
             <ui-button type="submit" variant="solid" icon="save" [disabled]="saving()">
@@ -311,6 +347,26 @@ import { HttpErrorResponse } from '@angular/common/http';
         font-size: 0.9rem;
         cursor: pointer;
       }
+      .perm-row.denied span {
+        color: #b91c1c;
+      }
+      .effective-preview {
+        border-top: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+        padding-top: 1.5rem;
+      }
+      .effective-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .effective-tag {
+        font-size: 0.7rem;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-muted);
+      }
       .actions {
         display: flex;
         justify-content: flex-end;
@@ -362,10 +418,37 @@ export class UserEditComponent implements OnInit {
     passwordConfirm?: string;
     roleNames: string[];
     extraPermissions: string[];
+    deniedPermissions: string[];
   } = {
     roleNames: [],
     extraPermissions: [],
+    deniedPermissions: [],
   };
+
+  effectivePermissionPreview = computed(() => {
+    const denied = new Set(this.draft.deniedPermissions);
+    const merged = new Set<string>();
+    for (const roleName of this.draft.roleNames) {
+      const role = this.tenantRoles().find((r) => r.name === roleName);
+      if (!role) continue;
+      if (role.permissions.includes('*')) {
+        return ['* (acceso total por rol)'];
+      }
+      role.permissions.forEach((p) => {
+        if (!denied.has(p)) merged.add(p);
+      });
+    }
+    for (const p of this.draft.extraPermissions) {
+      if (!denied.has(p)) merged.add(p);
+    }
+    return Array.from(merged).sort();
+  });
+
+  effectivePermissionCount = computed(() => {
+    const preview = this.effectivePermissionPreview();
+    if (preview.length === 1 && preview[0]?.startsWith('*')) return 1;
+    return preview.length;
+  });
 
   ngOnInit(): void {
     this.createMode.set(this.route.snapshot.data['createMode'] === true);
@@ -391,6 +474,7 @@ export class UserEditComponent implements OnInit {
             isActive: true,
             roleNames: [],
             extraPermissions: [],
+            deniedPermissions: [],
           };
           this.tenantRoles.set(roles);
           this.permCatalog.set(catalog);
@@ -444,6 +528,7 @@ export class UserEditComponent implements OnInit {
       isActive: u.isActive,
       roleNames: [...(u.roles || [])],
       extraPermissions: [...(u.extraPermissions || [])],
+      deniedPermissions: [...(u.deniedPermissions || [])],
     };
   }
 
@@ -475,6 +560,16 @@ export class UserEditComponent implements OnInit {
     this.draft.extraPermissions = Array.from(set);
   }
 
+  toggleDenied(id: string, checked: boolean): void {
+    const set = new Set(this.draft.deniedPermissions);
+    if (checked) {
+      set.add(id);
+    } else {
+      set.delete(id);
+    }
+    this.draft.deniedPermissions = Array.from(set);
+  }
+
   save(): void {
     if (this.createMode()) {
       this.saveCreate();
@@ -490,6 +585,7 @@ export class UserEditComponent implements OnInit {
       isActive: this.draft.isActive,
       roles: this.draft.roleNames,
       extraPermissions: this.draft.extraPermissions,
+      deniedPermissions: this.draft.deniedPermissions,
     };
     this.usersService.update(id, body).subscribe({
       next: () => {
@@ -540,6 +636,8 @@ export class UserEditComponent implements OnInit {
       roles: this.draft.roleNames,
       extraPermissions:
         this.draft.extraPermissions.length > 0 ? this.draft.extraPermissions : undefined,
+      deniedPermissions:
+        this.draft.deniedPermissions.length > 0 ? this.draft.deniedPermissions : undefined,
     };
     this.usersService.create(body).subscribe({
       next: (u) => {

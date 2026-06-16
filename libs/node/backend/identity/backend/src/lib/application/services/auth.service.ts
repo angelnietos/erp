@@ -12,8 +12,8 @@ import { LoginDto } from '../dtos/login.dto';
 import { PlatformLoginDto } from '../dtos/platform-login.dto';
 import {
   DEFAULT_TENANT_MODULE_IDS,
-  isPermissionAllowedForModules,
 } from '@josanz-erp/identity-api';
+import { mergeEffectiveUserPermissions } from '../utils/permission-merge';
 
 const PLATFORM_JWT_ROLES = ['PlatformOwner'] as const;
 const PLATFORM_JWT_PERMISSIONS = ['platform.tenants.manage'] as const;
@@ -26,6 +26,7 @@ type AuthenticatedUserView = {
   roles: string[];
   permissions: string[];
   extraPermissions?: string[];
+  deniedPermissions?: string[];
 };
 
 @Injectable()
@@ -83,6 +84,7 @@ export class AuthService {
       tenantId,
       user.roles,
       user.extraPermissions ?? [],
+      user.deniedPermissions ?? [],
     );
 
     const payload = {
@@ -124,6 +126,7 @@ export class AuthService {
         roles: user.roles,
         permissions,
         extraPermissions: user.extraPermissions,
+        deniedPermissions: user.deniedPermissions,
       },
       tenantId,
       tenantSlug: tenant?.slug,
@@ -248,6 +251,7 @@ export class AuthService {
       effectiveTenantId,
       user.roles,
       user.extraPermissions ?? [],
+      user.deniedPermissions ?? [],
     );
 
     const payload = {
@@ -289,6 +293,7 @@ export class AuthService {
         roles: user.roles,
         permissions,
         extraPermissions: user.extraPermissions,
+        deniedPermissions: user.deniedPermissions,
       },
       tenantId: effectiveTenantId,
       tenantSlug: tenant?.slug,
@@ -299,6 +304,7 @@ export class AuthService {
     tenantId: string,
     roleNames: string[],
     extraPermissions: string[],
+    deniedPermissions: string[],
   ): Promise<string[]> {
     const rolesData = await this.prisma.role.findMany({
       where: { tenantId, name: { in: roleNames } },
@@ -306,17 +312,17 @@ export class AuthService {
     });
     const fromRoles = rolesData.flatMap((r) => r.permissions);
 
-    // Filter by tenant's enabled modules
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: tenantId },
       select: { enabledModuleIds: true },
     });
     const effectiveModules = tenant?.enabledModuleIds ?? DEFAULT_TENANT_MODULE_IDS;
 
-    const filteredPerms = [...new Set([...fromRoles, ...extraPermissions])].filter(
-      (p) => isPermissionAllowedForModules(p, effectiveModules),
+    return mergeEffectiveUserPermissions(
+      fromRoles,
+      extraPermissions,
+      deniedPermissions,
+      effectiveModules,
     );
-
-    return filteredPerms;
   }
 }

@@ -1,6 +1,20 @@
 /**
  * Módulos ERP activables (PluginStore / rutas). Debe coincidir con la lista del cliente.
  */
+
+export type TenantModuleCategory = 'core' | 'vertical' | 'experimental';
+
+export interface TenantModuleDescriptor {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: TenantModuleCategory;
+}
+
+/** Módulos que no pueden desactivarse (mínimo operativo del tenant). */
+export const PROTECTED_TENANT_MODULE_IDS: readonly string[] = ['dashboard', 'identity'];
+
 /** Etiquetas para UI (p. ej. panel SaaS). */
 export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
   dashboard: 'Dashboard',
@@ -42,6 +56,26 @@ export const DEFAULT_TENANT_MODULE_IDS: readonly string[] = [
   'verifactu',
 ] as const;
 
+export const TENANT_MODULE_CATALOG: readonly TenantModuleDescriptor[] = [
+  { id: 'dashboard', name: 'Dashboard', description: 'Panel principal con KPIs y resumen operativo del tenant.', icon: 'layout-dashboard', category: 'core' },
+  { id: 'ai-insights', name: 'AI Insights', description: 'Módulo de inteligencia artificial con análisis predictivo.', icon: 'cpu', category: 'experimental' },
+  { id: 'clients', name: 'Gestión de Clientes', description: 'Módulo CRM para seguimiento de clientes y leads.', icon: 'users', category: 'core' },
+  { id: 'projects', name: 'Proyectos y Tareas', description: 'Planificación de producciones y asignación de recursos.', icon: 'file-text', category: 'core' },
+  { id: 'events', name: 'Calendario de Eventos', description: 'Gestión de fechas críticas y rodajes.', icon: 'calendar', category: 'core' },
+  { id: 'identity', name: 'Identidad y Usuarios', description: 'Control de acceso, roles y seguridad.', icon: 'id-card', category: 'core' },
+  { id: 'availability', name: 'Disponibilidad', description: 'Control horario y cuadrante de vacaciones.', icon: 'clock', category: 'vertical' },
+  { id: 'services', name: 'Catálogo de Servicios', description: 'Definición de tarifas y servicios prestados.', icon: 'wrench', category: 'vertical' },
+  { id: 'reports', name: 'Análisis y Reportes', description: 'KPIs, métricas y exportación de datos.', icon: 'pie-chart', category: 'vertical' },
+  { id: 'audit', name: 'Auditoría de Sistema', description: 'Registro de actividad y trazabilidad de cambios.', icon: 'shield-check', category: 'vertical' },
+  { id: 'inventory', name: 'Inventario Pro', description: 'Control de stock y trazabilidad de material.', icon: 'package', category: 'core' },
+  { id: 'budgets', name: 'Presupuestos', description: 'Gestor de cotizaciones cinematográficas.', icon: 'receipt', category: 'core' },
+  { id: 'delivery', name: 'Logística y Albaranes', description: 'Gestión de entregas y salidas de material.', icon: 'truck', category: 'vertical' },
+  { id: 'fleet', name: 'Gestión de Flota', description: 'Control de vehículos y transportes de producción.', icon: 'car', category: 'vertical' },
+  { id: 'rentals', name: 'Alquileres', description: 'Sistema de reservas y devoluciones.', icon: 'key', category: 'vertical' },
+  { id: 'billing', name: 'Facturación', description: 'Gestión de facturas y cobros.', icon: 'history', category: 'core' },
+  { id: 'verifactu', name: 'VeriFactu Compliance', description: 'Integración mandatoria con la AEAT.', icon: 'file-check', category: 'vertical' },
+] as const;
+
 /**
  * Qué módulos deben estar contratados/activos para que un permiso tenga sentido.
  * `[]` = siempre asignable (p. ej. meta `*`).
@@ -49,6 +83,7 @@ export const DEFAULT_TENANT_MODULE_IDS: readonly string[] = [
  */
 const PERMISSION_REQUIRES_MODULES: Record<string, readonly string[]> = {
   '*': [],
+  'modules.manage': ['identity'],
   'dashboard.view': ['dashboard'],
   'ai.view': ['ai-insights'],
   'users.view': ['identity'],

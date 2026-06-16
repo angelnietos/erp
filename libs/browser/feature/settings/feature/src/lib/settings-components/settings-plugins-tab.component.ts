@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -7,15 +7,11 @@ import {
   UiBadgeComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { PluginStore, ToastService } from '@josanz-erp/shared-data-access';
-import { AuthStore } from '@josanz-erp/identity-data-access';
-
-interface PluginDescriptor {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: 'core' | 'vertical' | 'experimental';
-}
+import { AuthStore, TenantModulesApiService } from '@josanz-erp/identity-data-access';
+import {
+  PROTECTED_TENANT_MODULE_IDS,
+  TENANT_MODULE_CATALOG,
+} from '@josanz-erp/identity-api';
 
 @Component({
   selector: 'lib-settings-plugins-tab',
@@ -63,12 +59,20 @@ interface PluginDescriptor {
                 {{ isPluginEnabled(plugin.id) ? 'Activo' : 'Inactivo' }}
               </ui-badge>
               @if (isPluginEnabled(plugin.id)) {
-                <ui-button variant="outline" size="sm" (clicked)="onRequestDeactivateModule(plugin.id)">
-                  Desactivar
-                </ui-button>
+                @if (isProtectedModule(plugin.id)) {
+                  <ui-badge variant="neutral">Obligatorio</ui-badge>
+                } @else if (canManageTenantModules()) {
+                  <ui-button variant="outline" size="sm" (clicked)="deactivateModule.emit(plugin.id)">
+                    Desactivar
+                  </ui-button>
+                } @else {
+                  <ui-button variant="outline" size="sm" [disabled]="true" title="No tienes permiso para desactivar módulos">
+                    Desactivar
+                  </ui-button>
+                }
               } @else {
-                @if (canActivateTenantModules()) {
-                  <ui-button variant="filled" size="sm" (clicked)="onRequestActivateModule(plugin.id)">
+                @if (canManageTenantModules()) {
+                  <ui-button variant="filled" size="sm" (clicked)="activateModule.emit(plugin.id)">
                     Activar
                   </ui-button>
                 } @else {
@@ -204,52 +208,53 @@ interface PluginDescriptor {
     `,
   ],
 })
-export class SettingsPluginsTabComponent {
+export class SettingsPluginsTabComponent implements OnInit {
+  readonly activateModule = output<string>();
+  readonly deactivateModule = output<string>();
+
   protected readonly _pluginStore = inject(PluginStore);
   protected readonly _toast = inject(ToastService);
   protected readonly _authStore = inject(AuthStore);
+  private readonly _tenantModulesApi = inject(TenantModulesApiService);
 
   readonly pluginsTabError = signal<string | null>(null);
+  readonly isSaving = signal(false);
 
-  readonly plugins: PluginDescriptor[] = [
-    { id: 'dashboard', name: 'Dashboard', description: 'Panel principal con KPIs y resumen operativo del tenant.', icon: 'layout-dashboard', category: 'core' },
-    { id: 'ai-insights', name: 'AI Insights', description: 'Módulo de inteligencia artificial con análisis predictivo.', icon: 'cpu', category: 'experimental' },
-    { id: 'clients', name: 'Gestión de Clientes', description: 'Módulo CRM para seguimiento de clientes y leads.', icon: 'users', category: 'core' },
-    { id: 'projects', name: 'Proyectos y Tareas', description: 'Planificación de producciones y asignación de recursos.', icon: 'file-text', category: 'core' },
-    { id: 'events', name: 'Calendario de Eventos', description: 'Gestión de fechas críticas y rodajes.', icon: 'calendar', category: 'core' },
-    { id: 'identity', name: 'Identidad y Usuarios', description: 'Control de acceso, roles y seguridad.', icon: 'id-card', category: 'core' },
-    { id: 'availability', name: 'Disponibilidad', description: 'Control horario y cuadrante de vacaciones.', icon: 'clock', category: 'vertical' },
-    { id: 'services', name: 'Catálogo de Servicios', description: 'Definición de tarifas y servicios prestados.', icon: 'wrench', category: 'vertical' },
-    { id: 'reports', name: 'Análisis y Reportes', description: 'KPIs, métricas y exportación de datos.', icon: 'pie-chart', category: 'vertical' },
-    { id: 'audit', name: 'Auditoría de Sistema', description: 'Registro de actividad y trazabilidad de cambios.', icon: 'shield-check', category: 'vertical' },
-    { id: 'inventory', name: 'Inventario Pro', description: 'Control de stock y trazabilidad de material.', icon: 'package', category: 'core' },
-    { id: 'budgets', name: 'Presupuestos', description: 'Gestor de cotizaciones cinematográficas.', icon: 'receipt', category: 'core' },
-    { id: 'delivery', name: 'Logística y Albaranes', description: 'Gestión de entregas y salidas de material.', icon: 'truck', category: 'vertical' },
-    { id: 'fleet', name: 'Gestión de Flota', icon: 'car', description: 'Control de vehículos y transportes de producción.', category: 'vertical' },
-    { id: 'rentals', name: 'Alquileres', icon: 'key', description: 'Sistema de reservas y devoluciones.', category: 'vertical' },
-    { id: 'billing', name: 'Facturación', description: 'Gestión de facturas y cobros.', icon: 'history', category: 'core' },
-    { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
-  ];
+  readonly plugins = TENANT_MODULE_CATALOG;
 
-  readonly canActivateTenantModules = computed(() => {
+  readonly canManageTenantModules = computed(() => {
     const p = this._authStore.user()?.permissions ?? [];
-    return p.includes('platform.tenants.manage');
+    return (
+      p.includes('*') ||
+      p.includes('modules.manage') ||
+      p.includes('users.manage') ||
+      p.includes('roles.manage')
+    );
   });
+
+  ngOnInit(): void {
+    this.reloadTenantModulesFromApi();
+  }
+
+  isProtectedModule(id: string): boolean {
+    return PROTECTED_TENANT_MODULE_IDS.includes(id);
+  }
 
   isPluginEnabled(id: string) {
     return this._pluginStore.enabledPlugins().includes(id);
   }
 
-  onRequestActivateModule(pluginId: string): void {
-    if (!this.canActivateTenantModules()) return;
-    this._pluginStore.togglePlugin(pluginId);
-  }
-
-  onRequestDeactivateModule(pluginId: string): void {
-    if (!this.isPluginEnabled(pluginId)) return;
-  }
-
   reloadTenantModulesFromApi(): void {
-    // TODO: Implement API reload for tenant modules
+    this.pluginsTabError.set(null);
+    this._tenantModulesApi.fetchEnabledModules().subscribe({
+      next: (res) => {
+        this._pluginStore.setPlugins(res.enabledModuleIds);
+      },
+      error: () => {
+        this.pluginsTabError.set(
+          'No se pudieron cargar los módulos del tenant. Comprueba la conexión e inténtalo de nuevo.',
+        );
+      },
+    });
   }
 }

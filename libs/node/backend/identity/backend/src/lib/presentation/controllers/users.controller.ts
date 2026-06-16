@@ -8,41 +8,64 @@ import {
   Param,
   UseGuards,
   ParseUUIDPipe,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { UsersService } from '../../application/services/users.service';
 import {
   CreateUserDto,
   UpdateUserDto,
 } from '../../application/dtos/user.dtos';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
+import { JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
+import { assertUserPermissions } from '../../application/utils/request-auth';
+
+type JwtUser = { permissions?: string[] };
 
 @Controller('users')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, TenantGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll() {
+  async findAll(@Req() req: Request & { user?: JwtUser }) {
+    assertUserPermissions(req.user, ['users.view', 'users.manage']);
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  async findById(@Param('id', ParseUUIDPipe) id: string) {
+  async findById(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    assertUserPermissions(req.user, ['users.view', 'users.manage']);
     return this.usersService.findById(id);
   }
 
   @Post()
-  async create(@Body() dto: CreateUserDto) {
+  async create(
+    @Req() req: Request & { user?: JwtUser },
+    @Body() dto: CreateUserDto,
+  ) {
+    assertUserPermissions(req.user, ['users.manage']);
     return this.usersService.create(dto);
   }
 
   @Put(':id')
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateUserDto) {
+  async update(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: UpdateUserDto,
+  ) {
+    assertUserPermissions(req.user, ['users.manage']);
     return this.usersService.update(id, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string) {
+  async delete(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    assertUserPermissions(req.user, ['users.manage']);
     await this.usersService.delete(id);
     return { message: 'Usuario eliminado correctamente' };
   }

@@ -657,6 +657,8 @@ model User {
   category      String?        @map("category")
   /// Permisos adicionales fuera del alcance de los roles (merge con permisos de rol en JWT).
   extraPermissions String[]    @default([]) @map("extra_permissions")
+  /// Permisos revocados explícitamente para este usuario (restan tras merge de roles).
+  deniedPermissions String[]   @default([]) @map("denied_permissions")
   createdAt     DateTime       @default(now()) @map("created_at")
   updatedAt     DateTime?      @map("updated_at")
   roles         UserRole[]

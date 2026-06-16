@@ -39,6 +39,11 @@ export function mapApiUserPayload(raw: unknown): User {
     ? rawExtra.filter((p): p is string => typeof p === 'string')
     : [];
 
+  const rawDenied = r['deniedPermissions'] ?? r['denied_permissions'];
+  const deniedPermissions = Array.isArray(rawDenied)
+    ? rawDenied.filter((p): p is string => typeof p === 'string')
+    : [];
+
   return {
     id,
     email,
@@ -48,6 +53,7 @@ export function mapApiUserPayload(raw: unknown): User {
     roles,
     permissions,
     extraPermissions,
+    deniedPermissions,
     category,
     createdAt,
     updatedAt: updatedRaw ? String(updatedRaw) : undefined,

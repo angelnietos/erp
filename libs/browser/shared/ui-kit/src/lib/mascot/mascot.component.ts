@@ -171,7 +171,7 @@ export type {
           var(--mascot-secondary) 30%,
           transparent 70%
         );
-        opacity: 0.3;
+        opacity: 0.55;
         filter: blur(20px);
         border-radius: 50%;
       }

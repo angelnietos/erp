@@ -5,7 +5,8 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
-import { DEFAULT_TENANT_MODULE_IDS, isPermissionAllowedForModules } from '@josanz-erp/identity-api';
+import { DEFAULT_TENANT_MODULE_IDS, ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
+import { mergeEffectiveUserPermissions } from '../../application/utils/permission-merge';
 
 interface KeycloakToken {
   sub: string;
@@ -31,43 +32,7 @@ interface ErpMappedUser {
   kind?: string;
 }
 
-const ALL_APP_PERMISSIONS: string[] = [
-  '*',
-  'dashboard.view',
-  'users.view',
-  'users.manage',
-  'roles.manage',
-  'tenants.manage',
-  'clients.view',
-  'clients.manage',
-  'products.view',
-  'products.manage',
-  'inventory.movement',
-  'budgets.view',
-  'budgets.create',
-  'budgets.approve',
-  'invoices.view',
-  'invoices.submit',
-  'rentals.view',
-  'rentals.manage',
-  'rentals.approve',
-  'projects.view',
-  'projects.manage',
-  'fleet.view',
-  'fleet.manage',
-  'events.view',
-  'events.manage',
-  'services.view',
-  'services.manage',
-  'reports.view',
-  'audit.view',
-  'delivery.view',
-  'delivery.manage',
-  'billing.view',
-  'verifactu.view',
-  'receipts.view',
-  'ai.view',
-];
+const ALL_APP_PERMISSIONS: string[] = ['*', ...ALL_APP_PERMISSION_IDS];
 
 @Injectable()
 export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -205,6 +170,8 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         firstName: string | null;
         lastName: string | null;
         tenantId: string;
+        extraPermissions: string[];
+        deniedPermissions: string[];
         roles: Array<{ role: { name: string; permissions: string[] } }>;
       };
 
@@ -253,9 +220,13 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
           select: { enabledModuleIds: true },
         });
         const effectiveModules = enabledModules?.enabledModuleIds ?? [...DEFAULT_TENANT_MODULE_IDS];
-        const permissions = Array.from(
-          new Set(dbUser.roles.flatMap((ur) => ur.role.permissions)),
-        ).filter((p) => isPermissionAllowedForModules(p, effectiveModules));
+        const fromRoles = dbUser.roles.flatMap((ur) => ur.role.permissions);
+        const permissions = mergeEffectiveUserPermissions(
+          fromRoles,
+          dbUser.extraPermissions ?? [],
+          dbUser.deniedPermissions ?? [],
+          effectiveModules,
+        );
         const roleNames = dbUser.roles.map((ur) => ur.role.name);
 
         return {

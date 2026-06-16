@@ -20,6 +20,7 @@ import {
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
 } from '@josanz-erp/identity-api';
+import { mergeEffectiveUserPermissions } from '../utils/permission-merge';
 import {
   PrismaService,
   TenantContext,
@@ -83,14 +84,18 @@ export class UsersService {
     filteredRoles: string[],
     rolePermissionsMap: Map<string, string[]>,
     extraPermissions: string[],
+    deniedPermissions: string[],
+    enabledModuleIds: string[],
   ): string[] {
-    const allPerms = new Set<string>();
-    filteredRoles.forEach((roleName) => {
-      const perms = rolePermissionsMap.get(roleName) || [];
-      perms.forEach((p) => allPerms.add(p));
-    });
-    extraPermissions.forEach((p) => allPerms.add(p));
-    return Array.from(allPerms);
+    const fromRoles = filteredRoles.flatMap(
+      (roleName) => rolePermissionsMap.get(roleName) || [],
+    );
+    return mergeEffectiveUserPermissions(
+      fromRoles,
+      extraPermissions,
+      deniedPermissions,
+      enabledModuleIds,
+    );
   }
 
   async findAll(): Promise<UserApi[]> {
@@ -107,6 +112,7 @@ export class UsersService {
     );
 
     const tenantRoleNames = new Set(rolesData.map((r) => r.name));
+    const mods = await this.resolveTenantEnabledModules(tenantId);
 
     return users.map((user) => {
       const filteredRoles = user.roles.filter((r) => tenantRoleNames.has(r));
@@ -114,6 +120,8 @@ export class UsersService {
         filteredRoles,
         rolePermissionsMap,
         user.extraPermissions ?? [],
+        user.deniedPermissions ?? [],
+        mods,
       );
 
       return {
@@ -125,6 +133,7 @@ export class UsersService {
         roles: filteredRoles,
         permissions,
         extraPermissions: user.extraPermissions ?? [],
+        deniedPermissions: user.deniedPermissions ?? [],
         category: user.category,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt?.toISOString(),
@@ -149,10 +158,13 @@ export class UsersService {
 
     const rolePermissionsMap = new Map(rolesData.map((r) => [r.name, r.permissions]));
     const filteredRoles = rolesData.map((r) => r.name);
+    const mods = await this.resolveTenantEnabledModules(tenantId);
     const permissions = this.mergePermissionSets(
       filteredRoles,
       rolePermissionsMap,
       user.extraPermissions ?? [],
+      user.deniedPermissions ?? [],
+      mods,
     );
 
     return {
@@ -164,6 +176,7 @@ export class UsersService {
       roles: filteredRoles,
       permissions,
       extraPermissions: user.extraPermissions ?? [],
+      deniedPermissions: user.deniedPermissions ?? [],
       category: user.category,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt?.toISOString(),
@@ -173,6 +186,7 @@ export class UsersService {
   async create(dto: CreateUserDto): Promise<UserApi> {
     const tenantId = this.requireTenantId();
     this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
+    this.assertStringArrayField(dto.deniedPermissions, 'deniedPermissions');
     const existingUser = await this.userRepository.findByEmail(dto.email);
     if (existingUser) {
       throw new BadRequestException('El correo ya está registrado');
@@ -189,6 +203,9 @@ export class UsersService {
     const extraPermissions = dto.extraPermissions?.length
       ? filterPermissionsToEnabledModules(dto.extraPermissions, mods)
       : [];
+    const deniedPermissions = dto.deniedPermissions?.length
+      ? filterPermissionsToEnabledModules(dto.deniedPermissions, mods)
+      : [];
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     const user = User.create({
@@ -198,6 +215,7 @@ export class UsersService {
       lastName: dto.lastName,
       roles,
       extraPermissions,
+      deniedPermissions,
       category: dto.category,
     });
 
@@ -210,6 +228,7 @@ export class UsersService {
   async update(id: string, dto: UpdateUserDto): Promise<UserApi> {
     const tenantId = this.requireTenantId();
     this.assertStringArrayField(dto.extraPermissions, 'extraPermissions');
+    this.assertStringArrayField(dto.deniedPermissions, 'deniedPermissions');
     const user = await this.userRepository.findById(id);
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
@@ -241,6 +260,13 @@ export class UsersService {
       const mods = await this.resolveTenantEnabledModules(tenantId);
       user.setExtraPermissions(
         filterPermissionsToEnabledModules(dto.extraPermissions, mods),
+      );
+    }
+
+    if (dto.deniedPermissions !== undefined) {
+      const mods = await this.resolveTenantEnabledModules(tenantId);
+      user.setDeniedPermissions(
+        filterPermissionsToEnabledModules(dto.deniedPermissions, mods),
       );
     }
 

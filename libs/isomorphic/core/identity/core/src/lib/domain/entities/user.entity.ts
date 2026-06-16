@@ -9,6 +9,8 @@ export interface UserProps {
   roles: string[];
   /** Permisos granulares además de los que aportan los roles (p. ej. acceso puntual). */
   extraPermissions: string[];
+  /** Permisos revocados explícitamente (restan tras merge con roles). */
+  deniedPermissions: string[];
   category?: string;
   createdAt: Date;
   updatedAt?: Date;
@@ -25,14 +27,16 @@ export class User extends AggregateRoot {
   }
 
   static create(
-    props: Omit<UserProps, 'createdAt' | 'isActive' | 'extraPermissions'> & {
+    props: Omit<UserProps, 'createdAt' | 'isActive' | 'extraPermissions' | 'deniedPermissions'> & {
       extraPermissions?: string[];
+      deniedPermissions?: string[];
     },
   ): User {
     const id = new EntityId();
     return new User(id, {
       ...props,
       extraPermissions: props.extraPermissions ?? [],
+      deniedPermissions: props.deniedPermissions ?? [],
       isActive: true,
       createdAt: new Date(),
     });
@@ -97,12 +101,19 @@ export class User extends AggregateRoot {
   get extraPermissions(): string[] {
     return this.props.extraPermissions;
   }
+  get deniedPermissions(): string[] {
+    return this.props.deniedPermissions;
+  }
   setRoles(roles: string[]): void {
     this.props.roles = [...roles];
     this.props.updatedAt = new Date();
   }
   setExtraPermissions(extraPermissions: string[]): void {
     this.props.extraPermissions = [...extraPermissions];
+    this.props.updatedAt = new Date();
+  }
+  setDeniedPermissions(deniedPermissions: string[]): void {
+    this.props.deniedPermissions = [...deniedPermissions];
     this.props.updatedAt = new Date();
   }
   get category(): string | undefined {

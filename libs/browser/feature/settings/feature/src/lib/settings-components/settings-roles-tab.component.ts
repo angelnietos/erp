@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject } from '@angular/core';
+import { Component, signal, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import {
@@ -232,7 +232,7 @@ import { RoleType } from '@josanz-erp/identity-core';
     `,
   ],
 })
-export class SettingsRolesTabComponent {
+export class SettingsRolesTabComponent implements OnInit {
   private readonly _pluginStore = inject(PluginStore);
   private readonly _rolesService = inject(RolesService);
   private readonly _authStore = inject(AuthStore);
@@ -255,6 +255,10 @@ export class SettingsRolesTabComponent {
   });
 
   readonly isSelectedRoleSuperAdmin = computed(() => this.selectedRole()?.type === RoleType.SUPERADMIN);
+
+  ngOnInit(): void {
+    this.loadRoles();
+  }
 
   categoryHasVisiblePerms(category: string): boolean {
     return this.permissionsCatalogForUi().some(p => p.category === category);

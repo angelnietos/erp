@@ -8,19 +8,24 @@ import {
   Param,
   UseGuards,
   ParseUUIDPipe,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { RolesService } from '../../application/services/roles.service';
 import { JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
 import { ClsService } from 'nestjs-cls';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
 import { RoleType } from '@josanz-erp/identity-core';
+import { assertUserPermissions } from '../../application/utils/request-auth';
+
+type JwtUser = { permissions?: string[] };
 
 @Controller('roles')
 @UseGuards(JwtAuthGuard, TenantGuard)
 export class RolesController {
   constructor(
     private readonly rolesService: RolesService,
-    private readonly cls: ClsService<TenantContext>
+    private readonly cls: ClsService<TenantContext>,
   ) {}
 
   private get tenantId(): string {
@@ -28,35 +33,51 @@ export class RolesController {
   }
 
   @Get()
-  async findAll() {
+  async findAll(@Req() req: Request & { user?: JwtUser }) {
+    assertUserPermissions(req.user, ['roles.manage', 'users.manage']);
     return this.rolesService.findAll(this.tenantId);
   }
 
   @Get('permissions')
-  async getPermissions() {
+  async getPermissions(@Req() req: Request & { user?: JwtUser }) {
+    assertUserPermissions(req.user, ['roles.manage', 'users.manage']);
     return this.rolesService.getPermissionsList();
   }
 
   @Get(':id')
-  async findById(@Param('id', ParseUUIDPipe) id: string) {
+  async findById(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    assertUserPermissions(req.user, ['roles.manage']);
     return this.rolesService.findById(id, this.tenantId);
   }
 
   @Post()
-  async create(@Body() dto: { name: string; description?: string; type: RoleType; permissions: string[] }) {
+  async create(
+    @Req() req: Request & { user?: JwtUser },
+    @Body() dto: { name: string; description?: string; type: RoleType; permissions: string[] },
+  ) {
+    assertUserPermissions(req.user, ['roles.manage']);
     return this.rolesService.create(this.tenantId, dto);
   }
 
   @Put(':id')
   async update(
+    @Req() req: Request & { user?: JwtUser },
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: { name?: string; description?: string; permissions?: string[] },
   ) {
+    assertUserPermissions(req.user, ['roles.manage']);
     return this.rolesService.update(id, this.tenantId, dto);
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseUUIDPipe) id: string) {
+  async delete(
+    @Req() req: Request & { user?: JwtUser },
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    assertUserPermissions(req.user, ['roles.manage']);
     await this.rolesService.delete(id, this.tenantId);
     return { message: 'Rol eliminado correctamente' };
   }

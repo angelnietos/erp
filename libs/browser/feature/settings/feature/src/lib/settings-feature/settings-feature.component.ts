@@ -15,6 +15,7 @@ import {
   AuthStore,
   TenantModulesApiService,
 } from '@josanz-erp/identity-data-access';
+import { TENANT_MODULE_CATALOG } from '@josanz-erp/identity-api';
 
 import {
   SettingsSidebarComponent,
@@ -30,14 +31,6 @@ import {
   SettingsAppearanceTabComponent,
   SettingsTab,
 } from '../settings-components';
-
-interface PluginDescriptor {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  category: 'core' | 'vertical' | 'experimental';
-}
 
 @Component({
   selector: 'lib-settings-feature',
@@ -70,7 +63,10 @@ interface PluginDescriptor {
             <lib-settings-profile-tab />
           }
           @case ('plugins') {
-            <lib-settings-plugins-tab />
+            <lib-settings-plugins-tab
+              (activateModule)="onActivateModule($event)"
+              (deactivateModule)="onRequestDeactivateModule($event)"
+            />
           }
           @case ('ai') {
             <lib-settings-ai-tab />
@@ -119,7 +115,7 @@ interface PluginDescriptor {
           <span>Acepto esta condición y confirmo que entiendo que el módulo dejará de estar disponible según el calendario indicado y la suscripción.</span>
         </label>
       } @else {
-        <p class="settings-module-disable-lead">Solo el rol <strong>SuperAdmin</strong> puede desactivar módulos para la organización.</p>
+        <p class="settings-module-disable-lead">Solo un usuario con permiso <strong>modules.manage</strong> (o gestión de usuarios/roles) puede desactivar módulos.</p>
         <p class="settings-module-disable-warning">Si necesitas una baja, contacta con un SuperAdmin de tu empresa.</p>
       }
       <div modal-footer>
@@ -140,7 +136,7 @@ interface PluginDescriptor {
         display: grid;
         grid-template-columns: 280px 1fr;
         min-height: calc(100vh - 64px);
-        background: transparent;
+        background: var(--surface-1, #0f172a);
         min-width: 0;
         box-sizing: border-box;
       }
@@ -150,7 +146,7 @@ interface PluginDescriptor {
       .settings-content {
         padding: 3rem 4rem;
         overflow-y: auto;
-        background: rgba(255, 255, 255, 0.05);
+        background: color-mix(in srgb, var(--surface-2, #1e293b) 92%, #fff 8%);
         scrollbar-width: thin;
         scrollbar-color: var(--brand) transparent;
         min-width: 0;
@@ -200,7 +196,17 @@ export class SettingsFeatureComponent {
     this.deactivateModalMode() === 'terms' ? 'BAJA DE MÓDULO' : 'NO PUEDES DESACTIVAR ESTE MÓDULO'
   );
 
-  readonly canDeactivateTenantModules = this.canSeeRolesAdmin;
+  readonly canManageTenantModules = computed(() => {
+    const p = this._authStore.user()?.permissions ?? [];
+    return (
+      p.includes('*') ||
+      p.includes('modules.manage') ||
+      p.includes('users.manage') ||
+      p.includes('roles.manage')
+    );
+  });
+
+  readonly canDeactivateTenantModules = this.canManageTenantModules;
 
   readonly moduleDeactivateEffectiveDate = computed(() => {
     const last = new Date();
@@ -211,28 +217,10 @@ export class SettingsFeatureComponent {
   readonly pendingPluginDeactivateLabel = computed(() => {
     const id = this.pendingPluginDisableId();
     if (!id) return '';
-    return this.plugins.find(p => p.id === id)?.name ?? id;
+    return TENANT_MODULE_CATALOG.find((p) => p.id === id)?.name ?? id;
   });
 
-  readonly plugins: PluginDescriptor[] = [
-    { id: 'dashboard', name: 'Dashboard', description: 'Panel principal con KPIs y resumen operativo del tenant.', icon: 'layout-dashboard', category: 'core' },
-    { id: 'ai-insights', name: 'AI Insights', description: 'Módulo de inteligencia artificial con análisis predictivo.', icon: 'cpu', category: 'experimental' },
-    { id: 'clients', name: 'Gestión de Clientes', description: 'Módulo CRM para seguimiento de clientes y leads.', icon: 'users', category: 'core' },
-    { id: 'projects', name: 'Proyectos y Tareas', description: 'Planificación de producciones y asignación de recursos.', icon: 'file-text', category: 'core' },
-    { id: 'events', name: 'Calendario de Eventos', description: 'Gestión de fechas críticas y rodajes.', icon: 'calendar', category: 'core' },
-    { id: 'identity', name: 'Identidad y Usuarios', description: 'Control de acceso, roles y seguridad.', icon: 'id-card', category: 'core' },
-    { id: 'availability', name: 'Disponibilidad', description: 'Control horario y cuadrante de vacaciones.', icon: 'clock', category: 'vertical' },
-    { id: 'services', name: 'Catálogo de Servicios', description: 'Definición de tarifas y servicios prestados.', icon: 'wrench', category: 'vertical' },
-    { id: 'reports', name: 'Análisis y Reportes', description: 'KPIs, métricas y exportación de datos.', icon: 'pie-chart', category: 'vertical' },
-    { id: 'audit', name: 'Auditoría de Sistema', description: 'Registro de actividad y trazabilidad de cambios.', icon: 'shield-check', category: 'vertical' },
-    { id: 'inventory', name: 'Inventario Pro', description: 'Control de stock y trazabilidad de material.', icon: 'package', category: 'core' },
-    { id: 'budgets', name: 'Presupuestos', description: 'Gestor de cotizaciones cinematográficas.', icon: 'receipt', category: 'core' },
-    { id: 'delivery', name: 'Logística y Albaranes', description: 'Gestión de entregas y salidas de material.', icon: 'truck', category: 'vertical' },
-    { id: 'fleet', name: 'Gestión de Flota', icon: 'car', description: 'Control de vehículos y transportes de producción.', category: 'vertical' },
-    { id: 'rentals', name: 'Alquileres', icon: 'key', description: 'Sistema de reservas y devoluciones.', category: 'vertical' },
-    { id: 'billing', name: 'Facturación', description: 'Gestión de facturas y cobros.', icon: 'history', category: 'core' },
-    { id: 'verifactu', name: 'VeriFactu Compliance', icon: 'file-check', description: 'Integración mandatoria con la AEAT.', category: 'vertical' },
-  ];
+  readonly plugins = TENANT_MODULE_CATALOG;
 
   constructor() {
     effect(() => {
@@ -255,6 +243,26 @@ export class SettingsFeatureComponent {
     this.moduleDisableTermsAccepted.set(false);
   }
 
+  onRequestDeactivateModule(pluginId: string): void {
+    if (!this._pluginStore.enabledPlugins().includes(pluginId)) return;
+    if (!this.canManageTenantModules()) {
+      this.deactivateModalMode.set('forbidden');
+      this.pendingPluginDisableId.set(pluginId);
+      this.deactivateModuleModalOpen.set(true);
+      return;
+    }
+    this.deactivateModalMode.set('terms');
+    this.pendingPluginDisableId.set(pluginId);
+    this.deactivateModuleModalOpen.set(true);
+  }
+
+  onActivateModule(pluginId: string): void {
+    if (!this.canManageTenantModules()) return;
+    const current = this._pluginStore.enabledPlugins();
+    if (current.includes(pluginId)) return;
+    this.persistModuleIds([...current, pluginId], 'Módulo activado correctamente.');
+  }
+
   confirmPluginDisable(): void {
     if (!this.moduleDisableTermsAccepted()) return;
     const id = this.pendingPluginDisableId();
@@ -263,8 +271,22 @@ export class SettingsFeatureComponent {
     this.closeDeactivatePluginModal();
   }
 
-  private applyTenantPluginToggle(_pluginId: string): void {
-    // TODO: Implement tenant plugin toggle persistence
+  private applyTenantPluginToggle(pluginId: string): void {
+    const next = this._pluginStore.enabledPlugins().filter((id) => id !== pluginId);
+    this.persistModuleIds(next, 'Solicitud de baja registrada. El módulo se desactivará según el calendario indicado.');
+  }
+
+  private persistModuleIds(next: string[], successMessage: string): void {
+    this._tenantModulesApi.updateEnabledModules(next).subscribe({
+      next: (res) => {
+        this._pluginStore.setPlugins(res.enabledModuleIds);
+        void this._authStore.refreshSession();
+        this._toast.show(successMessage, 'success');
+      },
+      error: () => {
+        this._toast.show('No se pudieron actualizar los módulos. Inténtalo de nuevo.', 'error');
+      },
+    });
   }
 
   togglePremium() {

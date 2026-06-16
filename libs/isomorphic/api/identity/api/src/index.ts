@@ -1,11 +1,19 @@
 export {
   DEFAULT_TENANT_MODULE_IDS,
   TENANT_MODULE_LABELS_ES,
+  TENANT_MODULE_CATALOG,
+  PROTECTED_TENANT_MODULE_IDS,
   requiredModuleIdsForPermission,
   isPermissionAllowedForModules,
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
 } from './lib/tenant-modules';
+
+export {
+  PERMISSIONS_CATALOG,
+  ALL_APP_PERMISSION_IDS,
+} from './lib/permissions-catalog';
+export type { PermissionCatalogEntry } from './lib/permissions-catalog';
 
 // Shared interfaces for Identity domain
 export interface UserPayload {
@@ -17,6 +25,8 @@ export interface UserPayload {
   permissions: string[];
   /** Permisos asignados al usuario además de los de sus roles (se fusionan en el JWT). */
   extraPermissions?: string[];
+  /** Permisos revocados explícitamente para este usuario. */
+  deniedPermissions?: string[];
   category?: string;
 }
 
@@ -29,6 +39,7 @@ export interface User {
   roles: string[];
   permissions: string[];
   extraPermissions?: string[];
+  deniedPermissions?: string[];
   category?: string;
   createdAt: string;
   updatedAt?: string;
@@ -58,6 +69,7 @@ export interface CreateUserDto {
   lastName?: string;
   roles: string[];
   extraPermissions?: string[];
+  deniedPermissions?: string[];
   category?: string;
 }
 
@@ -67,6 +79,7 @@ export interface UpdateUserDto {
   lastName?: string;
   roles?: string[];
   extraPermissions?: string[];
+  deniedPermissions?: string[];
   category?: string;
   isActive?: boolean;
 }

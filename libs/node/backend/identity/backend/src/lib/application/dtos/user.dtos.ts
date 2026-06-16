@@ -53,6 +53,9 @@ export class CreateUserDto implements ICreateUserDto {
   @Allow()
   extraPermissions?: string[];
 
+  @Allow()
+  deniedPermissions?: string[];
+
   @IsOptional()
   @Transform(({ value }) => (value === '' || value === null ? undefined : value))
   @IsString()
@@ -92,6 +95,9 @@ export class UpdateUserDto implements IUpdateUserDto {
 
   @Allow()
   extraPermissions?: string[];
+
+  @Allow()
+  deniedPermissions?: string[];
 
   @IsOptional()
   @Transform(({ value }) => (value === '' || value === null ? undefined : value))

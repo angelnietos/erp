@@ -79,6 +79,7 @@ const prisma = new PrismaClient({
  */
 const ALL_APP_PERMISSIONS: readonly string[] = [
   'dashboard.view',
+  'modules.manage',
   'users.view',
   'users.manage',
   'roles.manage',

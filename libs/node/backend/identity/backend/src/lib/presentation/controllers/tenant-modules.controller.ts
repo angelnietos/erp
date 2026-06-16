@@ -15,7 +15,8 @@ import { JwtAuthGuard, TenantGuard } from '@josanz-erp/shared-infrastructure';
 import { ClsService } from 'nestjs-cls';
 import { TenantContext } from '@josanz-erp/shared-infrastructure';
 import { isTenantUuid } from '@josanz-erp/shared-infrastructure';
-import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
+import { normalizeTenantModuleIds, PROTECTED_TENANT_MODULE_IDS } from '@josanz-erp/identity-api';
+import { userHasAnyPermission } from '../../application/utils/permission-merge';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 
 class UpdateTenantModulesDto {
@@ -58,13 +59,13 @@ export class TenantModulesController {
     return clsTenant ?? undefined;
   }
 
-  private canActivateModules(user: JwtUser | undefined): boolean {
-    const p = user?.permissions ?? [];
-    return (
-      p.includes('*') ||
-      p.includes('users.manage') ||
-      p.includes('roles.manage')
-    );
+  private canManageModules(user: JwtUser | undefined): boolean {
+    return userHasAnyPermission(user?.permissions, [
+      '*',
+      'modules.manage',
+      'users.manage',
+      'roles.manage',
+    ]);
   }
 
   @Get()
@@ -92,18 +93,24 @@ export class TenantModulesController {
       tenantId,
     );
     const next = normalizeTenantModuleIds(body.enabledModuleIds ?? []);
-    const roles = req.user?.roles ?? [];
-    const isSuperAdmin = roles.includes('SuperAdmin');
+    const protectedSet = new Set(PROTECTED_TENANT_MODULE_IDS);
+    for (const id of protectedSet) {
+      if (!next.includes(id)) {
+        throw new BadRequestException(
+          `El módulo "${id}" es obligatorio y no puede desactivarse.`,
+        );
+      }
+    }
 
     const removed = current.filter((id) => !next.includes(id));
-    if (removed.length > 0 && !isSuperAdmin) {
+    if (removed.length > 0 && !this.canManageModules(req.user)) {
       throw new ForbiddenException(
-        'Solo el SuperAdmin puede desactivar módulos.',
+        'No tienes permiso para desactivar módulos.',
       );
     }
 
     const added = next.filter((id) => !current.includes(id));
-    if (added.length > 0 && !this.canActivateModules(req.user)) {
+    if (added.length > 0 && !this.canManageModules(req.user)) {
       throw new ForbiddenException(
         'No tienes permiso para activar módulos.',
       );

@@ -81,6 +81,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
           isActive: user.isActive,
           category: user.category,
           extraPermissions: user.extraPermissions,
+          deniedPermissions: user.deniedPermissions,
           updatedAt: new Date(),
         },
         create: {
@@ -93,6 +94,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
           isActive: user.isActive,
           category: user.category,
           extraPermissions: user.extraPermissions,
+          deniedPermissions: user.deniedPermissions,
           createdAt: user.createdAt,
         },
       });
@@ -127,6 +129,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       category: data.category,
       roles: (data.roles || []).map((r) => r.role.name),
       extraPermissions: data.extraPermissions ?? [],
+      deniedPermissions: data.deniedPermissions ?? [],
       createdAt: data.createdAt,
       updatedAt: data.updatedAt,
     });
