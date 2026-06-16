@@ -32,6 +32,9 @@ import {
       @case ('josanz-figma') {
         <josanz-figma-app-shell />
       }
+      @case ('document-generator') {
+        <router-outlet />
+      }
       @default {
         <josanz-app-layout (logoutClick)="auth.logout()" />
       }

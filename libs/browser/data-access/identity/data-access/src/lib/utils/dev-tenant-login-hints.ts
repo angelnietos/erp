@@ -37,6 +37,12 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     password: DEV_TENANT_LOGIN_PASSWORD,
     primary: true,
   },
+  {
+    slug: 'docs',
+    email: 'admin@docs.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    primary: true,
+  },
 ] as const;
 
 export function getDevLoginHintsForTenant(slug: string): DevTenantLoginHint[] {

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import { FloatingAssistantComponent } from '../floating-assistant/floating-assistant.component';
 import { ThemeSelectorComponent } from '../theme-selector/theme-selector.component';
 
@@ -166,6 +167,18 @@ import { ThemeSelectorComponent } from '../theme-selector/theme-selector.compone
                 <span class="hidden sm:inline">Config. IA</span>
                 <span class="sm:hidden">IA</span>
               </a>
+              @if (authStore) {
+                <button
+                  type="button"
+                  class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
+                  style="color: var(--text-primary)"
+                  (click)="authStore.logout()"
+                  title="Cerrar sesión ERP"
+                >
+                  <lucide-angular name="log-out" class="w-4 h-4"></lucide-angular>
+                  <span class="hidden sm:inline">Salir</span>
+                </button>
+              }
             </nav>
           </div>
         </div>
@@ -184,4 +197,7 @@ import { ThemeSelectorComponent } from '../theme-selector/theme-selector.compone
     </div>
   `,
 })
-export class DocumentGeneratorLayoutComponent {}
+export class DocumentGeneratorLayoutComponent {
+  /** Presente cuando la feature corre dentro de apps/frontend (:4200). */
+  readonly authStore = inject(AuthStore, { optional: true });
+}

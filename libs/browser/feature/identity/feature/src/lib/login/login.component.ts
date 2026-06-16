@@ -161,6 +161,7 @@ export class LoginComponent implements OnInit {
       josanz: 'Josanz Audiovisuales',
       babooni: 'Babooni Technologies',
       alexis: 'Alexis',
+      docs: 'Generador de Documentos',
     };
     return known[slug] ?? slug;
   });
@@ -170,6 +171,7 @@ export class LoginComponent implements OnInit {
     const slug = this.tenantSlug();
     if (slug === 'babooni') return 'Babooni Technologies';
     if (slug === 'alexis') return 'Alexis';
+    if (slug === 'docs') return 'Generador de Documentos';
     return 'Josanz Audiovisuales';
   });
 

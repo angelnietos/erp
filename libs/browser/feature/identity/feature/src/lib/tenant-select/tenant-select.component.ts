@@ -56,6 +56,11 @@ export class TenantSelectComponent {
       name: 'Alexis',
       description: 'Tenant demo con la app Figma independiente integrada.',
     },
+    {
+      slug: 'docs',
+      name: 'Generador de Documentos',
+      description: 'App de documentos IA (apps/document-generator en :4200).',
+    },
   ];
 
   readonly customSlug = signal('');

@@ -6,6 +6,12 @@ import { getTenantUiShell } from '../utils/tenant-ui-shell';
 export const josanzFigmaShellCanMatch: CanMatchFn = () =>
   getTenantUiShell(getErpTenantSlug()) === 'josanz-figma';
 
+/** Rutas de apps/document-generator (generador IA). */
+export const documentGeneratorShellCanMatch: CanMatchFn = () =>
+  getTenantUiShell(getErpTenantSlug()) === 'document-generator';
+
 /** Rutas del ERP clásico (shell gaming o Babooni). */
-export const classicErpShellCanMatch: CanMatchFn = () =>
-  getTenantUiShell(getErpTenantSlug()) !== 'josanz-figma';
+export const classicErpShellCanMatch: CanMatchFn = () => {
+  const shell = getTenantUiShell(getErpTenantSlug());
+  return shell === 'classic' || shell === 'babooni';
+};

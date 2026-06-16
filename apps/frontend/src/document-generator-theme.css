@@ -1,0 +1,92 @@
+/**
+ * Shell document-generator en apps/frontend (:4200).
+ * Tokens alineados con apps/document-generator/src/styles.css (scoped).
+ */
+html[data-erp-ui-shell='document-generator'] {
+  --bg-primary: #050608;
+  --bg-secondary: #0c0d12;
+  --bg-tertiary: #12141c;
+  --surface: rgba(18, 20, 28, 0.76);
+  --surface-hover: rgba(26, 30, 42, 0.92);
+  --brand: #e60012;
+  --primary: #e60012;
+  --primary-light: color-mix(in srgb, var(--primary) 24%, transparent);
+  --brand-muted: color-mix(in srgb, var(--brand) 65%, #000);
+  --brand-glow: color-mix(in srgb, var(--brand) 40%, transparent);
+  --brand-surface: color-mix(in srgb, var(--brand) 12%, transparent);
+  --brand-border-soft: color-mix(in srgb, var(--brand) 25%, transparent);
+  --brand-ambient: color-mix(in srgb, var(--brand) 8%, transparent);
+  --brand-ambient-strong: color-mix(in srgb, var(--brand) 16%, transparent);
+  --accent: #ffffff;
+  --accent-muted: #94a3b8;
+  --success: #00f2ad;
+  --warning: #ffca3a;
+  --danger: #ff5e6c;
+  --info: #3fc1ff;
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.82);
+  --text-muted: rgba(255, 255, 255, 0.66);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-vibrant: rgba(255, 255, 255, 0.15);
+  --ring-focus: var(--brand);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 32px;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 32px 64px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 30px var(--brand-glow);
+  --font-main: 'Nunito', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'DM Sans', 'Outfit', system-ui, sans-serif;
+  --text-on-brand: #ffffff;
+  --surface-secondary: rgba(255, 255, 255, 0.03);
+}
+
+html[data-erp-ui-shell='document-generator'][data-theme='pearl'],
+html[data-erp-ui-shell='document-generator'][data-theme='sky-day'],
+html[data-erp-ui-shell='document-generator'][data-theme='corporate-light'],
+html[data-erp-ui-shell='document-generator'][data-theme='platinum-luxe'] {
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-soft: rgba(15, 23, 42, 0.12);
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f5f9;
+  --surface: rgba(255, 255, 255, 0.9);
+  --surface-hover: rgba(255, 255, 255, 0.95);
+  --surface-secondary: rgba(0, 0, 0, 0.03);
+}
+
+html[data-erp-ui-shell='document-generator'] body {
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+html[data-erp-ui-shell='document-generator'] lucide-angular,
+html[data-erp-ui-shell='document-generator'] lucide-angular svg {
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .text-doc-ink {
+  color: var(--text-primary) !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .text-doc-muted-on-light {
+  color: var(--text-secondary) !important;
+}
+
+html[data-erp-ui-shell='document-generator'] .doc-chat-bubble-bot {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e2e8f0;
+}

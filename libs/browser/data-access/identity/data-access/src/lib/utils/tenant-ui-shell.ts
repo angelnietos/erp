@@ -4,14 +4,21 @@
  * - `classic` — layout gaming Josanz (`shared-ui-shell`)
  * - `babooni` — layout Biosstel (`babooni-ui`)
  * - `josanz-figma` — layout Figma / `josanz-ui` (apps/josanz-web-app)
+ * - `document-generator` — generador de documentos (apps/document-generator)
  */
-export type ErpTenantUiShell = 'classic' | 'babooni' | 'josanz-figma';
+export type ErpTenantUiShell =
+  | 'classic'
+  | 'babooni'
+  | 'josanz-figma'
+  | 'document-generator';
 
 /** Slug → shell. Añade tenants aquí; no hace falta duplicar backend ni despliegue. */
 export const TENANT_UI_SHELL_BY_SLUG: Readonly<Record<string, ErpTenantUiShell>> = {
   babooni: 'babooni',
   /** Solo el tenant demo Figma; el resto usa ERP clásico por defecto. */
   alexis: 'josanz-figma',
+  /** Generador de documentos integrado (standalone en :4210). */
+  docs: 'document-generator',
 };
 
 export function normalizeTenantSlug(slug: string | null | undefined): string {
@@ -34,4 +41,8 @@ export function isBabooniUiShell(slug: string | null | undefined): boolean {
 
 export function isJosanzFigmaUiShell(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'josanz-figma';
+}
+
+export function isDocumentGeneratorUiShell(slug: string | null | undefined): boolean {
+  return getTenantUiShell(slug) === 'document-generator';
 }

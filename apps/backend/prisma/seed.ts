@@ -543,6 +543,50 @@ async function main() {
   });
   console.log('- Tenant alexis + admin@alexis.local (shell josanz-figma)');
 
+  const DOCS_TENANT_ID = 'e7f8a9b0-c1d2-4e3f-4a5b-6c7d8e9f0a1b';
+  const docsTenant = await prisma.tenant.upsert({
+    where: { id: DOCS_TENANT_ID },
+    update: {
+      name: 'Generador de Documentos',
+      slug: 'docs',
+      enabledModuleIds: ['dashboard'],
+    },
+    create: {
+      id: DOCS_TENANT_ID,
+      name: 'Generador de Documentos',
+      slug: 'docs',
+      enabledModuleIds: ['dashboard'],
+    },
+  });
+  await ensureDefaultRoles(docsTenant.id, 'docs');
+  const docsSuperAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId: docsTenant.id, name: 'SuperAdmin' },
+  });
+  const docsAdmin = await prisma.user.upsert({
+    where: {
+      tenantId_email: { tenantId: docsTenant.id, email: 'admin@docs.local' },
+    },
+    update: { password: hashedPassword },
+    create: {
+      tenantId: docsTenant.id,
+      email: 'admin@docs.local',
+      password: hashedPassword,
+      firstName: 'Docs',
+      lastName: 'Admin',
+    },
+  });
+  await prisma.userRole.upsert({
+    where: {
+      userId_roleId: {
+        userId: docsAdmin.id,
+        roleId: docsSuperAdminRole.id,
+      },
+    },
+    update: {},
+    create: { userId: docsAdmin.id, roleId: docsSuperAdminRole.id },
+  });
+  console.log('- Tenant docs + admin@docs.local (shell document-generator)');
+
   const babooniResponsibleRole = await prisma.role.findFirstOrThrow({
     where: { tenantId: babooniTenant.id, name: 'Responsable' },
   });
@@ -1696,6 +1740,7 @@ async function main() {
   console.log('           admin@josanz-erp.local (solo login local)');
   console.log('  babooni → root@babooni.com');
   console.log('  alexis  → admin@alexis.local');
+  console.log('  docs    → admin@docs.local (generador documentos)');
   console.log('  platform → platform@babooni.com (panel SaaS)\n');
 }
 

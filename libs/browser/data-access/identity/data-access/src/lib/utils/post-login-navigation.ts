@@ -1,5 +1,9 @@
 import { getErpTenantSlug } from './erp-tenant-theme';
-import { isJosanzFigmaUiShell } from './tenant-ui-shell';
+import {
+  getTenantUiShell,
+  isDocumentGeneratorUiShell,
+  isJosanzFigmaUiShell,
+} from './tenant-ui-shell';
 
 export interface PostLoginRouteCandidate {
   path: string;
@@ -48,12 +52,28 @@ function hasPermission(permissions: readonly string[], permission: string): bool
   return permissions.includes('*') || permissions.includes(permission);
 }
 
+/** Home por shell de tenant (sin comprobar permisos). */
+export function resolveTenantHomePath(tenantSlug?: string | null): string {
+  const slug = tenantSlug ?? getErpTenantSlug();
+  const shell = getTenantUiShell(slug);
+  if (shell === 'document-generator') {
+    return '/documents/list';
+  }
+  if (shell === 'josanz-figma') {
+    return '/dashboard';
+  }
+  return '/dashboard';
+}
+
 export function resolvePostLoginPath(
   enabledPlugins: readonly string[],
   permissions: readonly string[],
   tenantSlug?: string | null,
 ): string {
   const slug = tenantSlug ?? getErpTenantSlug();
+  if (isDocumentGeneratorUiShell(slug)) {
+    return '/documents/list';
+  }
   const candidates = isJosanzFigmaUiShell(slug)
     ? FIGMA_POST_LOGIN_ROUTE_CANDIDATES
     : POST_LOGIN_ROUTE_CANDIDATES;
@@ -65,5 +85,8 @@ export function resolvePostLoginPath(
       return route.path;
     }
   }
-  return isJosanzFigmaUiShell(slug) ? '/dashboard' : '/settings';
+  if (isJosanzFigmaUiShell(slug)) {
+    return '/dashboard';
+  }
+  return '/settings';
 }

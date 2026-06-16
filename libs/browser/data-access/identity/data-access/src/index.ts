@@ -18,7 +18,7 @@ export {
   type ErpBffLoginResult,
   type ErpAuthSessionMode,
 } from './lib/ports/erp-bff-auth.port';
-export { resolvePostLoginPath } from './lib/utils/post-login-navigation';
+export { resolvePostLoginPath, resolveTenantHomePath } from './lib/utils/post-login-navigation';
 export {
   getErpTenantSlug,
   setErpTenantSlug,
@@ -32,6 +32,7 @@ export {
   usesJosanzFigmaLogin,
   isBabooniUiShell,
   isJosanzFigmaUiShell,
+  isDocumentGeneratorUiShell,
   TENANT_UI_SHELL_BY_SLUG,
   type ErpTenantUiShell,
 } from './lib/utils/tenant-ui-shell';
@@ -45,9 +46,14 @@ export {
 } from './lib/utils/dev-tenant-login-hints';
 export {
   josanzFigmaShellCanMatch,
+  documentGeneratorShellCanMatch,
   classicErpShellCanMatch,
 } from './lib/guards/tenant-shell-match.guards';
-export { redirectFigmaShellFromClassicRoutes } from './lib/guards/figma-shell-route.guard';
+export {
+  redirectFigmaShellFromClassicRoutes,
+  redirectAlternateShellFromClassicRoutes,
+} from './lib/guards/figma-shell-route.guard';
+export { redirectToTenantHomeGuard } from './lib/guards/redirect-to-tenant-home.guard';
 
 // Users
 export { UsersService } from './lib/services/users.service';

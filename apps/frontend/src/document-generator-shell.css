@@ -1,0 +1,26 @@
+/**
+ * Layout global tenant docs (apps/document-generator integrado en :4200).
+ */
+html[data-erp-ui-shell='document-generator']:not([data-erp-route='auth']),
+html[data-erp-ui-shell='document-generator']:not([data-erp-route='auth']) body {
+  height: 100%;
+  overflow: hidden;
+}
+
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'],
+html[data-erp-ui-shell='document-generator'][data-erp-route='auth'] body {
+  height: auto;
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html[data-erp-ui-shell='document-generator'] .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+html[data-erp-ui-shell='document-generator'] .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

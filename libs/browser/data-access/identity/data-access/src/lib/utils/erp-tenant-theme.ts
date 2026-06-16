@@ -7,6 +7,7 @@ export const TENANT_ID_TO_SLUG: Readonly<Record<string, string>> = {
   'c363035a-2a98-4054-9207-38c8aa5732d9': 'josanz',
   'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d': 'babooni',
   'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a': 'alexis',
+  'e7f8a9b0-c1d2-4e3f-4a5b-6c7d8e9f0a1b': 'docs',
 };
 
 export function resolveTenantSlugFromId(tenantId: string | null | undefined): string | null {

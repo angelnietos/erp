@@ -1,22 +1,29 @@
-import { Route } from '@angular/router';
+import { Route, CanMatchFn } from '@angular/router';
 import { MainAppShellComponent } from './main-app-shell.component';
-import { erpAuthGuard } from '@josanz-erp/identity-data-access';
 import {
+  erpAuthGuard,
   josanzFigmaShellCanMatch,
+  documentGeneratorShellCanMatch,
   classicErpShellCanMatch,
+  redirectToTenantHomeGuard,
 } from '@josanz-erp/identity-data-access';
 import { josanzFigmaAppRoutes } from './josanz-figma.routes';
 import { classicErpAppRoutes } from './classic-erp.routes';
+import { documentGeneratorAppRoutes } from './document-generator.routes';
 
-function withShellMatch(routes: Route[], canMatch: typeof josanzFigmaShellCanMatch): Route[] {
-  return routes.map((route) => ({ ...route, canMatch: [canMatch] }));
+/** canMatch no es compatible con redirectTo en la misma ruta. */
+function withShellMatch(routes: Route[], canMatch: CanMatchFn): Route[] {
+  return routes.map((route) =>
+    route.redirectTo != null ? route : { ...route, canMatch: [canMatch] },
+  );
 }
 
 export const appRoutes: Route[] = [
   {
     path: '',
-    redirectTo: 'dashboard',
     pathMatch: 'full',
+    canActivate: [redirectToTenantHomeGuard],
+    children: [],
   },
   {
     path: 'auth',
@@ -28,12 +35,14 @@ export const appRoutes: Route[] = [
     component: MainAppShellComponent,
     canActivate: [erpAuthGuard],
     children: [
+      ...withShellMatch(documentGeneratorAppRoutes, documentGeneratorShellCanMatch),
       ...withShellMatch(josanzFigmaAppRoutes, josanzFigmaShellCanMatch),
       ...withShellMatch(classicErpAppRoutes, classicErpShellCanMatch),
     ],
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    canActivate: [redirectToTenantHomeGuard],
+    children: [],
   },
 ];

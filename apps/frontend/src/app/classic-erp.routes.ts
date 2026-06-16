@@ -1,13 +1,13 @@
 import { Route } from '@angular/router';
 import { pluginGuard, permissionGuard, usersShellGuard } from '@josanz-erp/shared-data-access';
-import { redirectFigmaShellFromClassicRoutes } from '@josanz-erp/identity-data-access';
+import { redirectAlternateShellFromClassicRoutes } from '@josanz-erp/identity-data-access';
 import { NotFoundComponent } from './not-found.component';
 
 function classicRoute(route: Route): Route {
   const guards = route.canActivate ?? [];
   return {
     ...route,
-    canActivate: [redirectFigmaShellFromClassicRoutes, ...guards],
+    canActivate: [redirectAlternateShellFromClassicRoutes, ...guards],
   };
 }
 
