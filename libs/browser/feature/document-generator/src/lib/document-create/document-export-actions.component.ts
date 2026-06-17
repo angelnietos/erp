@@ -18,7 +18,7 @@ import { CommonModule } from '@angular/common';
       <button
         type="button"
         (click)="fileInput.click()"
-        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-semibold bg-brand text-white shadow-md hover:opacity-95 transition-opacity"
+        class="dg-btn dg-btn-primary dg-btn-sm"
         title="Word (.docx), PDF, Markdown, HTML o texto"
       >
         Importar
@@ -26,14 +26,14 @@ import { CommonModule } from '@angular/common';
       <button
         type="button"
         (click)="exportFormat.emit('markdown')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
       >
         MD
       </button>
       <button
         type="button"
         (click)="exportFormat.emit('docx')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
         title="Exportar Word (.docx) desde el mismo HTML que la vista previa"
       >
         DOCX
@@ -41,7 +41,7 @@ import { CommonModule } from '@angular/common';
       <button
         type="button"
         (click)="exportFormat.emit('pdf-markdown')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
         title="Descargar PDF usando la vista previa Markdown"
       >
         PDF MD
@@ -49,7 +49,7 @@ import { CommonModule } from '@angular/common';
       <button
         type="button"
         (click)="exportFormat.emit('pdf-html')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
         title="Descargar PDF usando la vista previa HTML"
       >
         PDF HTML
@@ -57,21 +57,21 @@ import { CommonModule } from '@angular/common';
       <button
         type="button"
         (click)="exportFormat.emit('xlsx')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
       >
         Excel
       </button>
       <button
         type="button"
         (click)="exportFormat.emit('html')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
       >
         HTML
       </button>
       <button
         type="button"
         (click)="exportFormat.emit('txt')"
-        class="inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium border border-soft bg-secondary text-primary hover:bg-surface-hover transition-colors shadow-sm"
+        class="dg-btn dg-btn-secondary dg-btn-sm"
       >
         TXT
       </button>

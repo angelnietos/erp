@@ -19,13 +19,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="space-y-8">
-      <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
+      <nav class="dg-breadcrumb" aria-label="Ubicación">
         <svg
-          class="w-4 h-4"
+          class="w-4 h-4 shrink-0 opacity-70"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -40,54 +40,51 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
             d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z"
           />
         </svg>
-        <span>Documentos</span>
+        <span class="dg-breadcrumb__current">Documentos</span>
       </nav>
 
-      <!-- Header Section -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft p-8">
+      <div class="dg-panel dg-hero dg-list-hero">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
         >
           <div class="space-y-2">
-            <h1
-              class="text-3xl font-bold bg-gradient-to-r from-text-primary via-text-primary to-text-secondary bg-clip-text text-transparent"
-            >
-              Documentos generados
-            </h1>
-            <p class="text-secondary text-lg">
-              Historial en este navegador (IndexedDB): borradores y PDF
-              generados.
-            </p>
-            <div class="flex items-center space-x-4 pt-2">
-              <div class="flex items-center space-x-2 text-sm text-muted">
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <span>{{ documents.length }} documentos</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex flex-col sm:flex-row gap-3">
-            <a
-              routerLink="/documents/settings/ai"
-              class="inline-flex items-center justify-center px-4 py-2 border border-soft rounded-xl text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
-            >
+            <div class="dg-hero__icon" aria-hidden="true">
               <svg
-                class="w-4 h-4 mr-2 shrink-0"
+                class="w-6 h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <h1 class="dg-hero__title">Documentos generados</h1>
+            <p class="dg-hero__lead">
+              Historial en este navegador (IndexedDB): borradores y PDF
+              generados.
+            </p>
+            <p class="dg-chip dg-chip--brand">
+              {{ documents.length }}
+              {{ documents.length === 1 ? 'documento' : 'documentos' }}
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3 shrink-0">
+            <a
+              routerLink="/documents/settings/ai"
+              class="dg-btn dg-btn-secondary"
+            >
+              <svg
+                class="w-4 h-4 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -98,15 +95,13 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
               </svg>
               Motor IA
             </a>
-            <a
-              routerLink="/documents/create"
-              class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-brand to-brand text-bg-secondary font-semibold rounded-xl hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-            >
+            <a routerLink="/documents/create" class="dg-btn dg-btn-primary">
               <svg
-                class="w-5 h-5 mr-2"
+                class="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
@@ -121,96 +116,72 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         </div>
       </div>
 
-      <!-- Documents Grid -->
       @if (documents.length > 0) {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="dg-doc-grid">
           @for (doc of documents; track doc.id) {
-            <div
-              class="group bg-surface rounded-2xl shadow-lg hover:shadow-2xl border border-soft hover:border-vibrant transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div class="p-6">
-                <div class="flex items-start justify-between mb-4">
-                  <div class="flex-1">
-                    <div class="flex flex-wrap gap-2">
-                      <span
-                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-                        [class]="getTypeBadgeClass(doc.type)"
-                      >
-                        <svg
-                          class="w-3 h-3 mr-1"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 011.414 0l4-4z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
-                        {{ getTypeLabel(doc.type) }}
-                      </span>
-                      @if (doc.isDraft) {
-                        <span
-                          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-500/15 text-slate-800 dark:text-slate-200 border border-slate-500/25"
-                        >
-                          Borrador
-                        </span>
-                      }
-                    </div>
-                    <h3
-                      class="text-lg font-semibold text-primary mt-2 line-clamp-2 group-hover:text-brand transition-colors"
-                    >
-                      {{ doc.title || 'Documento sin título' }}
-                    </h3>
-                  </div>
-                </div>
+            <article class="dg-doc-card">
+              <div class="flex flex-wrap gap-2">
+                <span class="dg-badge" [class]="getTypeBadgeClass(doc.type)">
+                  {{ getTypeLabel(doc.type) }}
+                </span>
+                @if (doc.isDraft) {
+                  <span class="dg-chip">Borrador</span>
+                }
+              </div>
 
-                <div class="space-y-3 mb-6">
-                  <div class="flex items-center text-sm text-secondary">
-                    <svg
-                      class="w-4 h-4 mr-2 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
-                    <span>{{ doc.client }}</span>
-                  </div>
-                  <div class="flex items-center text-sm text-secondary">
-                    <svg
-                      class="w-4 h-4 mr-2 shrink-0"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 012 0z"
-                      />
-                    </svg>
-                    <span>{{ doc.date | date: 'mediumDate' }}</span>
-                  </div>
-                </div>
+              <h3 class="dg-doc-card__title">
+                {{ doc.title || 'Documento sin título' }}
+              </h3>
 
-                <div class="flex flex-wrap gap-2">
+              <div class="space-y-2">
+                <p class="dg-doc-card__meta flex items-center gap-2">
+                  <svg
+                    class="w-4 h-4 shrink-0 opacity-70"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                  {{ doc.client }}
+                </p>
+                <p class="dg-doc-card__meta flex items-center gap-2">
+                  <svg
+                    class="w-4 h-4 shrink-0 opacity-70"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 012 0z"
+                    />
+                  </svg>
+                  {{ doc.date | date: 'mediumDate' }}
+                </p>
+              </div>
+
+              <div class="dg-doc-card__actions">
                   @if (doc.isDraft) {
                     <a
                       [routerLink]="['/documents', 'create', 'edit', doc.id]"
-                      class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
+                      class="dg-btn dg-btn-secondary dg-btn-sm flex-1 min-w-[7rem]"
                     >
                       <svg
-                        class="w-4 h-4 mr-2 shrink-0"
+                        class="w-4 h-4 shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           stroke-linecap="round"
@@ -224,55 +195,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     <a
                       [routerLink]="['/documents/analysis']"
                       [queryParams]="{ doc: doc.id }"
-                      class="inline-flex items-center justify-center px-3 py-2 border border-emerald-500/40 rounded-lg text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all duration-200"
+                      class="dg-btn dg-btn-secondary dg-btn-sm"
                       title="Analizar borrador con IA"
                     >
-                      <svg
-                        class="w-4 h-4 mr-1.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                        />
-                      </svg>
                       Analizar
                     </a>
                   } @else {
                     <a
                       [routerLink]="['/documents/analysis']"
                       [queryParams]="{ doc: doc.id }"
-                      class="inline-flex items-center justify-center px-3 py-2 border border-emerald-500/40 rounded-lg text-sm font-medium text-emerald-800 dark:text-emerald-200 bg-emerald-500/10 hover:bg-emerald-500/15 transition-all duration-200"
+                      class="dg-btn dg-btn-secondary dg-btn-sm"
                       title="Analizar con IA"
                     >
-                      <svg
-                        class="w-4 h-4 mr-1.5 shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                        />
-                      </svg>
                       Analizar
                     </a>
                     <a
                       [routerLink]="['/documents/preview', doc.id]"
-                      class="flex-1 min-w-[7rem] inline-flex items-center justify-center px-4 py-2 border border-soft rounded-lg text-sm font-medium text-primary bg-secondary hover:bg-tertiary hover:border-vibrant transition-all duration-200"
+                      class="dg-btn dg-btn-secondary dg-btn-sm flex-1 min-w-[7rem]"
                     >
                       <svg
-                        class="w-4 h-4 mr-2"
+                        class="w-4 h-4"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                       >
                         <path
                           stroke-linecap="round"
@@ -294,7 +240,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     <button
                       type="button"
                       (click)="downloadDocument(doc)"
-                      class="inline-flex items-center justify-center px-4 py-2 bg-success text-bg-secondary rounded-lg hover:shadow-lg transition-all duration-200 shadow-md"
+                      class="dg-btn dg-btn-primary dg-btn-sm"
                       title="Descargar PDF"
                       aria-label="Descargar PDF"
                     >
@@ -317,8 +263,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                   <button
                     type="button"
                     (click)="removeDocument(doc)"
-                    class="inline-flex items-center justify-center px-3 py-2 border border-soft rounded-lg text-sm text-secondary hover:bg-red-500/10 hover:border-red-400/50 hover:text-red-600 transition-colors"
+                    class="dg-btn dg-btn-danger dg-btn-sm"
                     title="Eliminar del historial"
+                    aria-label="Eliminar del historial"
                   >
                     <svg
                       class="w-4 h-4"
@@ -336,78 +283,68 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
                     </svg>
                   </button>
                 </div>
-              </div>
-            </div>
+            </article>
           }
         </div>
       }
 
       @if (documents.length === 0) {
-        <div class="bg-surface rounded-2xl shadow-xl border border-soft p-12">
-          <div class="text-center max-w-md mx-auto">
-            <div
-              class="w-24 h-24 bg-brand-ambient rounded-full flex items-center justify-center mx-auto mb-6"
-            >
+        <div class="dg-empty-state">
+          <svg
+            class="dg-empty-state__icon"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <h3 class="dg-empty-state__title">No hay documentos aún</h3>
+          <p class="dg-empty-state__desc">
+            Crea uno desde el editor y genera el PDF: aparecerá aquí para
+            previsualizarlo y descargarlo.
+          </p>
+          <div class="mt-6 space-y-4">
+            <a routerLink="/documents/create" class="dg-btn dg-btn-primary">
               <svg
-                class="w-12 h-12 text-brand"
+                class="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                aria-hidden="true"
               >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M12 4v16m8-8H4"
                 />
               </svg>
-            </div>
-            <h3 class="text-2xl font-bold text-primary mb-3">
-              No hay documentos aún
-            </h3>
-            <p class="text-secondary mb-8 text-lg">
-              Crea uno desde el editor y genera el PDF: aparecerá aquí para
-              previsualizarlo y descargarlo.
-            </p>
-            <div class="space-y-4">
+              Crear primer documento
+            </a>
+            <div
+              class="flex flex-col sm:flex-row gap-3 justify-center items-center text-sm"
+            >
               <a
-                routerLink="/documents/create"
-                class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-brand to-brand text-bg-secondary font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
+                routerLink="/documents/settings/ai"
+                class="text-brand hover:underline font-medium"
+                >Configurar motor de IA</a
               >
-                <svg
-                  class="w-5 h-5 mr-3"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                Crear primer documento
-              </a>
-              <div
-                class="flex flex-col sm:flex-row gap-3 justify-center items-center text-sm"
-              >
-                <a
-                  routerLink="/documents/settings/ai"
-                  class="text-brand hover:underline font-medium"
-                  >Configurar motor de IA</a
-                >
                 <span class="text-muted hidden sm:inline">·</span>
                 <button
                   type="button"
                   (click)="openFloatingHelp()"
-                  class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center bg-transparent border-none cursor-pointer p-0"
+                  class="dg-btn dg-btn-ghost dg-btn-sm p-0 min-h-0 border-0"
                 >
                   Abrir burbuja de ayuda
                 </button>
               </div>
             </div>
-          </div>
         </div>
       }
     </div>
@@ -476,15 +413,21 @@ export class DocumentListComponent implements OnInit {
   getTypeBadgeClass(type: string): string {
     switch (type) {
       case 'quote':
-        return 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border border-blue-500/25';
+        return 'dg-badge--quote';
       case 'proposal':
-        return 'bg-violet-500/15 text-violet-700 dark:text-violet-300 border border-violet-500/25';
+        return 'dg-badge--proposal';
       case 'documentation':
-        return 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25';
+        return 'dg-badge--contract';
       case 'architecture':
-        return 'bg-amber-500/15 text-amber-800 dark:text-amber-200 border border-amber-500/25';
+        return 'dg-badge--architecture';
+      case 'resume':
+        return 'dg-badge--default';
+      case 'interview':
+        return 'dg-badge--proposal';
+      case 'offer':
+        return 'dg-badge--invoice';
       default:
-        return 'bg-slate-500/15 text-slate-700 dark:text-slate-300 border border-slate-500/25';
+        return 'dg-badge--default';
     }
   }
 

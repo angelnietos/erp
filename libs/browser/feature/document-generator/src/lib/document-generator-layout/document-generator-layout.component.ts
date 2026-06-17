@@ -19,18 +19,10 @@ import { ThemeManagerService } from '../services/theme-manager.service';
   ],
   styles: [
     `
-      .nav-link:hover {
-        background: var(--surface-hover);
-      }
-
-      .nav-link.active-link {
-        background: var(--primary-light);
-        border: 1px solid color-mix(in srgb, var(--primary) 35%, transparent);
-      }
-
       .nav-scroll {
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
+        overflow-x: auto;
       }
 
       .doc-gen-main {
@@ -41,56 +33,47 @@ import { ThemeManagerService } from '../services/theme-manager.service';
   template: `
     <div class="min-h-screen" style="background: var(--bg-primary)">
       <!-- Header -->
-      <header
-        class="backdrop-blur-lg shadow-lg sticky top-0 z-50"
-        style="background: var(--surface); border-bottom: 1px solid var(--border)"
-      >
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex justify-between items-center h-20">
-            <div class="flex items-center space-x-4">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg"
-                style="background: var(--primary)"
-              >
-                <svg
-                  class="w-7 h-7 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-              </div>
-              <div>
-                <h1
-                  class="text-2xl font-bold"
-                  style="color: var(--text-primary);"
-                >
-                  Generador de Documentos
-                </h1>
-                <p
-                  class="text-xs font-medium max-w-md"
-                  style="color: var(--text-secondary)"
-                >
-                  IA en el editor y en la burbuja de ayuda (esquina)
-                </p>
-              </div>
-            </div>
-            <nav
-              class="nav-scroll flex flex-wrap gap-2 items-center sm:justify-end w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0"
-              aria-label="Navegación principal"
+      <header class="dg-app-header sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto w-full flex flex-wrap justify-between items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <a routerLink="/documents/list" class="dg-app-header__brand">
+            <div
+              class="w-10 h-10 rounded-xl flex items-center justify-center shadow-md shrink-0"
+              style="background: var(--brand, var(--primary))"
             >
-              <a
-                routerLink="/documents/list"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
-                style="color: var(--text-primary)"
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
               >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <span>
+              <span class="block leading-tight">Generador de Documentos</span>
+              <span
+                class="block text-[0.65rem] font-medium opacity-75"
+                style="color: var(--text-secondary)"
+              >
+                IA en el editor y burbuja de ayuda
+              </span>
+            </span>
+          </a>
+          <nav
+            class="dg-app-header__nav nav-scroll"
+            aria-label="Navegación principal"
+          >
+            <a
+              routerLink="/documents/list"
+              routerLinkActive="dg-nav-link--active"
+              class="dg-nav-link"
+            >
                 <svg
                   class="w-4 h-4"
                   fill="none"
@@ -108,15 +91,15 @@ import { ThemeManagerService } from '../services/theme-manager.service';
               </a>
               <a
                 routerLink="/documents/create"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
-                style="color: var(--text-primary)"
+                routerLinkActive="dg-nav-link--active"
+                class="dg-nav-link"
               >
                 <svg
                   class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -125,19 +108,19 @@ import { ThemeManagerService } from '../services/theme-manager.service';
                     d="M12 4v16m8-8H4"
                   />
                 </svg>
-                <span>Crear Nuevo</span>
+                <span>Crear</span>
               </a>
               <a
                 routerLink="/documents/analysis"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
-                style="color: var(--text-primary)"
+                routerLinkActive="dg-nav-link--active"
+                class="dg-nav-link"
               >
                 <svg
                   class="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  aria-hidden="true"
                 >
                   <path
                     stroke-linecap="round"
@@ -150,9 +133,8 @@ import { ThemeManagerService } from '../services/theme-manager.service';
               </a>
               <a
                 routerLink="/documents/settings/agent"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
-                style="color: var(--text-primary)"
+                routerLinkActive="dg-nav-link--active"
+                class="dg-nav-link"
                 title="Skills y memoria del agente"
               >
                 <lucide-angular
@@ -163,9 +145,8 @@ import { ThemeManagerService } from '../services/theme-manager.service';
               </a>
               <a
                 routerLink="/documents/settings/ai"
-                routerLinkActive="active-link shadow-md"
-                class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]"
-                style="color: var(--text-primary)"
+                routerLinkActive="dg-nav-link--active"
+                class="dg-nav-link"
                 title="Clave API, modelo y Ollama"
               >
                 <lucide-angular name="cpu" class="w-4 h-4"></lucide-angular>
@@ -175,8 +156,7 @@ import { ThemeManagerService } from '../services/theme-manager.service';
               @if (authStore) {
                 <button
                   type="button"
-                  class="nav-link flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 font-medium text-sm"
-                  style="color: var(--text-primary)"
+                  class="dg-nav-link"
                   (click)="authStore.logout()"
                   title="Cerrar sesión ERP"
                 >
@@ -185,7 +165,6 @@ import { ThemeManagerService } from '../services/theme-manager.service';
                 </button>
               }
             </nav>
-          </div>
         </div>
       </header>
 

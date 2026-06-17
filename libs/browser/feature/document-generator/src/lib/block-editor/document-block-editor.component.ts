@@ -27,25 +27,25 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
   selector: 'lib-document-block-editor',
   standalone: true,
   template: `
-    <div class="block-editor-shell">
-      <div class="block-editor-toolbar" role="toolbar" aria-label="Formato visual">
+    <div class="dg-block-editor">
+      <div class="dg-block-editor__toolbar" role="toolbar" aria-label="Formato visual">
         <button type="button" (click)="run('bold')" title="Negrita"><strong>B</strong></button>
         <button type="button" (click)="run('italic')" title="Cursiva"><em>I</em></button>
         <button type="button" (click)="run('underline')" title="Subrayado"><u>U</u></button>
-        <span class="block-editor-toolbar__sep"></span>
+        <span class="dg-block-editor__sep" aria-hidden="true"></span>
         <button type="button" (click)="run('h1')">H1</button>
         <button type="button" (click)="run('h2')">H2</button>
         <button type="button" (click)="run('h3')">H3</button>
-        <span class="block-editor-toolbar__sep"></span>
+        <span class="dg-block-editor__sep" aria-hidden="true"></span>
         <button type="button" (click)="run('bulletList')">• Lista</button>
         <button type="button" (click)="run('orderedList')">1. Lista</button>
         <button type="button" (click)="run('blockquote')">" Cita</button>
         <button type="button" (click)="run('hr')">—</button>
-        <span class="block-editor-toolbar__sep"></span>
+        <span class="dg-block-editor__sep" aria-hidden="true"></span>
         <button type="button" (click)="insertTable()">Tabla</button>
         <button type="button" (click)="setLink()">Enlace</button>
       </div>
-      <div #host class="block-editor-host tiptap-host"></div>
+      <div #host class="dg-block-editor__content tiptap-host"></div>
     </div>
   `,
   styles: [
@@ -58,104 +58,41 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
         min-width: 0;
       }
 
-      .block-editor-shell {
-        display: flex;
-        flex-direction: column;
-        flex: 1 1 auto;
-        min-height: 0;
-        gap: 0.5rem;
-      }
-      .block-editor-toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        padding: 0.5rem;
-        border: 1px solid rgba(148, 163, 184, 0.45);
-        border-radius: 10px;
-        background: rgba(248, 250, 252, 0.95);
-      }
-      .block-editor-toolbar button {
-        padding: 0.25rem 0.55rem;
-        border-radius: 6px;
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        background: #fff;
-        font-size: 0.75rem;
-        cursor: pointer;
-      }
-      .block-editor-toolbar button:hover {
-        border-color: #e60012;
-        color: #e60012;
-      }
-      .block-editor-toolbar__sep {
+      .dg-block-editor__sep {
         width: 1px;
         align-self: stretch;
-        background: rgba(148, 163, 184, 0.45);
+        background: var(--border-soft, rgba(148, 163, 184, 0.45));
         margin: 0 0.15rem;
       }
-      .block-editor-host {
-        flex: 1 1 auto;
-        min-height: 12rem;
-        padding: 1rem 1.1rem;
-        border: 1px solid rgba(148, 163, 184, 0.55);
-        border-radius: 12px;
-        background: #fff;
-        overflow-y: auto;
-      }
-      :host ::ng-deep .tiptap {
-        outline: none;
-        min-height: 320px;
-        font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
-        font-size: 1rem;
-        line-height: 1.72;
-        color: #1f2937;
-      }
-      :host ::ng-deep .tiptap h1 {
-        font-size: 1.75rem;
-        font-weight: 800;
-        margin: 1.25rem 0 0.65rem;
-      }
-      :host ::ng-deep .tiptap h2 {
-        font-size: 1.35rem;
-        font-weight: 700;
-        margin: 1rem 0 0.5rem;
-      }
-      :host ::ng-deep .tiptap h3 {
-        font-size: 1.15rem;
-        font-weight: 600;
-        margin: 0.85rem 0 0.4rem;
-      }
-      :host ::ng-deep .tiptap p {
-        margin: 0.5rem 0;
-      }
-      :host ::ng-deep .tiptap ul,
-      :host ::ng-deep .tiptap ol {
-        padding-left: 1.35rem;
-        margin: 0.5rem 0;
-      }
+
       :host ::ng-deep .tiptap blockquote {
-        border-left: 4px solid #2563eb;
+        border-left: 4px solid var(--brand, #2563eb);
         margin: 0.75rem 0;
         padding: 0.35rem 0 0.35rem 0.85rem;
-        color: #475569;
-        background: #f8fafc;
+        color: var(--text-secondary);
+        background: color-mix(in srgb, var(--text-primary) 4%, transparent);
       }
+
       :host ::ng-deep .tiptap table {
         width: 100%;
         border-collapse: collapse;
         margin: 1rem 0;
       }
+
       :host ::ng-deep .tiptap th,
       :host ::ng-deep .tiptap td {
-        border: 1px solid #cbd5e1;
+        border: 1px solid var(--border-soft);
         padding: 0.45rem 0.65rem;
         vertical-align: top;
       }
+
       :host ::ng-deep .tiptap th {
-        background: #f1f5f9;
+        background: color-mix(in srgb, var(--text-primary) 6%, transparent);
         font-weight: 700;
       }
+
       :host ::ng-deep .tiptap p.is-editor-empty:first-child::before {
-        color: #94a3b8;
+        color: var(--text-muted, #94a3b8);
         content: attr(data-placeholder);
         float: left;
         height: 0;
