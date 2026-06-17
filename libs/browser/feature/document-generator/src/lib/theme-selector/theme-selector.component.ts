@@ -1,4 +1,4 @@
-import { Component, HostListener, inject } from '@angular/core';
+import { Component, HostListener, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ThemeManagerService, Theme } from '../services/theme-manager.service';
 
@@ -11,7 +11,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
       .theme-backdrop {
         position: fixed;
         inset: 0;
-        z-index: 10490;
+        z-index: 10790;
         background: rgba(15, 23, 42, 0.55);
         backdrop-filter: blur(5px);
         -webkit-backdrop-filter: blur(5px);
@@ -21,7 +21,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
         position: fixed;
         right: max(20px, env(safe-area-inset-right));
         bottom: max(20px, env(safe-area-inset-bottom));
-        z-index: 10502;
+        z-index: 10800;
         width: 48px;
         height: 48px;
         border-radius: 50%;
@@ -48,7 +48,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
         position: fixed;
         right: max(20px, env(safe-area-inset-right));
         bottom: calc(max(20px, env(safe-area-inset-bottom)) + 56px);
-        z-index: 10501;
+        z-index: 10795;
         width: min(380px, calc(100vw - 32px));
         max-height: min(80vh, 640px);
         display: flex;
@@ -330,6 +330,7 @@ import { ThemeManagerService, Theme } from '../services/theme-manager.service';
 })
 export class ThemeSelectorComponent {
   private readonly themeManager = inject(ThemeManagerService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   open = false;
   readonly currentTheme = this.themeManager.currentTheme;
@@ -370,11 +371,14 @@ export class ThemeSelectorComponent {
 
   toggle(ev: MouseEvent): void {
     ev.stopPropagation();
+    ev.preventDefault();
     this.open = !this.open;
+    this.cdr.markForCheck();
   }
 
   close(): void {
     this.open = false;
+    this.cdr.markForCheck();
   }
 
   selectTheme(theme: Theme): void {

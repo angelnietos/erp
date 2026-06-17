@@ -159,7 +159,7 @@
                 rows="3"
                 placeholder="Ej.: Presupuesto para migración a la nube, 3 fases, cliente sector retail, plazo 6 meses, tono formal."
                 class="dg-field text-sm resize-y min-h-[5rem]"
-                [disabled]="isGenerating || isAiGenerating"
+                [readonly]="isGenerating || isAiGenerating"
               ></textarea>
             </div>
 
@@ -227,7 +227,7 @@
                 rows="2"
                 placeholder="Ej.: Acorta a una página, tono más formal, añade sección de riesgos y mitigación."
                 class="dg-field text-sm resize-y"
-                [disabled]="isGenerating || isAiGenerating"
+                [readonly]="isGenerating || isAiGenerating"
               ></textarea>
               <button
                 type="button"

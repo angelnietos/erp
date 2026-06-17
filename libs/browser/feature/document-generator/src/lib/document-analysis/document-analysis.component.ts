@@ -33,131 +33,17 @@ type AnalysisResult = DocumentAnalysisCheckResult;
   selector: 'app-document-analysis',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
-  styles: [
-    `
-      .tab-active {
-        border-bottom: 2px solid var(--brand);
-        color: var(--brand);
-        font-weight: 600;
-      }
-
-      .status-pass {
-        background-color: color-mix(in srgb, #22c55e 18%, var(--bg-secondary));
-        color: #4ade80;
-        border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);
-      }
-
-      .status-warning {
-        background-color: color-mix(in srgb, #f59e0b 18%, var(--bg-secondary));
-        color: #fbbf24;
-        border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
-      }
-
-      .status-error {
-        background-color: color-mix(in srgb, #ef4444 18%, var(--bg-secondary));
-        color: #f87171;
-        border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
-      }
-
-      .status-pending {
-        background-color: var(--bg-tertiary);
-        color: var(--text-muted);
-        border: 1px solid var(--border-soft);
-      }
-
-      .ai-message {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 1rem;
-        padding: 1rem;
-      }
-
-      .stat-card-pass {
-        background-color: color-mix(in srgb, #22c55e 12%, var(--bg-secondary));
-        border: 1px solid color-mix(in srgb, #22c55e 25%, transparent);
-      }
-      .stat-card-pass .stat-num {
-        color: #4ade80;
-      }
-      .stat-card-pass .stat-label {
-        color: color-mix(in srgb, #4ade80 80%, var(--text-muted));
-      }
-
-      .stat-card-warn {
-        background-color: color-mix(in srgb, #f59e0b 12%, var(--bg-secondary));
-        border: 1px solid color-mix(in srgb, #f59e0b 25%, transparent);
-      }
-      .stat-card-warn .stat-num {
-        color: #fbbf24;
-      }
-      .stat-card-warn .stat-label {
-        color: color-mix(in srgb, #fbbf24 80%, var(--text-muted));
-      }
-
-      .stat-card-err {
-        background-color: color-mix(in srgb, #ef4444 12%, var(--bg-secondary));
-        border: 1px solid color-mix(in srgb, #ef4444 25%, transparent);
-      }
-      .stat-card-err .stat-num {
-        color: #f87171;
-      }
-      .stat-card-err .stat-label {
-        color: color-mix(in srgb, #f87171 80%, var(--text-muted));
-      }
-
-      .stat-card-pending {
-        background-color: var(--bg-tertiary);
-        border: 1px solid var(--border-soft);
-      }
-      .stat-card-pending .stat-num {
-        color: var(--text-primary);
-      }
-      .stat-card-pending .stat-label {
-        color: var(--text-secondary);
-      }
-
-      .info-summary-panel {
-        background-color: var(--bg-tertiary);
-        border: 1px solid var(--border-soft);
-        border-radius: 0.75rem;
-        padding: 1rem;
-        font-size: 0.875rem;
-      }
-
-      .banner-warning {
-        background-color: color-mix(in srgb, #f59e0b 12%, var(--bg-secondary));
-        color: var(--text-primary);
-        border: 1px solid color-mix(in srgb, #f59e0b 30%, transparent);
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-      }
-
-      .banner-error {
-        background-color: color-mix(in srgb, #ef4444 12%, var(--bg-secondary));
-        color: var(--text-primary);
-        border: 1px solid color-mix(in srgb, #ef4444 30%, transparent);
-        border-radius: 0.75rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-      }
-    `,
-  ],
+  styles: [],
   template: `
     <div class="space-y-8">
-      <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
-        <a
-          routerLink="/documents/list"
-          class="hover:text-primary transition-colors"
-        >
-          Documentos
-        </a>
+      <nav class="dg-breadcrumb" aria-label="Ubicación">
+        <a routerLink="/documents/list">Documentos</a>
         <svg
-          class="w-4 h-4"
+          class="w-4 h-4 shrink-0 opacity-60"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
         >
           <path
             stroke-linecap="round"
@@ -166,64 +52,51 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             d="M9 5l7 7-7 7"
           />
         </svg>
-        <span class="text-primary font-medium">Análisis de Propuestas</span>
+        <span class="dg-breadcrumb__current">Análisis de propuestas</span>
       </nav>
 
-      <!-- Header -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-8">
-        <div class="text-center max-w-2xl mx-auto">
-          <div
-            class="w-16 h-16 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg"
+      <div class="dg-panel dg-hero dg-hero--center">
+        <div class="dg-hero__icon" aria-hidden="true">
+          <svg
+            class="w-7 h-7"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
-          <h1 class="text-3xl font-bold text-primary mb-3">
-            Analizador de Propuestas
-          </h1>
-          <p class="text-secondary text-lg">
-            Carga un documento del historial (IndexedDB) o pega texto; el
-            análisis usa tu motor de IA configurado (sin datos simulados).
-          </p>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
         </div>
+        <h1 class="dg-hero__title">Analizador de propuestas</h1>
+        <p class="dg-hero__lead max-w-2xl mx-auto">
+          Carga un documento del historial (IndexedDB) o pega texto; el análisis
+          usa tu motor de IA configurado (sin datos simulados).
+        </p>
       </div>
 
-      <!-- Fuente del documento -->
-      <div
-        class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-6 md:p-8"
-      >
-        <h2 class="text-lg font-bold text-primary mb-4">
-          Documento a analizar
-        </h2>
+      <div class="dg-panel space-y-6">
+        <div class="dg-section-head">
+          <p class="dg-section-head__eyebrow">Fuente</p>
+          <h2 class="dg-section-head__title">Documento a analizar</h2>
+        </div>
         <div class="grid gap-4 md:grid-cols-2 md:gap-6">
           <div class="space-y-2">
-            <label
-              class="block text-sm font-medium text-primary"
-              for="doc-select"
+            <label class="dg-form-label" for="doc-select"
               >Historial en este navegador</label
             >
             <select
               id="doc-select"
-              class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary focus:ring-2 focus:ring-brand focus:outline-none"
+              class="w-full dg-field"
               [value]="selectedDocId"
               (change)="onSelectSavedDocument($any($event.target).value)"
             >
-              <option value="" class="bg-secondary text-primary">
-                — Selecciona un documento guardado —
-              </option>
+              <option value="">— Selecciona un documento guardado —</option>
               @for (d of savedDocuments; track d.id) {
-                <option [value]="d.id" class="bg-secondary text-primary">
+                <option [value]="d.id">
                   {{ d.title || 'Sin título' }} · {{ getTypeLabel(d.type) }}
                   @if (d.isDraft) {
                     (borrador)
@@ -249,9 +122,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               </p>
             }
           </div>
-          <div
-            class="rounded-xl border border-soft bg-secondary p-4 text-sm space-y-2"
-          >
+          <div class="dg-callout dg-callout--neutral text-sm space-y-2">
             @if (selectedSummary) {
               <p class="font-semibold text-primary">
                 {{ selectedSummary.title }}
@@ -277,18 +148,11 @@ type AnalysisResult = DocumentAnalysisCheckResult;
           </div>
         </div>
 
-        <details class="mt-6 group">
-          <summary
-            class="cursor-pointer text-sm font-medium text-primary hover:text-brand list-none flex items-center gap-2"
-          >
-            <span
-              class="inline-block transition-transform group-open:rotate-90"
-              aria-hidden="true"
-              >▸</span
-            >
+        <details class="mt-6 group dg-details">
+          <summary class="text-sm font-semibold text-primary">
             Pegar o editar texto manualmente (opcional)
           </summary>
-          <p class="text-xs text-secondary mt-2 mb-2">
+          <p class="dg-form-hint mt-2 mb-2">
             Si rellenas esto, tendrá prioridad sobre el documento cargado del
             historial.
           </p>
@@ -297,45 +161,36 @@ type AnalysisResult = DocumentAnalysisCheckResult;
             (ngModelChange)="onManualTextChange()"
             rows="8"
             placeholder="Pega aquí Markdown o texto de la propuesta…"
-            class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary font-mono text-sm focus:ring-2 focus:ring-brand focus:outline-none"
+            class="w-full dg-field font-mono text-sm"
           ></textarea>
         </details>
 
         @if (analysisBanner) {
-          <p class="mt-4 banner-warning" role="status">
+          <p class="mt-4 dg-alert-info" role="status">
             {{ analysisBanner }}
           </p>
         }
       </div>
 
-      <!-- Tabs Navigation -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50">
-        <div class="border-b border-soft">
-          <div
-            class="flex space-x-8 px-8"
-            role="tablist"
-            aria-label="Secciones de análisis de propuesta"
-          >
-            @for (tab of tabs; track tab.id) {
-              <button
-                type="button"
-                role="tab"
-                [attr.id]="'analysis-tab-' + tab.id"
-                [attr.aria-selected]="activeTab === tab.id"
-                [attr.aria-controls]="'analysis-panel-' + tab.id"
-                (click)="activeTab = tab.id"
-                class="py-4 px-2 text-sm font-medium transition-colors"
-                [class.tab-active]="activeTab === tab.id"
-                [class.text-muted]="activeTab !== tab.id"
-              >
-                {{ tab.name }}
-              </button>
-            }
-          </div>
+      <div class="dg-panel dg-tabs">
+        <div class="dg-tabs__list" role="tablist" aria-label="Secciones de análisis">
+          @for (tab of tabs; track tab.id) {
+            <button
+              type="button"
+              role="tab"
+              [attr.id]="'analysis-tab-' + tab.id"
+              [attr.aria-selected]="activeTab === tab.id"
+              [attr.aria-controls]="'analysis-panel-' + tab.id"
+              (click)="activeTab = tab.id"
+              class="dg-tab"
+              [class.dg-tab--active]="activeTab === tab.id"
+            >
+              {{ tab.name }}
+            </button>
+          }
         </div>
 
-        <!-- Tab Content -->
-        <div class="p-8">
+        <div class="dg-tabs__body">
           <!-- Checks Selection Tab -->
           @if (activeTab === 'checks') {
             <div
@@ -344,38 +199,34 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               id="analysis-panel-checks"
               aria-labelledby="analysis-tab-checks"
             >
-              <h2 class="text-xl font-bold text-primary mb-4">
+              <h2 class="dg-section-head__title mb-4">
                 Selecciona qué quieres revisar
               </h2>
 
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="dg-check-grid">
                 @for (category of getCategories(); track category) {
-                  <div class="border border-soft rounded-xl p-4">
-                    <h3 class="font-semibold text-primary mb-3">
-                      {{ category }}
-                    </h3>
-                    <div class="space-y-2">
+                  <div class="dg-check-category">
+                    <h3 class="dg-check-category__title">{{ category }}</h3>
+                    <div class="space-y-1">
                       @for (
                         check of getChecksByCategory(category);
                         track check.id
                       ) {
-                        <label
-                          class="flex items-start space-x-3 p-2 rounded-lg hover:bg-surface-hover cursor-pointer"
-                        >
+                        <label class="dg-check-item">
                           <input
                             type="checkbox"
                             [checked]="check.enabled"
                             (change)="toggleCheck(check.id)"
-                            class="mt-1 w-4 h-4 text-brand rounded"
+                            class="mt-0.5 w-4 h-4 text-brand rounded"
                           />
-                          <div class="flex-1">
-                            <div class="flex items-center">
-                              <span class="mr-2">{{ check.icon }}</span>
-                              <span class="font-medium text-primary">{{
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                              <span aria-hidden="true">{{ check.icon }}</span>
+                              <span class="font-medium text-primary text-sm">{{
                                 check.name
                               }}</span>
                             </div>
-                            <p class="text-sm text-secondary">
+                            <p class="text-xs text-secondary mt-0.5">
                               {{ check.description }}
                             </p>
                           </div>
@@ -395,7 +246,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                     enabledChecksCount === 0 ||
                     effectiveTextLength === 0
                   "
-                  class="w-full py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold rounded-xl hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-400 disabled:to-slate-500 transition-all"
+                  class="dg-btn dg-btn-primary w-full py-3.5"
                 >
                   @if (isAnalyzing) {
                     <svg
@@ -443,60 +294,52 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               aria-labelledby="analysis-tab-results"
             >
               @if (analysisRunError) {
-                <div class="banner-error" role="alert">
+                <div class="dg-alert-error" role="alert">
                   {{ analysisRunError }}
                 </div>
               }
-              <div class="grid grid-cols-4 gap-4 mb-6">
-                <div class="stat-card-pass rounded-xl p-4 text-center">
-                  <div class="text-2xl font-bold stat-num">{{ passCount }}</div>
-                  <div class="text-sm stat-label">Correctos</div>
+              <div class="dg-stat-grid mb-6">
+                <div class="dg-stat-card dg-stat-card--pass">
+                  <div class="dg-stat-card__num">{{ passCount }}</div>
+                  <div class="dg-stat-card__label">Correctos</div>
                 </div>
-                <div class="stat-card-warn rounded-xl p-4 text-center">
-                  <div class="text-2xl font-bold stat-num">
-                    {{ warningCount }}
-                  </div>
-                  <div class="text-sm stat-label">Advertencias</div>
+                <div class="dg-stat-card dg-stat-card--warn">
+                  <div class="dg-stat-card__num">{{ warningCount }}</div>
+                  <div class="dg-stat-card__label">Advertencias</div>
                 </div>
-                <div class="stat-card-err rounded-xl p-4 text-center">
-                  <div class="text-2xl font-bold stat-num">
-                    {{ errorCount }}
-                  </div>
-                  <div class="text-sm stat-label">Errores</div>
+                <div class="dg-stat-card dg-stat-card--err">
+                  <div class="dg-stat-card__num">{{ errorCount }}</div>
+                  <div class="dg-stat-card__label">Errores</div>
                 </div>
-                <div class="stat-card-pending rounded-xl p-4 text-center">
-                  <div class="text-2xl font-bold stat-num">
-                    {{ pendingCount }}
-                  </div>
-                  <div class="text-sm stat-label">Pendientes</div>
+                <div class="dg-stat-card dg-stat-card--pending">
+                  <div class="dg-stat-card__num">{{ pendingCount }}</div>
+                  <div class="dg-stat-card__label">Pendientes</div>
                 </div>
               </div>
 
               <div class="space-y-3">
                 @for (result of analysisResults; track result.checkId) {
-                  <div class="border border-soft rounded-xl p-4">
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center space-x-3">
-                        <span
-                          class="px-3 py-1 rounded-full text-xs font-medium"
-                          [class.status-pass]="result.status === 'pass'"
-                          [class.status-warning]="result.status === 'warning'"
-                          [class.status-error]="result.status === 'error'"
-                          [class.status-pending]="result.status === 'pending'"
-                        >
-                          {{ result.status.toUpperCase() }}
-                        </span>
-                        <span class="font-medium text-primary">{{
-                          getCheckName(result.checkId)
-                        }}</span>
-                      </div>
+                  <div class="dg-result-card">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span
+                        class="dg-status"
+                        [class.dg-status--pass]="result.status === 'pass'"
+                        [class.dg-status--warning]="result.status === 'warning'"
+                        [class.dg-status--error]="result.status === 'error'"
+                        [class.dg-status--pending]="result.status === 'pending'"
+                      >
+                        {{ result.status.toUpperCase() }}
+                      </span>
+                      <span class="font-medium text-primary text-sm">{{
+                        getCheckName(result.checkId)
+                      }}</span>
                     </div>
-                    <p class="mt-2 text-secondary">{{ result.message }}</p>
+                    <p class="mt-2 text-sm text-secondary">{{ result.message }}</p>
 
                     @if (result.suggestions.length > 0) {
-                      <div class="mt-3 pl-4 border-l-2 border-brand">
+                      <div class="dg-result-card__suggestions">
                         <p class="text-sm font-semibold text-primary mb-2">
-                          💡 Sugerencias:
+                          Sugerencias
                         </p>
                         <ul class="text-sm text-secondary space-y-1">
                           @for (
@@ -522,33 +365,28 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               id="analysis-panel-assistant"
               aria-labelledby="analysis-tab-assistant"
             >
-              <div class="ai-message mb-6">
-                <div class="flex items-start space-x-3">
-                  <div
-                    class="w-10 h-10 bg-surface/20 rounded-full flex items-center justify-center"
+              <div class="dg-ai-intro mb-6">
+                <div class="dg-ai-intro__icon" aria-hidden="true">
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
                   >
-                    <svg
-                      class="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <p class="font-semibold">Asistente de Calidad</p>
-                    <p class="text-sm opacity-90">
-                      ¡Hola! Estoy aquí para ayudarte a mejorar tu propuesta.
-                      Puedes preguntarme cualquier cosa o pedirme que revise
-                      secciones concretas.
-                    </p>
-                  </div>
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-semibold">Asistente de calidad</p>
+                  <p class="text-sm opacity-90 mt-0.5">
+                    Pregunta sobre tu propuesta o pide revisar secciones concretas.
+                    Usa el mismo motor de IA que el editor.
+                  </p>
                 </div>
               </div>
 
@@ -557,7 +395,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                 role="log"
                 aria-label="Conversación con el asistente de análisis"
                 aria-live="polite"
-                class="space-y-4 h-96 overflow-y-auto p-4 bg-secondary border border-soft rounded-xl"
+                class="dg-chat-panel space-y-3 mb-4"
               >
                 @for (msg of chatMessages; track msg.id) {
                   <div
@@ -568,11 +406,9 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                     "
                   >
                     <div
-                      [class]="
-                        msg.type === 'user'
-                          ? 'bg-blue-600 text-white rounded-xl px-4 py-2 max-w-md'
-                          : 'doc-chat-bubble-bot rounded-xl px-4 py-2 max-w-md'
-                      "
+                      class="dg-chat-bubble"
+                      [class.dg-chat-bubble--user]="msg.type === 'user'"
+                      [class.dg-chat-bubble--bot]="msg.type === 'assistant'"
                     >
                       <p>{{ msg.content }}</p>
                     </div>
@@ -585,7 +421,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                 }
               </div>
 
-              <div class="flex space-x-3">
+              <div class="flex gap-2">
                 <input
                   type="text"
                   [formControl]="chatInput"
@@ -593,8 +429,8 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   [attr.aria-label]="
                     'Escribe tu pregunta al asistente de análisis de propuestas'
                   "
-                  placeholder="Pregunta al asistente sobre tu propuesta..."
-                  class="flex-1 px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand bg-secondary text-primary"
+                  placeholder="Pregunta al asistente sobre tu propuesta…"
+                  class="flex-1 dg-field"
                 />
                 <button
                   type="button"
@@ -602,7 +438,7 @@ type AnalysisResult = DocumentAnalysisCheckResult;
                   [disabled]="isChatSending || effectiveTextLength === 0"
                   title="Enviar"
                   aria-label="Enviar mensaje"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50"
+                  class="dg-btn dg-btn-primary shrink-0"
                 >
                   <svg
                     class="w-5 h-5"
@@ -622,14 +458,14 @@ type AnalysisResult = DocumentAnalysisCheckResult;
               </div>
 
               <div class="pt-4 border-t border-soft">
-                <p class="text-sm text-muted mb-3">Acciones rápidas:</p>
+                <p class="text-sm text-secondary mb-3">Acciones rápidas</p>
                 <div class="flex flex-wrap gap-2">
                   @for (quickAction of quickActions; track quickAction) {
                     <button
                       type="button"
                       (click)="executeQuickAction(quickAction)"
                       [disabled]="isChatSending || effectiveTextLength === 0"
-                      class="px-4 py-2 border border-soft bg-secondary text-primary hover:bg-surface-hover rounded-lg text-sm transition-colors disabled:opacity-50"
+                      class="dg-btn dg-btn-secondary dg-btn-sm"
                     >
                       {{ quickAction }}
                     </button>

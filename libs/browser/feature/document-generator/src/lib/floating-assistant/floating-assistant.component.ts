@@ -21,9 +21,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { escapeHtml } from '../utils/html-escape';
 import type { ConversationRow } from '../db/agent-memory-dexie';
-import type { MarkedGlobal } from '../types/cdn-script-globals';
-
-declare const marked: MarkedGlobal;
+import { parseMarkdownToHtml } from '../utils/markdown-parse.util';
 
 interface AssistantReferenceAttachment {
   id: string;
@@ -2457,16 +2455,11 @@ async onReferenceFilesSelected(event: Event): Promise<void> {
     );
   }
 
-  /** Markdown + HTML seguro para burbujas del asistente (marked en index.html). */
+  /** Markdown + HTML seguro para burbujas del asistente. */
   assistantBubbleHtml(content: string): SafeHtml {
     const raw = content ?? '';
-    const mdOpts = { gfm: true, breaks: true };
     try {
-      marked.setOptions?.(mdOpts);
-      const html =
-        typeof marked.parse === 'function'
-          ? marked.parse(raw, mdOpts)
-          : escapeHtml(raw);
+      const html = parseMarkdownToHtml(raw);
       return this.sanitizer.bypassSecurityTrustHtml(html);
     } catch {
       return this.sanitizer.bypassSecurityTrustHtml(

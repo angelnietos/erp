@@ -46,7 +46,7 @@ import {
   DocumentAiService,
   DocumentAiContext,
 } from '../services/document-ai.service';
-import type { MarkedGlobal } from '../types/cdn-script-globals';
+import { parseMarkdownToHtml } from '../utils/markdown-parse.util';
 import {
   buildPreviewBackgroundOverrideCss,
   buildDocumentPreviewCss,
@@ -115,8 +115,6 @@ type SelectedTextFormatId =
   | 'callout';
 
 type PdfPreviewSource = 'current' | 'markdown' | 'html';
-
-declare const marked: MarkedGlobal;
 
 interface SelectedTextFormat {
   id: SelectedTextFormatId;
@@ -1160,9 +1158,7 @@ this.documentForm.patchValue({ content: beautified });
   }
 
   private convertMarkdownToHtmlForEditor(content: string): string {
-    marked.setOptions?.({ gfm: true, breaks: true });
-    const parsed = String(marked.parse(content, { gfm: true, breaks: true }));
-    return enrichDocumentHtmlForStyling(parsed);
+    return enrichDocumentHtmlForStyling(parseMarkdownToHtml(content));
   }
 
   private convertHtmlToMarkdownForEditor(html: string): string {

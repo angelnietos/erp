@@ -9,155 +9,144 @@ import { AIBotStore, AIInferenceService } from '@josanz-erp/shared-data-access';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
-    <div class="max-w-2xl mx-auto space-y-8">
-      <nav
-        class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-secondary"
-        aria-label="Migas de pan"
-      >
-        <a
-          routerLink="/documents/list"
-          class="hover:text-primary transition-colors"
-          >Documentos</a
-        >
+    <div class="dg-settings-page space-y-8">
+      <nav class="dg-breadcrumb" aria-label="Ubicación">
+        <a routerLink="/documents/list">Documentos</a>
         <span class="text-muted" aria-hidden="true">/</span>
-        <span class="text-primary font-medium">Configuración de IA</span>
+        <span class="dg-breadcrumb__current">Configuración de IA</span>
       </nav>
 
-      <div>
-        <h1 class="text-2xl font-bold text-primary">
-          Motor de inferencia (IA)
-        </h1>
-        <p class="text-secondary mt-2 text-sm leading-relaxed">
+      <div class="dg-panel dg-hero">
+        <div class="dg-hero__icon" aria-hidden="true">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+            />
+          </svg>
+        </div>
+        <h1 class="dg-hero__title">Motor de inferencia (IA)</h1>
+        <p class="dg-hero__lead">
           Elige el proveedor y, si hace falta, pega tu clave API. Los valores se
           guardan solo en este navegador (localStorage), igual que en el ERP
-          principal — así el generador de documentos y el asistente flotante
-          usan la misma configuración.
+          principal — así el generador y el asistente flotante comparten la misma
+          configuración.
         </p>
       </div>
 
-      <div
-        class="rounded-2xl border border-soft bg-surface shadow-sm p-6 sm:p-8 space-y-6"
-      >
+      <div class="dg-panel space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
-          <span class="text-sm font-medium text-primary">Estado</span>
+          <span class="text-sm font-semibold text-primary">Estado del motor</span>
           @if (ai.needsApiKey() && !ai.providerApiKey().trim()) {
-            <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200 text-xs font-semibold px-3 py-1"
-            >
-              Falta clave API
-            </span>
+            <span class="dg-status-pill dg-status-pill--warn">Falta clave API</span>
           } @else if (ai.needsApiKey() && ai.providerApiKey().trim()) {
-            <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 text-xs font-semibold px-3 py-1"
-            >
-              Clave configurada
-            </span>
+            <span class="dg-status-pill dg-status-pill--ok">Clave configurada</span>
           } @else {
-            <span
-              class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold px-3 py-1"
-            >
+            <span class="dg-status-pill dg-status-pill--neutral">
               {{ ollamaSelected() ? 'Ollama local' : 'Modo sin clave propia' }}
             </span>
           }
         </div>
 
-        <div class="space-y-2">
-          <label for="ai-model" class="block text-sm font-medium text-primary"
-            >Modelo / proveedor</label
-          >
-          <select
-            id="ai-model"
-            class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand"
-            [ngModel]="ai.selectedModelId()"
-            (ngModelChange)="ai.setAIModel($event)"
-          >
-            @for (opt of ai.aiModelOptions(); track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
+        <div class="dg-form-stack">
+          <div>
+            <label for="ai-model" class="dg-form-label">Modelo / proveedor</label>
+            <select
+              id="ai-model"
+              class="w-full dg-field"
+              [ngModel]="ai.selectedModelId()"
+              (ngModelChange)="ai.setAIModel($event)"
+            >
+              @for (opt of ai.aiModelOptions(); track opt.value) {
+                <option [value]="opt.value">{{ opt.label }}</option>
+              }
+            </select>
+          </div>
+
+          @if (ai.needsApiKey()) {
+            <div>
+              <label for="ai-api-key" class="dg-form-label">Clave API (token)</label>
+              <input
+                id="ai-api-key"
+                type="password"
+                autocomplete="off"
+                class="w-full dg-field font-mono"
+                placeholder="Pega tu clave (p. ej. AIza… para Gemini, sk-… para OpenAI)"
+                [ngModel]="ai.providerApiKey()"
+                (ngModelChange)="ai.providerApiKey.set($event)"
+              />
+              <p class="dg-form-hint">
+                Gemini: consola de Google AI Studio. OpenAI / OpenRouter / xAI: el
+                token de tu cuenta. No se envía al servidor de Josanz; solo se usa
+                en el navegador para llamar al proveedor.
+              </p>
+            </div>
+          }
+
+          @if (ollamaSelected()) {
+            <div class="dg-hint-box dg-form-stack">
+              <p class="text-sm font-semibold text-primary">Ollama (local)</p>
+              <div>
+                <label for="ollama-url" class="dg-form-label">URL base</label>
+                <input
+                  id="ollama-url"
+                  type="url"
+                  class="w-full dg-field"
+                  [ngModel]="ai.ollamaConfig().baseUrl"
+                  (ngModelChange)="onOllamaBaseUrl($event)"
+                />
+              </div>
+              <div>
+                <label for="ollama-model" class="dg-form-label">Nombre del modelo</label>
+                <input
+                  id="ollama-model"
+                  type="text"
+                  class="w-full dg-field"
+                  [ngModel]="ai.ollamaConfig().model"
+                  (ngModelChange)="onOllamaModelName($event)"
+                />
+              </div>
+              <button
+                type="button"
+                class="dg-btn dg-btn-secondary dg-btn-sm self-start"
+                (click)="onRefreshOllama()"
+              >
+                Comprobar Ollama y listar modelos
+              </button>
+              @if (ai.ollamaConfig().available) {
+                <p class="dg-form-hint text-emerald-600 dark:text-emerald-400">
+                  Servidor Ollama detectado.
+                </p>
+              }
+              @if (ai.freeModels().localModels.length > 0) {
+                <p class="dg-form-hint">
+                  Modelos locales:
+                  {{ ai.freeModels().localModels.join(', ') }}
+                </p>
+              }
+            </div>
+          }
         </div>
 
-        @if (ai.needsApiKey()) {
-          <div class="space-y-2">
-            <label
-              for="ai-api-key"
-              class="block text-sm font-medium text-primary"
-              >Clave API (token)</label
-            >
-            <input
-              id="ai-api-key"
-              type="password"
-              autocomplete="off"
-              class="w-full px-4 py-3 rounded-xl border border-soft bg-secondary text-primary text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand"
-              placeholder="Pega tu clave (p. ej. AIza… para Gemini, sk-… para OpenAI)"
-              [ngModel]="ai.providerApiKey()"
-              (ngModelChange)="ai.providerApiKey.set($event)"
-            />
-            <p class="text-xs text-muted leading-relaxed">
-              Gemini: consola de Google AI Studio. OpenAI / OpenRouter / xAI: el
-              token de tu cuenta. No se envía al servidor de Josanz; solo se usa
-              en el navegador para llamar al proveedor.
-            </p>
-          </div>
-        }
+        <div class="flex flex-wrap gap-3 pt-2 border-t border-soft">
+          <a routerLink="/documents/create" class="dg-btn dg-btn-primary">
+            Ir al editor
+          </a>
+          <a routerLink="/documents/list" class="dg-btn dg-btn-secondary">
+            Volver a documentos
+          </a>
+        </div>
 
-        @if (ollamaSelected()) {
-          <div
-            class="rounded-xl border border-violet-200/80 dark:border-violet-900/40 bg-violet-50/40 dark:bg-violet-950/20 p-4 space-y-4"
-          >
-            <p class="text-sm font-semibold text-primary">Ollama (local)</p>
-            <div class="space-y-2">
-              <label
-                for="ollama-url"
-                class="block text-xs font-medium text-secondary"
-                >URL base</label
-              >
-              <input
-                id="ollama-url"
-                type="url"
-                class="w-full px-3 py-2 rounded-lg border border-soft bg-surface text-sm"
-                [ngModel]="ai.ollamaConfig().baseUrl"
-                (ngModelChange)="onOllamaBaseUrl($event)"
-              />
-            </div>
-            <div class="space-y-2">
-              <label
-                for="ollama-model"
-                class="block text-xs font-medium text-secondary"
-                >Nombre del modelo</label
-              >
-              <input
-                id="ollama-model"
-                type="text"
-                class="w-full px-3 py-2 rounded-lg border border-soft bg-surface text-sm"
-                [ngModel]="ai.ollamaConfig().model"
-                (ngModelChange)="onOllamaModelName($event)"
-              />
-            </div>
-            <button
-              type="button"
-              class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold border border-violet-300 bg-white dark:bg-slate-900 text-violet-900 dark:text-violet-100 hover:bg-violet-50 dark:hover:bg-violet-950/40 transition-colors"
-              (click)="onRefreshOllama()"
-            >
-              Comprobar Ollama y listar modelos
-            </button>
-            @if (ai.ollamaConfig().available) {
-              <p class="text-xs text-emerald-700 dark:text-emerald-400">
-                Servidor Ollama detectado.
-              </p>
-            }
-            @if (ai.freeModels().localModels.length > 0) {
-              <p class="text-xs text-muted">
-                Modelos locales:
-                {{ ai.freeModels().localModels.join(', ') }}
-              </p>
-            }
-          </div>
-        }
-
-        <p class="text-xs text-muted border-t border-soft pt-4">
-          Tras guardar, vuelve al editor y prueba de nuevo «Redacción asistida
-          (IA)» o el chat del asistente.
+        <p class="dg-form-hint border-t border-soft pt-4 mb-0">
+          Tras guardar, prueba de nuevo «Redacción asistida (IA)» en el editor o
+          el chat del asistente.
         </p>
       </div>
     </div>

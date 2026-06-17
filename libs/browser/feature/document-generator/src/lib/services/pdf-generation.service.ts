@@ -12,11 +12,10 @@ import { TemplatesRegistryService } from './templates-registry.service';
 import type {
   Html2PdfFactory,
   JsPdfInstance,
-  MarkedGlobal,
 } from '../types/cdn-script-globals';
+import { parseMarkdownToHtml } from '../utils/markdown-parse.util';
 
 declare const html2pdf: Html2PdfFactory;
-declare const marked: MarkedGlobal;
 
 interface DocumentData {
   title?: string;
@@ -426,15 +425,10 @@ export class PdfGenerationService {
       /<\/?[a-z][\s\S]*>/i.test(data.content || '');
     let htmlContent = '';
 
-    const markedOpts = { gfm: true, breaks: true };
-    if (typeof marked?.parse === 'function') {
-      marked.setOptions?.(markedOpts);
-    }
-
     if (isHtml) {
       htmlContent = this.prepareHtmlContentForPdf(data.content || '', data);
     } else {
-      htmlContent = marked.parse(data.content || '', markedOpts);
+      htmlContent = parseMarkdownToHtml(data.content || '');
       htmlContent = this.applyCorporateCoverVisibility(htmlContent, data);
       htmlContent = enrichDocumentHtmlForStyling(htmlContent);
     }

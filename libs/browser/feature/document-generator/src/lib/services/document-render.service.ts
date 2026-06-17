@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import type { MarkedGlobal } from '../types/cdn-script-globals';
 import type { PdfStyle } from './templates-registry.service';
+import { parseMarkdownToHtml } from '../utils/markdown-parse.util';
 import {
   buildDocumentPreviewCss,
   buildPreviewBackgroundOverrideCss,
@@ -26,8 +26,6 @@ import type {
   DocumentRenderInput,
   DocumentRenderPayload,
 } from '../models/document-render.models';
-
-declare const marked: MarkedGlobal;
 
 /** Base markdown preview styles for iframe isolation - uses static colors since iframe cannot access parent theme variables */
 const MARKDOWN_PREVIEW_BASE_CSS_IFRAME = `
@@ -230,18 +228,9 @@ export class DocumentRenderService {
       );
     }
 
-    const mdOpts = { gfm: true, breaks: true };
-    let parsed = content;
-    try {
-      marked.setOptions?.(mdOpts);
-      const result = marked.parse(content, mdOpts);
-      parsed = typeof result === 'string' ? result : String(result);
-    } catch {
-      parsed = content;
-    }
-
-    parsed = this.applyCorporateCoverVisibility(parsed, input.coverConfig);
-    return enrichDocumentHtmlForStyling(parsed);
+    const parsed = parseMarkdownToHtml(content);
+    const withCover = this.applyCorporateCoverVisibility(parsed, input.coverConfig);
+    return enrichDocumentHtmlForStyling(withCover);
   }
 
   buildPreviewStylesheet(input: DocumentRenderInput): string {
