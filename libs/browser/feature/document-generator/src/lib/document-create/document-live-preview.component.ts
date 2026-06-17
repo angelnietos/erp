@@ -14,13 +14,22 @@ import type { SafeHtml } from '@angular/platform-browser';
         flex: 1 1 auto;
         min-height: clamp(28rem, 62vh, 52rem);
         min-width: 0;
+        height: 100%;
       }
 
       .document-editor-column--preview {
         flex: 1 1 auto;
-        min-height: 0;
         display: flex;
         flex-direction: column;
+        min-height: clamp(28rem, 62vh, 52rem);
+        height: 100%;
+      }
+
+      .document-preview-pane--iframe {
+        flex: 1 1 auto;
+        min-height: clamp(22rem, 54vh, 46rem);
+        height: clamp(22rem, 54vh, 46rem);
+        width: 100%;
       }
     `,
   ],

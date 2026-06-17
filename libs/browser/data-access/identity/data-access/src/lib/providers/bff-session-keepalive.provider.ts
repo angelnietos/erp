@@ -33,12 +33,8 @@ export function provideBffSessionKeepalive(): {
           }
         }, BFF_KEEPALIVE_MS);
 
-        const onVisible = (): void => {
-          if (document.visibilityState === 'visible' && globalAuth.isAuthenticated()) {
-            authStore.refreshSession();
-          }
-        };
-        document.addEventListener('visibilitychange', onVisible);
+        // No refrescar al volver a la pestaña: provocaba cierres de sesión espurios
+        // (401 paralelos, red momentánea). El intervalo de 4 min basta.
       };
     },
   };

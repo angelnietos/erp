@@ -1,8 +1,9 @@
 import { inject, isDevMode } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, tap, switchMap, catchError, of, map } from 'rxjs';
+import { pipe, tap, switchMap, catchError, of, map, Observable } from 'rxjs';
 import {
   AuthService,
   ERP_TENANT_SLUG_SESSION_KEY,
@@ -32,6 +33,30 @@ const initialState: IdentityAuthState = {
   authMode: 'none',
   keycloakAvailable: null,
 };
+
+type RefreshSessionOutcome =
+  | { kind: 'ok'; response: AuthResponse }
+  | { kind: 'auth-failed' }
+  | { kind: 'transient' };
+
+function readHttpStatus(error: unknown): number | null {
+  if (error instanceof HttpErrorResponse) {
+    return error.status;
+  }
+  if (error && typeof error === 'object' && 'status' in error) {
+    const status = Number((error as { status?: unknown }).status);
+    return Number.isFinite(status) ? status : null;
+  }
+  return null;
+}
+
+function classifyRefreshError(error: unknown): RefreshSessionOutcome['kind'] {
+  const status = readHttpStatus(error);
+  if (status === 401 || status === 403) {
+    return 'auth-failed';
+  }
+  return 'transient';
+}
 
 export const AuthStore = signalStore(
   { providedIn: 'root' },
@@ -193,20 +218,33 @@ export const AuthStore = signalStore(
 
       refreshSession: rxMethod<void>(
         pipe(
-          switchMap(() => authService.refreshSession().pipe(
-            catchError((err) => {
-              if (isDevMode()) {
-                console.warn(
-                  '[AuthStore] refreshSession failed:',
-                  err?.status,
-                  err?.message,
-                );
-              }
-              return of(null);
-            })
-          )),
-          tap((response: AuthResponse | null) => {
-            if (!response) {
+          switchMap(
+            (): Observable<RefreshSessionOutcome> =>
+              authService.refreshSession().pipe(
+                map((response): RefreshSessionOutcome => ({ kind: 'ok', response })),
+                catchError((err): Observable<RefreshSessionOutcome> => {
+                  const kind = classifyRefreshError(err);
+                  if (isDevMode()) {
+                    console.warn(
+                      '[AuthStore] refreshSession failed:',
+                      readHttpStatus(err),
+                      kind,
+                      err instanceof Error ? err.message : err,
+                    );
+                  }
+                  if (kind === 'auth-failed') {
+                    return of({ kind: 'auth-failed' });
+                  }
+                  return of({ kind: 'transient' });
+                }),
+              ),
+          ),
+          tap((outcome: RefreshSessionOutcome) => {
+            if (outcome.kind === 'transient') {
+              return;
+            }
+
+            if (outcome.kind === 'auth-failed') {
               if (globalAuthStore.isAuthenticated()) {
                 tenantModulesRealtime.disconnect();
                 authService.clearSessionForRelogin();
@@ -228,6 +266,8 @@ export const AuthStore = signalStore(
               }
               return;
             }
+
+            const response = outcome.response;
 
             if (isDevMode()) {
               console.log(

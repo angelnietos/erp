@@ -7,6 +7,7 @@ import { AuthStore } from '../store/auth.store';
 import { AuthService } from '../services/auth.service';
 
 let sessionInvalidationInProgress = false;
+let bffRecoveryInFlight = false;
 
 /** Permite volver a invalidar sesión tras un nuevo login. */
 export function resetSessionInvalidationGuard(): void {
@@ -31,7 +32,23 @@ function isAuthExemptUrl(url: string): boolean {
   return AUTH_EXEMPT_URL_PARTS.some((part) => url.includes(part));
 }
 
-function shouldInvalidateSession(url: string, error: unknown): boolean {
+function scheduleBffSessionRecovery(): void {
+  if (bffRecoveryInFlight) {
+    return;
+  }
+  bffRecoveryInFlight = true;
+  const authStore = inject(AuthStore);
+  queueMicrotask(() => {
+    bffRecoveryInFlight = false;
+    authStore.refreshSession();
+  });
+}
+
+function shouldInvalidateSession(
+  url: string,
+  error: unknown,
+  authService: AuthService,
+): boolean {
   if (!(error instanceof HttpErrorResponse)) {
     return false;
   }
@@ -41,7 +58,17 @@ function shouldInvalidateSession(url: string, error: unknown): boolean {
   if (!url.includes('/api/')) {
     return false;
   }
-  return !isAuthExemptUrl(url);
+  if (isAuthExemptUrl(url)) {
+    return false;
+  }
+  if (authService.isBffMode()) {
+    if (url.includes('/bff/auth/session') || url.includes('/bff/platform/auth/session')) {
+      return true;
+    }
+    scheduleBffSessionRecovery();
+    return false;
+  }
+  return true;
 }
 
 function invalidateSession(reason: 'expired' | 'unauthorized' = 'expired'): void {
@@ -70,12 +97,14 @@ function invalidateSession(reason: 'expired' | 'unauthorized' = 'expired'): void
 /**
  * Cierra sesión y redirige al login cuando la API responde 401 (sesión BFF/JWT caducada o inválida).
  */
-export const sessionExpiryInterceptor: HttpInterceptorFn = (req, next) =>
-  next(req).pipe(
+export const sessionExpiryInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  return next(req).pipe(
     catchError((error: unknown) => {
-      if (shouldInvalidateSession(req.url, error)) {
+      if (shouldInvalidateSession(req.url, error, authService)) {
         invalidateSession('expired');
       }
       return throwError(() => error);
     }),
   );
+};

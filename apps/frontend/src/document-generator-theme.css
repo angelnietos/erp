@@ -321,8 +321,8 @@ html[data-erp-ui-shell='document-generator'] .document-editor-split > app-docume
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 0;
   align-self: stretch;
+  height: auto;
 }
 
 html[data-erp-ui-shell='document-generator'] .document-editor-split > app-document-editor-canvas,
@@ -330,9 +330,28 @@ html[data-erp-ui-shell='document-generator'] .document-editor-split > app-docume
   min-height: clamp(28rem, 62vh, 52rem);
 }
 
+html[data-erp-ui-shell='document-generator'] .document-editor-split {
+  min-height: clamp(32rem, 70vh, 56rem);
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-column__inner {
+  flex: 1 1 auto;
+  min-height: clamp(24rem, 58vh, 50rem);
+  display: flex;
+  flex-direction: column;
+}
+
+html[data-erp-ui-shell='document-generator'] .document-editor-textarea,
+html[data-erp-ui-shell='document-generator'] .document-preview-pane--iframe {
+  min-height: clamp(22rem, 54vh, 46rem) !important;
+  height: clamp(22rem, 54vh, 46rem) !important;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
 html[data-erp-ui-shell='document-generator'] .document-preview-pane--iframe {
   flex: 1 1 auto;
-  width: 100%;
-  border: none;
+  border: 1px solid var(--border-soft);
   background: color-mix(in srgb, var(--bg-secondary) 92%, #e8ecf1);
 }

@@ -54,113 +54,117 @@ export class ThemeManagerService {
 
     effect(() => {
       const theme = this.currentTheme();
-      const brandHex =
-        normalizeCssHexColor(theme.colors.brand) ?? FALLBACK_BRAND_HEX;
-
-      document.documentElement.setAttribute('data-theme', theme.id);
-      document.documentElement.setAttribute('data-ui-variant', theme.uiVariant);
-      document.documentElement.setAttribute(
-        'data-theme-is-light',
-        theme.category === 'light' ? 'true' : 'false',
-      );
-
-      // Aplicar variables CSS globales
-      document.documentElement.style.setProperty('--brand', brandHex);
-      document.documentElement.style.setProperty('--primary', brandHex);
-      document.documentElement.style.setProperty(
-        '--bg-primary',
-        theme.colors.bgPrimary,
-      );
-      document.documentElement.style.setProperty(
-        '--bg-secondary',
-        theme.colors.bgSecondary,
-      );
-      document.documentElement.style.setProperty(
-        '--surface',
-        theme.colors.surface,
-      );
-      document.documentElement.style.setProperty(
-        '--text-primary',
-        theme.colors.textPrimary,
-      );
-      document.documentElement.style.setProperty(
-        '--text-secondary',
-        theme.colors.textSecondary,
-      );
-      document.documentElement.style.setProperty(
-        '--accent',
-        theme.colors.accent,
-      );
-      document.documentElement.style.setProperty(
-        '--border-soft',
-        theme.colors.border,
-      );
-      document.documentElement.style.setProperty(
-        '--border-vibrant',
-        theme.colors.border,
-      );
-
-      // Aplicar variables derivadas dinámicas (hex de marca canonizado para `color-mix`)
-      document.documentElement.style.setProperty(
-        '--brand-ambient',
-        theme.category === 'light'
-          ? `color-mix(in srgb, ${brandHex} 4%, transparent)`
-          : `color-mix(in srgb, ${brandHex} 8%, transparent)`,
-      );
-      document.documentElement.style.setProperty(
-        '--brand-ambient-strong',
-        theme.category === 'light'
-          ? `color-mix(in srgb, ${brandHex} 8%, transparent)`
-          : `color-mix(in srgb, ${brandHex} 16%, transparent)`,
-      );
-      document.documentElement.style.setProperty(
-        '--brand-surface',
-        theme.category === 'light'
-          ? `color-mix(in srgb, ${brandHex} 8%, ${theme.colors.bgSecondary})`
-          : `color-mix(in srgb, ${brandHex} 12%, transparent)`,
-      );
-      document.documentElement.style.setProperty(
-        '--brand-border-soft',
-        `color-mix(in srgb, ${brandHex} 25%, transparent)`,
-      );
-      document.documentElement.style.setProperty(
-        '--brand-glow',
-        `color-mix(in srgb, ${brandHex} 40%, transparent)`,
-      );
-      document.documentElement.style.setProperty(
-        '--brand-muted',
-        `color-mix(in srgb, ${brandHex} 65%, #000)`,
-      );
-
-      // Aplicar fondo al body inmediatamente
-      document.body.style.backgroundColor = theme.colors.bgPrimary;
-
-      Object.entries(theme.colors).forEach(([key, value]) => {
-        const cssVar = `--${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
-        const v = key === 'brand' ? brandHex : (value as string);
-        document.documentElement.style.setProperty(cssVar, v);
-      });
-
-      const root = document.documentElement;
-      const isLight = theme.category === 'light';
-      root.style.setProperty('--text-muted', this.resolveTextMuted(theme));
-      root.style.setProperty('--bg-tertiary', this.resolveBgTertiary(theme));
-      root.style.setProperty('--surface-hover', this.resolveSurfaceHover(theme));
-      root.style.setProperty('--surface-solid', theme.colors.bgSecondary);
-      root.style.setProperty('--danger', '#dc2626');
-      root.style.setProperty('--warning', '#d97706');
-      root.style.setProperty('--success', '#16a34a');
-      root.style.setProperty('--text-on-brand', pickTextOnBrand(brandHex));
-      root.style.setProperty(
-        '--ring-focus',
-        ringFocusFromBrand(brandHex, isLight),
-      );
+      this.applyThemeToDocument(theme);
     });
+  }
+
+  private applyThemeToDocument(theme: Theme): void {
+    const brandHex =
+      normalizeCssHexColor(theme.colors.brand) ?? FALLBACK_BRAND_HEX;
+
+    document.documentElement.setAttribute('data-theme', theme.id);
+    document.documentElement.setAttribute('data-ui-variant', theme.uiVariant);
+    document.documentElement.setAttribute(
+      'data-theme-is-light',
+      theme.category === 'light' ? 'true' : 'false',
+    );
+
+    document.documentElement.style.setProperty('--brand', brandHex);
+    document.documentElement.style.setProperty('--primary', brandHex);
+    document.documentElement.style.setProperty(
+      '--bg-primary',
+      theme.colors.bgPrimary,
+    );
+    document.documentElement.style.setProperty(
+      '--bg-secondary',
+      theme.colors.bgSecondary,
+    );
+    document.documentElement.style.setProperty(
+      '--surface',
+      theme.colors.surface,
+    );
+    document.documentElement.style.setProperty(
+      '--text-primary',
+      theme.colors.textPrimary,
+    );
+    document.documentElement.style.setProperty(
+      '--text-secondary',
+      theme.colors.textSecondary,
+    );
+    document.documentElement.style.setProperty('--accent', theme.colors.accent);
+    document.documentElement.style.setProperty(
+      '--border-soft',
+      theme.colors.border,
+    );
+    document.documentElement.style.setProperty(
+      '--border-vibrant',
+      theme.colors.border,
+    );
+
+    document.documentElement.style.setProperty(
+      '--brand-ambient',
+      theme.category === 'light'
+        ? `color-mix(in srgb, ${brandHex} 4%, transparent)`
+        : `color-mix(in srgb, ${brandHex} 8%, transparent)`,
+    );
+    document.documentElement.style.setProperty(
+      '--brand-ambient-strong',
+      theme.category === 'light'
+        ? `color-mix(in srgb, ${brandHex} 8%, transparent)`
+        : `color-mix(in srgb, ${brandHex} 16%, transparent)`,
+    );
+    document.documentElement.style.setProperty(
+      '--brand-surface',
+      theme.category === 'light'
+        ? `color-mix(in srgb, ${brandHex} 8%, ${theme.colors.bgSecondary})`
+        : `color-mix(in srgb, ${brandHex} 12%, transparent)`,
+    );
+    document.documentElement.style.setProperty(
+      '--brand-border-soft',
+      `color-mix(in srgb, ${brandHex} 25%, transparent)`,
+    );
+    document.documentElement.style.setProperty(
+      '--brand-glow',
+      `color-mix(in srgb, ${brandHex} 40%, transparent)`,
+    );
+    document.documentElement.style.setProperty(
+      '--brand-muted',
+      `color-mix(in srgb, ${brandHex} 65%, #000)`,
+    );
+
+    document.body.style.backgroundColor = theme.colors.bgPrimary;
+
+    Object.entries(theme.colors).forEach(([key, value]) => {
+      const cssVar = `--${key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase())}`;
+      const v = key === 'brand' ? brandHex : (value as string);
+      document.documentElement.style.setProperty(cssVar, v);
+    });
+
+    const root = document.documentElement;
+    const isLight = theme.category === 'light';
+    root.style.setProperty('--text-muted', this.resolveTextMuted(theme));
+    root.style.setProperty('--bg-tertiary', this.resolveBgTertiary(theme));
+    root.style.setProperty('--surface-hover', this.resolveSurfaceHover(theme));
+    root.style.setProperty('--surface-solid', theme.colors.bgSecondary);
+    root.style.setProperty('--danger', '#dc2626');
+    root.style.setProperty('--warning', '#d97706');
+    root.style.setProperty('--success', '#16a34a');
+    root.style.setProperty('--text-on-brand', pickTextOnBrand(brandHex));
+    root.style.setProperty(
+      '--ring-focus',
+      ringFocusFromBrand(brandHex, isLight),
+    );
   }
 
   setTheme(theme: Theme): void {
     this.currentTheme.set(theme);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(theme));
+    this.applyThemeToDocument(theme);
+  }
+
+  /** Reaplica el tema actual (p. ej. tras otro servicio tocar variables CSS). */
+  reapplyCurrentTheme(): void {
+    this.applyThemeToDocument(this.currentTheme());
   }
 
   /** Contraste legible para texto secundario según categoría del tema. */

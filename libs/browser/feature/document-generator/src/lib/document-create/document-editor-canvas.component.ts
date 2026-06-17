@@ -180,30 +180,40 @@ export type EditorSurface = 'legacy' | 'blocks';
       :host {
         display: flex;
         flex-direction: column;
-        min-height: 0;
+        flex: 1 1 auto;
+        min-height: clamp(28rem, 62vh, 52rem);
         min-width: 0;
+        height: 100%;
       }
 
       .document-editor-column__inner {
         display: flex;
         flex-direction: column;
         flex: 1 1 auto;
-        min-height: 0;
+        min-height: clamp(24rem, 58vh, 50rem);
         gap: 0.5rem;
       }
 
       .document-editor-textarea-wrap {
         position: relative;
         flex: 1 1 auto;
-        min-height: clamp(20rem, 50vh, 44rem);
+        min-height: clamp(22rem, 54vh, 46rem);
         display: flex;
         flex-direction: column;
       }
 
+      .document-editor-textarea {
+        flex: 1 1 auto;
+        min-height: clamp(22rem, 54vh, 46rem) !important;
+        height: clamp(22rem, 54vh, 46rem);
+        width: 100%;
+      }
       .document-editor-block-editor {
         flex: 1 1 auto;
-        min-height: clamp(20rem, 50vh, 44rem);
+        min-height: clamp(22rem, 54vh, 46rem);
+        height: clamp(22rem, 54vh, 46rem);
       }
+
       .slash-menu-host {
         position: absolute;
         left: 12px;

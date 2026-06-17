@@ -1925,8 +1925,12 @@ export class ThemeService {
 
   /**
    * Vuelve a aplicar variables CSS (p. ej. tras cambiar `data-erp-tenant` en `<html>`).
+   * En el shell document-generator, los temas los gestiona `ThemeManagerService`.
    */
   reapplyTheme(): void {
+    if (this.isDocumentGeneratorShell()) {
+      return;
+    }
     this.applyTheme(this.currentTheme(), this.currentVariant());
   }
 
@@ -1972,7 +1976,18 @@ export class ThemeService {
     }
   }
 
+  private isDocumentGeneratorShell(): boolean {
+    return (
+      typeof document !== 'undefined' &&
+      document.documentElement.getAttribute('data-erp-ui-shell') ===
+        'document-generator'
+    );
+  }
+
   private applyTheme(theme: Theme, variant: string) {
+    if (this.isDocumentGeneratorShell()) {
+      return;
+    }
     const config = THEMES[theme];
     const root = document.documentElement;
 

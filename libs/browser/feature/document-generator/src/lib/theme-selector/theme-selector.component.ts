@@ -379,6 +379,7 @@ export class ThemeSelectorComponent {
 
   selectTheme(theme: Theme): void {
     this.themeManager.setTheme(theme);
+    this.themeManager.reapplyCurrentTheme();
   }
 
   setVariant(variantId: string): void {
@@ -387,5 +388,6 @@ export class ThemeSelectorComponent {
       ...current,
       uiVariant: variantId as Theme['uiVariant'],
     });
+    this.themeManager.reapplyCurrentTheme();
   }
 }

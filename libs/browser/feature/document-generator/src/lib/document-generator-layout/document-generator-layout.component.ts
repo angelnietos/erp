@@ -1,10 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 import { FloatingAssistantComponent } from '../floating-assistant/floating-assistant.component';
 import { ThemeSelectorComponent } from '../theme-selector/theme-selector.component';
+import { ThemeManagerService } from '../services/theme-manager.service';
 
 @Component({
   selector: 'lib-document-generator-layout',
@@ -201,7 +202,12 @@ import { ThemeSelectorComponent } from '../theme-selector/theme-selector.compone
     </div>
   `,
 })
-export class DocumentGeneratorLayoutComponent {
+export class DocumentGeneratorLayoutComponent implements OnInit {
   /** Presente cuando la feature corre dentro de apps/frontend (:4200). */
   readonly authStore = inject(AuthStore, { optional: true });
+  private readonly themeManager = inject(ThemeManagerService);
+
+  ngOnInit(): void {
+    this.themeManager.reapplyCurrentTheme();
+  }
 }
