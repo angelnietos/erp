@@ -104,101 +104,6 @@ interface DocumentType {
       .document-create-page {
         padding-bottom: 2rem;
       }
-
-      .create-hero {
-        padding: 1.5rem 1.75rem;
-      }
-
-      @media (min-width: 768px) {
-        .create-hero {
-          padding: 2rem 2.25rem;
-        }
-      }
-
-      .type-card {
-        min-height: 11rem;
-      }
-
-      .type-card:focus-visible {
-        outline: 2px solid var(--brand, #7a0000);
-        outline-offset: 2px;
-      }
-
-      .template-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.65rem;
-        min-height: 9.5rem;
-        padding: 1rem 1.1rem;
-        border-radius: 1rem;
-        border: 1px solid color-mix(in srgb, var(--border, #e5e7eb) 90%, transparent);
-        background: linear-gradient(
-          165deg,
-          color-mix(in srgb, var(--surface, #fff) 96%, #fff5f5) 0%,
-          var(--surface, #fff) 100%
-        );
-        text-decoration: none;
-        transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
-      }
-
-      .template-card:hover {
-        border-color: color-mix(in srgb, var(--brand, #7a0000) 45%, transparent);
-        box-shadow: 0 10px 28px color-mix(in srgb, var(--brand, #7a0000) 12%, transparent);
-        transform: translateY(-2px);
-      }
-
-      .template-card__icon {
-        width: 2.5rem;
-        height: 2.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 0.75rem;
-        background: color-mix(in srgb, var(--brand, #7a0000) 10%, white);
-        font-size: 1.25rem;
-      }
-
-      .template-card__title {
-        font-weight: 700;
-        color: var(--text-primary, #111827);
-        line-height: 1.3;
-      }
-
-      .template-card__desc {
-        font-size: 0.8125rem;
-        color: var(--text-secondary, #4b5563);
-        line-height: 1.45;
-        flex: 1;
-      }
-
-      .template-card__tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-      }
-
-      .template-card__tag {
-        font-size: 0.65rem;
-        font-weight: 600;
-        padding: 0.15rem 0.45rem;
-        border-radius: 999px;
-        background: #f3f4f6;
-        color: #475569;
-      }
-
-      .template-card__tag--featured {
-        background: #fff1f2;
-        color: #7a0000;
-      }
-
-      .template-card__cta {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--brand, #7a0000);
-      }
     `,
   ],
   selector: 'app-document-create',
@@ -207,39 +112,18 @@ interface DocumentType {
   template: `
     <div class="document-create-page space-y-6">
       <!-- Breadcrumb -->
-      <nav class="flex items-center space-x-2 text-sm text-secondary">
-        <a
-          routerLink="/documents/list"
-          class="hover:text-primary transition-colors"
-        >
-          Documentos
-        </a>
-        <svg
-          class="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          />
-        </svg>
-        <span class="text-primary font-medium">Crear Nuevo</span>
+      <nav class="dg-breadcrumb" aria-label="Migas de pan">
+        <a routerLink="/documents/list">Documentos</a>
+        <span aria-hidden="true">/</span>
+        <span class="dg-breadcrumb__current">Crear Nuevo</span>
       </nav>
 
       <!-- Header -->
-      <div
-        class="create-hero bg-surface rounded-2xl shadow-xl border border-soft"
-      >
-        <div class="text-center max-w-2xl mx-auto">
-          <div
-            class="w-14 h-14 brand-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg"
-          >
+      <div class="dg-panel">
+        <div class="dg-hero">
+          <div class="dg-hero__icon" aria-hidden="true">
             <svg
-              class="w-8 h-8 text-white"
+              class="w-7 h-7"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -252,19 +136,16 @@ interface DocumentType {
               />
             </svg>
           </div>
-          <h1
-            class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-text-primary to-text-secondary bg-clip-text text-transparent mb-2"
-          >
-            Crear nuevo documento
-          </h1>
-          <p class="text-secondary text-base sm:text-lg">
+          <h1 class="dg-hero__title">Crear nuevo documento</h1>
+          <p class="dg-hero__lead">
             Elige el tipo y una plantilla corporativa. El editor se abre en la
             siguiente pantalla con tablas, estilos Josanz y export PDF/DOCX.
           </p>
           <p class="text-sm text-muted mt-4">
             <a
               routerLink="/documents/settings/ai"
-              class="font-semibold text-brand hover:underline"
+              class="font-semibold"
+              style="color: var(--brand)"
               >Motor de IA</a
             >
             · clave API y modelo (misma configuración que el ERP)
@@ -273,18 +154,14 @@ interface DocumentType {
       </div>
 
       <!-- Document Type Selection -->
-      <div class="bg-surface rounded-2xl shadow-xl border border-soft/50 p-5 sm:p-8">
-        <div class="mb-6">
-          <h2 class="text-xl sm:text-2xl font-bold text-primary mb-2">
+      <div class="dg-panel">
+        <div class="dg-section-head text-center sm:text-left">
+          <h2 class="dg-section-head__title">
             ¿Qué tipo de documento necesitas?
           </h2>
-          <p class="text-secondary text-sm sm:text-base">
-            {{ documentTypes.length }} tipos disponibles · selecciona uno para ver
-            plantillas recomendadas
-          </p>
-          <p class="text-xs text-muted mt-2 max-w-2xl mx-auto">
-            En el editor tendrás la burbuja de ayuda (esquina): mismo chat e IA
-            que en el resto del generador.
+          <p class="dg-section-head__desc mx-auto sm:mx-0">
+            {{ documentTypes.length }} tipos disponibles · selecciona uno para
+            ver plantillas recomendadas
           </p>
         </div>
 
@@ -296,18 +173,11 @@ interface DocumentType {
               tabindex="0"
               role="button"
               [attr.aria-current]="selectedType?.id === type.id ? 'true' : null"
-              class="type-card group relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg"
-              [class.border-blue-500]="selectedType?.id === type.id"
-              [class.bg-gradient-to-br]="selectedType?.id === type.id"
-              [class.from-blue-50]="selectedType?.id === type.id"
-              [class.to-indigo-50]="selectedType?.id === type.id"
-              [class.border-soft]="selectedType?.id !== type.id"
-              [class.hover:border-vibrant]="selectedType?.id !== type.id"
+              class="dg-type-card"
+              [class.dg-type-card--selected]="selectedType?.id === type.id"
             >
-              <div class="flex items-start justify-between mb-4">
-                <div
-                  class="w-12 h-12 rounded-xl bg-gradient-to-r from-surface to-surface-hover group-hover:from-brand-surface group-hover:to-brand-ambient flex items-center justify-center transition-all duration-300"
-                >
+              <div class="flex items-start justify-between mb-3">
+                <div class="dg-type-card__icon-wrap">
                   @if (type.id === 'quote') {
                     <svg
                       class="w-6 h-6 text-secondary group-hover:text-brand"
@@ -370,11 +240,9 @@ interface DocumentType {
                   }
                 </div>
                 @if (selectedType?.id === type.id) {
-                  <div
-                    class="check-icon w-6 h-6 bg-brand rounded-full flex items-center justify-center"
-                  >
+                  <div class="dg-type-card__check" aria-hidden="true">
                     <svg
-                      class="w-4 h-4 text-white"
+                      class="w-3.5 h-3.5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -382,7 +250,7 @@ interface DocumentType {
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="2"
+                        stroke-width="2.5"
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
@@ -390,43 +258,30 @@ interface DocumentType {
                 }
               </div>
               <div class="space-y-2">
-                <h3
-                  class="text-xl font-semibold text-primary group-hover:text-brand transition-colors"
-                >
-                  {{ type.name }}
-                </h3>
-                <p class="text-secondary leading-relaxed">
-                  {{ type.description }}
-                </p>
+                <h3 class="dg-type-card__name">{{ type.name }}</h3>
+                <p class="dg-type-card__desc">{{ type.description }}</p>
               </div>
-              <div class="mt-4 flex flex-wrap gap-2">
+              <div class="mt-3 flex flex-wrap gap-1.5">
                 @if (type.id === 'quote') {
-                  <span
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800"
-                  >
-                    💰 Cálculos automáticos
-                  </span>
+                  <span class="dg-chip dg-chip--brand">💰 Cálculos automáticos</span>
                 }
                 @if (type.id === 'proposal') {
-                  <span
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-800"
-                  >
-                    📋 Estructura profesional
-                  </span>
+                  <span class="dg-chip dg-chip--brand">📋 Estructura profesional</span>
                 }
                 @if (type.id === 'documentation') {
-                  <span
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
-                  >
-                    📖 Contenido técnico
-                  </span>
+                  <span class="dg-chip dg-chip--brand">📖 Contenido técnico</span>
                 }
                 @if (type.id === 'architecture') {
-                  <span
-                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-orange-100 text-orange-800"
-                  >
-                    🎨 Diagramas Mermaid
-                  </span>
+                  <span class="dg-chip dg-chip--brand">🎨 Diagramas Mermaid</span>
+                }
+                @if (type.id === 'resume') {
+                  <span class="dg-chip dg-chip--brand">👤 CV estandarizado</span>
+                }
+                @if (type.id === 'interview') {
+                  <span class="dg-chip dg-chip--brand">✅ Scorecards</span>
+                }
+                @if (type.id === 'offer') {
+                  <span class="dg-chip dg-chip--brand">✉️ Carta formal</span>
                 }
               </div>
             </div>
@@ -437,17 +292,13 @@ interface DocumentType {
       @if (selectedType) {
         <div
           #templatesSection
-          class="bg-surface rounded-2xl shadow-xl border border-soft p-5 sm:p-8 animate-slide-up scroll-mt-24"
+          class="dg-panel animate-slide-up scroll-mt-24"
         >
-          <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <div class="dg-section-head flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p class="text-xs font-semibold uppercase tracking-wider text-brand mb-1">
-                {{ selectedType.name }}
-              </p>
-              <h2 class="text-xl sm:text-2xl font-bold text-primary mb-1">
-                Plantillas recomendadas
-              </h2>
-              <p class="text-secondary text-sm">
+              <p class="dg-section-head__eyebrow">{{ selectedType.name }}</p>
+              <h2 class="dg-section-head__title">Plantillas recomendadas</h2>
+              <p class="dg-section-head__desc">
                 {{ templates.length }} plantillas · incluyen tablas corporativas
                 listas para editar
               </p>
@@ -455,42 +306,36 @@ interface DocumentType {
             <a
               [routerLink]="['/documents', 'create', 'edit']"
               [queryParams]="{ type: selectedType.id }"
-              class="text-sm font-semibold text-brand hover:underline whitespace-nowrap"
+              class="text-sm font-semibold whitespace-nowrap"
+              style="color: var(--brand)"
             >
               Saltar plantillas →
             </a>
           </div>
-          <div
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
-            role="list"
-          >
+          <div class="dg-template-grid" role="list">
             @for (template of templates; track template.id) {
               <a
                 role="listitem"
                 [routerLink]="['/documents', 'create', 'edit']"
                 [queryParams]="editorQueryParams(template.id)"
-                class="template-card focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                class="dg-template-card focus:outline-none focus-visible:ring-2 focus-visible:ring-brand"
               >
-                <div class="template-card__icon" aria-hidden="true">
+                <div class="dg-template-card__icon" aria-hidden="true">
                   {{ template.icon }}
                 </div>
-                <div class="template-card__title">
-                  {{ template.name }}
-                </div>
-                <div class="template-card__desc">
+                <div class="dg-template-card__title">{{ template.name }}</div>
+                <div class="dg-template-card__desc">
                   {{ template.description }}
                 </div>
-                <div class="template-card__tags">
+                <div class="dg-template-card__tags">
                   @if (isFeaturedTemplate(template)) {
-                    <span class="template-card__tag template-card__tag--featured"
-                      >Recomendada</span
-                    >
+                    <span class="dg-chip dg-chip--brand">Recomendada</span>
                   }
                   @for (tag of template.tags.slice(0, 3); track tag) {
-                    <span class="template-card__tag">{{ tag }}</span>
+                    <span class="dg-chip">{{ tag }}</span>
                   }
                 </div>
-                <span class="template-card__cta">Abrir en editor →</span>
+                <span class="dg-template-card__cta">Abrir en editor →</span>
               </a>
             }
           </div>
@@ -505,7 +350,7 @@ interface DocumentType {
             <button
               type="button"
               (click)="clearSelectedType()"
-              class="inline-flex items-center px-4 py-2.5 rounded-xl text-sm font-medium border border-soft text-primary hover:bg-tertiary transition-colors"
+              class="dg-btn-secondary"
             >
               Cambiar tipo de documento
             </button>

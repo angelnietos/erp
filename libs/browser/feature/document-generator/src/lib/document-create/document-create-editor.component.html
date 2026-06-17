@@ -1,64 +1,50 @@
 ﻿<!-- eslint-disable @angular-eslint/template/prefer-control-flow -->
 <div class="document-create-page space-y-6">
   <nav
-    class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-secondary"
+    class="dg-breadcrumb"
     aria-label="Migas de pan"
   >
-    <a routerLink="/documents/list" class="hover:text-primary transition-colors"
-      >Documentos</a
-    >
-    <span class="text-muted" aria-hidden="true">/</span>
-    <a
-      routerLink="/documents/create"
-      class="hover:text-primary transition-colors"
-      >Tipo y plantilla</a
-    >
-    <span class="text-muted" aria-hidden="true">/</span>
-    <span class="text-primary font-medium">Editor</span>
+    <a routerLink="/documents/list">Documentos</a>
+    <span aria-hidden="true">/</span>
+    <a routerLink="/documents/create">Tipo y plantilla</a>
+    <span aria-hidden="true">/</span>
+    <span class="dg-breadcrumb__current">Editor</span>
   </nav>
 
   @if (selectedType) {
-    <div
-      class="document-create-shell bg-surface rounded-2xl shadow-xl border border-soft"
-    >
-      <div class="mb-8">
-        <div class="flex items-center space-x-3 mb-4">
-          <div
-            class="w-10 h-10 brand-gradient rounded-xl flex items-center justify-center"
+    <div class="document-create-shell dg-panel">
+      <div class="dg-page-header">
+        <div class="dg-page-header__icon" aria-hidden="true">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-5 h-5 text-bg-secondary"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              />
-            </svg>
-          </div>
-          <div>
-            <h2 class="text-2xl font-bold text-primary">
-              Información del Documento
-            </h2>
-            <p class="text-secondary">
-              Completa los detalles para generar tu
-              {{ selectedType.name.toLowerCase() }}
-            </p>
-          </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            />
+          </svg>
+        </div>
+        <div>
+          <h2 class="dg-page-header__title">Información del documento</h2>
+          <p class="dg-page-header__desc">
+            Completa los detalles para generar tu
+            {{ selectedType.name.toLowerCase() }}
+          </p>
         </div>
       </div>
 
       <form
         [formGroup]="documentForm"
         (ngSubmit)="generateDocument()"
-        class="space-y-8"
+        class="space-y-6"
       >
-        <div class="bg-tertiary rounded-xl p-6 border border-soft">
-          <h3 class="text-lg font-semibold text-primary mb-4 flex items-center">
+        <div class="dg-section-block">
+          <h3 class="dg-section-block__title">
             <svg
               class="w-5 h-5 mr-2 text-secondary"
               fill="none"
@@ -72,9 +58,9 @@
                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 012 0z"
               />
             </svg>
-            Información General
+            Información general
           </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div class="space-y-2">
               <label
                 for="clientId"
@@ -84,7 +70,7 @@
               <select
                 id="clientId"
                 formControlName="clientId"
-                class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
+                class="dg-field"
               >
                 <option value="">Seleccionar cliente</option>
                 @for (client of clients; track client.id) {
@@ -102,7 +88,7 @@
                 id="date"
                 type="date"
                 formControlName="date"
-                class="w-full px-4 py-3 border border-soft rounded-xl focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 bg-secondary"
+                class="dg-field"
               />
             </div>
           </div>
@@ -303,26 +289,31 @@
             </div>
           }
 
-          <!-- Plantillas Rópidas -->
-          <div class="space-y-3">
-            <div class="block text-sm font-medium text-secondary">
-              Plantillas predefinidas para {{ selectedType.name }}
+          <!-- Plantillas rápidas -->
+          <div class="dg-section-block">
+            <div class="dg-section-head mb-4">
+              <p class="dg-section-head__eyebrow">{{ selectedType.name }}</p>
+              <h3 class="dg-section-head__title">
+                Plantillas predefinidas
+              </h3>
+              <p class="dg-section-head__desc">
+                Carga un borrador corporativo en el editor con un clic.
+              </p>
             </div>
-            <div
-              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
-              role="group"
-              aria-labelledby="templates-label"
-            >
+            <div class="dg-template-grid" role="group" aria-label="Plantillas">
               @for (template of templates; track template.id) {
                 <button
                   type="button"
                   (click)="loadTemplate(template)"
-                  class="dg-template-btn"
+                  class="dg-template-card text-left"
                 >
-                  <div class="dg-template-btn__title">
-                    {{ template.icon }} {{ template.name }}
+                  <div class="dg-template-card__icon" aria-hidden="true">
+                    {{ template.icon }}
                   </div>
-                  <div class="dg-template-btn__desc">
+                  <div class="dg-template-card__title">
+                    {{ template.name }}
+                  </div>
+                  <div class="dg-template-card__desc">
                     {{ template.description }}
                   </div>
                 </button>
@@ -345,10 +336,8 @@
                   derecha.
                 </p>
               </div>
-              <div class="flex items-center gap-2 text-xs text-muted">
-                <span class="px-2 py-1 bg-slate-100 rounded"
-                  >Atajos: Ctrl+B Ctrl+I Ctrl+S</span
-                >
+              <div class="flex items-center gap-2">
+                <span class="dg-kbd-hint">Ctrl+B · Ctrl+I · Ctrl+S</span>
               </div>
             </div>
 
