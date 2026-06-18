@@ -3,6 +3,7 @@
   "enabled": true,
   "displayName": "Josanz ERP - Web App",
   "users": [
+    
     {
       "username": "admin",
       "enabled": true,
