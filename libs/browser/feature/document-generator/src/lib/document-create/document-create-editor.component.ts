@@ -162,6 +162,8 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   /** Id del borrador en IndexedDB (reutilizado al volver a guardar). */
   savedDraftId: string | null = null;
   draftSaveMessage = '';
+  /** Avisos de exportación / importación / portapapeles. */
+  actionNotice = '';
   /** Mensaje si falla Generar documento (PDF final). */
   documentGenerateError = '';
   isSavingDraft = false;
@@ -225,31 +227,31 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   @ViewChild(DocumentEditorCanvasComponent)
   editorCanvas?: DocumentEditorCanvasComponent;
   readonly selectedTextFormats: SelectedTextFormat[] = [
-    { id: 'paragraph', label: 'P�rrafo normal' },
-    { id: 'h1', label: 'T�tulo H1' },
-    { id: 'h2', label: 'T�tulo H2' },
-    { id: 'h3', label: 'T�tulo H3' },
+    { id: 'paragraph', label: 'Párrafo normal' },
+    { id: 'h1', label: 'Título H1' },
+    { id: 'h2', label: 'Título H2' },
+    { id: 'h3', label: 'Título H3' },
     { id: 'bold', label: 'Negrita' },
     { id: 'italic', label: 'Cursiva' },
     { id: 'quote', label: 'Cita' },
     { id: 'list', label: 'Lista' },
     { id: 'numbered-list', label: 'Lista numerada' },
-    { id: 'inline-code', label: 'C�digo' },
+    { id: 'inline-code', label: 'Código' },
     { id: 'callout', label: 'Nota destacada' },
   ];
   readonly editorBlockTemplates: EditorBlockTemplate[] = [
     {
       id: 'paragraph',
-      label: 'P�rrafo',
-      markdown: `\n\n[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]\n`,
-      html: `<p>[Escribe aqu� un p�rrafo descriptivo con el contexto, objetivo o explicaci�n principal.]</p>`,
+      label: 'Párrafo',
+      markdown: `\n\n[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]\n`,
+      html: `<p>[Escribe aquí un párrafo descriptivo con el contexto, objetivo o explicación principal.]</p>`,
     },
     {
       id: 'section',
-      label: 'Secci�n completa',
-      markdown: `\n\n## [T�tulo de la secci�n]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
+      label: 'Sección completa',
+      markdown: `\n\n## [Título de la sección]\n\n**Objetivo:** [Describe el objetivo]\n\n**Detalle:** [Explica los puntos principales]\n\n**Resultado esperado:** [Indica el resultado]\n`,
       html: `<section class="section card">
-  <h2>[T�tulo de la secci�n]</h2>
+  <h2>[Título de la sección]</h2>
   <p><strong>Objetivo:</strong> [Describe el objetivo]</p>
   <p><strong>Detalle:</strong> [Explica los puntos principales]</p>
   <p><strong>Resultado esperado:</strong> [Indica el resultado]</p>
@@ -283,14 +285,14 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     {
       id: 'timeline',
       label: 'Cronograma / hitos',
-      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripci�n | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Dise�o aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
+      markdown: `\n\n## Cronograma e hitos\n\n| Hito | Descripción | Fecha estimada | Dependencias |\n|---|---|---|---|\n| Hito 1 | Inicio del proyecto | [Fecha] | - |\n| Hito 2 | Diseño aprobado | [Fecha] | Hito 1 |\n| Hito 3 | Entrega final | [Fecha] | Hito 2 |\n`,
       html: `<section class="section">
   <h2>Cronograma e hitos</h2>
   <table class="doc-table timeline-table">
-    <thead><tr><th>Hito</th><th>Descripci�n</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
+    <thead><tr><th>Hito</th><th>Descripción</th><th>Fecha estimada</th><th>Dependencias</th></tr></thead>
     <tbody>
       <tr><td>Hito 1</td><td>Inicio del proyecto</td><td>[Fecha]</td><td>-</td></tr>
-      <tr><td>Hito 2</td><td>Dise�o aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
+      <tr><td>Hito 2</td><td>Diseño aprobado</td><td>[Fecha]</td><td>Hito 1</td></tr>
       <tr><td>Hito 3</td><td>Entrega final</td><td>[Fecha]</td><td>Hito 2</td></tr>
     </tbody>
   </table>
@@ -299,13 +301,13 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     {
       id: 'budget',
       label: 'Presupuesto',
-      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| An�lisis y dise�o | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
+      markdown: `\n\n## Presupuesto estimado\n\n| Concepto | Horas | Coste unitario | Importe |\n|---|---:|---:|---:|\n| Análisis y diseño | [h] | [EUR/h] | [EUR] |\n| Desarrollo | [h] | [EUR/h] | [EUR] |\n| Pruebas | [h] | [EUR/h] | [EUR] |\n| **Total** |  |  | **[EUR]** |\n`,
       html: `<section class="section">
   <h2>Presupuesto estimado</h2>
   <table class="doc-table budget-table">
     <thead><tr><th>Concepto</th><th>Horas</th><th>Coste unitario</th><th>Importe</th></tr></thead>
     <tbody>
-      <tr><td>An�lisis y dise�o</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
+      <tr><td>Análisis y diseño</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Desarrollo</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td>Pruebas</td><td>[h]</td><td>[EUR/h]</td><td>[EUR]</td></tr>
       <tr><td><strong>Total</strong></td><td></td><td></td><td><strong>[EUR]</strong></td></tr>
@@ -316,14 +318,14 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     {
       id: 'risks',
       label: 'Riesgos',
-      markdown: `\n\n## Riesgos y mitigaci�n\n\n| Riesgo | Impacto | Probabilidad | Mitigaci�n |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acci�n preventiva] |\n`,
+      markdown: `\n\n## Riesgos y mitigación\n\n| Riesgo | Impacto | Probabilidad | Mitigación |\n|---|---|---|---|\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n| [Riesgo] | Alto/Medio/Bajo | Alta/Media/Baja | [Acción preventiva] |\n`,
       html: `<section class="section">
-  <h2>Riesgos y mitigaci�n</h2>
+  <h2>Riesgos y mitigación</h2>
   <table class="doc-table risk-table">
-    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigaci�n</th></tr></thead>
+    <thead><tr><th>Riesgo</th><th>Impacto</th><th>Probabilidad</th><th>Mitigación</th></tr></thead>
     <tbody>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
-      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acci�n preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
+      <tr><td>[Riesgo]</td><td>Alto/Medio/Bajo</td><td>Alta/Media/Baja</td><td>[Acción preventiva]</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -331,15 +333,15 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     {
       id: 'approvals',
       label: 'Aprobaciones',
-      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobaci�n funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega t�cnica |\n`,
+      markdown: `\n\n## Aprobaciones\n\n| Rol | Nombre | Responsabilidad |\n|---|---|---|\n| Cliente | [Nombre] | Aprobación funcional |\n| QA | [Nombre] | Pruebas y calidad |\n| Proveedor | [Nombre] | Entrega técnica |\n`,
       html: `<section class="section">
   <h2>Aprobaciones</h2>
   <table class="doc-table approvals-table">
     <thead><tr><th>Rol</th><th>Nombre</th><th>Responsabilidad</th></tr></thead>
     <tbody>
-      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobaci�n funcional</td></tr>
+      <tr><td>Cliente</td><td>[Nombre]</td><td>Aprobación funcional</td></tr>
       <tr><td>QA</td><td>[Nombre]</td><td>Pruebas y calidad</td></tr>
-      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega t�cnica</td></tr>
+      <tr><td>Proveedor</td><td>[Nombre]</td><td>Entrega técnica</td></tr>
     </tbody>
   </table>
 </section>`,
@@ -347,9 +349,9 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     {
       id: 'callout',
       label: 'Nota destacada',
-      markdown: `\n\n> **Nota:** [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]\n`,
+      markdown: `\n\n> **Nota:** [Incluye aquí una advertencia, decisión importante o recomendación.]\n`,
       html: `<aside class="callout">
-  <strong>Nota:</strong> [Incluye aqu� una advertencia, decisi�n importante o recomendaci�n.]
+  <strong>Nota:</strong> [Incluye aquí una advertencia, decisión importante o recomendación.]
 </aside>`,
     },
     {
@@ -386,28 +388,28 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     },
     {
       id: 'documentation',
-      name: 'Documentaci�n T�cnica',
-      description: 'Crear documentos t�cnicos o informativos',
+      name: 'Documentación Técnica',
+      description: 'Crear documentos técnicos o informativos',
     },
     {
       id: 'architecture',
-      name: 'Documentaci�n Arquitect�nica',
+      name: 'Documentación Arquitectónica',
       description: 'Documentos de arquitectura de sistemas con diagramas',
     },
     {
       id: 'resume',
-      name: 'Curr�culum Vitae',
+      name: 'Currículum Vitae',
       description: 'Plantillas estandarizadas de CV para candidatos',
     },
     {
       id: 'interview',
-      name: 'Pruebas T�cnicas Entrevista',
+      name: 'Pruebas Técnicas Entrevista',
       description: 'Evaluaciones y scorecards estandarizados',
     },
     {
       id: 'offer',
       name: 'Cartas de Oferta',
-      description: 'Cartas oficiales de contrataci�n estandarizadas',
+      description: 'Cartas oficiales de contratación estandarizadas',
     },
   ];
 
@@ -456,9 +458,9 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   get editorPlaceholder(): string {
     switch (this.contentEditorMode) {
       case 'html':
-        return '<h1>T�tulo</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
+        return '<h1>Título</h1>\n<p>Escribe HTML libre con estilos inline, tablas, secciones, etc.</p>';
       case 'plain':
-        return 'Escribe texto normal. Las l�neas en blanco separan p�rrafos.';
+        return 'Escribe texto normal. Las líneas en blanco separan párrafos.';
       default:
         return this.getContentPlaceholder();
     }
@@ -492,7 +494,7 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Lista de plantillas seg�n categor�a del tipo de documento (para cambiar plantilla en el editor). */
+  /** Lista de plantillas según categoría del tipo de documento (para cambiar plantilla en el editor). */
   private setTemplatesForType(type: DocumentType): void {
     const categoryMap: Record<string, DocumentTemplate['category']> = {
       resume: 'hr',
@@ -537,7 +539,6 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   }
 
   copyMarkdownToClipboard(): void {
-    console.log('copyMarkdownToClipboard called');
     const content = this.documentForm.get('content')?.value || '';
     void navigator.clipboard.writeText(content).then(
       () => {
@@ -545,18 +546,29 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
         setTimeout(() => (this.copyMarkdownFeedback = false), 2000);
       },
       () => {
-        alert(
+        this.showActionNotice(
           'No se pudo copiar al portapapeles. Comprueba los permisos del navegador.',
+          true,
         );
       },
     );
+  }
+
+  private showActionNotice(message: string, isError = false): void {
+    this.actionNotice = isError ? `⚠ ${message}` : message;
+    window.setTimeout(() => {
+      if (this.actionNotice === (isError ? `⚠ ${message}` : message)) {
+        this.actionNotice = '';
+      }
+    }, 6000);
+    this.cdRef.markForCheck();
   }
 
   async generateDraftWithAi(mode: 'replace' | 'append'): Promise<void> {
     if (!this.selectedType) return;
     const brief = this.documentForm.get('aiBrief')?.value?.trim();
     if (!brief) {
-      this.aiError = 'Describe qu� debe contener el documento.';
+      this.aiError = 'Describe qué debe contener el documento.';
       return;
     }
     this.isAiGenerating = true;
@@ -582,7 +594,7 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
     const instruction = this.documentForm.get('aiInstruction')?.value?.trim();
     if (!instruction || !this.selectedType) {
       this.aiError =
-        'Escribe una instrucci�n (por ejemplo: m�s formal, acortar, a�adir tabla de costes).';
+        'Escribe una instrucción (por ejemplo: más formal, acortar, añadir tabla de costes).';
       return;
     }
     const existing = this.documentForm.get('content')?.value || '';
@@ -607,15 +619,11 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   }
 
   async convertMarkdownToVisualHtmlWithAi(): Promise<void> {
-    console.log(
-      'convertMarkdownToVisualHtmlWithAi called',
-      this.contentEditorMode,
-    );
     const content = String(
       this.documentForm.get('content')?.value ?? '',
     ).trim();
     if (this.contentEditorMode !== 'markdown') {
-      this.aiError = 'Esta acci�n solo est� disponible desde el modo Markdown.';
+      this.aiError = 'Esta acción solo está disponible desde el modo Markdown.';
       return;
     }
     if (!content) {
@@ -649,12 +657,11 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   }
 
   async convertHtmlToMarkdownWithAi(): Promise<void> {
-    console.log('convertHtmlToMarkdownWithAi called', this.contentEditorMode);
     const content = String(
       this.documentForm.get('content')?.value ?? '',
     ).trim();
     if (this.contentEditorMode !== 'html') {
-      this.aiError = 'Esta acci�n solo est� disponible desde el modo HTML.';
+      this.aiError = 'Esta acción solo está disponible desde el modo HTML.';
       return;
     }
     if (!content) {
@@ -685,7 +692,6 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   }
 
   async beautifyDocumentWithAi(): Promise<void> {
-    console.log('beautifyDocumentWithAi called', this.contentEditorMode);
     const content = String(
       this.documentForm.get('content')?.value ?? '',
     ).trim();
@@ -725,7 +731,6 @@ this.documentForm.patchValue({ content: beautified });
    }
 
    async technicalImproveDocumentWithAi(): Promise<void> {
-    console.log('technicalImproveDocumentWithAi called', this.contentEditorMode);
     const content = String(
       this.documentForm.get('content')?.value ?? '',
     ).trim();
@@ -769,38 +774,38 @@ this.documentForm.patchValue({ content: beautified });
       case 'quote':
         return 'Ej: Presupuesto Desarrollo Web Corporativo';
       case 'proposal':
-        return 'Ej: Propuesta de Implementaci�n ERP';
+        return 'Ej: Propuesta de Implementación ERP';
       case 'documentation':
         return 'Ej: Manual de Usuario - Sistema ERP';
       case 'architecture':
         return 'Ej: Arquitectura del Sistema ERP';
       case 'resume':
-        return 'Ej: Curr�culum - Juan Garc�a L�pez';
+        return 'Ej: Currículum - Juan García López';
       case 'interview':
-        return 'Ej: Evaluaci�n T�cnica - Candidato Senior Developer';
+        return 'Ej: Evaluación Técnica - Candidato Senior Developer';
       case 'offer':
         return 'Ej: Carta Oferta - Puesto Senior Full Stack';
       default:
-        return 'T�tulo del documento';
+        return 'Título del documento';
     }
   }
 
   getContentPlaceholder(): string {
     switch (this.selectedType?.id) {
       case 'quote':
-        return 'Descripci�n detallada del presupuesto, alcance de trabajo, condiciones...';
+        return 'Descripción detallada del presupuesto, alcance de trabajo, condiciones...';
       case 'proposal':
-        return 'Contenido de la propuesta comercial, beneficios, soluci�n propuesta...';
+        return 'Contenido de la propuesta comercial, beneficios, solución propuesta...';
       case 'documentation':
-        return 'Contenido detallado de la documentaci�n t�cnica...';
+        return 'Contenido detallado de la documentación técnica...';
       case 'architecture':
-        return 'Descripci�n de la arquitectura del sistema, componentes, tecnolog�as...';
+        return 'Descripción de la arquitectura del sistema, componentes, tecnologías...';
       case 'resume':
-        return 'Datos personales, experiencia laboral, formaci�n y habilidades del candidato';
+        return 'Datos personales, experiencia laboral, formación y habilidades del candidato';
       case 'interview':
-        return 'Evaluaci�n t�cnica, preguntas, ejercicios y scorecard estandarizado';
+        return 'Evaluación técnica, preguntas, ejercicios y scorecard estandarizado';
       case 'offer':
-        return 'Condiciones contractuales, salario, beneficios y fecha de incorporaci�n';
+        return 'Condiciones contractuales, salario, beneficios y fecha de incorporación';
       default:
         return 'Contenido del documento...';
     }
@@ -1026,6 +1031,9 @@ this.documentForm.patchValue({ content: beautified });
       p['contentEditorMode'] === 'plain'
     ) {
       this.contentEditorMode = p['contentEditorMode'];
+    }
+    if (p['editorSurface'] === 'legacy' || p['editorSurface'] === 'blocks') {
+      this.editorSurface = p['editorSurface'];
     }
     if (typeof p['pdfStyleId'] === 'string') {
       this.selectedPdfStyle = p['pdfStyleId'];
@@ -2791,10 +2799,10 @@ ${PDF_COVER_SHARED_CSS}
       return 'Disena y estructura tablas de datos visualmente';
     }
     if (this.showImageInsert) {
-      return 'Sube y edita el diseno de imagenes en tu documento';
+      return 'Sube y edita el diseño de imagenes en tu documento';
     }
     if (this.showWatermarkEditor) {
-      return 'A�ade una marca de agua semi-transparente al documento';
+      return 'Añade una marca de agua semi-transparente al documento';
     }
     return '';
   }
@@ -3114,6 +3122,7 @@ ${PDF_COVER_SHARED_CSS}
         pdfStyleId: this.selectedPdfStyle,
         quickStylePreset: this.selectedQuickStylePreset,
         contentEditorMode: this.contentEditorMode,
+        editorSurface: this.editorSurface,
         customCss: documentCss,
         coverConfig: this.coverConfig?.enabled ? this.coverConfig : undefined,
         signatureConfig: this.signatureConfig?.enabled
@@ -3719,8 +3728,9 @@ blockquote {
         this.universalDocument.download(pdfBlob, `${title}${suffix}.pdf`);
       } catch (error) {
         console.error('Error generating PDF:', error);
-        alert(
-          'No se pudo generar el PDF. Revisa el contenido e int�ntalo de nuevo.',
+        this.showActionNotice(
+          'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
+          true,
         );
       }
       return;
@@ -3739,8 +3749,9 @@ blockquote {
         this.universalDocument.download(blob, `${title}.docx`);
       } catch (error) {
         console.error('Error exporting DOCX:', error);
-        alert(
+        this.showActionNotice(
           'No se pudo exportar a DOCX. Revisa el contenido e inténtalo de nuevo.',
+          true,
         );
       }
       return;
@@ -3771,8 +3782,9 @@ blockquote {
       this.universalDocument.download(blob, `${title}.${format}`);
     } catch (error) {
       console.error(`Error exporting to ${format}:`, error);
-      alert(
-        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e int�ntalo de nuevo.`,
+      this.showActionNotice(
+        `No se pudo exportar a ${format.toUpperCase()}. Revisa el contenido e inténtalo de nuevo.`,
+        true,
       );
     }
   }
@@ -3801,7 +3813,7 @@ blockquote {
       this.importFeedback =
         result.warnings.length > 0 ? result.warnings.join(' · ') : '';
     } else if (result.warnings.length > 0) {
-      alert(result.warnings.join('\n'));
+      this.showActionNotice(result.warnings.join(' · '), true);
       this.importFeedback = result.warnings.join(' · ');
     }
 
@@ -3884,7 +3896,7 @@ blockquote {
       } catch (error) {
         console.error('Error generating PDF:', error);
         this.documentGenerateError =
-          'No se pudo generar el documento. Revisa los datos e int�ntalo de nuevo.';
+          'No se pudo generar el documento. Revisa los datos e inténtalo de nuevo.';
       } finally {
         this.isGenerating = false;
       }

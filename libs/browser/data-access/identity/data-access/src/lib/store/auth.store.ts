@@ -105,7 +105,9 @@ export const AuthStore = signalStore(
             authService.login(email, password, tenantSlug).pipe(
               switchMap((response) => {
                 const authMeta = authService.getPersistedAuthMeta();
-                authService.setToken(response.accessToken);
+                if (response.accessToken?.trim()) {
+                  authService.setToken(response.accessToken);
+                }
                 const tenantId =
                   response.tenantId ??
                   authService.syncTenantIdFromAccessToken() ??
@@ -280,7 +282,9 @@ export const AuthStore = signalStore(
               );
             }
 
-            authService.setToken(response.accessToken);
+            if (response.accessToken?.trim()) {
+              authService.setToken(response.accessToken);
+            }
             if (response.tenantId) {
               authService.setTenantId(response.tenantId);
             }

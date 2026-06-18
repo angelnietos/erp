@@ -112,6 +112,7 @@
 - [ ] Backend opcional: DOCX vía LibreOffice/unoserver si fidelidad cliente insuficiente
 - [ ] Documentación usuario (atajos, limitaciones PDF import)
 - [x] Tests unitarios: `docx-export.service.spec.ts`, `word-import.service.spec.ts`
+- [x] **Hardening prod (jun 2026):** UTF-8 editor, sin mock en preview, worker pdfjs, Excel import honesto, errores visibles en lista/export, `editorSurface` en borrador, sin `console.log`/`alert` en flujos principales
 
 ---
 
@@ -119,11 +120,11 @@
 
 | ID | Tarea | Prioridad | Estado |
 |----|-------|-----------|--------|
-| T1 | Persistir `editorSurface` en borrador IndexedDB | Alta | Pendiente |
+| T1 | Persistir `editorSurface` en borrador IndexedDB | Alta | ✅ Hecho |
 | T2 | Fullscreen + TipTap | Media | Pendiente |
 | T3 | Slash TipTap nativo | Media | Pendiente |
 | T4 | Lazy-load TipTap/mammoth/pdfjs | Alta (budget) | Pendiente |
-| T5 | Worker pdfjs en `angular.json` assets | Alta (prod) | Pendiente |
+| T5 | Worker pdfjs en `angular.json` assets | Alta (prod) | ✅ Hecho |
 | T6 | E2E preview = PDF = DOCX | Alta | Pendiente |
 | T7 | Imágenes Word → DOCX round-trip | Baja | Pendiente |
 

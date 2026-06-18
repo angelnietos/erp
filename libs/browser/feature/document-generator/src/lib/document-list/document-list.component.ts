@@ -43,6 +43,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         <span class="dg-breadcrumb__current">Documentos</span>
       </nav>
 
+      @if (listNotice) {
+        <p class="dg-callout dg-callout--warn text-sm" role="status">
+          {{ listNotice }}
+        </p>
+      }
+
       <div class="dg-panel dg-hero dg-list-hero">
         <div
           class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
@@ -352,6 +358,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 })
 export class DocumentListComponent implements OnInit {
   documents: DocumentListItem[] = [];
+  listNotice = '';
   private readonly router = inject(Router);
   private readonly assistantCtx = inject(AssistantContextService);
   private readonly persistence = inject(DocumentPersistenceService);
@@ -431,6 +438,13 @@ export class DocumentListComponent implements OnInit {
     }
   }
 
+  private showListNotice(message: string): void {
+    this.listNotice = message;
+    window.setTimeout(() => {
+      this.listNotice = '';
+    }, 6000);
+  }
+
   async downloadDocument(doc: DocumentListItem): Promise<void> {
     try {
       await this.persistence.whenReady();
@@ -439,6 +453,9 @@ export class DocumentListComponent implements OnInit {
         unknown
       > | null;
       if (!data) {
+        this.showListNotice(
+          'No se encontró el documento en este navegador. Puede haberse eliminado.',
+        );
         return;
       }
 
@@ -456,6 +473,9 @@ export class DocumentListComponent implements OnInit {
 
       const pdfBytes = data['pdfBytes'];
       if (!Array.isArray(pdfBytes) || pdfBytes.length === 0) {
+        this.showListNotice(
+          'Este documento no tiene contenido ni PDF guardado para descargar.',
+        );
         return;
       }
 
@@ -465,6 +485,9 @@ export class DocumentListComponent implements OnInit {
       downloadPdfBlob(blob, `${title}.pdf`);
     } catch (e) {
       console.error(e);
+      this.showListNotice(
+        'No se pudo descargar el PDF. Revisa el documento e inténtalo de nuevo.',
+      );
     }
   }
 
@@ -482,6 +505,7 @@ export class DocumentListComponent implements OnInit {
       await this.refreshList();
     } catch (e) {
       console.error(e);
+      this.showListNotice('No se pudo eliminar el documento. Inténtalo de nuevo.');
     }
   }
 }

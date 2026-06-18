@@ -633,6 +633,11 @@
                   (importFile)="importDocument($event)"
                   (exportFormat)="exportDocument($event)"
                 />
+                @if (actionNotice) {
+                  <p class="dg-callout dg-callout--warn text-sm mt-2">
+                    {{ actionNotice }}
+                  </p>
+                }
                 @if (importFeedback) {
                   <p class="dg-alert-info mt-2" role="status">
                     {{ importFeedback }}

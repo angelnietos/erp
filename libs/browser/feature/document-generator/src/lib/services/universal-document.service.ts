@@ -288,16 +288,12 @@ export class UniversalDocumentService {
 
   private async importExcel(file: File): Promise<ImportResult> {
     return {
-      success: true,
-      blocks: [
-        {
-          type: 'text',
-          content:
-            'Importación Excel: Funcionalidad en desarrollo. Se convertirán todas las hojas, tablas y fórmulas automáticamente.',
-        },
-      ],
+      success: false,
+      blocks: [],
       metadata: { filename: file.name, size: file.size },
-      warnings: ['Excel import estará disponible en la próxima versión'],
+      warnings: [
+        'La importación de Excel (.xlsx) estará disponible en una próxima versión.',
+      ],
     };
   }
 
@@ -361,7 +357,7 @@ export class UniversalDocumentService {
       {
         extension: 'xlsx',
         name: 'Microsoft Excel',
-        import: true,
+        import: false,
         export: true,
       },
       {
@@ -371,14 +367,8 @@ export class UniversalDocumentService {
         export: true,
       },
       { extension: 'md', name: 'Markdown', import: true, export: true },
-      { extension: 'html', name: 'HTML', import: false, export: true },
+      { extension: 'html', name: 'HTML', import: true, export: true },
       { extension: 'txt', name: 'Texto Plano', import: true, export: true },
-      {
-        extension: 'docs20',
-        name: 'DOCS 2.0 Nativo',
-        import: true,
-        export: true,
-      },
     ];
   }
 

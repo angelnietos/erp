@@ -9,6 +9,7 @@ export interface ErpBffLoginResult {
   tenantId?: string;
   tenantSlug?: string;
   authMode: 'keycloak' | 'local';
+  accessToken?: string;
 }
 
 /** Puerto opcional: implementado por `BffAuthClient` en la app consumidora. */

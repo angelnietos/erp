@@ -177,17 +177,14 @@
   <button
     class="sidebar-action-btn"
     type="button"
-    (click)="console.log('copyContent clicked'); copyContent.emit()"
+    (click)="copyContent.emit()"
   >
     <span>Copiar contenido</span>
   </button>
   <button
     class="sidebar-action-btn"
     type="button"
-    (click)="
-      console.log('convertToHtml clicked', contentEditorMode());
-      convertToHtml.emit()
-    "
+    (click)="convertToHtml.emit()"
     [disabled]="contentEditorMode() !== 'markdown' || isAiGenerating()"
   >
     Convertir a HTML visual
@@ -195,10 +192,7 @@
   <button
     class="sidebar-action-btn"
     type="button"
-    (click)="
-      console.log('convertToMarkdown clicked', contentEditorMode());
-      convertToMarkdown.emit()
-    "
+    (click)="convertToMarkdown.emit()"
     [disabled]="contentEditorMode() !== 'html' || isAiGenerating()"
   >
     Convertir a Markdown
@@ -206,7 +200,7 @@
   <button
     class="sidebar-action-btn"
     type="button"
-    (click)="console.log('beautify clicked'); beautify.emit()"
+    (click)="beautify.emit()"
     [disabled]="isAiGenerating()"
   >
     Embellecer documento

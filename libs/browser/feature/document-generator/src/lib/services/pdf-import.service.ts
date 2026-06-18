@@ -71,10 +71,11 @@ export class PdfImportService {
     if (this.workerConfigured) {
       return;
     }
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-      'pdfjs-dist/build/pdf.worker.min.mjs',
-      import.meta.url,
-    ).toString();
+    const base =
+      typeof document !== 'undefined' && document.baseURI
+        ? new URL(document.baseURI).pathname.replace(/\/[^/]*$/, '/')
+        : '/';
+    pdfjs.GlobalWorkerOptions.workerSrc = `${base}pdfjs/pdf.worker.min.mjs`;
     this.workerConfigured = true;
   }
 

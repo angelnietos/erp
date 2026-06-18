@@ -49,18 +49,26 @@ export class BffSessionMiddleware implements NestMiddleware {
     const expMs = readJwtExpiresAtMs(accessToken);
     const needsRenew = !expMs || expMs - Date.now() < RENEW_BEFORE_MS;
 
+    let renewal: Awaited<ReturnType<BffSessionRenewerPort['renewAccessToken']>> = null;
     if (needsRenew && this.renewer) {
-      const renewed = await this.renewer.renewAccessToken(session);
-      if (renewed) {
-        accessToken = renewed;
+      renewal = await this.renewer.renewAccessToken(session);
+      if (renewal) {
+        accessToken = renewal.accessToken;
       }
     }
 
-    const patch: { accessToken?: string; expiresAt: number } = {
+    const patch: {
+      accessToken?: string;
+      refreshToken?: string;
+      expiresAt: number;
+    } = {
       expiresAt: Date.now() + sessionMaxAgeMs(this.config),
     };
     if (accessToken !== session.accessToken) {
       patch.accessToken = accessToken;
+    }
+    if (renewal?.refreshToken && renewal.refreshToken !== session.refreshToken) {
+      patch.refreshToken = renewal.refreshToken;
     }
     await this.sessions.update(sessionId, patch);
 

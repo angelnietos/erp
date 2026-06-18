@@ -6,7 +6,7 @@ import {
   inject,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient, withInterceptors, HttpErrorResponse } from '@angular/common/http';
 import { appRoutes } from './app.routes';
 import {
   authInterceptor,
@@ -36,7 +36,7 @@ import {
 } from '@josanz-erp/shared-auth-keycloak';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
 import { JosanzThemeService } from '@josanz-erp/josanz-ui';
-import { firstValueFrom, catchError, of, tap } from 'rxjs';
+import { firstValueFrom, catchError, of, tap, map } from 'rxjs';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import {
@@ -278,11 +278,22 @@ export const appConfig: ApplicationConfig = {
             return;
           }
           try {
-            const response = await firstValueFrom(
-              authService.refreshSession().pipe(catchError(() => of(null)))
+            const outcome = await firstValueFrom(
+              authService.refreshSession().pipe(
+                map((response) => ({ kind: 'ok' as const, response })),
+                catchError((err) => {
+                  const status = err instanceof HttpErrorResponse ? err.status : 0;
+                  if (status === 401 || status === 403) {
+                    return of({ kind: 'auth-failed' as const });
+                  }
+                  return of({ kind: 'transient' as const });
+                }),
+              ),
             );
-            if (response) {
-              if (!authService.isBffMode()) {
+
+            if (outcome.kind === 'ok') {
+              const { response } = outcome;
+              if (response.accessToken?.trim()) {
                 authService.setToken(response.accessToken);
               }
               if (response.tenantId) {
@@ -333,12 +344,13 @@ export const appConfig: ApplicationConfig = {
               tenantModulesRealtime.connect(
                 environment.apiOrigin?.replace(/\/$/, '') ?? '',
               );
-            } else {
+            } else if (outcome.kind === 'auth-failed') {
               globalAuthStore.logout();
+              pluginStore.loadFromStorage();
+            } else {
               pluginStore.loadFromStorage();
             }
           } catch {
-            globalAuthStore.logout();
             pluginStore.loadFromStorage();
           }
         };

@@ -22,6 +22,7 @@ interface PreviewDownloadDocument {
 })
 export class DocumentPreviewDownloadComponent implements OnInit {
   document: PreviewDownloadDocument | null = null;
+  documentNotFound = false;
   pdfUrl: string | null = null;
   isGenerating = false;
   pdfError: string | null = null;
@@ -60,17 +61,27 @@ export class DocumentPreviewDownloadComponent implements OnInit {
         /* sin IndexedDB */
       }
     }
-    this.document = (doc as PreviewDownloadDocument | undefined) ?? {
-      id,
-      type: 'documentation',
-      title: 'Documento',
-    };
+    this.document = (doc as PreviewDownloadDocument | undefined) ?? null;
+    if (!this.document?.id && !this.hasPersistedContent(this.document)) {
+      this.documentNotFound = true;
+      this.pdfError =
+        'No encontramos este documento en el historial de este navegador.';
+      return;
+    }
     void this.generatePdf();
+  }
+
+  private hasPersistedContent(doc: PreviewDownloadDocument | null): boolean {
+    if (!doc) return false;
+    const content = typeof doc['content'] === 'string' ? doc['content'].trim() : '';
+    if (content) return true;
+    const pdfBytes = doc['pdfBytes'];
+    return Array.isArray(pdfBytes) && pdfBytes.length > 0;
   }
 
   async generatePdf() {
     const doc = this.document;
-    if (!doc) return;
+    if (!doc || this.documentNotFound) return;
 
     this.pdfError = null;
     this.isGenerating = true;

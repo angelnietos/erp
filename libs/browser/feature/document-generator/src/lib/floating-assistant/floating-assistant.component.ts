@@ -5,6 +5,7 @@ import {
   ElementRef,
   ViewChild,
   OnInit,
+  isDevMode,
 } from '@angular/core';
 import {
   AIInferenceService,
@@ -2287,7 +2288,9 @@ async onReferenceFilesSelected(event: Event): Promise<void> {
         })),
         conversationTitle,
       );
-      console.log('Conversation saved with ID:', conversationId);
+      if (isDevMode()) {
+        console.log('Conversation saved with ID:', conversationId);
+      }
       // Reload conversations list
       await this.loadConversations();
     } catch (err: unknown) {

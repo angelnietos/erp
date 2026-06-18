@@ -57,6 +57,7 @@ export class BffAuthService {
     tenantSlug?: string;
     authMode: 'keycloak' | 'local';
     csrfToken: string;
+    accessToken: string;
   }> {
     const slug = normalizeAuthTenantSlug(dto.tenantSlug) || 'josanz';
     const kcConfig = tenantUsesKeycloakLogin(slug)
@@ -135,13 +136,14 @@ export class BffAuthService {
       tenantSlug: enriched.tenantSlug,
       authMode,
       csrfToken: csrf,
+      accessToken,
     };
   }
 
   async loginPlatform(
     dto: PlatformLoginDto,
     res: Response,
-  ): Promise<{ user: unknown; authMode: 'keycloak' | 'local'; csrfToken: string }> {
+  ): Promise<{ user: unknown; authMode: 'keycloak' | 'local'; csrfToken: string; accessToken: string }> {
     const realm =
       this.config.get<string>('KEYCLOAK_PLATFORM_REALM') ?? 'babooni-platform';
     const clientId =
@@ -198,22 +200,32 @@ export class BffAuthService {
 
     setBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES, session.id, csrf, sessionTtlMs);
 
-    return { user: enriched.user, authMode, csrfToken: csrf };
+    return { user: enriched.user, authMode, csrfToken: csrf, accessToken };
   }
 
   /** Renueva JWT en la sesión BFF (p. ej. tras GET /bff/auth/session). */
-  async touchErpSession(sessionId: string, accessToken: string): Promise<void> {
+  async touchErpSession(
+    sessionId: string,
+    accessToken: string,
+    refreshToken?: string,
+  ): Promise<void> {
     const ttlMs = this.sessionMaxAgeMs();
     await this.sessions.update(sessionId, {
       accessToken,
+      ...(refreshToken ? { refreshToken } : {}),
       expiresAt: Date.now() + ttlMs,
     });
   }
 
-  async touchPlatformSession(sessionId: string, accessToken: string): Promise<void> {
+  async touchPlatformSession(
+    sessionId: string,
+    accessToken: string,
+    refreshToken?: string,
+  ): Promise<void> {
     const ttlMs = this.sessionMaxAgeMs();
     await this.sessions.update(sessionId, {
       accessToken,
+      ...(refreshToken ? { refreshToken } : {}),
       expiresAt: Date.now() + ttlMs,
     });
   }

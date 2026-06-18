@@ -25,6 +25,7 @@ export interface BffLoginResponse {
   tenantSlug?: string;
   authMode: 'keycloak' | 'local';
   csrfToken?: string;
+  accessToken?: string;
 }
 
 export interface BffPlatformLoginResponse {
@@ -38,6 +39,7 @@ export interface BffPlatformLoginResponse {
   };
   authMode: 'keycloak' | 'local';
   csrfToken?: string;
+  accessToken?: string;
 }
 
 @Injectable({ providedIn: 'root' })

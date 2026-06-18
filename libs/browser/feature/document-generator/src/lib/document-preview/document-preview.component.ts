@@ -118,9 +118,15 @@ interface DocumentPreviewPayload {
             </div>
             <h1 class="dg-hero__title">Vista previa del documento</h1>
             <p class="dg-hero__lead">
-              Revisa el contenido completo antes de descargar tu PDF.
+              @if (documentNotFound) {
+                No encontramos este documento en el historial de este navegador.
+              } @else {
+                Revisa el contenido completo antes de descargar tu PDF.
+              }
             </p>
-            <span class="dg-chip">Listo para descargar</span>
+            @if (!documentNotFound) {
+              <span class="dg-chip">Listo para descargar</span>
+            }
           </div>
 
           <div class="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -130,7 +136,7 @@ interface DocumentPreviewPayload {
             <button
               type="button"
               (click)="downloadDocument()"
-              [disabled]="isDownloadingPdf"
+              [disabled]="isDownloadingPdf || documentNotFound"
               class="dg-btn dg-btn-primary"
             >
               <svg
@@ -174,6 +180,16 @@ interface DocumentPreviewPayload {
         </div>
       </div>
 
+      @if (documentNotFound) {
+        <div class="dg-panel dg-empty-state text-center py-12">
+          <p class="text-secondary mb-4">
+            El documento puede haberse eliminado o guardarse en otro dispositivo.
+          </p>
+          <a routerLink="/documents/list" class="dg-btn dg-btn-primary">
+            Volver al listado
+          </a>
+        </div>
+      } @else {
       <div class="dg-panel">
         <div class="space-y-6">
           <div class="dg-preview-header">
@@ -425,11 +441,13 @@ interface DocumentPreviewPayload {
           </div>
         </div>
       </div>
+      }
     </div>
   `,
 })
 export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   document: DocumentPreviewPayload | null = null;
+  documentNotFound = false;
   isDownloadingPdf = false;
   downloadError = '';
   @ViewChild('diagramsContainer', { static: false })
@@ -467,18 +485,8 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
         /* corrupto */
       }
     }
-    this.document = {
-      id,
-      type: 'quote',
-      title: 'Presupuesto Proyecto ABC',
-      client: 'Cliente A',
-      date: new Date(),
-      projectName: 'Proyecto ABC',
-      totalAmount: 5000,
-      description: 'Descripción del presupuesto...',
-      content: '<p>Contenido del documento...</p>',
-    };
-    this.applyDocumentCss();
+    this.documentNotFound = true;
+    this.document = null;
   }
 
   /** Markdown guardado → HTML para vista previa (GFM: tablas, listas, etc.). */

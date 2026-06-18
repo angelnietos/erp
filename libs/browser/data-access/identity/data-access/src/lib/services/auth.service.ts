@@ -126,6 +126,8 @@ export class AuthService {
   private readonly authSessionMode = inject(ERP_AUTH_SESSION_MODE, { optional: true });
 
   private readonly keycloakConfig = inject(AUTH_KEYCLOAK_CONFIG, { optional: true });
+  /** JWT en memoria (modo BFF): no se persiste en localStorage. */
+  private bffAccessToken: string | null = null;
 
   /** BFF: cookies HttpOnly + CSRF; sin JWT en localStorage. */
   isBffMode(): boolean {
@@ -376,6 +378,8 @@ export class AuthService {
 
   setToken(token: string): void {
     if (this.isBffMode()) {
+      const trimmed = token?.trim();
+      this.bffAccessToken = trimmed ? trimmed : null;
       return;
     }
     localStorage.setItem('auth_token', token);
@@ -383,13 +387,14 @@ export class AuthService {
 
   getToken(): string | null {
     if (this.isBffMode()) {
-      return null;
+      return this.bffAccessToken;
     }
     return localStorage.getItem('auth_token');
   }
 
   /** Limpia credenciales previas antes de un nuevo login (p. ej. cambiar de usuario sin cerrar sesión). */
   clearSessionForRelogin(): void {
+    this.bffAccessToken = null;
     if (!this.isBffMode()) {
       localStorage.removeItem('auth_token');
     }
@@ -476,9 +481,9 @@ export class AuthService {
     return { user, tenantId: getStoredTenantId() ?? tenantId ?? '' };
   }
 
-  private mapBffErpResponse(res: ErpBffLoginResult): AuthResponse {
+  private mapBffErpResponse(res: ErpBffLoginResult & { accessToken?: string }): AuthResponse {
     return {
-      accessToken: '',
+      accessToken: res.accessToken?.trim() ?? '',
       user: res.user,
       tenantId: res.tenantId,
       tenantSlug: res.tenantSlug,

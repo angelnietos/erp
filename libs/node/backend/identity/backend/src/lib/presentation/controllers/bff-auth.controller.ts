@@ -65,9 +65,10 @@ export class BffAuthController {
       ['PlatformOwner', 'PlatformAdmin'].includes(r),
     );
     if (user && isPlatAdmin) {
+      let accessToken = '';
       if (req.bffSessionId && req.headers.authorization?.startsWith('Bearer ')) {
-        const token = req.headers.authorization.slice(7);
-        await this.bffAuth.touchErpSession(req.bffSessionId, token);
+        accessToken = req.headers.authorization.slice(7);
+        await this.bffAuth.touchErpSession(req.bffSessionId, accessToken);
       }
       return {
         user: {
@@ -79,6 +80,7 @@ export class BffAuthController {
           permissions: user.permissions ?? [],
         },
         tenantId: tenantId || undefined,
+        accessToken,
         csrfToken: req.bffCsrfToken,
       };
     }
@@ -93,6 +95,7 @@ export class BffAuthController {
       user: session.user,
       tenantId: session.tenantId,
       tenantSlug: session.tenantSlug,
+      accessToken: session.accessToken,
       csrfToken: req.bffCsrfToken,
     };
   }
@@ -132,7 +135,11 @@ export class BffPlatformAuthController {
     if (req.bffSessionId) {
       await this.bffAuth.touchPlatformSession(req.bffSessionId, session.accessToken);
     }
-    return { user: session.user, csrfToken: req.bffCsrfToken };
+    return {
+      user: session.user,
+      accessToken: session.accessToken,
+      csrfToken: req.bffCsrfToken,
+    };
   }
 
   @PublicTenant()
