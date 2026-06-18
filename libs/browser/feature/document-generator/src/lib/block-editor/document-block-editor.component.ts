@@ -2,26 +2,18 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   OnDestroy,
   effect,
   inject,
   input,
   output,
+  signal,
   viewChild,
+  ElementRef,
 } from '@angular/core';
-import { Editor } from '@tiptap/core';
-import StarterKit from '@tiptap/starter-kit';
-import Placeholder from '@tiptap/extension-placeholder';
-import Link from '@tiptap/extension-link';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
-import { Table } from '@tiptap/extension-table';
-import { TableRow } from '@tiptap/extension-table-row';
-import { TableCell } from '@tiptap/extension-table-cell';
-import { TableHeader } from '@tiptap/extension-table-header';
+import type { Editor } from '@tiptap/core';
 import { DocumentBlockSerializerService } from './document-block-serializer.service';
+import { createTiptapEditor } from './tiptap-editor.loader';
 
 @Component({
   selector: 'lib-document-block-editor',
@@ -45,7 +37,14 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
         <button type="button" (click)="insertTable()">Tabla</button>
         <button type="button" (click)="setLink()">Enlace</button>
       </div>
-      <div #host class="dg-block-editor__content tiptap-host"></div>
+      <div class="dg-block-editor__body">
+        @if (editorLoading()) {
+          <p class="dg-block-editor__loading" aria-live="polite">
+            Cargando editor visual…
+          </p>
+        }
+        <div #host class="dg-block-editor__content tiptap-host"></div>
+      </div>
     </div>
   `,
   styles: [
@@ -56,6 +55,27 @@ import { DocumentBlockSerializerService } from './document-block-serializer.serv
         flex: 1 1 auto;
         min-height: 0;
         min-width: 0;
+      }
+
+      .dg-block-editor__body {
+        position: relative;
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .dg-block-editor__loading {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        background: color-mix(in srgb, var(--surface, #fff) 88%, transparent);
+        z-index: 2;
       }
 
       .dg-block-editor__sep {
@@ -108,6 +128,8 @@ export class DocumentBlockEditorComponent implements AfterViewInit, OnDestroy {
   private editor: Editor | null = null;
   private syncingExternal = false;
 
+  readonly editorLoading = signal(true);
+
   readonly initialHtml = input('');
   readonly placeholder = input('Escribe o pega contenido…');
   readonly disabled = input(false);
@@ -125,34 +147,33 @@ export class DocumentBlockEditorComponent implements AfterViewInit, OnDestroy {
         this.editor.commands.setContent(html || '<p></p>', { emitUpdate: false });
       }
     });
+
+    effect(() => {
+      const disabled = this.disabled();
+      this.editor?.setEditable(!disabled);
+    });
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
+    this.editorLoading.set(true);
     const element = this.hostRef().nativeElement;
-    this.editor = new Editor({
-      element,
-      extensions: [
-        StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
-        Placeholder.configure({ placeholder: this.placeholder() }),
-        Link.configure({ openOnClick: false }),
-        Underline,
-        TextAlign.configure({ types: ['heading', 'paragraph'] }),
-        Image,
-        Table.configure({ resizable: true }),
-        TableRow,
-        TableHeader,
-        TableCell,
-      ],
-      content: this.initialHtml() || '<p></p>',
-      editable: !this.disabled(),
-      onUpdate: ({ editor }) => {
-        this.syncingExternal = true;
-        this.htmlChange.emit(this.serializer.normalizeEditorHtml(editor.getHTML()));
-        queueMicrotask(() => {
-          this.syncingExternal = false;
-        });
-      },
-    });
+    try {
+      this.editor = await createTiptapEditor({
+        element,
+        content: this.initialHtml() || '<p></p>',
+        placeholder: this.placeholder(),
+        editable: !this.disabled(),
+        onUpdate: (html) => {
+          this.syncingExternal = true;
+          this.htmlChange.emit(this.serializer.normalizeEditorHtml(html));
+          queueMicrotask(() => {
+            this.syncingExternal = false;
+          });
+        },
+      });
+    } finally {
+      this.editorLoading.set(false);
+    }
   }
 
   ngOnDestroy(): void {

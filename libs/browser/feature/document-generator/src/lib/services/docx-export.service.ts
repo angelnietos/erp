@@ -1,47 +1,51 @@
 import { Injectable } from '@angular/core';
-import {
-  Document,
-  HeadingLevel,
-  Packer,
-  Paragraph,
-  Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  WidthType,
-  BorderStyle,
-} from 'docx';
+
+type DocxModule = typeof import('docx');
 
 @Injectable({ providedIn: 'root' })
 export class DocxExportService {
+  private docxModule: Promise<DocxModule> | null = null;
+
+  private loadDocx(): Promise<DocxModule> {
+    this.docxModule ??= import('docx');
+    return this.docxModule;
+  }
+
   async exportHtml(html: string, title = 'Documento'): Promise<Blob> {
+    const docx = await this.loadDocx();
     const doc = new DOMParser().parseFromString(
       html.includes('<body') ? html : `<body>${html}</body>`,
       'text/html',
     );
     const root = doc.body;
-    const children = this.nodeListToDocx(root.childNodes);
+    const children = this.nodeListToDocx(docx, root.childNodes);
 
     if (children.length === 0) {
       children.push(
-        new Paragraph({
-          children: [new TextRun('Documento vacío')],
+        new docx.Paragraph({
+          children: [new docx.TextRun('Documento vacío')],
         }),
       );
     }
 
-    const document = new Document({
+    const document = new docx.Document({
       title,
       sections: [{ children }],
     });
 
-    return Packer.toBlob(document);
+    return docx.Packer.toBlob(document);
   }
 
-  private nodeListToDocx(nodes: NodeListOf<ChildNode>): (Paragraph | Table)[] {
-    const out: (Paragraph | Table)[] = [];
+  private nodeListToDocx(
+    docx: DocxModule,
+    nodes: NodeListOf<ChildNode>,
+  ): (InstanceType<DocxModule['Paragraph']> | InstanceType<DocxModule['Table']>)[] {
+    const out: (
+      | InstanceType<DocxModule['Paragraph']>
+      | InstanceType<DocxModule['Table']>
+    )[] = [];
     nodes.forEach((node) => {
-      const converted = this.nodeToDocx(node);
+      const converted = this.nodeToDocx(docx, node);
       if (converted) {
         if (Array.isArray(converted)) {
           out.push(...converted);
@@ -53,13 +57,20 @@ export class DocxExportService {
     return out;
   }
 
-  private nodeToDocx(node: Node): Paragraph | Table | (Paragraph | Table)[] | null {
+  private nodeToDocx(
+    docx: DocxModule,
+    node: Node,
+  ):
+    | InstanceType<DocxModule['Paragraph']>
+    | InstanceType<DocxModule['Table']>
+    | (InstanceType<DocxModule['Paragraph']> | InstanceType<DocxModule['Table']>)[]
+    | null {
     if (node.nodeType === Node.TEXT_NODE) {
       const text = (node.textContent ?? '').trim();
       if (!text) {
         return null;
       }
-      return new Paragraph({ children: [new TextRun(text)] });
+      return new docx.Paragraph({ children: [new docx.TextRun(text)] });
     }
 
     if (node.nodeType !== Node.ELEMENT_NODE) {
@@ -71,47 +82,47 @@ export class DocxExportService {
 
     switch (tag) {
       case 'h1':
-        return new Paragraph({
-          heading: HeadingLevel.HEADING_1,
-          children: this.inlineRuns(el),
+        return new docx.Paragraph({
+          heading: docx.HeadingLevel.HEADING_1,
+          children: this.inlineRuns(docx, el),
         });
       case 'h2':
-        return new Paragraph({
-          heading: HeadingLevel.HEADING_2,
-          children: this.inlineRuns(el),
+        return new docx.Paragraph({
+          heading: docx.HeadingLevel.HEADING_2,
+          children: this.inlineRuns(docx, el),
         });
       case 'h3':
       case 'h4':
-        return new Paragraph({
-          heading: HeadingLevel.HEADING_3,
-          children: this.inlineRuns(el),
+        return new docx.Paragraph({
+          heading: docx.HeadingLevel.HEADING_3,
+          children: this.inlineRuns(docx, el),
         });
       case 'p':
       case 'div':
       case 'blockquote':
-        return new Paragraph({ children: this.inlineRuns(el) });
+        return new docx.Paragraph({ children: this.inlineRuns(docx, el) });
       case 'ul':
       case 'ol':
         return Array.from(el.children).map(
           (li, index) =>
-            new Paragraph({
+            new docx.Paragraph({
               children: [
-                new TextRun({
+                new docx.TextRun({
                   text: `${tag === 'ol' ? `${index + 1}.` : '•'} ${li.textContent?.trim() ?? ''}`,
                 }),
               ],
             }),
         );
       case 'table':
-        return this.tableToDocx(el);
+        return this.tableToDocx(docx, el);
       case 'hr':
-        return new Paragraph({
-          children: [new TextRun('———————————————')],
+        return new docx.Paragraph({
+          children: [new docx.TextRun('———————————————')],
         });
       case 'pre':
-        return new Paragraph({
+        return new docx.Paragraph({
           children: [
-            new TextRun({
+            new docx.TextRun({
               text: el.textContent ?? '',
               font: 'Courier New',
             }),
@@ -119,22 +130,27 @@ export class DocxExportService {
         });
       default:
         if (el.children.length > 0) {
-          return this.nodeListToDocx(el.childNodes);
+          return this.nodeListToDocx(docx, el.childNodes);
         }
         if (el.textContent?.trim()) {
-          return new Paragraph({ children: [new TextRun(el.textContent.trim())] });
+          return new docx.Paragraph({
+            children: [new docx.TextRun(el.textContent.trim())],
+          });
         }
         return null;
     }
   }
 
-  private inlineRuns(el: HTMLElement): TextRun[] {
-    const runs: TextRun[] = [];
+  private inlineRuns(
+    docx: DocxModule,
+    el: HTMLElement,
+  ): InstanceType<DocxModule['TextRun']>[] {
+    const runs: InstanceType<DocxModule['TextRun']>[] = [];
     el.childNodes.forEach((child) => {
       if (child.nodeType === Node.TEXT_NODE) {
         const t = child.textContent ?? '';
         if (t) {
-          runs.push(new TextRun(t));
+          runs.push(new docx.TextRun(t));
         }
         return;
       }
@@ -144,7 +160,7 @@ export class DocxExportService {
       const childEl = child as HTMLElement;
       const tag = childEl.tagName.toLowerCase();
       runs.push(
-        new TextRun({
+        new docx.TextRun({
           text: childEl.textContent ?? '',
           bold: tag === 'strong' || tag === 'b',
           italics: tag === 'em' || tag === 'i',
@@ -154,31 +170,34 @@ export class DocxExportService {
       );
     });
     if (runs.length === 0 && el.textContent?.trim()) {
-      runs.push(new TextRun(el.textContent.trim()));
+      runs.push(new docx.TextRun(el.textContent.trim()));
     }
     return runs;
   }
 
-  private tableToDocx(table: HTMLElement): Table {
+  private tableToDocx(
+    docx: DocxModule,
+    table: HTMLElement,
+  ): InstanceType<DocxModule['Table']> {
     const rows = Array.from(table.querySelectorAll('tr'));
-    return new Table({
-      width: { size: 100, type: WidthType.PERCENTAGE },
+    return new docx.Table({
+      width: { size: 100, type: docx.WidthType.PERCENTAGE },
       rows: rows.map(
         (tr) =>
-          new TableRow({
+          new docx.TableRow({
             children: Array.from(tr.querySelectorAll('th, td')).map(
               (cell) =>
-                new TableCell({
+                new docx.TableCell({
                   children: [
-                    new Paragraph({
-                      children: [new TextRun(cell.textContent?.trim() ?? '')],
+                    new docx.Paragraph({
+                      children: [new docx.TextRun(cell.textContent?.trim() ?? '')],
                     }),
                   ],
                   borders: {
-                    top: { style: BorderStyle.SINGLE, size: 1 },
-                    bottom: { style: BorderStyle.SINGLE, size: 1 },
-                    left: { style: BorderStyle.SINGLE, size: 1 },
-                    right: { style: BorderStyle.SINGLE, size: 1 },
+                    top: { style: docx.BorderStyle.SINGLE, size: 1 },
+                    bottom: { style: docx.BorderStyle.SINGLE, size: 1 },
+                    left: { style: docx.BorderStyle.SINGLE, size: 1 },
+                    right: { style: docx.BorderStyle.SINGLE, size: 1 },
                   },
                 }),
             ),

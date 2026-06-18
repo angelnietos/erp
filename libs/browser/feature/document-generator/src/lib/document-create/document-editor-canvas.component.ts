@@ -1,21 +1,28 @@
 import {
+  ChangeDetectorRef,
   Component,
+  ComponentRef,
+  DestroyRef,
+  effect,
+  inject,
   input,
   output,
+  signal,
   viewChild,
   ElementRef,
+  ViewContainerRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup } from '@angular/forms';
 import type { ContentEditorMode } from '../models/document-render.models';
-import { DocumentBlockEditorComponent } from '../block-editor/document-block-editor.component';
+import type { DocumentBlockEditorComponent } from '../block-editor/document-block-editor.component';
 
 export type EditorSurface = 'legacy' | 'blocks';
 
 @Component({
   selector: 'app-document-editor-canvas',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DocumentBlockEditorComponent],
+  imports: [CommonModule, ReactiveFormsModule],
   host: {
     class: 'document-editor-column',
   },
@@ -108,13 +115,14 @@ export type EditorSurface = 'legacy' | 'blocks';
       </div>
 
       @if (editorSurface() === 'blocks') {
-        <lib-document-block-editor
-          class="document-editor-block-editor"
-          [initialHtml]="blockHtml()"
-          [placeholder]="editorPlaceholder()"
-          [disabled]="isAiGenerating()"
-          (htmlChange)="blockHtmlChange.emit($event)"
-        />
+        <div class="document-editor-block-editor document-editor-block-editor-mount">
+          @if (blockEditorLoading()) {
+            <p class="document-editor-hint text-xs text-secondary px-1" aria-live="polite">
+              Cargando editor visual…
+            </p>
+          }
+          <ng-container #blockHost />
+        </div>
         <p class="document-editor-hint text-xs text-secondary mt-2 px-1">
           Editor WYSIWYG por bloques (TipTap). La vista previa y el PDF usan el
           mismo HTML generado.
@@ -234,6 +242,16 @@ export type EditorSurface = 'legacy' | 'blocks';
   ],
 })
 export class DocumentEditorCanvasComponent {
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  readonly blockHost = viewChild('blockHost', { read: ViewContainerRef });
+  readonly blockEditorLoading = signal(false);
+  private blockEditorRef: ComponentRef<DocumentBlockEditorComponent> | null = null;
+  private blockEditorModule: Promise<
+    typeof import('../block-editor/document-block-editor.component')
+  > | null = null;
+
   readonly contentTextarea =
     viewChild<ElementRef<HTMLTextAreaElement>>('contentTextarea');
 
@@ -255,6 +273,72 @@ export class DocumentEditorCanvasComponent {
   readonly editorKeydown = output<KeyboardEvent>();
   readonly slashOpen = output<void>();
   readonly applyCorporateTemplate = output<void>();
+
+  constructor() {
+    effect(() => {
+      const surface = this.editorSurface();
+      if (surface !== 'blocks') {
+        this.destroyBlockEditor();
+        return;
+      }
+      void this.mountBlockEditor();
+    });
+
+    effect(() => {
+      if (!this.blockEditorRef || this.editorSurface() !== 'blocks') {
+        return;
+      }
+      this.blockEditorRef.setInput('initialHtml', this.blockHtml());
+      this.blockEditorRef.setInput('placeholder', this.editorPlaceholder());
+      this.blockEditorRef.setInput('disabled', this.isAiGenerating());
+      this.blockEditorRef.changeDetectorRef.markForCheck();
+    });
+
+    this.destroyRef.onDestroy(() => this.destroyBlockEditor());
+  }
+
+  private async mountBlockEditor(): Promise<void> {
+    this.blockEditorLoading.set(true);
+    this.blockEditorModule ??= import(
+      '../block-editor/document-block-editor.component'
+    );
+    const mod = await this.blockEditorModule;
+
+    await new Promise<void>((resolve) => queueMicrotask(resolve));
+
+    if (this.editorSurface() !== 'blocks') {
+      this.blockEditorLoading.set(false);
+      return;
+    }
+
+    const host = this.blockHost();
+    if (!host) {
+      this.blockEditorLoading.set(false);
+      return;
+    }
+
+    if (!this.blockEditorRef) {
+      host.clear();
+      this.blockEditorRef = host.createComponent(mod.DocumentBlockEditorComponent);
+      this.blockEditorRef.instance.htmlChange.subscribe((html) => {
+        this.blockHtmlChange.emit(html);
+      });
+    }
+
+    this.blockEditorRef.setInput('initialHtml', this.blockHtml());
+    this.blockEditorRef.setInput('placeholder', this.editorPlaceholder());
+    this.blockEditorRef.setInput('disabled', this.isAiGenerating());
+    this.blockEditorRef.changeDetectorRef.markForCheck();
+    this.blockEditorLoading.set(false);
+    this.cdr.markForCheck();
+  }
+
+  private destroyBlockEditor(): void {
+    this.blockEditorRef?.destroy();
+    this.blockEditorRef = null;
+    this.blockHost()?.clear();
+    this.blockEditorLoading.set(false);
+  }
 
   focusTextarea(): void {
     this.contentTextarea()?.nativeElement.focus();

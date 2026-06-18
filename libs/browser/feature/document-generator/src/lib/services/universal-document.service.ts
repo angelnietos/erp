@@ -1,6 +1,4 @@
 import { Injectable, inject } from '@angular/core';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import * as ExcelJS from 'exceljs';
 import { escapeHtml } from '../utils/html-escape';
 import { WordImportService } from './word-import.service';
 import { PdfImportService } from './pdf-import.service';
@@ -95,6 +93,7 @@ export class UniversalDocumentService {
   }
 
   private async exportToPDF(blocks: ExportBlock[]): Promise<Blob> {
+    const { PDFDocument, rgb, StandardFonts } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.create();
     const timesRomanFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
     const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
@@ -178,6 +177,7 @@ export class UniversalDocumentService {
   }
 
   private async exportToExcel(blocks: ExportBlock[]): Promise<Blob> {
+    const ExcelJS = await import('exceljs');
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Documento');
 

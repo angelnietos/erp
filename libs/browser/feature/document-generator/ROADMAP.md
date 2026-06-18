@@ -108,7 +108,9 @@
 
 - [ ] E2E: crear doc visual → preview = PDF → export DOCX
 - [ ] Import Word muestra → editar → export PDF sin regresiones
-- [ ] Bundle budget: lazy-load TipTap + pdfjs + mammoth en ruta `/documents/create/edit`
+- [x] Bundle budget: lazy-load TipTap + pdfjs + mammoth + docx en ruta `/documents/create/edit` (chunk editor ~390 kB vs ~5.6 MB antes)
+- [x] Lazy-load mermaid (preview arquitectura), modales portada/firmas (`document-tools-modal-host`), orquestador PDF (`document-export-orchestrator.loader`) solo al exportar
+- [ ] Budget **initial** app (~3.9 MB dev) — fuera del módulo doc-gen; requiere análisis del shell ERP global
 - [ ] Backend opcional: DOCX vía LibreOffice/unoserver si fidelidad cliente insuficiente
 - [ ] Documentación usuario (atajos, limitaciones PDF import)
 - [x] Tests unitarios: `docx-export.service.spec.ts`, `word-import.service.spec.ts`
@@ -123,7 +125,7 @@
 | T1 | Persistir `editorSurface` en borrador IndexedDB | Alta | ✅ Hecho |
 | T2 | Fullscreen + TipTap | Media | Pendiente |
 | T3 | Slash TipTap nativo | Media | Pendiente |
-| T4 | Lazy-load TipTap/mammoth/pdfjs | Alta (budget) | Pendiente |
+| T4 | Lazy-load TipTap/mammoth/pdfjs/docx + mermaid + modales + orchestrator | Alta (budget) | ✅ Hecho |
 | T5 | Worker pdfjs en `angular.json` assets | Alta (prod) | ✅ Hecho |
 | T6 | E2E preview = PDF = DOCX | Alta | Pendiente |
 | T7 | Imágenes Word → DOCX round-trip | Baja | Pendiente |
@@ -146,7 +148,7 @@
 1. ~~**Fase 3.1 + 3.3** — Word/DOCX~~ ✅ MVP
 2. ~~**Fase 2.1 + 2.4** — TipTap MVP + toggle~~ ✅ MVP
 3. ~~**Fase 3.2** — PDF import~~ ✅ MVP
-4. **T4 + T5** — lazy-load y worker (bundle/prod)
+4. **T4** — lazy-load y worker (bundle/prod) ✅
 5. **Fase 2.2 + Fase 4** — tablas y plantillas
 6. **Fase 5** — hardening prod
 

@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import mammoth from 'mammoth';
 import type { ExportBlock, ImportResult } from './universal-document.service';
 
 export interface WordImportResult {
@@ -12,6 +11,7 @@ export interface WordImportResult {
 export class WordImportService {
   async importDocx(file: File): Promise<WordImportResult> {
     const arrayBuffer = await file.arrayBuffer();
+    const mammoth = (await import('mammoth')).default;
     const [htmlResult, textResult] = await Promise.all([
       mammoth.convertToHtml(
         { arrayBuffer },

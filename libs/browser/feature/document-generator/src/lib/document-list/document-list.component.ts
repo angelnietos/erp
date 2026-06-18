@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AssistantContextService } from '../services/assistant-context.service';
@@ -6,7 +6,7 @@ import {
   DocumentListItem,
   DocumentPersistenceService,
 } from '../services/document-persistence.service';
-import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
+import { getDocumentExportOrchestrator } from '../services/document-export-orchestrator.loader';
 import {
   downloadPdfBlob,
 } from '../utils/document-preview-css';
@@ -362,7 +362,7 @@ export class DocumentListComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly assistantCtx = inject(AssistantContextService);
   private readonly persistence = inject(DocumentPersistenceService);
-  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
+  private readonly injector = inject(Injector);
 
   openFloatingHelp(): void {
     this.assistantCtx.openAssistant();
@@ -463,7 +463,9 @@ export class DocumentListComponent implements OnInit {
       const content = data['content'];
 
       if (typeof content === 'string' && content.trim()) {
-        const blob = await this.exportOrchestrator.exportPdfFromPersisted(
+        const blob = await (
+          await getDocumentExportOrchestrator(this.injector)
+        ).exportPdfFromPersisted(
           data,
           title,
         );

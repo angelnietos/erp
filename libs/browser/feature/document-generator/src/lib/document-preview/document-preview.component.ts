@@ -6,12 +6,13 @@ import {
   ElementRef,
   ViewChild,
   inject,
+  Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { DocumentPersistenceService } from '../services/document-persistence.service';
-import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
+import { getDocumentExportOrchestrator } from '../services/document-export-orchestrator.loader';
 import {
   buildPreviewBackgroundOverrideCss,
   buildPreviewPaneStyle,
@@ -19,7 +20,7 @@ import {
   readPdfBackgroundSettings,
   resolvePdfGenerationCss,
 } from '../utils/document-preview-css';
-import mermaid from 'mermaid';
+import { loadMermaid } from '../utils/mermaid-loader';
 import { parseMarkdownToHtml } from '../utils/markdown-parse.util';
 
 /** Payload persistido o en state de navegación (campos variables por tipo). */
@@ -456,7 +457,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly persistence = inject(DocumentPersistenceService);
-  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
+  private readonly injector = inject(Injector);
   private readonly cdr = inject(ChangeDetectorRef);
 
   async ngOnInit(): Promise<void> {
@@ -543,6 +544,7 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     if (!this.document) return;
 
     try {
+      const mermaid = await loadMermaid();
       // Configurar Mermaid
       mermaid.initialize({
         startOnLoad: false,
@@ -634,7 +636,9 @@ export class DocumentPreviewComponent implements OnInit, AfterViewInit {
     this.cdr.markForCheck();
     try {
       if (typeof d.content === 'string' && d.content.trim()) {
-        const blob = await this.exportOrchestrator.exportPdfFromPersisted(
+        const blob = await (
+          await getDocumentExportOrchestrator(this.injector)
+        ).exportPdfFromPersisted(
           d as unknown as Record<string, unknown>,
           d.title || 'Documento',
         );

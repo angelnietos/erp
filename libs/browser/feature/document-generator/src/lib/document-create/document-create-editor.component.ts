@@ -5,6 +5,7 @@ import {
   ViewEncapsulation,
   inject,
   isDevMode,
+  Injector,
   OnDestroy,
   OnInit,
   ViewChild,
@@ -24,7 +25,7 @@ import {
 } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { DocumentRenderService } from '../services/document-render.service';
-import { DocumentExportOrchestratorService } from '../services/document-export-orchestrator.service';
+import { getDocumentExportOrchestrator } from '../services/document-export-orchestrator.loader';
 import { DocumentEditorHistory } from '../services/document-editor-history.service';
 import { DocxExportService } from '../services/docx-export.service';
 import { DocumentPersistenceService } from '../services/document-persistence.service';
@@ -62,24 +63,10 @@ import {
   PDF_COVER_SHARED_CSS,
   exportWatermarkConfigToHtml,
 } from '../utils/document-export-html';
-import {
-  CoverEditorComponent,
-  type CoverConfig,
-} from './cover-editor.component';
-import {
-  SignatureEditorComponent,
-  type SignatureConfig,
-} from './signature-editor.component';
-import {
-  HeaderFooterEditorComponent,
-  type HeaderFooterConfig,
-} from './header-footer-editor.component';
-import {
-  WatermarkDialogComponent,
-  type WatermarkConfig,
-} from './watermark-dialog.component';
-import { TableBuilderComponent } from './table-builder.component';
-import { ImageInsertComponent } from './image-insert.component';
+import type { CoverConfig } from './cover-editor.component';
+import type { SignatureConfig } from './signature-editor.component';
+import type { HeaderFooterConfig } from './header-footer-editor.component';
+import type { WatermarkConfig } from './watermark-dialog.component';
 import {
   SlashCommandsComponent,
   type SlashCommand,
@@ -88,7 +75,7 @@ import { DocumentEditorToolbarComponent } from './document-editor-toolbar.compon
 import { DocumentEditorCanvasComponent } from './document-editor-canvas.component';
 import { DocumentLivePreviewComponent } from './document-live-preview.component';
 import { DocumentExportActionsComponent } from './document-export-actions.component';
-import { DocumentToolsModalComponent } from './document-tools-modal.component';
+import { DocumentToolsModalHostComponent } from './document-tools-modal-host.component';
 import {
   removeManagedStylePreset,
   stylePresetCss,
@@ -133,7 +120,7 @@ interface SelectedTextFormat {
     DocumentEditorCanvasComponent,
     DocumentLivePreviewComponent,
     DocumentExportActionsComponent,
-    DocumentToolsModalComponent,
+    DocumentToolsModalHostComponent,
     SlashCommandsComponent,
   ],
   templateUrl: './document-create-editor.component.html',
@@ -212,17 +199,8 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   headerFooterConfig: Partial<HeaderFooterConfig> = { enabled: false };
   watermarkConfig: Partial<WatermarkConfig> = { enabled: false };
 
-  @ViewChild(CoverEditorComponent) coverEditor?: CoverEditorComponent;
-  @ViewChild(SignatureEditorComponent)
-  signatureEditor?: SignatureEditorComponent;
-  @ViewChild(HeaderFooterEditorComponent)
-  headerFooterEditor?: HeaderFooterEditorComponent;
-  @ViewChild(TableBuilderComponent) tableBuilder?: TableBuilderComponent;
-  @ViewChild(ImageInsertComponent) imageInsert?: ImageInsertComponent;
-  @ViewChild(WatermarkDialogComponent)
-  watermarkEditor?: WatermarkDialogComponent;
-  @ViewChild(DocumentToolsModalComponent)
-  toolsModal?: DocumentToolsModalComponent;
+  @ViewChild(DocumentToolsModalHostComponent)
+  toolsModal?: DocumentToolsModalHostComponent;
   @ViewChild(SlashCommandsComponent) slashCommands?: SlashCommandsComponent;
   @ViewChild(DocumentEditorCanvasComponent)
   editorCanvas?: DocumentEditorCanvasComponent;
@@ -428,7 +406,7 @@ export class DocumentCreateEditorComponent implements OnInit, OnDestroy {
   readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly exportOrchestrator = inject(DocumentExportOrchestratorService);
+  private readonly injector = inject(Injector);
   private readonly documentRender = inject(DocumentRenderService);
   private readonly documentPersistence = inject(DocumentPersistenceService);
   readonly assistantService = inject(AssistantContextService);
@@ -1324,7 +1302,7 @@ this.documentForm.patchValue({ content: beautified });
     this.previewHtmlMarkup = payload.contentMarkup;
     this.previewRenderCounter++;
     this.htmlPreviewSrcdoc = this.sanitizer.bypassSecurityTrustHtml(
-      this.exportOrchestrator.buildPreviewSrcdoc(input),
+      this.documentRender.buildUnifiedPreviewSrcdoc(input),
     );
     this.previewHtml = this.sanitizer.bypassSecurityTrustHtml(payload.bodyHtml);
     this.cdRef.detectChanges();
@@ -1394,17 +1372,13 @@ this.documentForm.patchValue({ content: beautified });
     contentEditorMode: ContentEditorMode = this.contentEditorMode,
   ): DocumentRenderInput {
     const title = String(this.documentForm.get('title')?.value ?? 'Documento');
-    const coverConfig = this.coverEditor?.getConfig() ??
-      this.toolsModal?.coverEditor?.getConfig() ??
+    const coverConfig = this.toolsModal?.coverEditor?.getConfig() ??
       this.coverConfig ?? { enabled: false };
-    const signatureConfig = this.signatureEditor?.getConfig() ??
-      this.toolsModal?.signatureEditor?.getConfig() ??
+    const signatureConfig = this.toolsModal?.signatureEditor?.getConfig() ??
       this.signatureConfig ?? { enabled: false };
-    const headerFooterConfig = this.headerFooterEditor?.getConfig() ??
-      this.toolsModal?.headerFooterEditor?.getConfig() ??
+    const headerFooterConfig = this.toolsModal?.headerFooterEditor?.getConfig() ??
       this.headerFooterConfig ?? { enabled: false };
-    const watermarkConfig = this.watermarkEditor?.getConfig() ??
-      this.toolsModal?.watermarkEditor?.getConfig() ??
+    const watermarkConfig = this.toolsModal?.watermarkEditor?.getConfig() ??
       this.watermarkConfig ?? { enabled: false };
 
     return {
@@ -1444,7 +1418,8 @@ this.documentForm.patchValue({ content: beautified });
     const content = this.documentForm.get('content')?.value || '';
     const mode = this.resolvePdfPreviewMode(source);
     const input = this.buildRenderInput(content, mode);
-    return this.exportOrchestrator.exportPdf(input, title);
+    const orchestrator = await getDocumentExportOrchestrator(this.injector);
+    return orchestrator.exportPdf(input, title);
   }
 
   private plainTextToHtml(content: string): string {
@@ -2989,7 +2964,7 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   insertCoverIntoDocument(): void {
-    const coverEditor = this.coverEditor ?? this.toolsModal?.coverEditor;
+    const coverEditor = this.toolsModal?.coverEditor;
     if (coverEditor) {
       const coverHtml = coverEditor.exportToHtml();
       const currentContent = this.documentForm.get('content')?.value || '';
@@ -3010,8 +2985,7 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   insertSignatureIntoDocument(): void {
-    const signatureEditor =
-      this.signatureEditor ?? this.toolsModal?.signatureEditor;
+    const signatureEditor = this.toolsModal?.signatureEditor;
     if (signatureEditor) {
       const signatureHtml = signatureEditor.exportToHtml();
       const currentContent = this.documentForm.get('content')?.value || '';
@@ -3032,7 +3006,7 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   insertTableFromBuilder(): void {
-    const tableBuilder = this.tableBuilder ?? this.toolsModal?.tableBuilder;
+    const tableBuilder = this.toolsModal?.tableBuilder;
     if (tableBuilder) {
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
@@ -3051,7 +3025,7 @@ ${PDF_COVER_SHARED_CSS}
   }
 
   insertImageFromUpload(): void {
-    const imageInsert = this.imageInsert ?? this.toolsModal?.imageInsert;
+    const imageInsert = this.toolsModal?.imageInsert;
     if (imageInsert) {
       const currentContent = this.documentForm.get('content')?.value || '';
       const separator = currentContent.trim() ? '\n\n' : '';
@@ -3080,9 +3054,8 @@ ${PDF_COVER_SHARED_CSS}
     let html = '';
     const formValue = this.documentForm.value;
     const title = formValue.title || 'Documento';
-    const coverEditor = this.coverEditor ?? this.toolsModal?.coverEditor;
-    const signatureEditor =
-      this.signatureEditor ?? this.toolsModal?.signatureEditor;
+    const coverEditor = this.toolsModal?.coverEditor;
+    const signatureEditor = this.toolsModal?.signatureEditor;
 
     if (coverEditor && this.coverConfig?.enabled) {
       html += coverEditor.exportToHtml();
@@ -3096,7 +3069,7 @@ ${PDF_COVER_SHARED_CSS}
       html += signatureEditor.exportToHtml();
     }
 
-    if (this.headerFooterEditor && this.headerFooterConfig?.enabled) {
+    if (this.toolsModal?.headerFooterEditor && this.headerFooterConfig?.enabled) {
       html += `\n<!-- Header/Footer config: ${JSON.stringify(this.headerFooterConfig)} -->\n`;
     }
 
@@ -3669,7 +3642,8 @@ blockquote {
     const input = this.buildRenderInput(
       this.documentForm.get('content')?.value || '',
     );
-    const blob = this.exportOrchestrator.exportHtmlFile(input, title);
+    const html = this.documentRender.buildPdfExportHtml(input);
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
     this.universalDocument.download(blob, `${title || 'documento'}.html`);
   }
 
@@ -3744,7 +3718,7 @@ blockquote {
     if (format === 'docx') {
       try {
         const input = this.buildRenderInput(content);
-        const exportHtml = this.exportOrchestrator.buildExportHtml(input);
+        const exportHtml = this.documentRender.buildPdfExportHtml(input);
         const blob = await this.docxExport.exportHtml(exportHtml, title);
         this.universalDocument.download(blob, `${title}.docx`);
       } catch (error) {
