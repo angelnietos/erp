@@ -1,15 +1,7 @@
 <div class="josanz-app-settings mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
-  <header class="flex flex-col gap-1">
-    <h1
-      class="text-[26px] font-black tracking-tight leading-none md:text-[32px]"
-      [style.color]="themeService.currentTheme().atmosphere.text"
-    >
-      Ajustes
-    </h1>
-    <div
-      class="h-[3px] w-12 rounded-full"
-      [style.background]="'linear-gradient(90deg, var(--josanz-interactive, var(--josanz-primary)), transparent)'"
-    ></div>
+  <header class="josanz-app-settings__header">
+    <h1 class="josanz-app-settings__title">Ajustes</h1>
+    <div class="josanz-app-settings__accent" aria-hidden="true"></div>
   </header>
 
   <josanz-main-tabs
@@ -19,11 +11,7 @@
   ></josanz-main-tabs>
 
   @if (activeTab() === 'General') {
-    <section
-      class="rounded-2xl border border-solid p-6 md:p-8"
-      [style.borderColor]="themeService.currentTheme().atmosphere.border"
-      [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-    >
+    <section class="josanz-app-settings__panel">
       <h2 class="text-[18px] font-bold mb-2" [style.color]="themeService.currentTheme().atmosphere.text">
         Cuenta y aplicación
       </h2>
@@ -41,11 +29,7 @@
   }
 
   @if (activeTab() === 'Personalización') {
-    <section
-      class="rounded-2xl border border-solid p-4 md:p-8"
-      [style.borderColor]="themeService.currentTheme().atmosphere.border"
-      [style.backgroundColor]="themeService.currentTheme().atmosphere.surface"
-    >
+    <section class="josanz-app-settings__panel">
       <p class="premium-desc mb-4 md:mb-6">
         Los cambios se aplican al instante y se guardan en este dispositivo.
       </p>

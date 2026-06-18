@@ -126,16 +126,16 @@ describe('JosanzExportCenterComponent', () => {
       expect(backLink).toBeTruthy();
     });
 
-    it('should render cards for each export', () => {
-      const cards = fixture.nativeElement.querySelectorAll('josanz-card');
-      expect(cards.length).toBe(4);
+    it('should render rows for each export', () => {
+      const rows = fixture.nativeElement.querySelectorAll('.josanz-export-center__row');
+      expect(rows.length).toBe(4);
     });
 
     it('should render download buttons', () => {
       const allButtons =
         fixture.nativeElement.querySelectorAll('josanz-button');
       const downloadBtns = Array.from(allButtons).filter((btn: HTMLElement) =>
-        btn.textContent?.includes('Descargar (demo)'),
+        btn.textContent?.includes('Descargar'),
       );
       expect(downloadBtns.length).toBeGreaterThanOrEqual(1);
     });

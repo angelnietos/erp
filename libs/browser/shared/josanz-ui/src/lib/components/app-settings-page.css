@@ -3,8 +3,48 @@
   width: 100%;
 }
 
+.josanz-app-settings {
+  padding-top: 4px;
+}
+
+.josanz-app-settings__header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.josanz-app-settings__title {
+  font-size: clamp(26px, 4vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--josanz-text);
+}
+
+.josanz-app-settings__accent {
+  width: 48px;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--josanz-accent), transparent);
+}
+
 .premium-desc {
   font-size: 13px;
   color: var(--josanz-text-muted);
   opacity: 0.85;
+}
+
+.josanz-app-settings__panel {
+  border-radius: 16px;
+  border: 1px solid var(--josanz-border);
+  background: var(--josanz-surface);
+  box-shadow: var(--josanz-card-shadow);
+  padding: 24px;
+}
+
+@media (min-width: 768px) {
+  .josanz-app-settings__panel {
+    padding: 32px;
+  }
 }

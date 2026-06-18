@@ -3,6 +3,14 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { JosanzThemeService } from '../services/theme.service';
 import { JOSANZ_FIGMA_APP } from '../theme/josanz-figma-tokens';
 
+export type JosanzMobileTabIconKey =
+  | 'inicio'
+  | 'eventos'
+  | 'clientes'
+  | 'stock'
+  | 'presupuestos'
+  | 'ajustes';
+
 export interface JosanzMobileTabItem {
   path: string;
   label: string;
@@ -10,6 +18,7 @@ export interface JosanzMobileTabItem {
   exact?: boolean;
   /** Tab central destacado (CTA informe). */
   prominent?: boolean;
+  icon?: JosanzMobileTabIconKey;
 }
 
 @Component({
@@ -22,12 +31,19 @@ export interface JosanzMobileTabItem {
 export class MobileTabBarComponent {
   readonly theme = inject(JosanzThemeService);
   readonly app = JOSANZ_FIGMA_APP;
+  readonly iconBase = '/assets/josanz-figma/icons';
 
   readonly tabs: JosanzMobileTabItem[] = [
-    { path: '/dashboard', label: 'Inicio', exact: true },
-    { path: '/clients', label: 'Clientes' },
+    { path: '/dashboard', label: 'Inicio', exact: true, icon: 'inicio' },
+    { path: '/events', label: 'Eventos', icon: 'eventos' },
+    { path: '/stock', label: 'Stock', icon: 'stock' },
     { path: '/reports/new', label: 'Informe', prominent: true },
-    { path: '/events', label: 'Eventos' },
-    { path: '/settings', label: 'Ajustes' },
+    { path: '/budgets', label: 'Presup.', icon: 'presupuestos' },
+    { path: '/clients', label: 'Clientes', icon: 'clientes' },
+    { path: '/settings', label: 'Ajustes', icon: 'ajustes' },
   ];
+
+  iconSrc(key: JosanzMobileTabIconKey): string {
+    return `${this.iconBase}/${key}.svg`;
+  }
 }

@@ -114,6 +114,13 @@ export class JosanzEventDetailComponent implements OnInit {
 
   readonly budgetTotal = '€ 340.00';
 
+  readonly resumenKpis = [
+    { label: 'Presupuesto', value: '€ 340,00' },
+    { label: 'Staff', value: '4 asignados' },
+    { label: 'Material', value: '12 ítems' },
+    { label: 'Estado', value: 'Confirmado' },
+  ];
+
   readonly budgetCatalog: JosanzBudgetCatalogItem[] = [
     {
       id: 'mic-01',

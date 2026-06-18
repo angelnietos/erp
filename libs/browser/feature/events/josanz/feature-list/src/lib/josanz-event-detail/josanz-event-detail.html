@@ -35,6 +35,18 @@
     </article>
 
     <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Resumen rápido</h3>
+      <div class="josanz-catalog-summary" role="group" aria-label="Indicadores del evento">
+        @for (kpi of resumenKpis; track kpi.label) {
+        <span class="josanz-catalog-summary__item">
+          {{ kpi.label }}
+          <strong>{{ kpi.value }}</strong>
+        </span>
+        }
+      </div>
+    </section>
+
+    <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Notas al evento</h3>
       @for (note of eventNotes; track note.id) {
       <div class="josanz-event-note-row">
@@ -373,6 +385,10 @@
     </section>
     } @if (activeTab() === 'Emails') {
     <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Correos del evento</h3>
+        <josanz-secondary-button label="Redactar +"></josanz-secondary-button>
+      </div>
       @for (email of emails; track email.id) {
       <div class="josanz-event-email-row">
         <div class="josanz-event-email-row__meta">
