@@ -44,6 +44,11 @@ export class BffAuthService {
     return Number.isFinite(hours) && hours > 0 ? hours * 60 * 60 * 1000 : SESSION_TTL_MS;
   }
 
+  /** TTL de sesión BFF (ms) para cookies y almacén. */
+  getSessionMaxAgeMs(): number {
+    return this.sessionMaxAgeMs();
+  }
+
   private newCsrf(): string {
     return randomBytes(32).toString('hex');
   }

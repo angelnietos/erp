@@ -63,7 +63,8 @@ function shouldInvalidateSession(
   }
   if (authService.isBffMode()) {
     if (url.includes('/bff/auth/session') || url.includes('/bff/platform/auth/session')) {
-      return true;
+      scheduleBffSessionRecovery();
+      return false;
     }
     scheduleBffSessionRecovery();
     return false;

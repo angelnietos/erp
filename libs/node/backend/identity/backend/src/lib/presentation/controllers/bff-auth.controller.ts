@@ -12,6 +12,11 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PublicTenant, JwtAuthGuard, TenantGuard, SkipTenantGuard } from '@josanz-erp/shared-infrastructure';
+import {
+  ERP_BFF_COOKIE_NAMES,
+  PLATFORM_BFF_COOKIE_NAMES,
+  setBffSessionCookies,
+} from '@josanz-erp/auth-keycloak';
 import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
@@ -50,7 +55,10 @@ export class BffAuthController {
 
   @UseGuards(JwtAuthGuard, TenantGuard)
   @Get('session')
-  async getSession(@Req() req: SessionRequest) {
+  async getSession(
+    @Req() req: SessionRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const user = req.user;
     const userId = user?.id ?? user?.sub;
     const rawTenant = req.headers['x-tenant-id'];
@@ -69,6 +77,15 @@ export class BffAuthController {
       if (req.bffSessionId && req.headers.authorization?.startsWith('Bearer ')) {
         accessToken = req.headers.authorization.slice(7);
         await this.bffAuth.touchErpSession(req.bffSessionId, accessToken);
+        if (req.bffCsrfToken) {
+          setBffSessionCookies(
+            res,
+            ERP_BFF_COOKIE_NAMES,
+            req.bffSessionId,
+            req.bffCsrfToken,
+            this.bffAuth.getSessionMaxAgeMs(),
+          );
+        }
       }
       return {
         user: {
@@ -90,6 +107,15 @@ export class BffAuthController {
     const session = await this.authService.refreshSession(userId, tenantId);
     if (req.bffSessionId) {
       await this.bffAuth.touchErpSession(req.bffSessionId, session.accessToken);
+      if (req.bffCsrfToken) {
+        setBffSessionCookies(
+          res,
+          ERP_BFF_COOKIE_NAMES,
+          req.bffSessionId,
+          req.bffCsrfToken,
+          this.bffAuth.getSessionMaxAgeMs(),
+        );
+      }
     }
     return {
       user: session.user,
@@ -126,7 +152,10 @@ export class BffPlatformAuthController {
   @SkipTenantGuard()
   @UseGuards(JwtAuthGuard, PlatformJwtGuard)
   @Get('session')
-  async getSession(@Req() req: SessionRequest) {
+  async getSession(
+    @Req() req: SessionRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const userId = req.user?.id ?? req.user?.sub;
     if (!userId) {
       throw new UnauthorizedException('Invalid session context');
@@ -134,6 +163,15 @@ export class BffPlatformAuthController {
     const session = await this.authService.refreshPlatformSession(userId);
     if (req.bffSessionId) {
       await this.bffAuth.touchPlatformSession(req.bffSessionId, session.accessToken);
+      if (req.bffCsrfToken) {
+        setBffSessionCookies(
+          res,
+          PLATFORM_BFF_COOKIE_NAMES,
+          req.bffSessionId,
+          req.bffCsrfToken,
+          this.bffAuth.getSessionMaxAgeMs(),
+        );
+      }
     }
     return {
       user: session.user,

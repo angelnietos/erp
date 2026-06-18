@@ -1,14 +1,14 @@
 import { APP_INITIALIZER, inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
 import { AuthStore } from '../store/auth.store';
+import { IdentitySessionHydrationService } from '../services/identity-session-hydration.service';
 
-/** Intervalo de keepalive BFF (renueva JWT en servidor vía GET /bff/auth/session). */
-const BFF_KEEPALIVE_MS = 4 * 60 * 1000;
-/** Al volver a la pestaña, esperar un instante antes de refrescar (evita ráfagas). */
-const VISIBILITY_REFRESH_DEBOUNCE_MS = 500;
+/** Renueva sesión BFF antes de que caduque el JWT (~cada 90 s con pestaña activa). */
+const BFF_KEEPALIVE_MS = 90 * 1000;
+/** Al volver a la pestaña o ventana, esperar un instante antes de refrescar. */
+const FOCUS_REFRESH_DEBOUNCE_MS = 400;
 
 /**
- * En modo BFF, renueva la sesión periódicamente y al volver a la pestaña visible.
+ * En modo BFF, renueva la sesión periódicamente, al volver a la pestaña y al recuperar el foco.
  */
 export function provideBffSessionKeepalive(): {
   provide: typeof APP_INITIALIZER;
@@ -19,33 +19,39 @@ export function provideBffSessionKeepalive(): {
     provide: APP_INITIALIZER,
     multi: true,
     useFactory: () => {
-      const authService = inject(AuthService);
       const authStore = inject(AuthStore);
+      const sessionHydration = inject(IdentitySessionHydrationService);
 
       return () => {
-        if (!authService.isBffMode() || typeof window === 'undefined') {
+        if (typeof window === 'undefined') {
           return;
         }
 
         const refreshBffSession = (): void => {
+          if (!sessionHydration.shouldRunBffKeepalive()) {
+            return;
+          }
           authStore.refreshSession();
         };
 
         window.setInterval(refreshBffSession, BFF_KEEPALIVE_MS);
 
-        let visibilityTimer: number | undefined;
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState !== 'visible') {
+        let focusTimer: number | undefined;
+        const scheduleFocusRefresh = (): void => {
+          if (document.visibilityState === 'hidden') {
             return;
           }
-          if (visibilityTimer !== undefined) {
-            window.clearTimeout(visibilityTimer);
+          if (focusTimer !== undefined) {
+            window.clearTimeout(focusTimer);
           }
-          visibilityTimer = window.setTimeout(() => {
-            visibilityTimer = undefined;
+          focusTimer = window.setTimeout(() => {
+            focusTimer = undefined;
             refreshBffSession();
-          }, VISIBILITY_REFRESH_DEBOUNCE_MS);
-        });
+          }, FOCUS_REFRESH_DEBOUNCE_MS);
+        };
+
+        document.addEventListener('visibilitychange', scheduleFocusRefresh);
+        window.addEventListener('focus', scheduleFocusRefresh);
       };
     },
   };

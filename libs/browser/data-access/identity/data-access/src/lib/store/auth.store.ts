@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, tap, switchMap, catchError, of, map, Observable } from 'rxjs';
+import { pipe, tap, switchMap, catchError, of, map, Observable, debounceTime, timer } from 'rxjs';
 import {
   AuthService,
   ERP_TENANT_SLUG_SESSION_KEY,
@@ -220,6 +220,7 @@ export const AuthStore = signalStore(
 
       refreshSession: rxMethod<void>(
         pipe(
+          debounceTime(300),
           switchMap(
             (): Observable<RefreshSessionOutcome> =>
               authService.refreshSession().pipe(
@@ -241,6 +242,30 @@ export const AuthStore = signalStore(
                 }),
               ),
           ),
+          switchMap((outcome) => {
+            if (outcome.kind !== 'auth-failed') {
+              return of(outcome);
+            }
+            return timer(2_000).pipe(
+              switchMap(() =>
+                authService.refreshSession().pipe(
+                  map(
+                    (response): RefreshSessionOutcome => ({
+                      kind: 'ok',
+                      response,
+                    }),
+                  ),
+                  catchError((err): Observable<RefreshSessionOutcome> => {
+                    const kind = classifyRefreshError(err);
+                    if (kind === 'auth-failed') {
+                      return of({ kind: 'auth-failed' as const });
+                    }
+                    return of({ kind: 'transient' as const });
+                  }),
+                ),
+              ),
+            );
+          }),
           tap((outcome: RefreshSessionOutcome) => {
             if (outcome.kind === 'transient') {
               return;

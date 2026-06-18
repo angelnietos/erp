@@ -66,6 +66,7 @@ export { sessionExpiryInterceptor, resetSessionInvalidationGuard } from './lib/i
 
 // Session keepalive (BFF)
 export { provideBffSessionKeepalive } from './lib/providers/bff-session-keepalive.provider';
+export { IdentitySessionHydrationService } from './lib/services/identity-session-hydration.service';
 
 // Guards
 export { erpAuthGuard } from './lib/guards/erp-auth.guard';
