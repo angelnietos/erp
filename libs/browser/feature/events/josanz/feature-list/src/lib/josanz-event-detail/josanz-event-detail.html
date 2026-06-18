@@ -128,31 +128,15 @@
           </button>
         </div>
       </div>
-      } @if (showStaffComposer()) {
+      }
       <textarea
         class="josanz-event-new-note"
         [(ngModel)]="staffDraft"
-        placeholder="Nueva nota"
+        placeholder="Nueva nota al staff"
       ></textarea>
-      <div class="josanz-event-new-note-actions">
-        <button
-          type="button"
-          class="text-[13px] font-semibold"
-          style="color: var(--josanz-text-muted)"
-          (click)="toggleStaffComposer()"
-        >
-          Cancelar
-        </button>
+      <div class="josanz-event-section__footer">
         <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
       </div>
-      } @else {
-      <div class="josanz-event-section__footer">
-        <josanz-secondary-button
-          label="Añadir +"
-          (btnClick)="toggleStaffComposer()"
-        ></josanz-secondary-button>
-      </div>
-      }
     </section>
 
     <section class="josanz-event-section">
@@ -389,28 +373,11 @@
               />
             </svg>
           </button>
-          <button
-            type="button"
-            class="josanz-event-icon-btn"
-            aria-label="Expandir"
-            (click)="toggleEmailComposer()"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
         </div>
       </div>
-      } @if (showEmailComposer()) {
+      }
       <div class="josanz-event-email-form">
+        <h3 class="josanz-event-section__title">Nuevo email</h3>
         <div class="josanz-event-field">
           <label for="email-date">Fecha</label>
           <input id="email-date" type="text" [(ngModel)]="emailForm.date" />
@@ -427,26 +394,10 @@
           <label for="email-body">Email completo</label>
           <textarea id="email-body" [(ngModel)]="emailForm.body"></textarea>
         </div>
-        <div class="josanz-event-new-note-actions">
-          <button
-            type="button"
-            class="text-[13px] font-semibold"
-            style="color: var(--josanz-text-muted)"
-            (click)="toggleEmailComposer()"
-          >
-            Cancelar
-          </button>
+        <div class="josanz-event-section__footer">
           <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
         </div>
       </div>
-      } @else {
-      <div class="josanz-event-section__footer">
-        <josanz-secondary-button
-          label="Añadir +"
-          (btnClick)="toggleEmailComposer()"
-        ></josanz-secondary-button>
-      </div>
-      }
     </section>
     } @if (activeTab() === 'Informes / reportes') {
     <section class="josanz-event-section">

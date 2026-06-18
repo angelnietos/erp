@@ -83,7 +83,6 @@ describe('JosanzClientsListComponent', () => {
       await newFixture.whenStable();
 
       expect(newComponent.showSuccessToast).toBe(true);
-      expect(newComponent.showSuccessModal).toBe(true);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: mockRoute,
         queryParams: {},
@@ -108,7 +107,6 @@ describe('JosanzClientsListComponent', () => {
       await newFixture.whenStable();
 
       expect(newComponent.showSuccessToast).toBe(false);
-      expect(newComponent.showSuccessModal).toBe(false);
     });
   });
 
@@ -193,14 +191,6 @@ describe('JosanzClientsListComponent', () => {
       component.showSuccessToast = true;
       component.dismissToast();
       expect(component.showSuccessToast).toBe(false);
-    });
-  });
-
-  describe('closeSuccessModal', () => {
-    it('should hide success modal', () => {
-      component.showSuccessModal = true;
-      component.closeSuccessModal();
-      expect(component.showSuccessModal).toBe(false);
     });
   });
 

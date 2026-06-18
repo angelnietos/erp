@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AdaptiveListRowsComponent,
-  ButtonComponent,
   ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
-  ModalComponent,
   BaseListComponent,
   type JosanzAdaptiveListItem,
   type JosanzStatusPillKey,
@@ -20,8 +18,6 @@ import {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     ListTemplateHeaderRowComponent,
-    ModalComponent,
-    ButtonComponent,
   ],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
@@ -35,7 +31,6 @@ export class JosanzClientsListComponent
 
   activeTypology = 'Todos';
   showSuccessToast = false;
-  showSuccessModal = false;
   currentPage = 1;
   readonly pageSize = 10;
 
@@ -132,7 +127,6 @@ export class JosanzClientsListComponent
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('created') === '1') {
       this.showSuccessToast = true;
-      this.showSuccessModal = true;
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {},
@@ -192,10 +186,6 @@ export class JosanzClientsListComponent
 
   dismissToast(): void {
     this.showSuccessToast = false;
-  }
-
-  closeSuccessModal(): void {
-    this.showSuccessModal = false;
   }
 
   // Excel export placeholder

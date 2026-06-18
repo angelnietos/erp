@@ -1,7 +1,7 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
   MainDetailLayoutComponent,
@@ -61,20 +61,40 @@ interface JosanzEventEmail {
 })
 export class JosanzEventDetailComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   pageTitle = signal('Evento X');
   pageTabs = signal<string[]>([]);
 
   activeTab = signal('Resumen');
-  showStaffComposer = signal(false);
   staffDraft = '';
   budgetSearch = '';
   showBudgetPicker = signal(false);
   highlightedBudgetId = signal('mic-03');
   budgetLines: JosanzBudgetCatalogItem[] = [];
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
-  showEmailComposer = signal(false);
   emailForm = { date: '-', subject: '-', body: '-' };
+
+  private readonly tabSlugMap: Record<string, string> = {
+    Resumen: 'resumen',
+    Cliente: 'cliente',
+    Staff: 'staff',
+    Presupuesto: 'presupuesto',
+    Equipo: 'equipo',
+    Albaranes: 'albaranes',
+    Facturas: 'facturas',
+    'Informes / reportes': 'informes',
+    Emails: 'emails',
+    Stock: 'stock',
+    Mantenimiento: 'mantenimiento',
+    Historial: 'historial',
+    Multas: 'multas',
+    Contratos: 'contratos',
+    'Nóminas': 'nominas',
+    Ausencias: 'ausencias',
+    Líneas: 'lineas',
+    Cobros: 'cobros',
+  };
 
   readonly eventTabs = [
     'Resumen',
@@ -238,6 +258,19 @@ export class JosanzEventDetailComponent implements OnInit {
       this.pageTitle.set('Evento X');
       this.pageTabs.set(this.eventTabs);
     }
+
+    const tabSlug = this.route.snapshot.queryParamMap.get('tab');
+    if (tabSlug) {
+      const tab = this.tabFromSlug(tabSlug);
+      if (tab && this.pageTabs().includes(tab)) {
+        this.activeTab.set(tab);
+      }
+    }
+  }
+
+  private tabFromSlug(slug: string): string | undefined {
+    const entry = Object.entries(this.tabSlugMap).find(([, value]) => value === slug);
+    return entry?.[0];
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
@@ -250,6 +283,13 @@ export class JosanzEventDetailComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab.set(tab);
     this.showBudgetPicker.set(false);
+    const slug = this.tabSlugMap[tab];
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: slug ?? tab.toLowerCase() },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   onEquipmentImageError(id: string): void {
@@ -278,11 +318,7 @@ export class JosanzEventDetailComponent implements OnInit {
   }
 
   onCancel(): void {
-    void this.router.navigate(['/events']);
-  }
-
-  toggleStaffComposer(): void {
-    this.showStaffComposer.update((v) => !v);
+    void this.onBack();
   }
 
   filteredBudgetCatalog(): JosanzBudgetCatalogItem[] {
@@ -322,9 +358,5 @@ export class JosanzEventDetailComponent implements OnInit {
     }
     this.budgetSearch = '';
     this.showBudgetPicker.set(false);
-  }
-
-  toggleEmailComposer(): void {
-    this.showEmailComposer.update((v) => !v);
   }
 }

@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Output, signal, inject } from '@angular/core';
+import { Component, EventEmitter, Output, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   DetailCardComponent,
   MainTemplateCardComponent,
@@ -25,8 +25,9 @@ import {
   ],
   templateUrl: './josanz-client-detail.html',
 })
-export class JosanzClientDetailComponent {
-  private router = inject(Router);
+export class JosanzClientDetailComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   @Output() modalClose = new EventEmitter<void>();
 
   activeTab = signal<string>('Datos cliente');
@@ -39,6 +40,16 @@ export class JosanzClientDetailComponent {
     'Productos/eventos',
     'Informes / reportes',
   ];
+
+  private readonly tabSlugMap: Record<string, string> = {
+    'Datos cliente': 'datos',
+    Operadores: 'operadores',
+    Presupuestos: 'presupuestos',
+    Proveedores: 'proveedores',
+    Facturas: 'facturas',
+    'Productos/eventos': 'eventos',
+    'Informes / reportes': 'informes',
+  };
 
   // Empty state icons based on tab
   getEmptyStateIcon(tab: string): JosanzEmptyStateIcon {
@@ -87,8 +98,25 @@ export class JosanzClientDetailComponent {
     { label: 'Población', value: 'Madrid (28001)' },
   ] as const;
 
+  ngOnInit(): void {
+    const tabSlug = this.route.snapshot.queryParamMap.get('tab');
+    if (tabSlug) {
+      const tab = Object.entries(this.tabSlugMap).find(([, slug]) => slug === tabSlug)?.[0];
+      if (tab && this.tabs.includes(tab)) {
+        this.activeTab.set(tab);
+      }
+    }
+  }
+
   setTab(tab: string) {
     this.activeTab.set(tab);
+    const slug = this.tabSlugMap[tab];
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: slug ?? tab.toLowerCase() },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   onBack() {

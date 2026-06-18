@@ -33,7 +33,6 @@ describe('JosanzClientsListComponent integration', () => {
     component.ngOnInit();
 
     expect(component.showSuccessToast).toBe(true);
-    expect(component.showSuccessModal).toBe(true);
     expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: expect.any(Object),
       queryParams: {},

@@ -11,35 +11,6 @@
     ×
   </button>
 </div>
-} @if (showSuccessModal) {
-<josanz-modal
-  title="Cliente creado correctamente"
-  width="420px"
-  (close)="closeSuccessModal()"
->
-  <div class="josanz-client-success-modal__icon" aria-hidden="true">
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.5"
-    >
-      <polyline points="20 6 9 17 4 12"></polyline>
-    </svg>
-  </div>
-  <p class="josanz-client-success-modal__body">Información —</p>
-  <div footer-actions class="w-full">
-    <josanz-button
-      label="Aceptar"
-      [showIcon]="false"
-      [fullWidth]="true"
-      customColor="#0F1E2F"
-      (btnClick)="closeSuccessModal()"
-    ></josanz-button>
-  </div>
-</josanz-modal>
 }
 
 <josanz-main-list-layout

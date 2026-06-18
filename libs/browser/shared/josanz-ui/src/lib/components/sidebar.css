@@ -156,6 +156,13 @@
   stroke-width: 1.8;
 }
 
+.nav-icon-container img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  display: block;
+}
+
 :host .josanz-sidebar a:hover,
 :host .josanz-sidebar button:hover,
 :host .josanz-sidebar .active-link {
