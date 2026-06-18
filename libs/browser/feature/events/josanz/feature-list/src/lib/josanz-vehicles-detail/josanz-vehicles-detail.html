@@ -1,5 +1,5 @@
 <josanz-main-detail-layout
-  title="Detalle del Vehículo"
+  title="Mercedes Sprinter"
   layoutVariant="figma-event"
   statusLabel="Disponible"
   statusPillKey="confirmado"
@@ -14,34 +14,81 @@
   <div class="josanz-event-detail-body">
     @if (activeTab() === 'Resumen') {
     <article class="josanz-event-hero">
+      <div class="josanz-event-hero__media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M3 13h1l1-4h12l1.5 4H21" />
+          <rect x="3" y="13" width="18" height="5" rx="1" />
+          <circle cx="7.5" cy="18" r="1.5" />
+          <circle cx="16.5" cy="18" r="1.5" />
+        </svg>
+      </div>
       <div class="josanz-event-hero__body">
         <div class="josanz-event-hero__title-row">
-          <h2>Furgoneta 01 (1234-ABC)</h2>
+          <h2>Mercedes Sprinter</h2>
+          <span class="josanz-event-hero__badge-nuevo">1234 KLM</span>
         </div>
         <p class="josanz-event-hero__meta">
-          Base principal · Próxima ITV: 12/12/2026
+          Base: Almacén 01 · Responsable: Carlos Ruiz
         </p>
         <p class="josanz-event-hero__desc">
-          Este es el panel de detalle específico para vehículos de la flota.
+          Furgoneta de carga para material AV. Capacidad 12 m³, portaequipajes superior.
         </p>
       </div>
     </article>
 
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Datos del vehículo</h3>
-      <div class="josanz-event-note-row">
-        <p>Marca: Mercedes</p>
-      </div>
-      <div class="josanz-event-note-row">
-        <p>Modelo: Sprinter</p>
+      <div class="josanz-event-client-grid">
+        @for (row of vehicleRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
       </div>
     </section>
-    } @if (activeTab() === 'Mantenimiento' || activeTab() === 'Historial' ||
-    activeTab() === 'Multas') {
+    } @if (activeTab() === 'Mantenimiento') {
     <section class="josanz-event-section">
-      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
-        Contenido de {{ activeTab() }} — específico para Vehículos.
-      </p>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Documentación y revisiones</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (file of maintenanceFiles; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
+    </section>
+    } @if (activeTab() === 'Historial') {
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Historial de uso</h3>
+      @for (note of historyNotes; track note.id) {
+      <div class="josanz-event-note-row">
+        <p>{{ note.text }}</p>
+      </div>
+      }
+    </section>
+    } @if (activeTab() === 'Multas') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Multas e incidencias</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (fine of fines; track fine.id) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ fine.label }}</span>
+          <span class="josanz-event-budget-line__warehouse"> · {{ fine.amount }}</span>
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(fine.pillKey)">{{
+          fine.status
+        }}</span>
+      </div>
+      }
     </section>
     }
   </div>

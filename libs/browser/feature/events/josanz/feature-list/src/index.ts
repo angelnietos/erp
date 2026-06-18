@@ -11,3 +11,5 @@ export * from './lib/josanz-equipment-detail/josanz-equipment-detail';
 export * from './lib/josanz-vehicles-detail/josanz-vehicles-detail';
 export * from './lib/josanz-staff-detail/josanz-staff-detail';
 export * from './lib/josanz-billing-detail/josanz-billing-detail';
+export * from './lib/josanz-figma-create-page/josanz-figma-create-page';
+export * from './lib/josanz-figma-create-page/create-configs';

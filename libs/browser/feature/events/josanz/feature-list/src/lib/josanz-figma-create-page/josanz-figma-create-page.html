@@ -1,0 +1,50 @@
+<josanz-main-detail-layout
+  [title]="config.title"
+  layoutVariant="figma-event"
+  [tabs]="[]"
+  activeTab=""
+  [saveLabel]="config.saveLabel"
+  [saveDisabled]="form.invalid"
+  [showFooterActions]="false"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="josanz-event-create">
+    @for (section of config.sections; track section.title) {
+    <section>
+      <h2 class="josanz-event-create__section-title">{{ section.title }}</h2>
+      <div
+        [class.josanz-event-create__grid-2]="section.columns === 2"
+        [class.josanz-event-create__fields]="section.columns !== 2"
+      >
+        @for (field of section.fields; track field.controlName) {
+        <josanz-input
+          [label]="field.label"
+          [placeholder]="field.placeholder"
+          [controlName]="field.controlName"
+          [type]="field.type ?? 'text'"
+          [parentForm]="form"
+        ></josanz-input>
+        }
+      </div>
+    </section>
+    }
+
+    <div class="josanz-event-create__actions">
+      <josanz-button
+        [label]="config.saveLabel"
+        [showIcon]="false"
+        [disabled]="form.invalid"
+        customColor="#0F1E2F"
+        (btnClick)="onSave()"
+      ></josanz-button>
+      <josanz-button
+        label="Cancelar"
+        variant="ghost"
+        [showIcon]="false"
+        (btnClick)="onCancel()"
+      ></josanz-button>
+    </div>
+  </div>
+</josanz-main-detail-layout>

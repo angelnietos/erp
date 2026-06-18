@@ -78,7 +78,7 @@ export class JosanzUsersListComponent extends BaseListComponent {
     this.router.navigate(['/users/new']);
   }
 
-  openDetail() {
-    this.router.navigate(['/users/1']);
+  openDetail(item: JosanzAdaptiveListItem): void {
+    void this.router.navigate(['/users', item.id]);
   }
 }

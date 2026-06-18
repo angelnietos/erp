@@ -1,5 +1,8 @@
 <josanz-main-detail-layout
   title="Detalle de Usuario"
+  layoutVariant="figma-event"
+  statusLabel="Activo"
+  statusPillKey="confirmado"
   [showFooterActions]="false"
   [tabs]="tabs"
   [activeTab]="activeTab()"
@@ -8,7 +11,7 @@
   (save)="onSave()"
   (cancel)="onCancel()"
 >
-  <div class="py-2 md:py-4">
+  <div class="josanz-event-detail-body py-2 md:py-4">
     @if (activeTab() === 'Datos usuario') {
       <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
         <div class="space-y-4">

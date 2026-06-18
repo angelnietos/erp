@@ -1,15 +1,16 @@
 <josanz-main-detail-layout 
   title="Nuevo Presupuesto" 
-  [tabs]="tabs" 
+  layoutVariant="figma-event"
+  [tabs]="[]"
   [activeTab]="activeTab()" 
-  (tabChange)="setTab($event)"
+  [showFooterActions]="false"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear presupuesto"
   [saveDisabled]="form.invalid"
 >
-  <div style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 600px; padding-top: 24px;">
+  <div class="josanz-event-detail-body" style="display:grid; grid-template-columns:1fr; gap:20px; width:100%; max-width: 600px; padding-top: 24px;">
     <josanz-input
       label="Cliente"
       placeholder="Seleccione un cliente"

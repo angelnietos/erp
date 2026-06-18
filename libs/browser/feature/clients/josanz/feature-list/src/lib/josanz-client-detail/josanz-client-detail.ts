@@ -106,6 +106,29 @@ export class JosanzClientDetailComponent implements OnInit {
         this.activeTab.set(tab);
       }
     }
+
+    this.operadores = [
+      { name: 'Operador A', role: 'Técnico sonido', status: 'Activo' },
+      { name: 'Operador B', role: 'Iluminación', status: 'Activo' },
+    ];
+    this.presupuestosPropios = ['Presupuesto_2026.pdf', 'Anexo_servicios.pdf'];
+    this.presupuestosExternos = ['Presupuesto_cliente.pdf'];
+    this.facturas = ['Factura_001.pdf'];
+    this.proveedores = [
+      { id: 'PROV-01', name: 'Proveedor AV S.L.', status: 'Activo' },
+      { id: 'PROV-02', name: 'Logística Norte', status: 'Activo' },
+    ];
+    this.eventos = [
+      {
+        imageUrl:
+          'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400&h=400',
+        title: 'Evento: Gala anual',
+        badgeText: 'Confirmado',
+        subtitle: '12/06/2026 · Madrid',
+        description: 'Evento corporativo con montaje completo AV.',
+        tags: ['Externo', 'Sonido', 'Vídeo'],
+      },
+    ];
   }
 
   setTab(tab: string) {

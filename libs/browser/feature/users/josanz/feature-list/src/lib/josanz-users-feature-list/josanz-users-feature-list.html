@@ -5,7 +5,10 @@
   [paginationTotal]="5"
   [paginationPage]="1"
   [searchValue]="searchQuery"
-  searchPlacement="actions"
+  [figmaCatalogLayout]="true"
+  typologyTabsVariant="figma"
+  [showViewSelector]="true"
+  searchPlaceholder="Buscar"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (filterChange)="onFilter($event)"
@@ -15,11 +18,12 @@
     titleLabel="Nombre y Apellidos"
     [fieldLabels]="userLabels"
     statusLabel="Estado"
+    [withLeadingMark]="true"
   ></josanz-list-template-header-row>
 
   <josanz-adaptive-list-rows
     [items]="filteredUserItems"
     [defaultLabels]="userLabels"
-    (itemClick)="openDetail()"
+    (itemClick)="openDetail($event)"
   ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>

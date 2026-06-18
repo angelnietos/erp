@@ -1,5 +1,8 @@
 <josanz-main-detail-layout
   [title]="'Producto ' + (productId || '—')"
+  layoutVariant="figma-event"
+  statusLabel="En stock"
+  statusPillKey="confirmado"
   [showFooterActions]="false"
   [tabs]="tabs"
   [activeTab]="activeTab()"
@@ -9,7 +12,7 @@
   (cancel)="onCancel()"
   saveLabel="Guardar cambios"
 >
-  <div class="py-2 md:py-4">
+  <div class="josanz-event-detail-body py-2 md:py-4">
     @if (activeTab() === 'Ficha') {
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
         <div class="space-y-4">

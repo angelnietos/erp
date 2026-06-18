@@ -44,7 +44,8 @@ export class JosanzEquipmentListComponent {
     statusColumnLabel: 'Estado',
     rowLabels: ['Equipo', 'Categoría', 'Almacén', 'Ubicación'],
     rows: EQUIPMENT_ROWS,
-    addRoute: '/stock',
+    addRoute: '/equipment/new',
+    secondaryRoute: '/stock/warehouses/new',
     detailRoute: '/equipment',
     summaryLine: '180 equipos · 8 activos esta semana',
     summaryStats: [

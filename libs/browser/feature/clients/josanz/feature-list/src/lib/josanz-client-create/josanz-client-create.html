@@ -1,9 +1,10 @@
 <josanz-main-detail-layout
   title="Nuevo Cliente"
-  [tabs]="tabs"
-  [activeTab]="activeTab"
+  layoutVariant="figma-event"
+  [tabs]="[]"
+  activeTab=""
   saveLabel="Añadir"
-  [showFooterActions]="true"
+  [showFooterActions]="false"
   [saveDisabled]="form.invalid"
   (back)="onBack()"
   (save)="onSubmit()"

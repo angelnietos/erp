@@ -1,8 +1,8 @@
 <josanz-main-detail-layout
-  title="Factura"
+  title="Factura FAC-2026-001"
   layoutVariant="figma-event"
-  statusLabel="Pendiente"
-  statusPillKey="en-proceso"
+  statusLabel="Pendiente cobro"
+  statusPillKey="presupuesto"
   [tabs]="tabs"
   [activeTab]="activeTab()"
   [showFooterActions]="false"
@@ -19,29 +19,106 @@
           <h2>Factura FAC-2026-001</h2>
         </div>
         <p class="josanz-event-hero__meta">
-          Cliente ejemplo S.L. · Fecha: 01/01/2026
+          Cliente ejemplo S.L. · Emisión 12/05/2026
         </p>
         <p class="josanz-event-hero__desc">
-          Este es el panel de detalle específico para facturación y cobros.
+          Factura asociada al evento «Gala anual». Pendiente segundo cobro.
         </p>
       </div>
     </article>
 
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Importes</h3>
-      <div class="josanz-event-note-row">
-        <p>Subtotal: 1.000,00 €</p>
+      <div class="josanz-event-client-grid">
+        @for (row of summaryRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
       </div>
-      <div class="josanz-event-note-row">
-        <p>Total: 1.210,00 €</p>
+      @for (file of invoiceFiles; track file) {
+      <div class="mt-4">
+        <josanz-document-item
+          [name]="file"
+          [showView]="true"
+          [showDownload]="true"
+          [showDelete]="false"
+        ></josanz-document-item>
       </div>
+      }
     </section>
-    } @if (activeTab() === 'Líneas' || activeTab() === 'Cobros' || activeTab()
-    === 'Emails') {
+    } @if (activeTab() === 'Líneas') {
     <section class="josanz-event-section">
-      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
-        Contenido de {{ activeTab() }} — específico para Facturación.
-      </p>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Líneas de factura</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (line of lines; track line.id) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ line.name }}</span>
+          <span class="josanz-event-budget-line__warehouse">
+            · {{ line.detail }} · {{ line.amount }}</span
+          >
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(line.pillKey)">{{
+          line.status
+        }}</span>
+      </div>
+      }
+    </section>
+    } @if (activeTab() === 'Cobros') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Cobros registrados</h3>
+        <josanz-secondary-button label="Registrar cobro +"></josanz-secondary-button>
+      </div>
+      @for (payment of payments; track payment.id) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ payment.method }}</span>
+          <span class="josanz-event-budget-line__warehouse">
+            · {{ payment.date }} · {{ payment.amount }}</span
+          >
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(payment.pillKey)">{{
+          payment.status
+        }}</span>
+      </div>
+      }
+    </section>
+    } @if (activeTab() === 'Emails') {
+    <section class="josanz-event-section">
+      @for (email of emails; track email.id) {
+      <div class="josanz-event-email-row">
+        <div class="josanz-event-email-row__meta">
+          <span class="josanz-event-email-row__time">{{ email.time }}</span>
+          <span class="josanz-event-email-row__subject">{{ email.subject }}</span>
+          <p class="josanz-event-email-row__preview">{{ email.preview }}</p>
+        </div>
+      </div>
+      }
+      <div class="josanz-event-email-form">
+        <h3 class="josanz-event-section__title">Nuevo email</h3>
+        <div class="josanz-event-field">
+          <label for="billing-email-date">Fecha</label>
+          <input id="billing-email-date" type="text" [(ngModel)]="emailForm.date" />
+        </div>
+        <div class="josanz-event-field">
+          <label for="billing-email-subject">Asunto</label>
+          <input id="billing-email-subject" type="text" [(ngModel)]="emailForm.subject" />
+        </div>
+        <div class="josanz-event-field">
+          <label for="billing-email-body">Email completo</label>
+          <textarea id="billing-email-body" [(ngModel)]="emailForm.body"></textarea>
+        </div>
+        <div class="josanz-event-section__footer">
+          <josanz-secondary-button label="Enviar +"></josanz-secondary-button>
+        </div>
+      </div>
     </section>
     }
   </div>

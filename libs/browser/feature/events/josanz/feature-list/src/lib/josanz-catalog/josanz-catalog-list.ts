@@ -24,6 +24,7 @@ export interface JosanzCatalogListConfig {
   rowLabels?: string[];
   statusColumnLabel: 'Estado' | 'Tipo';
   rows?: JosanzCatalogListRow[];
+  secondaryRoute?: string;
   addRoute?: string;
   detailRoute?: string;
   summaryLine?: string;
@@ -129,7 +130,8 @@ export class JosanzCatalogListComponent {
   }
 
   onSecondary(): void {
-    void this.router.navigate(['/stock']);
+    const target = this.config.secondaryRoute ?? '/stock';
+    void this.router.navigate([target]);
   }
 
   onRowClick(item: JosanzAdaptiveListItem): void {

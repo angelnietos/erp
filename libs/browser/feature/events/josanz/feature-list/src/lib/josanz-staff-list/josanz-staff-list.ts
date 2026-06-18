@@ -44,7 +44,7 @@ export class JosanzStaffListComponent {
     statusColumnLabel: 'Tipo',
     rowLabels: ['Nombre', 'Perfil', 'Teléfono', 'Disponibilidad'],
     rows: STAFF_ROWS,
-    addRoute: '/users',
+    addRoute: '/staff/new',
     detailRoute: '/staff',
     summaryLine: '100 personas · 12 en evento activo',
     summaryStats: [

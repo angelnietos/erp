@@ -29,6 +29,13 @@ export const josanzEquipmentRoutes: Route[] = [
       ),
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then(
+        (m) => m.JosanzFigmaCreatePageComponent,
+      ),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzEquipmentDetailComponent),
@@ -41,6 +48,13 @@ export const josanzVehiclesRoutes: Route[] = [
     loadComponent: () =>
       import('@josanz-erp/josanz-events-feature-list').then(
         (m) => m.JosanzVehiclesListComponent,
+      ),
+  },
+  {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then(
+        (m) => m.JosanzFigmaCreatePageComponent,
       ),
   },
   {
@@ -57,6 +71,13 @@ export const josanzStaffRoutes: Route[] = [
       import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzStaffListComponent),
   },
   {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then(
+        (m) => m.JosanzFigmaCreatePageComponent,
+      ),
+  },
+  {
     path: ':id',
     loadComponent: () =>
       import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzStaffDetailComponent),
@@ -68,6 +89,13 @@ export const josanzBillingRoutes: Route[] = [
     path: '',
     loadComponent: () =>
       import('@josanz-erp/josanz-events-feature-list').then((m) => m.JosanzBillingListComponent),
+  },
+  {
+    path: 'new',
+    loadComponent: () =>
+      import('@josanz-erp/josanz-events-feature-list').then(
+        (m) => m.JosanzFigmaCreatePageComponent,
+      ),
   },
   {
     path: ':id',

@@ -78,8 +78,8 @@ export class JosanzBudgetsFeatureListComponent {
     this.router.navigate(['/budgets/new']);
   }
 
-  openDetail() {
-    this.router.navigate(['/budgets/1']);
+  openDetail(item: JosanzAdaptiveListItem): void {
+    void this.router.navigate(['/budgets', item.id]);
   }
 
   onFilter(filter: string) {

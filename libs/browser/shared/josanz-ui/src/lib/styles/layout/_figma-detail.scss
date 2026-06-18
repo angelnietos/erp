@@ -697,6 +697,19 @@
   color: var(--josanz-text);
 }
 
+/* ── Hero media extras (icon / avatar) ───────────────────── */
+.josanz-event-hero__media svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: auto;
+  display: block;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-event-hero__media--avatar {
+  border-radius: 9999px;
+}
+
 /* ── Cliente tab grid ────────────────────────────────────── */
 .josanz-event-client-grid {
   display: grid;

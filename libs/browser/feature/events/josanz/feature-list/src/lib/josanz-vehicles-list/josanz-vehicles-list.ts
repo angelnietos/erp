@@ -44,7 +44,7 @@ export class JosanzVehiclesListComponent {
     statusColumnLabel: 'Estado',
     rowLabels: ['Vehículo', 'Matrícula', 'Base', 'Responsable'],
     rows: VEHICLE_ROWS,
-    addRoute: '/vehicles',
+    addRoute: '/vehicles/new',
     detailRoute: '/vehicles',
     summaryLine: '42 vehículos · 3 en ruta hoy',
     summaryStats: [

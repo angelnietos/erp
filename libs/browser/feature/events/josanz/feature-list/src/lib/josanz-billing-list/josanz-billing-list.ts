@@ -44,6 +44,7 @@ export class JosanzBillingListComponent {
     statusColumnLabel: 'Estado',
     rowLabels: ['Documento', 'Fecha emisión', 'Cliente', 'Importe'],
     rows: BILLING_ROWS,
+    addRoute: '/billing/new',
     detailRoute: '/billing',
     summaryLine: '180 documentos · 24 pendientes de cobro',
     summaryStats: [
