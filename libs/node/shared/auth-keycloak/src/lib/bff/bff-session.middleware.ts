@@ -26,6 +26,13 @@ function isCsrfExempt(path: string): boolean {
   return CSRF_EXEMPT_PREFIXES.some((p) => path === p || path.startsWith(p + '/'));
 }
 
+function isBffSessionProbe(path: string): boolean {
+  return (
+    path === '/api/bff/auth/session' ||
+    path === '/api/bff/platform/auth/session'
+  );
+}
+
 function sessionMaxAgeMs(config: ConfigService): number {
   const hours = parseInt(config.get<string>('BFF_SESSION_MAX_AGE_HOURS') ?? '24', 10);
   return Number.isFinite(hours) && hours > 0 ? hours * 60 * 60 * 1000 : 24 * 60 * 60 * 1000;
@@ -44,7 +51,7 @@ export class BffSessionMiddleware implements NestMiddleware {
   private async resolveAccessToken(
     sessionId: string,
     session: NonNullable<Awaited<ReturnType<BffSessionStorePort['get']>>>,
-  ): Promise<string> {
+  ): Promise<string | null> {
     let accessToken = session.accessToken;
     const expMs = readJwtExpiresAtMs(accessToken);
     const needsRenew = !expMs || expMs - Date.now() < RENEW_BEFORE_MS;
@@ -55,6 +62,15 @@ export class BffSessionMiddleware implements NestMiddleware {
       if (renewal) {
         accessToken = renewal.accessToken;
       }
+    }
+
+    const stillExpired =
+      !readJwtExpiresAtMs(accessToken) ||
+      (readJwtExpiresAtMs(accessToken) ?? 0) <= Date.now();
+    if (stillExpired) {
+      this.logger.debug(`BFF session ${sessionId}: token expired after renewal`);
+      await this.sessions.delete(sessionId);
+      return null;
     }
 
     const patch: {
@@ -87,7 +103,23 @@ export class BffSessionMiddleware implements NestMiddleware {
     if (sessionId) {
       const session = await this.sessions.get(sessionId);
       if (session) {
+        if (isBffSessionProbe(path)) {
+          (req as Request & { bffSessionId?: string; bffCsrfToken?: string }).bffSessionId =
+            sessionId;
+          (req as Request & { bffCsrfToken?: string }).bffCsrfToken = session.csrfToken;
+          if (session.tenantId && !req.headers['x-tenant-id']) {
+            req.headers['x-tenant-id'] = session.tenantId;
+          }
+          next();
+          return;
+        }
+
         const accessToken = await this.resolveAccessToken(sessionId, session);
+        if (!accessToken) {
+          clearBffSessionCookies(res, cookieNames);
+          next();
+          return;
+        }
 
         if (!req.headers.authorization) {
           req.headers.authorization = `Bearer ${accessToken}`;

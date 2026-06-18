@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +18,9 @@ import {
   clearBffSessionCookies,
   setBffSessionCookies,
   readCookie,
+  readJwtSubject,
+  BFF_SESSION_RENEWER,
+  BffSessionRenewerPort,
 } from '@josanz-erp/auth-keycloak';
 import {
   getTenantKeycloakConfig,
@@ -37,6 +41,7 @@ export class BffAuthService {
     private readonly keycloak: KeycloakTokenClient,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    @Optional() @Inject(BFF_SESSION_RENEWER) private readonly renewer?: BffSessionRenewerPort,
   ) {}
 
   private sessionMaxAgeMs(): number {
@@ -233,6 +238,89 @@ export class BffAuthService {
       ...(refreshToken ? { refreshToken } : {}),
       expiresAt: Date.now() + ttlMs,
     });
+  }
+
+  /**
+   * Renueva JWT ERP desde la cookie BFF sin depender de JwtAuthGuard
+   * (el access token almacenado puede estar caducado).
+   */
+  async refreshErpSessionFromStore(sessionId: string): Promise<{
+    user: Awaited<ReturnType<AuthService['refreshSession']>>['user'];
+    tenantId: string;
+    tenantSlug?: string;
+    accessToken: string;
+    csrfToken: string;
+    authMode: 'keycloak' | 'local';
+  } | null> {
+    const session = await this.sessions.get(sessionId);
+    if (!session) {
+      return null;
+    }
+
+    const tenantId = session.tenantId?.trim();
+    const userId = readJwtSubject(session.accessToken);
+    if (!userId || !tenantId) {
+      await this.sessions.delete(sessionId);
+      return null;
+    }
+
+    try {
+      if (this.renewer) {
+        const renewal = await this.renewer.renewAccessToken(session);
+        if (renewal?.refreshToken && renewal.refreshToken !== session.refreshToken) {
+          await this.sessions.update(sessionId, { refreshToken: renewal.refreshToken });
+        }
+      }
+
+      const enriched = await this.authService.refreshSession(userId, tenantId);
+      await this.touchErpSession(sessionId, enriched.accessToken, session.refreshToken);
+      return {
+        user: enriched.user,
+        tenantId: enriched.tenantId,
+        tenantSlug: enriched.tenantSlug,
+        accessToken: enriched.accessToken,
+        csrfToken: session.csrfToken,
+        authMode: session.kind === 'keycloak' ? 'keycloak' : 'local',
+      };
+    } catch {
+      await this.sessions.delete(sessionId);
+      return null;
+    }
+  }
+
+  async refreshPlatformSessionFromStore(sessionId: string): Promise<{
+    user: Awaited<ReturnType<AuthService['refreshPlatformSession']>>['user'];
+    accessToken: string;
+    csrfToken: string;
+    authMode: 'keycloak' | 'local';
+  } | null> {
+    const session = await this.sessions.get(sessionId);
+    if (!session || session.kind !== 'platform') {
+      return null;
+    }
+
+    const userId = readJwtSubject(session.accessToken);
+    if (!userId) {
+      await this.sessions.delete(sessionId);
+      return null;
+    }
+
+    try {
+      if (this.renewer) {
+        await this.renewer.renewAccessToken(session);
+      }
+      const enriched = await this.authService.refreshPlatformSession(userId);
+      await this.touchPlatformSession(sessionId, enriched.accessToken, session.refreshToken);
+      return {
+        user: enriched.user,
+        accessToken: enriched.accessToken,
+        csrfToken: session.csrfToken,
+        authMode: 'keycloak',
+      };
+    } catch {
+      await this.sessions.delete(sessionId);
+      return null;
+    }
   }
 
   async logoutErp(

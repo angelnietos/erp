@@ -36,10 +36,7 @@ export class IdentitySessionHydrationService {
   }
 
   shouldRunBffKeepalive(): boolean {
-    return (
-      this.authService.isBffMode() &&
-      (this.globalAuthStore.isAuthenticated() || this.hasBffSessionCookie())
-    );
+    return this.authService.isBffMode() && this.globalAuthStore.isAuthenticated();
   }
 
   async tryRestoreFromBffCookie(apiOrigin = ''): Promise<boolean> {

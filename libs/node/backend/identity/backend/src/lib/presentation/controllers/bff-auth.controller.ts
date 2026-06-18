@@ -8,32 +8,20 @@ import {
   Req,
   Res,
   UnauthorizedException,
-  UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { PublicTenant, JwtAuthGuard, TenantGuard, SkipTenantGuard } from '@josanz-erp/shared-infrastructure';
+import { PublicTenant } from '@josanz-erp/shared-infrastructure';
 import {
   ERP_BFF_COOKIE_NAMES,
   PLATFORM_BFF_COOKIE_NAMES,
+  clearBffSessionCookies,
   setBffSessionCookies,
 } from '@josanz-erp/auth-keycloak';
-import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
 import { BffAuthService } from '../../application/services/bff-auth.service';
-import { AuthService } from '../../application/services/auth.service';
 
 type SessionRequest = Request & {
-  user?: {
-    sub?: string;
-    id?: string;
-    firstName?: string;
-    lastName?: string;
-    email?: string;
-    roles?: string[];
-    permissions?: string[];
-    tenantId?: string;
-  };
   bffSessionId?: string;
   bffCsrfToken?: string;
   cookies?: Record<string, string>;
@@ -41,10 +29,7 @@ type SessionRequest = Request & {
 
 @Controller('bff/auth')
 export class BffAuthController {
-  constructor(
-    private readonly bffAuth: BffAuthService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly bffAuth: BffAuthService) {}
 
   @PublicTenant()
   @HttpCode(HttpStatus.OK)
@@ -53,76 +38,41 @@ export class BffAuthController {
     return this.bffAuth.loginErp(dto, res);
   }
 
-  @UseGuards(JwtAuthGuard, TenantGuard)
+  /**
+   * Renueva sesión desde la cookie HttpOnly — sin JwtAuthGuard (el JWT almacenado puede estar caducado).
+   */
+  @PublicTenant()
   @Get('session')
   async getSession(
     @Req() req: SessionRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const user = req.user;
-    const userId = user?.id ?? user?.sub;
-    const rawTenant = req.headers['x-tenant-id'];
-    const headerTenant =
-      typeof rawTenant === 'string'
-        ? rawTenant
-        : Array.isArray(rawTenant)
-          ? rawTenant[0]
-          : undefined;
-    const tenantId = headerTenant ?? user?.tenantId;
-    const isPlatAdmin = user?.roles?.some((r) =>
-      ['PlatformOwner', 'PlatformAdmin'].includes(r),
+    const sessionId = req.bffSessionId;
+    if (!sessionId) {
+      throw new UnauthorizedException('No active session');
+    }
+
+    const refreshed = await this.bffAuth.refreshErpSessionFromStore(sessionId);
+    if (!refreshed) {
+      clearBffSessionCookies(res, ERP_BFF_COOKIE_NAMES);
+      throw new UnauthorizedException('Session expired');
+    }
+
+    setBffSessionCookies(
+      res,
+      ERP_BFF_COOKIE_NAMES,
+      sessionId,
+      refreshed.csrfToken,
+      this.bffAuth.getSessionMaxAgeMs(),
     );
-    if (user && isPlatAdmin) {
-      let accessToken = '';
-      if (req.bffSessionId && req.headers.authorization?.startsWith('Bearer ')) {
-        accessToken = req.headers.authorization.slice(7);
-        await this.bffAuth.touchErpSession(req.bffSessionId, accessToken);
-        if (req.bffCsrfToken) {
-          setBffSessionCookies(
-            res,
-            ERP_BFF_COOKIE_NAMES,
-            req.bffSessionId,
-            req.bffCsrfToken,
-            this.bffAuth.getSessionMaxAgeMs(),
-          );
-        }
-      }
-      return {
-        user: {
-          id: userId,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          roles: user.roles ?? [],
-          permissions: user.permissions ?? [],
-        },
-        tenantId: tenantId || undefined,
-        accessToken,
-        csrfToken: req.bffCsrfToken,
-      };
-    }
-    if (!userId || !tenantId) {
-      throw new UnauthorizedException('Invalid session context');
-    }
-    const session = await this.authService.refreshSession(userId, tenantId);
-    if (req.bffSessionId) {
-      await this.bffAuth.touchErpSession(req.bffSessionId, session.accessToken);
-      if (req.bffCsrfToken) {
-        setBffSessionCookies(
-          res,
-          ERP_BFF_COOKIE_NAMES,
-          req.bffSessionId,
-          req.bffCsrfToken,
-          this.bffAuth.getSessionMaxAgeMs(),
-        );
-      }
-    }
+
     return {
-      user: session.user,
-      tenantId: session.tenantId,
-      tenantSlug: session.tenantSlug,
-      accessToken: session.accessToken,
-      csrfToken: req.bffCsrfToken,
+      user: refreshed.user,
+      tenantId: refreshed.tenantId,
+      tenantSlug: refreshed.tenantSlug,
+      authMode: refreshed.authMode,
+      accessToken: refreshed.accessToken,
+      csrfToken: refreshed.csrfToken,
     };
   }
 
@@ -136,52 +86,49 @@ export class BffAuthController {
 
 @Controller('bff/platform/auth')
 export class BffPlatformAuthController {
-  constructor(
-    private readonly bffAuth: BffAuthService,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(private readonly bffAuth: BffAuthService) {}
 
   @PublicTenant()
-  @SkipTenantGuard()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() dto: PlatformLoginDto, @Res({ passthrough: true }) res: Response) {
     return this.bffAuth.loginPlatform(dto, res);
   }
 
-  @SkipTenantGuard()
-  @UseGuards(JwtAuthGuard, PlatformJwtGuard)
+  @PublicTenant()
   @Get('session')
   async getSession(
     @Req() req: SessionRequest,
     @Res({ passthrough: true }) res: Response,
   ) {
-    const userId = req.user?.id ?? req.user?.sub;
-    if (!userId) {
-      throw new UnauthorizedException('Invalid session context');
+    const sessionId = req.bffSessionId;
+    if (!sessionId) {
+      throw new UnauthorizedException('No active session');
     }
-    const session = await this.authService.refreshPlatformSession(userId);
-    if (req.bffSessionId) {
-      await this.bffAuth.touchPlatformSession(req.bffSessionId, session.accessToken);
-      if (req.bffCsrfToken) {
-        setBffSessionCookies(
-          res,
-          PLATFORM_BFF_COOKIE_NAMES,
-          req.bffSessionId,
-          req.bffCsrfToken,
-          this.bffAuth.getSessionMaxAgeMs(),
-        );
-      }
+
+    const refreshed = await this.bffAuth.refreshPlatformSessionFromStore(sessionId);
+    if (!refreshed) {
+      clearBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES);
+      throw new UnauthorizedException('Session expired');
     }
+
+    setBffSessionCookies(
+      res,
+      PLATFORM_BFF_COOKIE_NAMES,
+      sessionId,
+      refreshed.csrfToken,
+      this.bffAuth.getSessionMaxAgeMs(),
+    );
+
     return {
-      user: session.user,
-      accessToken: session.accessToken,
-      csrfToken: req.bffCsrfToken,
+      user: refreshed.user,
+      authMode: refreshed.authMode,
+      accessToken: refreshed.accessToken,
+      csrfToken: refreshed.csrfToken,
     };
   }
 
   @PublicTenant()
-  @SkipTenantGuard()
   @HttpCode(HttpStatus.OK)
   @Post('logout')
   logout(@Req() req: SessionRequest, @Res({ passthrough: true }) res: Response) {
