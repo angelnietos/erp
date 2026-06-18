@@ -71,7 +71,7 @@ export const appRoutes: Route[] = [
       {
         path: 'budgets',
         loadChildren: () =>
-          import('@josanz-erp/budget-shell').then((m) => m.budgetRoutes),
+          import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
       },
       // TODO: josanz-delivery-notes-shell - uncomment when generated
       // {

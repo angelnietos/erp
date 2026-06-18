@@ -45,6 +45,15 @@
   --josanz-sidebar-icon: #222222;
   --josanz-sidebar-icon-active: #222222;
   --josanz-sidebar-hover-bg: transparent;
+  --josanz-content-max: 1440px;
+  --josanz-shell-pad-x: 1.5rem;
+  --josanz-shell-pad-x-md: 80px;
+  --josanz-shell-pad-y: 1.5rem;
+  --josanz-shell-pad-y-md: 2.5rem;
+  --josanz-list-stack-gap: 32px;
+  --josanz-login-canvas: #fffefe;
+  --josanz-login-hero-start: #e8edf5;
+  --josanz-login-hero-end: #f5f7fb;
 }
 
 [data-josanz-atmosphere='neutral'] .active-link {

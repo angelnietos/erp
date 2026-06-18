@@ -34,17 +34,6 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
         display: block;
         height: 100%;
       }
-      .josanz-page-main {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow: auto;
-        padding: 1.5rem;
-      }
-      @media (min-width: 768px) {
-        .josanz-page-main {
-          padding: 2rem 2.5rem;
-        }
-      }
     `,
   ],
 })

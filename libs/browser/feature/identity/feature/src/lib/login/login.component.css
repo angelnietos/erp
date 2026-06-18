@@ -697,7 +697,7 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 
 /* --- Figma `Login.svg`: tenant Josanz (`.auth-wrapper--figma`) --- */
 .auth-wrapper--figma {
-  background-color: #fffefe;
+  background-color: var(--josanz-login-canvas, #fffefe);
   align-items: stretch;
   justify-content: flex-start;
   flex-direction: column;
@@ -706,13 +706,19 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
 }
 
 .auth-figma-hero {
   display: none;
   flex: 1 1 auto;
   min-height: 180px;
-  background: linear-gradient(145deg, #e8edf5 0%, #f5f7fb 50%, #fffefe 100%);
+  background: linear-gradient(
+    145deg,
+    var(--josanz-login-hero-start, #e8edf5) 0%,
+    var(--josanz-login-hero-end, #f5f7fb) 50%,
+    var(--josanz-login-canvas, #fffefe) 100%
+  );
 }
 
 @media (min-width: 900px) {
@@ -745,8 +751,8 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   margin-left: auto;
   margin-right: auto;
   box-shadow: 0 10px 40px -12px rgba(15, 23, 42, 0.08);
-  border: 1px solid #e7edf1;
-  background: #ffffff;
+  border: 1px solid var(--josanz-border, #e7edf1);
+  background: var(--josanz-surface, #ffffff);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-radius: 20px;
@@ -800,11 +806,11 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 }
 
 .auth-card--figma h1 {
-  color: #222222;
+  color: var(--josanz-text-heading, #222222);
 }
 
 .auth-card--figma .brand-tag {
-  color: #7c7c7c;
+  color: var(--josanz-label-muted, #7c7c7c);
 }
 
 .auth-card--figma .tenant-pill {
