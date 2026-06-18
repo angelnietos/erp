@@ -14,6 +14,24 @@
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()"
 >
+  <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
+    <div class="josanz-catalog-summary" role="group" aria-label="Resumen presupuestos">
+      <span class="josanz-catalog-summary__item josanz-catalog-summary__item--active">Total</span>
+      @for (stat of summaryStats; track stat.label) {
+      <span class="josanz-catalog-summary__item">
+        {{ stat.label }}
+        <strong>{{ stat.count }}</strong>
+      </span>
+      }
+    </div>
+
+    <josanz-filter-tabs
+      [options]="statusFilterOptions"
+      [selected]="activeStatusFilter"
+      (selectionChange)="onStatusFilter($event)"
+    ></josanz-filter-tabs>
+  </div>
+
   <josanz-list-template-header-row
     titleLabel="Nº Presupuesto"
     [fieldLabels]="budgetLabels"

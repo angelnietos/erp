@@ -4,6 +4,7 @@
   statusLabel="Enviado"
   statusPillKey="presupuesto"
   [showFooterActions]="false"
+  [saveDisabled]="true"
   [tabs]="tabs"
   [activeTab]="activeTab()"
   (tabChange)="setTab($event)"
@@ -11,75 +12,87 @@
   (save)="onSave()"
   (cancel)="onCancel()"
 >
-  <div class="josanz-event-detail-body py-2 md:py-4">
+  <div class="josanz-event-detail-body">
     @if (activeTab() === 'General') {
-      <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
-        <div class="space-y-4">
-          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-            Información del presupuesto
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            @for (row of infoRows; track row.label) {
-              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
-                  row.label
-                }}</span>
-                <span
-                  class="text-[16px] font-extrabold leading-snug"
-                  [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
-                  >{{ row.value }}</span
-                >
-              </div>
-            }
-          </div>
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>Presupuesto PR-2024-010</h2>
         </div>
+        <p class="josanz-event-hero__meta">
+          Construcciones S.A. · Válido hasta 30/06/2024
+        </p>
+        <p class="josanz-event-hero__desc">
+          Presupuesto para montaje AV completo en evento corporativo «Gala anual».
+        </p>
+      </div>
+    </article>
 
-        <div class="space-y-4">
-          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-            Importes y validez
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            @for (row of amountRows; track row.label) {
-              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
-                  row.label
-                }}</span>
-                <span
-                  class="text-[16px] font-extrabold leading-snug"
-                  [style.color]="row.highlight ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
-                  >{{ row.value }}</span
-                >
-              </div>
-            }
-          </div>
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Datos del presupuesto</h3>
+      <div class="josanz-event-client-grid">
+        @for (row of summaryRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
         </div>
+        }
       </div>
-    }
+    </section>
 
-    @if (activeTab() === 'Líneas') {
-      <div
-        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
-        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
-      >
-        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Líneas de presupuesto</span>
-        <p class="max-w-md text-[14px] leading-relaxed">El desglose por conceptos e IVA aparecerá aquí cuando el módulo esté enlazado.</p>
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Importes</h3>
+      <div class="josanz-event-client-grid">
+        @for (row of amountRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
       </div>
-    }
-
-    @if (activeTab() === 'Documentación') {
-      <div
-        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
-        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
-      >
-        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Sin documentos</span>
-        <p class="max-w-md text-[14px] leading-relaxed">Aún no hay PDF ni anexos asociados a este presupuesto.</p>
+    </section>
+    } @if (activeTab() === 'Líneas') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Líneas de presupuesto</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
       </div>
+      @for (line of lines; track line.id) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ line.name }}</span>
+          <span class="josanz-event-budget-line__warehouse">
+            · {{ line.detail }} · {{ line.amount }}</span
+          >
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(line.pillKey)">{{
+          line.status
+        }}</span>
+      </div>
+      }
+      <footer class="josanz-event-budget-footer">
+        <button type="button" class="josanz-event-budget-footer__link">
+          Añadir datos de facturación
+        </button>
+        <span class="josanz-event-budget-footer__total">5.445,00 €</span>
+      </footer>
+    </section>
+    } @if (activeTab() === 'Documentación') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Documentos</h3>
+        <josanz-secondary-button label="Subir +"></josanz-secondary-button>
+      </div>
+      @for (file of documents; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
+    </section>
     }
   </div>
 </josanz-main-detail-layout>

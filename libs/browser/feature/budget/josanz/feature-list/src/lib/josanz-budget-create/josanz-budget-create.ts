@@ -28,6 +28,8 @@ export class JosanzBudgetCreateComponent {
     this.form = this.fb.group({
       cliente: ['', josanzNonEmptyTrim],
       fecha: [new Date().toISOString().substring(0, 10), Validators.required],
+      evento: [''],
+      validoHasta: [''],
       notas: [''],
     });
   }

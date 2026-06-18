@@ -1,7 +1,9 @@
 <josanz-main-detail-layout
   title="Nuevo almacén"
-  [tabs]="tabs"
+  layoutVariant="figma-event"
+  [tabs]="[]"
   [activeTab]="activeTab()"
+  [showFooterActions]="false"
   (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
@@ -9,7 +11,7 @@
   saveLabel="Crear almacén"
   [saveDisabled]="form.invalid"
 >
-  <div class="py-2 md:py-4">
+  <div class="josanz-event-detail-body josanz-event-create">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
       <div class="space-y-4">
         <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">

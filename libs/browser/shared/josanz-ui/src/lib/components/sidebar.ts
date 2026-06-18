@@ -9,8 +9,10 @@ export type JosanzSidebarIconKey =
   | 'eventos'
   | 'clientes'
   | 'material'
+  | 'stock'
   | 'vehiculos'
   | 'staff'
+  | 'presupuestos'
   | 'facturacion'
   | 'ajustes'
   | 'salir';
@@ -47,8 +49,10 @@ export class SidebarComponent {
     { path: '/events', label: 'Eventos', icon: 'eventos', permission: 'events.view' },
     { path: '/clients', label: 'Clientes', icon: 'clientes', permission: 'clients.view' },
     { path: '/equipment', label: 'Material AV', icon: 'material', permission: 'products.view' },
+    { path: '/stock', label: 'Stock', icon: 'stock', permission: 'products.view' },
     { path: '/vehicles', label: 'Vehículos', icon: 'vehiculos', permission: 'fleet.view' },
     { path: '/staff', label: 'Staff', icon: 'staff', permission: 'users.view' },
+    { path: '/budgets', label: 'Presupuestos', icon: 'presupuestos', permission: 'billing.view' },
     { path: '/billing', label: 'Facturación', icon: 'facturacion', permission: 'billing.view' },
   ];
 

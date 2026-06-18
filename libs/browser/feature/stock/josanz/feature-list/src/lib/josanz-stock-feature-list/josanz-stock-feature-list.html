@@ -1,6 +1,7 @@
 <josanz-main-list-layout
   [title]="title"
   [primaryBtnLabel]="primaryBtnLabel"
+  [secondaryBtnLabel]="'Nuevo almacén +'"
   [filterOptions]="filterOptions"
   [paginationTotal]="10"
   [paginationPage]="1"
@@ -11,41 +12,41 @@
   searchPlaceholder="Buscar"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
+  (secondaryAction)="onAddWarehouse()"
   (filterChange)="onFilter($event)"
   (excelAction)="onExcel()"
 >
-  <div extra-filters class="flex flex-col gap-3">
-    <josanz-main-tabs
-      [options]="['Productos / lotes', 'Productos en alquiler']"
-      [selection]="activeType"
-      (selectionChange)="onTypeChange($event)"
-      shape="rounded"
-    >
-    </josanz-main-tabs>
-    <josanz-filter-tabs
-      [options]="secondaryFilterOptions"
-      (selectionChange)="onSecondaryFilterChange($event)"
-    >
-    </josanz-filter-tabs>
-  </div>
+  <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
+    <div class="josanz-catalog-summary" role="group" aria-label="Resumen stock">
+      <span class="josanz-catalog-summary__item josanz-catalog-summary__item--active">Total</span>
+      @for (stat of summaryStats; track stat.label) {
+      <span class="josanz-catalog-summary__item">
+        {{ stat.label }}
+        <strong>{{ stat.count }}</strong>
+      </span>
+      }
+    </div>
 
-  <div extra-actions>
-    @if (activeType === 'Productos / lotes') {
-    <josanz-button
-      label="Nuevo almacén +"
-      [showIcon]="false"
-      variant="primary"
-      (btnClick)="onAddWarehouse()"
-    >
-    </josanz-button>
-    }
+    <div class="flex flex-col gap-3">
+      <josanz-main-tabs
+        [options]="typeTabs"
+        [selection]="activeType"
+        (selectionChange)="onTypeChange($event)"
+        shape="rounded"
+        [dense]="true"
+      ></josanz-main-tabs>
+      <josanz-filter-tabs
+        [options]="statusFilterOptions"
+        [selected]="activeStatusFilter"
+        (selectionChange)="onStatusFilter($event)"
+      ></josanz-filter-tabs>
+    </div>
   </div>
 
   <josanz-list-template-header-row
     titleLabel="Referencia"
     [fieldLabels]="stockLabels"
     statusLabel="Estado"
-    [withLeadingMark]="false"
   ></josanz-list-template-header-row>
 
   <josanz-adaptive-list-rows

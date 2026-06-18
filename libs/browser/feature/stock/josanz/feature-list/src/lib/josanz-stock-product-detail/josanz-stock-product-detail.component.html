@@ -4,85 +4,78 @@
   statusLabel="En stock"
   statusPillKey="confirmado"
   [showFooterActions]="false"
+  [saveDisabled]="true"
   [tabs]="tabs"
   [activeTab]="activeTab()"
   (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
-  saveLabel="Guardar cambios"
 >
-  <div class="josanz-event-detail-body py-2 md:py-4">
+  <div class="josanz-event-detail-body">
     @if (activeTab() === 'Ficha') {
-      <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-        <div class="space-y-4">
-          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-            Datos del artículo
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            @for (row of fichaRows; track row.label) {
-              <div
-                class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0"
-                style="border-color: var(--josanz-border)"
-              >
-                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
-                  row.label
-                }}</span>
-                <span
-                  class="text-[16px] font-extrabold leading-snug"
-                  [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'"
-                  >{{ row.value }}</span
-                >
-              </div>
-            }
-          </div>
-        </div>
-        <div class="space-y-4">
-          <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-            Logística
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            <div class="flex flex-col gap-1 border-b border-solid pb-4" style="border-color: var(--josanz-border)">
-              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
-                >Ubicación sugerida</span
-              >
-              <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">Pasillo B · Estantería 12</span>
-            </div>
-            <div class="flex flex-col gap-1 border-b border-solid pb-4" style="border-color: var(--josanz-border)">
-              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
-                >Lote / serie</span
-              >
-              <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">LOT-2024-8891</span>
-            </div>
-            <div class="flex flex-col gap-1">
-              <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)"
-                >Notas internas</span
-              >
-              <span class="text-[14px] font-medium leading-relaxed" style="color: var(--josanz-text-muted)"
-                >Control de calidad pendiente en la próxima recepción.</span
-              >
-            </div>
-          </div>
-        </div>
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        </svg>
       </div>
-    }
-
-    @if (activeTab() === 'Movimientos') {
-      <div
-        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
-        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
-      >
-        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Movimientos de stock</span>
-        <p class="max-w-md text-[14px] leading-relaxed">
-          El histórico de entradas, salidas y ajustes se cargará cuando el servicio de inventario esté conectado.
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>{{ fichaRows[1]?.value ?? 'Producto' }}</h2>
+          <span class="josanz-event-hero__badge-nuevo">{{ fichaRows[2]?.value ?? '—' }}</span>
+        </div>
+        <p class="josanz-event-hero__meta">
+          {{ productId }} · {{ fichaRows[4]?.value ?? '—' }}
+        </p>
+        <p class="josanz-event-hero__desc">
+          Referencia de stock para gestión de almacén, lotes y movimientos en eventos.
         </p>
       </div>
+    </article>
+
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Ficha de producto</h3>
+      <div class="josanz-event-client-grid">
+        @for (row of fichaRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
+      </div>
+    </section>
+    } @if (activeTab() === 'Movimientos') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Historial de movimientos</h3>
+        <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
+      </div>
+      @for (row of movementRows; track row.id) {
+      <div class="josanz-event-note-row">
+        <p>{{ row.text }}</p>
+      </div>
+      }
+    </section>
+    } @if (activeTab() === 'Lotes') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Lotes activos</h3>
+        <josanz-secondary-button label="Añadir lote +"></josanz-secondary-button>
+      </div>
+      @for (lot of lotRows; track lot.lot) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ lot.lot }}</span>
+          <span class="josanz-event-budget-line__warehouse">
+            · {{ lot.qty }} · {{ lot.wh }}</span
+          >
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" style="background: var(--josanz-pill-confirmado-bg); color: var(--josanz-pill-confirmado-text)">Activo</span>
+      </div>
+      }
+    </section>
     }
   </div>
 </josanz-main-detail-layout>

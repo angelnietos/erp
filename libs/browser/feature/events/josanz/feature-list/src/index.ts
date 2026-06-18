@@ -13,3 +13,4 @@ export * from './lib/josanz-staff-detail/josanz-staff-detail';
 export * from './lib/josanz-billing-detail/josanz-billing-detail';
 export * from './lib/josanz-figma-create-page/josanz-figma-create-page';
 export * from './lib/josanz-figma-create-page/create-configs';
+export * from './lib/josanz-detail-tab-route';
