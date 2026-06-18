@@ -73,7 +73,11 @@ export class JosanzEventDetailComponent implements OnInit {
   highlightedBudgetId = signal('mic-03');
   budgetLines: JosanzBudgetCatalogItem[] = [];
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
-  emailForm = { date: '-', subject: '-', body: '-' };
+  emailForm = { date: 'dd/mm/aaaa', subject: 'Asunto ejemplo', body: 'Cuerpo del email…' };
+
+  readonly deliveryNotes = ['Albarán 001.pdf', 'Albarán 002.pdf'];
+  readonly invoices = ['Factura 001.pdf', 'Factura borrador.pdf'];
+  readonly reportFiles = ['Informe post-evento.pdf', 'Checklist técnico.pdf'];
 
   private readonly tabSlugMap: Record<string, string> = {
     Resumen: 'resumen',
@@ -217,7 +221,7 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly equipment: JosanzEventEquipment[] = [
     {
       id: '1',
-      name: 'Equipo 001',
+      name: 'Micrófono 03',
       warehouse: 'Almacén X',
       status: 'Correcto',
       pillKey: 'confirmado',
@@ -225,10 +229,26 @@ export class JosanzEventDetailComponent implements OnInit {
     },
     {
       id: '2',
-      name: 'Equipo 001',
+      name: 'Micrófono 02',
       warehouse: 'Almacén X',
       status: 'En uso',
       pillKey: 'en-produccion',
+      imageUrl: '',
+    },
+    {
+      id: '3',
+      name: 'Equipo 001',
+      warehouse: 'Almacén X',
+      status: 'Correcto',
+      pillKey: 'confirmado',
+      imageUrl: '',
+    },
+    {
+      id: '4',
+      name: 'Equipo 002',
+      warehouse: 'Almacén Y',
+      status: 'Mantenimiento',
+      pillKey: 'en-proceso',
       imageUrl: '',
     },
   ];
@@ -238,6 +258,8 @@ export class JosanzEventDetailComponent implements OnInit {
     { label: 'Contacto', value: 'María López' },
     { label: 'Email', value: 'maria@cliente-ejemplo.com' },
     { label: 'Teléfono', value: '+34 600 111 222' },
+    { label: 'Operador', value: 'Julia López' },
+    { label: 'Tipo', value: 'Externo' },
   ];
 
   ngOnInit() {
@@ -257,6 +279,7 @@ export class JosanzEventDetailComponent implements OnInit {
     } else {
       this.pageTitle.set('Evento X');
       this.pageTabs.set(this.eventTabs);
+      this.budgetLines = this.budgetCatalog.slice(0, 3);
     }
 
     const tabSlug = this.route.snapshot.queryParamMap.get('tab');

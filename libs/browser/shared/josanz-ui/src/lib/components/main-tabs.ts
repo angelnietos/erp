@@ -9,7 +9,10 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="flex gap-3 w-full overflow-x-auto no-scrollbar pb-1 mb-6">
+    <div
+      class="flex gap-3 w-full overflow-x-auto no-scrollbar pb-1"
+      [class.mb-6]="!dense"
+    >
       @for (option of options; track option) {
         <button
           type="button"
@@ -32,6 +35,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() variant: JosanzMainTabsVariant = 'figma';
+  /** Sin margen inferior (p. ej. cabecera detalle Figma). */
+  @Input() dense = false;
 
   active = '';
 

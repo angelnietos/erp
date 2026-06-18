@@ -155,19 +155,58 @@
     </section>
     } @if (activeTab() === 'Cliente') {
     <section class="josanz-event-section">
-      @for (row of clientRows; track row.label) {
-      <div class="josanz-event-note-row">
-        <p>
-          <strong style="color: var(--josanz-text)">{{ row.label }}:</strong>
-          {{ row.value }}
-        </p>
+      <h3 class="josanz-event-section__title">Datos del cliente</h3>
+      <div class="josanz-event-client-grid">
+        @for (row of clientRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
       </div>
-      }
     </section>
     } @if (activeTab() === 'Staff') {
-    <div class="josanz-event-staff-grid">
-      @for (member of staffMembers; track member.id) {
-      <article class="josanz-event-staff-card">
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Staff asignado</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      <div class="josanz-event-staff-grid">
+        @for (member of staffMembers; track member.id) {
+        <article class="josanz-event-staff-card">
+          <button
+            type="button"
+            class="josanz-event-staff-card__remove"
+            aria-label="Quitar"
+          >
+            ×
+          </button>
+          <img
+            class="josanz-event-staff-card__avatar"
+            [src]="member.avatarUrl"
+            [alt]="member.name"
+          />
+          <div class="josanz-event-staff-card__info">
+            <strong>{{ member.name }}</strong>
+            <span>{{ member.role }}</span>
+            <span
+              class="josanz-event-staff-card__tag"
+              [ngStyle]="pillStyle(member.pillKey)"
+              >{{ member.tag }}</span
+            >
+          </div>
+        </article>
+        }
+      </div>
+    </section>
+    } @if (activeTab() === 'Equipo') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Material del evento</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (item of equipment; track item.id) {
+      <article class="josanz-event-equipment-row">
         <button
           type="button"
           class="josanz-event-staff-card__remove"
@@ -175,77 +214,46 @@
         >
           ×
         </button>
-        <img
-          class="josanz-event-staff-card__avatar"
-          [src]="member.avatarUrl"
-          [alt]="member.name"
-        />
-        <div class="josanz-event-staff-card__info">
-          <strong>{{ member.name }}</strong>
-          <span>{{ member.role }}</span>
-          <span
-            class="josanz-event-staff-card__tag"
-            [ngStyle]="pillStyle(member.pillKey)"
-            >{{ member.tag }}</span
+        <div class="josanz-event-equipment-row__thumb" aria-hidden="true">
+          @if (item.imageUrl && !equipmentImageFailed().has(item.id)) {
+          <img
+            [src]="item.imageUrl"
+            [alt]=""
+            (error)="onEquipmentImageError(item.id)"
+          />
+          } @else {
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            aria-hidden="true"
           >
+            <rect x="4" y="7" width="16" height="12" rx="2" />
+            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            <circle cx="12" cy="13" r="2.5" />
+          </svg>
+          }
+        </div>
+        <div class="flex-1 min-w-0">
+          <strong
+            class="block text-[14px] font-extrabold"
+            style="color: var(--josanz-text)"
+            >{{ item.name }}</strong
+          >
+          <span class="text-[13px]" style="color: var(--josanz-text-muted)"
+            >{{ item.warehouse }}</span
+          >
+          <span
+            class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
+            [ngStyle]="pillStyle(item.pillKey)"
+          >
+            {{ item.status }}
+          </span>
         </div>
       </article>
       }
-    </div>
-    <div class="josanz-event-section__footer">
-      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-    </div>
-    } @if (activeTab() === 'Equipo') { @for (item of equipment; track item.id) {
-    <article class="josanz-event-equipment-row">
-      <button
-        type="button"
-        class="josanz-event-staff-card__remove"
-        aria-label="Quitar"
-      >
-        ×
-      </button>
-      <div class="josanz-event-equipment-row__thumb" aria-hidden="true">
-        @if (item.imageUrl && !equipmentImageFailed().has(item.id)) {
-        <img
-          [src]="item.imageUrl"
-          [alt]=""
-          (error)="onEquipmentImageError(item.id)"
-        />
-        } @else {
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.75"
-          aria-hidden="true"
-        >
-          <rect x="4" y="7" width="16" height="12" rx="2" />
-          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          <circle cx="12" cy="13" r="2.5" />
-        </svg>
-        }
-      </div>
-      <div class="flex-1 min-w-0">
-        <strong
-          class="block text-[14px] font-extrabold"
-          style="color: var(--josanz-text)"
-          >{{ item.name }}</strong
-        >
-        <span class="text-[13px]" style="color: var(--josanz-text-muted)"
-          >{{ item.warehouse }}</span
-        >
-        <span
-          class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-          [ngStyle]="pillStyle(item.pillKey)"
-        >
-          {{ item.status }}
-        </span>
-      </div>
-    </article>
-    }
-    <div class="josanz-event-section__footer">
-      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-    </div>
+    </section>
     } @if (activeTab() === 'Presupuesto') {
     <div class="josanz-event-section-header">
       <h3>Presupuesto (aceptado va a Albaranes)</h3>
@@ -295,6 +303,16 @@
         }
       </div>
       <div class="josanz-event-budget-panel__body">
+        @if (budgetLines.length) {
+        <div
+          class="josanz-event-budget-table-head"
+          aria-hidden="true"
+        >
+          <span>Material</span>
+          <span></span>
+          <span>Estado</span>
+        </div>
+        }
         @for (line of budgetLines; track line.id) {
         <div class="josanz-event-budget-line">
           <span>
@@ -310,6 +328,10 @@
             >{{ line.status }}</span
           >
         </div>
+        } @empty {
+        <p class="josanz-event-budget-empty">
+          Busca material arriba para añadir líneas al presupuesto.
+        </p>
         }
       </div>
       <footer class="josanz-event-budget-footer">
@@ -319,11 +341,35 @@
         <span class="josanz-event-budget-footer__total">{{ budgetTotal }}</span>
       </footer>
     </section>
-    } @if (activeTab() === 'Albaranes' || activeTab() === 'Facturas') {
+    } @if (activeTab() === 'Albaranes') {
     <section class="josanz-event-section">
-      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
-        Contenido de {{ activeTab() }} — prototipo sin backend.
-      </p>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Albaranes del evento</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (file of deliveryNotes; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
+    </section>
+    } @if (activeTab() === 'Facturas') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Facturas</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (file of invoices; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
     </section>
     } @if (activeTab() === 'Emails') {
     <section class="josanz-event-section">
@@ -401,9 +447,18 @@
     </section>
     } @if (activeTab() === 'Informes / reportes') {
     <section class="josanz-event-section">
-      <p class="m-0 text-[14px]" style="color: var(--josanz-text-muted)">
-        Informes y reportes del evento — prototipo sin backend.
-      </p>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Informes y reportes</h3>
+        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      </div>
+      @for (file of reportFiles; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
     </section>
     }
   </div>

@@ -53,7 +53,7 @@ export class SidebarComponent {
   ];
 
   iconSrc(key: JosanzSidebarIconKey): string {
-    return `${this.iconBase}/${key}.png`;
+    return `${this.iconBase}/${key}.svg`;
   }
 
   readonly filteredNavItems = computed(() => {
