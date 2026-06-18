@@ -1,55 +1,91 @@
 <josanz-main-detail-layout
   title="Nuevo evento"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  (tabChange)="setTab($event)"
+  layoutVariant="figma-event"
+  [tabs]="[]"
+  activeTab=""
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear evento"
   [saveDisabled]="form.invalid"
+  [showFooterActions]="false"
 >
-  @if (activeTab() === 'Datos') {
-    <div
-      style="display: grid; grid-template-columns: 1fr; gap: 20px; width: 100%; max-width: 720px; padding-top: 24px"
-    >
-      <josanz-input
-        label="Nombre del evento"
-        placeholder="Ej. Congreso anual"
-        controlName="nombre"
-        [parentForm]="form"
-      ></josanz-input>
-      <josanz-input label="Fecha" type="date" controlName="fecha" [parentForm]="form"></josanz-input>
-      <josanz-input label="Cliente" placeholder="Cliente principal" controlName="cliente" [parentForm]="form"></josanz-input>
-      <josanz-input label="Tipología" placeholder="Externo, Hotel, Espacio…" controlName="tipologia" [parentForm]="form"></josanz-input>
-      <josanz-input label="Operador asignado" placeholder="Nombre del operador" controlName="operador" [parentForm]="form"></josanz-input>
-    </div>
-  }
-
-  @if (activeTab() === 'Presupuesto') {
-    <div class="w-full max-w-[720px] space-y-6 py-6">
-      <p class="m-0 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
-        Adjunte el presupuesto inicial del evento. Podrá añadir más versiones tras crear el evento.
-      </p>
-      <josanz-document-list uploadLabel="Subir presupuesto" [empty]="presupuestoPlaceholder.length === 0">
-        @for (file of presupuestoPlaceholder; track file) {
-          <josanz-document-item [name]="file" [showView]="true" [showDownload]="true"></josanz-document-item>
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Tipo de evento</h2>
+      <div class="josanz-event-create__type-row" role="group" aria-label="Tipo de evento">
+        @for (type of eventTypes; track type) {
+          <button
+            type="button"
+            class="josanz-event-create__type-pill"
+            [class.josanz-event-create__type-pill--active]="selectedType() === type"
+            (click)="selectType(type)"
+          >
+            {{ type }}
+          </button>
         }
-      </josanz-document-list>
-    </div>
-  }
+      </div>
+    </section>
 
-  @if (activeTab() === 'Albarán') {
-    <div class="w-full max-w-[720px] space-y-6 py-6">
-      <p class="m-0 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
-        Opcional en el alta. Puede subir albaranes más adelante desde la ficha del evento.
-      </p>
-      <josanz-document-list uploadLabel="Subir albarán" [empty]="albaranPlaceholder.length === 0">
-        @for (file of albaranPlaceholder; track file) {
-          <josanz-document-item [name]="file" [showView]="true" [showDownload]="true"></josanz-document-item>
-        }
-      </josanz-document-list>
+    <section>
+      <h2 class="josanz-event-create__section-title">Datos del evento</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input
+          label="Nombre evento"
+          placeholder="Nombre ejemplo"
+          controlName="nombre"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input
+          label="Localización"
+          placeholder="Dirección ejemplo"
+          controlName="localizacion"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input
+          label="Fecha evento"
+          type="date"
+          placeholder="dd/mm/aaaa"
+          controlName="fecha"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input
+          label="Montaje"
+          placeholder="(* a qué se refiere este dato?)"
+          controlName="montaje"
+          [parentForm]="form"
+        ></josanz-input>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
+      <div class="josanz-event-create__grid-2">
+        <josanz-input
+          label="nombre y Apellidos / Razón social"
+          placeholder="Cliente A"
+          controlName="cliente"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input
+          label="Operador"
+          placeholder="Operador A"
+          controlName="operador"
+          [parentForm]="form"
+        ></josanz-input>
+      </div>
+    </section>
+
+    <div class="josanz-event-create__actions">
+      <josanz-button
+        label="Crear evento"
+        [showIcon]="false"
+        [disabled]="form.invalid"
+        (btnClick)="onSave()"
+      ></josanz-button>
+      <button type="button" class="josanz-event-create__cancel" (click)="onCancel()">
+        Cancelar
+      </button>
     </div>
-  }
+  </div>
 </josanz-main-detail-layout>
-

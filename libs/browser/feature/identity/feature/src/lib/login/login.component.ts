@@ -160,8 +160,23 @@ export class LoginComponent implements OnInit {
     () => this.useFigmaShellLogin() || this.useDocsShellLogin(),
   );
 
-  readonly loginHeading = computed(() =>
-    this.useDocsShellLogin() ? 'Acceso documentos' : 'Acceso ERP',
+  readonly loginHeading = computed(() => {
+    if (this.useFigmaShellLogin()) {
+      return 'Iniciar sesión';
+    }
+    return this.useDocsShellLogin() ? 'Acceso documentos' : 'Acceso ERP';
+  });
+
+  readonly loginSubmitLabel = computed(() =>
+    this.useFigmaShellLogin() ? 'Iniciar sesión' : 'Acceder',
+  );
+
+  readonly loginEmailLabel = computed(() =>
+    this.useFigmaShellLogin() ? '' : 'E-mail',
+  );
+
+  readonly loginPasswordLabel = computed(() =>
+    this.useFigmaShellLogin() ? '' : 'Contraseña',
   );
 
   readonly loginSubtitle = computed(() => {
@@ -179,7 +194,9 @@ export class LoginComponent implements OnInit {
     getDevLoginHintsForTenant(this.tenantSlug()).filter((h) => !h.primary),
   );
   readonly emailPlaceholder = computed(() =>
-    getDevLoginEmailPlaceholder(this.tenantSlug()),
+    this.useFigmaShellLogin()
+      ? 'Nombre de usuario'
+      : getDevLoginEmailPlaceholder(this.tenantSlug()),
   );
 
   readonly tenantLabel = computed(() => {

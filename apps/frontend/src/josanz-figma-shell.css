@@ -117,11 +117,12 @@ html[data-erp-ui-shell='josanz-figma'] .auth-wrapper--figma {
   background-color: var(--josanz-login-canvas, #fffefe);
 }
 
-html[data-erp-ui-shell='josanz-figma'] .auth-figma-hero {
-  background: linear-gradient(
-    145deg,
-    var(--josanz-login-hero-start, #e8edf5) 0%,
-    var(--josanz-login-hero-end, #f5f7fb) 50%,
-    var(--josanz-login-canvas, #fffefe) 100%
-  );
+html[data-erp-ui-shell='josanz-figma'] .auth-figma-hero--photo {
+  background:
+    center / cover no-repeat url('/assets/josanz-figma/login-hero.png'),
+    linear-gradient(
+      145deg,
+      var(--josanz-login-hero-start, #e8edf5) 0%,
+      var(--josanz-login-hero-end, #f5f7fb) 100%
+    );
 }

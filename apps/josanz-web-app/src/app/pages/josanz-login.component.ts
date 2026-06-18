@@ -25,6 +25,7 @@ export class JosanzLoginComponent implements OnInit {
   private readonly theme = inject(JosanzThemeService);
 
   readonly loginCta = JOSANZ_FIGMA_LOGIN.primaryCta;
+  readonly loginCtaDisabled = JOSANZ_FIGMA_LOGIN.disabledCta;
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['admin@josanz.com', Validators.required],

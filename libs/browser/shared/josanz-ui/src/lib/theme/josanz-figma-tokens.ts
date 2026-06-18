@@ -27,6 +27,7 @@ export const JOSANZ_FIGMA_LOGIN = {
   fieldRadiusPx: 8,
   primaryCta: '#0F1E2F',
   onPrimaryCta: '#FFFFFF',
+  disabledCta: '#DADFE6',
   heading: '#222222',
   muted: '#7C7C7C',
   /** Panel ilustración izquierda (aprox. patrón Figma). */
@@ -50,6 +51,8 @@ export const JOSANZ_FIGMA_DASHBOARD = {
   /** Botón oscuro barra superior (rect negro en export). */
   toolbarCta: '#000000',
   onToolbarCta: '#FFFFFF',
+  /** CTA login deshabilitado (`Login.svg`). */
+  disabledCta: '#DADFE6',
   pagePadPx: 80,
   gridGapPx: 32,
   kpiCardH: 172,

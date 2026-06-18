@@ -1,0 +1,95 @@
+/* Formulario «Nuevo evento» (Figma node 208:9402) */
+
+.josanz-event-create {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  width: 100%;
+  max-width: 920px;
+  padding-top: 0.5rem;
+}
+
+.josanz-event-create__section-title {
+  margin: 0 0 0.85rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--josanz-text-heading, #1b1b1b);
+}
+
+.josanz-event-create__type-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.josanz-event-create__type-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 1.5rem;
+  padding: 0 0.75rem;
+  border-radius: 4px;
+  border: 1px solid #f4f4f4;
+  background: var(--josanz-surface, #fff);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--josanz-text, #222);
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--josanz-text, #222);
+  }
+}
+
+.josanz-event-create__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.josanz-event-create__grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.josanz-event-create__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+.josanz-event-create__actions josanz-button {
+  display: inline-block;
+}
+
+.josanz-event-create__cancel {
+  border: none;
+  background: transparent;
+  padding: 0.35rem 0.65rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--josanz-button-primary-bg, #0f1e2f);
+  cursor: pointer;
+}
+
+.josanz-event-create josanz-input input {
+  background: var(--josanz-login-field-bg, #fff) !important;
+  border-color: var(--josanz-stroke-field, #d7d7d7) !important;
+  border-radius: 6px !important;
+  height: 44px;
+}
+
+.josanz-event-create josanz-input label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  color: var(--josanz-button-primary-bg, #0f1e2f) !important;
+}

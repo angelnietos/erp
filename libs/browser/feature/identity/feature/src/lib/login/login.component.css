@@ -721,13 +721,22 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   );
 }
 
+.auth-figma-hero--photo {
+  background:
+    center / cover no-repeat url('/assets/josanz-figma/login-hero.png'),
+    linear-gradient(
+      145deg,
+      var(--josanz-login-hero-start, #e8edf5) 0%,
+      var(--josanz-login-hero-end, #f5f7fb) 100%
+    );
+}
+
 @media (min-width: 900px) {
   .auth-wrapper--figma {
     flex-direction: row;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: flex-start;
-    padding-top: 1.25rem;
-    padding-bottom: 2rem;
+    padding: 0;
   }
 
   .auth-figma-hero {
@@ -750,28 +759,72 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   animation: slide-up 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   margin-left: auto;
   margin-right: auto;
-  box-shadow: 0 10px 40px -12px rgba(15, 23, 42, 0.08);
-  border: 1px solid var(--josanz-border, #e7edf1);
-  background: var(--josanz-surface, #ffffff);
+  box-shadow: none;
+  border: none;
+  background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  border-radius: 20px;
-  max-width: 360px;
+  border-radius: 0;
+  max-width: 342px;
   width: 100%;
-  padding: 1.5rem 1.35rem 1.65rem;
+  padding: 2rem 1.35rem 1.65rem;
   flex-shrink: 0;
 }
 
 @media (min-width: 900px) {
   .auth-wrapper--figma .auth-card--figma {
-    align-self: flex-start;
-    margin: 0 6vw 0 1.5rem;
+    align-self: center;
+    margin: 0 auto;
     flex: 0 0 auto;
+    padding: 2.5rem 0 2rem;
+  }
+}
+
+.auth-figma-brand-logo {
+  display: block;
+  width: auto;
+  height: 68px;
+  max-width: 148px;
+  margin: 0 auto 1.25rem;
+  object-fit: contain;
+}
+
+@media (min-width: 900px) {
+  .auth-figma-brand-logo {
+    margin: 0 0 1.5rem;
   }
 }
 
 .auth-wrapper--figma .auth-header {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  text-align: left;
+}
+
+.auth-wrapper--figma .auth-card--figma h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.auth-wrapper--figma .tenant-context--figma {
+  margin-bottom: 0.75rem;
+}
+
+.auth-figma-forgot {
+  text-align: right;
+  margin: -0.25rem 0 0.85rem;
+}
+
+.auth-figma-forgot a {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--josanz-text, #1b1b1b);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.auth-figma-forgot a:hover {
+  color: var(--josanz-text-heading, #222222);
 }
 
 .auth-wrapper--figma .logo-circle {

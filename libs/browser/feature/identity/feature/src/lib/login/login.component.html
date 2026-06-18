@@ -5,7 +5,7 @@
   [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
 >
   @if (useFigmaShellLogin()) {
-    <div class="auth-figma-hero" aria-hidden="true"></div>
+    <div class="auth-figma-hero auth-figma-hero--photo" aria-hidden="true"></div>
   } @else if (useDocsShellLogin()) {
     <div class="auth-docs-hero" aria-hidden="true">
       <div class="auth-docs-hero__glow"></div>
@@ -63,6 +63,15 @@
     [class.auth-card--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
   >
     <div class="auth-header">
+      @if (useFigmaShellLogin()) {
+        <img
+          class="auth-figma-brand-logo animate-in stagger-1"
+          src="assets/josanz-figma/login-logo.png"
+          alt="Josanz Audiovisual"
+          width="148"
+          height="68"
+        />
+      } @else {
       <div
         class="logo-circle animate-in stagger-1"
         [class.logo-circle--babooni]="tenantSlug() === 'babooni'"
@@ -75,7 +84,8 @@
           <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
         }
       </div>
-      @if (!useDocsShellLogin()) {
+      }
+      @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
         <p class="brand-tag text-uppercase animate-in stagger-2">{{ brandTagline() }}</p>
       }
       <h1 class="animate-in stagger-2">{{ loginHeading() }}</h1>
@@ -84,7 +94,7 @@
       }
     </div>
 
-    <div class="tenant-context animate-in stagger-3">
+    <div class="tenant-context animate-in stagger-3" [class.tenant-context--figma]="useFigmaShellLogin()">
       <div class="tenant-pill">
         <lucide-icon name="building-2" size="14"></lucide-icon>
         <span>{{ tenantLabel() }}</span>
@@ -95,6 +105,7 @@
       </button>
     </div>
 
+    @if (!useFigmaShellLogin()) {
     <div
       class="auth-mode-pill animate-in stagger-3"
       [class.auth-mode-pill--keycloak]="authModeTone() === 'keycloak'"
@@ -103,6 +114,7 @@
       <span class="auth-mode-pill__dot" aria-hidden="true"></span>
       <span>{{ authModeLabel() }}</span>
     </div>
+    }
 
     @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
     <div class="theme-picker-shell animate-in stagger-3">
@@ -183,7 +195,7 @@
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <ui-input
         id="email"
-        label="E-mail"
+        [label]="loginEmailLabel()"
         type="email"
         [placeholder]="emailPlaceholder()"
         icon="user"
@@ -195,9 +207,9 @@
 
       <ui-input
         id="password"
-        label="Contraseña"
+        [label]="loginPasswordLabel()"
         type="password"
-        placeholder="••••••••"
+        [placeholder]="useFigmaShellLogin() ? 'Contraseña' : '••••••••'"
         icon="lock"
         formControlName="password"
         [shape]="useSolidLoginFields() ? 'solid' : 'glass'"
@@ -205,21 +217,31 @@
         class="animate-in stagger-4"
       ></ui-input>
 
+      @if (useFigmaShellLogin()) {
+        <div class="auth-figma-forgot animate-in stagger-4">
+          <a [routerLink]="['/auth/forgot-password']" [queryParams]="{ tenant: tenantSlug() }">
+            Olvidé mi contraseña
+          </a>
+        </div>
+      }
+
       <ui-button 
         type="submit" 
         [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"
-        icon="arrow-right"
+        [icon]="useFigmaShellLogin() ? undefined : 'arrow-right'"
         class="animate-in stagger-5"
       >
-        Acceder
+        {{ loginSubmitLabel() }}
       </ui-button>
     </form>
 
+    @if (!useFigmaShellLogin()) {
     <div class="auth-footer animate-in stagger-5">
       <a [routerLink]="['/auth/forgot-password']" [queryParams]="{ tenant: tenantSlug() }">¿Olvidaste tu contraseña?</a>
     </div>
+    }
   </div>
   
   @if (!useFigmaShellLogin() && !useDocsShellLogin() && tenantSlug() !== 'babooni') {

@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  DocumentItemComponent,
-  DocumentListComponent,
+  ButtonComponent,
   InputComponent,
   MainDetailLayoutComponent,
   josanzNonEmptyTrim,
@@ -17,9 +16,8 @@ import {
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
+    ButtonComponent,
     MainDetailLayoutComponent,
-    DocumentListComponent,
-    DocumentItemComponent,
   ],
   templateUrl: './josanz-event-create.html',
 })
@@ -27,27 +25,26 @@ export class JosanzEventCreateComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
-  /** Secciones de alta (página completa, sin modal). */
-  activeTab = signal('Datos');
-  readonly tabs = ['Datos', 'Presupuesto', 'Albarán'];
+  readonly eventTypes = ['Evento externo', 'Hotel', 'Espacio'];
+  readonly selectedType = signal('Evento externo');
 
   form: FormGroup;
-
-  readonly presupuestoPlaceholder = ['Presupuesto_borrador.pdf'];
-  readonly albaranPlaceholder: string[] = [];
 
   constructor() {
     this.form = this.fb.group({
       nombre: ['', josanzNonEmptyTrim],
+      localizacion: ['', josanzNonEmptyTrim],
       fecha: [new Date().toISOString().substring(0, 10), Validators.required],
+      montaje: [''],
       cliente: ['', josanzNonEmptyTrim],
-      tipologia: ['Externo', josanzNonEmptyTrim],
+      tipologia: ['Evento externo', josanzNonEmptyTrim],
       operador: ['', josanzNonEmptyTrim],
     });
   }
 
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
+  selectType(type: string): void {
+    this.selectedType.set(type);
+    this.form.patchValue({ tipologia: type });
   }
 
   onBack(): void {

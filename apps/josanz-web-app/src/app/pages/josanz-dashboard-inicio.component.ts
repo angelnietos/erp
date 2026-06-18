@@ -10,6 +10,7 @@ import {
 interface JosanzHomeTech {
   id: string;
   initials: string;
+  label: string;
 }
 
 interface JosanzHomeEventCard {
@@ -45,11 +46,38 @@ export class JosanzDashboardInicioComponent {
   readonly periodOptions = ['Día', 'Semana', 'Mes', 'Lista'];
 
   readonly technicians: JosanzHomeTech[] = [
-    { id: 't1', initials: 'JL' },
-    { id: 't2', initials: 'MP' },
-    { id: 't3', initials: 'AR' },
-    { id: 't4', initials: 'CS' },
-    { id: 't5', initials: 'DV' },
+    { id: 't1', initials: 'S1', label: 'Staff 01' },
+    { id: 't2', initials: 'S2', label: 'Staff 02' },
+    { id: 't3', initials: 'S3', label: 'Staff 03' },
+    { id: 't4', initials: 'S4', label: 'Staff 04' },
+    { id: 't5', initials: 'S5', label: 'Staff 05' },
+  ];
+
+  readonly kpis = [
+    {
+      label: 'Cantidad X',
+      value: '€ 45,678.90',
+      delta: '+20%',
+      deltaPositive: true,
+      deltaSuffix: ' este mes',
+      wide: false,
+    },
+    {
+      label: 'Valor Y',
+      value: '2,405',
+      delta: '+33%',
+      deltaPositive: true,
+      deltaSuffix: ' respecto al mes anterior',
+      wide: false,
+    },
+    {
+      label: 'Valor Z',
+      value: '10,353',
+      delta: '-8%',
+      deltaPositive: false,
+      deltaSuffix: ' este mes',
+      wide: true,
+    },
   ];
 
   readonly days = [

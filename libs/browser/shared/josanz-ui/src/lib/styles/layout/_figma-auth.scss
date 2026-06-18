@@ -1,4 +1,4 @@
-/* Login Figma (`Login.svg`) — reutilizable en josanz-web-app e identity. */
+/* Login Figma (`Login.svg` / node 61:1534) — josanz-web-app + identity alexis. */
 
 .josanz-figma-auth {
   display: flex;
@@ -21,6 +21,16 @@
   );
 }
 
+.josanz-figma-auth__hero--photo {
+  background:
+    center / cover no-repeat url('/assets/josanz-figma/login-hero.png'),
+    linear-gradient(
+      145deg,
+      var(--josanz-login-hero-start, #e8edf5) 0%,
+      var(--josanz-login-hero-end, #f5f7fb) 100%
+    );
+}
+
 .josanz-figma-auth__panel {
   flex: 1 1 auto;
   display: flex;
@@ -40,6 +50,14 @@
   animation: josanz-figma-auth-in 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
+.josanz-figma-auth__card--flat {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  max-width: 342px;
+}
+
 @keyframes josanz-figma-auth-in {
   from {
     opacity: 0;
@@ -54,6 +72,24 @@
 .josanz-figma-auth__header {
   text-align: center;
   margin-bottom: 1.75rem;
+}
+
+.josanz-figma-auth__card--flat .josanz-figma-auth__header {
+  text-align: left;
+  margin-bottom: 1.25rem;
+}
+
+.josanz-figma-auth__brand-logo {
+  display: block;
+  width: auto;
+  height: 68px;
+  max-width: 148px;
+  margin: 0 auto 1.25rem;
+  object-fit: contain;
+}
+
+.josanz-figma-auth__card--flat .josanz-figma-auth__brand-logo {
+  margin: 0 0 1.5rem;
 }
 
 .josanz-figma-auth__logo {
@@ -85,9 +121,9 @@
 
 .josanz-figma-auth__title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0;
   color: var(--josanz-text-heading, #222222);
 }
 
@@ -104,10 +140,40 @@
   gap: 0.25rem;
 }
 
+.josanz-figma-auth__form josanz-input {
+  display: block;
+}
+
+.josanz-figma-auth__form josanz-input .flex.flex-col {
+  margin-bottom: 0.75rem;
+}
+
+.josanz-figma-auth__form josanz-input input {
+  background: var(--josanz-login-field-bg, #ffffff) !important;
+  border-color: var(--josanz-stroke-field, #d7d7d7) !important;
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+.josanz-figma-auth__forgot {
+  align-self: flex-end;
+  margin: 0.15rem 0 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--josanz-text, #1b1b1b);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.josanz-figma-auth__forgot:hover {
+  color: var(--josanz-text-heading, #222222);
+}
+
 .josanz-figma-auth__form josanz-button {
   display: block;
   width: 100%;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 @media (min-width: 900px) {
@@ -125,12 +191,18 @@
 
   .josanz-figma-auth__panel {
     flex: 1 1 42%;
-    padding: 2rem 6vw 2rem 1.5rem;
+    padding: 2.5rem 6vw 2rem 1.5rem;
     justify-content: flex-start;
+    align-items: center;
   }
 
   .josanz-figma-auth__card {
     align-self: center;
     margin: 0;
+  }
+
+  .josanz-figma-auth__card--flat {
+    align-self: center;
+    margin-top: 2rem;
   }
 }

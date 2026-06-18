@@ -10,11 +10,13 @@ import type { JosanzControlShape } from '../josanz-control-styles';
   imports: [CommonModule, ReactiveFormsModule],
   template: `
     <div class="flex flex-col gap-2 w-full mb-4" [formGroup]="parentForm">
-      <label
-        [style.color]="'var(--josanz-label-muted)'"
-        class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1">
-        {{ label }}
-      </label>
+      @if (label) {
+        <label
+          [style.color]="'var(--josanz-label-muted)'"
+          class="text-[11px] font-bold uppercase tracking-[0.1em] ml-1">
+          {{ label }}
+        </label>
+      }
       <div class="relative flex items-center group">
         <input
           [formControlName]="controlName"
