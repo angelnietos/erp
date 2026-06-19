@@ -3,7 +3,8 @@
 Guía técnica: bootstrap del servidor, secretos de GitHub y pipeline `deploy-ssh.yml`.
 
 > **¿Por qué la guía interna pide clave SSH a cada dev si GitHub ya despliega?**  
-> Son **dos modelos distintos**. Lee: **[Guía interna vs deploy GitHub](./guia-interna-vs-deploy-github.md)** — en Josanz ERP el release normal **no** requiere que cada desarrollador tenga SSH ni haga `git pull` en producción.
+> Son **dos modelos distintos** — y a menudo **dos servidores distintos** (guía vs `DEPLOY_HOST` en GitHub).  
+> Lee: **[Guía interna vs deploy GitHub](./guia-interna-vs-deploy-github.md)** — el release normal **no** es SSH manual; el destino real del CI son los secretos `DEPLOY_*` del environment `production`/`staging`.
 
 > **Impacto de negocio (SSH vs PaaS):** [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md)
 

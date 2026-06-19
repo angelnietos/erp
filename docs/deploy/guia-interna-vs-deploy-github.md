@@ -30,6 +30,81 @@ Ese workflow entra al servidor **sin intervención humana**, con **una sola clav
 
 ---
 
+## Tercer problema: la guía apunta a **otro servidor**
+
+No solo cambia el **procedimiento** (manual vs CI): en muchos casos la guía interna habla de un **VPS concreto** (IP/hostname, usuario `babooni`, `/var/deploys/…`) que **no coincide** con el que tienen configurado los secretos de GitHub Actions (`DEPLOY_HOST`, `DEPLOY_PATH`).
+
+Eso explica frases del estilo *“he seguido la guía pero en la URL de producción no veo el cambio”* o *“¿por qué me piden clave SSH si el deploy ya va por Actions?”*.
+
+### Tres destinos posibles (no uno)
+
+| Destino | Quién lo usa | Dónde está definido |
+|---------|--------------|---------------------|
+| **A — Servidor de la guía interna** | Devs con SSH manual, admin Babooni | Documento / wiki de la empresa (no en el repo) |
+| **B — Servidor del pipeline GitHub** | `deploy-ssh.yml` tras merge a `main`/`dev` | GitHub → Settings → Environments → `production` / `staging` → secretos `DEPLOY_*` |
+| **C — Railway (legacy)** | Workflow `deploy-railway.yml` si aún está activo | Secretos `RAILWAY_*` en GitHub |
+
+```mermaid
+flowchart LR
+  subgraph dev [Equipo dev]
+    G[Guía interna SSH]
+    PR[Merge PR main/dev]
+  end
+
+  subgraph targets [¿Dónde queda el ERP?]
+    SA[Servidor A - guía interna]
+    SB[Servidor B - DEPLOY_HOST Actions]
+    RC[Railway - legacy]
+  end
+
+  G -->|ssh + git pull manual| SA
+  PR -->|deploy-ssh.yml| SB
+  PR -.->|solo si RAILWAY_* activo| RC
+```
+
+**Fuente de verdad del release automático:** el servidor **B** (secretos del environment en GitHub).  
+**Lo que actualiza la guía interna:** el servidor **A** — que puede ser otro máquina, otro proveedor, otro path o un VPS compartido con otros proyectos.
+
+Si A ≠ B, **seguir la guía no despliega lo que ve el usuario** en la URL que alimenta el pipeline (o al revés: el pipeline actualiza una máquina que nadie usa como “prod oficial”).
+
+### Cómo comprobarlo (sin adivinar)
+
+1. **GitHub Actions** → workflow **Deploy — SSH (Ubuntu)** → último run en verde → en el log aparece `Entorno:` y la conexión SSH (el host suele estar enmascarado, pero confirma que el job llega al servidor).
+2. **GitHub** → repo → **Settings → Environments** → `production` y `staging` → revisar quién administra los secretos `DEPLOY_HOST` y `DEPLOY_PATH` (solo mantenedores; no están en el código por seguridad).
+3. **Preguntar a admin:** “¿Qué IP/hostname es la **URL pública** del ERP Josanz?” y “¿Coincide con el `DEPLOY_HOST` de GitHub?”.
+4. **En el servidor de la guía** (si tenéis acceso): `hostname -I`, `pwd` en `/var/deploys/…`, `docker compose ps` — comparar con lo que muestra el log del workflow tras un deploy.
+5. **Railway:** si la app sigue en Railway para algún entorno, comprobar en el dashboard de Railway qué servicios están activos (destino **C**).
+
+### Registro de servidores (rellenar con dirección)
+
+Documento vivo para alinear al equipo — **no commitear IPs reales si la política de la empresa lo prohíbe**; puede vivir en wiki interna o en un canal privado. Plantilla:
+
+| Rol | Host / URL pública | Usuario SSH | Path deploy | ¿Quién despliega? | ¿Es prod oficial Josanz ERP? |
+|-----|-------------------|-------------|-------------|-------------------|------------------------------|
+| Guía interna (A) | _pendiente confirmar_ | _ej. babooni_ | _ej. /var/deploys/erp_ | Devs manual | ☐ Sí ☐ No |
+| GitHub Actions prod (B) | _ver `DEPLOY_HOST`_ | _ver `DEPLOY_USER`_ | _ver `DEPLOY_PATH`_ | `deploy-ssh.yml` | ☐ Sí ☐ No |
+| GitHub Actions staging (B) | _environment staging_ | | | `dev` → staging | ☐ Sí ☐ No |
+| Railway (C) | _URL Railway_ | N/A | N/A | `deploy-railway.yml` | ☐ Sí ☐ No |
+
+**Objetivo:** una sola fila marcada como “prod oficial” y **un solo** mecanismo de deploy hacia ella.
+
+### Qué hacer según el escenario
+
+| Situación | Acción recomendada |
+|-----------|-------------------|
+| La prod **real** debe ser el servidor de la **guía (A)** | Admin actualiza secretos `DEPLOY_*` en GitHub para apuntar a A, bootstrap con `deploy/scripts/bootstrap-server.sh`, clave pública del CI en A; **deja de pedir `git pull` manual** para Josanz ERP. |
+| La prod **real** ya es la del **pipeline (B)** | La guía interna debe **dejar de listar Josanz ERP** o sustituir el host por B; no dar claves SSH a devs para “desplegar” en A. |
+| Conviven A y B sin documentar | **Deuda operativa:** decidir cuál se apaga o cuál es staging; hasta entonces, bugs e incidencias serán irreproducibles. |
+| Sigue Railway (C) para usuarios | Declarar C como prod hasta migrar DNS; configurar B y cortar C con fecha; no mezclar tres destinos. |
+
+### Mensaje para dirección / admin
+
+> La guía SSH que nos han pasado describe **un servidor distinto** al que usa GitHub Actions para Josanz ERP.  
+> Mientras no alineemos **un destino** y **un procedimiento**, el equipo puede trabajar en el repo correctamente y aun así **no impactar** el entorno que ven los usuarios — o desplegar en una máquina que no es la oficial.  
+> Necesitamos una decisión explícita: **¿cuál es el hostname de producción del ERP y cuál es el único camino de deploy?**
+
+---
+
 ## Los dos modelos en comparación
 
 | | **Modelo A — Guía SSH interna** | **Modelo B — Deploy GitHub (este repo)** |
@@ -182,14 +257,21 @@ Puedes usar estas preguntas en una reunión:
 5. **¿La guía SSH es obligatoria para todos los repos o solo para legacy sin CI?**  
    - Josanz ERP **no** debería estar en el bucket legacy.
 
+6. **¿El IP/hostname de la guía interna es el mismo que `DEPLOY_HOST` en GitHub?**  
+   - Si no → la guía **no aplica** a Josanz ERP tal como está configurado el CI, o hay que **migrar secretos** o **migrar DNS**.
+
+7. **¿Cuál es la URL que usan los usuarios de Josanz hoy?**  
+   - Debe corresponder a **exactamente un** destino (A, B o C), no a dos a la vez.
+
 ---
 
 ## Resumen para compartir con compañeros
 
-> **No necesitas generar clave SSH ni hacer `git pull` en el servidor para desplegar Josanz ERP.**  
-> Eso es lo que describe la guía genérica de la empresa (Modelo A).  
-> Nosotros usamos **Modelo B**: merge a `main`/`dev` → GitHub construye imágenes → Actions entra al servidor con **una** clave de CI y levanta Docker.  
-> La guía por dev solo tendría sentido si el admin os pide acceso para **otra cosa** (incidencias, otros proyectos sin pipeline) — no para el flujo normal de release.
+> **No necesitas generar clave SSH ni hacer `git pull` en el servidor de la guía para desplegar Josanz ERP.**  
+> Eso es lo que describe la guía genérica de la empresa (Modelo A, servidor A).  
+> Nosotros usamos **Modelo B**: merge a `main`/`dev` → GitHub construye imágenes → Actions entra al servidor configurado en **`DEPLOY_HOST`** (servidor B) con **una** clave de CI.  
+> Si la guía menciona **otra IP** que la de GitHub Actions, **no es el mismo sitio**: seguir la guía no actualiza lo que despliega el pipeline (y viceversa).  
+> Pide a admin que confirme cuál es la **URL oficial de producción** y alinee guía + secretos de GitHub.
 
 Para el argumento de negocio (coste, atraso vs Railway/PaaS), ver también: [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md).
 
