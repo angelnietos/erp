@@ -2,9 +2,9 @@
 
 Guía técnica: bootstrap del servidor, secretos de GitHub y pipeline `deploy-ssh.yml`.
 
-> **¿Por qué la guía interna pide clave SSH a cada dev si GitHub ya despliega?**  
-> Son **dos modelos distintos** — y a menudo **dos servidores distintos** (guía vs `DEPLOY_HOST` en GitHub).  
-> Lee: **[Guía interna vs deploy GitHub](./guia-interna-vs-deploy-github.md)** — el release normal **no** es SSH manual; el destino real del CI son los secretos `DEPLOY_*` del environment `production`/`staging`.
+> **Objetivo de infra:** [Servidor único — SSH del equipo + GitHub Actions](./servidor-unico-ssh-y-cicd.md) (un solo VPS, no dos).
+
+> **¿Por qué la guía interna no cuadra hoy?** [Guía interna vs deploy GitHub](./guia-interna-vs-deploy-github.md)
 
 > **Impacto de negocio (SSH vs PaaS):** [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md)
 

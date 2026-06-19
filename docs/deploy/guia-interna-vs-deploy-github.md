@@ -88,6 +88,8 @@ Documento vivo para alinear al equipo — **no commitear IPs reales si la polít
 
 **Objetivo:** una sola fila marcada como “prod oficial” y **un solo** mecanismo de deploy hacia ella.
 
+**Plan de alineación (un solo servidor):** [servidor-unico-ssh-y-cicd.md](./servidor-unico-ssh-y-cicd.md)
+
 ### Qué hacer según el escenario
 
 | Situación | Acción recomendada |

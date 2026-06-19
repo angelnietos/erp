@@ -2,7 +2,8 @@
 
 > **Para dirección / producto:**  
 > · [Comparativa SSH vs PaaS — coste y atraso](../docs/deploy/comparativa-ssh-vs-paas.md)  
-> · [Guía interna vs deploy GitHub — clave por dev](../docs/deploy/guia-interna-vs-deploy-github.md)  
+> · [Servidor único — SSH + GitHub Actions](../docs/deploy/servidor-unico-ssh-y-cicd.md)  
+> · [Guía interna vs deploy GitHub](../docs/deploy/guia-interna-vs-deploy-github.md)  
 > · [Resumen ejecutivo](./README-DIRECCION.md)
 
 ## Apps y perfiles Compose
