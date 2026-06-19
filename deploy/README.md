@@ -1,6 +1,9 @@
 # Despliegue en servidor Ubuntu (Docker)
 
-> **Para dirección / producto:** [Comparativa SSH vs PaaS — coste y atraso operativo](../docs/deploy/comparativa-ssh-vs-paas.md) · [Resumen ejecutivo](./README-DIRECCION.md)
+> **Para dirección / producto:**  
+> · [Comparativa SSH vs PaaS — coste y atraso](../docs/deploy/comparativa-ssh-vs-paas.md)  
+> · [Guía interna vs deploy GitHub — clave por dev](../docs/deploy/guia-interna-vs-deploy-github.md)  
+> · [Resumen ejecutivo](./README-DIRECCION.md)
 
 ## Apps y perfiles Compose
 

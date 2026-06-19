@@ -1,12 +1,15 @@
 # Despliegue — lectura para dirección
 
-Si necesitas explicar a jefes o compañeros **por qué volver a despliegue por SSH supone un atraso** frente a Railway, Vercel, Azure u otras plataformas con CI/CD, lee:
+## Documentos
 
-## [Comparativa SSH vs PaaS (CI/CD moderno)](../docs/deploy/comparativa-ssh-vs-paas.md)
+| Documento | Contenido |
+|-----------|-----------|
+| [Comparativa SSH vs PaaS](../docs/deploy/comparativa-ssh-vs-paas.md) | Coste, atraso operativo vs Railway/Vercel/Azure |
+| [Guía interna vs deploy GitHub](../docs/deploy/guia-interna-vs-deploy-github.md) | **Por qué la guía SSH “una clave por dev” no cuadra con el CI del repo** |
 
-Resumen en una frase: **el VPS cuesta menos en factura, pero el tiempo del equipo en operar servidores cuesta más que lo que se ahorra** — y cada release tarda más en llegar a producción.
+Resumen: el VPS ahorra poco en factura; el deploy por GitHub **no debería** exigir SSH manual a cada desarrollador.
 
-Documentación operativa (si la infra SSH es obligatoria):
+Documentación operativa (infra SSH obligatoria):
 
 - [Guía SSH servidores](../docs/deploy/ssh-servers.md)
 - [README técnico de deploy](./README.md)

@@ -1,8 +1,13 @@
 # Despliegue en servidores SSH (Babooni)
 
-Guía para el equipo de desarrollo: acceso SSH, configuración del servidor en `/var/deploys/` y pipelines de GitHub Actions.
+Guía técnica: bootstrap del servidor, secretos de GitHub y pipeline `deploy-ssh.yml`.
 
-> **Railway → servidores propios:** el repo sigue teniendo `deploy-railway.yml` por compatibilidad, pero el flujo recomendado es **GHCR + Docker Compose + deploy SSH**.
+> **¿Por qué la guía interna pide clave SSH a cada dev si GitHub ya despliega?**  
+> Son **dos modelos distintos**. Lee: **[Guía interna vs deploy GitHub](./guia-interna-vs-deploy-github.md)** — en Josanz ERP el release normal **no** requiere que cada desarrollador tenga SSH ni haga `git pull` en producción.
+
+> **Impacto de negocio (SSH vs PaaS):** [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md)
+
+> **Railway → servidores propios:** el repo mantiene `deploy-railway.yml`; flujo en servidores propios: **GHCR + Docker Compose + deploy-ssh.yml**.
 
 ## Arquitectura
 
@@ -20,6 +25,8 @@ push main/dev  →  nx-affected-ci (lint/test/build)
 | Imágenes | `ghcr.io/angelnietos/erp/<servicio>:<tag>` |
 
 ## Parte 1 — Tu máquina (Windows)
+
+> **Desarrolladores de aplicación:** si el deploy lo hace GitHub Actions (`deploy-ssh.yml`), **no necesitas** completar esta sección para publicar en staging/producción. Solo aplica si administración te concede SSH por otra razón (incidencias, otros servidores). Ver [guia-interna-vs-deploy-github.md](./guia-interna-vs-deploy-github.md).
 
 ### 1. Comprobar si ya tienes clave SSH
 
