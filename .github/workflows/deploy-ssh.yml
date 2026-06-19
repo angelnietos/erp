@@ -1,7 +1,11 @@
 name: Deploy — SSH (Ubuntu)
 
-# Tras publicar imágenes en GHCR, o manualmente cuando el servidor tiene deploy/.env
+# Tras publicar imágenes en GHCR (main → production, dev → staging), o manualmente.
 on:
+  workflow_run:
+    workflows: ['Docker — build & push (GHCR)']
+    types: [completed]
+    branches: [main, master, dev]
   workflow_dispatch:
     inputs:
       environment:
@@ -13,9 +17,14 @@ on:
           - production
           - staging
       ref:
-        description: 'Rama o tag desplegado (informativo)'
+        description: 'Rama git a desplegar en el servidor (git pull)'
         required: false
         default: ''
+      run_migrations:
+        description: 'Ejecutar prisma migrate deploy tras el up'
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -23,7 +32,15 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success')
+    environment: >-
+      ${{
+        github.event_name == 'workflow_dispatch' && inputs.environment ||
+        (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'dev' && 'staging') ||
+        'production'
+      }}
     env:
       DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
@@ -31,7 +48,22 @@ jobs:
       DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
       GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
       GHCR_PULL_USER: ${{ secrets.GHCR_PULL_USER }}
-      DEPLOY_ENV_FILE: deploy/.env.${{ inputs.environment }}
+      DEPLOY_GIT_REF: >-
+        ${{
+          github.event_name == 'workflow_dispatch' && (inputs.ref || (inputs.environment == 'staging' && 'dev' || 'main')) ||
+          github.event.workflow_run.head_branch
+        }}
+      DEPLOY_ENV_FILE: >-
+        ${{
+          (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging') ||
+          (github.event_name == 'workflow_run' && github.event.workflow_run.head_branch == 'dev')
+            && 'deploy/.env.staging' || 'deploy/.env.production'
+        }}
+      RUN_MIGRATIONS: >-
+        ${{
+          github.event_name == 'workflow_dispatch' && inputs.run_migrations ||
+          true
+        }}
     steps:
       - name: Validate deploy secrets
         run: |
@@ -45,6 +77,9 @@ jobs:
             echo "Faltan secretos:$missing"
             exit 1
           fi
+          echo "Entorno: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || (github.event.workflow_run.head_branch == 'dev' && 'staging' || 'production') }}"
+          echo "Rama: ${{ env.DEPLOY_GIT_REF }}"
+          echo "Env file: ${{ env.DEPLOY_ENV_FILE }}"
 
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -53,23 +88,51 @@ jobs:
           username: ${{ env.DEPLOY_USER }}
           key: ${{ env.DEPLOY_SSH_KEY }}
           script_stop: true
+          envs: DEPLOY_PATH,DEPLOY_GIT_REF,DEPLOY_ENV_FILE,RUN_MIGRATIONS,GHCR_PULL_TOKEN,GHCR_PULL_USER
           script: |
             set -euo pipefail
-            cd "${{ env.DEPLOY_PATH }}"
-            ENV_FILE="${{ env.DEPLOY_ENV_FILE }}"
+            cd "${DEPLOY_PATH}"
+
+            if [ -d .git ]; then
+              echo "==> git fetch + checkout ${DEPLOY_GIT_REF}"
+              git fetch origin "${DEPLOY_GIT_REF}" --depth=1
+              git checkout -B "deploy-${DEPLOY_GIT_REF}" "origin/${DEPLOY_GIT_REF}"
+            else
+              echo "WARN: no es un repo git; se omite git pull"
+            fi
+
+            ENV_FILE="${DEPLOY_ENV_FILE}"
             if [ ! -f "$ENV_FILE" ]; then
               ENV_FILE="deploy/.env"
             fi
             if [ ! -f "$ENV_FILE" ]; then
-              echo "No existe $ENV_FILE ni deploy/.env"
+              echo "No existe archivo de entorno"
               exit 1
             fi
-            if [ -n "${{ env.GHCR_PULL_TOKEN }}" ]; then
-              echo "${{ env.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ env.GHCR_PULL_USER }}" --password-stdin
+            echo "==> Usando ${ENV_FILE}"
+
+            if [ -n "${GHCR_PULL_TOKEN:-}" ]; then
+              echo "${GHCR_PULL_TOKEN}" | docker login ghcr.io -u "${GHCR_PULL_USER}" --password-stdin
             fi
+
             set -a
+            # shellcheck disable=SC1090
             . "$ENV_FILE"
             set +a
             export COMPOSE_PROFILES="${COMPOSE_PROFILES:-josanz,core}"
+
+            echo "==> docker compose pull (profiles=${COMPOSE_PROFILES})"
             docker compose -f docker-compose.prod.yml pull
+
+            echo "==> docker compose up"
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            if [ "${RUN_MIGRATIONS}" = "true" ]; then
+              echo "==> prisma migrate deploy"
+              docker compose -f docker-compose.prod.yml --profile core run --rm backend \
+                npx prisma migrate deploy --schema=./prisma/schema.prisma || {
+                  echo "WARN: migrate deploy falló"
+                }
+            fi
+
+            docker compose -f docker-compose.prod.yml ps

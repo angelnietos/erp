@@ -1,5 +1,7 @@
 # Despliegue en servidor Ubuntu (Docker)
 
+> **Para dirección / producto:** [Comparativa SSH vs PaaS — coste y atraso operativo](../docs/deploy/comparativa-ssh-vs-paas.md) · [Resumen ejecutivo](./README-DIRECCION.md)
+
 ## Apps y perfiles Compose
 
 | App Nx | Imagen GHCR | Perfil Compose |
@@ -26,14 +28,24 @@ COMPOSE_PROFILES=josanz,core
 - `docker-compose.prod.yml` — Postgres + servicios por perfil
 - `.github/workflows/nx-affected-ci.yml` — CI (lint, test, build affected)
 - `.github/workflows/docker-images.yml` — build/push matricial a GHCR
-- `.github/workflows/deploy-ssh.yml` — deploy por SSH (`production` / `staging`)
-- `.github/workflows/deploy-railway.yml` — deploy manual a Railway por servicio
+- `.github/workflows/deploy-ssh.yml` — deploy automático tras GHCR (main/dev) o manual
+- `.github/workflows/deploy-railway.yml` — **legacy** (Railway; sustituido por SSH)
 - `deploy/railway/` — Dockerfiles y guía para servicios Railway
 
 ## Servidor (una vez)
 
+Documentación completa: **[docs/deploy/ssh-servers.md](../docs/deploy/ssh-servers.md)** (SSH, `/var/deploys/erp`, pipelines, secretos GitHub).
+
+Script de bootstrap:
+
+```bash
+sudo bash deploy/scripts/bootstrap-server.sh
+```
+
+Pasos resumidos:
+
 1. Docker + Compose v2.
-2. Copiar `docker-compose.prod.yml` y `deploy/.env` (desde `deploy/.env.example`).
+2. Clone en `/var/deploys/erp` y `deploy/.env` (desde `deploy/.env.example`).
 3. `DATABASE_URL` con host **`postgres`**.
 4. Login GHCR (imágenes privadas):
 
@@ -70,9 +82,11 @@ COMPOSE_PROFILES=josanz,core
 
 Workflow **Deploy — SSH (Ubuntu)** → elegir `production` o `staging` (lee `deploy/.env.production` o `deploy/.env.staging`, con fallback a `deploy/.env`).
 
-## Railway
+## Railway (legacy)
 
-También hay configuración para desplegar servicios individuales en Railway:
+Railway ya no es el destino principal. Usa SSH + GHCR (ver `docs/deploy/ssh-servers.md`).
+
+Si aún necesitas Railway:
 
 - Dockerfiles por app en `deploy/railway/dockerfiles/`.
 - Nginx preparado para el `PORT` dinámico de Railway en apps Angular.

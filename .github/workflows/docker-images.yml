@@ -2,9 +2,14 @@ name: Docker — build & push (GHCR)
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, dev]
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Rama a construir (vacío = rama del evento)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
