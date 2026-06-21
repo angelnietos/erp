@@ -7,13 +7,14 @@
   --josanz-field-radius: 8px;
   --josanz-cta: #0f1e2f;
   --josanz-on-cta: #ffffff;
-  --josanz-hero-wash: #e8edf5;
+  --josanz-form-width: 22.5rem;
 }
 
 html,
 body {
   height: 100%;
   margin: 0;
+  overflow: hidden;
   background: var(--josanz-canvas) !important;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
@@ -23,44 +24,72 @@ body {
   background: var(--josanz-canvas) !important;
 }
 
-/* Shell dos columnas (hero izquierda + formulario derecha) */
+/* Shell dos columnas: hero | formulario */
 .pf-v5-c-login {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
   min-height: 100vh;
   min-height: 100dvh;
+  max-height: 100dvh;
   max-width: none !important;
   padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
   background: var(--josanz-canvas) !important;
 }
 
 .pf-v5-c-login::before {
   content: '';
+  grid-column: 1;
+  grid-row: 1;
   display: block;
+  min-height: 0;
   background:
     linear-gradient(135deg, rgba(232, 237, 245, 0.35), rgba(245, 247, 251, 0.2)),
     url('../img/login-hero.png') center / cover no-repeat;
-  min-height: 100%;
 }
 
-.pf-v5-c-login__container,
-.pf-v5-c-login__main {
+.pf-v5-c-login__container {
   grid-column: 2;
-  display: flex;
-  flex-direction: column;
+  grid-row: 1;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-areas: 'main' !important;
+  display: flex !important;
+  align-items: center;
   justify-content: center;
-  align-items: stretch;
-  width: 100%;
-  max-width: 420px;
-  margin: 0 auto;
-  padding: 2.5rem 2rem;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0;
+  margin: 0 !important;
+  padding: clamp(1.5rem, 4vw, 3rem);
   box-sizing: border-box;
   background: var(--josanz-canvas);
+  overflow-y: auto;
 }
 
+.pf-v5-c-login__main {
+  width: 100%;
+  max-width: var(--josanz-form-width);
+  margin: 0 auto;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+
+/* Cabecera: título ancho completo; idioma debajo a la derecha */
 .pf-v5-c-login__header {
-  text-align: center;
-  margin-bottom: 1.5rem;
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1.75rem;
+  text-align: left;
+}
+
+.pf-v5-c-login__header > div:first-child {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Logo Josanz sobre el título */
@@ -69,23 +98,61 @@ body {
   display: block;
   width: 148px;
   height: 68px;
-  margin: 0 auto 1.25rem;
+  margin: 0 0 1.25rem;
   background: url('../img/login-logo.png') center / contain no-repeat;
 }
 
 .pf-v5-c-title,
 #kc-page-title {
   color: var(--josanz-heading) !important;
-  font-size: 1.75rem !important;
+  font-size: clamp(1.375rem, 2.5vw, 1.75rem) !important;
   font-weight: 600 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em;
   text-align: left;
-  margin: 0 0 1.25rem !important;
+  white-space: normal;
+  word-break: normal;
+  hyphens: manual;
+  overflow-wrap: normal;
+  margin: 0 !important;
+  max-width: 100%;
+}
+
+/* Selector de idioma compacto (no compite con el título) */
+#kc-locale,
+.pf-v5-c-login__header .pf-v5-c-form-control,
+.pf-v5-c-login__header select {
+  align-self: flex-end;
+  width: auto !important;
+  min-width: 7.5rem;
+  max-width: 100%;
+  margin: 0 !important;
+  font-size: 0.8125rem !important;
+  color: var(--josanz-muted) !important;
+}
+
+.pf-v5-c-login__main-body {
+  width: 100%;
+}
+
+#kc-form-login,
+#kc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.pf-v5-c-form__group,
+.pf-v5-c-form__group + .pf-v5-c-form__group {
+  margin-bottom: 1rem;
 }
 
 .pf-v5-c-form__label,
 label.pf-v5-c-form__label {
   color: var(--josanz-muted) !important;
   font-size: 0.875rem;
+  margin-bottom: 0.375rem;
 }
 
 .pf-v5-c-form-control,
@@ -94,12 +161,111 @@ input.pf-v5-c-form-control {
   border-radius: var(--josanz-field-radius) !important;
   background: #ffffff !important;
   min-height: 2.75rem;
+  width: 100%;
   box-shadow: none !important;
 }
 
 .pf-v5-c-form-control:focus {
   outline: 2px solid rgba(15, 30, 47, 0.12) !important;
   border-color: var(--josanz-cta) !important;
+}
+
+/* Campo contraseña + botón mostrar */
+.pf-v5-c-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: 0 !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button,
+.pf-v5-c-input-group button {
+  flex: 0 0 auto;
+  border: 1px solid var(--josanz-field-stroke) !important;
+  border-left: 0 !important;
+  border-radius: 0 var(--josanz-field-radius) var(--josanz-field-radius) 0 !important;
+  background: #ffffff !important;
+  color: var(--josanz-muted) !important;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button:hover {
+  background: #f7f7f7 !important;
+  color: var(--josanz-heading) !important;
+}
+
+/* Recordarme + olvidé contraseña */
+#kc-form-options,
+.pf-v5-c-login__main-footer-band {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 0.25rem 0 1.5rem;
+  width: 100%;
+}
+
+#kc-form-options .checkbox,
+#kc-form-options .pf-v5-c-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#kc-form-options label,
+#kc-form-options .pf-v5-c-check__label {
+  color: var(--josanz-muted) !important;
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#kc-form-options input[type='checkbox'],
+#kc-form-options .pf-v5-c-check__input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--josanz-cta);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#kc-form-options a {
+  color: var(--josanz-muted) !important;
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#kc-form-options a:hover {
+  color: var(--josanz-heading) !important;
+  text-decoration: underline;
+}
+
+.pf-v5-c-login__main-footer a {
+  color: var(--josanz-muted) !important;
+  font-size: 0.875rem;
+}
+
+.pf-v5-c-login__main-footer a:hover {
+  color: var(--josanz-heading) !important;
+}
+
+#kc-form-buttons {
+  margin-top: 0.25rem;
 }
 
 .pf-v5-c-button.pf-m-primary,
@@ -119,54 +285,6 @@ input[name='login'] {
   filter: brightness(1.08);
 }
 
-/* Recordarme + olvidé contraseña */
-#kc-form-options,
-.pf-v5-c-login__main-footer-band {
-  display: flex !important;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem 1rem;
-  margin: 0.5rem 0 1.25rem;
-}
-
-#kc-form-options .checkbox,
-#kc-form-options .pf-v5-c-check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-}
-
-#kc-form-options label,
-#kc-form-options .pf-v5-c-check__label {
-  color: var(--josanz-muted) !important;
-  font-size: 0.875rem;
-  font-weight: 400;
-  margin: 0;
-  cursor: pointer;
-}
-
-#kc-form-options input[type='checkbox'],
-#kc-form-options .pf-v5-c-check__input {
-  width: 1rem;
-  height: 1rem;
-  accent-color: var(--josanz-cta);
-  cursor: pointer;
-}
-
-.pf-v5-c-login__main-footer a,
-#kc-form-options a {
-  color: var(--josanz-muted) !important;
-  font-size: 0.875rem;
-}
-
-.pf-v5-c-login__main-footer a:hover,
-#kc-form-options a:hover {
-  color: var(--josanz-heading) !important;
-}
-
-/* Ocultar branding KC por defecto si aparece */
 #kc-header,
 #kc-header-wrapper {
   display: none !important;
@@ -175,16 +293,28 @@ input[name='login'] {
 @media (max-width: 900px) {
   .pf-v5-c-login {
     grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+    max-height: none;
+  }
+
+  html,
+  body {
+    overflow: auto;
   }
 
   .pf-v5-c-login::before {
-    min-height: 220px;
+    grid-column: 1;
     grid-row: 1;
+    min-height: 200px;
+    max-height: 34vh;
   }
 
-  .pf-v5-c-login__container,
-  .pf-v5-c-login__main {
+  .pf-v5-c-login__container {
     grid-column: 1;
     grid-row: 2;
+    align-items: flex-start;
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
   }
 }
