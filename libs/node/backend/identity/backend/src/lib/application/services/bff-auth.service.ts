@@ -307,11 +307,12 @@ export class BffAuthService {
 
     if (accessToken) {
       const payload = this.decodeJwt(accessToken);
-      const userId = payload?.sub as string | undefined;
-      if (!userId) {
-        throw new UnauthorizedException('Token Keycloak inválido');
-      }
-      enriched = await this.authService.refreshPlatformSession(userId);
+      const email =
+        (typeof payload?.email === 'string' && payload.email) ||
+        (typeof payload?.preferred_username === 'string' &&
+          payload.preferred_username) ||
+        dto.email;
+      enriched = await this.authService.refreshPlatformSessionByEmail(email);
       accessToken = enriched.accessToken;
     } else {
       enriched = await this.authService.platformLogin(dto);

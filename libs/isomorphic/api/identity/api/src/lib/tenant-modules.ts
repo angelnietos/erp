@@ -113,6 +113,7 @@ const PERMISSION_REQUIRES_MODULES: Record<string, readonly string[]> = {
   'services.manage': ['services'],
   'reports.view': ['reports'],
   'audit.view': ['audit'],
+  'availability.view': ['availability'],
   'delivery.view': ['delivery'],
   'delivery.manage': ['delivery'],
   'billing.view': ['billing'],
@@ -157,4 +158,46 @@ export function normalizeTenantModuleIds(
 ): string[] {
   const allowed = new Set(DEFAULT_TENANT_MODULE_IDS);
   return [...new Set(ids.filter((id) => allowed.has(id)))];
+}
+
+/** Permisos ERP agrupados por módulo (para panel SaaS y documentación). */
+export function permissionsGroupedByModule(): Readonly<
+  Record<string, readonly string[]>
+> {
+  const byModule: Record<string, Set<string>> = {};
+  for (const [permissionId, moduleIds] of Object.entries(
+    PERMISSION_REQUIRES_MODULES,
+  )) {
+    if (permissionId === '*') continue;
+    const targets = moduleIds.length === 0 ? ['_global'] : moduleIds;
+    for (const moduleId of targets) {
+      if (!byModule[moduleId]) {
+        byModule[moduleId] = new Set();
+      }
+      byModule[moduleId].add(permissionId);
+    }
+  }
+  return Object.fromEntries(
+    Object.entries(byModule).map(([moduleId, perms]) => [
+      moduleId,
+      [...perms].sort(),
+    ]),
+  );
+}
+
+/** Permisos ERP activos cuando un módulo está contratado. */
+export function permissionsForEnabledModules(
+  enabledModuleIds: readonly string[],
+): string[] {
+  const grouped = permissionsGroupedByModule();
+  const enabled = new Set(enabledModuleIds);
+  const result = new Set<string>();
+  for (const [moduleId, permissionIds] of Object.entries(grouped)) {
+    if (moduleId === '_global' || enabled.has(moduleId)) {
+      for (const p of permissionIds) {
+        result.add(p);
+      }
+    }
+  }
+  return [...result].sort();
 }

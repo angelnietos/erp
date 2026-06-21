@@ -5,6 +5,7 @@ import {
   ALL_APP_PERMISSION_IDS,
   AuthResponse,
   LoginCredentials,
+  PLATFORM_OWNER_PERMISSIONS,
   UserPayload,
   getTenantKeycloakConfig,
   tenantUsesKeycloakLogin,
@@ -113,14 +114,8 @@ function extractKeycloakRoles(payload: Record<string, unknown>): string[] {
   );
 }
 
-/** Alineado con HybridJwtStrategy: admins no quedan bloqueados si /session falla. */
-function resolveKeycloakFallbackPermissions(allKeycloakRoles: string[]): string[] {
-  if (allKeycloakRoles.some((r) => ['PlatformOwner', 'PlatformAdmin'].includes(r))) {
-    return ALL_APP_PERMISSIONS;
-  }
-  if (allKeycloakRoles.some((r) => ['TenantAdmin', 'admin'].includes(r))) {
-    return ALL_APP_PERMISSIONS;
-  }
+/** Sin sesión ERP en backend: no ampliar permisos desde roles KC en cliente. */
+function resolveKeycloakFallbackPermissions(_allKeycloakRoles: string[]): string[] {
   return [];
 }
 
@@ -381,7 +376,7 @@ export class AuthService {
                     id: String(payload['sub']),
                     email: typeof payload['email'] === 'string' ? payload['email'] : email,
                     roles: ['platformAdmin'],
-                    permissions: ['platform.tenants.manage', 'platform.modules.configure'],
+                    permissions: [...PLATFORM_OWNER_PERMISSIONS],
                   },
                   tenantId: undefined,
                 } as AuthResponse),

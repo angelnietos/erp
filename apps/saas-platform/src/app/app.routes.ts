@@ -24,6 +24,13 @@ export const appRoutes: Route[] = [
         loadComponent: () =>
           import('./metrics-page.component').then((m) => m.MetricsPageComponent),
       },
+      {
+        path: 'permissions',
+        loadComponent: () =>
+          import('./permissions-policy-page.component').then(
+            (m) => m.PermissionsPolicyPageComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

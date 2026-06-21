@@ -26,6 +26,7 @@ import { KeycloakAuthService } from './keycloak-auth.service';
               Organizaciones
             </a>
             <a routerLink="/metrics" routerLinkActive="tab--active" class="tab">Métricas</a>
+            <a routerLink="/permissions" routerLinkActive="tab--active" class="tab">Permisos</a>
           </nav>
 
           <button type="button" class="btn-logout" (click)="logout()">

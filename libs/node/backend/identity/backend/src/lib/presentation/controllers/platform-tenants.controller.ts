@@ -12,6 +12,13 @@ import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
+import {
+  PERMISSIONS_CATALOG,
+  PLATFORM_PERMISSIONS_CATALOG,
+  TENANT_MODULE_CATALOG,
+  permissionsGroupedByModule,
+  TENANT_KEYCLOAK_REALM,
+} from '@josanz-erp/identity-api';
 import { IsArray, IsString } from 'class-validator';
 
 class UpdateTenantModulesDto {
@@ -27,6 +34,30 @@ export class PlatformTenantsController {
     private readonly tenantModulesService: TenantModulesService,
     private readonly tenantRealmSyncService: TenantRealmSyncService,
   ) {}
+
+  @SkipTenantGuard()
+  @Get('permissions-policy')
+  getPermissionsPolicy() {
+    return {
+      authorizationModel: {
+        tenantModules: 'Postgres Tenant.enabledModuleIds',
+        erpPermissions: 'Postgres Role.permissions filtrados por módulos',
+        keycloakRole: 'IdP opcional; no sustituye permisos ERP',
+        platformPermissions: 'JWT platform.* unificado local + Keycloak',
+      },
+      erpPermissions: PERMISSIONS_CATALOG,
+      platformPermissions: PLATFORM_PERMISSIONS_CATALOG,
+      modules: TENANT_MODULE_CATALOG,
+      permissionsByModule: permissionsGroupedByModule(),
+      keycloakTenants: Object.entries(TENANT_KEYCLOAK_REALM).map(
+        ([slug, binding]) => ({
+          slug,
+          realm: binding.realm,
+          clientId: binding.clientId,
+        }),
+      ),
+    };
+  }
 
   @SkipTenantGuard()
   @Get()

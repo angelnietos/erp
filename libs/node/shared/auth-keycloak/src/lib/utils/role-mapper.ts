@@ -1,4 +1,5 @@
 import { KeycloakToken } from '../domain/entities/keycloak-token.entity';
+import { PLATFORM_OWNER_PERMISSIONS } from '@josanz-erp/identity-api';
 
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
   PlatformOwner: 'platformAdmin',
@@ -7,9 +8,10 @@ const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
   admin: 'clientAdmin',
 };
 
+/** Permisos de plataforma unificados (local + Keycloak). Los ERP vienen de Postgres vía /session. */
 const KEYCLOAK_TO_ERP_PERMISSION_MAP: Record<string, string[]> = {
-  platformAdmin: ['platform.tenants.manage', 'platform.modules.configure'],
-  clientAdmin: ['clients.users.manage', 'clients.settings.write'],
+  platformAdmin: [...PLATFORM_OWNER_PERMISSIONS],
+  clientAdmin: [],
 };
 
 export function mapKeycloakRolesToErp(
@@ -39,6 +41,9 @@ export function mapKeycloakRolesToErp(
 
   if (realmRoles.includes('PlatformOwner') || realmRoles.includes('PlatformAdmin')) {
     erpRoles.push('platformAdmin');
+    for (const p of PLATFORM_OWNER_PERMISSIONS) {
+      permissions.add(p);
+    }
   }
 
   return {

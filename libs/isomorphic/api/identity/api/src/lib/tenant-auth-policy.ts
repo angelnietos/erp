@@ -41,3 +41,26 @@ export function getTenantKeycloakConfig(
   const key = normalizeAuthTenantSlug(slug);
   return TENANT_KEYCLOAK_REALM[key];
 }
+
+export type TenantAuthMode = 'keycloak' | 'local';
+
+export interface TenantAuthPolicyView {
+  slug: string;
+  authMode: TenantAuthMode;
+  keycloak?: TenantKeycloakBinding;
+  /** Postgres sigue siendo fuente de verdad de roles/permisos ERP. */
+  authorizationSource: 'postgres';
+}
+
+export function getTenantAuthPolicy(
+  slug: string | null | undefined,
+): TenantAuthPolicyView {
+  const key = normalizeAuthTenantSlug(slug);
+  const keycloak = getTenantKeycloakConfig(key);
+  return {
+    slug: key,
+    authMode: keycloak ? 'keycloak' : 'local',
+    keycloak,
+    authorizationSource: 'postgres',
+  };
+}

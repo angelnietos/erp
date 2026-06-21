@@ -13,11 +13,11 @@ import { LoginDto } from '../dtos/login.dto';
 import { PlatformLoginDto } from '../dtos/platform-login.dto';
 import {
   DEFAULT_TENANT_MODULE_IDS,
+  PLATFORM_OWNER_PERMISSIONS,
 } from '@josanz-erp/identity-api';
 import { mergeEffectiveUserPermissions } from '../utils/permission-merge';
 
 const PLATFORM_JWT_ROLES = ['PlatformOwner'] as const;
-const PLATFORM_JWT_PERMISSIONS = ['platform.tenants.manage'] as const;
 
 type AuthenticatedUserView = {
   id: string;
@@ -175,7 +175,7 @@ export class AuthService {
       firstName: row.firstName ?? undefined,
       lastName: row.lastName ?? undefined,
       roles: [...PLATFORM_JWT_ROLES],
-      permissions: [...PLATFORM_JWT_PERMISSIONS],
+      permissions: [...PLATFORM_OWNER_PERMISSIONS],
     };
 
     const payload = {
@@ -211,7 +211,7 @@ export class AuthService {
       firstName: row.firstName ?? undefined,
       lastName: row.lastName ?? undefined,
       roles: [...PLATFORM_JWT_ROLES],
-      permissions: [...PLATFORM_JWT_PERMISSIONS],
+      permissions: [...PLATFORM_OWNER_PERMISSIONS],
     };
 
     const payload = {
@@ -227,6 +227,27 @@ export class AuthService {
       user: userView,
       tenantId: '',
     };
+  }
+
+  /** Tras login Keycloak del panel SaaS: resolver por email (no por `sub`). */
+  async refreshPlatformSessionByEmail(email: string): Promise<{
+    accessToken: string;
+    user: AuthenticatedUserView;
+    tenantId: string;
+  }> {
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) {
+      throw new UnauthorizedException('Email requerido');
+    }
+    const row = await this.prisma.platformUser.findUnique({
+      where: { email: normalized },
+    });
+    if (!row || !row.isActive) {
+      throw new UnauthorizedException(
+        'Usuario de plataforma no registrado. Añádelo en platform_users o usa login local.',
+      );
+    }
+    return this.refreshPlatformSession(row.id);
   }
 
   async refreshSession(userId: string, tenantId: string): Promise<{

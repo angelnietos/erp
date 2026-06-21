@@ -4,6 +4,10 @@ import { Strategy, ExtractJwt } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
+import {
+  resolvePlatformPermissionsForRoles,
+  isPlatformAdminRole,
+} from '@josanz-erp/identity-api';
 
 interface KeycloakToken {
   sub: string;
@@ -25,18 +29,6 @@ interface PlatformMappedUser {
   permissions: string[];
   kind: 'platform';
 }
-
-const ALL_PLATFORM_PERMISSIONS: string[] = [
-  '*',
-  'platform.manage',
-  'tenants.view',
-  'tenants.manage',
-  'users.view',
-  'users.manage',
-  'roles.manage',
-  'system.manage',
-  'audit.view',
-];
 
 @Injectable()
 export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jwt') {
@@ -97,20 +89,20 @@ export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jw
       return this.validateKeycloakPlatformUser(payload as unknown as KeycloakToken);
     }
 
-    // Standard platform JWT (HS256) - local dev fallback
     const roles = Array.isArray(payload.roles)
       ? payload.roles.filter((r): r is string => typeof r === 'string')
       : [];
-    
-    const isAdmin = roles.some(r => ['PlatformOwner', 'PlatformAdmin'].includes(r));
+    const permissions = Array.isArray(payload.permissions)
+      ? payload.permissions.filter((p): p is string => typeof p === 'string')
+      : resolvePlatformPermissionsForRoles(roles);
 
     return {
       id: String(payload.sub),
       email: String(payload.email ?? ''),
       firstName: payload.firstName as string | undefined,
       lastName: payload.lastName as string | undefined,
-      roles: isAdmin ? roles : ['authenticated'],
-      permissions: isAdmin ? ALL_PLATFORM_PERMISSIONS : [],
+      roles: roles.some(isPlatformAdminRole) ? roles : ['authenticated'],
+      permissions,
       kind: 'platform',
     };
   }
@@ -123,17 +115,15 @@ export class PlatformJwtStrategy extends PassportStrategy(Strategy, 'platform-jw
     }
 
     const realmRoles = kcToken.realm_access?.roles ?? [];
-    const isPlatformAdmin = realmRoles.some((r) =>
-      ['PlatformOwner', 'PlatformAdmin'].includes(r),
-    );
+    const permissions = resolvePlatformPermissionsForRoles(realmRoles);
 
     return {
       id: kcToken.sub,
       email,
       firstName: kcToken.given_name,
       lastName: kcToken.family_name,
-      roles: isPlatformAdmin ? realmRoles : ['authenticated'],
-      permissions: isPlatformAdmin ? ALL_PLATFORM_PERMISSIONS : [],
+      roles: realmRoles.some(isPlatformAdminRole) ? realmRoles : ['authenticated'],
+      permissions,
       kind: 'platform',
     };
   }

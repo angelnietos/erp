@@ -35,6 +35,7 @@ export const PERMISSIONS_CATALOG: readonly PermissionCatalogEntry[] = [
   { id: 'services.manage', label: 'Gestionar Servicios', category: 'Operaciones' },
   { id: 'reports.view', label: 'Ver Reportes', category: 'Analítica' },
   { id: 'audit.view', label: 'Ver Auditoría', category: 'Cumplimiento' },
+  { id: 'availability.view', label: 'Ver Disponibilidad', category: 'Operaciones' },
   { id: 'pii.view_unmasked', label: 'Ver PII sin enmascarar', category: 'Cumplimiento' },
   { id: 'privacy.export', label: 'Exportar datos (RGPD)', category: 'Cumplimiento' },
   { id: 'privacy.erasure', label: 'Supresión / anonimización', category: 'Cumplimiento' },

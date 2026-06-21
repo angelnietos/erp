@@ -7,6 +7,8 @@ export {
   isPermissionAllowedForModules,
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
+  permissionsGroupedByModule,
+  permissionsForEnabledModules,
 } from './lib/tenant-modules';
 
 export {
@@ -21,11 +23,24 @@ export {
 } from './lib/permission-merge';
 
 export {
+  PLATFORM_PERMISSIONS_CATALOG,
+  ALL_PLATFORM_PERMISSION_IDS,
+  PLATFORM_OWNER_PERMISSIONS,
+  resolvePlatformPermissionsForRoles,
+  userHasPlatformPermission,
+  isPlatformAdminRole,
+} from './lib/platform-permissions';
+export type { PlatformPermissionEntry } from './lib/platform-permissions';
+
+export {
   TENANT_KEYCLOAK_REALM,
   tenantUsesKeycloakLogin,
   getTenantKeycloakConfig,
+  getTenantAuthPolicy,
   normalizeAuthTenantSlug,
   type TenantKeycloakBinding,
+  type TenantAuthMode,
+  type TenantAuthPolicyView,
 } from './lib/tenant-auth-policy';
 
 // Shared interfaces for Identity domain

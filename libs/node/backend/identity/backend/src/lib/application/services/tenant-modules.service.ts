@@ -4,6 +4,7 @@ import {
   DEFAULT_TENANT_MODULE_IDS,
   filterPermissionsToEnabledModules,
   normalizeTenantModuleIds,
+  getTenantAuthPolicy,
 } from '@josanz-erp/identity-api';
 import { TenantModulesNotifierService } from './tenant-modules-notifier.service';
 
@@ -23,7 +24,20 @@ export class TenantModulesService {
     return [...DEFAULT_TENANT_MODULE_IDS];
   }
 
-  async getAllTenants(): Promise<Array<{ id: string; name: string; slug: string; isActive: boolean; createdAt: Date; enabledModuleIds: string[] }>> {
+  async getAllTenants(): Promise<
+    Array<{
+      id: string;
+      name: string;
+      slug: string;
+      isActive: boolean;
+      createdAt: Date;
+      enabledModuleIds: string[];
+      authMode: 'keycloak' | 'local';
+      keycloakRealm?: string;
+      keycloakClientId?: string;
+      authorizationSource: 'postgres';
+    }>
+  > {
     const rows = await this.prisma.tenant.findMany({
       select: {
         id: true,
@@ -36,10 +50,17 @@ export class TenantModulesService {
       orderBy: { name: 'asc' },
     });
     return Promise.all(
-      rows.map(async (row) => ({
-        ...row,
-        enabledModuleIds: this.effectiveModuleIds(row.enabledModuleIds),
-      })),
+      rows.map(async (row) => {
+        const policy = getTenantAuthPolicy(row.slug);
+        return {
+          ...row,
+          enabledModuleIds: this.effectiveModuleIds(row.enabledModuleIds),
+          authMode: policy.authMode,
+          keycloakRealm: policy.keycloak?.realm,
+          keycloakClientId: policy.keycloak?.clientId,
+          authorizationSource: policy.authorizationSource,
+        };
+      }),
     );
   }
 

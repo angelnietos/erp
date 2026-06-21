@@ -5,8 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
-import { DEFAULT_TENANT_MODULE_IDS, ALL_APP_PERMISSION_IDS } from '@josanz-erp/identity-api';
-import { mergeEffectiveUserPermissions } from '../../application/utils/permission-merge';
+import { DEFAULT_TENANT_MODULE_IDS, resolvePlatformPermissionsForRoles } from '@josanz-erp/identity-api';
 
 interface KeycloakToken {
   sub: string;
@@ -32,7 +31,6 @@ interface ErpMappedUser {
   kind?: string;
 }
 
-const ALL_APP_PERMISSIONS: string[] = ['*', ...ALL_APP_PERMISSION_IDS];
 
 @Injectable()
 export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -123,8 +121,7 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
    * 2. If found → return their real DB roles + permissions.
    * 3. If NOT found but tenantId is valid → auto-provision the user with the
    *    "Administrador" role so they can work immediately.
-   * 4. Safe fallback → if DB is unreachable, grant ALL_APP_PERMISSIONS to
-   *    recognised admin roles so the admin is never locked out.
+   * 4. Sin registro ERP → 401 (permisos siempre desde Postgres).
    */
   private async validateKeycloakUser(kcToken: KeycloakToken): Promise<ErpMappedUser> {
     const email = kcToken.email || kcToken.preferred_username || '';
@@ -153,8 +150,8 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         email,
         firstName: kcToken.given_name,
         lastName: kcToken.family_name,
-        roles: originalRoles.length > 0 ? originalRoles : ['Administrador'],
-        permissions: ALL_APP_PERMISSIONS,
+        roles: originalRoles.length > 0 ? originalRoles : ['PlatformOwner'],
+        permissions: resolvePlatformPermissionsForRoles(originalRoles),
         tenantId: undefined,
         kind: 'platform',
       };
@@ -243,22 +240,25 @@ export class HybridJwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       console.error('[HybridJwtStrategy] DB lookup/provision error:', err);
     }
 
-    // ── 4. Safe fallback ────────────────────────────────────────────────────
-    // DB is unavailable but the Keycloak token is valid — grant full access
-    // to recognised admin realm-roles so the admin is never locked out.
+    // ── 4. Sin usuario en Postgres: no conceder permisos ERP ampliados ────────
     const isAdmin = isPlatformAdmin || allRoles.some((r) =>
       ['TenantAdmin', 'admin'].includes(r),
     );
 
-    return {
-      id: kcToken.sub,
-      email,
-      firstName: kcToken.given_name,
-      lastName: kcToken.family_name,
-      roles: isAdmin ? ['Administrador'] : ['authenticated'],
-      permissions: isAdmin ? ALL_APP_PERMISSIONS : [],
-      tenantId: tenantId || undefined,
-      kind: isPlatformAdmin ? 'platform' : undefined,
-    };
+    if (!isAdmin) {
+      return {
+        id: kcToken.sub,
+        email,
+        firstName: kcToken.given_name,
+        lastName: kcToken.family_name,
+        roles: ['authenticated'],
+        permissions: [],
+        tenantId: tenantId || undefined,
+      };
+    }
+
+    throw new UnauthorizedException(
+      'Usuario Keycloak válido pero sin registro ERP en este tenant. Contacta con un administrador.',
+    );
   }
 }

@@ -1,47 +1,48 @@
 /**
- * Debe alinearse con identity-api / PluginStore (lista de módulos ERP).
+ * Catálogo SaaS — reexporta identity-api (fuente única de verdad).
  */
-export const TENANT_MODULE_IDS: readonly string[] = [
-  'dashboard',
-  'ai-insights',
-  'clients',
-  'projects',
-  'events',
-  'identity',
-  'availability',
-  'services',
-  'reports',
-  'audit',
-  'inventory',
-  'budgets',
-  'delivery',
-  'fleet',
-  'rentals',
-  'billing',
-  'verifactu',
-];
+import {
+  DEFAULT_TENANT_MODULE_IDS,
+  TENANT_MODULE_LABELS_ES,
+  TENANT_MODULE_CATALOG,
+  normalizeTenantModuleIds,
+} from '@josanz-erp/identity-api';
 
-export const TENANT_MODULE_LABELS_ES: Readonly<Record<string, string>> = {
-  dashboard: 'Dashboard',
-  'ai-insights': 'AI Insights',
-  clients: 'Clientes',
-  projects: 'Proyectos',
-  events: 'Eventos',
-  identity: 'Identidad y usuarios',
-  availability: 'Disponibilidad',
-  services: 'Servicios',
-  reports: 'Informes',
-  audit: 'Auditoría',
-  inventory: 'Inventario',
-  budgets: 'Presupuestos',
-  delivery: 'Entregas',
-  fleet: 'Flota',
-  rentals: 'Alquileres',
-  billing: 'Facturación',
-  verifactu: 'Verifactu',
+export {
+  DEFAULT_TENANT_MODULE_IDS,
+  TENANT_MODULE_LABELS_ES,
+  TENANT_MODULE_CATALOG,
+  normalizeTenantModuleIds,
 };
 
-export type TenantModuleCategory = 'core' | 'operations' | 'finance' | 'intelligence';
+export type TenantModuleCategory =
+  | 'core'
+  | 'operations'
+  | 'finance'
+  | 'intelligence';
+
+/** Agrupación visual del panel SaaS (distinta de category en identity-api). */
+export const TENANT_MODULE_SAAS_CATEGORY: Readonly<
+  Record<string, TenantModuleCategory>
+> = {
+  dashboard: 'core',
+  clients: 'core',
+  projects: 'core',
+  identity: 'core',
+  events: 'operations',
+  availability: 'operations',
+  services: 'operations',
+  inventory: 'operations',
+  delivery: 'operations',
+  fleet: 'operations',
+  rentals: 'operations',
+  budgets: 'finance',
+  billing: 'finance',
+  verifactu: 'finance',
+  'ai-insights': 'intelligence',
+  reports: 'intelligence',
+  audit: 'intelligence',
+};
 
 export const TENANT_MODULE_CATEGORY_LABELS_ES: Readonly<
   Record<TenantModuleCategory, string>
@@ -52,28 +53,6 @@ export const TENANT_MODULE_CATEGORY_LABELS_ES: Readonly<
   intelligence: 'Inteligencia y control',
 };
 
-export const TENANT_MODULE_METADATA: Readonly<
-  Record<string, { category: TenantModuleCategory; icon: string }>
-> = {
-  dashboard: { category: 'core', icon: 'grid' },
-  clients: { category: 'core', icon: 'users' },
-  projects: { category: 'core', icon: 'briefcase' },
-  identity: { category: 'core', icon: 'key' },
-  events: { category: 'operations', icon: 'calendar' },
-  availability: { category: 'operations', icon: 'clock' },
-  services: { category: 'operations', icon: 'wrench' },
-  inventory: { category: 'operations', icon: 'box' },
-  delivery: { category: 'operations', icon: 'truck' },
-  fleet: { category: 'operations', icon: 'car' },
-  rentals: { category: 'operations', icon: 'repeat' },
-  budgets: { category: 'finance', icon: 'calculator' },
-  billing: { category: 'finance', icon: 'receipt' },
-  verifactu: { category: 'finance', icon: 'shield' },
-  'ai-insights': { category: 'intelligence', icon: 'sparkles' },
-  reports: { category: 'intelligence', icon: 'chart' },
-  audit: { category: 'intelligence', icon: 'history' },
-};
-
 export type TenantModuleCatalogEntry = {
   id: string;
   label: string;
@@ -81,16 +60,33 @@ export type TenantModuleCatalogEntry = {
   icon: string;
 };
 
-/** Lista id + etiqueta para UI (panel SaaS). */
-export const TENANT_MODULE_CATALOG: readonly TenantModuleCatalogEntry[] =
-  TENANT_MODULE_IDS.map((id) => ({
-    id,
-    label: TENANT_MODULE_LABELS_ES[id] ?? id,
-    category: TENANT_MODULE_METADATA[id]?.category ?? 'core',
-    icon: TENANT_MODULE_METADATA[id]?.icon ?? 'grid',
+const SAAS_MODULE_ICONS: Readonly<Record<string, string>> = {
+  dashboard: 'grid',
+  clients: 'users',
+  projects: 'briefcase',
+  identity: 'key',
+  events: 'calendar',
+  availability: 'clock',
+  services: 'wrench',
+  inventory: 'box',
+  delivery: 'truck',
+  fleet: 'car',
+  rentals: 'repeat',
+  budgets: 'calculator',
+  billing: 'receipt',
+  verifactu: 'shield',
+  'ai-insights': 'sparkles',
+  reports: 'chart',
+  audit: 'history',
+};
+
+export const TENANT_MODULE_CATALOG_SAAS: readonly TenantModuleCatalogEntry[] =
+  TENANT_MODULE_CATALOG.map((m) => ({
+    id: m.id,
+    label: TENANT_MODULE_LABELS_ES[m.id] ?? m.name,
+    category: TENANT_MODULE_SAAS_CATEGORY[m.id] ?? 'core',
+    icon: SAAS_MODULE_ICONS[m.id] ?? 'grid',
   }));
 
-export function normalizeTenantModuleIds(ids: readonly string[]): string[] {
-  const allowed = new Set(TENANT_MODULE_IDS);
-  return [...new Set(ids.filter((id) => allowed.has(id)))];
-}
+/** @deprecated Usar TENANT_MODULE_CATALOG_SAAS */
+export const TENANT_MODULE_CATALOG_LEGACY = TENANT_MODULE_CATALOG_SAAS;

@@ -1,4 +1,5 @@
 import { signalStore, withState, withMethods, patchState } from '@ngrx/signals';
+import { PROTECTED_TENANT_MODULE_IDS } from '@josanz-erp/identity-api';
 
 function pluginsStorageKey(): string {
   if (typeof localStorage === 'undefined') {
@@ -15,7 +16,7 @@ export interface PluginState {
 }
 
 const initialState: PluginState = {
-  enabledPlugins: ['dashboard', 'ai-insights', 'clients', 'projects', 'events', 'identity', 'availability', 'services', 'reports', 'audit', 'inventory', 'budgets', 'delivery', 'fleet', 'rentals', 'billing', 'verifactu'],
+  enabledPlugins: [...PROTECTED_TENANT_MODULE_IDS],
   realtimeSync: true,
   highPerformanceMode: false,
 };

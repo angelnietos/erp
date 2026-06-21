@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
-  TENANT_MODULE_CATALOG,
+  TENANT_MODULE_CATALOG_SAAS,
   TENANT_MODULE_CATEGORY_LABELS_ES,
   type TenantModuleCatalogEntry,
   type TenantModuleCategory,
@@ -16,6 +16,10 @@ type TenantRow = {
   name: string;
   slug: string;
   enabledModuleIds: string[];
+  authMode?: 'keycloak' | 'local';
+  keycloakRealm?: string;
+  keycloakClientId?: string;
+  authorizationSource?: 'postgres';
 };
 
 type ModuleCategoryGroup = {
@@ -99,6 +103,15 @@ type ModuleCategoryGroup = {
                 <div>
                   <h2 class="tenant-name">{{ t.name }}</h2>
                   <p class="tenant-slug">{{ t.slug }}</p>
+                  <p class="tenant-auth">
+                    @if (t.authMode === 'keycloak') {
+                      <span class="auth-badge auth-badge--kc">Keycloak</span>
+                      <span class="auth-detail">{{ t.keycloakRealm }}</span>
+                    } @else {
+                      <span class="auth-badge auth-badge--local">Local</span>
+                    }
+                    <span class="auth-detail">Permisos → Postgres</span>
+                  </p>
                 </div>
                 <span class="badge">{{ countEnabled(t) }} / {{ catalog.length }}</span>
               </div>
@@ -422,6 +435,41 @@ type ModuleCategoryGroup = {
         font-family: ui-monospace, 'Cascadia Code', monospace;
       }
 
+      .tenant-auth {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.4rem 0.55rem;
+        margin: 0.55rem 0 0;
+        font-size: 0.72rem;
+      }
+
+      .auth-badge {
+        padding: 0.2rem 0.45rem;
+        border-radius: 999px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .auth-badge--kc {
+        background: rgba(89, 168, 244, 0.18);
+        color: #9fd0ff;
+        border: 1px solid rgba(89, 168, 244, 0.35);
+      }
+
+      .auth-badge--local {
+        background: rgba(78, 202, 114, 0.12);
+        color: #b8f3c7;
+        border: 1px solid rgba(78, 202, 114, 0.3);
+      }
+
+      .auth-detail {
+        color: var(--sp-muted);
+        font-family: ui-monospace, monospace;
+        font-size: 0.68rem;
+      }
+
       .badge {
         flex-shrink: 0;
         padding: 0.38rem 0.72rem;
@@ -634,7 +682,7 @@ export class TenantsPageComponent {
   private readonly http = inject(HttpClient);
 
   readonly apiBase = environment.apiOrigin.replace(/\/$/, '');
-  readonly catalog: readonly TenantModuleCatalogEntry[] = TENANT_MODULE_CATALOG;
+  readonly catalog: readonly TenantModuleCatalogEntry[] = TENANT_MODULE_CATALOG_SAAS;
   readonly catalogByCategory = computed<readonly ModuleCategoryGroup[]>(() => {
     const groups = new Map<TenantModuleCategory, TenantModuleCatalogEntry[]>();
     for (const module of this.catalog) {
