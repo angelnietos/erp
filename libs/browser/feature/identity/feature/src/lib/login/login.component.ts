@@ -148,7 +148,7 @@ export class LoginComponent implements OnInit {
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
 
-  /** Login claro en dos columnas según export Figma `Login.svg` (tenants josanz-figma). */
+  /** Login claro en dos columnas según Figma node `61:1674` (Ready for dev ✓). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
 
   /** Login oscuro document-generator (tenant docs). */
