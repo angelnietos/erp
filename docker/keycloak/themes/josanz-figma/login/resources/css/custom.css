@@ -1,0 +1,158 @@
+/* Keycloak login — alineado con Figma Login node 61:1312 / josanz-ui */
+:root {
+  --josanz-canvas: #fffefe;
+  --josanz-heading: #222222;
+  --josanz-muted: #7c7c7c;
+  --josanz-field-stroke: #d7d7d7;
+  --josanz-field-radius: 8px;
+  --josanz-cta: #0f1e2f;
+  --josanz-on-cta: #ffffff;
+  --josanz-hero-wash: #e8edf5;
+}
+
+html,
+body.josanz-figma-kc {
+  margin: 0;
+  min-height: 100%;
+  background: var(--josanz-canvas);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.josanz-kc-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.josanz-kc-hero {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--josanz-hero-wash) 0%, #f5f7fb 100%);
+  overflow: hidden;
+}
+
+.josanz-kc-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.josanz-kc-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 2rem;
+  box-sizing: border-box;
+}
+
+.josanz-kc-logo {
+  display: block;
+  margin: 0 auto 1.5rem;
+  max-width: 148px;
+  height: auto;
+}
+
+#kc-content,
+#kc-content-wrapper {
+  width: 100%;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+#kc-header,
+#kc-header-wrapper,
+.login-pf-header {
+  display: none !important;
+}
+
+#kc-page-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--josanz-heading);
+  text-align: left;
+}
+
+#kc-form-login label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--josanz-muted);
+}
+
+#kc-form-login input[type='text'],
+#kc-form-login input[type='password'] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.875rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--josanz-field-stroke);
+  border-radius: var(--josanz-field-radius);
+  background: #ffffff;
+  font-size: 1rem;
+  color: var(--josanz-heading);
+}
+
+#kc-form-login input:focus {
+  outline: 2px solid rgba(15, 30, 47, 0.15);
+  border-color: var(--josanz-cta);
+}
+
+#kc-form-options {
+  display: none;
+}
+
+#kc-form-wrapper div[class*='FormOptionsWrapper'],
+#kc-form-wrapper .kcFormOptionsWrapperClass {
+  text-align: right;
+  margin-bottom: 0.75rem;
+}
+
+#kc-form-wrapper a {
+  color: var(--josanz-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+#kc-form-wrapper a:hover {
+  color: var(--josanz-heading);
+  text-decoration: underline;
+}
+
+#kc-login,
+input[name='login'] {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.875rem 1rem;
+  border: none;
+  border-radius: var(--josanz-field-radius);
+  background: var(--josanz-cta) !important;
+  color: var(--josanz-on-cta) !important;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+#kc-login:hover {
+  filter: brightness(1.08);
+}
+
+.alert-error,
+.pf-c-alert.pf-m-danger {
+  border-radius: var(--josanz-field-radius);
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .josanz-kc-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .josanz-kc-hero {
+    max-height: 220px;
+  }
+}

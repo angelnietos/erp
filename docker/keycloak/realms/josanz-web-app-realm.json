@@ -80,6 +80,27 @@
       "clientRoles": {
         "josanz-web-app-spa": ["user"]
       }
+    },
+    {
+      "username": "alexis-admin",
+      "enabled": true,
+      "email": "admin@alexis.local",
+      "firstName": "Admin",
+      "lastName": "Alexis",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin123!",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "tenant_id": ["d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a"]
+      },
+      "clientRoles": {
+        "josanz-figma-spa": ["admin", "user"],
+        "josanz-web-app-spa": ["admin", "user"]
+      }
     }
   ],
   "clients": [
@@ -139,6 +160,71 @@
             "multivalued": "true",
             "claim.name": "client_roles",
             "client.id": "josanz-web-app-spa",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+
+    {
+      "clientId": "josanz-figma-spa",
+      "name": "Josanz Figma SPA (Alexis)",
+      "description": "Angular SPA — shell Figma / tenant alexis; login theme josanz-figma",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:4201",
+        "http://localhost:4300"
+      ],
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4201/*",
+        "http://localhost:4300/*"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "roles",
+        "profile",
+        "email",
+        "openid"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "login_theme": "josanz-figma",
+        "post.logout.redirect.uris": "http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "client_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-client-role-mapper",
+          "config": {
+            "multivalued": "true",
+            "claim.name": "client_roles",
+            "client.id": "josanz-figma-spa",
             "userinfo.token.claim": "true",
             "id.token.claim": "true",
             "access.token.claim": "true"
@@ -295,6 +381,16 @@
     "realm": [
       {"name": "PlatformOwner"},
       {"name": "PlatformAdmin"}
-    ]
+    ],
+    "client": {
+      "josanz-web-app-spa": [
+        {"name": "admin"},
+        {"name": "user"}
+      ],
+      "josanz-figma-spa": [
+        {"name": "admin"},
+        {"name": "user"}
+      ]
+    }
   }
 }

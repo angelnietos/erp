@@ -210,18 +210,29 @@
     }
 
     @if (showKeycloakSso()) {
-      <div class="auth-sso animate-in stagger-4">
+      <div
+        class="auth-sso animate-in stagger-4"
+        [class.auth-sso--figma]="useFigmaShellLogin()"
+        [class.auth-sso--babooni]="tenantSlug() === 'babooni'"
+      >
         <ui-button
           type="button"
           [color]="useFigmaShellLogin() ? 'primary' : 'app'"
           [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
           [loading]="pkceRedirectLoading()"
+          class="auth-sso__primary"
           (click)="startKeycloakSso()"
         >
           Iniciar sesión con Keycloak
         </ui-button>
         @if (!showLocalLogin()) {
-          <button type="button" class="auth-local-toggle" (click)="revealLocalLogin()">
+          <button
+            type="button"
+            class="auth-local-btn"
+            [class.auth-local-btn--figma]="useFigmaShellLogin()"
+            [class.auth-local-btn--babooni]="tenantSlug() === 'babooni'"
+            (click)="revealLocalLogin()"
+          >
             Acceso local con contraseña
           </button>
         }
@@ -277,8 +288,14 @@
     </form>
 
     @if (showKeycloakSso() && showLocalLogin()) {
-      <button type="button" class="auth-local-toggle auth-local-toggle--back" (click)="showLocalLogin.set(false)">
-        Volver a Keycloak SSO
+      <button
+        type="button"
+        class="auth-local-btn auth-local-btn--back"
+        [class.auth-local-btn--figma]="useFigmaShellLogin()"
+        [class.auth-local-btn--babooni]="tenantSlug() === 'babooni'"
+        (click)="showLocalLogin.set(false)"
+      >
+        ← Volver a Keycloak SSO
       </button>
     }
     }

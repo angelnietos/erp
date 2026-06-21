@@ -7,7 +7,7 @@
  * - `document-generator` — generador de documentos (apps/document-generator)
  *
  * Auth: ver {@link TENANT_KEYCLOAK_REALM} en `@josanz-erp/identity-api`.
- * Slugs no listados allí (alexis, docs) → login local + usuarios solo en seed ERP.
+ * Slugs sin KC (`docs`, …) → login local + usuarios solo en seed ERP.
  */
 export type ErpTenantUiShell =
   | 'classic'

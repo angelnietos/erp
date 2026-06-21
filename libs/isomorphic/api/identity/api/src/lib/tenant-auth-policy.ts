@@ -2,9 +2,9 @@
  * Política de autenticación multi-tenant (híbrida).
  *
  * - **Tenant (slug, módulos, shell)** → Postgres ERP (`Tenant` + seed). Fuente de verdad.
- * - **Keycloak** → IdP opcional solo para tenants listados aquí (`josanz`, `babooni`).
- *   Infra propia: contenedor `keycloak` + BD `keycloak-db` (no es la BD del ERP).
- * - **Login local** → tenants demo / dev (`alexis`, `docs`, …): usuarios solo en seed ERP.
+ * - **Keycloak** → IdP opcional para tenants listados en {@link TENANT_KEYCLOAK_REALM}.
+ *   Infra: contenedor `keycloak` + BD `keycloak-db` (no es la BD del ERP).
+ * - **Login local** → fallback / tenants sin KC (`docs`, …): usuarios en seed ERP.
  *
  * Reglas BFF:
  * 1. Keycloak solo si el slug está en {@link TENANT_KEYCLOAK_REALM}.
@@ -21,6 +21,8 @@ export const TENANT_KEYCLOAK_REALM: Readonly<
   Record<string, TenantKeycloakBinding>
 > = {
   josanz: { realm: 'josanz-web-app-realm', clientId: 'josanz-web-app-spa' },
+  /** Mismo realm; cliente con tema Figma en Keycloak (`josanz-figma-spa`). */
+  alexis: { realm: 'josanz-web-app-realm', clientId: 'josanz-figma-spa' },
   babooni: { realm: 'babooni-tenant', clientId: 'josanz-web-app-spa' },
 };
 

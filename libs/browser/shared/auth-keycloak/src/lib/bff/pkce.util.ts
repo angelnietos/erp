@@ -92,6 +92,7 @@ export function buildKeycloakAuthorizeUrl(params: {
   redirectUri: string;
   codeChallenge: string;
   state: string;
+  uiLocales?: string;
 }): string {
   const base = params.authServerUrl.replace(/\/$/, '');
   const url = new URL(
@@ -104,6 +105,9 @@ export function buildKeycloakAuthorizeUrl(params: {
   url.searchParams.set('code_challenge', params.codeChallenge);
   url.searchParams.set('code_challenge_method', 'S256');
   url.searchParams.set('state', params.state);
+  if (params.uiLocales?.trim()) {
+    url.searchParams.set('ui_locales', params.uiLocales.trim());
+  }
   return url.toString();
 }
 

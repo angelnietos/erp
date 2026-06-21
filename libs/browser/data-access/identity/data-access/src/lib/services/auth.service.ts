@@ -215,6 +215,7 @@ export class AuthService {
       redirectUri,
       codeChallenge,
       state,
+      uiLocales: slug === 'alexis' ? 'es' : undefined,
     });
     window.location.assign(authorizeUrl);
   }

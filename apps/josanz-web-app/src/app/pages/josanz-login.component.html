@@ -37,11 +37,11 @@
             [fullWidth]="true"
             (btnClick)="startKeycloakSso()"
           ></josanz-button>
-          @if (!showLocalLogin()) {
-            <button type="button" class="josanz-figma-auth__local-toggle" (click)="revealLocalLogin()">
-              Acceso local con contraseña
-            </button>
-          }
+        @if (!showLocalLogin()) {
+          <button type="button" class="josanz-figma-auth__local-btn" (click)="revealLocalLogin()">
+            Acceso local con contraseña
+          </button>
+        }
         </div>
       }
 
@@ -76,10 +76,10 @@
         @if (showKeycloakSso() && showLocalLogin()) {
           <button
             type="button"
-            class="josanz-figma-auth__local-toggle josanz-figma-auth__local-toggle--back"
+            class="josanz-figma-auth__local-btn josanz-figma-auth__local-btn--back"
             (click)="showLocalLogin.set(false)"
           >
-            Volver a Keycloak SSO
+            ← Volver a Keycloak SSO
           </button>
         }
       }

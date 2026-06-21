@@ -11,21 +11,31 @@
   margin-bottom: 1rem;
 }
 
-.josanz-figma-auth__local-toggle {
-  align-self: center;
-  border: none;
-  background: none;
-  color: rgba(0, 0, 0, 0.55);
+.josanz-figma-auth__local-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 1rem;
+  border-radius: 8px;
   font-size: 0.875rem;
-  text-decoration: underline;
+  font-weight: 500;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
+  border: 1px solid #d7d7d7;
+  background: #ffffff;
+  color: #222222;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.josanz-figma-auth__local-toggle:hover {
-  color: rgba(0, 0, 0, 0.85);
+.josanz-figma-auth__local-btn:hover {
+  background: #f5f5f5;
+  border-color: #0f1e2f;
+  color: #0f1e2f;
 }
 
-.josanz-figma-auth__local-toggle--back {
+.josanz-figma-auth__local-btn--back {
   margin-top: 0.75rem;
+  background: transparent;
+  border-style: dashed;
 }

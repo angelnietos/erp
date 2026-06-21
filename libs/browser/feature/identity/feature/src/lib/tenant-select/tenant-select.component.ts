@@ -54,7 +54,7 @@ export class TenantSelectComponent {
     {
       slug: 'alexis',
       name: 'Alexis',
-      description: 'Tenant demo con la app Figma independiente integrada.',
+      description: 'Shell Figma + Keycloak (tema josanz-figma en IdP).',
     },
     {
       slug: 'docs',
