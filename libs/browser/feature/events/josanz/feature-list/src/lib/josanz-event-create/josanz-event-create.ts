@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  ButtonComponent,
   InputComponent,
   MainDetailLayoutComponent,
   josanzNonEmptyTrim,
@@ -16,7 +15,6 @@ import {
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
-    ButtonComponent,
     MainDetailLayoutComponent,
   ],
   templateUrl: './josanz-event-create.html',

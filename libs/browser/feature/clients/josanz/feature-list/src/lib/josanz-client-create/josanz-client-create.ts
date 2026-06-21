@@ -5,7 +5,6 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import {
   InputComponent,
   MainDetailLayoutComponent,
-  SecondaryButtonComponent,
   josanzNonEmptyTrim,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
@@ -18,16 +17,12 @@ import {
     ReactiveFormsModule,
     InputComponent,
     MainDetailLayoutComponent,
-    SecondaryButtonComponent,
   ],
   templateUrl: './josanz-client-create.html',
 })
 export class JosanzClientCreateComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
-
-  readonly tabs = ['Datos cliente'];
-  readonly activeTab = 'Datos cliente';
 
   readonly clientTypes: { value: string; label: string; pillKey: JosanzStatusPillKey }[] = [
     { value: 'tipo-1', label: 'Tipo cliente 1', pillKey: 'cliente-tipo-pink' },

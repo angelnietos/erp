@@ -2,45 +2,29 @@
   title="Nuevo almacén"
   layoutVariant="figma-event"
   [tabs]="[]"
-  [activeTab]="activeTab()"
+  activeTab=""
   [showFooterActions]="false"
-  (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear almacén"
   [saveDisabled]="form.invalid"
 >
-  <div class="josanz-event-detail-body josanz-event-create">
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Identificación
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input label="Nombre del almacén" placeholder="Almacén Central" controlName="nombre" [parentForm]="form"></josanz-input>
-            <josanz-input label="Código interno" placeholder="ALM-01" controlName="codigo" [parentForm]="form"></josanz-input>
-          </div>
-        </div>
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Identificación</h2>
+      <div class="josanz-event-create__grid-2">
+        <josanz-input label="Nombre del almacén" placeholder="Almacén Central" controlName="nombre" [parentForm]="form"></josanz-input>
+        <josanz-input label="Código interno" placeholder="ALM-01" controlName="codigo" [parentForm]="form"></josanz-input>
       </div>
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Ubicación y notas
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input label="Dirección" placeholder="Calle, población…" controlName="direccion" [parentForm]="form"></josanz-input>
-            <josanz-input label="Notas" placeholder="Horario, contacto…" controlName="notas" [parentForm]="form"></josanz-input>
-          </div>
-        </div>
+    </section>
+
+    <section>
+      <h2 class="josanz-event-create__section-title">Ubicación y notas</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input label="Dirección" placeholder="Calle, población…" controlName="direccion" [parentForm]="form"></josanz-input>
+        <josanz-input label="Notas" placeholder="Horario, contacto…" controlName="notas" [parentForm]="form"></josanz-input>
       </div>
-    </div>
+    </section>
   </div>
 </josanz-main-detail-layout>

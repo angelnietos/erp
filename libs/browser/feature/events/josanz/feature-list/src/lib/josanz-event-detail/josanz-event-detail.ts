@@ -6,6 +6,8 @@ import {
   DocumentItemComponent,
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
+  navigateDetailTab,
+  readDetailTabFromRoute,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
@@ -62,9 +64,6 @@ interface JosanzEventEmail {
 export class JosanzEventDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-
-  pageTitle = signal('Evento X');
-  pageTabs = signal<string[]>([]);
 
   activeTab = signal('Resumen');
   staffDraft = '';
@@ -269,38 +268,9 @@ export class JosanzEventDetailComponent implements OnInit {
     { label: 'Tipo', value: 'Externo' },
   ];
 
-  ngOnInit() {
-    const url = this.router.url;
-    if (url.startsWith('/equipment')) {
-      this.pageTitle.set('Equipo Audiovisual');
-      this.pageTabs.set(['Resumen', 'Stock', 'Mantenimiento', 'Historial']);
-    } else if (url.startsWith('/vehicles')) {
-      this.pageTitle.set('Vehículo X');
-      this.pageTabs.set(['Resumen', 'Mantenimiento', 'Historial', 'Multas']);
-    } else if (url.startsWith('/staff')) {
-      this.pageTitle.set('Personal: Nombre Apellido');
-      this.pageTabs.set(['Resumen', 'Contratos', 'Nóminas', 'Ausencias']);
-    } else if (url.startsWith('/billing')) {
-      this.pageTitle.set('Factura / Albarán X');
-      this.pageTabs.set(['Resumen', 'Líneas', 'Cobros', 'Emails']);
-    } else {
-      this.pageTitle.set('Evento X');
-      this.pageTabs.set(this.eventTabs);
-      this.budgetLines = this.budgetCatalog.slice(0, 3);
-    }
-
-    const tabSlug = this.route.snapshot.queryParamMap.get('tab');
-    if (tabSlug) {
-      const tab = this.tabFromSlug(tabSlug);
-      if (tab && this.pageTabs().includes(tab)) {
-        this.activeTab.set(tab);
-      }
-    }
-  }
-
-  private tabFromSlug(slug: string): string | undefined {
-    const entry = Object.entries(this.tabSlugMap).find(([, value]) => value === slug);
-    return entry?.[0];
+  ngOnInit(): void {
+    readDetailTabFromRoute(this.route, this.tabSlugMap, this.eventTabs, this.activeTab);
+    this.budgetLines = this.budgetCatalog.slice(0, 3);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
@@ -313,13 +283,7 @@ export class JosanzEventDetailComponent implements OnInit {
   setTab(tab: string): void {
     this.activeTab.set(tab);
     this.showBudgetPicker.set(false);
-    const slug = this.tabSlugMap[tab];
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { tab: slug ?? tab.toLowerCase() },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
   }
 
   onEquipmentImageError(id: string): void {
@@ -329,18 +293,7 @@ export class JosanzEventDetailComponent implements OnInit {
   }
 
   onBack(): void {
-    const url = this.router.url;
-    if (url.startsWith('/equipment')) {
-      void this.router.navigate(['/equipment']);
-    } else if (url.startsWith('/vehicles')) {
-      void this.router.navigate(['/vehicles']);
-    } else if (url.startsWith('/staff')) {
-      void this.router.navigate(['/staff']);
-    } else if (url.startsWith('/billing')) {
-      void this.router.navigate(['/billing']);
-    } else {
-      void this.router.navigate(['/events']);
-    }
+    void this.router.navigate(['/events']);
   }
 
   onSave(): void {

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -19,9 +19,6 @@ export class JosanzBudgetCreateComponent {
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
-  activeTab = signal<string>('Datos generales');
-  tabs = ['Datos generales'];
-
   form: FormGroup;
 
   constructor() {
@@ -32,10 +29,6 @@ export class JosanzBudgetCreateComponent {
       validoHasta: [''],
       notas: [''],
     });
-  }
-
-  setTab(tab: string) {
-    this.activeTab.set(tab);
   }
 
   onBack() {

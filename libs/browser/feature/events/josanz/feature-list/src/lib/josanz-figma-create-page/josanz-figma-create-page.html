@@ -30,21 +30,5 @@
       </div>
     </section>
     }
-
-    <div class="josanz-event-create__actions">
-      <josanz-button
-        [label]="config.saveLabel"
-        [showIcon]="false"
-        [disabled]="form.invalid"
-        customColor="#0F1E2F"
-        (btnClick)="onSave()"
-      ></josanz-button>
-      <josanz-button
-        label="Cancelar"
-        variant="ghost"
-        [showIcon]="false"
-        (btnClick)="onCancel()"
-      ></josanz-button>
-    </div>
   </div>
 </josanz-main-detail-layout>

@@ -93,3 +93,26 @@
   letter-spacing: 0 !important;
   color: var(--josanz-button-primary-bg, #0f1e2f) !important;
 }
+
+.josanz-user-create__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+.josanz-user-create__fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.josanz-user-create__hint {
+  margin: 0.5rem 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--josanz-text-muted);
+}

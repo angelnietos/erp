@@ -10,37 +10,16 @@
   (save)="onSubmit()"
   (cancel)="onCancel()"
 >
-  <div class="josanz-client-create__body py-2 md:py-4">
-    <article
-      class="josanz-client-create__card rounded-2xl border border-solid p-6 md:p-8"
-      style="
-        background-color: var(--josanz-surface);
-        border-color: var(--josanz-border);
-        box-shadow: var(--josanz-shadow);
-      "
-    >
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
       <div class="josanz-client-create__grid">
         <div class="josanz-client-create__brand" aria-hidden="true">
-          <span
-            class="josanz-client-create__brand-initials"
-            style="
-              background: var(--josanz-primary);
-              color: var(--josanz-on-primary);
-            "
-            >NB</span
-          >
-          <span
-            class="josanz-client-create__brand-name"
-            style="color: var(--josanz-text-muted)"
-            >NOVABYTE</span
-          >
+          <span class="josanz-client-create__brand-initials">NB</span>
+          <span class="josanz-client-create__brand-name">NOVABYTE</span>
         </div>
 
-        <form
-          class="josanz-client-create__fields"
-          [formGroup]="form"
-          (ngSubmit)="onSubmit()"
-        >
+        <form class="josanz-client-create__fields" [formGroup]="form" (ngSubmit)="onSubmit()">
           <josanz-input
             label="Nombre Apellidos / Razón social"
             placeholder="Empresa Ejemplo S.L."
@@ -65,24 +44,14 @@
           ></josanz-input>
 
           <div class="josanz-client-type-select">
-            <label
-              class="josanz-client-type-select__label"
-              for="tipo-cliente"
-              style="color: var(--josanz-text-muted)"
-            >
+            <label class="josanz-client-type-select__label" for="tipo-cliente">
               Tipo de cliente
             </label>
             <div class="josanz-client-type-select__trigger">
-              <span
-                class="josanz-client-type-chip"
-                [ngStyle]="pillStyle(selectedTypePillKey())"
-              >
+              <span class="josanz-client-type-chip" [ngStyle]="pillStyle(selectedTypePillKey())">
                 {{ selectedTypeLabel() }}
               </span>
-              <span
-                class="josanz-client-type-select__spacer"
-                aria-hidden="true"
-              ></span>
+              <span class="josanz-client-type-select__spacer" aria-hidden="true"></span>
               <svg
                 class="josanz-client-type-select__chevron"
                 width="16"
@@ -95,11 +64,7 @@
               >
                 <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
-              <select
-                id="tipo-cliente"
-                formControlName="tipo"
-                aria-label="Tipo de cliente"
-              >
+              <select id="tipo-cliente" formControlName="tipo" aria-label="Tipo de cliente">
                 @for (tipo of clientTypes; track tipo.value) {
                 <option [value]="tipo.value">{{ tipo.label }}</option>
                 }
@@ -108,19 +73,6 @@
           </div>
         </form>
       </div>
-    </article>
-
-    @if (false) {
-    <section
-      class="josanz-client-operadores"
-      aria-label="Operadores del cliente"
-    >
-      <h3 style="color: var(--josanz-text)">Operadores</h3>
-      <josanz-secondary-button
-        label="Añadir operador"
-        type="cancel"
-      ></josanz-secondary-button>
     </section>
-    }
   </div>
 </josanz-main-detail-layout>

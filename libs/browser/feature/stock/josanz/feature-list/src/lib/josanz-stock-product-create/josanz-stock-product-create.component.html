@@ -2,59 +2,43 @@
   title="Nuevo producto"
   layoutVariant="figma-event"
   [tabs]="[]"
-  [activeTab]="activeTab()"
+  activeTab=""
   [showFooterActions]="false"
-  (tabChange)="setTab($event)"
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear producto"
   [saveDisabled]="form.invalid"
 >
-  <div class="josanz-event-detail-body josanz-event-create">
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Identificación
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input
-              label="Referencia (SKU)"
-              placeholder="SKU-00000"
-              controlName="referencia"
-              [parentForm]="form"
-            ></josanz-input>
-            <josanz-input label="Nombre del producto" placeholder="Nombre comercial" controlName="nombre" [parentForm]="form"></josanz-input>
-            <josanz-input label="Categoría" placeholder="Electrónica, herramientas…" controlName="categoria" [parentForm]="form"></josanz-input>
-          </div>
-        </div>
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Identificación</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input
+          label="Referencia (SKU)"
+          placeholder="SKU-00000"
+          controlName="referencia"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input label="Nombre del producto" placeholder="Nombre comercial" controlName="nombre" [parentForm]="form"></josanz-input>
+        <josanz-input label="Categoría" placeholder="Electrónica, herramientas…" controlName="categoria" [parentForm]="form"></josanz-input>
       </div>
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Stock y almacén
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input label="Stock mínimo" placeholder="0" controlName="stockMin" [parentForm]="form"></josanz-input>
-            <josanz-input
-              label="Almacén por defecto"
-              placeholder="Almacén Central"
-              controlName="almacen"
-              [parentForm]="form"
-            ></josanz-input>
-          </div>
-          <p class="mt-6 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
-            Tras crear el producto podrás registrar lotes y ubicaciones desde la ficha de detalle.
-          </p>
-        </div>
+    </section>
+
+    <section>
+      <h2 class="josanz-event-create__section-title">Stock y almacén</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input label="Stock mínimo" placeholder="0" controlName="stockMin" [parentForm]="form"></josanz-input>
+        <josanz-input
+          label="Almacén por defecto"
+          placeholder="Almacén Central"
+          controlName="almacen"
+          [parentForm]="form"
+        ></josanz-input>
+        <p class="josanz-user-create__hint">
+          Tras crear el producto podrás registrar lotes y ubicaciones desde la ficha de detalle.
+        </p>
       </div>
-    </div>
+    </section>
   </div>
 </josanz-main-detail-layout>

@@ -2,7 +2,7 @@
   title="Nuevo Usuario"
   layoutVariant="figma-event"
   [tabs]="[]"
-  [activeTab]="activeTab"
+  activeTab=""
   [showFooterActions]="false"
   (back)="onBack()"
   (save)="onSave()"
@@ -10,47 +10,29 @@
   saveLabel="Crear usuario"
   [saveDisabled]="form.invalid"
 >
-  <div class="josanz-event-detail-body py-2 md:py-4">
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Identidad y acceso
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="mb-6 flex justify-center sm:justify-start">
-            <josanz-user-avatar size="lg"></josanz-user-avatar>
-          </div>
-          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
-            <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
-          </div>
-          <div class="mt-5 grid grid-cols-1 gap-5">
-            <josanz-input label="Email" placeholder="email@empresa.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
-            <josanz-input label="Contraseña" placeholder="••••••••" type="password" controlName="password" [parentForm]="form"></josanz-input>
-          </div>
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Identidad y acceso</h2>
+      <div class="josanz-user-create__identity">
+        <josanz-user-avatar size="lg"></josanz-user-avatar>
+        <div class="josanz-event-create__grid-2 josanz-user-create__fields">
+          <josanz-input label="Nombre" placeholder="Nombre" controlName="nombre" [parentForm]="form"></josanz-input>
+          <josanz-input label="Apellidos" placeholder="Apellidos" controlName="apellidos" [parentForm]="form"></josanz-input>
+          <josanz-input label="Email" placeholder="email@empresa.com" type="email" controlName="email" [parentForm]="form"></josanz-input>
+          <josanz-input label="Contraseña" placeholder="••••••••" type="password" controlName="password" [parentForm]="form"></josanz-input>
         </div>
       </div>
+    </section>
 
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Organización
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input label="Empresa" placeholder="Empresa u organización" controlName="empresa" [parentForm]="form"></josanz-input>
-            <josanz-input label="Rol" placeholder="Usuario, operario…" controlName="rol" [parentForm]="form"></josanz-input>
-          </div>
-          <p class="mt-6 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
-            Los permisos finos se podrán ajustar tras crear la cuenta, cuando el módulo de permisos esté enlazado.
-          </p>
-        </div>
+    <section>
+      <h2 class="josanz-event-create__section-title">Organización</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input label="Empresa" placeholder="Empresa u organización" controlName="empresa" [parentForm]="form"></josanz-input>
+        <josanz-input label="Rol" placeholder="Usuario, operario…" controlName="rol" [parentForm]="form"></josanz-input>
+        <p class="josanz-user-create__hint">
+          Los permisos finos se podrán ajustar tras crear la cuenta, cuando el módulo de permisos esté enlazado.
+        </p>
       </div>
-    </div>
+    </section>
   </div>
 </josanz-main-detail-layout>

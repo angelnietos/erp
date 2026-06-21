@@ -64,9 +64,9 @@ export class JosanzStockListComponent {
     rowLabels: ['Producto', 'Categoría', 'Stock', 'Almacén'],
     statusColumnLabel: 'Estado',
     rows: STOCK_ROWS,
-    addRoute: '/stock/products/new',
+    addRoute: '/stock/new',
     secondaryRoute: '/stock/warehouses/new',
-    detailRoute: '/stock/products',
+    detailRoute: '/stock',
     filterOptions: JOSANZ_CATALOG_WAREHOUSE_TABS,
     summaryLine: {
       before: '248 productos · ',

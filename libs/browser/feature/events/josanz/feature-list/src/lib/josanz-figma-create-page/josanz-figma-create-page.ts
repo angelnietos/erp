@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  ButtonComponent,
   InputComponent,
   MainDetailLayoutComponent,
   josanzNonEmptyTrim,
@@ -30,7 +29,6 @@ const CREATE_BY_SEGMENT: Record<string, JosanzFigmaCreateConfig> = {
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
-    ButtonComponent,
     MainDetailLayoutComponent,
   ],
   templateUrl: './josanz-figma-create-page.html',

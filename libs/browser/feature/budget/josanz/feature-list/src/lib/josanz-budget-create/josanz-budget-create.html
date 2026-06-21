@@ -2,7 +2,7 @@
   title="Nuevo presupuesto"
   layoutVariant="figma-event"
   [tabs]="[]"
-  [activeTab]="activeTab()"
+  activeTab=""
   [showFooterActions]="false"
   (back)="onBack()"
   (save)="onSave()"
@@ -10,60 +10,40 @@
   saveLabel="Crear presupuesto"
   [saveDisabled]="form.invalid"
 >
-  <div class="josanz-event-detail-body josanz-event-create">
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Datos generales
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input
-              label="Cliente"
-              placeholder="Seleccione un cliente"
-              controlName="cliente"
-              [parentForm]="form"
-            ></josanz-input>
-            <josanz-input label="Fecha" type="date" controlName="fecha" [parentForm]="form"></josanz-input>
-            <josanz-input
-              label="Evento vinculado"
-              placeholder="Opcional — evento asociado"
-              controlName="evento"
-              [parentForm]="form"
-            ></josanz-input>
-          </div>
-        </div>
+  <div class="josanz-event-create">
+    <section>
+      <h2 class="josanz-event-create__section-title">Datos generales</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input
+          label="Cliente"
+          placeholder="Seleccione un cliente"
+          controlName="cliente"
+          [parentForm]="form"
+        ></josanz-input>
+        <josanz-input label="Fecha" type="date" controlName="fecha" [parentForm]="form"></josanz-input>
+        <josanz-input
+          label="Evento vinculado"
+          placeholder="Opcional — evento asociado"
+          controlName="evento"
+          [parentForm]="form"
+        ></josanz-input>
       </div>
-      <div class="space-y-4">
-        <h2 class="text-[12px] font-bold uppercase tracking-[0.2em]" style="color: var(--josanz-text-muted)">
-          Condiciones
-        </h2>
-        <div
-          class="rounded-2xl border border-solid p-6 md:p-7"
-          style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-        >
-          <div class="grid grid-cols-1 gap-5">
-            <josanz-input
-              label="Válido hasta"
-              type="date"
-              controlName="validoHasta"
-              [parentForm]="form"
-            ></josanz-input>
-            <josanz-input
-              label="Notas"
-              placeholder="Notas adicionales para el cliente…"
-              controlName="notas"
-              [parentForm]="form"
-            ></josanz-input>
-          </div>
-          <p class="mt-6 text-[13px] leading-relaxed" style="color: var(--josanz-text-muted)">
-            Tras crear el presupuesto podrás añadir líneas, documentación y enviarlo al cliente desde el detalle.
-          </p>
-        </div>
+    </section>
+
+    <section>
+      <h2 class="josanz-event-create__section-title">Condiciones</h2>
+      <div class="josanz-event-create__fields">
+        <josanz-input label="Válido hasta" type="date" controlName="validoHasta" [parentForm]="form"></josanz-input>
+        <josanz-input
+          label="Notas"
+          placeholder="Notas adicionales para el cliente…"
+          controlName="notas"
+          [parentForm]="form"
+        ></josanz-input>
+        <p class="josanz-user-create__hint">
+          Tras crear el presupuesto podrás añadir líneas, documentación y enviarlo al cliente desde el detalle.
+        </p>
       </div>
-    </div>
+    </section>
   </div>
 </josanz-main-detail-layout>

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,9 +14,6 @@ export class JosanzStockProductCreateComponent {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
-  readonly tabs = ['Datos del producto'];
-  activeTab = signal('Datos del producto');
-
   readonly form: FormGroup = this.fb.group({
     referencia: ['', josanzNonEmptyTrim],
     nombre: ['', josanzNonEmptyTrim],
@@ -24,10 +21,6 @@ export class JosanzStockProductCreateComponent {
     stockMin: ['0'],
     almacen: [''],
   });
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-  }
 
   onBack(): void {
     void this.router.navigate(['/stock']);

@@ -1,0 +1,78 @@
+<josanz-main-detail-layout
+  [title]="'Almacén ' + (warehouseId || '—')"
+  layoutVariant="figma-event"
+  statusLabel="Activo"
+  statusPillKey="confirmado"
+  [showFooterActions]="false"
+  [saveDisabled]="true"
+  [tabs]="tabs"
+  [activeTab]="activeTab()"
+  (tabChange)="setTab($event)"
+  (back)="onBack()"
+  (save)="onSave()"
+  (cancel)="onCancel()"
+>
+  <div class="josanz-event-detail-body">
+    @if (activeTab() === 'Ficha') {
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__media">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      </div>
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>{{ fichaRows[0]?.value ?? 'Almacén' }}</h2>
+          <span class="josanz-event-hero__badge-nuevo">{{ fichaRows[1]?.value ?? '—' }}</span>
+        </div>
+        <p class="josanz-event-hero__meta">{{ fichaRows[2]?.value ?? '—' }}</p>
+        <p class="josanz-event-hero__desc">
+          Ubicación de stock para productos, lotes y movimientos vinculados a eventos.
+        </p>
+      </div>
+    </article>
+
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Ficha de almacén</h3>
+      <div class="josanz-event-client-grid">
+        @for (row of fichaRows; track row.label) {
+        <div class="josanz-event-client-grid__row">
+          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+        </div>
+        }
+      </div>
+    </section>
+    } @if (activeTab() === 'Productos') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Productos en almacén</h3>
+        <josanz-secondary-button label="Añadir producto +"></josanz-secondary-button>
+      </div>
+      @for (row of productRows; track row.sku) {
+      <div class="josanz-event-budget-line">
+        <span>
+          <span class="josanz-event-budget-line__name">{{ row.sku }}</span>
+          <span class="josanz-event-budget-line__warehouse"> · {{ row.name }}</span>
+        </span>
+        <span></span>
+        <span class="josanz-event-budget-line__pill" style="background: var(--josanz-pill-confirmado-bg); color: var(--josanz-pill-confirmado-text)">{{ row.qty }}</span>
+      </div>
+      }
+    </section>
+    } @if (activeTab() === 'Movimientos') {
+    <section class="josanz-event-section">
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Historial de movimientos</h3>
+        <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
+      </div>
+      @for (row of movementRows; track row.id) {
+      <div class="josanz-event-note-row">
+        <p>{{ row.text }}</p>
+      </div>
+      }
+    </section>
+    }
+  </div>
+</josanz-main-detail-layout>

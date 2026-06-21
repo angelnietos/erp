@@ -26,8 +26,6 @@ export class JosanzUserCreateComponent {
   private fb = inject(FormBuilder);
   
   form: FormGroup;
-  tabs = ['Datos usuario'];
-  activeTab = 'Datos usuario';
 
   constructor() {
     this.form = this.fb.group({
