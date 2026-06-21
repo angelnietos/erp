@@ -67,6 +67,7 @@ describe('JosanzDashboardInicioComponent', () => {
       expect(component.sampleEvent.client).toBe('Cliente');
       expect(component.sampleEvent.tags.length).toBe(3);
       expect(component.sampleEvent.tags[0].label).toBe('Pagado');
+      expect(component.sampleEvent.tags[0].pillKey).toBe('confirmado');
     });
 
     it('should have schedule cells', () => {

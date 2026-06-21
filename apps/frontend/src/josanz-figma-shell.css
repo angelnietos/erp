@@ -167,15 +167,20 @@ html[data-erp-ui-shell='josanz-figma'] [type='reset'] {
 
 /* Controles Figma: contraste legible en activo (chips, segmentos, CTA toolbar). */
 html[data-erp-ui-shell='josanz-figma'] josanz-filter-tabs .josanz-filter-tabs__segment--active {
-  background: #ffffff !important;
-  color: #222222 !important;
-  -webkit-text-fill-color: #222222 !important;
+  background: var(--josanz-surface, #ffffff) !important;
+  color: var(--josanz-text, #222222) !important;
+  -webkit-text-fill-color: var(--josanz-text, #222222) !important;
 }
 
-html[data-erp-ui-shell='josanz-figma'] .josanz-home__period-btn--active,
+html[data-erp-ui-shell='josanz-figma'] josanz-filter-tabs .josanz-filter-tabs__segment--idle {
+  color: var(--josanz-label-muted, #8d8d8d) !important;
+  -webkit-text-fill-color: var(--josanz-label-muted, #8d8d8d) !important;
+}
+
 html[data-erp-ui-shell='josanz-figma'] .josanz-home__launch-btn {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--josanz-dashboard-on-toolbar-cta, #ffffff) !important;
+  -webkit-text-fill-color: var(--josanz-dashboard-on-toolbar-cta, #ffffff) !important;
+  background: var(--josanz-dashboard-toolbar-cta, #000000) !important;
 }
 
 html[data-erp-ui-shell='josanz-figma'] :where(button, [type='button'], [type='submit'], [type='reset']):disabled {

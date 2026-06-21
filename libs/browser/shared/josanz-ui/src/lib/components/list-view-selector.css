@@ -32,7 +32,7 @@
   height: 32px;
   padding: 4px;
   border-radius: 6px;
-  background: #f7f7f7;
+  background: var(--josanz-surface-muted, #f7f7f7);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -69,8 +69,8 @@
 }
 
 .josanz-view-selector__segment--active {
-  background: #ffffff;
-  color: #222222;
+  background: var(--josanz-surface, #ffffff);
+  color: var(--josanz-text, #222222);
   font-weight: 600;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }

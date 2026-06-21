@@ -1,10 +1,12 @@
 import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import {
   FilterTabsComponent,
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_SHELL,
   JosanzThemeService,
+  type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
 interface JosanzHomeTech {
@@ -15,7 +17,7 @@ interface JosanzHomeTech {
 
 interface JosanzHomeEventCard {
   title: string;
-  tags: { label: string; bg: string; text: string }[];
+  tags: { label: string; pillKey: JosanzStatusPillKey }[];
   client: string;
   description: string;
 }
@@ -31,7 +33,7 @@ interface JosanzHomeScheduleCell {
  */
 @Component({
   standalone: true,
-  imports: [RouterLink, FilterTabsComponent],
+  imports: [CommonModule, RouterLink, FilterTabsComponent],
   templateUrl: './josanz-dashboard-inicio.component.html',
 })
 export class JosanzDashboardInicioComponent {
@@ -93,9 +95,9 @@ export class JosanzDashboardInicioComponent {
   readonly sampleEvent: JosanzHomeEventCard = {
     title: 'Evento X',
     tags: [
-      { label: 'Pagado', bg: '#DCFCE7', text: '#166534' },
-      { label: 'Otra etiqueta', bg: '#EDE9FE', text: '#5B21B6' },
-      { label: 'Tag', bg: '#FCE7F3', text: '#9D174D' },
+      { label: 'Pagado', pillKey: 'confirmado' },
+      { label: 'Otra etiqueta', pillKey: 'pospuesto' },
+      { label: 'Tag', pillKey: 'staff-freelance' },
     ],
     client: 'Cliente',
     description: 'Información relevante del evento para ver en un momento…',
@@ -146,5 +148,12 @@ export class JosanzDashboardInicioComponent {
 
   isPeriodActive(value: string): boolean {
     return this.period === value;
+  }
+
+  pillStyle(key: JosanzStatusPillKey): Record<string, string> {
+    return {
+      backgroundColor: `var(--josanz-pill-${key}-bg)`,
+      color: `var(--josanz-pill-${key}-text)`,
+    };
   }
 }

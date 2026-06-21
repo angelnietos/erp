@@ -167,6 +167,7 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     }
     return {
       color: 'var(--josanz-button-secondary-text, var(--josanz-text-muted))',
+      WebkitTextFillColor: 'var(--josanz-button-secondary-text, var(--josanz-text-muted))',
       backgroundColor:
         'var(--josanz-button-secondary-bg, var(--josanz-surface))',
       borderColor:

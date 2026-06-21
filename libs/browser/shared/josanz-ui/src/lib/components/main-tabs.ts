@@ -52,6 +52,7 @@ export class MainTabsComponent implements OnInit, OnChanges {
     const accent = this.customColor ?? 'var(--josanz-interactive)';
     const accentText = this.customColor ?? 'var(--josanz-pill-active-text)';
     if (this.useFigmaTabs()) {
+      const color = on ? accentText : 'var(--josanz-text-muted)';
       return {
         backgroundColor: on
           ? this.customColor
@@ -59,7 +60,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
             : 'var(--josanz-pill-active-bg)'
           : 'var(--josanz-surface)',
         borderColor: on ? accentText : 'var(--josanz-border)',
-        color: on ? accentText : 'var(--josanz-text-muted)',
+        color,
+        WebkitTextFillColor: color,
         boxShadow: on
           ? this.customColor
             ? `0 0 0 1px color-mix(in srgb, ${this.customColor} 32%, transparent)`
@@ -67,10 +69,12 @@ export class MainTabsComponent implements OnInit, OnChanges {
           : 'none',
       };
     }
+    const color = on ? accent : 'var(--josanz-text-muted)';
     return {
       backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
       borderColor: on ? accent : 'var(--josanz-border)',
-      color: on ? accent : 'var(--josanz-text-muted)',
+      color,
+      WebkitTextFillColor: color,
     };
   }
 

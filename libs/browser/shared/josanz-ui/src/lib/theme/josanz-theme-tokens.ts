@@ -667,12 +667,21 @@ export function applyJosanzBrandCssVariables(
       ? `color-mix(in srgb, ${primaryColor} 78%, white)`
       : `color-mix(in srgb, ${primaryColor} 80%, black)`,
   );
-  root.style.setProperty('--josanz-pill-active-bg', softBg);
-  root.style.setProperty('--josanz-pill-active-text', pillText);
-  root.style.setProperty(
-    '--josanz-pill-active-border',
-    `color-mix(in srgb, ${primaryColor} 42%, transparent)`,
-  );
+  if (isNeutral) {
+    root.style.setProperty('--josanz-pill-active-bg', JOSANZ_FIGMA_SHELL.pillActiveBg);
+    root.style.setProperty('--josanz-pill-active-text', JOSANZ_FIGMA_SHELL.pillActiveText);
+    root.style.setProperty(
+      '--josanz-pill-active-border',
+      'rgba(8, 8, 8, 0.2)',
+    );
+  } else {
+    root.style.setProperty('--josanz-pill-active-bg', softBg);
+    root.style.setProperty('--josanz-pill-active-text', pillText);
+    root.style.setProperty(
+      '--josanz-pill-active-border',
+      `color-mix(in srgb, ${primaryColor} 42%, transparent)`,
+    );
+  }
   root.style.setProperty('--josanz-nav-active-indicator', primaryColor);
   root.style.setProperty('--josanz-nav-hover', primaryColor);
   root.style.setProperty('--josanz-interactive', primaryColor);
@@ -927,6 +936,18 @@ function applyJosanzFigmaNeutralStructuralOverrides(root: HTMLElement): void {
   root.style.setProperty(
     '--josanz-kpi-positive',
     JOSANZ_FIGMA_DASHBOARD.kpiPositive,
+  );
+  root.style.setProperty(
+    '--josanz-dashboard-toolbar-cta',
+    JOSANZ_FIGMA_DASHBOARD.toolbarCta,
+  );
+  root.style.setProperty(
+    '--josanz-dashboard-on-toolbar-cta',
+    JOSANZ_FIGMA_DASHBOARD.onToolbarCta,
+  );
+  root.style.setProperty(
+    '--josanz-dashboard-kpi-min-h',
+    `${JOSANZ_FIGMA_DASHBOARD.kpiCardH}px`,
   );
   root.style.setProperty(
     '--josanz-elev-soft',

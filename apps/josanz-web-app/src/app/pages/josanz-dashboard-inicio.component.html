@@ -97,8 +97,7 @@
                     @for (tag of event.tags; track tag.label) {
                       <span
                         class="josanz-home__event-card__tag"
-                        [style.backgroundColor]="tag.bg"
-                        [style.color]="tag.text"
+                        [ngStyle]="pillStyle(tag.pillKey)"
                       >
                         {{ tag.label }}
                       </span>
