@@ -28,11 +28,12 @@
       <a
         [routerLink]="item.path"
         routerLinkActive="active-link"
+        [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
         [title]="item.label"
         class="josanz-sidebar__item group"
       >
         <span class="nav-icon-container" aria-hidden="true">
-          <img [src]="iconSrc(item.icon)" [alt]="" width="20" height="20" />
+          <josanz-sidebar-icon [icon]="item.icon" />
         </span>
         <span class="josanz-sidebar__label">{{ item.label }}</span>
       </a>
@@ -42,7 +43,7 @@
   <div class="josanz-sidebar__bottom">
     <a routerLink="/settings" routerLinkActive="active-link" title="Ajustes" class="josanz-sidebar__item group">
       <span class="nav-icon-container" aria-hidden="true">
-        <img [src]="iconSrc('ajustes')" alt="" width="20" height="20" />
+        <josanz-sidebar-icon icon="ajustes" />
       </span>
       <span class="josanz-sidebar__label">Ajustes</span>
     </a>
@@ -55,7 +56,7 @@
       (click)="onLogoutClick()"
     >
       <span class="nav-icon-container" aria-hidden="true">
-        <img [src]="iconSrc('salir')" alt="" width="20" height="20" />
+        <josanz-sidebar-icon icon="salir" />
       </span>
       <span class="josanz-sidebar__label">Salir</span>
     </button>

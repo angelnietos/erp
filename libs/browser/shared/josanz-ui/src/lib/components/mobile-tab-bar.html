@@ -37,13 +37,7 @@
         >
           <div class="icon-container group-[.active]:scale-110 transition-all">
             @if (tab.icon) {
-              <img
-                [src]="iconSrc(tab.icon)"
-                [alt]=""
-                width="20"
-                height="20"
-                class="opacity-70 group-[.active]:opacity-100"
-              />
+              <josanz-sidebar-icon [icon]="tab.icon" />
             }
           </div>
           <span class="max-w-full truncate text-[9px] font-bold uppercase tracking-tighter group-[.active]:text-[var(--josanz-accent)]">{{ tab.label }}</span>

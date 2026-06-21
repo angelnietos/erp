@@ -130,6 +130,31 @@ html[data-erp-ui-shell='josanz-figma'] .josanz-page-main {
   color: var(--josanz-text, #222222);
 }
 
+/* Sidebar Figma: iconos vectoriales sin caja en hover/activo. */
+html[data-erp-ui-shell='josanz-figma'] josanz-sidebar .josanz-sidebar__item:hover,
+html[data-erp-ui-shell='josanz-figma'] josanz-sidebar .josanz-sidebar__item.active-link,
+html[data-erp-ui-shell='josanz-figma'] josanz-sidebar .josanz-sidebar__button:hover {
+  background-color: transparent !important;
+}
+
+html[data-erp-ui-shell='josanz-figma'] josanz-sidebar josanz-sidebar-icon,
+html[data-erp-ui-shell='josanz-figma'] josanz-sidebar .josanz-sidebar__icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: var(--josanz-sidebar-icon, #222222);
+}
+
+html[data-erp-ui-shell='josanz-figma'] josanz-mobile-tab-bar .tab-link .josanz-sidebar__icon {
+  color: var(--josanz-text-muted);
+  opacity: 0.72;
+}
+
+html[data-erp-ui-shell='josanz-figma'] josanz-mobile-tab-bar .tab-link.active .josanz-sidebar__icon {
+  color: var(--josanz-accent, #080808);
+  opacity: 1;
+}
+
 /* Reset botones nativos (sin preflight Tailwind en el ERP). */
 html[data-erp-ui-shell='josanz-figma'] button,
 html[data-erp-ui-shell='josanz-figma'] [type='button'],

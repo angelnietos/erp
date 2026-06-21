@@ -60,6 +60,12 @@
   --josanz-avatar-wash: #deedff;
 }
 
+[data-josanz-atmosphere='neutral'] .josanz-sidebar .active-link,
+[data-josanz-atmosphere='neutral'] .josanz-sidebar a.josanz-sidebar__item:hover,
+[data-josanz-atmosphere='neutral'] .josanz-sidebar button.josanz-sidebar__button:hover {
+  background-color: transparent !important;
+}
+
 [data-josanz-atmosphere='neutral'] .active-link {
   background-color: transparent;
 }

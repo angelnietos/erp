@@ -130,11 +130,11 @@
 
 .active-link {
   opacity: 1 !important;
-  background-color: var(--josanz-sidebar-hover-bg, var(--josanz-surface-muted, rgba(0, 0, 0, 0.03)));
+  background-color: var(--josanz-sidebar-hover-bg, transparent);
 }
 
 .active-link .nav-icon-container {
-  color: var(--josanz-sidebar-icon-active, var(--josanz-nav-hover));
+  color: var(--josanz-sidebar-icon-active, var(--josanz-sidebar-icon));
 }
 
 .active-link .active-indicator {
@@ -148,12 +148,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: inherit;
 }
 
-.nav-icon-container svg {
-  width: 16px;
-  height: 16px;
-  stroke-width: 1.8;
+.nav-icon-container josanz-sidebar-icon {
+  color: inherit;
 }
 
 .nav-icon-container img {
@@ -168,6 +167,11 @@
 :host .josanz-sidebar .active-link {
   color: var(--josanz-sidebar-icon-active) !important;
   background-color: var(--josanz-sidebar-hover-bg) !important;
+}
+
+:host-context([data-josanz-atmosphere='neutral']) .josanz-sidebar__item:hover,
+:host-context([data-josanz-atmosphere='neutral']) .josanz-sidebar__item.active-link {
+  background-color: transparent !important;
 }
 
 :host-context([data-josanz-atmosphere='neutral']) .active-indicator {

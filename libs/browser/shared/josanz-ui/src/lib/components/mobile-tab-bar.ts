@@ -2,14 +2,13 @@ import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { JosanzThemeService } from '../services/theme.service';
 import { JOSANZ_FIGMA_APP } from '../theme/josanz-figma-tokens';
+import { JosanzSidebarIconComponent } from './sidebar-icon.component';
+import type { JosanzSidebarIconKey } from './sidebar';
 
-export type JosanzMobileTabIconKey =
-  | 'inicio'
-  | 'eventos'
-  | 'clientes'
-  | 'stock'
-  | 'presupuestos'
-  | 'ajustes';
+export type JosanzMobileTabIconKey = Extract<
+  JosanzSidebarIconKey,
+  'inicio' | 'eventos' | 'clientes' | 'stock' | 'presupuestos' | 'ajustes'
+>;
 
 export interface JosanzMobileTabItem {
   path: string;
@@ -24,14 +23,13 @@ export interface JosanzMobileTabItem {
 @Component({
   selector: 'josanz-mobile-tab-bar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, JosanzSidebarIconComponent],
   templateUrl: './mobile-tab-bar.html',
   styleUrl: './mobile-tab-bar.css',
 })
 export class MobileTabBarComponent {
   readonly theme = inject(JosanzThemeService);
   readonly app = JOSANZ_FIGMA_APP;
-  readonly iconBase = '/assets/josanz-figma/icons';
 
   readonly tabs: JosanzMobileTabItem[] = [
     { path: '/dashboard', label: 'Inicio', exact: true, icon: 'inicio' },
@@ -42,8 +40,4 @@ export class MobileTabBarComponent {
     { path: '/clients', label: 'Clientes', icon: 'clientes' },
     { path: '/settings', label: 'Ajustes', icon: 'ajustes' },
   ];
-
-  iconSrc(key: JosanzMobileTabIconKey): string {
-    return `${this.iconBase}/${key}.svg`;
-  }
 }

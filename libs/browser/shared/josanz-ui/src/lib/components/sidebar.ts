@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { JosanzThemeService } from '../services/theme.service';
 import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
+import { JosanzSidebarIconComponent } from './sidebar-icon.component';
 
 export type JosanzSidebarIconKey =
   | 'inicio'
@@ -22,12 +23,13 @@ interface JosanzSidebarItem {
   label: string;
   icon: JosanzSidebarIconKey;
   permission?: string;
+  exact?: boolean;
 }
 
 @Component({
   selector: 'josanz-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, JosanzSidebarIconComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
@@ -42,10 +44,9 @@ export class SidebarComponent {
   @Output() readonly logoutClick = new EventEmitter<void>();
 
   readonly logoSrc = '/assets/josanz-figma/login-logo.png';
-  readonly iconBase = '/assets/josanz-figma/icons';
 
   readonly navItems: JosanzSidebarItem[] = [
-    { path: '/dashboard', label: 'Inicio', icon: 'inicio' },
+    { path: '/dashboard', label: 'Inicio', icon: 'inicio', exact: true },
     { path: '/events', label: 'Eventos', icon: 'eventos', permission: 'events.view' },
     { path: '/clients', label: 'Clientes', icon: 'clientes', permission: 'clients.view' },
     { path: '/equipment', label: 'Material AV', icon: 'material', permission: 'products.view' },
@@ -55,10 +56,6 @@ export class SidebarComponent {
     { path: '/budgets', label: 'Presupuestos', icon: 'presupuestos', permission: 'billing.view' },
     { path: '/billing', label: 'Facturación', icon: 'facturacion', permission: 'billing.view' },
   ];
-
-  iconSrc(key: JosanzSidebarIconKey): string {
-    return `${this.iconBase}/${key}.svg`;
-  }
 
   readonly filteredNavItems = computed(() => {
     return this.navItems.filter((item) => {
