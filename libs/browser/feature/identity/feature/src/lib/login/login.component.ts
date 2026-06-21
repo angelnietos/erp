@@ -148,7 +148,7 @@ export class LoginComponent implements OnInit {
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
 
-  /** Login claro en dos columnas según Figma node `61:1674` (Ready for dev ✓). */
+  /** Login claro en dos columnas según Figma node `61:1655` (Ready for dev ✓, image 32). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
 
   /** Login oscuro document-generator (tenant docs). */
@@ -195,7 +195,7 @@ export class LoginComponent implements OnInit {
   );
   readonly emailPlaceholder = computed(() =>
     this.useFigmaShellLogin()
-      ? 'Nombre de usuario'
+      ? 'Usuarioejemplo_01'
       : getDevLoginEmailPlaceholder(this.tenantSlug()),
   );
 

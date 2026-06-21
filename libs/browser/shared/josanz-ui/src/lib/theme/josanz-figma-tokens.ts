@@ -17,8 +17,8 @@ export const JOSANZ_FIGMA_SHELL = {
 /** CTA de listados y botones primarios (`Buttons.svg`, frames Base). */
 export const JOSANZ_FIGMA_BRAND_PRIMARY = '#080808';
 
-/** Frame Login Figma node `61:1674` (Ready for dev, columna con tick). */
-export const JOSANZ_FIGMA_LOGIN_NODE = '61:1674' as const;
+/** Frame Login Figma node `61:1655` (Ready for dev ✓, hero image 32). */
+export const JOSANZ_FIGMA_LOGIN_NODE = '61:1655' as const;
 
 /** Frame `Login.svg` (1280×832): login web claro, formulario a la derecha. */
 export const JOSANZ_FIGMA_LOGIN = {
@@ -33,7 +33,7 @@ export const JOSANZ_FIGMA_LOGIN = {
   disabledCta: '#DADFE6',
   heading: '#222222',
   muted: '#7C7C7C',
-  /** Login Figma (`61:1674`): panel ilustración izquierda (Digital Editing Interface). */
+  /** Login Figma (`61:1655`): panel ilustración izquierda (image 32, escenario). */
   heroWash: '#E8EDF5',
   heroWashEnd: '#F5F7FB',
 } as const;

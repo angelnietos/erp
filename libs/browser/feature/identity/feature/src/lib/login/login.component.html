@@ -5,7 +5,15 @@
   [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
 >
   @if (useFigmaShellLogin()) {
-    <div class="auth-figma-hero auth-figma-hero--photo" aria-hidden="true"></div>
+    <div class="auth-figma-hero" aria-hidden="true">
+      <img
+        class="auth-figma-hero__img"
+        src="assets/josanz-figma/login-hero.png"
+        alt=""
+        width="819"
+        height="832"
+      />
+    </div>
   } @else if (useDocsShellLogin()) {
     <div class="auth-docs-hero" aria-hidden="true">
       <div class="auth-docs-hero__glow"></div>
@@ -215,6 +223,7 @@
         type="password"
         [placeholder]="useFigmaShellLogin() ? 'Contraseña' : '••••••••'"
         [icon]="useFigmaShellLogin() ? '' : 'lock'"
+        [revealToggle]="useFigmaShellLogin()"
         formControlName="password"
         [shape]="useFigmaShellLogin() ? 'outline' : useSolidLoginFields() ? 'solid' : 'glass'"
         [error]="!!(loginForm.get('password')?.invalid && loginForm.get('password')?.touched)"
@@ -231,6 +240,7 @@
 
       <ui-button 
         type="submit" 
+        [color]="useFigmaShellLogin() ? 'primary' : 'app'"
         [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
         [loading]="store.loading()"
         [disabled]="loginForm.invalid"

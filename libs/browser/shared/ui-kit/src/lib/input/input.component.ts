@@ -27,18 +27,29 @@ export type InputVariant = string;
         [ngClass]="['input-color-' + color, 'input-shape-' + shape, 'input-' + size]"
         [class.input-auto-overrides]="shape === 'auto'"
         [class.has-icon]="icon" 
+        [class.has-trailing]="revealToggle && type === 'password'"
         [class.has-error]="error" 
       >
         @if (icon) { <lucide-icon [name]="icon" class="field-icon" aria-hidden="true"></lucide-icon> }
         <input 
           [id]="id" 
-          [type]="type" 
+          [type]="passwordInputType" 
           [placeholder]="placeholder" 
           [value]="value"
           (input)="onInput($event)"
           (blur)="onBlur()"
           [disabled]="disabled"
         >
+        @if (revealToggle && type === 'password') {
+          <button
+            type="button"
+            class="trail-toggle"
+            [attr.aria-label]="passwordVisible ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+            (click)="togglePasswordVisibility()"
+          >
+            <lucide-icon [name]="passwordVisible ? 'eye-off' : 'eye'" aria-hidden="true"></lucide-icon>
+          </button>
+        }
         <div class="focus-ring"></div>
       </div>
       
@@ -210,6 +221,29 @@ export type InputVariant = string;
     :host-context(.auth-wrapper--figma) .field-icon {
       display: none;
     }
+    :host-context(.auth-wrapper--figma) .input-wrapper.has-trailing input {
+      padding-right: 2.75rem !important;
+    }
+    :host-context(.auth-wrapper--figma) .trail-toggle {
+      position: absolute;
+      right: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.125rem;
+      height: 1.125rem;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: #7c7c7c;
+      cursor: pointer;
+    }
+    :host-context(.auth-wrapper--figma) .trail-toggle lucide-icon {
+      width: 1.125rem;
+      height: 1.125rem;
+    }
   `],
 })
 export class UiInputComponent implements ControlValueAccessor {
@@ -218,6 +252,7 @@ export class UiInputComponent implements ControlValueAccessor {
   @Input() type = 'text';
   @Input() placeholder = '';
   @Input() icon = '';
+  @Input() revealToggle = false;
   @Input() hint?: string;
   @Input() error = false;
   @Input() size: 'sm' | 'md' = 'md';
@@ -243,8 +278,20 @@ export class UiInputComponent implements ControlValueAccessor {
 
   value = '';
   @Input() disabled = false;
+  passwordVisible = false;
   onChange: (value: string) => void = () => { /* empty */ };
   onTouched = () => { /* empty */ };
+
+  get passwordInputType(): string {
+    if (this.type !== 'password') {
+      return this.type;
+    }
+    return this.revealToggle && this.passwordVisible ? 'text' : 'password';
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
 
   writeValue(value: string | null | undefined): void {
     this.value = value == null || value === 'undefined' ? '' : String(value);

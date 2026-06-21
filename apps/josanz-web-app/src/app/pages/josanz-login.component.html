@@ -1,8 +1,13 @@
 <div class="josanz-figma-auth">
-  <aside
-    class="josanz-figma-auth__hero josanz-figma-auth__hero--photo"
-    aria-hidden="true"
-  ></aside>
+  <aside class="josanz-figma-auth__hero" aria-hidden="true">
+    <img
+      class="josanz-figma-auth__hero-img"
+      src="assets/josanz-figma/login-hero.png"
+      alt=""
+      width="819"
+      height="832"
+    />
+  </aside>
 
   <section class="josanz-figma-auth__panel">
     <div class="josanz-figma-auth__card josanz-figma-auth__card--flat">
@@ -19,7 +24,7 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-figma-auth__form">
         <josanz-input
-          placeholder="Nombre de usuario"
+          placeholder="Usuarioejemplo_01"
           type="email"
           controlName="email"
           [parentForm]="loginForm"
