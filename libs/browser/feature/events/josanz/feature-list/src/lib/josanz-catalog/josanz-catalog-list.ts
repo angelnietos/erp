@@ -31,9 +31,9 @@ export interface JosanzCatalogListConfig {
   summaryStats?: { label: string; count: number }[];
   filterOptions?: string[];
   statusFilterOptions?: string[];
-  /** Fila «De X a X / Proveedores» (Stock). Eventos Figma: false. */
+  /** Fila «De X a X / Proveedores» (solo vistas Stock legacy). Default: false. */
   showAdvancedFilters?: boolean;
-  /** Chips de estado bajo toolbar (Stock). Eventos Figma: false. */
+  /** Chips de estado bajo toolbar (solo vistas Stock legacy). Default: false. */
   showStatusFilters?: boolean;
   paginationTotal?: number;
   paginationVariant?: 'figma' | 'numbered';
@@ -67,6 +67,13 @@ export class JosanzCatalogListComponent {
     { label: 'En presupuesto', count: 3 },
     { label: 'Confirmado', count: 12 },
   ];
+
+  get showExtraFilters(): boolean {
+    if (this.config.showAdvancedFilters === true || this.config.showStatusFilters === true) {
+      return true;
+    }
+    return !this.config.summaryLine && this.summaryStats.length > 0;
+  }
 
   get filterOptions(): string[] {
     return this.config.filterOptions ?? JOSANZ_CATALOG_WAREHOUSE_TABS;

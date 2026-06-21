@@ -39,25 +39,20 @@ const BILLING_ROWS: JosanzCatalogListRow[] = [
 export class JosanzBillingListComponent {
   readonly config: JosanzCatalogListConfig = {
     title: 'Facturación',
-    primaryBtnLabel: 'Añadir factura +',
-    secondaryBtnLabel: 'Añadir Almacén +',
+    primaryBtnLabel: 'Añadir factura',
     statusColumnLabel: 'Estado',
     rowLabels: ['Documento', 'Fecha emisión', 'Cliente', 'Importe'],
     rows: BILLING_ROWS,
     addRoute: '/billing/new',
     detailRoute: '/billing',
-    summaryLine: '180 documentos · 24 pendientes de cobro',
-    summaryStats: [
-      { label: 'Facturado', count: 132 },
-      { label: 'Pendiente', count: 24 },
-      { label: 'Revisión', count: 5 },
-    ],
-    statusFilterOptions: [
-      'Todos (180)',
-      'Facturado',
-      'Pendiente',
-      'Revisión',
-      'Cerrado',
-    ],
+    summaryLine: {
+      before: '180 documentos · ',
+      emphasis: '24 pendientes',
+      after: ' de cobro',
+    },
+    showAdvancedFilters: false,
+    showStatusFilters: false,
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
   };
 }

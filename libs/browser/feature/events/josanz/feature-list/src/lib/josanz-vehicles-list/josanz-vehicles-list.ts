@@ -39,25 +39,20 @@ const VEHICLE_ROWS: JosanzCatalogListRow[] = [
 export class JosanzVehiclesListComponent {
   readonly config: JosanzCatalogListConfig = {
     title: 'Vehículos',
-    primaryBtnLabel: 'Añadir vehículo +',
-    secondaryBtnLabel: 'Añadir Almacén +',
+    primaryBtnLabel: 'Añadir vehículo',
     statusColumnLabel: 'Estado',
     rowLabels: ['Vehículo', 'Matrícula', 'Base', 'Responsable'],
     rows: VEHICLE_ROWS,
     addRoute: '/vehicles/new',
     detailRoute: '/vehicles',
-    summaryLine: '42 vehículos · 3 en ruta hoy',
-    summaryStats: [
-      { label: 'Disponible', count: 29 },
-      { label: 'En ruta', count: 3 },
-      { label: 'Incidencia', count: 2 },
-    ],
-    statusFilterOptions: [
-      'Todos (42)',
-      'Disponible',
-      'Reservado',
-      'En ruta',
-      'Incidencia',
-    ],
+    summaryLine: {
+      before: '42 vehículos · ',
+      emphasis: '3 en ruta',
+      after: ' hoy',
+    },
+    showAdvancedFilters: false,
+    showStatusFilters: false,
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
   };
 }

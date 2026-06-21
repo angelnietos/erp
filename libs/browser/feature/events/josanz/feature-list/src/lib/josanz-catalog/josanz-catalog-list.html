@@ -18,7 +18,7 @@
   (filterChange)="onTypologyFilter()"
   (excelAction)="onExcel()"
 >
-  @if (config.showAdvancedFilters !== false || config.showStatusFilters !== false || (!config.summaryLine && summaryStats.length)) {
+  @if (showExtraFilters) {
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
     @if (!config.summaryLine) {
     <div
@@ -39,9 +39,9 @@
     </div>
     }
 
-    @if (config.showAdvancedFilters !== false || config.showStatusFilters !== false) {
+    @if (config.showAdvancedFilters === true || config.showStatusFilters === true) {
     <div class="josanz-catalog-filters-row">
-      @if (config.showAdvancedFilters !== false) {
+      @if (config.showAdvancedFilters === true) {
       <josanz-secondary-button
         label="De X a X"
         class="shrink-0"
@@ -59,7 +59,7 @@
         aria-hidden="true"
       ></span>
       }
-      @if (config.showStatusFilters !== false) {
+      @if (config.showStatusFilters === true) {
       <josanz-filter-tabs
         class="min-w-0 flex-1"
         [options]="statusFilterOptions"

@@ -39,25 +39,20 @@ const STAFF_ROWS: JosanzCatalogListRow[] = [
 export class JosanzStaffListComponent {
   readonly config: JosanzCatalogListConfig = {
     title: 'Staff',
-    primaryBtnLabel: 'Añadir personal +',
-    secondaryBtnLabel: 'Añadir Equipo +',
+    primaryBtnLabel: 'Añadir personal',
     statusColumnLabel: 'Tipo',
     rowLabels: ['Nombre', 'Perfil', 'Teléfono', 'Disponibilidad'],
     rows: STAFF_ROWS,
     addRoute: '/staff/new',
     detailRoute: '/staff',
-    summaryLine: '100 personas · 12 en evento activo',
-    summaryStats: [
-      { label: 'Técnicos', count: 52 },
-      { label: 'Freelance', count: 31 },
-      { label: 'Prácticas', count: 8 },
-    ],
-    statusFilterOptions: [
-      'Todos (100)',
-      'Técnico',
-      'Freelance',
-      'En prácticas',
-      'Inasistencia',
-    ],
+    summaryLine: {
+      before: '100 personas · ',
+      emphasis: '12 en evento',
+      after: ' activo',
+    },
+    showAdvancedFilters: false,
+    showStatusFilters: false,
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
   };
 }

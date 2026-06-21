@@ -39,26 +39,22 @@ const EQUIPMENT_ROWS: JosanzCatalogListRow[] = [
 export class JosanzEquipmentListComponent {
   readonly config: JosanzCatalogListConfig = {
     title: 'Equipo audiovisual',
-    primaryBtnLabel: 'Añadir Equipo +',
-    secondaryBtnLabel: 'Añadir Almacén +',
+    primaryBtnLabel: 'Añadir Equipo',
+    secondaryBtnLabel: 'Añadir Almacén',
     statusColumnLabel: 'Estado',
     rowLabels: ['Equipo', 'Categoría', 'Almacén', 'Ubicación'],
     rows: EQUIPMENT_ROWS,
     addRoute: '/equipment/new',
     secondaryRoute: '/stock/warehouses/new',
     detailRoute: '/equipment',
-    summaryLine: '180 equipos · 8 activos esta semana',
-    summaryStats: [
-      { label: 'Disponible', count: 124 },
-      { label: 'Reservado', count: 18 },
-      { label: 'Mantenimiento', count: 6 },
-    ],
-    statusFilterOptions: [
-      'Todos (180)',
-      'Disponible',
-      'Reservado',
-      'En evento',
-      'Mantenimiento',
-    ],
+    summaryLine: {
+      before: '180 equipos · ',
+      emphasis: '8 activos',
+      after: ' esta semana',
+    },
+    showAdvancedFilters: false,
+    showStatusFilters: false,
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
   };
 }
