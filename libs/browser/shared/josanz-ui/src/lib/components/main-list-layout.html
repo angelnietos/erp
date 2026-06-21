@@ -190,14 +190,16 @@
 
   @if (paginationTotal > 0 || effectiveShowViewSelector) {
   <div
-    class="flex w-full shrink-0 flex-col gap-4 border-t pt-6 md:flex-row md:items-center md:justify-between"
+    class="josanz-main-list__footer flex w-full shrink-0 flex-col gap-4 border-t pt-6 md:flex-row md:items-center md:justify-between"
     [style.borderColor]="'var(--josanz-border)'"
   >
     @if (effectiveShowViewSelector) {
     <josanz-list-view-selector
       [label]="viewSelectorLabel"
       [selected]="themeService.listViewSelection()"
+      [gridColumns]="themeService.listGridColumns()"
       (selectionChange)="onViewChange($event)"
+      (gridColumnsChange)="onGridColumnsChange($event)"
     ></josanz-list-view-selector>
     } @if (paginationTotal > 0) {
     <div class="flex justify-center md:ml-auto md:justify-end">

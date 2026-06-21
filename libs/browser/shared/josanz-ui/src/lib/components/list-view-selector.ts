@@ -1,17 +1,10 @@
-import {
-  Component,
-  ElementRef,
-  EventEmitter,
-  HostListener,
-  Input,
-  Output,
-  inject,
-  signal,
-} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  JOSANZ_LIST_GRID_COLUMN_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
-  listViewSelectionLabel,
+  isGridCardsView,
+  type JosanzListGridColumns,
   type JosanzListViewSelection,
 } from '../list-view/list-view-preferences';
 
@@ -23,45 +16,37 @@ import {
   styleUrl: './list-view-selector.css',
 })
 export class ListViewSelectorComponent {
-  private readonly host = inject(ElementRef<HTMLElement>);
-
   @Input() label = 'Vista';
   @Input() selected: JosanzListViewSelection = 'tarjetas-lista';
+  @Input() gridColumns: JosanzListGridColumns = 3;
 
   @Output() selectionChange = new EventEmitter<JosanzListViewSelection>();
+  @Output() gridColumnsChange = new EventEmitter<JosanzListGridColumns>();
 
-  readonly open = signal(false);
+  readonly viewOptions = JOSANZ_LIST_VIEW_MENU_OPTIONS;
+  readonly columnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
 
-  readonly allOptions = JOSANZ_LIST_VIEW_MENU_OPTIONS;
-
-  get summaryLabel(): string {
-    return listViewSelectionLabel(this.selected);
-  }
-
-  toggle(event: Event): void {
-    event.stopPropagation();
-    this.open.update((v) => !v);
+  get showGridColumns(): boolean {
+    return isGridCardsView(this.selected);
   }
 
   pick(option: JosanzListViewSelection, event: Event): void {
     event.stopPropagation();
-    this.open.set(false);
+    if (option === this.selected) {
+      return;
+    }
     this.selectionChange.emit(option);
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    if (!this.open()) {
+  pickColumns(columns: JosanzListGridColumns, event: Event): void {
+    event.stopPropagation();
+    if (columns === this.gridColumns) {
       return;
     }
-    const target = event.target as Node;
-    if (!this.host.nativeElement.contains(target)) {
-      this.open.set(false);
-    }
+    this.gridColumnsChange.emit(columns);
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.open.set(false);
+  isActive(option: JosanzListViewSelection): boolean {
+    return this.selected === option;
   }
 }

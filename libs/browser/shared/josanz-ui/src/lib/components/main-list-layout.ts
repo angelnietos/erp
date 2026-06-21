@@ -2,7 +2,7 @@ import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChange
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
-import type { JosanzListViewSelection } from '../list-view/list-view-preferences';
+import type { JosanzListGridColumns, JosanzListViewSelection } from '../list-view/list-view-preferences';
 import { listViewStackClasses } from '../list-view/list-view-preferences';
 import { FilterTabsComponent, type JosanzFilterTabsVariant } from './filter-tabs';
 import { ButtonComponent } from './button';
@@ -47,9 +47,9 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() typologyTabsVariant?: JosanzFilterTabsVariant;
   /** Pill resumen junto a tabs tipología (solo `figmaCatalogLayout`). */
   @Input() summaryLine?: JosanzFigmaSummaryLine | string;
-  /** Por defecto oculto en catálogo Figma (no está en diseño). */
+  /** Visible en todos los listados salvo que se pase `false` explícitamente. */
   @Input() showViewSelector?: boolean;
-  @Input() viewSelectorLabel = 'Elección de vista';
+  @Input() viewSelectorLabel = 'Vista';
   @Input() showSearch = true;
   /** `toolbar`: misma fila que filtros extra (catálogo). `actions`: bajo botones, alineado a la derecha (clientes, etc.). */
   @Input() searchPlacement: 'toolbar' | 'actions' = 'toolbar';
@@ -112,7 +112,7 @@ export class MainListLayoutComponent implements OnChanges {
   }
 
   get effectiveShowViewSelector(): boolean {
-    return this.showViewSelector ?? !this.figmaCatalogLayout;
+    return this.showViewSelector ?? true;
   }
 
   get effectiveTypologyTabsVariant(): JosanzFilterTabsVariant {
@@ -134,6 +134,10 @@ export class MainListLayoutComponent implements OnChanges {
   onViewChange(option: JosanzListViewSelection): void {
     this.themeService.setListViewSelection(option);
     this.viewChange.emit(option);
+  }
+
+  onGridColumnsChange(columns: JosanzListGridColumns): void {
+    this.themeService.setListGridColumns(columns);
   }
 
   onExcelAction(): void {

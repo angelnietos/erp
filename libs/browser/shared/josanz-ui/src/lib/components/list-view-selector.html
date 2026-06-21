@@ -1,60 +1,66 @@
-<div class="josanz-view-selector">
-  <button
-    type="button"
-    class="josanz-view-selector__trigger"
-    [attr.aria-expanded]="open()"
-    [attr.aria-haspopup]="'listbox'"
-    [attr.aria-label]="label + ': ' + summaryLabel"
-    (click)="toggle($event)"
-  >
-    <svg
-      class="josanz-view-selector__icon"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="3" y="3" width="7" height="7" rx="1"></rect>
-      <rect x="14" y="3" width="7" height="7" rx="1"></rect>
-      <rect x="3" y="14" width="7" height="7" rx="1"></rect>
-      <rect x="14" y="14" width="7" height="7" rx="1"></rect>
-    </svg>
-    <span class="josanz-view-selector__label">{{ summaryLabel }}</span>
-    <svg
-      class="josanz-view-selector__chevron"
-      [class.josanz-view-selector__chevron--open]="open()"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="2.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      aria-hidden="true"
-    >
-      <polyline points="6 9 12 15 18 9"></polyline>
-    </svg>
-  </button>
-  @if (open()) {
-  <ul role="listbox" class="josanz-view-selector__menu" [attr.aria-label]="label">
-    @for (opt of allOptions; track opt.id) {
-    <li role="option" [attr.aria-selected]="opt.id === selected">
+<div class="josanz-view-selector" [attr.aria-label]="label">
+  <span class="josanz-view-selector__caption">{{ label }}</span>
+
+  <div class="josanz-view-selector__cluster">
+    <div class="josanz-view-selector__track" role="listbox" [attr.aria-label]="label">
+      @for (opt of viewOptions; track opt.id) {
       <button
         type="button"
-        class="josanz-view-selector__option"
-        [class.josanz-view-selector__option--active]="opt.id === selected"
+        role="option"
+        class="josanz-view-selector__segment"
+        [class.josanz-view-selector__segment--active]="isActive(opt.id)"
+        [attr.aria-selected]="isActive(opt.id)"
+        [attr.title]="opt.label"
         (click)="pick(opt.id, $event)"
       >
-        {{ opt.label }}
+        @switch (opt.id) {
+        @case ('tabla') {
+        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.25" />
+          <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" stroke-width="1.25" />
+          <line x1="1.5" y1="9.5" x2="14.5" y2="9.5" stroke="currentColor" stroke-width="1.25" />
+          <line x1="6" y1="6" x2="6" y2="13.5" stroke="currentColor" stroke-width="1.25" />
+        </svg>
+        }
+        @case ('tarjetas-lista') {
+        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="2" y="3" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.85" />
+          <rect x="2" y="7" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.55" />
+          <rect x="2" y="11" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.35" />
+        </svg>
+        }
+        @default {
+        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
+          <rect x="2" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" />
+          <rect x="9.5" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
+          <rect x="2" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
+          <rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.55" />
+        </svg>
+        }
+        }
+        <span class="josanz-view-selector__segment-label">{{ opt.shortLabel }}</span>
       </button>
-    </li>
+      }
+    </div>
+
+    @if (showGridColumns) {
+    <div class="josanz-view-selector__columns" role="group" aria-label="Columnas de cuadrícula">
+      <span class="josanz-view-selector__columns-caption">Cols.</span>
+      <div class="josanz-view-selector__columns-track">
+        @for (col of columnOptions; track col.value) {
+        <button
+          type="button"
+          class="josanz-view-selector__column"
+          [class.josanz-view-selector__column--active]="gridColumns === col.value"
+          [attr.aria-pressed]="gridColumns === col.value"
+          [attr.title]="col.label"
+          (click)="pickColumns(col.value, $event)"
+        >
+          {{ col.value }}
+        </button>
+        }
+      </div>
+    </div>
     }
-  </ul>
-  }
+  </div>
 </div>

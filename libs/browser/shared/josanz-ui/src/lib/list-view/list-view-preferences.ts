@@ -13,16 +13,28 @@ export type JosanzGridCardDensity = 'comfortable' | 'compact' | 'dense';
 export interface JosanzListViewMenuOption {
   id: JosanzListViewSelection;
   label: string;
+  /** Etiqueta corta para control segmentado en footer. */
+  shortLabel: string;
   /** Agrupa bajo «Tarjetas» en el desplegable. */
   group?: 'tarjetas';
 }
 
 export const JOSANZ_LIST_VIEW_MENU_OPTIONS: readonly JosanzListViewMenuOption[] = [
-  { id: 'tabla', label: 'Tabla' },
-  { id: 'tarjetas-lista', label: 'Lista', group: 'tarjetas' },
-  { id: 'tarjetas-grid', label: 'Cuadrícula', group: 'tarjetas' },
-  { id: 'tarjetas-grid-compact', label: 'Cuadrícula compacta', group: 'tarjetas' },
-  { id: 'tarjetas-grid-dense', label: 'Cuadrícula densa', group: 'tarjetas' },
+  { id: 'tabla', label: 'Tabla', shortLabel: 'Tabla' },
+  { id: 'tarjetas-lista', label: 'Lista', shortLabel: 'Lista', group: 'tarjetas' },
+  { id: 'tarjetas-grid', label: 'Cuadrícula', shortLabel: 'Cuadrícula', group: 'tarjetas' },
+  {
+    id: 'tarjetas-grid-compact',
+    label: 'Cuadrícula compacta',
+    shortLabel: 'Compacta',
+    group: 'tarjetas',
+  },
+  {
+    id: 'tarjetas-grid-dense',
+    label: 'Cuadrícula densa',
+    shortLabel: 'Densa',
+    group: 'tarjetas',
+  },
 ] as const;
 
 export const JOSANZ_LIST_GRID_COLUMN_OPTIONS: readonly {

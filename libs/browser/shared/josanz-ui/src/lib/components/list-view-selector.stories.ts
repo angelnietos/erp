@@ -17,7 +17,7 @@ const meta: Meta<ListViewSelectorComponent> = {
     docs: {
       description: {
         component: josanzStoryThemeDescription(
-          'Selector desplegable de densidad/vista de listado. Agrupa opciones de tabla y tarjetas, cierra con click exterior o Escape y emite `selectionChange`.',
+          'Control segmentado de densidad/vista de listado (Tabla, Lista, Cuadrícula…). En modos cuadrícula muestra selector de columnas. Emite `selectionChange` y `gridColumnsChange`.',
         ),
       },
     },
@@ -81,13 +81,14 @@ export const InteractiveDropdown: Story = {
     docs: {
       description: {
         story:
-          'Interaction test: abre el desplegable, selecciona “Cuadrícula compacta” y actualiza `selected` en la story.',
+          'Interaction test: selecciona “Compacta” en el control segmentado y actualiza `selected` en la story.',
       },
     },
   },
   args: {
     label: 'Vista',
     selected: 'tabla',
+    gridColumns: 3,
   },
   render: (args) => ({
     props: args,
@@ -96,7 +97,9 @@ export const InteractiveDropdown: Story = {
         <josanz-list-view-selector
           [label]="label"
           [selected]="selected"
+          [gridColumns]="gridColumns"
           (selectionChange)="selected = $event; selectionChange($event)"
+          (gridColumnsChange)="gridColumns = $event"
         ></josanz-list-view-selector>
         <p data-testid="selected-view" class="m-0 mt-5 text-sm font-bold" style="color: var(--josanz-text);">
           Vista seleccionada: {{ selected }}
@@ -107,8 +110,7 @@ export const InteractiveDropdown: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByTestId('selected-view')).toHaveTextContent('Vista seleccionada: tabla');
-    await userEvent.click(canvas.getByRole('button', { name: /vista/i }));
-    await userEvent.click(canvas.getByRole('button', { name: 'Cuadrícula compacta' }));
+    await userEvent.click(canvas.getByRole('button', { name: /compacta/i }));
     await expect(canvas.getByTestId('selected-view')).toHaveTextContent(
       'Vista seleccionada: tarjetas-grid-compact',
     );
