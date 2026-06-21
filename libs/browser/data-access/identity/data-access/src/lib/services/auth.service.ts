@@ -7,7 +7,17 @@ import {
   LoginCredentials,
   UserPayload,
   getTenantKeycloakConfig,
+  tenantUsesKeycloakLogin,
 } from '@josanz-erp/identity-api';
+import {
+  buildKeycloakAuthorizeUrl,
+  clearPkceSession,
+  createOidcState,
+  createPkcePair,
+  defaultOidcCallbackUri,
+  readPkceSession,
+  storePkceSession,
+} from '@josanz-erp/shared-auth-keycloak';
 import { InjectionToken } from '@angular/core';
 import {
   ERP_AUTH_SESSION_MODE,
@@ -170,6 +180,70 @@ export class AuthService {
   /** BFF: cookies HttpOnly + CSRF; sin JWT en localStorage. */
   isBffMode(): boolean {
     return this.bff?.isBffMode() ?? this.authSessionMode?.mode === 'bff';
+  }
+
+  canUseKeycloakPkce(tenantSlug: string): boolean {
+    return (
+      this.isBffMode() &&
+      tenantUsesKeycloakLogin(tenantSlug) &&
+      Boolean(getTenantKeycloakConfig(tenantSlug))
+    );
+  }
+
+  /** Redirige al login OIDC de Keycloak (Authorization Code + PKCE). */
+  async startKeycloakPkceRedirect(
+    tenantSlug: string = DEFAULT_LOGIN_TENANT_SLUG,
+    callbackPath = '/auth/callback',
+  ): Promise<void> {
+    const slug = tenantSlug.trim().toLowerCase();
+    const tenantCfg = getTenantKeycloakConfig(slug);
+    if (!tenantCfg) {
+      throw new Error('Este tenant no usa Keycloak.');
+    }
+    const kcUrl = this.keycloakConfig?.url?.replace(/\/$/, '') ?? '';
+    if (!kcUrl) {
+      throw new Error('Keycloak no está configurado.');
+    }
+    const { codeVerifier, codeChallenge } = await createPkcePair();
+    const state = createOidcState();
+    const redirectUri = defaultOidcCallbackUri(callbackPath);
+    storePkceSession({ codeVerifier, state, tenantSlug: slug, redirectUri });
+    const authorizeUrl = buildKeycloakAuthorizeUrl({
+      authServerUrl: kcUrl,
+      realm: tenantCfg.realm,
+      clientId: tenantCfg.clientId,
+      redirectUri,
+      codeChallenge,
+      state,
+    });
+    window.location.assign(authorizeUrl);
+  }
+
+  loginWithAuthorizationCode(code: string): Observable<AuthResponse> {
+    const stored = readPkceSession();
+    if (!stored) {
+      return throwError(() => new Error('Sesión PKCE no encontrada o caducada.'));
+    }
+    if (!this.isBffMode() || !this.bff) {
+      return throwError(() => new Error('PKCE requiere modo BFF.'));
+    }
+    clearPkceSession();
+    return this.bff
+      .erpCallbackWithCode({
+        code,
+        codeVerifier: stored.codeVerifier,
+        redirectUri: stored.redirectUri,
+        tenantSlug: stored.tenantSlug,
+      })
+      .pipe(
+        map((res) => {
+          this.persistAuthMeta('keycloak', true);
+          return this.mapBffErpResponse(res);
+        }),
+        catchError((err) =>
+          throwError(() => new Error(this.describeLoginError(err))),
+        ),
+      );
   }
 
   login(

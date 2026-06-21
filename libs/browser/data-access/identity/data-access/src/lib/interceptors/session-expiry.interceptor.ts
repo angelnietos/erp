@@ -16,6 +16,7 @@ export function resetSessionInvalidationGuard(): void {
 
 const AUTH_EXEMPT_URL_PARTS = [
   '/bff/auth/login',
+  '/bff/auth/callback',
   '/bff/auth/logout',
   '/bff/auth/session',
   '/bff/platform/auth/login',

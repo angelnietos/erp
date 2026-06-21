@@ -1,4 +1,5 @@
 export * from './lib/login/login.component';
+export * from './lib/auth-callback/auth-callback.component';
 export * from './lib/forgot-password/forgot-password.component';
 export * from './lib/reset-password/reset-password.component';
 export * from './lib/tenant-select/tenant-select.component';

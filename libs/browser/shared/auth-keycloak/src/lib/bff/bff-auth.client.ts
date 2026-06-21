@@ -98,6 +98,22 @@ export class BffAuthClient {
     );
   }
 
+  erpCallbackWithCode(body: {
+    code: string;
+    codeVerifier: string;
+    redirectUri: string;
+    tenantSlug?: string;
+  }): Observable<BffLoginResponse> {
+    return this.http.post<BffLoginResponse>(`${this.prefix()}/bff/auth/callback`, {
+      code: body.code,
+      codeVerifier: body.codeVerifier,
+      redirectUri: body.redirectUri,
+      tenantSlug: body.tenantSlug ?? this.config?.defaultTenantSlug ?? 'josanz',
+    }, { withCredentials: true }).pipe(
+      tap((res) => this.rememberErpCsrf(res.csrfToken)),
+    );
+  }
+
   erpSession(): Observable<BffLoginResponse> {
     return this.http.get<BffLoginResponse>(`${this.prefix()}/bff/auth/session`, {
       withCredentials: true,

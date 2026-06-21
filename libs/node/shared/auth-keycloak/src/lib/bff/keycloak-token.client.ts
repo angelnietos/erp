@@ -15,6 +15,15 @@ export interface KeycloakLoginParams {
   password: string;
 }
 
+export interface KeycloakAuthorizationCodeParams {
+  realm: string;
+  clientId: string;
+  clientSecret?: string;
+  code: string;
+  codeVerifier: string;
+  redirectUri: string;
+}
+
 @Injectable()
 export class KeycloakTokenClient {
   private readonly logger = new Logger(KeycloakTokenClient.name);
@@ -39,6 +48,53 @@ export class KeycloakTokenClient {
       return res.ok;
     } catch {
       return false;
+    }
+  }
+
+  /** Authorization Code + PKCE — canje en BFF (nunca en el navegador). */
+  async authorizationCodeGrant(
+    params: KeycloakAuthorizationCodeParams,
+  ): Promise<KeycloakTokenResult | null> {
+    const tokenUrl = `${this.authServerUrl}/realms/${params.realm}/protocol/openid-connect/token`;
+    const body = new URLSearchParams();
+    body.set('grant_type', 'authorization_code');
+    body.set('client_id', params.clientId);
+    body.set('code', params.code.trim());
+    body.set('redirect_uri', params.redirectUri);
+    body.set('code_verifier', params.codeVerifier);
+
+    if (params.clientSecret) {
+      body.set('client_secret', params.clientSecret);
+    }
+
+    try {
+      const res = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      });
+      if (!res.ok) {
+        this.logger.debug(
+          `Keycloak auth code grant failed (${res.status}) realm=${params.realm}`,
+        );
+        return null;
+      }
+      const json = (await res.json()) as {
+        access_token?: string;
+        refresh_token?: string;
+        expires_in?: number;
+      };
+      if (!json.access_token) {
+        return null;
+      }
+      return {
+        accessToken: json.access_token,
+        refreshToken: json.refresh_token,
+        expiresIn: json.expires_in ?? 300,
+      };
+    } catch (err) {
+      this.logger.warn(`Keycloak auth code request error: ${String(err)}`);
+      return null;
     }
   }
 

@@ -61,7 +61,8 @@
       },
       "defaultConfiguration": "development",
       "options": {
-        "port": 4300
+        "port": 4300,
+        "proxyConfig": "apps/josanz-web-app/proxy.conf.json"
       }
     },
     "lint": {

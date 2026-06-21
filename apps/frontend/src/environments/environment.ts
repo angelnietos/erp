@@ -13,7 +13,6 @@ export const environment = {
   auth: {
     mode: 'bff' as const,
   },
-  /** Opcional: si el verifactu-api exige VERIFACTU_REQUIRE_API_KEY, pegar aquí la clave del tenant. */
   verifactuApiKey: '',
   aiApiKey: '',
   googleApiKey: '',

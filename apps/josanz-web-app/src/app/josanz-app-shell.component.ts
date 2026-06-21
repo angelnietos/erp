@@ -5,7 +5,7 @@ import {
   SidebarComponent,
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
-import { JosanzDemoAuthService } from './auth/josanz-demo-auth.service';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 
 @Component({
   selector: 'app-josanz-shell',
@@ -15,7 +15,7 @@ import { JosanzDemoAuthService } from './auth/josanz-demo-auth.service';
   styleUrl: './josanz-app-shell.component.css',
 })
 export class JosanzAppShellComponent implements OnInit {
-  private readonly auth = inject(JosanzDemoAuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
   private readonly josanzTheme = inject(JosanzThemeService);
 
@@ -24,7 +24,6 @@ export class JosanzAppShellComponent implements OnInit {
   }
 
   onLogout(): void {
-    this.auth.logout();
-    void this.router.navigateByUrl('/auth/login', { replaceUrl: true });
+    this.authStore.logout();
   }
 }

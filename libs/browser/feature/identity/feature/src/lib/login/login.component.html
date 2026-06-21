@@ -203,6 +203,27 @@
       }
     }
 
+    @if (pkceError()) {
+      <ui-alert variant="error">
+        {{ pkceError() }}
+      </ui-alert>
+    }
+
+    @if (showKeycloakSso()) {
+      <div class="auth-sso animate-in stagger-4">
+        <ui-button
+          type="button"
+          [color]="useFigmaShellLogin() ? 'secondary' : 'app'"
+          [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
+          [loading]="pkceRedirectLoading()"
+          (click)="startKeycloakSso()"
+        >
+          Iniciar sesión con Keycloak
+        </ui-button>
+        <p class="auth-sso__hint">O usa email y contraseña abajo (fallback local).</p>
+      </div>
+    }
+
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <ui-input
         id="email"

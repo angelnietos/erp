@@ -12,6 +12,11 @@ export const appRoutes: Route[] = [
       ),
   },
   {
+    path: 'auth/callback',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.AuthCallbackComponent),
+  },
+  {
     path: '',
     component: JosanzAppShellComponent,
     canActivate: [josanzAuthGuard],

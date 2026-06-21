@@ -1,6 +1,10 @@
 export const environment = {
   production: false,
-  apiOrigin: 'http://localhost:3000',
+  /** Modo BFF: rutas relativas `/api/*` + proxy (cookies HttpOnly). */
+  apiOrigin: '',
+  auth: {
+    mode: 'bff' as const,
+  },
   keycloak: {
     url: 'http://localhost:8081',
     realm: 'josanz-web-app-realm',

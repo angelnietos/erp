@@ -31,6 +31,7 @@ import {
 import { AuthService } from '../../application/services/auth.service';
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
+import { BffAuthCallbackDto } from '../../application/dtos/bff-auth-callback.dto';
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -172,6 +173,92 @@ export class BffAuthService {
       csrfToken: csrf,
       accessToken,
       ...(kcConfig ? { keycloakReachable } : {}),
+    };
+  }
+
+  /** Login ERP vía Authorization Code + PKCE (redirect OIDC → callback → BFF). */
+  async loginErpWithAuthorizationCode(
+    dto: BffAuthCallbackDto,
+    res: Response,
+  ): Promise<{
+    user: unknown;
+    tenantId: string;
+    tenantSlug?: string;
+    authMode: 'keycloak' | 'local';
+    csrfToken: string;
+    accessToken: string;
+    keycloakReachable: true;
+  }> {
+    const slug = normalizeAuthTenantSlug(dto.tenantSlug) || 'josanz';
+    const kcConfig = getTenantKeycloakConfig(slug);
+    if (!kcConfig) {
+      throw new BadRequestException(`Tenant "${slug}" no usa Keycloak`);
+    }
+    if (!this.keycloak.isEnabled()) {
+      throw new BadRequestException('Keycloak no está habilitado');
+    }
+
+    const secret = this.config.get<string>('KEYCLOAK_SPA_CLIENT_SECRET');
+    const token = await this.keycloak.authorizationCodeGrant({
+      realm: kcConfig.realm,
+      clientId: kcConfig.clientId,
+      clientSecret: secret,
+      code: dto.code,
+      codeVerifier: dto.codeVerifier,
+      redirectUri: dto.redirectUri,
+    });
+    if (!token) {
+      throw new UnauthorizedException(
+        'No se pudo canjear el código de autorización. Vuelve a iniciar sesión.',
+      );
+    }
+
+    const payload = this.decodeJwt(token.accessToken);
+    if (!payload?.sub) {
+      throw new UnauthorizedException('Token Keycloak inválido');
+    }
+    const email =
+      (typeof payload.email === 'string' && payload.email) ||
+      (typeof payload.preferred_username === 'string' && payload.preferred_username) ||
+      '';
+    if (!email.trim()) {
+      throw new UnauthorizedException('Token Keycloak sin email');
+    }
+
+    const tenantId = await this.resolveTenantIdFromSlug(slug);
+    const dbUserId = await this.authService.resolveDbUserIdFromKeycloakClaims({
+      email,
+      tenantId,
+      sub: String(payload.sub),
+      firstName:
+        typeof payload.given_name === 'string' ? payload.given_name : undefined,
+      lastName:
+        typeof payload.family_name === 'string' ? payload.family_name : undefined,
+    });
+    const enriched = await this.authService.refreshSession(dbUserId, tenantId);
+
+    const csrf = this.newCsrf();
+    const sessionTtlMs = this.sessionMaxAgeMs();
+    const session = await this.sessions.create({
+      kind: 'keycloak',
+      accessToken: enriched.accessToken,
+      refreshToken: token.refreshToken,
+      expiresAt: Date.now() + sessionTtlMs,
+      tenantId: enriched.tenantId,
+      tenantSlug: enriched.tenantSlug,
+      csrfToken: csrf,
+    });
+
+    setBffSessionCookies(res, ERP_BFF_COOKIE_NAMES, session.id, csrf, sessionTtlMs);
+
+    return {
+      user: enriched.user,
+      tenantId: enriched.tenantId,
+      tenantSlug: enriched.tenantSlug,
+      authMode: 'keycloak',
+      csrfToken: csrf,
+      accessToken: enriched.accessToken,
+      keycloakReachable: true,
     };
   }
 

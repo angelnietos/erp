@@ -19,6 +19,7 @@ import {
 } from '@josanz-erp/auth-keycloak';
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
+import { BffAuthCallbackDto } from '../../application/dtos/bff-auth-callback.dto';
 import { BffAuthService } from '../../application/services/bff-auth.service';
 
 type SessionRequest = Request & {
@@ -36,6 +37,17 @@ export class BffAuthController {
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     return this.bffAuth.loginErp(dto, res);
+  }
+
+  /** Canje Authorization Code + PKCE tras redirect desde Keycloak. */
+  @PublicTenant()
+  @HttpCode(HttpStatus.OK)
+  @Post('callback')
+  async callback(
+    @Body() dto: BffAuthCallbackDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.bffAuth.loginErpWithAuthorizationCode(dto, res);
   }
 
   /**

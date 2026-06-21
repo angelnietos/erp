@@ -196,6 +196,111 @@ export const AuthStore = signalStore(
         ),
       ),
 
+      loginWithPkceCallback: rxMethod<{ code: string; tenantSlug?: string }>(
+        pipe(
+          tap(() => {
+            resetSessionInvalidationGuard();
+            tenantModulesRealtime.disconnect();
+            authService.clearSessionForRelogin();
+            globalAuthStore.logout();
+            patchState(store, {
+              user: null,
+              loading: true,
+              error: null,
+              authMode: 'none',
+              keycloakAvailable: null,
+            });
+          }),
+          switchMap(({ code, tenantSlug }) =>
+            authService.loginWithAuthorizationCode(code).pipe(
+              switchMap((response) => {
+                const authMeta = authService.getPersistedAuthMeta();
+                if (response.accessToken?.trim()) {
+                  authService.setToken(response.accessToken);
+                }
+                const tenantId =
+                  response.tenantId ??
+                  authService.syncTenantIdFromAccessToken() ??
+                  getStoredTenantId() ??
+                  undefined;
+
+                if (tenantId) {
+                  authService.setTenantId(tenantId);
+                }
+
+                patchState(store, {
+                  user: response.user,
+                  loading: true,
+                  ...authMeta,
+                });
+
+                const displayName =
+                  [response.user.firstName, response.user.lastName]
+                    .filter(Boolean)
+                    .join(' ')
+                    .trim() || response.user.email;
+                globalAuthStore.setUser({
+                  id: response.user.id,
+                  email: response.user.email,
+                  name: displayName,
+                  tenantId: tenantId ?? '',
+                  permissions: response.user.permissions,
+                });
+
+                const slug =
+                  response.tenantSlug ??
+                  tenantSlug ??
+                  resolveTenantSlugFromId(tenantId);
+                if (slug) {
+                  setErpTenantSlug(slug);
+                  themeService.reapplyTheme();
+                }
+
+                const modules$ = tenantId
+                  ? tenantModulesApi.fetchEnabledModules(tenantId).pipe(
+                      catchError(() => {
+                        pluginStore.loadFromStorage();
+                        return of({
+                          enabledModuleIds: pluginStore.enabledPlugins(),
+                        });
+                      }),
+                    )
+                  : of({ enabledModuleIds: pluginStore.enabledPlugins() });
+
+                return modules$.pipe(
+                  tap((modules) => pluginStore.setPlugins(modules.enabledModuleIds)),
+                  map(() => ({ response, authMeta, tenantId })),
+                );
+              }),
+              tap(({ response, authMeta, tenantId }) => {
+                patchState(store, {
+                  user: response.user,
+                  loading: false,
+                  ...authMeta,
+                });
+                tenantModulesRealtime.afterAccessTokenChanged();
+                const target = resolvePostLoginPath(
+                  pluginStore.enabledPlugins(),
+                  response.user.permissions ?? [],
+                  response.tenantSlug ??
+                    resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
+                );
+                void router.navigateByUrl(target, { replaceUrl: true });
+              }),
+              catchError((error) => {
+                patchState(store, {
+                  loading: false,
+                  error: authService.describeLoginError(error),
+                  authMode: 'none',
+                  keycloakAvailable: null,
+                });
+                return of(null);
+              }),
+            ),
+          ),
+        ),
+      ),
+
       logout() {
         tenantModulesRealtime.disconnect();
         authService.logout().subscribe(() => {

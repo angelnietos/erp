@@ -17,6 +17,11 @@ export const identityRoutes: Routes = [
       import('@josanz-erp/identity-feature').then((m) => m.LoginComponent),
   },
   {
+    path: 'callback',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.AuthCallbackComponent),
+  },
+  {
     path: 'forgot-password',
     loadComponent: () =>
       import('@josanz-erp/identity-feature').then((m) => m.ForgotPasswordComponent),

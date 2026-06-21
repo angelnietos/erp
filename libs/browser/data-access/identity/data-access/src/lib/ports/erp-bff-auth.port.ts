@@ -21,6 +21,12 @@ export interface ErpBffAuthPort {
     password: string;
     tenantSlug?: string;
   }): Observable<ErpBffLoginResult>;
+  erpCallbackWithCode(body: {
+    code: string;
+    codeVerifier: string;
+    redirectUri: string;
+    tenantSlug?: string;
+  }): Observable<ErpBffLoginResult>;
   erpSession(): Observable<ErpBffLoginResult>;
   erpLogout(): Observable<{ ok: true }>;
   clearErpCsrf(): void;

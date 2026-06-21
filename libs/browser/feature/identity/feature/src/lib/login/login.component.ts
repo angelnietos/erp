@@ -158,6 +158,13 @@ export class LoginComponent implements OnInit {
   readonly keycloakReachablePreview = signal<boolean | null>(null);
   readonly tenantUsesKeycloak = computed(() => tenantUsesKeycloakLogin(this.tenantSlug()));
 
+  readonly showKeycloakSso = computed(
+    () =>
+      this.tenantUsesKeycloak() &&
+      this.authService.canUseKeycloakPkce(this.tenantSlug()) &&
+      this.keycloakReachablePreview() !== false,
+  );
+
   /** Login claro en dos columnas según Figma node `61:1312` (hero `61:1313`). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
 
@@ -313,6 +320,8 @@ export class LoginComponent implements OnInit {
   }
 
   readonly sessionExpiredNotice = signal<string | null>(null);
+  readonly pkceRedirectLoading = signal(false);
+  readonly pkceError = signal<string | null>(null);
 
   ngOnInit(): void {
     const reason = this.route.snapshot.queryParamMap.get('reason');
@@ -395,6 +404,22 @@ export class LoginComponent implements OnInit {
       email: hint.email,
       password: hint.password,
     });
+  }
+
+  async startKeycloakSso(): Promise<void> {
+    if (!this.showKeycloakSso() || this.pkceRedirectLoading()) {
+      return;
+    }
+    this.pkceRedirectLoading.set(true);
+    this.pkceError.set(null);
+    try {
+      await this.authService.startKeycloakPkceRedirect(this.tenantSlug());
+    } catch (err) {
+      this.pkceRedirectLoading.set(false);
+      this.pkceError.set(
+        err instanceof Error ? err.message : 'No se pudo redirigir a Keycloak.',
+      );
+    }
   }
 
   onSubmit() {

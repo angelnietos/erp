@@ -37,7 +37,23 @@
           [parentForm]="loginForm"
         ></josanz-input>
 
-        <a class="josanz-figma-auth__forgot" href="#">Olvidé mi contraseña</a>
+        <a class="josanz-figma-auth__forgot" routerLink="/auth/login">Olvidé mi contraseña</a>
+
+        @if (pkceError()) {
+          <p class="josanz-figma-auth__error" role="alert">{{ pkceError() }}</p>
+        }
+        @if (store.error()) {
+          <p class="josanz-figma-auth__error" role="alert">{{ store.error() }}</p>
+        }
+
+        @if (showKeycloakSso()) {
+          <josanz-button
+            label="Iniciar sesión con Keycloak"
+            [showIcon]="false"
+            [fullWidth]="true"
+            (btnClick)="startKeycloakSso()"
+          ></josanz-button>
+        }
 
         <josanz-button
           label="Iniciar sesión"

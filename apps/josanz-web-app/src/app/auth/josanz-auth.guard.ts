@@ -1,19 +1,34 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { JosanzDemoAuthService } from './josanz-demo-auth.service';
+import {
+  AuthService,
+  erpAuthGuard,
+  IdentitySessionHydrationService,
+} from '@josanz-erp/identity-data-access';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 
-export const josanzAuthGuard: CanActivateFn = () => {
-  const auth = inject(JosanzDemoAuthService);
-  if (auth.isAuthenticated()) {
-    return true;
-  }
-  return inject(Router).createUrlTree(['/auth/login']);
+export const josanzAuthGuard: CanActivateFn = (route, state) => {
+  return erpAuthGuard(route, state);
 };
 
-export const josanzGuestGuard: CanActivateFn = () => {
-  const auth = inject(JosanzDemoAuthService);
-  if (!auth.isAuthenticated()) {
-    return true;
+export const josanzGuestGuard: CanActivateFn = async () => {
+  const globalAuthStore = inject(GlobalAuthStore);
+  const authService = inject(AuthService);
+  const sessionHydration = inject(IdentitySessionHydrationService);
+  const router = inject(Router);
+
+  if (globalAuthStore.isAuthenticated()) {
+    return router.createUrlTree(['/dashboard']);
   }
-  return inject(Router).createUrlTree(['/dashboard']);
+
+  if (authService.isBffMode()) {
+    const restored = await sessionHydration.tryRestoreFromBffCookie();
+    if (restored) {
+      return router.createUrlTree(['/dashboard']);
+    }
+  } else if (authService.readPersistedSession()) {
+    return router.createUrlTree(['/dashboard']);
+  }
+
+  return true;
 };

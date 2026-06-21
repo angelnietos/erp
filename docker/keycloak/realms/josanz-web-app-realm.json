@@ -93,8 +93,16 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
-      "webOrigins": ["http://localhost:4200", "http://localhost:4201"],
-      "redirectUris": ["http://localhost:4200/*", "http://localhost:4201/*"],
+      "webOrigins": [
+        "http://localhost:4200",
+        "http://localhost:4201",
+        "http://localhost:4300"
+      ],
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4201/*",
+        "http://localhost:4300/*"
+      ],
       "defaultClientScopes": [
         "web-origins",
         "roles",

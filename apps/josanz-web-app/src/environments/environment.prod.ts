@@ -1,6 +1,9 @@
 export const environment = {
   production: true,
-  apiOrigin: '/api',
+  apiOrigin: '',
+  auth: {
+    mode: 'bff' as const,
+  },
   keycloak: {
     url: '',
     realm: 'josanz-web-app-realm',
