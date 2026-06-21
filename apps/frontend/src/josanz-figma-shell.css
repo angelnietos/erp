@@ -27,6 +27,13 @@ html[data-erp-ui-shell='josanz-figma'][data-erp-route='auth'] body {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-tap-highlight-color: transparent;
+  /* Login Figma: evita que ThemeService pinte campos con --surface-vibrant del tenant. */
+  --surface-vibrant: #ffffff;
+  --surface-rich: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ffffff;
+  --border-soft: #d7d7d7;
+  --brand: #0f1e2f;
 }
 
 html[data-erp-ui-shell='josanz-figma'] body {

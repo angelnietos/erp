@@ -428,6 +428,15 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       opacity: 0;
       pointer-events: none;
     }
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary:disabled {
+      background: #dadfe6 !important;
+      color: #ffffff !important;
+      border: none !important;
+      box-shadow: none !important;
+      filter: none !important;
+      transform: none !important;
+      cursor: not-allowed;
+    }
   `],
 })
 export class UiButtonComponent {

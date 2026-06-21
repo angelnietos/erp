@@ -183,20 +183,32 @@ export type InputVariant = string;
       backdrop-filter: none;
     }
     :host-context(.auth-wrapper--figma) .label {
-      color: #7c7c7c;
-      font-weight: 600;
+      display: none;
     }
     :host-context(.auth-wrapper--figma) input {
-      box-shadow: none;
+      background: #ffffff !important;
+      border-color: #d7d7d7 !important;
+      color: #222222 !important;
+      box-shadow: none !important;
       min-height: 43px;
+      font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+      font-weight: 300;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
     }
     :host-context(.auth-wrapper--figma) input:focus {
-      box-shadow: 0 0 0 2px rgba(15, 30, 47, 0.12);
+      background: #ffffff !important;
+      box-shadow: 0 0 0 2px rgba(15, 30, 47, 0.12) !important;
       transform: none;
-      border-color: #0f1e2f;
+      border-color: #0f1e2f !important;
+    }
+    :host-context(.auth-wrapper--figma) input::placeholder {
+      color: #7c7c7c !important;
+      opacity: 1;
+      font-weight: 300;
     }
     :host-context(.auth-wrapper--figma) .field-icon {
-      color: #7c7c7c;
+      display: none;
     }
   `],
 })

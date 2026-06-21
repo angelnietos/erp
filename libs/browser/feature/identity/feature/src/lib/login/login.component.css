@@ -707,6 +707,16 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  /* Aísla login Figma del ThemeService global (evita inputs verdes). */
+  --surface-vibrant: #ffffff;
+  --surface-rich: #ffffff;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #ffffff;
+  --brand: #0f1e2f;
+  --brand-glow: rgba(15, 30, 47, 0.12);
+  --text-primary: #222222;
+  --text-muted: #7c7c7c;
+  --border-soft: #d7d7d7;
 }
 
 .auth-figma-hero {
@@ -782,11 +792,12 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 
 .auth-figma-brand-logo {
   display: block;
-  width: auto;
-  height: 68px;
-  max-width: 148px;
+  width: 148px;
+  height: auto;
+  max-height: 68px;
   margin: 0 auto 1.25rem;
   object-fit: contain;
+  object-position: left center;
 }
 
 @media (min-width: 900px) {

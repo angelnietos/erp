@@ -319,7 +319,10 @@ export class LoginComponent implements OnInit {
     }
     setErpTenantSlug(slug);
     syncErpRoutePhaseFromPath(this.router.url || '/auth/login');
-    this.theme.reapplyTheme();
+    /* No aplicar ThemeService en login Figma: pisa --surface-vibrant y rompe campos blancos. */
+    if (!usesJosanzFigmaLogin(slug)) {
+      this.theme.reapplyTheme();
+    }
   }
 
   goChangeTenant(): void {
