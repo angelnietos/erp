@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, switchMap, of, throwError, timeout, tap } from 'rxjs';
 import {
   ALL_APP_PERMISSION_IDS,
@@ -44,6 +44,44 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   } catch {
     return null;
   }
+}
+
+function readHttpErrorMessage(error: unknown): string | null {
+  if (!(error instanceof HttpErrorResponse)) {
+    if (error && typeof error === 'object' && 'error' in error) {
+      return extractNestMessage((error as { error?: unknown }).error);
+    }
+    return null;
+  }
+  if (error.status === 0) {
+    return 'No hay conexión con el servidor. Comprueba que el backend esté en marcha.';
+  }
+  return extractNestMessage(error.error) ?? null;
+}
+
+function extractNestMessage(body: unknown): string | null {
+  if (typeof body === 'string' && body.trim()) {
+    return body.trim();
+  }
+  if (!body || typeof body !== 'object') {
+    return null;
+  }
+  const record = body as { message?: unknown; error?: unknown };
+  if (typeof record.message === 'string' && record.message.trim()) {
+    return record.message.trim();
+  }
+  if (Array.isArray(record.message)) {
+    const joined = record.message
+      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+      .join(' ');
+    if (joined) {
+      return joined;
+    }
+  }
+  if (typeof record.error === 'string' && record.error.trim()) {
+    return record.error.trim();
+  }
+  return null;
 }
 
 const KEYCLOAK_TO_ERP_ROLE_MAP: Record<string, string> = {
@@ -142,9 +180,16 @@ export class AuthService {
     if (this.isBffMode() && this.bff) {
       return this.bff.erpLogin({ email, password, tenantSlug }).pipe(
         map((res) => {
-          this.persistAuthMeta(res.authMode, res.authMode === 'keycloak');
+          const kcAvailable =
+            res.authMode === 'keycloak'
+              ? true
+              : res.keycloakReachable ?? false;
+          this.persistAuthMeta(res.authMode, kcAvailable);
           return this.mapBffErpResponse(res);
         }),
+        catchError((err) =>
+          throwError(() => new Error(this.describeLoginError(err))),
+        ),
       );
     }
 
@@ -204,13 +249,11 @@ export class AuthService {
     if (error instanceof Error && error.message.trim()) {
       return error.message;
     }
-    if (error && typeof error === 'object' && 'error' in error) {
-      const err = (error as { error?: { message?: unknown } }).error;
-      if (typeof err?.message === 'string' && err.message.trim()) {
-        return err.message;
-      }
+    const httpMessage = readHttpErrorMessage(error);
+    if (httpMessage) {
+      return httpMessage;
     }
-    return 'No se pudo iniciar sesión.';
+    return 'No se pudo iniciar sesión. Comprueba email, contraseña y organización.';
   }
 
   private keycloakLogin(

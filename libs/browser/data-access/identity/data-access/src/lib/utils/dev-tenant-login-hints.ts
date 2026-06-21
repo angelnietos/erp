@@ -23,7 +23,7 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     slug: 'josanz',
     email: 'admin@josanz-erp.local',
     password: DEV_TENANT_LOGIN_PASSWORD,
-    note: 'Alternativa solo login local (sin Keycloak)',
+    note: 'Solo acceso local (no está en Keycloak)',
   },
   {
     slug: 'babooni',

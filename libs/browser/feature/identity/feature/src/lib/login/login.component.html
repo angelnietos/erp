@@ -115,16 +115,21 @@
     </div>
     }
 
-    @if (!useFigmaShellLogin()) {
+    @if (sessionExpiredNotice()) {
+      <ui-alert [variant]="sessionExpiredNotice()?.includes('cerrado') ? 'info' : 'warning'">
+        {{ sessionExpiredNotice() }}
+      </ui-alert>
+    }
+
     <div
       class="auth-mode-pill animate-in stagger-3"
       [class.auth-mode-pill--keycloak]="authModeTone() === 'keycloak'"
       [class.auth-mode-pill--local]="authModeTone() === 'local'"
+      [class.auth-mode-pill--figma]="useFigmaShellLogin()"
     >
       <span class="auth-mode-pill__dot" aria-hidden="true"></span>
       <span>{{ authModeLabel() }}</span>
     </div>
-    }
 
     @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
     <div class="theme-picker-shell animate-in stagger-3">
@@ -166,19 +171,13 @@
     </div>
     }
 
-    @if (sessionExpiredNotice()) {
-      <ui-alert variant="warning">
-        {{ sessionExpiredNotice() }}
-      </ui-alert>
-    }
-
     @if (store.error()) {
       <ui-alert variant="error">
         {{ store.error() }}
       </ui-alert>
     }
 
-    @if (isDev && devLoginHint() && !useFigmaShellLogin()) {
+    @if (isDev && devLoginHint()) {
       @if (devLoginHint(); as hint) {
       <div
         class="dev-login-hint animate-in stagger-3"

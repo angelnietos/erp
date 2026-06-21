@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Inject,
   Injectable,
+  Logger,
   Optional,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -35,6 +36,8 @@ const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
 
 @Injectable()
 export class BffAuthService {
+  private readonly logger = new Logger(BffAuthService.name);
+
   constructor(
     private readonly authService: AuthService,
     @Inject(BFF_SESSION_STORE) private readonly sessions: BffSessionStorePort,
@@ -68,6 +71,7 @@ export class BffAuthService {
     authMode: 'keycloak' | 'local';
     csrfToken: string;
     accessToken: string;
+    keycloakReachable?: boolean;
   }> {
     const slug = normalizeAuthTenantSlug(dto.tenantSlug) || 'josanz';
     const kcConfig = tenantUsesKeycloakLogin(slug)
@@ -78,9 +82,12 @@ export class BffAuthService {
     let expiresAt = Date.now() + this.sessionMaxAgeMs();
     let authMode: 'keycloak' | 'local' = 'local';
 
+    let enriched: Awaited<ReturnType<AuthService['refreshSession']>> | null = null;
+    let keycloakReachable = false;
+
     if (kcConfig && this.keycloak.isEnabled()) {
-      const reachable = await this.keycloak.isRealmReachable(kcConfig.realm);
-      if (reachable) {
+      keycloakReachable = await this.keycloak.isRealmReachable(kcConfig.realm);
+      if (keycloakReachable) {
         const secret = this.config.get<string>('KEYCLOAK_SPA_CLIENT_SECRET');
         const token = await this.keycloak.passwordGrant({
           realm: kcConfig.realm,
@@ -90,39 +97,56 @@ export class BffAuthService {
           password: dto.password,
         });
         if (token) {
-          accessToken = token.accessToken;
-          refreshToken = token.refreshToken;
-          authMode = 'keycloak';
+          try {
+            const payload = this.decodeJwt(token.accessToken);
+            if (!payload?.sub) {
+              throw new UnauthorizedException('Token Keycloak inválido');
+            }
+            const email =
+              (typeof payload.email === 'string' && payload.email) ||
+              (typeof payload.preferred_username === 'string' &&
+                payload.preferred_username) ||
+              dto.email;
+            const tenantId = await this.resolveTenantIdFromSlug(slug);
+            const dbUserId = await this.authService.resolveDbUserIdFromKeycloakClaims({
+              email,
+              tenantId,
+              sub: String(payload.sub),
+              firstName:
+                typeof payload.given_name === 'string' ? payload.given_name : undefined,
+              lastName:
+                typeof payload.family_name === 'string' ? payload.family_name : undefined,
+            });
+            enriched = await this.authService.refreshSession(dbUserId, tenantId);
+            accessToken = enriched.accessToken;
+            refreshToken = token.refreshToken;
+            authMode = 'keycloak';
+          } catch (err) {
+            if (err instanceof UnauthorizedException) {
+              throw err;
+            }
+            this.logger.debug(
+              `Keycloak OK pero falló resolución ERP (${slug}), probando login local`,
+            );
+          }
         }
       }
     }
 
-    let enriched: Awaited<ReturnType<AuthService['refreshSession']>> | null = null;
-
-    if (accessToken) {
-      const payload = this.decodeJwt(accessToken);
-      if (!payload?.sub) {
-        throw new UnauthorizedException('Token Keycloak inválido');
+    if (!enriched) {
+      try {
+        const local = await this.authService.login(dto);
+        accessToken = local.accessToken;
+        enriched = {
+          accessToken: local.accessToken,
+          user: local.user,
+          tenantId: local.tenantId,
+          tenantSlug: local.tenantSlug,
+        };
+        authMode = 'local';
+      } catch (err) {
+        throw this.mapLoginFailure(err, { kcConfig, keycloakReachable });
       }
-      const email =
-        (typeof payload.email === 'string' && payload.email) ||
-        (typeof payload.preferred_username === 'string' && payload.preferred_username) ||
-        dto.email;
-      const tenantId = await this.resolveTenantIdFromSlug(slug);
-      const dbUserId = await this.authService.resolveExistingUserIdByEmail(email, tenantId);
-      enriched = await this.authService.refreshSession(dbUserId, tenantId);
-      // JWT local firmado por el ERP (incluye tenantId/roles); Keycloak solo valida identidad.
-      accessToken = enriched.accessToken;
-    } else {
-      const local = await this.authService.login(dto);
-      accessToken = local.accessToken;
-      enriched = {
-        accessToken: local.accessToken,
-        user: local.user,
-        tenantId: local.tenantId,
-        tenantSlug: local.tenantSlug,
-      };
-      authMode = 'local';
     }
 
     const csrf = this.newCsrf();
@@ -147,6 +171,7 @@ export class BffAuthService {
       authMode,
       csrfToken: csrf,
       accessToken,
+      ...(kcConfig ? { keycloakReachable } : {}),
     };
   }
 
@@ -361,6 +386,26 @@ export class BffAuthService {
     } catch {
       return null;
     }
+  }
+
+  private mapLoginFailure(
+    err: unknown,
+    ctx: { kcConfig?: { realm: string }; keycloakReachable: boolean },
+  ): UnauthorizedException | BadRequestException {
+    if (err instanceof UnauthorizedException || err instanceof BadRequestException) {
+      return err;
+    }
+    if (ctx.kcConfig && ctx.keycloakReachable) {
+      return new UnauthorizedException(
+        'Credenciales incorrectas. Keycloak está activo; si usas cuenta local, verifica email y contraseña del ERP.',
+      );
+    }
+    if (ctx.kcConfig && !ctx.keycloakReachable) {
+      return new UnauthorizedException(
+        'Credenciales incorrectas. Keycloak no responde; solo está disponible el acceso local.',
+      );
+    }
+    return new UnauthorizedException('Credenciales incorrectas.');
   }
 
   private async resolveTenantIdFromSlug(slug: string): Promise<string> {

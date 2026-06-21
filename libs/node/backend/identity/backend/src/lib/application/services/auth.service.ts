@@ -385,6 +385,9 @@ export class AuthService {
 
     const existing = await this.userRepository.findByEmail(email, params.tenantId);
     if (existing) {
+      if (!existing.isActive) {
+        throw new UnauthorizedException('User is deactivated');
+      }
       return existing.id.value;
     }
 

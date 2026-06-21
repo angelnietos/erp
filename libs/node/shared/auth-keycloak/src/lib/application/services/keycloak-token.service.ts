@@ -10,7 +10,7 @@ export class KeycloakTokenService {
   private readonly realm: string;
 
   constructor(private readonly configService: ConfigService) {
-    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8080').replace(/\/$/, '');
+    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8081').replace(/\/$/, '');
     this.realm = configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
   }
 

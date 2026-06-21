@@ -26,6 +26,7 @@ export interface BffLoginResponse {
   authMode: 'keycloak' | 'local';
   csrfToken?: string;
   accessToken?: string;
+  keycloakReachable?: boolean;
 }
 
 export interface BffPlatformLoginResponse {

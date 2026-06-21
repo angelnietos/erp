@@ -20,7 +20,7 @@ export class KeycloakStrategy extends PassportStrategy(Strategy, 'keycloak') {
       secretOrKeyProvider: () => configService.get<string>('JWT_SECRET') || 'default_secret',
     });
 
-    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8080').replace(/\/$/, '');
+    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8081').replace(/\/$/, '');
     this.realm = configService.get<string>('KEYCLOAK_REALM') || 'josanz-web-app-realm';
 
     this.jwksClient = jwksClient({

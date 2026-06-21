@@ -19,7 +19,7 @@ export class TenantRealmSyncService {
   };
 
   constructor(private readonly configService: ConfigService) {
-    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8080').replace(/\/$/, '');
+    this.keycloakUrl = (configService.get<string>('KEYCLOAK_AUTH_SERVER_URL') || 'http://localhost:8081').replace(/\/$/, '');
     this.clientId = configService.get<string>('KEYCLOAK_RESOURCE') || 'josanz-erp-api';
   }
 

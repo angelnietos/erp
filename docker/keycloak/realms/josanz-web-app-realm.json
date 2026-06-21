@@ -12,7 +12,8 @@
       "credentials": [
         {
           "type": "password",
-          "value": "admin"
+          "value": "Admin123!",
+          "temporary": false
         }
       ],
       "attributes": {
@@ -31,7 +32,7 @@
       "credentials": [
         {
           "type": "password",
-          "value": "user",
+          "value": "Admin123!",
           "temporary": false
         }
       ],

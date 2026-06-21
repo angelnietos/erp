@@ -12,6 +12,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AuthStore,
+  AuthService,
   DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
   setErpTenantSlug,
@@ -23,6 +24,10 @@ import {
   getDevLoginHintsForTenant,
   getDevLoginEmailPlaceholder,
 } from '@josanz-erp/identity-data-access';
+import {
+  getTenantKeycloakConfig,
+  tenantUsesKeycloakLogin,
+} from '@josanz-erp/identity-api';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import {
@@ -99,6 +104,7 @@ interface BackgroundThemeOption {
 export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   readonly store = inject(AuthStore);
+  private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
@@ -147,6 +153,10 @@ export class LoginComponent implements OnInit {
   readonly isBabooniTenant = computed(() => this.tenantSlug() === 'babooni');
   /** Slug resuelto desde `?tenant=` o pantalla previa (`sessionStorage`). */
   readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
+
+  /** Estado previo al login: Keycloak alcanzable para el tenant actual. */
+  readonly keycloakReachablePreview = signal<boolean | null>(null);
+  readonly tenantUsesKeycloak = computed(() => tenantUsesKeycloakLogin(this.tenantSlug()));
 
   /** Login claro en dos columnas según Figma node `61:1312` (hero `61:1313`). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
@@ -221,7 +231,7 @@ export class LoginComponent implements OnInit {
 
   readonly authModeLabel = computed(() => {
     if (this.store.loading()) {
-      return 'Verificando Keycloak SSO';
+      return 'Verificando credenciales…';
     }
     if (this.store.authMode() === 'keycloak') {
       return 'Keycloak SSO activo';
@@ -231,7 +241,17 @@ export class LoginComponent implements OnInit {
         ? 'Acceso local: Keycloak no disponible'
         : 'Acceso local de respaldo';
     }
-    return 'Keycloak SSO + acceso local';
+    if (this.tenantUsesKeycloak()) {
+      const reachable = this.keycloakReachablePreview();
+      if (reachable === false) {
+        return 'Keycloak no responde · fallback local';
+      }
+      if (reachable === true) {
+        return 'Keycloak disponible · fallback local';
+      }
+      return 'Comprobando Keycloak…';
+    }
+    return 'Acceso local (tenant demo)';
   });
 
   readonly authModeTone = computed(() => {
@@ -241,7 +261,10 @@ export class LoginComponent implements OnInit {
     if (this.store.authMode() === 'local') {
       return 'local';
     }
-    return this.store.keycloakAvailable() === false ? 'local' : 'neutral';
+    if (this.tenantUsesKeycloak()) {
+      return this.keycloakReachablePreview() === false ? 'local' : 'neutral';
+    }
+    return 'local';
   });
 
   /** Fondos temáticos estilo videojuego (Babooni). */
@@ -297,6 +320,8 @@ export class LoginComponent implements OnInit {
       this.sessionExpiredNotice.set(
         'Tu sesión ha caducado o el servidor se reinició. Vuelve a iniciar sesión.',
       );
+    } else if (reason === 'logout') {
+      this.sessionExpiredNotice.set('Has cerrado sesión correctamente.');
     }
 
     const fromQuery = this.route.snapshot.queryParamMap.get('tenant');
@@ -323,6 +348,23 @@ export class LoginComponent implements OnInit {
     if (!usesJosanzFigmaLogin(slug)) {
       this.theme.reapplyTheme();
     }
+    this.probeKeycloakAvailability(slug);
+  }
+
+  private probeKeycloakAvailability(slug: string): void {
+    if (!tenantUsesKeycloakLogin(slug)) {
+      this.keycloakReachablePreview.set(null);
+      return;
+    }
+    const cfg = getTenantKeycloakConfig(slug);
+    if (!cfg) {
+      this.keycloakReachablePreview.set(null);
+      return;
+    }
+    this.authService.isKeycloakAvailable(cfg.realm).subscribe({
+      next: (available) => this.keycloakReachablePreview.set(available),
+      error: () => this.keycloakReachablePreview.set(false),
+    });
   }
 
   goChangeTenant(): void {
