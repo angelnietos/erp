@@ -2,6 +2,13 @@
   "realm": "babooni-tenant",
   "enabled": true,
   "displayName": "Babooni ERP Tenant",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["es", "en"],
+  "defaultLocale": "es",
+  "loginWithEmailAllowed": true,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "registrationAllowed": false,
   "users": [
     {
       "username": "root",

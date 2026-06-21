@@ -2,6 +2,13 @@
   "realm": "josanz-web-app-realm",
   "enabled": true,
   "displayName": "Josanz ERP - Web App",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["es", "en"],
+  "defaultLocale": "es",
+  "loginWithEmailAllowed": true,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "registrationAllowed": false,
   "users": [
     {
       "username": "admin",

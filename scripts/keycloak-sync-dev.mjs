@@ -125,6 +125,32 @@ async function ensureClientRoles(token, clientUuid) {
   }
 }
 
+async function syncRealmLoginUx(token) {
+  const getRes = await kc(token, '');
+  if (!getRes.ok) {
+    throw new Error(`Read realm failed: ${await getRes.text()}`);
+  }
+  const realm = await getRes.json();
+  const payload = {
+    ...realm,
+    internationalizationEnabled: true,
+    supportedLocales: ['es', 'en'],
+    defaultLocale: 'es',
+    loginWithEmailAllowed: true,
+    rememberMe: true,
+    resetPasswordAllowed: true,
+    registrationAllowed: false,
+  };
+  const putRes = await kc(token, '', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+  if (!putRes.ok) {
+    throw new Error(`Update realm login UX failed: ${await putRes.text()}`);
+  }
+  console.log('✓ Realm: recordarme, recuperar contraseña e i18n (es) activados');
+}
+
 async function upsertAlexisUser(token, clientUuid) {
   const email = 'admin@alexis.local';
   const listRes = await kc(token, `/users?email=${encodeURIComponent(email)}&exact=true`);
@@ -185,6 +211,7 @@ async function upsertAlexisUser(token, clientUuid) {
 async function main() {
   console.log(`Keycloak sync → ${KC_BASE} / ${REALM}`);
   const token = await getAdminToken();
+  await syncRealmLoginUx(token);
   const clientUuid = await upsertClient(token);
   await ensureClientRoles(token, clientUuid);
   await upsertAlexisUser(token, clientUuid);
