@@ -24,6 +24,22 @@ body {
   background: var(--josanz-canvas) !important;
 }
 
+/* Hero izquierdo (fijo; no depende del grid de PatternFly) */
+html.login-pf::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(232, 237, 245, 0.35), rgba(245, 247, 251, 0.2)),
+    url('../img/login-hero.png') center / cover no-repeat;
+}
+
 /* Shell dos columnas: hero | formulario */
 .pf-v5-c-login {
   display: grid !important;
@@ -36,18 +52,14 @@ body {
   padding: 0 !important;
   margin: 0 !important;
   overflow: hidden;
-  background: var(--josanz-canvas) !important;
+  background: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 .pf-v5-c-login::before {
-  content: '';
-  grid-column: 1;
-  grid-row: 1;
-  display: block;
-  min-height: 0;
-  background:
-    linear-gradient(135deg, rgba(232, 237, 245, 0.35), rgba(245, 247, 251, 0.2)),
-    url('../img/login-hero.png') center / cover no-repeat;
+  content: none;
+  display: none;
 }
 
 .pf-v5-c-login__container {
@@ -291,6 +303,14 @@ input[name='login'] {
 }
 
 @media (max-width: 900px) {
+  html.login-pf::before {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 200px;
+    max-height: 34vh;
+  }
+
   .pf-v5-c-login {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr;
@@ -301,13 +321,6 @@ input[name='login'] {
   html,
   body {
     overflow: auto;
-  }
-
-  .pf-v5-c-login::before {
-    grid-column: 1;
-    grid-row: 1;
-    min-height: 200px;
-    max-height: 34vh;
   }
 
   .pf-v5-c-login__container {
