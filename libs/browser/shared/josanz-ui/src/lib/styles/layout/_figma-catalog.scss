@@ -191,7 +191,8 @@
     color: var(--josanz-text-muted) !important;
   }
 
-  .josanz-list-card .josanz-list-template-row__status span {
+  .josanz-list-card .josanz-list-template-row__status span,
+  .josanz-list-card__status-pill {
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0;
@@ -201,8 +202,12 @@
   }
 
   .josanz-list-card__status-pill--outline {
-    border-radius: 6px !important;
-    padding: 0.35rem 0.65rem !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px !important;
+    padding: 0.35rem 0.75rem !important;
+    box-shadow: none !important;
   }
 
   .josanz-list-card__status-icon {

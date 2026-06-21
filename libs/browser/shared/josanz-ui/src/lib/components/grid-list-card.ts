@@ -49,14 +49,7 @@ export class GridListCardComponent {
   }
 
   pillCornerClass(): string {
-    const shape = this.shape ?? this.themeService.currentTheme().defaultShape;
-    if (shape === 'pill') {
-      return 'rounded-full';
-    }
-    if (shape === 'square') {
-      return 'rounded-none';
-    }
-    return this.statusBadgeStyle === 'outline' ? 'rounded-md' : 'rounded-lg';
+    return 'rounded-full';
   }
 
   cardStyles(): Record<string, string> {

@@ -47,11 +47,9 @@
       @if (status) {
       <!-- Badge: mobile only -->
       <span
-        class="md:hidden inline-flex items-center gap-1 px-3 py-1 text-[11px] font-bold shadow-sm josanz-list-card__status-pill"
+        class="md:hidden inline-flex items-center gap-1 px-3 py-1 text-[11px] font-bold rounded-full josanz-list-card__status-pill"
         [class.josanz-list-card__status-pill--outline]="statusBadgeStyle === 'outline'"
-        [class.rounded-xl]="activeShape() === 'rounded'"
-        [class.rounded-none]="activeShape() === 'square'"
-        [class.rounded-full]="activeShape() === 'pill'"
+        [class.shadow-sm]="statusBadgeStyle !== 'outline'"
         [ngStyle]="getBadgeStyles()"
       >
         @if (showStatusIcon()) {
@@ -93,11 +91,9 @@
     >
       <span
         [ngStyle]="getBadgeStyles()"
-        class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold josanz-list-card__status-pill"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full josanz-list-card__status-pill"
         [class.josanz-list-card__status-pill--outline]="statusBadgeStyle === 'outline'"
-        [class.rounded-xl]="activeShape() === 'rounded'"
-        [class.rounded-none]="activeShape() === 'square'"
-        [class.rounded-full]="activeShape() === 'pill'"
+        [class.shadow-sm]="statusBadgeStyle !== 'outline'"
       >
         @if (showStatusIcon()) {
         <span class="josanz-list-card__status-icon" aria-hidden="true">{{ statusIcon() }}</span>

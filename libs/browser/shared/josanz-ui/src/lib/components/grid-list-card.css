@@ -112,13 +112,22 @@
   flex-shrink: 0;
   font-weight: 700;
   white-space: nowrap;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .josanz-grid-list-card__status--outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 9999px !important;
   background: transparent !important;
   box-shadow: none !important;
   text-transform: none;
   letter-spacing: 0;
+  font-weight: 700;
 }
 
 .josanz-grid-list-card__fields {
