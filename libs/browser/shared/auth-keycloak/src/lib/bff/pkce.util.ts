@@ -3,6 +3,8 @@ export const PKCE_VERIFIER_KEY = 'josanz_pkce_verifier';
 export const PKCE_STATE_KEY = 'josanz_pkce_state';
 export const PKCE_TENANT_KEY = 'josanz_pkce_tenant';
 export const PKCE_REDIRECT_URI_KEY = 'josanz_pkce_redirect_uri';
+/** Usuario volvió atrás desde Keycloak sin completar el login. */
+export const PKCE_REDIRECT_PENDING_KEY = 'josanz_pkce_redirect_pending';
 
 const PKCE_CHARSET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -75,6 +77,25 @@ export function readPkceSession(): {
   return { codeVerifier, state, tenantSlug, redirectUri };
 }
 
+export function markPkceRedirectPending(): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.setItem(PKCE_REDIRECT_PENDING_KEY, '1');
+}
+
+/** true si el usuario abortó un redirect PKCE (p. ej. botón Atrás del navegador). */
+export function consumePkceRedirectAborted(): boolean {
+  if (typeof sessionStorage === 'undefined') {
+    return false;
+  }
+  const aborted = sessionStorage.getItem(PKCE_REDIRECT_PENDING_KEY) === '1';
+  if (aborted) {
+    sessionStorage.removeItem(PKCE_REDIRECT_PENDING_KEY);
+  }
+  return aborted;
+}
+
 export function clearPkceSession(): void {
   if (typeof sessionStorage === 'undefined') {
     return;
@@ -83,6 +104,7 @@ export function clearPkceSession(): void {
   sessionStorage.removeItem(PKCE_STATE_KEY);
   sessionStorage.removeItem(PKCE_TENANT_KEY);
   sessionStorage.removeItem(PKCE_REDIRECT_URI_KEY);
+  sessionStorage.removeItem(PKCE_REDIRECT_PENDING_KEY);
 }
 
 export function buildKeycloakAuthorizeUrl(params: {

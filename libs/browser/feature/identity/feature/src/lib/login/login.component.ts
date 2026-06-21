@@ -6,6 +6,7 @@ import {
   computed,
   OnInit,
   isDevMode,
+  HostListener,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -28,6 +29,7 @@ import {
   getTenantKeycloakConfig,
   tenantUsesKeycloakLogin,
 } from '@josanz-erp/identity-api';
+import { consumePkceRedirectAborted } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import {
@@ -163,6 +165,31 @@ export class LoginComponent implements OnInit {
       this.tenantUsesKeycloak() &&
       this.authService.canUseKeycloakPkce(this.tenantSlug()) &&
       this.keycloakReachablePreview() !== false,
+  );
+
+  /** Usuario volvió atrás desde Keycloak: mostrar botón manual, no auto-redirect. */
+  readonly keycloakRedirectAborted = signal(false);
+
+  /** Comprobando KC o redirigiendo (sin formulario intermedio). */
+  readonly keycloakHandoffPending = computed(() => {
+    if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
+      return false;
+    }
+    if (this.keycloakRedirectAborted()) {
+      return false;
+    }
+    const reachable = this.keycloakReachablePreview();
+    if (reachable === false) {
+      return false;
+    }
+    return reachable === null || this.pkceRedirectLoading();
+  });
+
+  readonly showKeycloakRetryButton = computed(
+    () =>
+      this.keycloakRedirectAborted() &&
+      this.showKeycloakSso() &&
+      !this.pkceRedirectLoading(),
   );
 
   /** Formulario email/password solo si el tenant no usa KC o Keycloak no responde. */
@@ -332,6 +359,11 @@ export class LoginComponent implements OnInit {
   readonly pkceError = signal<string | null>(null);
 
   ngOnInit(): void {
+    this.pkceRedirectLoading.set(false);
+    if (consumePkceRedirectAborted()) {
+      this.keycloakRedirectAborted.set(true);
+    }
+
     const reason = this.route.snapshot.queryParamMap.get('reason');
     if (reason === 'expired') {
       this.sessionExpiredNotice.set(
@@ -379,9 +411,22 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.authService.isKeycloakAvailable(cfg.realm).subscribe({
-      next: (available) => this.keycloakReachablePreview.set(available),
+      next: (available) => {
+        this.keycloakReachablePreview.set(available);
+        if (available && !this.keycloakRedirectAborted()) {
+          void this.startKeycloakSso();
+        }
+      },
       error: () => this.keycloakReachablePreview.set(false),
     });
+  }
+
+  @HostListener('window:pageshow')
+  onPageShow(): void {
+    this.pkceRedirectLoading.set(false);
+    if (consumePkceRedirectAborted()) {
+      this.keycloakRedirectAborted.set(true);
+    }
   }
 
   goChangeTenant(): void {
@@ -415,11 +460,15 @@ export class LoginComponent implements OnInit {
   }
 
   async startKeycloakSso(): Promise<void> {
-    if (!this.showKeycloakSso() || this.pkceRedirectLoading()) {
+    if (!this.showKeycloakSso() && !this.keycloakRedirectAborted()) {
+      return;
+    }
+    if (this.pkceRedirectLoading()) {
       return;
     }
     this.pkceRedirectLoading.set(true);
     this.pkceError.set(null);
+    this.keycloakRedirectAborted.set(false);
     try {
       await this.authService.startKeycloakPkceRedirect(this.tenantSlug());
     } catch (err) {

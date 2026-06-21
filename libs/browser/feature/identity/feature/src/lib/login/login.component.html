@@ -177,7 +177,7 @@
       </ui-alert>
     }
 
-    @if (isDev && devLoginHint()) {
+    @if (isDev && devLoginHint() && !keycloakHandoffPending()) {
       @if (devLoginHint(); as hint) {
       <div
         class="dev-login-hint animate-in stagger-3"
@@ -209,7 +209,19 @@
       </ui-alert>
     }
 
-    @if (showKeycloakSso()) {
+    @if (keycloakHandoffPending()) {
+      <div
+        class="auth-sso-loading animate-in stagger-4"
+        [class.auth-sso-loading--figma]="useFigmaShellLogin()"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="auth-sso-loading__spinner" aria-hidden="true"></span>
+        <span>Redirigiendo a Keycloak…</span>
+      </div>
+    }
+
+    @if (showKeycloakRetryButton()) {
       <div
         class="auth-sso animate-in stagger-4"
         [class.auth-sso--figma]="useFigmaShellLogin()"

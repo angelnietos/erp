@@ -29,7 +29,14 @@
         <p class="josanz-figma-auth__error" role="alert">{{ store.error() }}</p>
       }
 
-      @if (showKeycloakSso()) {
+      @if (keycloakHandoffPending()) {
+        <div class="josanz-figma-auth__handoff" role="status" aria-live="polite">
+          <span class="josanz-figma-auth__handoff-spinner" aria-hidden="true"></span>
+          <span>Redirigiendo a Keycloak…</span>
+        </div>
+      }
+
+      @if (showKeycloakRetryButton()) {
         <div class="josanz-figma-auth__sso">
           <josanz-button
             label="Iniciar sesión con Keycloak"

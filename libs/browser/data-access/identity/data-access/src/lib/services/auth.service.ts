@@ -15,6 +15,7 @@ import {
   createOidcState,
   createPkcePair,
   defaultOidcCallbackUri,
+  markPkceRedirectPending,
   readPkceSession,
   storePkceSession,
 } from '@josanz-erp/shared-auth-keycloak';
@@ -215,8 +216,9 @@ export class AuthService {
       redirectUri,
       codeChallenge,
       state,
-      uiLocales: slug === 'alexis' ? 'es' : undefined,
+      uiLocales: slug === 'alexis' || slug === 'josanz' || slug === 'babooni' ? 'es' : undefined,
     });
+    markPkceRedirectPending();
     window.location.assign(authorizeUrl);
   }
 
