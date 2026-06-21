@@ -404,7 +404,7 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       }
     }
 
-    /* Figma Login.svg: CTA #0F1E2F a ancho completo (tenant Josanz). */
+    /* Figma Login 61:1312: CTA #0F1E2F a ancho completo (tenant Josanz). */
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid,
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto {
       width: 100%;
@@ -417,6 +417,11 @@ export type ButtonSize = 'sm' | 'md' | 'lg';
       text-transform: none;
       letter-spacing: 0.02em;
       font-weight: 600;
+      font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+    }
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid:not(:disabled),
+    :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto:not(:disabled) {
+      box-shadow: 0 4px 3.5px rgba(221, 221, 221, 0.5);
     }
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-solid:hover,
     :host-context(.auth-wrapper--figma) .btn.btn-color-primary.btn-shape-auto:hover {

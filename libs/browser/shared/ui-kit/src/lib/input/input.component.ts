@@ -60,7 +60,7 @@ export type InputVariant = string;
   `,
   styleUrls: ['../styles/form-field-visual.scss'],
   styles: [`
-    .form-group { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; position: relative; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; max-width: 100%; min-width: 0; position: relative; }
 
     .label {
       font-size: 0.7rem; 
@@ -192,6 +192,8 @@ export type InputVariant = string;
       --input-radius: 8px;
       --input-color: #222222;
       backdrop-filter: none;
+      min-width: 0;
+      max-width: 100%;
     }
     :host-context(.auth-wrapper--figma) .label {
       display: none;
