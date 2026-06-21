@@ -47,12 +47,16 @@
       @if (status) {
       <!-- Badge: mobile only -->
       <span
-        class="md:hidden px-3 py-1 text-[9px] font-black uppercase tracking-widest shadow-sm"
+        class="md:hidden inline-flex items-center gap-1 px-3 py-1 text-[11px] font-bold shadow-sm josanz-list-card__status-pill"
+        [class.josanz-list-card__status-pill--outline]="statusBadgeStyle === 'outline'"
         [class.rounded-xl]="activeShape() === 'rounded'"
         [class.rounded-none]="activeShape() === 'square'"
         [class.rounded-full]="activeShape() === 'pill'"
         [ngStyle]="getBadgeStyles()"
       >
+        @if (showStatusIcon()) {
+        <span class="josanz-list-card__status-icon" aria-hidden="true">{{ statusIcon() }}</span>
+        }
         {{ status }}
       </span>
       }
@@ -89,11 +93,15 @@
     >
       <span
         [ngStyle]="getBadgeStyles()"
-        class="px-4 py-1.5 text-[10px] font-black flex items-center justify-center uppercase tracking-widest shadow-md"
+        class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold josanz-list-card__status-pill"
+        [class.josanz-list-card__status-pill--outline]="statusBadgeStyle === 'outline'"
         [class.rounded-xl]="activeShape() === 'rounded'"
         [class.rounded-none]="activeShape() === 'square'"
         [class.rounded-full]="activeShape() === 'pill'"
       >
+        @if (showStatusIcon()) {
+        <span class="josanz-list-card__status-icon" aria-hidden="true">{{ statusIcon() }}</span>
+        }
         {{ status }}
       </span>
     </div>

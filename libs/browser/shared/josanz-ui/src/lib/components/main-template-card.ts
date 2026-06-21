@@ -13,6 +13,8 @@ export type JosanzStatusPillVariant =
   | 'warning'
   | 'error';
 
+export type JosanzStatusBadgeStyle = 'filled' | 'outline';
+
 @Component({
   selector: 'josanz-main-template-card',
   standalone: true,
@@ -37,6 +39,8 @@ export class MainTemplateCardComponent {
   @Input() leadingMark = '';
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
+  /** `outline` = pastilla con borde (Figma Eventos). */
+  @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
 
   activeShape(): JosanzControlShape {
     return this.shape ?? this.themeService.currentTheme().defaultShape;
@@ -69,15 +73,39 @@ export class MainTemplateCardComponent {
 
   getBadgeStyles() {
     if (this.customColor) {
-      return {
-        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
+      const base = {
         color: this.customColor,
-        'box-shadow': 'var(--josanz-shadow-sm)',
-        'text-transform': 'uppercase',
+        'text-transform': 'uppercase' as const,
         'letter-spacing': '0.05em',
+      };
+      if (this.statusBadgeStyle === 'outline') {
+        return {
+          ...base,
+          'background-color': 'transparent',
+          'border': `1px solid ${this.customColor}`,
+          'box-shadow': 'none',
+          'text-transform': 'none' as const,
+          'letter-spacing': '0',
+        };
+      }
+      return {
+        ...base,
+        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
+        'box-shadow': 'var(--josanz-shadow-sm)',
       };
     }
     const key = this.resolvePillKey();
+    if (this.statusBadgeStyle === 'outline') {
+      return {
+        'background-color': 'transparent',
+        color: `var(--josanz-pill-${key}-text)`,
+        border: `1px solid var(--josanz-pill-${key}-text)`,
+        'box-shadow': 'none',
+        'text-transform': 'none',
+        'letter-spacing': '0',
+        'font-weight': '700',
+      };
+    }
     return {
       'background-color': `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
@@ -85,6 +113,29 @@ export class MainTemplateCardComponent {
       'text-transform': 'uppercase',
       'letter-spacing': '0.05em',
     };
+  }
+
+  statusIcon(): string {
+    const key = this.resolvePillKey();
+    const icons: Partial<Record<JosanzStatusPillKey, string>> = {
+      borrador: '✎',
+      presupuesto: '€',
+      confirmado: '✓',
+      'en-proceso': '⚙',
+      'en-produccion': '⚙',
+      'en-ejecucion': '⚙',
+      cancelado: '×',
+      incidencia: '!',
+      facturado: '📄',
+      cerrado: '●',
+      pospuesto: '⏸',
+      finalizado: '✓',
+    };
+    return icons[key] ?? '';
+  }
+
+  showStatusIcon(): boolean {
+    return this.statusBadgeStyle === 'outline' && !!this.statusIcon();
   }
 
   /** Barra lateral de estado (Figma listados). */

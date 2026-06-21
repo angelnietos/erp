@@ -1,0 +1,76 @@
+<article
+  class="josanz-grid-list-card border border-solid transition-all duration-200 hover:brightness-[0.98] active:scale-[0.99]"
+  [ngClass]="['josanz-grid-list-card--' + density, cornerClass()]"
+  [ngStyle]="cardStyles()"
+>
+  <div class="josanz-grid-list-card__rail" [ngStyle]="statusRailStyles()" aria-hidden="true"></div>
+
+  <div class="josanz-grid-list-card__inner">
+    <header class="josanz-grid-list-card__header" [ngClass]="'josanz-grid-list-card__header--' + density">
+      <div class="josanz-grid-list-card__title-row min-w-0 flex-1">
+        @if (leadingMark) {
+        <span
+          class="josanz-grid-list-card__leading"
+          [ngClass]="'josanz-grid-list-card__leading--' + density"
+          aria-hidden="true"
+        >
+          {{ leadingMark }}
+        </span>
+        }
+        <h3 class="josanz-grid-list-card__title truncate" [ngClass]="'josanz-grid-list-card__title--' + density">
+          {{ title }}
+        </h3>
+      </div>
+      @if (status) {
+      <span
+        class="josanz-grid-list-card__status"
+        [ngClass]="[
+          'josanz-grid-list-card__status--' + density,
+          pillCornerClass(),
+          statusBadgeStyle === 'outline' ? 'josanz-grid-list-card__status--outline' : '',
+        ]"
+        [ngStyle]="badgeStyles()"
+      >
+        @if (showStatusIcon()) {
+        <span aria-hidden="true">{{ statusIcon() }} </span>
+        }
+        {{ status }}
+      </span>
+      }
+    </header>
+
+    @if (previewLines.length > 0) {
+    <div class="josanz-grid-list-card__fields" [ngClass]="'josanz-grid-list-card__fields--' + density">
+      @for (line of previewLines; track $index) {
+      @if (density === 'comfortable') {
+      <div class="josanz-grid-list-card__field--comfortable">
+        @if (fieldLabels[$index]) {
+        <span class="josanz-grid-list-card__field-label josanz-grid-list-card__field-label--comfortable truncate">
+          {{ fieldLabels[$index] }}
+        </span>
+        }
+        <span class="josanz-grid-list-card__field-value josanz-grid-list-card__field-value--comfortable truncate">
+          {{ line }}
+        </span>
+      </div>
+      } @else if (density === 'compact') {
+      <div class="josanz-grid-list-card__field-row--compact">
+        @if (fieldLabels[$index]) {
+        <span class="josanz-grid-list-card__field-label truncate">{{ fieldLabels[$index] }}</span>
+        }
+        <span class="josanz-grid-list-card__field-value truncate">{{ line }}</span>
+      </div>
+      } @else {
+      <div class="josanz-grid-list-card__field-row--dense">
+        <span class="josanz-grid-list-card__field-bullet" aria-hidden="true"></span>
+        @if (fieldLabels[$index]) {
+        <span class="josanz-grid-list-card__field-label truncate">{{ fieldLabels[$index] }}</span>
+        }
+        <span class="josanz-grid-list-card__field-value truncate">{{ line }}</span>
+      </div>
+      }
+      }
+    </div>
+    }
+  </div>
+</article>

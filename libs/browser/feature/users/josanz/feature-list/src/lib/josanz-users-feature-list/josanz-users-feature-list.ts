@@ -1,90 +1,67 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import {
-  AdaptiveListRowsComponent,
-  ListTemplateHeaderRowComponent,
-  MainListLayoutComponent,
-  BaseListComponent,
-  type JosanzAdaptiveListItem,
+  JosanzCatalogListComponent,
+  JOSANZ_CATALOG_USER_TABS,
+  type JosanzCatalogListConfig,
 } from '@josanz-erp/josanz-ui';
+import type { JosanzCatalogListRow } from '@josanz-erp/josanz-ui';
+
+const USER_ROWS: JosanzCatalogListRow[] = [
+  {
+    id: 'admin@josanz.com',
+    title: 'Admin Josanz',
+    leadingMark: 'AJ',
+    values: ['admin@josanz.com', '+34 600 000 001', 'Administrador', 'Hace 5 min'],
+    typology: 'Administradores',
+    pillLabel: 'Activo',
+    pillVariant: 'confirmado',
+  },
+  {
+    id: 'juan.perez@josanz.com',
+    title: 'Juan Pérez',
+    leadingMark: 'JP',
+    values: ['juan.perez@josanz.com', '+34 600 000 002', 'Operario', 'Ayer'],
+    typology: 'Operarios',
+    pillLabel: 'Activo',
+    pillVariant: 'confirmado',
+  },
+  {
+    id: 'ana.belen@josanz.com',
+    title: 'Ana Belén',
+    leadingMark: 'AB',
+    values: ['ana.belen@josanz.com', '+34 600 000 003', 'Logística', '12/05/2024'],
+    typology: 'Logística',
+    pillLabel: 'Ausente',
+    pillVariant: 'inasistencia',
+  },
+];
 
 @Component({
   selector: 'lib-josanz-users-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    MainListLayoutComponent,
-    AdaptiveListRowsComponent,
-    ListTemplateHeaderRowComponent,
-  ],
-  templateUrl: './josanz-users-feature-list.html',
+  imports: [JosanzCatalogListComponent],
+  template: `<josanz-catalog-list [config]="config" />`,
   styleUrl: './josanz-users-feature-list.css',
 })
-export class JosanzUsersListComponent extends BaseListComponent {
-  private router = inject(Router);
-
-  readonly userLabels = ['Email', 'Teléfono', 'Rol', 'Último acceso'];
-
-  readonly summaryLine = {
-    before: '3 usuarios · ',
-    emphasis: '2 activos',
-    after: '',
+export class JosanzUsersListComponent {
+  readonly config: JosanzCatalogListConfig = {
+    title: 'Usuario/as',
+    primaryBtnLabel: 'Añadir Usuario',
+    titleColumnLabel: 'Nombre y Apellidos',
+    rowLabels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
+    statusColumnLabel: 'Estado',
+    rows: USER_ROWS,
+    addRoute: '/users/new',
+    detailRoute: '/users',
+    filterOptions: JOSANZ_CATALOG_USER_TABS,
+    withLeadingMark: true,
+    summaryLine: {
+      before: '3 usuarios · ',
+      emphasis: '2 activos',
+      after: '',
+    },
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
+    statusBadgeStyle: 'outline',
   };
-
-  readonly userItems: JosanzAdaptiveListItem[] = [
-    {
-      id: 'admin@josanz.com',
-      title: 'Admin Josanz',
-      data: [
-        'admin@josanz.com',
-        '+34 600 000 001',
-        'Administrador',
-        'Hace 5 min',
-      ],
-      labels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
-      status: 'Activo',
-      statusVariant: 'success',
-    },
-    {
-      id: 'juan.perez@josanz.com',
-      title: 'Juan Pérez',
-      data: ['juan.perez@josanz.com', '+34 600 000 002', 'Operario', 'Ayer'],
-      labels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
-      status: 'Activo',
-      statusVariant: 'success',
-    },
-    {
-      id: 'ana.belen@josanz.com',
-      title: 'Ana Belén',
-      data: [
-        'ana.belen@josanz.com',
-        '+34 600 000 003',
-        'Logística',
-        '12/05/2024',
-      ],
-      labels: ['Email', 'Teléfono', 'Rol', 'Último acceso'],
-      status: 'Ausente',
-      statusVariant: 'warning',
-    },
-  ];
-
-  get filteredUserItems(): JosanzAdaptiveListItem[] {
-    return this.filterItems(this.userItems);
-  }
-
-  constructor() {
-    super();
-    this.title = 'Usuario/as';
-    this.primaryBtnLabel = 'Añadir Usuario';
-    this.filterOptions = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
-  }
-
-  override onAdd() {
-    this.router.navigate(['/users/new']);
-  }
-
-  openDetail(item: JosanzAdaptiveListItem): void {
-    void this.router.navigate(['/users', item.id]);
-  }
 }

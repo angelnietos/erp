@@ -8,7 +8,7 @@ import {
   isTableListView,
   type JosanzGridCardDensity,
 } from '../list-view/list-view-preferences';
-import { MainTemplateCardComponent, type JosanzStatusPillVariant } from './main-template-card';
+import { MainTemplateCardComponent, type JosanzStatusBadgeStyle, type JosanzStatusPillVariant } from './main-template-card';
 import { GridListCardComponent } from './grid-list-card';
 
 export interface JosanzAdaptiveListItem {
@@ -43,6 +43,7 @@ export interface JosanzAdaptiveListItem {
             [status]="item.status ?? ''"
             [statusVariant]="item.statusVariant ?? 'borrador'"
             [leadingMark]="item.leadingMark ?? ''"
+            [statusBadgeStyle]="statusBadgeStyle"
           ></josanz-main-template-card>
         }
       </div>
@@ -67,6 +68,8 @@ export interface JosanzAdaptiveListItem {
               [fieldLabels]="gridPreviewLabels(item)"
               [status]="item.status ?? ''"
               [statusVariant]="item.statusVariant ?? 'borrador'"
+              [leadingMark]="item.leadingMark ?? ''"
+              [statusBadgeStyle]="statusBadgeStyle"
             ></josanz-grid-list-card>
           </button>
         }
@@ -79,6 +82,7 @@ export class AdaptiveListRowsComponent {
 
   @Input() items: JosanzAdaptiveListItem[] = [];
   @Input() defaultLabels: string[] = [];
+  @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
 
   @Output() itemClick = new EventEmitter<JosanzAdaptiveListItem>();
 
@@ -103,24 +107,14 @@ export class AdaptiveListRowsComponent {
   }
 
   gridPreviewLines(item: JosanzAdaptiveListItem): string[] {
-    const count = this.gridPreviewLineCount();
-    return item.data.slice(0, count);
+    return item.data;
   }
 
   gridPreviewLabels(item: JosanzAdaptiveListItem): string[] {
     const labels = item.labels ?? this.defaultLabels;
-    return labels.slice(0, this.gridPreviewLineCount());
-  }
-
-  private gridPreviewLineCount(): number {
-    const density = this.gridDensity();
-    if (density === 'dense') {
-      return 0;
-    }
-    if (density === 'compact') {
-      return 1;
-    }
-    return 2;
+    return labels.length >= item.data.length
+      ? labels.slice(0, item.data.length)
+      : [...labels, ...this.defaultLabels].slice(0, item.data.length);
   }
 
   onItemClick(item: JosanzAdaptiveListItem): void {

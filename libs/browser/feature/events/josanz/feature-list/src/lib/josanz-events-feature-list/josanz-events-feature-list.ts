@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
-import { JosanzCatalogListComponent } from '../josanz-catalog/josanz-catalog-list';
-import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-list';
+import { JosanzCatalogListComponent, type JosanzCatalogListConfig } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-events-feature-list',
@@ -16,7 +15,7 @@ export class JosanzEventsFeatureListComponent {
     addRoute: '/events/new',
     filterOptions: ['Todos', 'Externos', 'Hoteles', 'Espacios'],
     summaryLine: {
-      before: '180 eventos - ',
+      before: '180 eventos · ',
       emphasis: '8 activos',
       after: ' esta semana',
     },
@@ -24,5 +23,6 @@ export class JosanzEventsFeatureListComponent {
     showStatusFilters: false,
     paginationTotal: 20,
     paginationVariant: 'numbered',
+    statusBadgeStyle: 'outline',
   };
 }

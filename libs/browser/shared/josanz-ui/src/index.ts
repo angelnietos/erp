@@ -19,6 +19,8 @@ export * from './lib/components/main-list-layout';
 export * from './lib/components/list-search-field';
 export * from './lib/components/list-view-selector';
 export * from './lib/components/adaptive-list-rows';
+export * from './lib/components/josanz-catalog-list/josanz-catalog-list';
+export * from './lib/catalog/catalog-status';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';
 export * from './lib/list-view/filter-list-items';

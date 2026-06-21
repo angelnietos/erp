@@ -7,15 +7,16 @@
   [typologyTabsVariant]="'segmented'"
   [summaryLine]="config.summaryLine"
   [searchPlaceholder]="'Buscar'"
-  [paginationTotal]="config.paginationTotal ?? 10"
-  [paginationPage]="1"
-  [paginationVariant]="config.paginationVariant ?? 'figma'"
+  [paginationTotal]="paginationTotal"
+  [paginationPage]="currentPage"
+  [paginationVariant]="config.paginationVariant ?? 'numbered'"
   [searchValue]="searchQuery"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
-  (filterChange)="onTypologyFilter()"
+  (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
+  (paginationChange)="onPageChange($event)"
 >
   @if (showExtraFilters) {
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
@@ -72,14 +73,16 @@
   }
 
   <josanz-list-template-header-row
-    [titleLabel]="config.idColumnLabel ?? 'ID'"
+    [titleLabel]="config.titleColumnLabel ?? config.idColumnLabel ?? 'ID'"
     [fieldLabels]="rowLabels"
     [statusLabel]="config.statusColumnLabel"
+    [withLeadingMark]="config.withLeadingMark ?? false"
   ></josanz-list-template-header-row>
 
   <josanz-adaptive-list-rows
-    [items]="adaptiveItems"
+    [items]="paginatedItems"
     [defaultLabels]="rowLabels"
+    [statusBadgeStyle]="config.statusBadgeStyle ?? 'outline'"
     (itemClick)="onRowClick($event)"
   ></josanz-adaptive-list-rows>
 </josanz-main-list-layout>

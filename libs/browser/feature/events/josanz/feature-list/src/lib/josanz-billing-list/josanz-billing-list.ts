@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
-import { JosanzCatalogListComponent } from '../josanz-catalog/josanz-catalog-list';
-import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-list';
-import type { JosanzCatalogListRow } from '../josanz-catalog/catalog-status';
+import {
+  JosanzCatalogListComponent,
+  JOSANZ_CATALOG_BILLING_TABS,
+  type JosanzCatalogListConfig,
+} from '@josanz-erp/josanz-ui';
+import type { JosanzCatalogListRow } from '@josanz-erp/josanz-ui';
 
 const BILLING_ROWS: JosanzCatalogListRow[] = [
   {
@@ -45,6 +48,7 @@ export class JosanzBillingListComponent {
     rows: BILLING_ROWS,
     addRoute: '/billing/new',
     detailRoute: '/billing',
+    filterOptions: JOSANZ_CATALOG_BILLING_TABS,
     summaryLine: {
       before: '180 documentos · ',
       emphasis: '24 pendientes',
@@ -54,5 +58,6 @@ export class JosanzBillingListComponent {
     showStatusFilters: false,
     paginationTotal: 20,
     paginationVariant: 'numbered',
+    statusBadgeStyle: 'outline',
   };
 }

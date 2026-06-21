@@ -13,32 +13,4 @@
 </div>
 }
 
-<josanz-main-list-layout
-  [title]="title"
-  [primaryBtnLabel]="primaryBtnLabel"
-  [filterOptions]="filterOptions"
-  [paginationPage]="currentPage"
-  [paginationTotal]="totalPages"
-  [paginationVariant]="'numbered'"
-  [figmaCatalogLayout]="true"
-  [summaryLine]="summaryLine"
-  searchPlaceholder="Buscar"
-  (searchChange)="searchQuery = $event"
-  (primaryAction)="onAdd()"
-  (filterChange)="onFilter($event)"
-  (excelAction)="onExcel()"
-  (paginationChange)="onPageChange($event)"
->
-  <josanz-list-template-header-row
-    titleLabel="Nombre cliente"
-    [fieldLabels]="clientFieldLabels"
-    statusLabel="Tipo"
-    [withLeadingMark]="true"
-  ></josanz-list-template-header-row>
-
-  <josanz-adaptive-list-rows
-    [items]="paginatedItems"
-    [defaultLabels]="clientLabels"
-    (itemClick)="openDetail($event)"
-  ></josanz-adaptive-list-rows>
-</josanz-main-list-layout>
+<josanz-catalog-list [config]="config" />
