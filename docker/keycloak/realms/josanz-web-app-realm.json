@@ -244,6 +244,7 @@
         }
       ]
     },
+    
     {
       "name": "roles",
       "protocol": "openid-connect",
