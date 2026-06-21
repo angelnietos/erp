@@ -162,11 +162,9 @@ describe('JosanzDashboardInicioComponent', () => {
       expect(filterTabs).toBeTruthy();
     });
 
-    it('should render period buttons', () => {
-      const periodButtons = fixture.nativeElement.querySelectorAll(
-        '.josanz-home__period-btn',
-      );
-      expect(periodButtons.length).toBe(4);
+    it('should render period filter tabs', () => {
+      const filterTabs = fixture.nativeElement.querySelectorAll('josanz-filter-tabs');
+      expect(filterTabs.length).toBeGreaterThanOrEqual(2);
     });
 
     it('should render KPI cards', () => {
@@ -183,23 +181,21 @@ describe('JosanzDashboardInicioComponent', () => {
       expect(schedule).toBeTruthy();
     });
 
-    it('should call onPeriodChange when period button is clicked', () => {
+    it('should call onPeriodChange when period tab is clicked', () => {
       jest.spyOn(component, 'onPeriodChange');
-      const periodButtons = fixture.nativeElement.querySelectorAll(
-        '.josanz-home__period-btn',
-      );
-      (periodButtons[0] as HTMLElement).click();
+      const periodTabs = fixture.nativeElement.querySelectorAll(
+        'josanz-filter-tabs',
+      )[1];
+      const firstButton = periodTabs?.querySelector('button');
+      (firstButton as HTMLElement)?.click();
       expect(component.onPeriodChange).toHaveBeenCalled();
     });
 
-    it('should highlight active period button', () => {
+    it('should reflect active period in component state', () => {
       component.period = 'Semana';
       fixture.detectChanges();
-      const activeButton = fixture.nativeElement.querySelector(
-        '.josanz-home__period-btn--active',
-      );
-      expect(activeButton).toBeTruthy();
-      expect(activeButton.textContent.trim()).toBe('Semana');
+      expect(component.period).toBe('Semana');
+      expect(component.isPeriodActive('Semana')).toBe(true);
     });
   });
 });

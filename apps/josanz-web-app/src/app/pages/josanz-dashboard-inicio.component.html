@@ -25,24 +25,19 @@
     <josanz-filter-tabs
       [options]="viewOptions"
       [selected]="viewMode"
-      variant="brand"
+      variant="figma"
       (selectionChange)="onViewChange($event)"
     ></josanz-filter-tabs>
 
     <span class="hidden h-6 w-px sm:inline-block josanz-home__toolbar-divider" aria-hidden="true"></span>
 
-    <div class="josanz-home__period-group" role="group" aria-label="Rango temporal">
-      @for (p of periodOptions; track p) {
-        <button
-          type="button"
-          class="josanz-home__period-btn"
-          [class.josanz-home__period-btn--active]="isPeriodActive(p)"
-          (click)="onPeriodChange(p)"
-        >
-          {{ p }}
-        </button>
-      }
-    </div>
+    <josanz-filter-tabs
+      class="josanz-home__period-tabs"
+      [options]="periodOptions"
+      [selected]="period"
+      variant="segmented"
+      (selectionChange)="onPeriodChange($event)"
+    ></josanz-filter-tabs>
 
     <span class="josanz-home__toolbar-spacer"></span>
 

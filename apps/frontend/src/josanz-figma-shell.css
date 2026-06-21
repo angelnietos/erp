@@ -162,9 +162,20 @@ html[data-erp-ui-shell='josanz-figma'] [type='submit'],
 html[data-erp-ui-shell='josanz-figma'] [type='reset'] {
   appearance: none;
   -webkit-appearance: none;
-  box-shadow: none;
   font: inherit;
-  color: inherit;
+}
+
+/* Controles Figma: contraste legible en activo (chips, segmentos, CTA toolbar). */
+html[data-erp-ui-shell='josanz-figma'] josanz-filter-tabs .josanz-filter-tabs__segment--active {
+  background: #ffffff !important;
+  color: #222222 !important;
+  -webkit-text-fill-color: #222222 !important;
+}
+
+html[data-erp-ui-shell='josanz-figma'] .josanz-home__period-btn--active,
+html[data-erp-ui-shell='josanz-figma'] .josanz-home__launch-btn {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 html[data-erp-ui-shell='josanz-figma'] :where(button, [type='button'], [type='submit'], [type='reset']):disabled {
