@@ -75,11 +75,15 @@
       <button
         type="button"
         class="btn-continue animate-in stagger-5"
-        [disabled]="!selectedSlug() && !customSlug().trim()"
+        [disabled]="(!selectedSlug() && !customSlug().trim()) || handoffInProgress()"
         (click)="continueWithSelected()"
       >
-        Continuar al acceso
-        <lucide-icon name="arrow-right" size="18"></lucide-icon>
+        @if (handoffInProgress()) {
+          Redirigiendo a Keycloak…
+        } @else {
+          Continuar al acceso
+          <lucide-icon name="arrow-right" size="18"></lucide-icon>
+        }
       </button>
     </div>
   </div>

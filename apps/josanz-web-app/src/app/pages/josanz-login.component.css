@@ -4,6 +4,21 @@
   width: 100%;
 }
 
+.josanz-figma-auth__handoff-full {
+  min-height: 100dvh;
+  width: 100%;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  color: #222222;
+  background: #fffefe;
+  text-align: center;
+}
+
+.josanz-figma-auth__handoff-full p {
+  margin: 0;
+}
+
 .josanz-figma-auth__sso {
   display: flex;
   flex-direction: column;

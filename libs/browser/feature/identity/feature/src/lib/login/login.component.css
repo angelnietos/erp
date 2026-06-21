@@ -1433,6 +1433,37 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   background: rgba(230, 0, 18, 0.24);
 }
 
+.auth-wrapper--handoff {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: #fffefe;
+}
+
+.auth-handoff-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #222222;
+}
+
+.auth-handoff-screen__spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(15, 30, 47, 0.12);
+  border-top-color: #0f1e2f;
+  border-radius: 50%;
+  animation: auth-sso-spin 0.75s linear infinite;
+}
+
+.auth-handoff-screen__text {
+  margin: 0;
+  font-size: 1rem;
+}
+
 .auth-wrapper--figma .auth-sso {
   max-width: 360px;
   margin-left: auto;

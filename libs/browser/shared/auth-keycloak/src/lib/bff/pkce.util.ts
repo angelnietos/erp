@@ -96,6 +96,13 @@ export function consumePkceRedirectAborted(): boolean {
   return aborted;
 }
 
+export function clearPkceRedirectPending(): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.removeItem(PKCE_REDIRECT_PENDING_KEY);
+}
+
 export function clearPkceSession(): void {
   if (typeof sessionStorage === 'undefined') {
     return;

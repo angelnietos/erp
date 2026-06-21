@@ -1,4 +1,10 @@
 <div class="josanz-figma-auth">
+  @if (keycloakHandoffPending()) {
+    <div class="josanz-figma-auth__handoff-full" role="status" aria-live="polite">
+      <span class="josanz-figma-auth__handoff-spinner" aria-hidden="true"></span>
+      <p>Redirigiendo a Keycloak…</p>
+    </div>
+  } @else {
   <aside class="josanz-figma-auth__hero" aria-hidden="true">
     <img
       class="josanz-figma-auth__hero-img"
@@ -27,24 +33,6 @@
       }
       @if (store.error()) {
         <p class="josanz-figma-auth__error" role="alert">{{ store.error() }}</p>
-      }
-
-      @if (keycloakHandoffPending()) {
-        <div class="josanz-figma-auth__handoff" role="status" aria-live="polite">
-          <span class="josanz-figma-auth__handoff-spinner" aria-hidden="true"></span>
-          <span>Redirigiendo a Keycloak…</span>
-        </div>
-      }
-
-      @if (showKeycloakRetryButton()) {
-        <div class="josanz-figma-auth__sso">
-          <josanz-button
-            label="Iniciar sesión con Keycloak"
-            [showIcon]="false"
-            [fullWidth]="true"
-            (btnClick)="startKeycloakSso()"
-          ></josanz-button>
-        </div>
       }
 
       @if (showLocalLoginForm()) {
@@ -77,5 +65,6 @@
       }
     </div>
   </section>
+  }
 </div>
 

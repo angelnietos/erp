@@ -16,7 +16,9 @@ import {
   syncErpTenantHtmlTheme,
   DEV_TENANT_LOGIN_HINTS,
   DEV_TENANT_LOGIN_PASSWORD,
+  AuthService,
 } from '@josanz-erp/identity-data-access';
+import { getTenantKeycloakConfig, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
 import type { BackgroundTheme } from '../animated-background/animated-background.component';
@@ -38,6 +40,9 @@ export interface TenantChoice {
 export class TenantSelectComponent {
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
+  private readonly authService = inject(AuthService);
+
+  readonly handoffInProgress = signal(false);
 
   /** Alineado con seed: `josanz`, `babooni`, `alexis` en `prisma/seed.ts`. */
   readonly tenants: TenantChoice[] = [
@@ -86,10 +91,48 @@ export class TenantSelectComponent {
     const slug =
       this.selectedSlug()?.trim().toLowerCase() ||
       this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
-    if (!slug) return;
+    if (!slug || this.handoffInProgress()) return;
+
     sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     setErpTenantSlug(slug);
     this.theme.reapplyTheme();
+
+    if (
+      tenantUsesKeycloakLogin(slug) &&
+      this.authService.canUseKeycloakPkce(slug)
+    ) {
+      const cfg = getTenantKeycloakConfig(slug);
+      if (!cfg) {
+        void this.router.navigate(['/auth/login'], { queryParams: { tenant: slug, local: '1' } });
+        return;
+      }
+      this.handoffInProgress.set(true);
+      this.authService.isKeycloakAvailable(cfg.realm).subscribe({
+        next: (available) => {
+          if (available) {
+            void this.authService.startKeycloakPkceRedirect(slug).catch(() => {
+              this.handoffInProgress.set(false);
+              void this.router.navigate(['/auth/login'], {
+                queryParams: { tenant: slug, local: '1' },
+              });
+            });
+            return;
+          }
+          this.handoffInProgress.set(false);
+          void this.router.navigate(['/auth/login'], {
+            queryParams: { tenant: slug, local: '1' },
+          });
+        },
+        error: () => {
+          this.handoffInProgress.set(false);
+          void this.router.navigate(['/auth/login'], {
+            queryParams: { tenant: slug, local: '1' },
+          });
+        },
+      });
+      return;
+    }
+
     void this.router.navigate(['/auth/login'], {
       queryParams: { tenant: slug },
     });

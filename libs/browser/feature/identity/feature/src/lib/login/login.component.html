@@ -3,7 +3,14 @@
   [class.auth-wrapper--figma]="useFigmaShellLogin()"
   [class.auth-wrapper--docs]="useDocsShellLogin()"
   [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
+  [class.auth-wrapper--handoff]="keycloakHandoffPending()"
 >
+  @if (keycloakHandoffPending()) {
+    <div class="auth-handoff-screen" role="status" aria-live="polite">
+      <span class="auth-handoff-screen__spinner" aria-hidden="true"></span>
+      <p class="auth-handoff-screen__text">Redirigiendo a Keycloak…</p>
+    </div>
+  } @else {
   @if (useFigmaShellLogin()) {
     <div class="auth-figma-hero" aria-hidden="true">
       <img
@@ -121,6 +128,7 @@
       </ui-alert>
     }
 
+    @if (showLocalLoginForm()) {
     <div
       class="auth-mode-pill animate-in stagger-3"
       [class.auth-mode-pill--keycloak]="authModeTone() === 'keycloak'"
@@ -130,6 +138,7 @@
       <span class="auth-mode-pill__dot" aria-hidden="true"></span>
       <span>{{ authModeLabel() }}</span>
     </div>
+    }
 
     @if (!useFigmaShellLogin() && !useDocsShellLogin()) {
     <div class="theme-picker-shell animate-in stagger-3">
@@ -177,7 +186,7 @@
       </ui-alert>
     }
 
-    @if (isDev && devLoginHint() && !keycloakHandoffPending()) {
+    @if (isDev && devLoginHint() && showLocalLoginForm()) {
       @if (devLoginHint(); as hint) {
       <div
         class="dev-login-hint animate-in stagger-3"
@@ -207,37 +216,6 @@
       <ui-alert variant="error">
         {{ pkceError() }}
       </ui-alert>
-    }
-
-    @if (keycloakHandoffPending()) {
-      <div
-        class="auth-sso-loading animate-in stagger-4"
-        [class.auth-sso-loading--figma]="useFigmaShellLogin()"
-        role="status"
-        aria-live="polite"
-      >
-        <span class="auth-sso-loading__spinner" aria-hidden="true"></span>
-        <span>Redirigiendo a Keycloak…</span>
-      </div>
-    }
-
-    @if (showKeycloakRetryButton()) {
-      <div
-        class="auth-sso animate-in stagger-4"
-        [class.auth-sso--figma]="useFigmaShellLogin()"
-        [class.auth-sso--babooni]="tenantSlug() === 'babooni'"
-      >
-        <ui-button
-          type="button"
-          [color]="useFigmaShellLogin() ? 'primary' : 'app'"
-          [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
-          [loading]="pkceRedirectLoading()"
-          class="auth-sso__primary"
-          (click)="startKeycloakSso()"
-        >
-          Iniciar sesión con Keycloak
-        </ui-button>
-      </div>
     }
 
     @if (showLocalLoginForm()) {
@@ -298,5 +276,6 @@
   
   @if (!useFigmaShellLogin() && !useDocsShellLogin() && tenantSlug() !== 'babooni') {
   <ui-ai-assistant feature="dashboard"></ui-ai-assistant>
+  }
   }
 </div>

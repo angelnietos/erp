@@ -29,7 +29,7 @@ import {
   getTenantKeycloakConfig,
   tenantUsesKeycloakLogin,
 } from '@josanz-erp/identity-api';
-import { consumePkceRedirectAborted } from '@josanz-erp/shared-auth-keycloak';
+import { consumePkceRedirectAborted, clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { UiInputComponent, UiButtonComponent, UiAlertComponent, DynamicCanvasComponent, UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 import {
@@ -185,16 +185,17 @@ export class LoginComponent implements OnInit {
     return reachable === null || this.pkceRedirectLoading();
   });
 
-  readonly showKeycloakRetryButton = computed(
-    () =>
-      this.keycloakRedirectAborted() &&
-      this.showKeycloakSso() &&
-      !this.pkceRedirectLoading(),
-  );
+  readonly forceLocalLogin = signal(false);
 
-  /** Formulario email/password solo si el tenant no usa KC o Keycloak no responde. */
+  /** Formulario email/password: tenant sin KC, KC caído o usuario volvió atrás desde KC. */
   readonly showLocalLoginForm = computed(() => {
+    if (this.forceLocalLogin()) {
+      return true;
+    }
     if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
+      return true;
+    }
+    if (this.keycloakRedirectAborted()) {
       return true;
     }
     return this.keycloakReachablePreview() === false;
@@ -283,6 +284,9 @@ export class LoginComponent implements OnInit {
         ? 'Acceso local: Keycloak no disponible'
         : 'Acceso local de respaldo';
     }
+    if (this.keycloakRedirectAborted()) {
+      return 'Acceso local (volviste desde Keycloak)';
+    }
     if (this.tenantUsesKeycloak()) {
       const reachable = this.keycloakReachablePreview();
       if (reachable === false) {
@@ -360,7 +364,15 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.pkceRedirectLoading.set(false);
-    if (consumePkceRedirectAborted()) {
+    if (this.isBackForwardNavigation() && consumePkceRedirectAborted()) {
+      this.keycloakRedirectAborted.set(true);
+    } else {
+      clearPkceRedirectPending();
+    }
+
+    const forceLocal = this.route.snapshot.queryParamMap.get('local') === '1';
+    if (forceLocal) {
+      this.forceLocalLogin.set(true);
       this.keycloakRedirectAborted.set(true);
     }
 
@@ -397,7 +409,19 @@ export class LoginComponent implements OnInit {
     if (!usesJosanzFigmaLogin(slug)) {
       this.theme.reapplyTheme();
     }
+    if (forceLocal) {
+      this.keycloakReachablePreview.set(false);
+      return;
+    }
     this.probeKeycloakAvailability(slug);
+  }
+
+  private isBackForwardNavigation(): boolean {
+    if (typeof performance === 'undefined') {
+      return false;
+    }
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    return nav?.type === 'back_forward';
   }
 
   private probeKeycloakAvailability(slug: string): void {
@@ -413,7 +437,7 @@ export class LoginComponent implements OnInit {
     this.authService.isKeycloakAvailable(cfg.realm).subscribe({
       next: (available) => {
         this.keycloakReachablePreview.set(available);
-        if (available && !this.keycloakRedirectAborted()) {
+        if (available && !this.keycloakRedirectAborted() && !this.forceLocalLogin()) {
           void this.startKeycloakSso();
         }
       },
@@ -421,10 +445,10 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  @HostListener('window:pageshow')
-  onPageShow(): void {
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
     this.pkceRedirectLoading.set(false);
-    if (consumePkceRedirectAborted()) {
+    if (event.persisted && consumePkceRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
     }
   }

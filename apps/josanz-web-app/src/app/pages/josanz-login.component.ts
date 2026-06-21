@@ -14,7 +14,7 @@ import {
   DEV_TENANT_LOGIN_PASSWORD,
   getPrimaryDevLoginHintForTenant,
 } from '@josanz-erp/identity-data-access';
-import { consumePkceRedirectAborted } from '@josanz-erp/shared-auth-keycloak';
+import { consumePkceRedirectAborted, clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 
 const JOSANZ_TENANT_SLUG = 'josanz';
 
@@ -40,9 +40,16 @@ export class JosanzLoginComponent implements OnInit {
   readonly pkceError = signal<string | null>(null);
   readonly keycloakReachable = signal<boolean | null>(null);
   readonly keycloakRedirectAborted = signal(false);
+  readonly forceLocalLogin = signal(false);
 
   readonly showLocalLoginForm = computed(() => {
+    if (this.forceLocalLogin()) {
+      return true;
+    }
     if (!this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG)) {
+      return true;
+    }
+    if (this.keycloakRedirectAborted()) {
       return true;
     }
     return this.keycloakReachable() === false;
@@ -80,15 +87,17 @@ export class JosanzLoginComponent implements OnInit {
   ngOnInit(): void {
     this.theme.setTheme('luxe-rounded');
     this.pkceRedirectLoading.set(false);
-    if (consumePkceRedirectAborted()) {
+    if (this.isBackForwardNavigation() && consumePkceRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
+    } else {
+      clearPkceRedirectPending();
     }
 
     if (this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG)) {
       this.authService.isKeycloakAvailable().subscribe({
         next: (available) => {
           this.keycloakReachable.set(available);
-          if (available && !this.keycloakRedirectAborted()) {
+          if (available && !this.keycloakRedirectAborted() && !this.forceLocalLogin()) {
             void this.startKeycloakSso();
           }
         },
@@ -99,10 +108,18 @@ export class JosanzLoginComponent implements OnInit {
     }
   }
 
-  @HostListener('window:pageshow')
-  onPageShow(): void {
+  private isBackForwardNavigation(): boolean {
+    if (typeof performance === 'undefined') {
+      return false;
+    }
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    return nav?.type === 'back_forward';
+  }
+
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
     this.pkceRedirectLoading.set(false);
-    if (consumePkceRedirectAborted()) {
+    if (event.persisted && consumePkceRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
     }
   }
