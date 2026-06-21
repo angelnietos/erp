@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-  isDevMode,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit, signal, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,12 +6,12 @@ import { LucideAngularModule } from 'lucide-angular';
 import {
   ERP_TENANT_SLUG_SESSION_KEY,
   setErpTenantSlug,
-  syncErpTenantHtmlTheme,
   DEV_TENANT_LOGIN_HINTS,
   DEV_TENANT_LOGIN_PASSWORD,
   AuthService,
 } from '@josanz-erp/identity-data-access';
 import { getTenantKeycloakConfig, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
+import { clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
 import type { BackgroundTheme } from '../animated-background/animated-background.component';
@@ -37,12 +30,26 @@ export interface TenantChoice {
   styleUrl: './tenant-select.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TenantSelectComponent {
+export class TenantSelectComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly theme = inject(ThemeService);
   private readonly authService = inject(AuthService);
 
   readonly handoffInProgress = signal(false);
+
+  ngOnInit(): void {
+    this.resetHandoffState();
+  }
+
+  @HostListener('window:pageshow')
+  onPageShow(): void {
+    this.resetHandoffState();
+  }
+
+  private resetHandoffState(): void {
+    this.handoffInProgress.set(false);
+    clearPkceRedirectPending();
+  }
 
   /** Alineado con seed: `josanz`, `babooni`, `alexis` en `prisma/seed.ts`. */
   readonly tenants: TenantChoice[] = [

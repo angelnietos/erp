@@ -21,7 +21,7 @@ export const erpAuthGuard: CanActivateFn = async () => {
     if (authService.readPersistedSession()) {
       return true;
     }
-    void router.navigate(['/auth/login'], { replaceUrl: true });
+    void router.navigate(['/auth/tenant'], { replaceUrl: true });
     return false;
   }
 
@@ -30,6 +30,6 @@ export const erpAuthGuard: CanActivateFn = async () => {
     return true;
   }
 
-  void router.navigate(['/auth/login'], { replaceUrl: true });
+  void router.navigate(['/auth/tenant'], { replaceUrl: true });
   return false;
 };
