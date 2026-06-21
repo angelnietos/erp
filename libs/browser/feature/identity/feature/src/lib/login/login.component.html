@@ -225,21 +225,10 @@
         >
           Iniciar sesión con Keycloak
         </ui-button>
-        @if (!showLocalLogin()) {
-          <button
-            type="button"
-            class="auth-local-btn"
-            [class.auth-local-btn--figma]="useFigmaShellLogin()"
-            [class.auth-local-btn--babooni]="tenantSlug() === 'babooni'"
-            (click)="revealLocalLogin()"
-          >
-            Acceso local con contraseña
-          </button>
-        }
       </div>
     }
 
-    @if (!usePkcePrimaryLayout()) {
+    @if (showLocalLoginForm()) {
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
       <ui-input
         id="email"
@@ -286,21 +275,9 @@
         {{ loginSubmitLabel() }}
       </ui-button>
     </form>
-
-    @if (showKeycloakSso() && showLocalLogin()) {
-      <button
-        type="button"
-        class="auth-local-btn auth-local-btn--back"
-        [class.auth-local-btn--figma]="useFigmaShellLogin()"
-        [class.auth-local-btn--babooni]="tenantSlug() === 'babooni'"
-        (click)="showLocalLogin.set(false)"
-      >
-        ← Volver a Keycloak SSO
-      </button>
-    }
     }
 
-    @if (!useFigmaShellLogin() && !usePkcePrimaryLayout()) {
+    @if (!useFigmaShellLogin() && showLocalLoginForm()) {
     <div class="auth-footer animate-in stagger-5">
       <a [routerLink]="['/auth/forgot-password']" [queryParams]="{ tenant: tenantSlug() }">¿Olvidaste tu contraseña?</a>
     </div>

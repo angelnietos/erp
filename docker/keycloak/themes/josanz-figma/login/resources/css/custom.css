@@ -1,4 +1,4 @@
-/* Keycloak login — alineado con Figma Login node 61:1312 / josanz-ui */
+/* Josanz Figma login — extiende keycloak.v2 (PatternFly v5) sin override de FTL */
 :root {
   --josanz-canvas: #fffefe;
   --josanz-heading: #222222;
@@ -11,148 +11,144 @@
 }
 
 html,
-body.josanz-figma-kc {
+body {
+  height: 100%;
   margin: 0;
-  min-height: 100%;
-  background: var(--josanz-canvas);
+  background: var(--josanz-canvas) !important;
   font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
-.josanz-kc-layout {
-  display: grid;
+.login-pf,
+.login-pf body {
+  background: var(--josanz-canvas) !important;
+}
+
+/* Shell dos columnas (hero izquierda + formulario derecha) */
+.pf-v5-c-login {
+  display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   min-height: 100vh;
   min-height: 100dvh;
+  max-width: none !important;
+  padding: 0 !important;
+  background: var(--josanz-canvas) !important;
 }
 
-.josanz-kc-hero {
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--josanz-hero-wash) 0%, #f5f7fb 100%);
-  overflow: hidden;
+.pf-v5-c-login::before {
+  content: '';
+  display: block;
+  background:
+    linear-gradient(135deg, rgba(232, 237, 245, 0.35), rgba(245, 247, 251, 0.2)),
+    url('../img/login-hero.png') center / cover no-repeat;
+  min-height: 100%;
 }
 
-.josanz-kc-hero img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.josanz-kc-main {
+.pf-v5-c-login__container,
+.pf-v5-c-login__main {
+  grid-column: 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: stretch;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
   padding: 2.5rem 2rem;
   box-sizing: border-box;
+  background: var(--josanz-canvas);
 }
 
-.josanz-kc-logo {
+.pf-v5-c-login__header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Logo Josanz sobre el título */
+.pf-v5-c-login__header::before {
+  content: '';
   display: block;
-  margin: 0 auto 1.5rem;
-  max-width: 148px;
-  height: auto;
+  width: 148px;
+  height: 68px;
+  margin: 0 auto 1.25rem;
+  background: url('../img/login-logo.png') center / contain no-repeat;
 }
 
-#kc-content,
-#kc-content-wrapper {
-  width: 100%;
-  max-width: 360px;
-  margin: 0 auto;
-}
-
-#kc-header,
-#kc-header-wrapper,
-.login-pf-header {
-  display: none !important;
-}
-
+.pf-v5-c-title,
 #kc-page-title {
-  margin: 0 0 1.5rem;
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--josanz-heading);
+  color: var(--josanz-heading) !important;
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
   text-align: left;
+  margin: 0 0 1.25rem !important;
 }
 
-#kc-form-login label {
-  display: block;
-  margin-bottom: 0.35rem;
+.pf-v5-c-form__label,
+label.pf-v5-c-form__label {
+  color: var(--josanz-muted) !important;
   font-size: 0.875rem;
-  color: var(--josanz-muted);
 }
 
-#kc-form-login input[type='text'],
-#kc-form-login input[type='password'] {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.75rem 0.875rem;
-  margin-bottom: 1rem;
-  border: 1px solid var(--josanz-field-stroke);
-  border-radius: var(--josanz-field-radius);
-  background: #ffffff;
-  font-size: 1rem;
-  color: var(--josanz-heading);
+.pf-v5-c-form-control,
+input.pf-v5-c-form-control {
+  border: 1px solid var(--josanz-field-stroke) !important;
+  border-radius: var(--josanz-field-radius) !important;
+  background: #ffffff !important;
+  min-height: 2.75rem;
+  box-shadow: none !important;
 }
 
-#kc-form-login input:focus {
-  outline: 2px solid rgba(15, 30, 47, 0.15);
-  border-color: var(--josanz-cta);
+.pf-v5-c-form-control:focus {
+  outline: 2px solid rgba(15, 30, 47, 0.12) !important;
+  border-color: var(--josanz-cta) !important;
 }
 
-#kc-form-options {
-  display: none;
-}
-
-#kc-form-wrapper div[class*='FormOptionsWrapper'],
-#kc-form-wrapper .kcFormOptionsWrapperClass {
-  text-align: right;
-  margin-bottom: 0.75rem;
-}
-
-#kc-form-wrapper a {
-  color: var(--josanz-muted);
-  font-size: 0.875rem;
-  text-decoration: none;
-}
-
-#kc-form-wrapper a:hover {
-  color: var(--josanz-heading);
-  text-decoration: underline;
-}
-
+.pf-v5-c-button.pf-m-primary,
 #kc-login,
 input[name='login'] {
-  width: 100%;
-  margin-top: 0.5rem;
-  padding: 0.875rem 1rem;
-  border: none;
-  border-radius: var(--josanz-field-radius);
   background: var(--josanz-cta) !important;
+  border-color: var(--josanz-cta) !important;
   color: var(--josanz-on-cta) !important;
-  font-size: 1rem;
+  border-radius: var(--josanz-field-radius) !important;
+  min-height: 2.75rem;
   font-weight: 600;
-  cursor: pointer;
+  width: 100%;
 }
 
+.pf-v5-c-button.pf-m-primary:hover,
 #kc-login:hover {
   filter: brightness(1.08);
 }
 
-.alert-error,
-.pf-c-alert.pf-m-danger {
-  border-radius: var(--josanz-field-radius);
-  margin-bottom: 1rem;
+.pf-v5-c-login__main-footer a,
+#kc-form-options a {
+  color: var(--josanz-muted) !important;
+  font-size: 0.875rem;
+}
+
+.pf-v5-c-login__main-footer a:hover,
+#kc-form-options a:hover {
+  color: var(--josanz-heading) !important;
+}
+
+/* Ocultar branding KC por defecto si aparece */
+#kc-header,
+#kc-header-wrapper {
+  display: none !important;
 }
 
 @media (max-width: 900px) {
-  .josanz-kc-layout {
+  .pf-v5-c-login {
     grid-template-columns: 1fr;
   }
 
-  .josanz-kc-hero {
-    max-height: 220px;
+  .pf-v5-c-login::before {
+    min-height: 220px;
+    grid-row: 1;
+  }
+
+  .pf-v5-c-login__container,
+  .pf-v5-c-login__main {
+    grid-column: 1;
+    grid-row: 2;
   }
 }

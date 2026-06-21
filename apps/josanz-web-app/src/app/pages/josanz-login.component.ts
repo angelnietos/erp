@@ -36,13 +36,16 @@ export class JosanzLoginComponent implements OnInit {
   readonly loginCtaDisabled = JOSANZ_FIGMA_LOGIN.disabledCta;
 
   readonly showKeycloakSso = signal(false);
-  readonly showLocalLogin = signal(false);
   readonly pkceRedirectLoading = signal(false);
   readonly pkceError = signal<string | null>(null);
+  readonly keycloakReachable = signal<boolean | null>(null);
 
-  readonly usePkcePrimaryLayout = computed(
-    () => this.showKeycloakSso() && !this.showLocalLogin(),
-  );
+  readonly showLocalLoginForm = computed(() => {
+    if (!this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG)) {
+      return true;
+    }
+    return this.keycloakReachable() === false;
+  });
 
   readonly loginForm = this.fb.nonNullable.group({
     email: [
@@ -55,26 +58,20 @@ export class JosanzLoginComponent implements OnInit {
   ngOnInit(): void {
     this.theme.setTheme('luxe-rounded');
     this.showKeycloakSso.set(this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG));
-    if (this.showKeycloakSso()) {
+    if (this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG)) {
       this.authService.isKeycloakAvailable().subscribe({
         next: (available) => {
+          this.keycloakReachable.set(available);
           this.showKeycloakSso.set(available);
-          if (!available) {
-            this.showLocalLogin.set(true);
-          }
         },
         error: () => {
+          this.keycloakReachable.set(false);
           this.showKeycloakSso.set(false);
-          this.showLocalLogin.set(true);
         },
       });
     } else {
-      this.showLocalLogin.set(true);
+      this.keycloakReachable.set(false);
     }
-  }
-
-  revealLocalLogin(): void {
-    this.showLocalLogin.set(true);
   }
 
   async startKeycloakSso(): Promise<void> {

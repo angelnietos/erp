@@ -165,12 +165,13 @@ export class LoginComponent implements OnInit {
       this.keycloakReachablePreview() !== false,
   );
 
-  /** PKCE primario: formulario password oculto hasta "Acceso local". */
-  readonly showLocalLogin = signal(false);
-
-  readonly usePkcePrimaryLayout = computed(
-    () => this.showKeycloakSso() && !this.showLocalLogin(),
-  );
+  /** Formulario email/password solo si el tenant no usa KC o Keycloak no responde. */
+  readonly showLocalLoginForm = computed(() => {
+    if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
+      return true;
+    }
+    return this.keycloakReachablePreview() === false;
+  });
 
   /** Login claro en dos columnas según Figma node `61:1312` (hero `61:1313`). */
   readonly useFigmaShellLogin = computed(() => usesJosanzFigmaLogin(this.tenantSlug()));
@@ -261,7 +262,7 @@ export class LoginComponent implements OnInit {
         return 'Keycloak no responde · fallback local';
       }
       if (reachable === true) {
-        return 'Keycloak disponible · fallback local';
+        return 'Inicia sesión con Keycloak';
       }
       return 'Comprobando Keycloak…';
     }
@@ -365,13 +366,6 @@ export class LoginComponent implements OnInit {
       this.theme.reapplyTheme();
     }
     this.probeKeycloakAvailability(slug);
-    if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(slug)) {
-      this.showLocalLogin.set(true);
-    }
-  }
-
-  revealLocalLogin(): void {
-    this.showLocalLogin.set(true);
   }
 
   private probeKeycloakAvailability(slug: string): void {

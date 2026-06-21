@@ -1,88 +1,74 @@
-<div class="josanz-figma-auth">
-  <aside class="josanz-figma-auth__hero" aria-hidden="true">
-    <img
-      class="josanz-figma-auth__hero-img"
-      src="assets/josanz-figma/login-hero.png"
-      alt=""
-      width="819"
-      height="832"
-    />
-  </aside>
-
-  <section class="josanz-figma-auth__panel">
-    <div class="josanz-figma-auth__card josanz-figma-auth__card--flat">
-      <header class="josanz-figma-auth__header">
-        <img
-          class="josanz-figma-auth__brand-logo"
-          src="assets/josanz-figma/login-logo.png"
-          alt="Josanz Audiovisual"
-          width="148"
-          height="68"
-        />
-        <h1 class="josanz-figma-auth__title">Iniciar sesión</h1>
-      </header>
-
-      @if (pkceError()) {
-        <p class="josanz-figma-auth__error" role="alert">{{ pkceError() }}</p>
-      }
-      @if (store.error()) {
-        <p class="josanz-figma-auth__error" role="alert">{{ store.error() }}</p>
-      }
-
-      @if (showKeycloakSso()) {
-        <div class="josanz-figma-auth__sso">
-          <josanz-button
-            label="Iniciar sesión con Keycloak"
-            [showIcon]="false"
-            [fullWidth]="true"
-            (btnClick)="startKeycloakSso()"
-          ></josanz-button>
-        @if (!showLocalLogin()) {
-          <button type="button" class="josanz-figma-auth__local-btn" (click)="revealLocalLogin()">
-            Acceso local con contraseña
-          </button>
-        }
-        </div>
-      }
-
-      @if (!usePkcePrimaryLayout()) {
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-figma-auth__form">
-          <josanz-input
-            placeholder="Usuarioejemplo_01"
-            type="email"
-            controlName="email"
-            [parentForm]="loginForm"
-          ></josanz-input>
-
-          <josanz-input
-            placeholder="Contraseña"
-            type="password"
-            controlName="password"
-            [parentForm]="loginForm"
-          ></josanz-input>
-
-          <a class="josanz-figma-auth__forgot" routerLink="/auth/login">Olvidé mi contraseña</a>
-
-          <josanz-button
-            label="Iniciar sesión"
-            [showIcon]="false"
-            [fullWidth]="true"
-            [customColor]="loginForm.invalid ? loginCtaDisabled : loginCta"
-            [disabled]="loginForm.invalid"
-            (btnClick)="onSubmit()"
-          ></josanz-button>
-        </form>
-
-        @if (showKeycloakSso() && showLocalLogin()) {
-          <button
-            type="button"
-            class="josanz-figma-auth__local-btn josanz-figma-auth__local-btn--back"
-            (click)="showLocalLogin.set(false)"
-          >
-            ← Volver a Keycloak SSO
-          </button>
-        }
-      }
-    </div>
-  </section>
-</div>
+<div class="josanz-figma-auth">
+  <aside class="josanz-figma-auth__hero" aria-hidden="true">
+    <img
+      class="josanz-figma-auth__hero-img"
+      src="assets/josanz-figma/login-hero.png"
+      alt=""
+      width="819"
+      height="832"
+    />
+  </aside>
+
+  <section class="josanz-figma-auth__panel">
+    <div class="josanz-figma-auth__card josanz-figma-auth__card--flat">
+      <header class="josanz-figma-auth__header">
+        <img
+          class="josanz-figma-auth__brand-logo"
+          src="assets/josanz-figma/login-logo.png"
+          alt="Josanz Audiovisual"
+          width="148"
+          height="68"
+        />
+        <h1 class="josanz-figma-auth__title">Iniciar sesión</h1>
+      </header>
+
+      @if (pkceError()) {
+        <p class="josanz-figma-auth__error" role="alert">{{ pkceError() }}</p>
+      }
+      @if (store.error()) {
+        <p class="josanz-figma-auth__error" role="alert">{{ store.error() }}</p>
+      }
+
+      @if (showKeycloakSso()) {
+        <div class="josanz-figma-auth__sso">
+          <josanz-button
+            label="Iniciar sesión con Keycloak"
+            [showIcon]="false"
+            [fullWidth]="true"
+            (btnClick)="startKeycloakSso()"
+          ></josanz-button>
+        </div>
+      }
+
+      @if (showLocalLoginForm()) {
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="josanz-figma-auth__form">
+          <josanz-input
+            placeholder="Usuarioejemplo_01"
+            type="email"
+            controlName="email"
+            [parentForm]="loginForm"
+          ></josanz-input>
+
+          <josanz-input
+            placeholder="Contraseña"
+            type="password"
+            controlName="password"
+            [parentForm]="loginForm"
+          ></josanz-input>
+
+          <a class="josanz-figma-auth__forgot" routerLink="/auth/login">Olvidé mi contraseña</a>
+
+          <josanz-button
+            label="Iniciar sesión"
+            [showIcon]="false"
+            [fullWidth]="true"
+            [customColor]="loginForm.invalid ? loginCtaDisabled : loginCta"
+            [disabled]="loginForm.invalid"
+            (btnClick)="onSubmit()"
+          ></josanz-button>
+        </form>
+      }
+    </div>
+  </section>
+</div>
+
