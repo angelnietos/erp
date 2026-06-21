@@ -169,8 +169,15 @@
     border-color: var(--josanz-border) !important;
   }
 
-  .josanz-list-card .absolute.w-\[3px\] {
-    display: none !important;
+  .josanz-list-card__status-rail {
+    width: 8px !important;
+    opacity: 1 !important;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .josanz-list-card__status-rail--mobile {
+    height: 4px !important;
+    border-radius: 12px 12px 0 0;
   }
 
   .josanz-list-template-row__title h3 {

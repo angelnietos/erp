@@ -87,6 +87,15 @@ export class MainTemplateCardComponent {
     };
   }
 
+  /** Barra lateral de estado (Figma listados). */
+  getStatusRailStyles() {
+    if (this.customColor) {
+      return { backgroundColor: this.customColor };
+    }
+    const key = this.resolvePillKey();
+    return { backgroundColor: `var(--josanz-pill-${key}-text)` };
+  }
+
   fieldWidthClass(index: number): string {
     return josanzListFieldWidthClass(index, this.data.length);
   }

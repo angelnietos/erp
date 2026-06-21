@@ -5,14 +5,16 @@
   [class.rounded-none]="activeShape() === 'square'"
   [class.rounded-[40px]]="activeShape() === 'pill'"
 >
-  <!-- Accent left bar (desktop) / top bar (mobile) - atmosphere accent line -->
+  <!-- Barra de estado (Figma): color del pill, siempre visible -->
   <div
-    class="absolute left-0 top-0 bottom-0 w-[3px] md:block hidden rounded-l-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-    [style.backgroundColor]="'var(--josanz-primary)'"
+    class="josanz-list-card__status-rail absolute left-0 top-0 bottom-0 hidden md:block rounded-l-2xl"
+    [ngStyle]="getStatusRailStyles()"
+    aria-hidden="true"
   ></div>
   <div
-    class="md:hidden absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-    [style.backgroundColor]="'var(--josanz-primary)'"
+    class="josanz-list-card__status-rail josanz-list-card__status-rail--mobile absolute top-0 left-0 right-0 md:hidden rounded-t-2xl"
+    [ngStyle]="getStatusRailStyles()"
+    aria-hidden="true"
   ></div>
 
   <!-- Content padding wrapper -->

@@ -44,10 +44,11 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() filterOptions: string[] = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   /** Layout Eventos / catálogo Figma: tabs subrayados, buscar en toolbar, filas flotantes. */
   @Input() figmaCatalogLayout = false;
-  @Input() typologyTabsVariant: JosanzFilterTabsVariant = 'figma';
+  @Input() typologyTabsVariant?: JosanzFilterTabsVariant;
   /** Pill resumen junto a tabs tipología (solo `figmaCatalogLayout`). */
   @Input() summaryLine?: JosanzFigmaSummaryLine | string;
-  @Input() showViewSelector = true;
+  /** Por defecto oculto en catálogo Figma (no está en diseño). */
+  @Input() showViewSelector?: boolean;
   @Input() viewSelectorLabel = 'Elección de vista';
   @Input() showSearch = true;
   /** `toolbar`: misma fila que filtros extra (catálogo). `actions`: bajo botones, alineado a la derecha (clientes, etc.). */
@@ -108,6 +109,14 @@ export class MainListLayoutComponent implements OnChanges {
       return null;
     }
     return line;
+  }
+
+  get effectiveShowViewSelector(): boolean {
+    return this.showViewSelector ?? !this.figmaCatalogLayout;
+  }
+
+  get effectiveTypologyTabsVariant(): JosanzFilterTabsVariant {
+    return this.typologyTabsVariant ?? (this.figmaCatalogLayout ? 'segmented' : 'figma');
   }
 
   get listViewModeClass(): string[] {

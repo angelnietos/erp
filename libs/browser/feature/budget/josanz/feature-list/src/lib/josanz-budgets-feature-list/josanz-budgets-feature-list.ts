@@ -5,10 +5,8 @@ import {
   AdaptiveListRowsComponent,
   ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
-  FilterTabsComponent,
   filterAdaptiveListItems,
   type JosanzAdaptiveListItem,
-  type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -19,7 +17,6 @@ import {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     ListTemplateHeaderRowComponent,
-    FilterTabsComponent,
   ],
   templateUrl: './josanz-budgets-feature-list.html',
 })
@@ -27,25 +24,15 @@ export class JosanzBudgetsFeatureListComponent {
   private router = inject(Router);
 
   searchQuery = '';
-  activeStatusFilter = 'Todos (42)';
 
   title = 'Presupuestos';
-  primaryBtnLabel = 'Añadir presupuesto +';
   filterOptions = ['Todos', 'Cliente A', 'Cliente B', 'Cliente C'];
 
-  readonly summaryStats = [
-    { label: 'Enviado', count: 12 },
-    { label: 'Aceptado', count: 8 },
-    { label: 'Borrador', count: 5 },
-  ];
-
-  readonly statusFilterOptions = [
-    'Todos (42)',
-    'Borrador',
-    'Enviado',
-    'Aceptado',
-    'Rechazado',
-  ];
+  readonly summaryLine = {
+    before: '42 presupuestos · ',
+    emphasis: '8 aceptados',
+    after: '',
+  };
 
   readonly budgetLabels = ['Cliente', 'Fecha', 'Validez', 'Total'];
 
@@ -85,21 +72,11 @@ export class JosanzBudgetsFeatureListComponent {
   ];
 
   get filteredBudgetItems(): JosanzAdaptiveListItem[] {
-    let items = filterAdaptiveListItems(this.budgetItems, this.searchQuery);
-    if (this.activeStatusFilter !== 'Todos (42)') {
-      items = items.filter((i) =>
-        i.status?.toLowerCase().includes(this.activeStatusFilter.toLowerCase()),
-      );
-    }
-    return items;
+    return filterAdaptiveListItems(this.budgetItems, this.searchQuery);
   }
 
   onSearch(value: string): void {
     this.searchQuery = value;
-  }
-
-  onStatusFilter(filter: string): void {
-    this.activeStatusFilter = filter;
   }
 
   onAdd(): void {

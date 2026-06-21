@@ -1,0 +1,60 @@
+<div class="josanz-view-selector">
+  <button
+    type="button"
+    class="josanz-view-selector__trigger"
+    [attr.aria-expanded]="open()"
+    [attr.aria-haspopup]="'listbox'"
+    [attr.aria-label]="label + ': ' + summaryLabel"
+    (click)="toggle($event)"
+  >
+    <svg
+      class="josanz-view-selector__icon"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+      <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+      <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+      <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+    </svg>
+    <span class="josanz-view-selector__label">{{ summaryLabel }}</span>
+    <svg
+      class="josanz-view-selector__chevron"
+      [class.josanz-view-selector__chevron--open]="open()"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+  @if (open()) {
+  <ul role="listbox" class="josanz-view-selector__menu" [attr.aria-label]="label">
+    @for (opt of allOptions; track opt.id) {
+    <li role="option" [attr.aria-selected]="opt.id === selected">
+      <button
+        type="button"
+        class="josanz-view-selector__option"
+        [class.josanz-view-selector__option--active]="opt.id === selected"
+        (click)="pick(opt.id, $event)"
+      >
+        {{ opt.label }}
+      </button>
+    </li>
+    }
+  </ul>
+  }
+</div>

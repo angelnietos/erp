@@ -45,6 +45,12 @@ export class JosanzClientsListComponent
   readonly clientFieldLabels = ['Teléfono', 'Email', 'Operador'];
   readonly clientLabels = [...this.clientFieldLabels, 'Tipo'];
 
+  readonly summaryLine = {
+    before: '7 clientes · ',
+    emphasis: '6 activos',
+    after: '',
+  };
+
   readonly clientItems: JosanzAdaptiveListItem[] = [
     {
       id: '1',

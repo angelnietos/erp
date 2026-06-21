@@ -26,6 +26,12 @@ export class JosanzUsersListComponent extends BaseListComponent {
 
   readonly userLabels = ['Email', 'Teléfono', 'Rol', 'Último acceso'];
 
+  readonly summaryLine = {
+    before: '3 usuarios · ',
+    emphasis: '2 activos',
+    after: '',
+  };
+
   readonly userItems: JosanzAdaptiveListItem[] = [
     {
       id: 'admin@josanz.com',
@@ -70,7 +76,7 @@ export class JosanzUsersListComponent extends BaseListComponent {
   constructor() {
     super();
     this.title = 'Usuario/as';
-    this.primaryBtnLabel = 'Añadir Usuario +';
+    this.primaryBtnLabel = 'Añadir Usuario';
     this.filterOptions = ['Todas', 'Tipo X', 'Tipo Y', 'Tipo Z'];
   }
 

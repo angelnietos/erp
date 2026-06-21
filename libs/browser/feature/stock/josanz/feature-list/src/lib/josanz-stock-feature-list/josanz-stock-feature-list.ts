@@ -6,8 +6,6 @@ import {
   ListTemplateHeaderRowComponent,
   MainListLayoutComponent,
   BaseListComponent,
-  MainTabsComponent,
-  FilterTabsComponent,
   type JosanzAdaptiveListItem,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
@@ -20,8 +18,6 @@ import {
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     ListTemplateHeaderRowComponent,
-    MainTabsComponent,
-    FilterTabsComponent,
   ],
   templateUrl: './josanz-stock-feature-list.html',
   styleUrl: './josanz-stock-feature-list.css',
@@ -29,23 +25,11 @@ import {
 export class JosanzStockListComponent extends BaseListComponent {
   private readonly router = inject(Router);
 
-  activeType = 'Productos / lotes';
-  activeStatusFilter = 'Todos (248)';
-  readonly typeTabs = ['Productos / lotes', 'Productos en alquiler'];
-
-  readonly summaryStats = [
-    { label: 'En stock', count: 198 },
-    { label: 'Bajo mín.', count: 24 },
-    { label: 'Agotado', count: 6 },
-  ];
-
-  readonly statusFilterOptions = [
-    'Todos (248)',
-    'En stock',
-    'Bajo mín.',
-    'Agotado',
-    'En alquiler',
-  ];
+  readonly summaryLine = {
+    before: '248 productos · ',
+    emphasis: '198 en stock',
+    after: '',
+  };
 
   readonly stockItems = [
     {
@@ -114,18 +98,12 @@ export class JosanzStockListComponent extends BaseListComponent {
   }
 
   get filteredStockItems(): JosanzAdaptiveListItem[] {
-    let items = this.filterItems(this.stockAdaptiveItems);
-    if (this.activeStatusFilter !== 'Todos (248)') {
-      const key = this.activeStatusFilter.toLowerCase();
-      items = items.filter((i) => i.status?.toLowerCase().includes(key.split(' ')[0] ?? key));
-    }
-    return items;
+    return this.filterItems(this.stockAdaptiveItems);
   }
 
   constructor() {
     super();
     this.title = 'Stock';
-    this.primaryBtnLabel = 'Añadir producto +';
     this.filterOptions = ['Todos', 'Almacén 01', 'Almacén 02', 'Almacén 03'];
   }
 
@@ -135,14 +113,6 @@ export class JosanzStockListComponent extends BaseListComponent {
 
   openProductDetail(productId: string): void {
     void this.router.navigate(['/stock', 'products', productId]);
-  }
-
-  onStatusFilter(filter: string): void {
-    this.activeStatusFilter = filter;
-  }
-
-  onTypeChange(type: string): void {
-    this.activeType = type;
   }
 
   onAddWarehouse(): void {
