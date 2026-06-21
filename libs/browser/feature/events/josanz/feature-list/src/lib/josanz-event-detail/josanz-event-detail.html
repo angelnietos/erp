@@ -1,18 +1,5 @@
-<josanz-main-detail-layout
-  title="Evento X"
-  layoutVariant="figma-event"
-  statusLabel="Confirmado"
-  statusPillKey="confirmado"
-  [tabs]="eventTabs"
-  [activeTab]="activeTab()"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Resumen') {
+<josanz-figma-detail-shell #shell [config]="shellConfig" (tabChanged)="onShellTabChange($event)">
+    @if (shell.activeTab() === 'Resumen') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
         <img [src]="heroImage" alt="" />
@@ -165,7 +152,7 @@
         <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
       </div>
     </section>
-    } @if (activeTab() === 'Cliente') {
+    } @if (shell.activeTab() === 'Cliente') {
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Datos del cliente</h3>
       <div class="josanz-event-client-grid">
@@ -177,7 +164,7 @@
         }
       </div>
     </section>
-    } @if (activeTab() === 'Staff') {
+    } @if (shell.activeTab() === 'Staff') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Staff asignado</h3>
@@ -211,7 +198,7 @@
         }
       </div>
     </section>
-    } @if (activeTab() === 'Equipo') {
+    } @if (shell.activeTab() === 'Equipo') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Material del evento</h3>
@@ -266,7 +253,7 @@
       </article>
       }
     </section>
-    } @if (activeTab() === 'Presupuesto') {
+    } @if (shell.activeTab() === 'Presupuesto') {
     <div class="josanz-event-section-header">
       <h3>Presupuesto (aceptado va a Albaranes)</h3>
       <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
@@ -353,7 +340,7 @@
         <span class="josanz-event-budget-footer__total">{{ budgetTotal }}</span>
       </footer>
     </section>
-    } @if (activeTab() === 'Albaranes') {
+    } @if (shell.activeTab() === 'Albaranes') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Albaranes del evento</h3>
@@ -368,7 +355,7 @@
       ></josanz-document-item>
       }
     </section>
-    } @if (activeTab() === 'Facturas') {
+    } @if (shell.activeTab() === 'Facturas') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Facturas</h3>
@@ -383,7 +370,7 @@
       ></josanz-document-item>
       }
     </section>
-    } @if (activeTab() === 'Emails') {
+    } @if (shell.activeTab() === 'Emails') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Correos del evento</h3>
@@ -461,7 +448,7 @@
         </div>
       </div>
     </section>
-    } @if (activeTab() === 'Informes / reportes') {
+    } @if (shell.activeTab() === 'Informes / reportes') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Informes y reportes</h3>
@@ -477,5 +464,4 @@
       }
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

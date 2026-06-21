@@ -1,35 +1,34 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
-  navigateDetailTab,
-  readDetailTabFromRoute,
+  type JosanzFigmaDetailShellConfig,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-warehouse-detail',
   standalone: true,
-  imports: [CommonModule, MainDetailLayoutComponent, SecondaryButtonComponent],
+  imports: [CommonModule, JosanzFigmaDetailShellComponent, SecondaryButtonComponent],
   templateUrl: './josanz-stock-warehouse-detail.component.html',
 })
 export class JosanzStockWarehouseDetailComponent implements OnInit {
-  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
   readonly warehouseId = this.route.snapshot.paramMap.get('warehouseId') ?? '';
 
-  activeTab = signal('Ficha');
-  readonly tabs = ['Ficha', 'Productos', 'Movimientos'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Ficha: 'ficha',
-    Productos: 'productos',
-    Movimientos: 'movimientos',
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: `Almacén ${this.warehouseId || '—'}`,
+    listRoute: '/stock',
+    tabs: ['Ficha', 'Productos', 'Movimientos'],
+    statusLabel: 'Activo',
+    statusPillKey: 'confirmado',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
-  readonly fichaRows = this.buildFichaRows();
+  fichaRows: { label: string; value: string }[] = [];
 
   readonly productRows = [
     { sku: 'SKU-00124', name: 'Cableado Estructurado Cat6', qty: '250 m' },
@@ -44,24 +43,7 @@ export class JosanzStockWarehouseDetailComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/stock']);
-  }
-
-  onSave(): void {
-    this.onBack();
-  }
-
-  onCancel(): void {
-    this.onBack();
+    this.fichaRows = this.buildFichaRows();
   }
 
   private buildFichaRows(): { label: string; value: string }[] {

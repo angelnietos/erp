@@ -1,13 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
-  navigateDetailTab,
-  readDetailTabFromRoute,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
@@ -55,17 +53,13 @@ interface JosanzEventEmail {
   imports: [
     CommonModule,
     FormsModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
 export class JosanzEventDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('Resumen');
   staffDraft = '';
   budgetSearch = '';
   showBudgetPicker = signal(false);
@@ -74,42 +68,40 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
   emailForm = { date: 'dd/mm/aaaa', subject: 'Asunto ejemplo', body: 'Cuerpo del email…' };
 
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Evento X',
+    listRoute: '/events',
+    tabs: [
+      'Resumen',
+      'Cliente',
+      'Staff',
+      'Presupuesto',
+      'Equipo',
+      'Albaranes',
+      'Facturas',
+      'Informes / reportes',
+      'Emails',
+    ],
+    tabSlugMap: {
+      Resumen: 'resumen',
+      Cliente: 'cliente',
+      Staff: 'staff',
+      Presupuesto: 'presupuesto',
+      Equipo: 'equipo',
+      Albaranes: 'albaranes',
+      Facturas: 'facturas',
+      'Informes / reportes': 'informes',
+      Emails: 'emails',
+    },
+    statusLabel: 'Confirmado',
+    statusPillKey: 'confirmado',
+    saveDisabled: true,
+    features: { footerActions: false },
+  };
+
   readonly deliveryNotes = ['Albarán 001.pdf', 'Albarán 002.pdf'];
   readonly invoices = ['Factura 001.pdf', 'Factura borrador.pdf'];
   readonly reportFiles = ['Informe post-evento.pdf', 'Checklist técnico.pdf'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Resumen: 'resumen',
-    Cliente: 'cliente',
-    Staff: 'staff',
-    Presupuesto: 'presupuesto',
-    Equipo: 'equipo',
-    Albaranes: 'albaranes',
-    Facturas: 'facturas',
-    'Informes / reportes': 'informes',
-    Emails: 'emails',
-    Stock: 'stock',
-    Mantenimiento: 'mantenimiento',
-    Historial: 'historial',
-    Multas: 'multas',
-    Contratos: 'contratos',
-    'Nóminas': 'nominas',
-    Ausencias: 'ausencias',
-    Líneas: 'lineas',
-    Cobros: 'cobros',
-  };
-
-  readonly eventTabs = [
-    'Resumen',
-    'Cliente',
-    'Staff',
-    'Presupuesto',
-    'Equipo',
-    'Albaranes',
-    'Facturas',
-    'Informes / reportes',
-    'Emails',
-  ];
 
   readonly budgetTotal = '€ 340.00';
 
@@ -269,8 +261,11 @@ export class JosanzEventDetailComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.eventTabs, this.activeTab);
     this.budgetLines = this.budgetCatalog.slice(0, 3);
+  }
+
+  onShellTabChange(_tab: string): void {
+    this.showBudgetPicker.set(false);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
@@ -280,28 +275,10 @@ export class JosanzEventDetailComponent implements OnInit {
     };
   }
 
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    this.showBudgetPicker.set(false);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
   onEquipmentImageError(id: string): void {
     const next = new Set(this.equipmentImageFailed());
     next.add(id);
     this.equipmentImageFailed.set(next);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/events']);
-  }
-
-  onSave(): void {
-    void this.router.navigate(['/events']);
-  }
-
-  onCancel(): void {
-    void this.onBack();
   }
 
   filteredBudgetCatalog(): JosanzBudgetCatalogItem[] {

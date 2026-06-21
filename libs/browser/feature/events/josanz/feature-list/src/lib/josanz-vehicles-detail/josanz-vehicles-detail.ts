@@ -1,15 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
-} from '@josanz-erp/josanz-ui';
-import {
-  navigateDetailTab,
-  readDetailTabFromRoute,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -17,24 +13,21 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-vehicles-detail.html',
 })
-export class JosanzVehiclesDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('Resumen');
-  readonly tabs = ['Resumen', 'Mantenimiento', 'Historial', 'Multas'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Resumen: 'resumen',
-    Mantenimiento: 'mantenimiento',
-    Historial: 'historial',
-    Multas: 'multas',
+export class JosanzVehiclesDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Mercedes Sprinter',
+    listRoute: '/vehicles',
+    tabs: ['Resumen', 'Mantenimiento', 'Historial', 'Multas'],
+    statusLabel: 'Disponible',
+    statusPillKey: 'confirmado',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
   readonly vehicleRows = [
@@ -57,27 +50,10 @@ export class JosanzVehiclesDetailComponent implements OnInit {
     { id: '2', label: 'Exceso velocidad', amount: '120,00 €', status: 'Pendiente', pillKey: 'presupuesto' as JosanzStatusPillKey },
   ];
 
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
     };
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/vehicles']);
-  }
-
-  onSave(): void {
-    this.onBack();
   }
 }

@@ -1,18 +1,5 @@
-<josanz-main-detail-layout
-  title="Mercedes Sprinter"
-  layoutVariant="figma-event"
-  statusLabel="Disponible"
-  statusPillKey="confirmado"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Resumen') {
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+    @if (shell.activeTab() === 'Resumen') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -47,7 +34,7 @@
         }
       </div>
     </section>
-    } @if (activeTab() === 'Mantenimiento') {
+    } @if (shell.activeTab() === 'Mantenimiento') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Documentación y revisiones</h3>
@@ -62,7 +49,7 @@
       ></josanz-document-item>
       }
     </section>
-    } @if (activeTab() === 'Historial') {
+    } @if (shell.activeTab() === 'Historial') {
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Historial de uso</h3>
       @for (note of historyNotes; track note.id) {
@@ -71,7 +58,7 @@
       </div>
       }
     </section>
-    } @if (activeTab() === 'Multas') {
+    } @if (shell.activeTab() === 'Multas') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Multas e incidencias</h3>
@@ -91,5 +78,4 @@
       }
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

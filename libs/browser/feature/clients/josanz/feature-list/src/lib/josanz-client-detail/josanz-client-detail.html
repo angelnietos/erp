@@ -1,18 +1,5 @@
-<josanz-main-detail-layout
-  title="Construcciones S.A."
-  layoutVariant="figma-event"
-  statusLabel="Activo"
-  statusPillKey="confirmado"
-  [showFooterActions]="false"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
-  (cancel)="onCancel()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Datos cliente') {
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+    @if (shell.activeTab() === 'Datos cliente') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
         <span class="text-[22px] font-extrabold" style="color: var(--josanz-text-muted)">CS</span>
@@ -56,7 +43,7 @@
     </div>
     }
 
-    @if (activeTab() === 'Operadores') {
+    @if (shell.activeTab() === 'Operadores') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Operadores asignados</h3>
@@ -86,7 +73,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Presupuestos') {
+    @if (shell.activeTab() === 'Presupuestos') {
     <section class="josanz-event-section">
       @if (presupuestosPropios.length > 0) {
       <h3 class="josanz-event-section__title">Propios</h3>
@@ -116,7 +103,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Proveedores') {
+    @if (shell.activeTab() === 'Proveedores') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Proveedores</h3>
@@ -146,7 +133,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Facturas') {
+    @if (shell.activeTab() === 'Facturas') {
     <section class="josanz-event-section">
       @if (facturas.length > 0) {
       <josanz-document-list uploadLabel="Subir documentación" accentColor="var(--josanz-text-muted)">
@@ -166,7 +153,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Productos/eventos') {
+    @if (shell.activeTab() === 'Productos/eventos') {
     <section class="josanz-event-section">
       @if (eventos.length === 0) {
       <josanz-empty-state
@@ -193,7 +180,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Informes / reportes') {
+    @if (shell.activeTab() === 'Informes / reportes') {
     <section class="josanz-event-section">
       <josanz-empty-state
         [icon]="getEmptyStateIcon('Informes / reportes')"
@@ -203,5 +190,4 @@
       ></josanz-empty-state>
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

@@ -1,16 +1,14 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DetailCardComponent,
   MainTemplateCardComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   DocumentItemComponent,
   DocumentListComponent,
   EmptyStateComponent,
-  navigateDetailTab,
-  readDetailTabFromRoute,
   type JosanzEmptyStateIcon,
+  type JosanzFigmaDetailShellConfig,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -20,7 +18,7 @@ import {
     CommonModule,
     DetailCardComponent,
     MainTemplateCardComponent,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     DocumentItemComponent,
     DocumentListComponent,
     EmptyStateComponent,
@@ -28,28 +26,30 @@ import {
   templateUrl: './josanz-client-detail.html',
 })
 export class JosanzClientDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal<string>('Datos cliente');
-  readonly tabs = [
-    'Datos cliente',
-    'Operadores',
-    'Presupuestos',
-    'Proveedores',
-    'Facturas',
-    'Productos/eventos',
-    'Informes / reportes',
-  ];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    'Datos cliente': 'datos',
-    Operadores: 'operadores',
-    Presupuestos: 'presupuestos',
-    Proveedores: 'proveedores',
-    Facturas: 'facturas',
-    'Productos/eventos': 'eventos',
-    'Informes / reportes': 'informes',
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Construcciones S.A.',
+    listRoute: '/clients',
+    tabs: [
+      'Datos cliente',
+      'Operadores',
+      'Presupuestos',
+      'Proveedores',
+      'Facturas',
+      'Productos/eventos',
+      'Informes / reportes',
+    ],
+    tabSlugMap: {
+      'Datos cliente': 'datos',
+      Operadores: 'operadores',
+      Presupuestos: 'presupuestos',
+      Proveedores: 'proveedores',
+      Facturas: 'facturas',
+      'Productos/eventos': 'eventos',
+      'Informes / reportes': 'informes',
+    },
+    statusLabel: 'Activo',
+    statusPillKey: 'confirmado',
+    features: { footerActions: false },
   };
 
   getEmptyStateIcon(tab: string): JosanzEmptyStateIcon {
@@ -90,8 +90,6 @@ export class JosanzClientDetailComponent implements OnInit {
   ] as const;
 
   ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-
     this.operadores = [
       { name: 'Operador A', role: 'Técnico sonido', status: 'Activo' },
       { name: 'Operador B', role: 'Iluminación', status: 'Activo' },
@@ -114,22 +112,5 @@ export class JosanzClientDetailComponent implements OnInit {
         tags: ['Externo', 'Sonido', 'Vídeo'],
       },
     ];
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/clients']);
-  }
-
-  onSave(): void {
-    void this.router.navigate(['/clients']);
-  }
-
-  onCancel(): void {
-    this.onBack();
   }
 }

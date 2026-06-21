@@ -1,16 +1,12 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
-} from '@josanz-erp/josanz-ui';
-import {
-  navigateDetailTab,
-  readDetailTabFromRoute,
 } from '@josanz-erp/josanz-ui';
 
 interface BillingLine {
@@ -28,24 +24,21 @@ interface BillingLine {
   imports: [
     CommonModule,
     FormsModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-billing-detail.html',
 })
-export class JosanzBillingDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('Resumen');
-  readonly tabs = ['Resumen', 'Líneas', 'Cobros', 'Emails'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Resumen: 'resumen',
-    Líneas: 'lineas',
-    Cobros: 'cobros',
-    Emails: 'emails',
+export class JosanzBillingDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Factura FAC-2026-001',
+    listRoute: '/billing',
+    tabs: ['Resumen', 'Líneas', 'Cobros', 'Emails'],
+    statusLabel: 'Pendiente cobro',
+    statusPillKey: 'presupuesto',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
   readonly summaryRows = [
@@ -73,27 +66,10 @@ export class JosanzBillingDetailComponent implements OnInit {
   ];
   emailForm = { date: 'dd/mm/aaaa', subject: '', body: '' };
 
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
     };
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/billing']);
-  }
-
-  onSave(): void {
-    this.onBack();
   }
 }

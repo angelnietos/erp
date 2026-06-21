@@ -1,12 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
-  navigateDetailTab,
-  readDetailTabFromRoute,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
@@ -24,23 +22,21 @@ interface BudgetLine {
   standalone: true,
   imports: [
     CommonModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-budget-detail.html',
 })
-export class JosanzBudgetDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('General');
-  readonly tabs = ['General', 'Líneas', 'Documentación'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    General: 'general',
-    Líneas: 'lineas',
-    Documentación: 'documentacion',
+export class JosanzBudgetDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Presupuesto PR-2024-010',
+    listRoute: '/budgets',
+    tabs: ['General', 'Líneas', 'Documentación'],
+    statusLabel: 'Enviado',
+    statusPillKey: 'presupuesto',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
   readonly summaryRows = [
@@ -79,31 +75,10 @@ export class JosanzBudgetDetailComponent implements OnInit {
 
   readonly documents = ['Presupuesto_PR-2024-010.pdf', 'Anexo_equipamiento.pdf'];
 
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
     };
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/budgets']);
-  }
-
-  onSave(): void {
-    this.onBack();
-  }
-
-  onCancel(): void {
-    this.onBack();
   }
 }

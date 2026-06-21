@@ -102,6 +102,10 @@ export class JosanzClientsListComponent implements OnInit {
       emphasis: '6 activos',
       after: '',
     },
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

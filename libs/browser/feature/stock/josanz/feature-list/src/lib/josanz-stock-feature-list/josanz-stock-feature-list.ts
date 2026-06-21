@@ -73,6 +73,10 @@ export class JosanzStockListComponent {
       emphasis: '198 en stock',
       after: '',
     },
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

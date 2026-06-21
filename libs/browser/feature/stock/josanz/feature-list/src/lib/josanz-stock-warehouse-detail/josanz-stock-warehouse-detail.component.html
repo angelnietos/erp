@@ -1,19 +1,5 @@
-<josanz-main-detail-layout
-  [title]="'Almacén ' + (warehouseId || '—')"
-  layoutVariant="figma-event"
-  statusLabel="Activo"
-  statusPillKey="confirmado"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
-  (cancel)="onCancel()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Ficha') {
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+    @if (shell.activeTab() === 'Ficha') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -44,7 +30,7 @@
         }
       </div>
     </section>
-    } @if (activeTab() === 'Productos') {
+    } @if (shell.activeTab() === 'Productos') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Productos en almacén</h3>
@@ -61,7 +47,7 @@
       </div>
       }
     </section>
-    } @if (activeTab() === 'Movimientos') {
+    } @if (shell.activeTab() === 'Movimientos') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Historial de movimientos</h3>
@@ -74,5 +60,4 @@
       }
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

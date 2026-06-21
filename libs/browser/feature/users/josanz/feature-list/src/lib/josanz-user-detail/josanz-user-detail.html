@@ -1,18 +1,5 @@
-<josanz-main-detail-layout
-  title="Juan Pérez"
-  layoutVariant="figma-event"
-  statusLabel="Activo"
-  statusPillKey="confirmado"
-  [showFooterActions]="false"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
-  (cancel)="onCancel()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Datos usuario') {
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+    @if (shell.activeTab() === 'Datos usuario') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
         <span class="text-[22px] font-extrabold" style="color: var(--josanz-text-muted)">JP</span>
@@ -61,7 +48,7 @@
     </div>
     }
 
-    @if (activeTab() === 'Permisos') {
+    @if (shell.activeTab() === 'Permisos') {
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Permisos por módulo</h3>
       <p class="josanz-event-section__empty">
@@ -70,7 +57,7 @@
     </section>
     }
 
-    @if (activeTab() === 'Actividad') {
+    @if (shell.activeTab() === 'Actividad') {
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Actividad reciente</h3>
       <p class="josanz-event-section__empty">
@@ -78,5 +65,4 @@
       </p>
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

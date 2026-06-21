@@ -63,6 +63,10 @@ export class JosanzBudgetsFeatureListComponent {
       emphasis: '8 aceptados',
       after: '',
     },
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

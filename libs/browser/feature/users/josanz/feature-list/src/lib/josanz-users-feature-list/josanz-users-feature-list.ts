@@ -60,6 +60,10 @@ export class JosanzUsersListComponent {
       emphasis: '2 activos',
       after: '',
     },
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

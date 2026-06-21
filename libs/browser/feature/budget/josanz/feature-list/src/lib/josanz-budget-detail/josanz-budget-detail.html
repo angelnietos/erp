@@ -1,19 +1,5 @@
-<josanz-main-detail-layout
-  title="Presupuesto PR-2024-010"
-  layoutVariant="figma-event"
-  statusLabel="Enviado"
-  statusPillKey="presupuesto"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
-  (cancel)="onCancel()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'General') {
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+    @if (shell.activeTab() === 'General') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__body">
         <div class="josanz-event-hero__title-row">
@@ -51,7 +37,7 @@
         }
       </div>
     </section>
-    } @if (activeTab() === 'Líneas') {
+    } @if (shell.activeTab() === 'Líneas') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Líneas de presupuesto</h3>
@@ -78,7 +64,7 @@
         <span class="josanz-event-budget-footer__total">5.445,00 €</span>
       </footer>
     </section>
-    } @if (activeTab() === 'Documentación') {
+    } @if (shell.activeTab() === 'Documentación') {
     <section class="josanz-event-section">
       <div class="josanz-event-section-header">
         <h3 class="josanz-event-section__title m-0">Documentos</h3>
@@ -94,5 +80,4 @@
       }
     </section>
     }
-  </div>
-</josanz-main-detail-layout>
+</josanz-figma-detail-shell>

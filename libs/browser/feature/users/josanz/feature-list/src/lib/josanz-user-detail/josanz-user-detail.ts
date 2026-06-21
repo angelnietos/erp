@@ -1,29 +1,29 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
-  MainDetailLayoutComponent,
-  navigateDetailTab,
-  readDetailTabFromRoute,
+  JosanzFigmaDetailShellComponent,
+  type JosanzFigmaDetailShellConfig,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-josanz-user-detail',
   standalone: true,
-  imports: [CommonModule, MainDetailLayoutComponent],
+  imports: [CommonModule, JosanzFigmaDetailShellComponent],
   templateUrl: './josanz-user-detail.html',
 })
-export class JosanzUserDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal<string>('Datos usuario');
-  readonly tabs = ['Datos usuario', 'Permisos', 'Actividad'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    'Datos usuario': 'datos',
-    Permisos: 'permisos',
-    Actividad: 'actividad',
+export class JosanzUserDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Juan Pérez',
+    listRoute: '/users',
+    tabs: ['Datos usuario', 'Permisos', 'Actividad'],
+    tabSlugMap: {
+      'Datos usuario': 'datos',
+      Permisos: 'permisos',
+      Actividad: 'actividad',
+    },
+    statusLabel: 'Activo',
+    statusPillKey: 'confirmado',
+    features: { footerActions: false },
   };
 
   readonly personalRows: { label: string; value: string }[] = [
@@ -39,25 +39,4 @@ export class JosanzUserDetailComponent implements OnInit {
     { label: 'Idioma', value: 'Español' },
     { label: 'Zona horaria', value: 'UTC+1' },
   ];
-
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/users']);
-  }
-
-  onSave(): void {
-    void this.router.navigate(['/users']);
-  }
-
-  onCancel(): void {
-    this.onBack();
-  }
 }
