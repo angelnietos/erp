@@ -92,7 +92,7 @@ export class MainTabsComponent implements OnInit, OnChanges {
     return [
       base,
       shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      this.active === option ? 'shadow-sm' : 'hover:brightness-[0.99]',
+      this.active === option ? '' : 'hover:bg-[var(--josanz-surface-muted)]',
     ].join(' ');
   }
 

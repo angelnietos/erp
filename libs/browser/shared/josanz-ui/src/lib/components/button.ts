@@ -145,13 +145,7 @@ export class ButtonComponent {
   }
 
   buttonShadow(): string {
-    if (this.disabled || this.variant === 'ghost' || this.variant === 'outline') {
-      return 'none';
-    }
-    if (this.variant === 'primary') {
-      return 'var(--josanz-button-shadow)';
-    }
-    return '0 2px 8px rgba(231, 237, 241, 0.9)';
+    return 'none';
   }
 
   onClick() {

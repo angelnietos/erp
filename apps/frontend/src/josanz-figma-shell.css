@@ -130,6 +130,23 @@ html[data-erp-ui-shell='josanz-figma'] .josanz-page-main {
   color: var(--josanz-text, #222222);
 }
 
+/* Reset botones nativos (sin preflight Tailwind en el ERP). */
+html[data-erp-ui-shell='josanz-figma'] button,
+html[data-erp-ui-shell='josanz-figma'] [type='button'],
+html[data-erp-ui-shell='josanz-figma'] [type='submit'],
+html[data-erp-ui-shell='josanz-figma'] [type='reset'] {
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: none;
+  font: inherit;
+  color: inherit;
+}
+
+html[data-erp-ui-shell='josanz-figma'] :where(button, [type='button'], [type='submit'], [type='reset']):disabled {
+  opacity: 1;
+  cursor: not-allowed;
+}
+
 /* Login Figma dentro del ERP (identity login.component) */
 html[data-erp-ui-shell='josanz-figma'][data-erp-route='auth'] body {
   background: var(--josanz-login-canvas, #fffefe) !important;
