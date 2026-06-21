@@ -11,8 +11,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
-/** `figma`: chips DDECFF. `underline`: tipología Eventos (subrayado). `brand`: color de marca. */
-export type JosanzFilterTabsVariant = 'figma' | 'underline' | 'brand';
+/** `figma`: chips DDECFF. `segmented`: control segmentado Eventos (Figma 388:16932). `underline`: subrayado. `brand`: color de marca. */
+export type JosanzFilterTabsVariant = 'figma' | 'segmented' | 'underline' | 'brand';
 
 @Component({
   selector: 'josanz-filter-tabs',
@@ -71,8 +71,12 @@ export class FilterTabsComponent implements OnInit, OnChanges {
     return this.variant === 'underline';
   }
 
+  useSegmentedTabs(): boolean {
+    return this.variant === 'segmented';
+  }
+
   private useFigmaChips(): boolean {
-    if (this.variant === 'underline') {
+    if (this.variant === 'underline' || this.variant === 'segmented') {
       return false;
     }
     if (this.variant === 'figma') {
@@ -85,6 +89,9 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   containerClass(): string {
+    if (this.useSegmentedTabs()) {
+      return 'josanz-filter-tabs--segmented inline-flex min-w-0 max-w-full items-center gap-0 overflow-x-auto no-scrollbar';
+    }
     if (this.useUnderlineTabs()) {
       return 'flex min-w-0 items-end gap-8 overflow-x-auto no-scrollbar w-full border-b border-solid border-[var(--josanz-border)]';
     }
@@ -92,6 +99,13 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   buttonClass(option: string): string {
+    if (this.useSegmentedTabs()) {
+      const active = this.active === option;
+      return [
+        'josanz-filter-tabs__segment',
+        active ? 'josanz-filter-tabs__segment--active' : 'josanz-filter-tabs__segment--idle',
+      ].join(' ');
+    }
     if (this.useUnderlineTabs()) {
       const active = this.active === option;
       return [
@@ -125,7 +139,7 @@ export class FilterTabsComponent implements OnInit, OnChanges {
   }
 
   pillStyles(option: string): Record<string, string> {
-    if (this.useUnderlineTabs()) {
+    if (this.useSegmentedTabs() || this.useUnderlineTabs()) {
       return {};
     }
     if (this.active === option) {

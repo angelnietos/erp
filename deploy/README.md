@@ -1,6 +1,7 @@
 # Despliegue en servidor Ubuntu (Docker)
 
 > **Para dirección / producto:**  
+> · [Lo que perdemos sin PaaS](../docs/deploy/lo-que-perdemos-sin-paas.md) — rollback, logs, manual vs auto  
 > · [Comparativa SSH vs PaaS — coste y atraso](../docs/deploy/comparativa-ssh-vs-paas.md)  
 > · [Servidor único — SSH + GitHub Actions](../docs/deploy/servidor-unico-ssh-y-cicd.md)  
 > · [Guía interna vs deploy GitHub](../docs/deploy/guia-interna-vs-deploy-github.md)  

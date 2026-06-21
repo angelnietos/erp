@@ -94,7 +94,8 @@
       }
     </div>
 
-    <div class="tenant-context animate-in stagger-3" [class.tenant-context--figma]="useFigmaShellLogin()">
+    @if (!useFigmaShellLogin()) {
+    <div class="tenant-context animate-in stagger-3">
       <div class="tenant-pill">
         <lucide-icon name="building-2" size="14"></lucide-icon>
         <span>{{ tenantLabel() }}</span>
@@ -104,6 +105,7 @@
         Cambiar organización
       </button>
     </div>
+    }
 
     @if (!useFigmaShellLogin()) {
     <div
@@ -168,7 +170,8 @@
       </ui-alert>
     }
 
-    @if (isDev && devLoginHint(); as hint) {
+    @if (isDev && devLoginHint() && !useFigmaShellLogin()) {
+      @if (devLoginHint(); as hint) {
       <div
         class="dev-login-hint animate-in stagger-3"
         [class.dev-login-hint--figma]="useFigmaShellLogin()"
@@ -190,6 +193,7 @@
           Rellenar acceso rápido
         </button>
       </div>
+      }
     }
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">

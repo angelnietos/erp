@@ -275,7 +275,8 @@ Puedes usar estas preguntas en una reunión:
 > Si la guía menciona **otra IP** que la de GitHub Actions, **no es el mismo sitio**: seguir la guía no actualiza lo que despliega el pipeline (y viceversa).  
 > Pide a admin que confirme cuál es la **URL oficial de producción** y alinee guía + secretos de GitHub.
 
-Para el argumento de negocio (coste, atraso vs Railway/PaaS), ver también: [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md).
+Para el argumento de negocio (coste, atraso vs Railway/PaaS), ver también: [comparativa-ssh-vs-paas.md](./comparativa-ssh-vs-paas.md).  
+Lista de capacidades perdidas (rollback, logs, previews…): [lo-que-perdemos-sin-paas.md](./lo-que-perdemos-sin-paas.md).
 
 ---
 

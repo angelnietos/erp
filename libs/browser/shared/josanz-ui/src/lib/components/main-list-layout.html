@@ -26,16 +26,33 @@
 
     <div class="josanz-main-list__controls flex w-full min-w-0 flex-col gap-3">
       @if (figmaCatalogLayout) {
+      @if (summaryLine || filterOptions.length) {
+      <div class="josanz-main-list__figma-meta-row">
+        @if (filterOptions.length) {
+        <josanz-filter-tabs
+          class="josanz-main-list__figma-tabs"
+          [options]="filterOptions"
+          [variant]="typologyTabsVariant"
+          [shape]="shape"
+          [customColor]="customColor"
+          (selectionChange)="onFilterChange($event)"
+        ></josanz-filter-tabs>
+        }
+        @if (summaryLine) {
+        <p class="josanz-main-list__figma-summary-pill" role="status">
+          @if (summaryLineParts; as parts) {
+          <span>{{ parts.before }}</span>
+          <strong>{{ parts.emphasis }}</strong>
+          <span>{{ parts.after }}</span>
+          } @else {
+          <span>{{ summaryLine }}</span>
+          }
+        </p>
+        }
+      </div>
+      }
       <div class="josanz-main-list__figma-toolbar">
         <div class="josanz-main-list__figma-toolbar-row">
-          <josanz-filter-tabs
-            class="josanz-main-list__figma-tabs"
-            [options]="filterOptions"
-            [variant]="typologyTabsVariant"
-            [shape]="shape"
-            [customColor]="customColor"
-            (selectionChange)="onFilterChange($event)"
-          ></josanz-filter-tabs>
           <div class="josanz-main-list__figma-actions">
             @if (showSearch) {
             <josanz-list-search-field

@@ -12,6 +12,13 @@ import { PaginationComponent } from './pagination';
 import { ListViewSelectorComponent } from './list-view-selector';
 import { ListSearchFieldComponent } from './list-search-field';
 
+/** Línea resumen bajo tabs (Figma Eventos: «180 eventos - 8 activos esta semana»). */
+export interface JosanzFigmaSummaryLine {
+  before: string;
+  emphasis: string;
+  after: string;
+}
+
 @Component({
   selector: 'josanz-main-list-layout',
   standalone: true,
@@ -38,6 +45,8 @@ export class MainListLayoutComponent implements OnChanges {
   /** Layout Eventos / catálogo Figma: tabs subrayados, buscar en toolbar, filas flotantes. */
   @Input() figmaCatalogLayout = false;
   @Input() typologyTabsVariant: JosanzFilterTabsVariant = 'figma';
+  /** Pill resumen junto a tabs tipología (solo `figmaCatalogLayout`). */
+  @Input() summaryLine?: JosanzFigmaSummaryLine | string;
   @Input() showViewSelector = true;
   @Input() viewSelectorLabel = 'Elección de vista';
   @Input() showSearch = true;
@@ -91,6 +100,14 @@ export class MainListLayoutComponent implements OnChanges {
 
   get effectivePaginationVariant(): JosanzPaginationVariant {
     return this.paginationVariant ?? this.themeService.paginationVariant();
+  }
+
+  get summaryLineParts(): JosanzFigmaSummaryLine | null {
+    const line = this.summaryLine;
+    if (!line || typeof line === 'string') {
+      return null;
+    }
+    return line;
   }
 
   get listViewModeClass(): string[] {

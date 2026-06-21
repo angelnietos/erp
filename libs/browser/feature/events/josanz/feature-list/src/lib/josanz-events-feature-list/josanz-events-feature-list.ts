@@ -11,9 +11,18 @@ import type { JosanzCatalogListConfig } from '../josanz-catalog/josanz-catalog-l
 export class JosanzEventsFeatureListComponent {
   readonly config: JosanzCatalogListConfig = {
     title: 'Eventos',
-    primaryBtnLabel: 'Añadir Evento +',
+    primaryBtnLabel: 'Añadir Evento',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
-    filterOptions: ['Todos', 'Externo', 'Hotel', 'Espacio'],
+    filterOptions: ['Todos', 'Externos', 'Hoteles', 'Espacios'],
+    summaryLine: {
+      before: '180 eventos - ',
+      emphasis: '8 activos',
+      after: ' esta semana',
+    },
+    showAdvancedFilters: false,
+    showStatusFilters: false,
+    paginationTotal: 20,
+    paginationVariant: 'numbered',
   };
 }

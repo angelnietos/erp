@@ -706,7 +706,7 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
 }
 
 .auth-figma-hero {
@@ -742,8 +742,8 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   .auth-figma-hero {
     display: block;
     min-height: 100dvh;
-    flex: 1 1 58%;
-    max-width: 62%;
+    flex: 1 1 50%;
+    max-width: 50%;
   }
 }
 
@@ -801,9 +801,17 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 }
 
 .auth-wrapper--figma .auth-card--figma h1 {
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0;
+}
+
+.auth-wrapper--figma .auth-form ui-button button:disabled {
+  background-color: #dadfe6 !important;
+  border-color: #dadfe6 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
 }
 
 .auth-wrapper--figma .tenant-context--figma {

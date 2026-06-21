@@ -27,10 +27,16 @@ export interface JosanzCatalogListConfig {
   secondaryRoute?: string;
   addRoute?: string;
   detailRoute?: string;
-  summaryLine?: string;
+  summaryLine?: string | { before: string; emphasis: string; after: string };
   summaryStats?: { label: string; count: number }[];
   filterOptions?: string[];
   statusFilterOptions?: string[];
+  /** Fila «De X a X / Proveedores» (Stock). Eventos Figma: false. */
+  showAdvancedFilters?: boolean;
+  /** Chips de estado bajo toolbar (Stock). Eventos Figma: false. */
+  showStatusFilters?: boolean;
+  paginationTotal?: number;
+  paginationVariant?: 'figma' | 'numbered';
 }
 
 @Component({
