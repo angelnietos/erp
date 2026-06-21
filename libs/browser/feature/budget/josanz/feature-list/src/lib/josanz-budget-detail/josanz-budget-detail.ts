@@ -5,12 +5,10 @@ import {
   DocumentItemComponent,
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
-  type JosanzStatusPillKey,
-} from '@josanz-erp/josanz-ui';
-import {
   navigateDetailTab,
   readDetailTabFromRoute,
-} from '@josanz-erp/josanz-events-feature-list';
+  type JosanzStatusPillKey,
+} from '@josanz-erp/josanz-ui';
 
 interface BudgetLine {
   id: string;

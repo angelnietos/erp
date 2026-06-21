@@ -1,24 +1,30 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  MainDetailLayoutComponent
+  MainDetailLayoutComponent,
+  navigateDetailTab,
+  readDetailTabFromRoute,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'lib-josanz-user-detail',
   standalone: true,
-  imports: [
-    CommonModule,
-    MainDetailLayoutComponent
-  ],
+  imports: [CommonModule, MainDetailLayoutComponent],
   templateUrl: './josanz-user-detail.html',
 })
-export class JosanzUserDetailComponent {
-  private router = inject(Router);
+export class JosanzUserDetailComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   activeTab = signal<string>('Datos usuario');
-  tabs = ['Datos usuario', 'Permisos', 'Actividad'];
+  readonly tabs = ['Datos usuario', 'Permisos', 'Actividad'];
+
+  private readonly tabSlugMap: Record<string, string> = {
+    'Datos usuario': 'datos',
+    Permisos: 'permisos',
+    Actividad: 'actividad',
+  };
 
   readonly personalRows: { label: string; value: string }[] = [
     { label: 'Nombre completo', value: 'Juan Pérez' },
@@ -34,20 +40,24 @@ export class JosanzUserDetailComponent {
     { label: 'Zona horaria', value: 'UTC+1' },
   ];
 
-  setTab(tab: string) {
+  ngOnInit(): void {
+    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
+  }
+
+  setTab(tab: string): void {
     this.activeTab.set(tab);
+    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
   }
 
-  onBack() {
-    this.router.navigate(['/users']);
+  onBack(): void {
+    void this.router.navigate(['/users']);
   }
 
-  onSave() {
-    console.log('Guardando cambios del usuario...');
-    this.onBack();
+  onSave(): void {
+    void this.router.navigate(['/users']);
   }
 
-  onCancel() {
+  onCancel(): void {
     this.onBack();
   }
 }

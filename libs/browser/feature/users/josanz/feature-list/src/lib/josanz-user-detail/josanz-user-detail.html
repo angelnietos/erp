@@ -1,5 +1,5 @@
 <josanz-main-detail-layout
-  title="Detalle de Usuario"
+  title="Juan Pérez"
   layoutVariant="figma-event"
   statusLabel="Activo"
   statusPillKey="confirmado"
@@ -11,75 +11,72 @@
   (save)="onSave()"
   (cancel)="onCancel()"
 >
-  <div class="josanz-event-detail-body py-2 md:py-4">
+  <div class="josanz-event-detail-body">
     @if (activeTab() === 'Datos usuario') {
-      <div class="grid grid-cols-1 gap-6 py-2 lg:grid-cols-2 lg:gap-8">
-        <div class="space-y-4">
-          <h2
-            class="text-[12px] font-bold uppercase tracking-[0.2em]"
-            style="color: var(--josanz-text-muted)"
-          >
-            Información personal
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            @for (row of personalRows; track row.label) {
-              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
-                  row.label
-                }}</span>
-                <span class="text-[16px] font-extrabold leading-snug" style="color: var(--josanz-text)">{{ row.value }}</span>
-              </div>
-            }
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <h2
-            class="text-[12px] font-bold uppercase tracking-[0.2em]"
-            style="color: var(--josanz-text-muted)"
-          >
-            Acceso y estado
-          </h2>
-          <div
-            class="space-y-5 rounded-2xl border border-solid p-6 md:p-7"
-            style="background-color: var(--josanz-surface); border-color: var(--josanz-border); box-shadow: var(--josanz-card-shadow)"
-          >
-            @for (row of accessRows; track row.label) {
-              <div class="flex flex-col gap-1 border-b border-solid pb-4 last:border-0 last:pb-0" style="border-color: var(--josanz-border)">
-                <span class="text-[11px] font-bold uppercase tracking-wider" style="color: var(--josanz-text-muted)">{{
-                  row.label
-                }}</span>
-                <span class="text-[16px] font-extrabold leading-snug" [style.color]="row.accent ? 'var(--josanz-primary)' : 'var(--josanz-text)'">{{
-                  row.value
-                }}</span>
-              </div>
-            }
-          </div>
-        </div>
+    <article class="josanz-event-hero">
+      <div class="josanz-event-hero__media">
+        <span class="text-[22px] font-extrabold" style="color: var(--josanz-text-muted)">JP</span>
       </div>
+      <div class="josanz-event-hero__body">
+        <div class="josanz-event-hero__title-row">
+          <h2>Juan Pérez</h2>
+          <span class="josanz-event-hero__badge-nuevo">Operario</span>
+        </div>
+        <p class="josanz-event-hero__meta">juan.perez@josanz.com · +34 600 000 002</p>
+        <p class="josanz-event-hero__desc">
+          Usuario operativo con acceso a módulos de almacén y logística.
+        </p>
+      </div>
+    </article>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <section class="josanz-event-section">
+        <h3 class="josanz-event-section__title">Información personal</h3>
+        <div class="josanz-event-client-grid">
+          @for (row of personalRows; track row.label) {
+          <div class="josanz-event-client-grid__row">
+            <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+            <span class="josanz-event-client-grid__value">{{ row.value }}</span>
+          </div>
+          }
+        </div>
+      </section>
+
+      <section class="josanz-event-section">
+        <h3 class="josanz-event-section__title">Acceso y estado</h3>
+        <div class="josanz-event-client-grid">
+          @for (row of accessRows; track row.label) {
+          <div class="josanz-event-client-grid__row">
+            <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+            <span
+              class="josanz-event-client-grid__value"
+              [style.color]="row.accent ? 'var(--josanz-primary)' : null"
+            >
+              {{ row.value }}
+            </span>
+          </div>
+          }
+        </div>
+      </section>
+    </div>
     }
 
     @if (activeTab() === 'Permisos') {
-      <div
-        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
-        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
-      >
-        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Permisos</span>
-        <p class="max-w-md text-[14px] leading-relaxed">Aquí podrás asignar módulos y acciones cuando el backend de permisos esté conectado.</p>
-      </div>
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Permisos por módulo</h3>
+      <p class="josanz-event-section__empty">
+        Aquí podrás asignar módulos y acciones cuando el backend de permisos esté conectado.
+      </p>
+    </section>
     }
 
     @if (activeTab() === 'Actividad') {
-      <div
-        class="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed px-6 py-14 text-center"
-        style="border-color: var(--josanz-border); background-color: var(--josanz-surface); color: var(--josanz-text-muted)"
-      >
-        <span class="text-[15px] font-semibold" style="color: var(--josanz-text)">Sin actividad reciente</span>
-        <p class="max-w-md text-[14px] leading-relaxed">No hay eventos registrados para este usuario en el periodo actual.</p>
-      </div>
+    <section class="josanz-event-section">
+      <h3 class="josanz-event-section__title">Actividad reciente</h3>
+      <p class="josanz-event-section__empty">
+        No hay eventos registrados para este usuario en el periodo actual.
+      </p>
+    </section>
     }
   </div>
 </josanz-main-detail-layout>

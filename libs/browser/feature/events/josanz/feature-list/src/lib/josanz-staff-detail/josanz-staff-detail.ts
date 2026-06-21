@@ -10,7 +10,7 @@ import {
 import {
   navigateDetailTab,
   readDetailTabFromRoute,
-} from '../josanz-detail-tab-route';
+} from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-staff-detail',

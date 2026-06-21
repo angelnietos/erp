@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -8,6 +8,8 @@ import {
   DocumentItemComponent,
   DocumentListComponent,
   EmptyStateComponent,
+  navigateDetailTab,
+  readDetailTabFromRoute,
   type JosanzEmptyStateIcon,
 } from '@josanz-erp/josanz-ui';
 
@@ -28,7 +30,6 @@ import {
 export class JosanzClientDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  @Output() modalClose = new EventEmitter<void>();
 
   activeTab = signal<string>('Datos cliente');
   readonly tabs = [
@@ -51,7 +52,6 @@ export class JosanzClientDetailComponent implements OnInit {
     'Informes / reportes': 'informes',
   };
 
-  // Empty state icons based on tab
   getEmptyStateIcon(tab: string): JosanzEmptyStateIcon {
     const icons: Partial<Record<string, JosanzEmptyStateIcon>> = {
       Operadores: 'users',
@@ -64,14 +64,9 @@ export class JosanzClientDetailComponent implements OnInit {
     return icons[tab] ?? 'inbox';
   }
 
-  // Archivos para Presupuestos
   presupuestosPropios: string[] = [];
   presupuestosExternos: string[] = [];
-
-  // Archivos para Facturas
   facturas: string[] = [];
-
-  // Datos para Eventos (Cards enriquecidas)
   eventos: Array<{
     imageUrl: string;
     title: string;
@@ -80,11 +75,7 @@ export class JosanzClientDetailComponent implements OnInit {
     description: string;
     tags: string[];
   }> = [];
-
-  // Datos para Operadores
   operadores: Array<{ name: string; role: string; status: string }> = [];
-
-  // Datos para Proveedores
   proveedores: Array<{ id: string; name: string; status: string }> = [];
 
   readonly generalInfoRows = [
@@ -99,13 +90,7 @@ export class JosanzClientDetailComponent implements OnInit {
   ] as const;
 
   ngOnInit(): void {
-    const tabSlug = this.route.snapshot.queryParamMap.get('tab');
-    if (tabSlug) {
-      const tab = Object.entries(this.tabSlugMap).find(([, slug]) => slug === tabSlug)?.[0];
-      if (tab && this.tabs.includes(tab)) {
-        this.activeTab.set(tab);
-      }
-    }
+    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
 
     this.operadores = [
       { name: 'Operador A', role: 'Técnico sonido', status: 'Activo' },
@@ -131,27 +116,20 @@ export class JosanzClientDetailComponent implements OnInit {
     ];
   }
 
-  setTab(tab: string) {
+  setTab(tab: string): void {
     this.activeTab.set(tab);
-    const slug = this.tabSlugMap[tab];
-    void this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: { tab: slug ?? tab.toLowerCase() },
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
   }
 
-  onBack() {
-    this.router.navigate(['/clients']);
+  onBack(): void {
+    void this.router.navigate(['/clients']);
   }
 
-  onSave() {
-    console.log('Guardando cambios del cliente...');
-    this.onBack();
+  onSave(): void {
+    void this.router.navigate(['/clients']);
   }
 
-  onCancel() {
+  onCancel(): void {
     this.onBack();
   }
 }

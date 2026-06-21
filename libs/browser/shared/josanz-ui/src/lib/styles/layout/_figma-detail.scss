@@ -181,6 +181,18 @@
   color: var(--josanz-text-heading, #111);
 }
 
+.josanz-event-section__empty {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--josanz-text-muted);
+  border: 1px dashed var(--josanz-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--josanz-bg) 50%, var(--josanz-surface));
+}
+
 .josanz-event-section__footer {
   display: flex;
   justify-content: flex-end;

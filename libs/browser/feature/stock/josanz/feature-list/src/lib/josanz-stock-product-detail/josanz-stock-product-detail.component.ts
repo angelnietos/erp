@@ -4,11 +4,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   MainDetailLayoutComponent,
   SecondaryButtonComponent,
-} from '@josanz-erp/josanz-ui';
-import {
   navigateDetailTab,
   readDetailTabFromRoute,
-} from '@josanz-erp/josanz-events-feature-list';
+} from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-stock-product-detail',
