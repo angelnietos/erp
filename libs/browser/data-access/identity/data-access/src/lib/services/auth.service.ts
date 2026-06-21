@@ -477,20 +477,20 @@ export class AuthService {
     return Array.isArray(roles) && roles.includes('PlatformOwner');
   }
 
-  /** Cierra sesión BFF (cookies) o limpia token local. */
-  logout(): Observable<void> {
+  /** Cierra sesión BFF (cookies) o limpia token local. RP-initiated logout si hay sesión Keycloak. */
+  logout(postLogoutRedirectUri?: string): Observable<{ keycloakLogoutUrl?: string }> {
     if (this.isBffMode() && this.bff) {
-      return this.bff.erpLogout().pipe(
+      return this.bff.erpLogout(postLogoutRedirectUri).pipe(
         tap(() => this.clearSessionForRelogin()),
-        map(() => undefined),
+        map((res) => ({ keycloakLogoutUrl: res.keycloakLogoutUrl })),
         catchError(() => {
           this.clearSessionForRelogin();
-          return of(undefined);
+          return of({});
         }),
       );
     }
     this.clearSessionForRelogin();
-    return of(undefined);
+    return of({});
   }
 
   setToken(token: string): void {

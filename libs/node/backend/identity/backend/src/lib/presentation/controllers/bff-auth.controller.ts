@@ -20,6 +20,7 @@ import {
 import { LoginDto } from '../../application/dtos/login.dto';
 import { PlatformLoginDto } from '../../application/dtos/platform-login.dto';
 import { BffAuthCallbackDto } from '../../application/dtos/bff-auth-callback.dto';
+import { BffLogoutDto } from '../../application/dtos/bff-logout.dto';
 import { BffAuthService } from '../../application/services/bff-auth.service';
 
 type SessionRequest = Request & {
@@ -91,8 +92,17 @@ export class BffAuthController {
   @PublicTenant()
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  logout(@Req() req: SessionRequest, @Res({ passthrough: true }) res: Response) {
-    return this.bffAuth.logoutErp(res, req.cookies ?? {}, req.bffSessionId);
+  logout(
+    @Body() dto: BffLogoutDto,
+    @Req() req: SessionRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.bffAuth.logoutErp(
+      res,
+      req.cookies ?? {},
+      req.bffSessionId,
+      dto.postLogoutRedirectUri,
+    );
   }
 }
 

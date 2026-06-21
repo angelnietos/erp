@@ -122,10 +122,12 @@ export class BffAuthClient {
     );
   }
 
-  erpLogout(): Observable<{ ok: true }> {
-    return this.http.post<{ ok: true }>(`${this.prefix()}/bff/auth/logout`, {}, {
-      withCredentials: true,
-    }).pipe(
+  erpLogout(postLogoutRedirectUri?: string): Observable<{ ok: true; keycloakLogoutUrl?: string }> {
+    return this.http.post<{ ok: true; keycloakLogoutUrl?: string }>(
+      `${this.prefix()}/bff/auth/logout`,
+      { postLogoutRedirectUri: postLogoutRedirectUri ?? undefined },
+      { withCredentials: true },
+    ).pipe(
       tap(() => this.clearErpCsrf()),
     );
   }

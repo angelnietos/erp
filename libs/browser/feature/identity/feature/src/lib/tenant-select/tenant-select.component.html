@@ -5,88 +5,82 @@
   ></lib-animated-background>
 
   <div class="auth-card glass">
-    <div class="auth-header">
-      <div class="logo-circle animate-in stagger-1">
-        <lucide-icon name="building-2" class="logo-icon" size="28"></lucide-icon>
+    <div class="auth-card__header">
+      <div class="auth-header">
+        <div class="logo-circle animate-in stagger-1">
+          <lucide-icon name="building-2" class="logo-icon" size="24"></lucide-icon>
+        </div>
+        <p class="brand-tag text-uppercase animate-in stagger-2">Josanz ERP</p>
+        <h1 class="animate-in stagger-2">Elige tu organización</h1>
+        <p class="lead animate-in stagger-3">
+          Selecciona el entorno antes de iniciar sesión.
+        </p>
       </div>
-      <p class="brand-tag text-uppercase animate-in stagger-2">Josanz ERP</p>
-      <h1 class="animate-in stagger-2">Elige tu organización</h1>
-      <p class="lead animate-in stagger-3">
-        Selecciona el entorno (tenant) antes de iniciar sesión. Cada uno tiene sus
-        usuarios y datos aislados.
-      </p>
     </div>
 
-    <div class="tenant-grid animate-in stagger-3">
-      @for (t of tenants; track t.slug) {
-        <button
-          type="button"
-          class="tenant-card"
-          [class.tenant-card--active]="selectedSlug() === t.slug"
-          (click)="selectTenant(t.slug)"
-        >
-          <div class="tenant-card__icon">
-            <lucide-icon name="building-2" size="22"></lucide-icon>
-          </div>
-          <div class="tenant-card__body">
-            <span class="tenant-card__name">{{ t.name }}</span>
-            <span class="tenant-card__slug">{{ t.slug }}</span>
-            <span class="tenant-card__desc">{{ t.description }}</span>
-          </div>
-        </button>
+    <div class="auth-card__body">
+      <div class="tenant-grid animate-in stagger-3">
+        @for (t of tenants; track t.slug) {
+          <button
+            type="button"
+            class="tenant-card"
+            [class.tenant-card--active]="selectedSlug() === t.slug"
+            (click)="selectTenant(t.slug)"
+          >
+            <div class="tenant-card__icon">
+              <lucide-icon name="building-2" size="18"></lucide-icon>
+            </div>
+            <div class="tenant-card__body">
+              <span class="tenant-card__name">{{ t.name }}</span>
+              <span class="tenant-card__slug">{{ t.slug }}</span>
+            </div>
+          </button>
+        }
+      </div>
+
+      <div class="custom-slug animate-in stagger-4">
+        <label for="custom-slug-input">Otro tenant (slug)</label>
+        <input
+          id="custom-slug-input"
+          type="text"
+          class="slug-input"
+          placeholder="ej. mi-empresa"
+          [ngModel]="customSlug()"
+          (ngModelChange)="customSlug.set($event); selectedSlug.set(null)"
+        />
+      </div>
+
+      @if (isDev) {
+        <details class="dev-accounts animate-in stagger-4">
+          <summary>Cuentas demo (dev)</summary>
+          <ul class="dev-accounts__list">
+            @for (hint of devLoginHints; track hint.email) {
+              <li>
+                <strong>{{ hint.slug }}</strong>
+                · <code>{{ hint.email }}</code>
+                @if (hint.primary) {
+                  <span class="dev-accounts__badge">principal</span>
+                }
+              </li>
+            }
+          </ul>
+          <p class="dev-accounts__password">
+            Contraseña: <code>{{ devLoginPassword }}</code>
+          </p>
+        </details>
       }
     </div>
 
-    <div class="custom-slug animate-in stagger-4">
-      <label for="custom-slug-input">Otro tenant (slug)</label>
-      <input
-        id="custom-slug-input"
-        type="text"
-        class="slug-input"
-        placeholder="ej. mi-empresa"
-        [ngModel]="customSlug()"
-        (ngModelChange)="customSlug.set($event); selectedSlug.set(null)"
-      />
+    <div class="auth-card__footer">
+      <button
+        type="button"
+        class="btn-continue animate-in stagger-5"
+        [disabled]="!selectedSlug() && !customSlug().trim()"
+        (click)="continueWithSelected()"
+      >
+        Continuar al acceso
+        <lucide-icon name="arrow-right" size="18"></lucide-icon>
+      </button>
     </div>
-
-    <button
-      type="button"
-      class="btn-continue"
-      [disabled]="!selectedSlug() && !customSlug().trim()"
-      (click)="continueWithSelected()"
-    >
-      Continuar al acceso
-      <lucide-icon name="arrow-right" size="18"></lucide-icon>
-    </button>
-
-    @if (isDev) {
-    <div class="dev-accounts animate-in stagger-4">
-      <p class="dev-accounts__title">Acceso rápido en desarrollo</p>
-      <ul class="dev-accounts__list">
-        @for (hint of devLoginHints; track hint.email) {
-          <li>
-            <strong>{{ hint.slug }}</strong>
-            · <code>{{ hint.email }}</code>
-            @if (hint.primary) {
-              <span class="dev-accounts__badge">principal</span>
-            }
-            @if (hint.note) {
-              <span class="dev-accounts__note">— {{ hint.note }}</span>
-            }
-          </li>
-        }
-      </ul>
-      <p class="dev-accounts__password">
-        Contraseña común: <code>{{ devLoginPassword }}</code>
-      </p>
-    </div>
-    }
-
-    <p class="tenant-hint tenant-hint--sub">
-      Los <strong>UUID de tenant</strong> (cabecera <code>x-tenant-id</code>,
-      <code>localStorage.tenant_id</code>) los asigna la BD al hacer seed. Para verlos:
-      <code>npx prisma studio --schema=apps/backend/prisma/schema.prisma</code> → tabla
-      <code>Tenant</code>.
-    </p>
   </div>
 </div>

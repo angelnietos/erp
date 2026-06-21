@@ -28,7 +28,7 @@ export interface ErpBffAuthPort {
     tenantSlug?: string;
   }): Observable<ErpBffLoginResult>;
   erpSession(): Observable<ErpBffLoginResult>;
-  erpLogout(): Observable<{ ok: true }>;
+  erpLogout(postLogoutRedirectUri?: string): Observable<{ ok: true; keycloakLogoutUrl?: string }>;
   clearErpCsrf(): void;
 }
 

@@ -1432,3 +1432,29 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
 .dev-login-hint--docs .dev-login-hint__fill:hover {
   background: rgba(230, 0, 18, 0.24);
 }
+
+.auth-sso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-local-toggle {
+  align-self: center;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.auth-local-toggle:hover {
+  color: #fff;
+}
+
+.auth-local-toggle--back {
+  margin-top: 0.75rem;
+}

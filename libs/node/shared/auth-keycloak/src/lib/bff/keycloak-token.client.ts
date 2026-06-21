@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 export interface KeycloakTokenResult {
   accessToken: string;
   refreshToken?: string;
+  idToken?: string;
   expiresIn: number;
 }
 
@@ -82,6 +83,7 @@ export class KeycloakTokenClient {
       const json = (await res.json()) as {
         access_token?: string;
         refresh_token?: string;
+        id_token?: string;
         expires_in?: number;
       };
       if (!json.access_token) {
@@ -90,6 +92,7 @@ export class KeycloakTokenClient {
       return {
         accessToken: json.access_token,
         refreshToken: json.refresh_token,
+        idToken: json.id_token,
         expiresIn: json.expires_in ?? 300,
       };
     } catch (err) {
@@ -125,6 +128,7 @@ export class KeycloakTokenClient {
       const json = (await res.json()) as {
         access_token?: string;
         refresh_token?: string;
+        id_token?: string;
         expires_in?: number;
       };
       if (!json.access_token) {
@@ -133,6 +137,7 @@ export class KeycloakTokenClient {
       return {
         accessToken: json.access_token,
         refreshToken: json.refresh_token,
+        idToken: json.id_token,
         expiresIn: json.expires_in ?? 300,
       };
     } catch (err) {
@@ -170,6 +175,7 @@ export class KeycloakTokenClient {
       const json = (await res.json()) as {
         access_token?: string;
         refresh_token?: string;
+        id_token?: string;
         expires_in?: number;
       };
       if (!json.access_token) {
@@ -178,11 +184,32 @@ export class KeycloakTokenClient {
       return {
         accessToken: json.access_token,
         refreshToken: json.refresh_token ?? params.refreshToken,
+        idToken: json.id_token,
         expiresIn: json.expires_in ?? 300,
       };
     } catch (err) {
       this.logger.warn(`Keycloak refresh error: ${String(err)}`);
       return null;
     }
+  }
+
+  /** OpenID Connect RP-Initiated Logout (redirige al navegador a Keycloak). */
+  buildRpInitiatedLogoutUrl(params: {
+    realm: string;
+    clientId: string;
+    idTokenHint?: string;
+    postLogoutRedirectUri?: string;
+  }): string {
+    const url = new URL(
+      `${this.authServerUrl}/realms/${params.realm}/protocol/openid-connect/logout`,
+    );
+    url.searchParams.set('client_id', params.clientId);
+    if (params.idTokenHint?.trim()) {
+      url.searchParams.set('id_token_hint', params.idTokenHint.trim());
+    }
+    if (params.postLogoutRedirectUri?.trim()) {
+      url.searchParams.set('post_logout_redirect_uri', params.postLogoutRedirectUri.trim());
+    }
+    return url.toString();
   }
 }

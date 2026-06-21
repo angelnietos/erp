@@ -114,7 +114,8 @@
         "offline_access"
       ],
       "attributes": {
-        "pkce.code.challenge.method": "S256"
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*"
       },
       "protocolMappers": [
         {

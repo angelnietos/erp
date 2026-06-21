@@ -39,6 +39,7 @@ on:
           - josanz-web-app
           - saas-platform
           - document-generator
+          - keycloak
       detach:
         description: 'Detach after upload instead of streaming deployment logs'
         required: true
@@ -103,6 +104,12 @@ jobs:
             push_branch: ''
             deploy_on_dev: false
             deploy_on_main: false
+          - app: keycloak
+            service_secret: RAILWAY_SERVICE_KEYCLOAK
+            dockerfile_path: deploy/railway/dockerfiles/keycloak.Dockerfile
+            push_branch: ''
+            deploy_on_dev: true
+            deploy_on_main: true
     env:
       RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
       RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}

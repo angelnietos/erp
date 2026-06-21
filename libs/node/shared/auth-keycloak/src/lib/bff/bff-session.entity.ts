@@ -6,6 +6,9 @@ export interface BffSessionRecord {
   kind: BffAuthKind;
   accessToken: string;
   refreshToken?: string;
+  idToken?: string;
+  keycloakRealm?: string;
+  keycloakClientId?: string;
   expiresAt: number;
   tenantId?: string;
   tenantSlug?: string;

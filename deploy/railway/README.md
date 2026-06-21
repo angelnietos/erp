@@ -28,6 +28,7 @@ Watch Paths (copiar en Railway): `deploy/railway/watch-paths/*.txt`
 | `josanz-ui-storybook` | `deploy/railway/dockerfiles/josanz-ui-storybook.Dockerfile` | Storybook estático de `libs/browser/shared/josanz-ui`      |
 | `saas-platform`       | `deploy/railway/dockerfiles/saas-platform.Dockerfile`       | Nginx SPA, usa `PORT` de Railway                           |
 | `document-generator`  | `deploy/railway/dockerfiles/document-generator.Dockerfile`  | Nginx SPA, usa `PORT` de Railway                           |
+| `keycloak`              | `deploy/railway/dockerfiles/keycloak.Dockerfile`              | IdP OIDC; requiere Postgres dedicado + `KC_HOSTNAME`       |
 
 ## Configuración en Railway
 
@@ -89,6 +90,7 @@ Secretos necesarios:
 | `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK` | ID o nombre exacto del servicio `josanz-ui-storybook` |
 | `RAILWAY_SERVICE_SAAS_PLATFORM`       | ID o nombre exacto del servicio `saas-platform`       |
 | `RAILWAY_SERVICE_DOCUMENT_GENERATOR`  | ID o nombre exacto del servicio `document-generator`  |
+| `RAILWAY_SERVICE_KEYCLOAK`            | ID o nombre exacto del servicio `keycloak`            |
 
 Para desplegar solo el front de Josanz en push, necesitas `RAILWAY_TOKEN`, `RAILWAY_PROJECT_ID` y `RAILWAY_SERVICE_JOSANZ_WEB_APP`. Si eliges `all` manualmente, deben existir todos los secretos de los servicios incluidos.
 

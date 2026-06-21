@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -36,8 +36,13 @@ export class JosanzLoginComponent implements OnInit {
   readonly loginCtaDisabled = JOSANZ_FIGMA_LOGIN.disabledCta;
 
   readonly showKeycloakSso = signal(false);
+  readonly showLocalLogin = signal(false);
   readonly pkceRedirectLoading = signal(false);
   readonly pkceError = signal<string | null>(null);
+
+  readonly usePkcePrimaryLayout = computed(
+    () => this.showKeycloakSso() && !this.showLocalLogin(),
+  );
 
   readonly loginForm = this.fb.nonNullable.group({
     email: [
@@ -52,10 +57,24 @@ export class JosanzLoginComponent implements OnInit {
     this.showKeycloakSso.set(this.authService.canUseKeycloakPkce(JOSANZ_TENANT_SLUG));
     if (this.showKeycloakSso()) {
       this.authService.isKeycloakAvailable().subscribe({
-        next: (available) => this.showKeycloakSso.set(available),
-        error: () => this.showKeycloakSso.set(false),
+        next: (available) => {
+          this.showKeycloakSso.set(available);
+          if (!available) {
+            this.showLocalLogin.set(true);
+          }
+        },
+        error: () => {
+          this.showKeycloakSso.set(false);
+          this.showLocalLogin.set(true);
+        },
       });
+    } else {
+      this.showLocalLogin.set(true);
     }
+  }
+
+  revealLocalLogin(): void {
+    this.showLocalLogin.set(true);
   }
 
   async startKeycloakSso(): Promise<void> {

@@ -3,3 +3,29 @@
   height: 100dvh;
   width: 100%;
 }
+
+.josanz-figma-auth__sso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.josanz-figma-auth__local-toggle {
+  align-self: center;
+  border: none;
+  background: none;
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 0.875rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+}
+
+.josanz-figma-auth__local-toggle:hover {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+.josanz-figma-auth__local-toggle--back {
+  margin-top: 0.75rem;
+}

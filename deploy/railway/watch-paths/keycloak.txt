@@ -1,0 +1,3 @@
+/docker/keycloak/**
+/deploy/railway/dockerfiles/keycloak.Dockerfile
+/deploy/railway/config/keycloak.railway.json

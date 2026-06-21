@@ -303,7 +303,11 @@ export const AuthStore = signalStore(
 
       logout() {
         tenantModulesRealtime.disconnect();
-        authService.logout().subscribe(() => {
+        const postLogoutRedirectUri =
+          typeof window !== 'undefined'
+            ? `${window.location.origin}/auth/login?reason=logout`
+            : undefined;
+        authService.logout(postLogoutRedirectUri).subscribe((result) => {
           resetSessionInvalidationGuard();
           patchState(store, {
             user: null,
@@ -316,6 +320,10 @@ export const AuthStore = signalStore(
           }
           syncErpTenantHtmlTheme();
           themeService.reapplyTheme();
+          if (result.keycloakLogoutUrl && typeof window !== 'undefined') {
+            window.location.assign(result.keycloakLogoutUrl);
+            return;
+          }
           void router.navigate(['/auth/login'], {
             queryParams: { reason: 'logout' },
             replaceUrl: true,

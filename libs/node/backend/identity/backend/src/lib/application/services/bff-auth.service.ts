@@ -80,6 +80,7 @@ export class BffAuthService {
       : undefined;
     let accessToken: string | null = null;
     let refreshToken: string | undefined;
+    let idToken: string | undefined;
     let expiresAt = Date.now() + this.sessionMaxAgeMs();
     let authMode: 'keycloak' | 'local' = 'local';
 
@@ -98,6 +99,7 @@ export class BffAuthService {
           password: dto.password,
         });
         if (token) {
+          idToken = token.idToken;
           try {
             const payload = this.decodeJwt(token.accessToken);
             if (!payload?.sub) {
@@ -157,6 +159,9 @@ export class BffAuthService {
       kind: authMode === 'keycloak' ? 'keycloak' : 'local',
       accessToken,
       refreshToken,
+      idToken: authMode === 'keycloak' ? idToken : undefined,
+      keycloakRealm: authMode === 'keycloak' && kcConfig ? kcConfig.realm : undefined,
+      keycloakClientId: authMode === 'keycloak' && kcConfig ? kcConfig.clientId : undefined,
       expiresAt,
       tenantId: enriched.tenantId,
       tenantSlug: enriched.tenantSlug,
@@ -243,6 +248,9 @@ export class BffAuthService {
       kind: 'keycloak',
       accessToken: enriched.accessToken,
       refreshToken: token.refreshToken,
+      idToken: token.idToken,
+      keycloakRealm: kcConfig.realm,
+      keycloakClientId: kcConfig.clientId,
       expiresAt: Date.now() + sessionTtlMs,
       tenantId: enriched.tenantId,
       tenantSlug: enriched.tenantSlug,
@@ -273,6 +281,7 @@ export class BffAuthService {
 
     let accessToken: string | null = null;
     let refreshToken: string | undefined;
+    let idToken: string | undefined;
     let expiresAt = Date.now() + this.sessionMaxAgeMs();
     let authMode: 'keycloak' | 'local' = 'local';
 
@@ -288,6 +297,7 @@ export class BffAuthService {
         if (token) {
           accessToken = token.accessToken;
           refreshToken = token.refreshToken;
+          idToken = token.idToken;
           authMode = 'keycloak';
         }
       }
@@ -316,6 +326,9 @@ export class BffAuthService {
       kind: 'platform',
       accessToken,
       refreshToken,
+      idToken: authMode === 'keycloak' ? idToken : undefined,
+      keycloakRealm: authMode === 'keycloak' ? realm : undefined,
+      keycloakClientId: authMode === 'keycloak' ? clientId : undefined,
       expiresAt,
       csrfToken: csrf,
     });
@@ -439,13 +452,29 @@ export class BffAuthService {
     res: Response,
     cookies: Record<string, string | undefined>,
     sessionId?: string,
-  ): Promise<{ ok: true }> {
+    postLogoutRedirectUri?: string,
+  ): Promise<{ ok: true; keycloakLogoutUrl?: string }> {
     const sid = sessionId ?? readCookie(cookies, ERP_BFF_COOKIE_NAMES.session);
+    let keycloakLogoutUrl: string | undefined;
+
     if (sid) {
+      const session = await this.sessions.get(sid);
+      if (
+        session?.kind === 'keycloak' &&
+        session.keycloakRealm &&
+        session.keycloakClientId
+      ) {
+        keycloakLogoutUrl = this.keycloak.buildRpInitiatedLogoutUrl({
+          realm: session.keycloakRealm,
+          clientId: session.keycloakClientId,
+          idTokenHint: session.idToken,
+          postLogoutRedirectUri,
+        });
+      }
       await this.sessions.delete(sid);
     }
     clearBffSessionCookies(res, ERP_BFF_COOKIE_NAMES);
-    return { ok: true };
+    return keycloakLogoutUrl ? { ok: true, keycloakLogoutUrl } : { ok: true };
   }
 
   async logoutPlatform(
