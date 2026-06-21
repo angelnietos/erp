@@ -1,16 +1,20 @@
 <josanz-main-list-layout
   [title]="config.title"
   [primaryBtnLabel]="config.primaryBtnLabel"
-  [secondaryBtnLabel]="config.secondaryBtnLabel ?? ''"
-  [filterOptions]="filterOptions"
+  [secondaryBtnLabel]="effectiveSecondaryLabel"
+  [filterOptions]="typologyFilterOptions"
   [figmaCatalogLayout]="true"
   [typologyTabsVariant]="'segmented'"
-  [summaryLine]="config.summaryLine"
+  [summaryLine]="effectiveSummaryLine"
   [searchPlaceholder]="'Buscar'"
-  [paginationTotal]="paginationTotal"
+  [paginationTotal]="effectivePaginationTotal"
   [paginationPage]="currentPage"
   [paginationVariant]="config.paginationVariant ?? 'numbered'"
   [searchValue]="searchQuery"
+  [showSearch]="features.search"
+  [showExcel]="features.excel"
+  [showPrimaryAction]="features.primaryAction"
+  [showViewSelector]="features.viewSelector"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
@@ -20,7 +24,7 @@
 >
   @if (showExtraFilters) {
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
-    @if (!config.summaryLine) {
+    @if (features.statusSummary) {
     <div
       class="josanz-catalog-summary"
       role="group"
@@ -39,9 +43,9 @@
     </div>
     }
 
-    @if (config.showAdvancedFilters === true || config.showStatusFilters === true) {
+    @if (features.advancedFilters || features.statusFilters) {
     <div class="josanz-catalog-filters-row">
-      @if (config.showAdvancedFilters === true) {
+      @if (features.advancedFilters) {
       <josanz-secondary-button
         label="De X a X"
         class="shrink-0"
@@ -59,7 +63,7 @@
         aria-hidden="true"
       ></span>
       }
-      @if (config.showStatusFilters === true) {
+      @if (features.statusFilters) {
       <josanz-filter-tabs
         class="min-w-0 flex-1"
         [options]="statusFilterOptions"
@@ -72,12 +76,14 @@
   </div>
   }
 
+  @if (features.columnHeader) {
   <josanz-list-template-header-row
     [titleLabel]="config.titleColumnLabel ?? config.idColumnLabel ?? 'ID'"
     [fieldLabels]="rowLabels"
     [statusLabel]="config.statusColumnLabel"
     [withLeadingMark]="config.withLeadingMark ?? false"
   ></josanz-list-template-header-row>
+  }
 
   <josanz-adaptive-list-rows
     [items]="paginatedItems"

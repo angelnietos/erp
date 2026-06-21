@@ -1,100 +1,86 @@
-<josanz-main-detail-layout
-  title="Laura Martín"
-  layoutVariant="figma-event"
-  statusLabel="Técnico"
-  statusPillKey="staff-tecnico"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Resumen') {
-    <article class="josanz-event-hero">
-      <div class="josanz-event-hero__media josanz-event-hero__media--avatar">
-        <img [src]="avatarUrl" alt="" />
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+  @if (shell.activeTab() === 'Resumen') {
+  <article class="josanz-event-hero">
+    <div class="josanz-event-hero__media josanz-event-hero__media--avatar">
+      <img [src]="avatarUrl" alt="" />
+    </div>
+    <div class="josanz-event-hero__body">
+      <div class="josanz-event-hero__title-row">
+        <h2>Laura Martín</h2>
+        <span
+          class="josanz-event-staff-card__tag"
+          [ngStyle]="pillStyle('staff-tecnico')"
+          >Técnico</span
+        >
       </div>
-      <div class="josanz-event-hero__body">
-        <div class="josanz-event-hero__title-row">
-          <h2>Laura Martín</h2>
-          <span
-            class="josanz-event-staff-card__tag"
-            [ngStyle]="pillStyle('staff-tecnico')"
-            >Técnico</span
-          >
-        </div>
-        <p class="josanz-event-hero__meta">
-          Especialidad: Sonido · Contrato indefinido
-        </p>
-        <p class="josanz-event-hero__desc">
-          Técnica de sonido FOH y monitores. Disponible para eventos corporativos y festivales.
-        </p>
-      </div>
-    </article>
+      <p class="josanz-event-hero__meta">
+        Especialidad: Sonido · Contrato indefinido
+      </p>
+      <p class="josanz-event-hero__desc">
+        Técnica de sonido FOH y monitores. Disponible para eventos corporativos y festivales.
+      </p>
+    </div>
+  </article>
 
-    <section class="josanz-event-section">
-      <h3 class="josanz-event-section__title">Datos personales</h3>
-      <div class="josanz-event-client-grid">
-        @for (row of personalRows; track row.label) {
-        <div class="josanz-event-client-grid__row">
-          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
-          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
-        </div>
-        }
-      </div>
-    </section>
-    } @if (activeTab() === 'Contratos') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Contratos</h3>
-        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-      </div>
-      @for (file of contractFiles; track file) {
-      <josanz-document-item
-        [name]="file"
-        [showView]="true"
-        [showDownload]="true"
-        [showDelete]="true"
-      ></josanz-document-item>
-      }
-    </section>
-    } @if (activeTab() === 'Nóminas') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Nóminas</h3>
-        <josanz-secondary-button label="Subir +"></josanz-secondary-button>
-      </div>
-      @for (file of payrollFiles; track file) {
-      <josanz-document-item
-        [name]="file"
-        [showView]="true"
-        [showDownload]="true"
-        [showDelete]="false"
-      ></josanz-document-item>
-      }
-    </section>
-    } @if (activeTab() === 'Ausencias') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Ausencias</h3>
-        <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
-      </div>
-      @for (item of absences; track item.id) {
-      <div class="josanz-event-budget-line">
-        <span>
-          <span class="josanz-event-budget-line__name">{{ item.type }}</span>
-          <span class="josanz-event-budget-line__warehouse"> · {{ item.range }}</span>
-        </span>
-        <span></span>
-        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(item.pillKey)">{{
-          item.type
-        }}</span>
+  <section class="josanz-event-section">
+    <h3 class="josanz-event-section__title">Datos personales</h3>
+    <div class="josanz-event-client-grid">
+      @for (row of personalRows; track row.label) {
+      <div class="josanz-event-client-grid__row">
+        <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+        <span class="josanz-event-client-grid__value">{{ row.value }}</span>
       </div>
       }
-    </section>
+    </div>
+  </section>
+  } @if (shell.activeTab() === 'Contratos') {
+  <section class="josanz-event-section">
+    <div class="josanz-event-section-header">
+      <h3 class="josanz-event-section__title m-0">Contratos</h3>
+      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+    </div>
+    @for (file of contractFiles; track file) {
+    <josanz-document-item
+      [name]="file"
+      [showView]="true"
+      [showDownload]="true"
+      [showDelete]="true"
+    ></josanz-document-item>
     }
-  </div>
-</josanz-main-detail-layout>
+  </section>
+  } @if (shell.activeTab() === 'Nóminas') {
+  <section class="josanz-event-section">
+    <div class="josanz-event-section-header">
+      <h3 class="josanz-event-section__title m-0">Nóminas</h3>
+      <josanz-secondary-button label="Subir +"></josanz-secondary-button>
+    </div>
+    @for (file of payrollFiles; track file) {
+    <josanz-document-item
+      [name]="file"
+      [showView]="true"
+      [showDownload]="true"
+      [showDelete]="false"
+    ></josanz-document-item>
+    }
+  </section>
+  } @if (shell.activeTab() === 'Ausencias') {
+  <section class="josanz-event-section">
+    <div class="josanz-event-section-header">
+      <h3 class="josanz-event-section__title m-0">Ausencias</h3>
+      <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
+    </div>
+    @for (item of absences; track item.id) {
+    <div class="josanz-event-budget-line">
+      <span>
+        <span class="josanz-event-budget-line__name">{{ item.type }}</span>
+        <span class="josanz-event-budget-line__warehouse"> · {{ item.range }}</span>
+      </span>
+      <span></span>
+      <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(item.pillKey)">{{
+        item.type
+      }}</span>
+    </div>
+    }
+  </section>
+  }
+</josanz-figma-detail-shell>

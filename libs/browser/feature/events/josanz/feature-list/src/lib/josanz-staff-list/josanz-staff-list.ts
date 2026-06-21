@@ -58,8 +58,10 @@ export class JosanzStaffListComponent {
       emphasis: '12 en evento',
       after: ' activo',
     },
-    showAdvancedFilters: false,
-    showStatusFilters: false,
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

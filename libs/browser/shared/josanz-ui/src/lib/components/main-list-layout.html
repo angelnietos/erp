@@ -63,12 +63,14 @@
               (valueChange)="onSearchChange($event)"
             ></josanz-list-search-field>
             }
+            @if (showExcel) {
             <josanz-secondary-button
               label="Excel"
               [shape]="shape"
               [customColor]="customColor"
               (btnClick)="onExcelAction()"
             ></josanz-secondary-button>
+            }
             <ng-content select="[extra-actions]"></ng-content>
             @if (secondaryBtnLabel) {
             <josanz-button
@@ -79,6 +81,7 @@
               (btnClick)="onSecondaryAction()"
             ></josanz-button>
             }
+            @if (showPrimaryAction) {
             <josanz-button
               [label]="primaryBtnLabel"
               [showIcon]="true"
@@ -86,6 +89,7 @@
               [customColor]="customColor"
               (btnClick)="onPrimaryAction()"
             ></josanz-button>
+            }
           </div>
         </div>
         <ng-content select="[extra-filters]"></ng-content>
@@ -109,6 +113,7 @@
           <div
             class="flex w-full min-w-0 flex-wrap items-center justify-end gap-2"
           >
+            @if (showExcel) {
             <div class="min-w-0 flex-1 md:flex-initial">
               <josanz-secondary-button
                 label="Excel"
@@ -118,6 +123,7 @@
                 (btnClick)="onExcelAction()"
               ></josanz-secondary-button>
             </div>
+            }
             <ng-content select="[extra-actions]"></ng-content>
             @if (secondaryBtnLabel) {
             <div class="min-w-0 flex-1 md:flex-initial">
@@ -131,6 +137,7 @@
               ></josanz-button>
             </div>
             }
+            @if (showPrimaryAction) {
             <div class="min-w-0 flex-1 md:flex-initial">
               <josanz-button
                 [label]="primaryBtnLabel"
@@ -141,6 +148,7 @@
                 (btnClick)="onPrimaryAction()"
               ></josanz-button>
             </div>
+            }
           </div>
           @if (showSearch && searchPlacement === 'actions') {
           <div class="josanz-main-list__search-actions flex w-full justify-end">

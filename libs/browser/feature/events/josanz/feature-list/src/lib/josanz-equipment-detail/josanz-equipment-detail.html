@@ -1,94 +1,80 @@
-<josanz-main-detail-layout
-  title="Line array L-Acoustics"
-  layoutVariant="figma-event"
-  statusLabel="Disponible"
-  statusPillKey="confirmado"
-  [tabs]="tabs"
-  [activeTab]="activeTab()"
-  [showFooterActions]="false"
-  [saveDisabled]="true"
-  (tabChange)="setTab($event)"
-  (back)="onBack()"
-  (save)="onSave()"
->
-  <div class="josanz-event-detail-body">
-    @if (activeTab() === 'Resumen') {
-    <article class="josanz-event-hero">
-      <div class="josanz-event-hero__media">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-          <rect x="4" y="7" width="16" height="12" rx="2" />
-          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-          <circle cx="12" cy="13" r="2.5" />
-        </svg>
+<josanz-figma-detail-shell #shell [config]="shellConfig">
+  @if (shell.activeTab() === 'Resumen') {
+  <article class="josanz-event-hero">
+    <div class="josanz-event-hero__media">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <rect x="4" y="7" width="16" height="12" rx="2" />
+        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <circle cx="12" cy="13" r="2.5" />
+      </svg>
+    </div>
+    <div class="josanz-event-hero__body">
+      <div class="josanz-event-hero__title-row">
+        <h2>Line array L-Acoustics</h2>
+        <span class="josanz-event-hero__badge-nuevo">Sonido</span>
       </div>
-      <div class="josanz-event-hero__body">
-        <div class="josanz-event-hero__title-row">
-          <h2>Line array L-Acoustics</h2>
-          <span class="josanz-event-hero__badge-nuevo">Sonido</span>
-        </div>
-        <p class="josanz-event-hero__meta">
-          Almacén 01 · Rack A-12 · SN-123456
-        </p>
-        <p class="josanz-event-hero__desc">
-          Sistema de line array para FOH. Incluye rigging y flightcases de transporte.
-        </p>
-      </div>
-    </article>
+      <p class="josanz-event-hero__meta">
+        Almacén 01 · Rack A-12 · SN-123456
+      </p>
+      <p class="josanz-event-hero__desc">
+        Sistema de line array para FOH. Incluye rigging y flightcases de transporte.
+      </p>
+    </div>
+  </article>
 
-    <section class="josanz-event-section">
-      <h3 class="josanz-event-section__title">Ficha técnica</h3>
-      <div class="josanz-event-client-grid">
-        @for (row of specRows; track row.label) {
-        <div class="josanz-event-client-grid__row">
-          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
-          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
-        </div>
-        }
-      </div>
-    </section>
-    } @if (activeTab() === 'Stock') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Stock por almacén</h3>
-        <josanz-secondary-button label="Ajustar +"></josanz-secondary-button>
-      </div>
-      @for (row of stockRows; track row.warehouse) {
-      <div class="josanz-event-budget-line">
-        <span>
-          <span class="josanz-event-budget-line__name">{{ row.warehouse }}</span>
-          <span class="josanz-event-budget-line__warehouse"> · {{ row.qty }}</span>
-        </span>
-        <span></span>
-        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(row.pillKey)">{{
-          row.status
-        }}</span>
+  <section class="josanz-event-section">
+    <h3 class="josanz-event-section__title">Ficha técnica</h3>
+    <div class="josanz-event-client-grid">
+      @for (row of specRows; track row.label) {
+      <div class="josanz-event-client-grid__row">
+        <span class="josanz-event-client-grid__label">{{ row.label }}</span>
+        <span class="josanz-event-client-grid__value">{{ row.value }}</span>
       </div>
       }
-    </section>
-    } @if (activeTab() === 'Mantenimiento') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Revisiones y mantenimiento</h3>
-        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-      </div>
-      @for (file of maintenanceFiles; track file) {
-      <josanz-document-item
-        [name]="file"
-        [showView]="true"
-        [showDownload]="true"
-        [showDelete]="true"
-      ></josanz-document-item>
-      }
-    </section>
-    } @if (activeTab() === 'Historial') {
-    <section class="josanz-event-section">
-      <h3 class="josanz-event-section__title">Historial de movimientos</h3>
-      @for (note of historyNotes; track note.id) {
-      <div class="josanz-event-note-row">
-        <p>{{ note.text }}</p>
-      </div>
-      }
-    </section>
+    </div>
+  </section>
+  } @if (shell.activeTab() === 'Stock') {
+  <section class="josanz-event-section">
+    <div class="josanz-event-section-header">
+      <h3 class="josanz-event-section__title m-0">Stock por almacén</h3>
+      <josanz-secondary-button label="Ajustar +"></josanz-secondary-button>
+    </div>
+    @for (row of stockRows; track row.warehouse) {
+    <div class="josanz-event-budget-line">
+      <span>
+        <span class="josanz-event-budget-line__name">{{ row.warehouse }}</span>
+        <span class="josanz-event-budget-line__warehouse"> · {{ row.qty }}</span>
+      </span>
+      <span></span>
+      <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(row.pillKey)">{{
+        row.status
+      }}</span>
+    </div>
     }
-  </div>
-</josanz-main-detail-layout>
+  </section>
+  } @if (shell.activeTab() === 'Mantenimiento') {
+  <section class="josanz-event-section">
+    <div class="josanz-event-section-header">
+      <h3 class="josanz-event-section__title m-0">Revisiones y mantenimiento</h3>
+      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+    </div>
+    @for (file of maintenanceFiles; track file) {
+    <josanz-document-item
+      [name]="file"
+      [showView]="true"
+      [showDownload]="true"
+      [showDelete]="true"
+    ></josanz-document-item>
+    }
+  </section>
+  } @if (shell.activeTab() === 'Historial') {
+  <section class="josanz-event-section">
+    <h3 class="josanz-event-section__title">Historial de movimientos</h3>
+    @for (note of historyNotes; track note.id) {
+    <div class="josanz-event-note-row">
+      <p>{{ note.text }}</p>
+    </div>
+    }
+  </section>
+  }
+</josanz-figma-detail-shell>

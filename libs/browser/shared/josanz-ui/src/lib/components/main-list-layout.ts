@@ -51,6 +51,8 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() showViewSelector?: boolean;
   @Input() viewSelectorLabel = 'Vista';
   @Input() showSearch = true;
+  @Input() showExcel = true;
+  @Input() showPrimaryAction = true;
   /** `toolbar`: misma fila que filtros extra (catálogo). `actions`: bajo botones, alineado a la derecha (clientes, etc.). */
   @Input() searchPlacement: 'toolbar' | 'actions' = 'toolbar';
   @Input() searchPlaceholder = 'Buscar…';

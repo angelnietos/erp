@@ -19,8 +19,10 @@ export class JosanzEventsFeatureListComponent {
       emphasis: '8 activos',
       after: ' esta semana',
     },
-    showAdvancedFilters: false,
-    showStatusFilters: false,
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

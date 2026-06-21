@@ -13,6 +13,14 @@ import { ListTemplateHeaderRowComponent } from '../list-template-header-row';
 import { MainListLayoutComponent } from '../main-list-layout';
 import { SecondaryButtonComponent } from '../secondary-button';
 import type { JosanzStatusPillVariant } from '../main-template-card';
+import {
+  resolveCatalogListFeatures,
+  type JosanzCatalogListFeatures,
+  type ResolvedCatalogListFeatures,
+} from './catalog-list-features';
+
+export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
+export { resolveCatalogListFeatures };
 
 export interface JosanzCatalogListConfig {
   title: string;
@@ -34,7 +42,11 @@ export interface JosanzCatalogListConfig {
   withLeadingMark?: boolean;
   /** Pastillas de estado: `outline` = Figma Eventos. */
   statusBadgeStyle?: 'filled' | 'outline';
+  /** Visibilidad declarativa de bloques UX del listado. */
+  features?: JosanzCatalogListFeatures;
+  /** @deprecated Usar `features.advancedFilters`. */
   showAdvancedFilters?: boolean;
+  /** @deprecated Usar `features.statusFilters`. */
   showStatusFilters?: boolean;
   paginationTotal?: number;
   paginationVariant?: 'figma' | 'numbered';
@@ -72,11 +84,29 @@ export class JosanzCatalogListComponent {
     { label: 'Confirmado', count: 12 },
   ];
 
+  get features(): ResolvedCatalogListFeatures {
+    return resolveCatalogListFeatures(this.config);
+  }
+
   get showExtraFilters(): boolean {
-    if (this.config.showAdvancedFilters === true || this.config.showStatusFilters === true) {
-      return true;
-    }
-    return !this.config.summaryLine && this.summaryStats.length > 0;
+    const f = this.features;
+    return f.statusSummary || f.advancedFilters || f.statusFilters;
+  }
+
+  get typologyFilterOptions(): string[] {
+    return this.features.typologyTabs ? this.filterOptions : [];
+  }
+
+  get effectiveSummaryLine(): JosanzCatalogListConfig['summaryLine'] {
+    return this.features.summaryLine ? this.config.summaryLine : undefined;
+  }
+
+  get effectiveSecondaryLabel(): string {
+    return this.features.secondaryAction ? (this.config.secondaryBtnLabel ?? '') : '';
+  }
+
+  get effectivePaginationTotal(): number {
+    return this.features.pagination ? this.paginationTotal : 0;
   }
 
   get filterOptions(): string[] {

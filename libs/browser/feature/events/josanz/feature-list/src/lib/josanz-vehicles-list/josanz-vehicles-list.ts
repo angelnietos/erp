@@ -58,8 +58,10 @@ export class JosanzVehiclesListComponent {
       emphasis: '3 en ruta',
       after: ' hoy',
     },
-    showAdvancedFilters: false,
-    showStatusFilters: false,
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

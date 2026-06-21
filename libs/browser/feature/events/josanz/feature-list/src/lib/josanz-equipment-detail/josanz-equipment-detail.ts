@@ -1,15 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
-} from '@josanz-erp/josanz-ui';
-import {
-  navigateDetailTab,
-  readDetailTabFromRoute,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -17,24 +13,21 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-equipment-detail.html',
 })
-export class JosanzEquipmentDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('Resumen');
-  readonly tabs = ['Resumen', 'Stock', 'Mantenimiento', 'Historial'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Resumen: 'resumen',
-    Stock: 'stock',
-    Mantenimiento: 'mantenimiento',
-    Historial: 'historial',
+export class JosanzEquipmentDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Line array L-Acoustics',
+    listRoute: '/equipment',
+    tabs: ['Resumen', 'Stock', 'Mantenimiento', 'Historial'],
+    statusLabel: 'Disponible',
+    statusPillKey: 'confirmado',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
   readonly specRows = [
@@ -59,27 +52,10 @@ export class JosanzEquipmentDetailComponent implements OnInit {
     { id: '3', text: 'Alta en inventario — 15/01/2026' },
   ];
 
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
     };
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/equipment']);
-  }
-
-  onSave(): void {
-    this.onBack();
   }
 }

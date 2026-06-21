@@ -18,13 +18,26 @@ export function readDetailTabFromRoute(
   }
 }
 
+export function slugifyDetailTab(tab: string): string {
+  return tab
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+}
+
+/** Mapa tab → slug para `?tab=` a partir de las etiquetas visibles. */
+export function buildTabSlugMap(tabs: readonly string[]): Record<string, string> {
+  return Object.fromEntries(tabs.map((tab) => [tab, slugifyDetailTab(tab)]));
+}
+
 export function navigateDetailTab(
   router: Router,
   route: ActivatedRoute,
   tab: string,
   slugMap: Record<string, string>,
 ): void {
-  const slug = slugMap[tab] ?? tab.toLowerCase().replace(/\s+/g, '-');
+  const slug = slugMap[tab] ?? slugifyDetailTab(tab);
   void router.navigate([], {
     relativeTo: route,
     queryParams: { tab: slug },

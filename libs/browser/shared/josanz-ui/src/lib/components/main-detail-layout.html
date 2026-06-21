@@ -116,6 +116,7 @@
         [dense]="true"
         (selectionChange)="tabChange.emit($event)"
       ></josanz-main-tabs>
+      @if (showHeaderSave) {
       <div class="josanz-detail-figma__save">
         <josanz-button
           [label]="saveLabel"
@@ -126,6 +127,7 @@
           (btnClick)="save.emit()"
         ></josanz-button>
       </div>
+      }
     </div>
   </div>
   }

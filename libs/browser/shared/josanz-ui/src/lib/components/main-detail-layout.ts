@@ -48,6 +48,8 @@ export class MainDetailLayoutComponent {
   @Input() avatarAriaLabel = 'Cuenta y ajustes';
 
   @Input() showFooterActions = true;
+  /** Botón guardar en la barra de tabs (solo `figma-event`). */
+  @Input() showHeaderSave = true;
   @Input() saveDisabled = true;
 
   @Output() back = new EventEmitter<void>();

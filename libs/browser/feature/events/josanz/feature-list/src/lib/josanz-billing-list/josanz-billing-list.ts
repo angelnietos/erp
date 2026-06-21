@@ -54,8 +54,10 @@ export class JosanzBillingListComponent {
       emphasis: '24 pendientes',
       after: ' de cobro',
     },
-    showAdvancedFilters: false,
-    showStatusFilters: false,
+    features: {
+      advancedFilters: false,
+      statusFilters: false,
+    },
     paginationTotal: 20,
     paginationVariant: 'numbered',
     statusBadgeStyle: 'outline',

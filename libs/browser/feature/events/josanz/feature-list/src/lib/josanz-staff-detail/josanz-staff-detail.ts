@@ -1,15 +1,11 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
 import {
   DocumentItemComponent,
-  MainDetailLayoutComponent,
+  JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
+  type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
-} from '@josanz-erp/josanz-ui';
-import {
-  navigateDetailTab,
-  readDetailTabFromRoute,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -17,24 +13,21 @@ import {
   standalone: true,
   imports: [
     CommonModule,
-    MainDetailLayoutComponent,
+    JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
   ],
   templateUrl: './josanz-staff-detail.html',
 })
-export class JosanzStaffDetailComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  activeTab = signal('Resumen');
-  readonly tabs = ['Resumen', 'Contratos', 'Nóminas', 'Ausencias'];
-
-  private readonly tabSlugMap: Record<string, string> = {
-    Resumen: 'resumen',
-    Contratos: 'contratos',
-    'Nóminas': 'nominas',
-    Ausencias: 'ausencias',
+export class JosanzStaffDetailComponent {
+  readonly shellConfig: JosanzFigmaDetailShellConfig = {
+    title: 'Laura Martín',
+    listRoute: '/staff',
+    tabs: ['Resumen', 'Contratos', 'Nóminas', 'Ausencias'],
+    statusLabel: 'Técnico',
+    statusPillKey: 'staff-tecnico',
+    saveDisabled: true,
+    features: { footerActions: false },
   };
 
   readonly avatarUrl = 'https://i.pravatar.cc/96?img=12';
@@ -54,27 +47,10 @@ export class JosanzStaffDetailComponent implements OnInit {
     { id: '2', range: '12/03/2026', type: 'Permiso', pillKey: 'en-proceso' as JosanzStatusPillKey },
   ];
 
-  ngOnInit(): void {
-    readDetailTabFromRoute(this.route, this.tabSlugMap, this.tabs, this.activeTab);
-  }
-
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
     return {
       backgroundColor: `var(--josanz-pill-${key}-bg)`,
       color: `var(--josanz-pill-${key}-text)`,
     };
-  }
-
-  setTab(tab: string): void {
-    this.activeTab.set(tab);
-    navigateDetailTab(this.router, this.route, tab, this.tabSlugMap);
-  }
-
-  onBack(): void {
-    void this.router.navigate(['/staff']);
-  }
-
-  onSave(): void {
-    this.onBack();
   }
 }
