@@ -21,10 +21,8 @@
   <div
     class="josanz-list-template-row-wrap w-full min-w-0 px-[var(--josanz-list-card-pad-x)] py-[var(--josanz-list-card-pad-y)] md:px-[var(--josanz-list-card-pad-x-md)] md:py-[var(--josanz-list-card-pad-y-md)]"
   >
-    <!-- Title row: title + badge (badge visible on mobile only) -->
-    <div
-      class="josanz-list-template-row__title flex items-center justify-between gap-2 md:block shrink-0"
-    >
+    <!-- Title row: ID / título (sin pastilla — estado solo en columna derecha) -->
+    <div class="josanz-list-template-row__title shrink-0 min-w-0">
       <div class="flex min-w-0 items-center gap-2.5">
         @if (leadingMark) {
         <span
@@ -44,20 +42,6 @@
           {{ title }}
         </h3>
       </div>
-      @if (status) {
-      <!-- Badge: mobile only -->
-      <span
-        class="md:hidden inline-flex items-center gap-1 px-3 py-1 text-[11px] font-bold rounded-full josanz-list-card__status-pill"
-        [class.josanz-list-card__status-pill--outline]="statusBadgeStyle === 'outline'"
-        [class.shadow-sm]="statusBadgeStyle !== 'outline'"
-        [ngStyle]="getBadgeStyles()"
-      >
-        @if (showStatusIcon()) {
-        <span class="josanz-list-card__status-icon" aria-hidden="true">{{ statusIcon() }}</span>
-        }
-        {{ status }}
-      </span>
-      }
     </div>
 
     <!-- Data fields -->
@@ -85,10 +69,7 @@
     </div>
 
     @if (status) {
-    <!-- Badge: desktop only -->
-    <div
-      class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end"
-    >
+    <div class="josanz-list-template-row__status flex shrink-0 justify-end">
       <span
         [ngStyle]="getBadgeStyles()"
         class="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full josanz-list-card__status-pill"

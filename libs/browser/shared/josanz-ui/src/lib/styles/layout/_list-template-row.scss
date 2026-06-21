@@ -39,6 +39,9 @@ $josanz-list-template-status: 140px;
 
 .josanz-list-template-row__status {
   min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 @media (min-width: 768px) {

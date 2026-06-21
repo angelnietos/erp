@@ -186,6 +186,11 @@
     letter-spacing: -0.01em;
   }
 
+  /* Estado solo en columna derecha — nunca bajo el ID/título */
+  .josanz-list-template-row__title .josanz-list-card__status-pill {
+    display: none !important;
+  }
+
   .josanz-list-template-row__field {
     font-weight: 500;
     color: var(--josanz-text-muted) !important;
