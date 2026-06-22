@@ -253,6 +253,54 @@
       "secret": "josanz-erp-api-secret",
       "webOrigins": ["http://localhost:3000", "http://localhost:4200"],
       "redirectUris": ["http://localhost:3000/*"]
+    },
+    {
+      "clientId": "verifactu-crm-spa",
+      "name": "Verifactu CRM SPA",
+      "description": "Angular SPA for Verifactu CRM",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "webOrigins": [
+        "http://localhost:4230",
+        "http://localhost:4200"
+      ],
+      "redirectUris": [
+        "http://localhost:4230/*",
+        "http://localhost:4200/*"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "roles",
+        "profile",
+        "email",
+        "openid"
+      ],
+      "optionalClientScopes": [
+        "offline_access"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "+"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant_id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "tenant_id",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "tenant_id",
+            "jsonType.label": "String"
+          }
+        }
+      ]
     }
   ],
   "clientScopes": [
@@ -397,6 +445,10 @@
         {"name": "user"}
       ],
       "josanz-figma-spa": [
+        {"name": "admin"},
+        {"name": "user"}
+      ],
+      "verifactu-crm-spa": [
         {"name": "admin"},
         {"name": "user"}
       ]
