@@ -6,6 +6,7 @@ import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import jwksRsa from 'jwks-rsa';
 import jwt from 'jsonwebtoken';
 import { DEFAULT_TENANT_MODULE_IDS, resolvePlatformPermissionsForRoles } from '@josanz-erp/identity-api';
+import { mergeEffectiveUserPermissions } from '../../application/utils/permission-merge';
 
 interface KeycloakToken {
   sub: string;
