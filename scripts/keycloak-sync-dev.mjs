@@ -223,6 +223,14 @@ async function syncJosanzRealm(token) {
 const PLATFORM_REALM = 'babooni-platform';
 const PLATFORM_CLIENT_ID = 'babooni-saas-platform';
 
+const PLATFORM_DEFAULT_SCOPES = [
+  'web-origins',
+  'roles',
+  'profile',
+  'email',
+  'openid',
+];
+
 function platformClientPayload() {
   const redirectUris = [
     ...DEV_ORIGINS.map((o) => `${o}/*`),
@@ -249,18 +257,197 @@ function platformClientPayload() {
       'post.logout.redirect.uris':
         'http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*',
     },
-    defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
+    defaultClientScopes: [...PLATFORM_DEFAULT_SCOPES],
     optionalClientScopes: ['offline_access'],
   };
 }
 
+async function listRealmClientScopes(token, realm) {
+  const res = await kc(token, realm, '/client-scopes');
+  if (!res.ok) {
+    throw new Error(`List client scopes failed (${realm}): ${await res.text()}`);
+  }
+  return res.json();
+}
+
+async function ensureRealmClientScope(token, realm, scopeDef) {
+  const scopes = await listRealmClientScopes(token, realm);
+  const existing = scopes.find((s) => s.name === scopeDef.name);
+  if (existing) {
+    return existing.id;
+  }
+
+  const createRes = await kc(token, realm, '/client-scopes', {
+    method: 'POST',
+    body: JSON.stringify(scopeDef),
+  });
+  if (createRes.status !== 201) {
+    throw new Error(
+      `Create client scope ${scopeDef.name} failed (${createRes.status}): ${await createRes.text()}`,
+    );
+  }
+  const location = createRes.headers.get('location') ?? '';
+  const id = location.split('/').pop();
+  console.log(`✓ Client scope ${scopeDef.name} creado en ${realm}`);
+  return id;
+}
+
+async function ensurePlatformClientScopes(token) {
+  await ensureRealmClientScope(token, PLATFORM_REALM, {
+    name: 'openid',
+    protocol: 'openid-connect',
+    attributes: {
+      'include.in.token.scope': 'true',
+      'display.on.consent.screen': 'true',
+    },
+  });
+  await ensureRealmClientScope(token, PLATFORM_REALM, {
+    name: 'email',
+    protocol: 'openid-connect',
+    attributes: {
+      'include.in.token.scope': 'true',
+      'display.on.consent.screen': 'true',
+    },
+    protocolMappers: [
+      {
+        name: 'email',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-usermodel-property-mapper',
+        config: {
+          'userinfo.token.claim': 'true',
+          'user.attribute': 'email',
+          'id.token.claim': 'true',
+          'access.token.claim': 'true',
+          'claim.name': 'email',
+          'jsonType.label': 'String',
+        },
+      },
+    ],
+  });
+  await ensureRealmClientScope(token, PLATFORM_REALM, {
+    name: 'profile',
+    protocol: 'openid-connect',
+    attributes: {
+      'include.in.token.scope': 'true',
+      'display.on.consent.screen': 'true',
+    },
+    protocolMappers: [
+      {
+        name: 'username',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-usermodel-property-mapper',
+        config: {
+          'userinfo.token.claim': 'true',
+          'user.attribute': 'username',
+          'id.token.claim': 'true',
+          'access.token.claim': 'true',
+          'claim.name': 'preferred_username',
+          'jsonType.label': 'String',
+        },
+      },
+      {
+        name: 'first name',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-usermodel-property-mapper',
+        config: {
+          'userinfo.token.claim': 'true',
+          'user.attribute': 'firstName',
+          'id.token.claim': 'true',
+          'access.token.claim': 'true',
+          'claim.name': 'given_name',
+          'jsonType.label': 'String',
+        },
+      },
+      {
+        name: 'last name',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-usermodel-property-mapper',
+        config: {
+          'userinfo.token.claim': 'true',
+          'user.attribute': 'lastName',
+          'id.token.claim': 'true',
+          'access.token.claim': 'true',
+          'claim.name': 'family_name',
+          'jsonType.label': 'String',
+        },
+      },
+    ],
+  });
+  await ensureRealmClientScope(token, PLATFORM_REALM, {
+    name: 'roles',
+    protocol: 'openid-connect',
+    attributes: {
+      'include.in.token.scope': 'true',
+      'display.on.consent.screen': 'true',
+    },
+    protocolMappers: [
+      {
+        name: 'realm roles',
+        protocol: 'openid-connect',
+        protocolMapper: 'oidc-usermodel-realm-role-mapper',
+        config: {
+          multivalued: 'true',
+          'userinfo.token.claim': 'true',
+          'id.token.claim': 'true',
+          'access.token.claim': 'true',
+          'claim.name': 'realm_access.roles',
+          'jsonType.label': 'String',
+        },
+      },
+    ],
+  });
+  await ensureRealmClientScope(token, PLATFORM_REALM, {
+    name: 'web-origins',
+    protocol: 'openid-connect',
+    attributes: {
+      'include.in.token.scope': 'false',
+      'display.on.consent.screen': 'false',
+    },
+  });
+}
+
+async function assignDefaultClientScopes(token, realm, clientUuid, scopeNames) {
+  const allScopes = await listRealmClientScopes(token, realm);
+  const currentRes = await kc(token, realm, `/clients/${clientUuid}/default-client-scopes`);
+  const current = currentRes.ok ? await currentRes.json() : [];
+  const currentIds = new Set(current.map((s) => s.id));
+
+  for (const name of scopeNames) {
+    const scope = allScopes.find((s) => s.name === name);
+    if (!scope?.id) {
+      console.warn(`⚠ Client scope "${name}" no encontrado en ${realm}`);
+      continue;
+    }
+    if (currentIds.has(scope.id)) {
+      continue;
+    }
+    const putRes = await kc(
+      token,
+      realm,
+      `/clients/${clientUuid}/default-client-scopes/${scope.id}`,
+      { method: 'PUT' },
+    );
+    if (!putRes.ok) {
+      throw new Error(`Assign default scope ${name} failed: ${await putRes.text()}`);
+    }
+    console.log(`✓ Scope ${name} asignado al cliente`);
+  }
+}
+
 async function syncPlatformRealm(token) {
   console.log(`\n→ ${PLATFORM_REALM}`);
+  await ensurePlatformClientScopes(token);
   const clientUuid = await upsertClient(
     token,
     PLATFORM_REALM,
     PLATFORM_CLIENT_ID,
     platformClientPayload(),
+  );
+  await assignDefaultClientScopes(
+    token,
+    PLATFORM_REALM,
+    clientUuid,
+    PLATFORM_DEFAULT_SCOPES,
   );
   console.log(`✓ Redirect PKCE panel: ${PLATFORM_CALLBACK}`);
   return clientUuid;
