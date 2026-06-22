@@ -1,0 +1,367 @@
+:host {
+  display: block;
+  font-family: var(--sp-font-sans);
+  color: var(--sp-text);
+}
+
+.shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 2rem) 3rem;
+}
+
+.back {
+  display: inline-block;
+  margin: 1rem 0;
+  color: var(--sp-muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.back:hover {
+  color: var(--sp-text);
+}
+
+.head h1 {
+  margin: 0;
+  font-family: var(--sp-font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+}
+
+.eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  color: var(--sp-muted);
+}
+
+.badge {
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.badge--kc {
+  background: rgba(89, 168, 244, 0.15);
+  color: #9fd0ff;
+}
+
+.badge--local {
+  background: rgba(78, 202, 114, 0.12);
+  color: #b8f3c7;
+}
+
+.hint {
+  font-size: 0.75rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin: 1.25rem 0;
+  padding: 0.25rem;
+  border: 1px solid var(--sp-line);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  width: fit-content;
+}
+
+.tabs button {
+  border: none;
+  background: transparent;
+  color: var(--sp-muted);
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.84rem;
+}
+
+.tabs button.active {
+  background: rgba(0, 75, 147, 0.45);
+  color: #fff;
+}
+
+.panel {
+  border: 1px solid var(--sp-line);
+  border-radius: var(--sp-radius-md);
+  padding: 1.1rem;
+  background: linear-gradient(165deg, rgba(18, 21, 30, 0.55), rgba(8, 9, 14, 0.35));
+}
+
+.panel-lede {
+  margin: 0 0 1rem;
+  color: var(--sp-muted);
+  font-size: 0.88rem;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.panel-head h2,
+.panel h2 {
+  margin: 0 0 0.85rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sp-muted);
+}
+
+.split {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 900px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.chip--on {
+  border-color: rgba(89, 168, 244, 0.45);
+  background: rgba(0, 75, 147, 0.2);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list li {
+  display: flex;
+  align-items: stretch;
+  gap: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.list-item {
+  flex: 1;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  color: inherit;
+  padding: 0.55rem 0.65rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.list-item.active {
+  border-color: rgba(89, 168, 244, 0.5);
+  background: rgba(0, 75, 147, 0.25);
+}
+
+.list-title {
+  display: block;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.list-sub {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--sp-muted);
+  margin-top: 0.15rem;
+}
+
+.icon-btn {
+  width: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(230, 0, 18, 0.12);
+  color: #ffb1b6;
+  cursor: pointer;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sp-muted);
+}
+
+.field input {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--sp-text);
+  font: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.perm-groups {
+  max-height: 360px;
+  overflow: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.25rem;
+}
+
+.perm-group h3 {
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.75rem;
+  color: var(--sp-gold);
+}
+
+.perm-checks {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.perm-check {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.5rem;
+  align-items: start;
+  font-size: 0.82rem;
+}
+
+.perm-check code {
+  grid-column: 2;
+  font-size: 0.68rem;
+  color: var(--sp-muted);
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  background: linear-gradient(185deg, #0a5cb8, var(--sp-accent-dim));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  font: inherit;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn--sm {
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
+}
+
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--sp-line);
+  color: var(--sp-text);
+}
+
+.user-form {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px dashed var(--sp-line);
+  border-radius: 8px;
+}
+
+.roles-fieldset {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 0.55rem 0.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sub {
+  font-size: 0.75rem;
+  color: var(--sp-muted);
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.banner {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.85rem;
+  font-size: 0.88rem;
+}
+
+.banner--ok {
+  background: rgba(78, 202, 114, 0.1);
+  border: 1px solid rgba(78, 202, 114, 0.35);
+  color: #b8f3c7;
+}
+
+.banner--err {
+  background: rgba(230, 0, 18, 0.1);
+  border: 1px solid rgba(230, 0, 18, 0.35);
+  color: #ffb1b6;
+}
+
+.state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--sp-muted);
+}

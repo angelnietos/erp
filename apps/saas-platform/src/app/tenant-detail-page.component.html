@@ -1,0 +1,179 @@
+<div class="shell">
+  <a routerLink="/tenants" class="back">← Organizaciones</a>
+
+  @if (loading()) {
+    <div class="state">Cargando…</div>
+  } @else if (tenant(); as t) {
+    <header class="head">
+      <div>
+        <p class="eyebrow">Organización</p>
+        <h1>{{ t.name }}</h1>
+        <p class="meta">
+          <code>{{ t.slug }}</code>
+          @if (t.authMode === 'keycloak') {
+            <span class="badge badge--kc">Keycloak · {{ t.keycloakRealm }}</span>
+          } @else {
+            <span class="badge badge--local">Login local</span>
+          }
+          <span class="hint">Permisos ERP → Postgres (igual local / KC)</span>
+        </p>
+      </div>
+    </header>
+
+    @if (success()) {
+      <div class="banner banner--ok">{{ success() }}</div>
+    }
+    @if (error()) {
+      <div class="banner banner--err">{{ error() }}</div>
+    }
+
+    <nav class="tabs" aria-label="Secciones del tenant">
+      <button type="button" [class.active]="activeTab() === 'modules'" (click)="setTab('modules')">Módulos</button>
+      <button type="button" [class.active]="activeTab() === 'roles'" (click)="setTab('roles')">Roles</button>
+      <button type="button" [class.active]="activeTab() === 'users'" (click)="setTab('users')">Usuarios</button>
+    </nav>
+
+    @if (activeTab() === 'modules') {
+      <section class="panel">
+        <p class="panel-lede">Módulos contratados. Los permisos de roles se filtran según esta lista.</p>
+        <div class="chip-grid">
+          @for (m of catalog; track m.id) {
+            <label class="chip" [class.chip--on]="isModuleOn(m.id)">
+              <input type="checkbox" [checked]="isModuleOn(m.id)" (change)="toggleModule(m.id, $any($event.target).checked)" />
+              {{ m.label }}
+            </label>
+          }
+        </div>
+        <button type="button" class="btn" [disabled]="savingModules()" (click)="saveModules()">
+          {{ savingModules() ? 'Guardando…' : 'Guardar módulos' }}
+        </button>
+      </section>
+    }
+
+    @if (activeTab() === 'roles') {
+      <div class="split">
+        <section class="panel panel--list">
+          <div class="panel-head">
+            <h2>Roles</h2>
+            <button type="button" class="btn btn--sm" (click)="startNewRole()">+ Nuevo</button>
+          </div>
+          <ul class="list">
+            @for (role of roles(); track role.id) {
+              <li>
+                <button type="button" class="list-item" [class.active]="selectedRoleId() === role.id" (click)="selectRole(role)">
+                  <span class="list-title">{{ role.name }}</span>
+                  <span class="list-sub">{{ role.permissions.length }} permisos · {{ role._count?.users ?? 0 }} usuarios</span>
+                </button>
+                @if (role.type !== 'SUPERADMIN') {
+                  <button type="button" class="icon-btn" title="Eliminar" (click)="removeRole(role)">×</button>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="panel">
+          <h2>{{ selectedRoleId() ? 'Editar rol' : 'Nuevo rol' }}</h2>
+          <label class="field">
+            <span>Nombre</span>
+            <input type="text" [ngModel]="roleDraftName()" (ngModelChange)="roleDraftName.set($event)" />
+          </label>
+          <label class="field">
+            <span>Descripción</span>
+            <input type="text" [ngModel]="roleDraftDescription()" (ngModelChange)="roleDraftDescription.set($event)" />
+          </label>
+          <div class="perm-groups">
+            @for (group of permissionsByGroup(); track group[0]) {
+              <div class="perm-group">
+                <h3>{{ group[0] }}</h3>
+                <div class="perm-checks">
+                  @for (p of group[1]; track p.id) {
+                    <label class="perm-check">
+                      <input type="checkbox" [checked]="hasRolePermission(p.id)" (change)="toggleRolePermission(p.id, $any($event.target).checked)" />
+                      <span>{{ p.label }}</span>
+                      <code>{{ p.id }}</code>
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <button type="button" class="btn" [disabled]="savingRole()" (click)="saveRole()">
+            {{ savingRole() ? 'Guardando…' : 'Guardar rol' }}
+          </button>
+        </section>
+      </div>
+    }
+
+    @if (activeTab() === 'users') {
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Usuarios ERP</h2>
+          <button type="button" class="btn btn--sm" (click)="openCreateUser()">+ Usuario</button>
+        </div>
+
+        @if (showUserForm()) {
+          <div class="user-form">
+            <h3>{{ editingUserId() ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
+            <label class="field"><span>Email</span><input type="email" [ngModel]="userEmail()" (ngModelChange)="userEmail.set($event)" /></label>
+            @if (!editingUserId()) {
+              <label class="field"><span>Contraseña</span><input type="password" [ngModel]="userPassword()" (ngModelChange)="userPassword.set($event)" /></label>
+            }
+            <div class="field-row">
+              <label class="field"><span>Nombre</span><input [ngModel]="userFirstName()" (ngModelChange)="userFirstName.set($event)" /></label>
+              <label class="field"><span>Apellidos</span><input [ngModel]="userLastName()" (ngModelChange)="userLastName.set($event)" /></label>
+            </div>
+            <fieldset class="roles-fieldset">
+              <legend>Roles</legend>
+              @for (name of roleNames(); track name) {
+                <label class="perm-check">
+                  <input type="checkbox" [checked]="userRoles().includes(name)" (change)="toggleUserRole(name, $any($event.target).checked)" />
+                  {{ name }}
+                </label>
+              }
+            </fieldset>
+            @if (editingUserId()) {
+              <label class="perm-check">
+                <input type="checkbox" [checked]="userActive()" (change)="userActive.set($any($event.target).checked)" />
+                Usuario activo
+              </label>
+            }
+            <div class="form-actions">
+              <button type="button" class="btn" [disabled]="savingUser()" (click)="saveUser()">{{ savingUser() ? 'Guardando…' : 'Guardar' }}</button>
+              <button type="button" class="btn btn--ghost" (click)="showUserForm.set(false)">Cancelar</button>
+            </div>
+          </div>
+        }
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Roles</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of users(); track u.id) {
+              <tr>
+                <td>
+                  <strong>{{ u.email }}</strong>
+                  @if (u.firstName || u.lastName) {
+                    <div class="sub">{{ u.firstName }} {{ u.lastName }}</div>
+                  }
+                </td>
+                <td>{{ u.roles.join(', ') || '—' }}</td>
+                <td>{{ u.isActive ? 'Activo' : 'Inactivo' }}</td>
+                <td class="actions">
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="openEditUser(u)">Editar</button>
+                  <button type="button" class="btn btn--sm btn--ghost" (click)="removeUser(u)">Eliminar</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  }
+</div>

@@ -14,6 +14,7 @@ import { PlatformLoginDto } from '../dtos/platform-login.dto';
 import {
   DEFAULT_TENANT_MODULE_IDS,
   PLATFORM_OWNER_PERMISSIONS,
+  isPlatformAdminRole,
 } from '@josanz-erp/identity-api';
 import { mergeEffectiveUserPermissions } from '../utils/permission-merge';
 
@@ -229,8 +230,15 @@ export class AuthService {
     };
   }
 
-  /** Tras login Keycloak del panel SaaS: resolver por email (no por `sub`). */
-  async refreshPlatformSessionByEmail(email: string): Promise<{
+  /** Tras login Keycloak del panel SaaS: resolver por email; auto-provision si rol KC admin. */
+  async refreshPlatformSessionByEmail(
+    email: string,
+    keycloakProfile?: {
+      firstName?: string;
+      lastName?: string;
+      realmRoles?: string[];
+    },
+  ): Promise<{
     accessToken: string;
     user: AuthenticatedUserView;
     tenantId: string;
@@ -239,14 +247,49 @@ export class AuthService {
     if (!normalized) {
       throw new UnauthorizedException('Email requerido');
     }
-    const row = await this.prisma.platformUser.findUnique({
+    let row = await this.prisma.platformUser.findUnique({
       where: { email: normalized },
     });
-    if (!row || !row.isActive) {
-      throw new UnauthorizedException(
-        'Usuario de plataforma no registrado. Añádelo en platform_users o usa login local.',
+
+    if (!row) {
+      const realmRoles = keycloakProfile?.realmRoles ?? [];
+      if (!realmRoles.some(isPlatformAdminRole)) {
+        throw new UnauthorizedException(
+          'Usuario Keycloak sin rol PlatformOwner/PlatformAdmin.',
+        );
+      }
+      const placeholderHash = await bcrypt.hash(
+        `kc-auto:${normalized}:${Date.now()}`,
+        10,
       );
+      row = await this.prisma.platformUser.create({
+        data: {
+          email: normalized,
+          password: placeholderHash,
+          firstName: keycloakProfile?.firstName ?? null,
+          lastName: keycloakProfile?.lastName ?? null,
+          isActive: true,
+        },
+      });
     }
+
+    if (!row.isActive) {
+      throw new UnauthorizedException('Usuario de plataforma desactivado');
+    }
+
+    if (
+      keycloakProfile?.firstName ||
+      keycloakProfile?.lastName
+    ) {
+      await this.prisma.platformUser.update({
+        where: { id: row.id },
+        data: {
+          firstName: keycloakProfile.firstName ?? row.firstName,
+          lastName: keycloakProfile.lastName ?? row.lastName,
+        },
+      });
+    }
+
     return this.refreshPlatformSession(row.id);
   }
 

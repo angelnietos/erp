@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../environments/environment';
 import {
@@ -31,7 +32,7 @@ type ModuleCategoryGroup = {
 @Component({
   standalone: true,
   selector: 'app-tenants-page',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="shell">
       <header class="page-head">
@@ -162,6 +163,7 @@ type ModuleCategoryGroup = {
               }
 
               <div class="tile-actions">
+                <a [routerLink]="['/tenants', t.id]" class="btn-secondary">Roles y usuarios</a>
                 <button
                   type="button"
                   class="btn-primary"
@@ -640,6 +642,29 @@ type ModuleCategoryGroup = {
       .tile-actions {
         padding: 0 1.3rem 1.3rem;
         margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+
+      .btn-secondary {
+        display: block;
+        width: 100%;
+        padding: 0.65rem 1rem;
+        border-radius: var(--sp-radius-sm);
+        border: 1px solid rgba(89, 168, 244, 0.45);
+        background: rgba(0, 75, 147, 0.15);
+        color: #cfe8ff;
+        font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        letter-spacing: 0.04em;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(0, 75, 147, 0.28);
       }
 
       .btn-primary {

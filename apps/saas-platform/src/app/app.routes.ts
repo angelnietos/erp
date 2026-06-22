@@ -20,6 +20,13 @@ export const appRoutes: Route[] = [
           import('./tenants-page.component').then((m) => m.TenantsPageComponent),
       },
       {
+        path: 'tenants/:tenantId',
+        loadComponent: () =>
+          import('./tenant-detail-page.component').then(
+            (m) => m.TenantDetailPageComponent,
+          ),
+      },
+      {
         path: 'metrics',
         loadComponent: () =>
           import('./metrics-page.component').then((m) => m.MetricsPageComponent),

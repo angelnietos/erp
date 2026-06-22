@@ -9,6 +9,8 @@ export const PLATFORM_PERMISSIONS_CATALOG: readonly PlatformPermissionEntry[] = 
   { id: 'platform.tenants.read', label: 'Ver organizaciones' },
   { id: 'platform.tenants.manage', label: 'Gestionar módulos por tenant' },
   { id: 'platform.modules.manage', label: 'Configurar catálogo de módulos' },
+  { id: 'platform.identity.read', label: 'Ver usuarios y roles por tenant' },
+  { id: 'platform.identity.manage', label: 'Gestionar usuarios y roles por tenant' },
   { id: 'platform.metrics.read', label: 'Ver métricas' },
 ] as const;
 
@@ -41,5 +43,17 @@ export function userHasPlatformPermission(
   required: string,
 ): boolean {
   const p = permissions ?? [];
-  return p.includes(required) || p.includes('platform.tenants.manage');
+  if (p.includes('platform.tenants.manage')) {
+    return true;
+  }
+  if (required === 'platform.tenants.read' && p.includes('platform.identity.read')) {
+    return true;
+  }
+  if (
+    (required === 'platform.identity.read' || required === 'platform.identity.manage') &&
+    p.includes('platform.identity.manage')
+  ) {
+    return true;
+  }
+  return p.includes(required);
 }

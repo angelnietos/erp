@@ -11,6 +11,7 @@ import { UsersController } from './presentation/controllers/users.controller';
 import { RolesController } from './presentation/controllers/roles.controller';
 import { TenantModulesController } from './presentation/controllers/tenant-modules.controller';
 import { PlatformTenantsController } from './presentation/controllers/platform-tenants.controller';
+import { PlatformTenantIdentityController } from './presentation/controllers/platform-tenant-identity.controller';
 import { PlatformAuthController } from './presentation/controllers/platform-auth.controller';
 import { AuthService } from './application/services/auth.service';
 import { BffAuthService } from './application/services/bff-auth.service';
@@ -28,6 +29,7 @@ import { PlatformJwtStrategy } from './infrastructure/auth/platform-jwt.strategy
 import { USER_REPOSITORY } from '@josanz-erp/identity-core';
 import { PrismaUserRepository } from './infrastructure/repositories/prisma-user.repository';
 import { ErpBffSessionRenewer } from './infrastructure/bff/erp-bff-session-renewer';
+import { PlatformTenantContextService } from './application/services/platform-tenant-context.service';
 import { PasswordResetService } from './application/services/password-reset.service';
 
 export interface IdentityConfig {
@@ -67,6 +69,7 @@ export class IdentityModule {
         RolesController,
         TenantModulesController,
         PlatformTenantsController,
+        PlatformTenantIdentityController,
         PlatformAuthController,
       ],
       providers: [
@@ -79,6 +82,7 @@ export class IdentityModule {
         TenantModulesNotifierService,
         TenantRealmSyncService,
         TenantIdentityNotifierService,
+        PlatformTenantContextService,
         TenantModulesRealtimeGateway,
         PlatformOwnerGuard,
         PlatformJwtGuard,

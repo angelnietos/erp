@@ -5,10 +5,15 @@ import {
   Param,
   Body,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
-import { SkipTenantGuard } from '@josanz-erp/shared-infrastructure';
+import {
+  JwtAuthGuard,
+  PermissionsGuard,
+  RequirePermissions,
+  SkipTenantGuard,
+} from '@josanz-erp/shared-infrastructure';
 import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
-import { JwtAuthGuard } from '@josanz-erp/shared-infrastructure';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
@@ -27,7 +32,8 @@ class UpdateTenantModulesDto {
   enabledModuleIds!: string[];
 }
 
-@UseGuards(JwtAuthGuard, PlatformJwtGuard)
+@UseGuards(JwtAuthGuard, PlatformJwtGuard, PermissionsGuard)
+@SkipTenantGuard()
 @Controller('platform/tenants')
 export class PlatformTenantsController {
   constructor(
@@ -35,8 +41,8 @@ export class PlatformTenantsController {
     private readonly tenantRealmSyncService: TenantRealmSyncService,
   ) {}
 
-  @SkipTenantGuard()
   @Get('permissions-policy')
+  @RequirePermissions('platform.tenants.read', 'platform.tenants.manage', 'platform.identity.read')
   getPermissionsPolicy() {
     return {
       authorizationModel: {
@@ -59,20 +65,18 @@ export class PlatformTenantsController {
     };
   }
 
-  @SkipTenantGuard()
   @Get()
+  @RequirePermissions('platform.tenants.read', 'platform.tenants.manage', 'platform.identity.read')
   async getAllTenants() {
-    const tenants = await this.tenantModulesService.getAllTenants();
-    return tenants;
+    return this.tenantModulesService.getAllTenants();
   }
 
-  @SkipTenantGuard()
   @Put(':tenantId/modules')
+  @RequirePermissions('platform.tenants.manage', 'platform.modules.manage')
   async updateTenantModules(
-    @Param('tenantId') tenantId: string,
+    @Param('tenantId', ParseUUIDPipe) tenantId: string,
     @Body() body: UpdateTenantModulesDto,
   ) {
-    
     const { enabledModuleIds } = body;
     const normalized = normalizeTenantModuleIds(enabledModuleIds);
     await this.tenantModulesService.updateEnabledModuleIds(tenantId, {

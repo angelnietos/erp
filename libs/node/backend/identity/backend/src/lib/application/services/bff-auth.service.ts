@@ -312,7 +312,14 @@ export class BffAuthService {
         (typeof payload?.preferred_username === 'string' &&
           payload.preferred_username) ||
         dto.email;
-      enriched = await this.authService.refreshPlatformSessionByEmail(email);
+      const realmAccess = payload?.realm_access as { roles?: string[] } | undefined;
+      enriched = await this.authService.refreshPlatformSessionByEmail(email, {
+        firstName:
+          typeof payload?.given_name === 'string' ? payload.given_name : undefined,
+        lastName:
+          typeof payload?.family_name === 'string' ? payload.family_name : undefined,
+        realmRoles: realmAccess?.roles ?? [],
+      });
       accessToken = enriched.accessToken;
     } else {
       enriched = await this.authService.platformLogin(dto);
