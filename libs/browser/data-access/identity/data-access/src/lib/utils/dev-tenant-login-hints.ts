@@ -43,6 +43,13 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     password: DEV_TENANT_LOGIN_PASSWORD,
     primary: true,
   },
+  {
+    slug: 'platform',
+    email: 'platform@babooni.com',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    primary: true,
+    note: 'Panel SaaS (:4300)',
+  },
 ] as const;
 
 export function getDevLoginHintsForTenant(slug: string): DevTenantLoginHint[] {

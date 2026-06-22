@@ -48,6 +48,18 @@ export {
   PLATFORM_KEYCLOAK_REALM_ROLES,
 } from './lib/platform-keycloak';
 
+export {
+  ERP_PLATFORM_APP_SLUG,
+  ERP_EXTERNAL_APP_CATALOG,
+  configureErpExternalAppBaseUrls,
+  resetErpExternalAppBaseUrlsForTests,
+  isExternalErpAppSlug,
+  getExternalErpAppDefinition,
+  resolveExternalAppLaunchUrl,
+  type ErpExternalAppDefinition,
+  type ErpExternalAppKind,
+} from './lib/erp-app-launcher';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;

@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, HostListener, inject, OnInit, signal, isDevMode } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  HostListener,
+  inject,
+  OnInit,
+  signal,
+  isDevMode,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,7 +19,13 @@ import {
   DEV_TENANT_LOGIN_PASSWORD,
   AuthService,
 } from '@josanz-erp/identity-data-access';
-import { getTenantKeycloakConfig, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
+import {
+  ERP_EXTERNAL_APP_CATALOG,
+  getTenantKeycloakConfig,
+  isExternalErpAppSlug,
+  resolveExternalAppLaunchUrl,
+  tenantUsesKeycloakLogin,
+} from '@josanz-erp/identity-api';
 import { clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
@@ -51,8 +66,8 @@ export class TenantSelectComponent implements OnInit {
     clearPkceRedirectPending();
   }
 
-  /** Alineado con seed: `josanz`, `babooni`, `alexis` en `prisma/seed.ts`. */
-  readonly tenants: TenantChoice[] = [
+  /** Organizaciones ERP (mismo shell :4200, distinto tenant). */
+  readonly erpTenants: TenantChoice[] = [
     {
       slug: 'josanz',
       name: 'Josanz Audiovisuales',
@@ -71,27 +86,49 @@ export class TenantSelectComponent implements OnInit {
     {
       slug: 'docs',
       name: 'Generador de Documentos',
-      description: 'App de documentos IA (apps/document-generator en :4200).',
+      description: 'App de documentos IA integrada en el ERP.',
     },
   ];
+
+  /** Apps independientes enlazadas desde el hub (p. ej. panel SaaS :4300). */
+  readonly externalApps = ERP_EXTERNAL_APP_CATALOG;
 
   readonly customSlug = signal('');
   readonly selectedSlug = signal<string | null>(null);
 
-  /** Cuentas seed para acceso rápido en desarrollo. */
   readonly isDev = isDevMode();
   readonly devLoginHints = DEV_TENANT_LOGIN_HINTS;
   readonly devLoginPassword = DEV_TENANT_LOGIN_PASSWORD;
 
-  /** Previsualizar selva al elegir babooni en el grid. */
-  readonly backgroundTheme = computed<BackgroundTheme>(() =>
-    this.selectedSlug() === 'babooni' ? 'babooni' : 'josanz-classic'
+  readonly activeSlug = computed(
+    () =>
+      this.selectedSlug()?.trim().toLowerCase() ||
+      this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '') ||
+      '',
   );
+
+  readonly isExternalSelection = computed(() => isExternalErpAppSlug(this.activeSlug()));
+
+  readonly continueLabel = computed(() => {
+    if (this.handoffInProgress()) {
+      return this.isExternalSelection() ? 'Abriendo aplicación…' : 'Redirigiendo a Keycloak…';
+    }
+    return this.isExternalSelection() ? 'Abrir aplicación' : 'Continuar al acceso';
+  });
+
+  readonly backgroundTheme = computed<BackgroundTheme>(() => {
+    const slug = this.selectedSlug();
+    if (slug === 'babooni' || slug === 'platform') {
+      return 'babooni';
+    }
+    return 'josanz-classic';
+  });
 
   selectTenant(slug: string): void {
     const s = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!s) return;
     this.selectedSlug.set(s);
+    this.customSlug.set('');
   }
 
   continueWithSelected(): void {
@@ -100,14 +137,21 @@ export class TenantSelectComponent implements OnInit {
       this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!slug || this.handoffInProgress()) return;
 
+    if (isExternalErpAppSlug(slug)) {
+      const launchUrl = resolveExternalAppLaunchUrl(slug);
+      if (!launchUrl) {
+        return;
+      }
+      this.handoffInProgress.set(true);
+      window.location.assign(launchUrl);
+      return;
+    }
+
     sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     setErpTenantSlug(slug);
     this.theme.reapplyTheme();
 
-    if (
-      tenantUsesKeycloakLogin(slug) &&
-      this.authService.canUseKeycloakPkce(slug)
-    ) {
+    if (tenantUsesKeycloakLogin(slug) && this.authService.canUseKeycloakPkce(slug)) {
       const cfg = getTenantKeycloakConfig(slug);
       if (!cfg) {
         void this.router.navigate(['/auth/login'], { queryParams: { tenant: slug, local: '1' } });

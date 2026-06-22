@@ -13,4 +13,6 @@ export const environment = {
   keycloakEnabled: true,
   /** URL de un dashboard Grafana para embeber (p. ej. …?kiosk=tv&theme=dark). Vacío = pantalla de ayuda. */
   grafanaDashboardUrl: '' as string,
+  /** Selector de apps del ERP (`apps/frontend`). */
+  erpHubUrl: 'http://localhost:4200/auth/tenant',
 };

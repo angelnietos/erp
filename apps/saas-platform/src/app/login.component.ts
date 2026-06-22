@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { setPlatformToken } from './platform-auth.interceptor';
 import { KeycloakAuthService } from './keycloak-auth.service';
+import { environment } from '../environments/environment';
 
 @Component({
   standalone: true,
@@ -96,6 +97,10 @@ import { KeycloakAuthService } from './keycloak-auth.service';
           }
         }
       </div>
+
+      @if (erpHubUrl) {
+        <a class="hub-link" [href]="erpHubUrl">← Hub de aplicaciones (ERP)</a>
+      }
     </div>
   `,
   styles: [
@@ -438,6 +443,21 @@ import { KeycloakAuthService } from './keycloak-auth.service';
         border: 1px solid rgba(255, 255, 255, 0.06);
       }
 
+      .hub-link {
+        position: relative;
+        z-index: 2;
+        margin-top: 1.15rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--sp-muted);
+        text-decoration: none;
+        transition: color 0.15s ease;
+      }
+
+      .hub-link:hover {
+        color: var(--sp-accent-secondary);
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .login-card::before {
           animation: none;
@@ -454,6 +474,8 @@ export class LoginComponent implements OnInit {
   private readonly auth = inject(KeycloakAuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+
+  readonly erpHubUrl = environment.erpHubUrl?.trim() ?? '';
 
   email = 'platform@babooni.com';
   password = '';

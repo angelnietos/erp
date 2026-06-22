@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { clearPlatformToken } from './platform-auth.interceptor';
 import { KeycloakAuthService } from './keycloak-auth.service';
+import { environment } from '../environments/environment';
 
 @Component({
   standalone: true,
@@ -42,6 +43,10 @@ import { KeycloakAuthService } from './keycloak-auth.service';
             </span>
             Cerrar sesión
           </button>
+
+          @if (erpHubUrl) {
+            <a class="hub-link" [href]="erpHubUrl">Hub apps</a>
+          }
         </div>
       </header>
 
@@ -197,6 +202,24 @@ import { KeycloakAuthService } from './keycloak-auth.service';
         height: 100%;
       }
 
+      .hub-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.52rem 0.85rem;
+        border-radius: var(--sp-radius-sm);
+        border: 1px solid var(--sp-line);
+        color: var(--sp-muted);
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.15s ease, border-color 0.15s ease;
+      }
+
+      .hub-link:hover {
+        color: var(--sp-text);
+        border-color: var(--sp-line-strong);
+      }
+
       .body {
         flex: 1;
         min-height: 0;
@@ -225,6 +248,8 @@ import { KeycloakAuthService } from './keycloak-auth.service';
 export class PlatformShellComponent {
   private readonly router = inject(Router);
   private readonly auth = inject(KeycloakAuthService);
+
+  readonly erpHubUrl = environment.erpHubUrl?.trim() ?? '';
 
   logout(): void {
     this.auth.logout().subscribe(() => {

@@ -16,4 +16,8 @@ export const environment = {
     clientId: 'josanz-web-app-spa',
     enabled: false,
   },
+  apps: {
+    platform: '',
+    erpHub: '/auth/tenant',
+  },
 };

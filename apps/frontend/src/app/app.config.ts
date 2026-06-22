@@ -8,6 +8,7 @@ import {
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors, HttpErrorResponse } from '@angular/common/http';
 import { appRoutes } from './app.routes';
+import { configureErpExternalAppBaseUrls } from '@josanz-erp/identity-api';
 import {
   authInterceptor,
   tenantInterceptor,
@@ -206,6 +207,10 @@ import {
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 import { environment } from '../environments/environment';
+
+if (environment.apps?.platform?.trim()) {
+  configureErpExternalAppBaseUrls({ platform: environment.apps.platform.trim() });
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [

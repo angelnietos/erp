@@ -22,4 +22,9 @@ export const environment = {
     clientId: 'josanz-web-app-spa',
     enabled: true,
   },
+  /** Hub de apps: panel SaaS independiente (`nx serve saas-platform`). */
+  apps: {
+    platform: 'http://localhost:4300',
+    erpHub: 'http://localhost:4200/auth/tenant',
+  },
 };

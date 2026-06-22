@@ -8,19 +8,20 @@
     <div class="auth-card__header">
       <div class="auth-header">
         <div class="logo-circle animate-in stagger-1">
-          <lucide-icon name="building-2" class="logo-icon" size="24"></lucide-icon>
+          <lucide-icon name="layout-dashboard" class="logo-icon" size="24"></lucide-icon>
         </div>
-        <p class="brand-tag text-uppercase animate-in stagger-2">Josanz ERP</p>
-        <h1 class="animate-in stagger-2">Elige tu organización</h1>
+        <p class="brand-tag text-uppercase animate-in stagger-2">Babooni Hub</p>
+        <h1 class="animate-in stagger-2">Elige tu aplicación</h1>
         <p class="lead animate-in stagger-3">
-          Selecciona el entorno antes de iniciar sesión.
+          Organizaciones ERP en este portal o panel SaaS de plataforma.
         </p>
       </div>
     </div>
 
     <div class="auth-card__body">
+      <p class="section-label animate-in stagger-3">Organizaciones ERP</p>
       <div class="tenant-grid animate-in stagger-3">
-        @for (t of tenants; track t.slug) {
+        @for (t of erpTenants; track t.slug) {
           <button
             type="button"
             class="tenant-card"
@@ -38,8 +39,28 @@
         }
       </div>
 
-      <div class="custom-slug animate-in stagger-4">
-        <label for="custom-slug-input">Otro tenant (slug)</label>
+      <p class="section-label animate-in stagger-4">Aplicaciones de plataforma</p>
+      <div class="tenant-grid tenant-grid--apps animate-in stagger-4">
+        @for (app of externalApps; track app.slug) {
+          <button
+            type="button"
+            class="tenant-card tenant-card--external"
+            [class.tenant-card--active]="selectedSlug() === app.slug"
+            (click)="selectTenant(app.slug)"
+          >
+            <div class="tenant-card__icon tenant-card__icon--external">
+              <lucide-icon name="layout-dashboard" size="18"></lucide-icon>
+            </div>
+            <div class="tenant-card__body">
+              <span class="tenant-card__name">{{ app.name }}</span>
+              <span class="tenant-card__slug">{{ app.slug }} · app externa</span>
+            </div>
+          </button>
+        }
+      </div>
+
+      <div class="custom-slug animate-in stagger-5">
+        <label for="custom-slug-input">Otro tenant ERP (slug)</label>
         <input
           id="custom-slug-input"
           type="text"
@@ -51,7 +72,7 @@
       </div>
 
       @if (isDev) {
-        <details class="dev-accounts animate-in stagger-4">
+        <details class="dev-accounts animate-in stagger-5">
           <summary>Cuentas demo (dev)</summary>
           <ul class="dev-accounts__list">
             @for (hint of devLoginHints; track hint.email) {
@@ -60,6 +81,9 @@
                 · <code>{{ hint.email }}</code>
                 @if (hint.primary) {
                   <span class="dev-accounts__badge">principal</span>
+                }
+                @if (hint.note) {
+                  <span class="dev-accounts__note">{{ hint.note }}</span>
                 }
               </li>
             }
@@ -75,13 +99,14 @@
       <button
         type="button"
         class="btn-continue animate-in stagger-5"
+        [class.btn-continue--external]="isExternalSelection()"
         [disabled]="(!selectedSlug() && !customSlug().trim()) || handoffInProgress()"
         (click)="continueWithSelected()"
       >
         @if (handoffInProgress()) {
-          Redirigiendo a Keycloak…
+          {{ continueLabel() }}
         } @else {
-          Continuar al acceso
+          {{ continueLabel() }}
           <lucide-icon name="arrow-right" size="18"></lucide-icon>
         }
       </button>

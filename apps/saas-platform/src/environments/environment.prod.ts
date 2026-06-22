@@ -13,4 +13,5 @@ export const environment = {
   keycloakEnabled: false,
   /** Configurar en build o sustituir por URL real del dashboard Grafana. */
   grafanaDashboardUrl: '' as string,
+  erpHubUrl: '/auth/tenant',
 };
