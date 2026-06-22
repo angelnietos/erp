@@ -2,6 +2,7 @@
   "realm": "babooni-tenant",
   "enabled": true,
   "displayName": "Babooni ERP Tenant",
+  "loginTheme": "babooni-erp",
   "internationalizationEnabled": true,
   "supportedLocales": ["es", "en"],
   "defaultLocale": "es",
@@ -84,6 +85,11 @@
       "webOrigins": ["http://localhost:4200"],
       "redirectUris": ["http://localhost:4200/*"],
       "defaultClientScopes": ["web-origins", "roles", "profile", "email", "openid"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "login_theme": "babooni-erp",
+        "post.logout.redirect.uris": "http://localhost:4200/auth/login*"
+      },
       "protocolMappers": [
         {
           "name": "tenant_id",

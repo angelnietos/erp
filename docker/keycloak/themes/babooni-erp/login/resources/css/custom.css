@@ -1,4 +1,4 @@
-/* Babooni Platform — login Keycloak (realm babooni-platform) */
+/* Babooni ERP tenant — login Keycloak (realm babooni-tenant) */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Rajdhani:wght@500;600;700&display=swap');
 
 :root {
@@ -35,74 +35,79 @@ body {
   background: var(--bb-bg0) !important;
 }
 
-/* Hero izquierdo — consola SaaS (red hub + red de tenants) */
+/* Hero derecho — organización ERP Biosstel (layout invertido vs Platform) */
 html.login-pf::before {
   content: '';
   position: fixed;
   top: 0;
-  left: 0;
-  width: 54vw;
+  right: 0;
+  left: auto;
+  width: 56vw;
   height: 100vh;
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    url('../img/hero-platform.svg') center / cover no-repeat,
-    radial-gradient(820px 480px at 28% 72%, rgba(227, 6, 19, 0.55), transparent 58%),
-    radial-gradient(640px 400px at 78% 18%, rgba(0, 75, 147, 0.22), transparent 55%),
-    linear-gradient(155deg, #0a0010 0%, #3a0008 35%, #8a0010 68%, #e30613 100%);
-  background-size: 48px 48px, 48px 48px, cover, auto, auto, auto;
+    linear-gradient(rgba(89, 168, 244, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(89, 168, 244, 0.06) 1px, transparent 1px),
+    url('../img/hero-erp.svg') center / cover no-repeat,
+    radial-gradient(760px 520px at 72% 78%, rgba(0, 75, 147, 0.48), transparent 58%),
+    radial-gradient(540px 360px at 24% 22%, rgba(89, 168, 244, 0.18), transparent 55%),
+    linear-gradient(215deg, #020610 0%, #041428 38%, #062850 72%, #004b93 100%);
+  background-size: 64px 64px, 64px 64px, cover, auto, auto, auto;
 }
 
 html.login-pf::after {
-  content: 'CONSOLA';
+  content: 'BIOSSTEL';
   position: fixed;
-  left: clamp(1.75rem, 4vw, 3.25rem);
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
   bottom: clamp(1.75rem, 4vw, 3.25rem);
   z-index: 1;
   pointer-events: none;
   font-family: var(--bb-font-display);
-  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
   font-weight: 700;
-  letter-spacing: 0.38em;
-  color: rgba(255, 255, 255, 0.11);
+  letter-spacing: 0.34em;
+  color: rgba(255, 255, 255, 0.09);
   line-height: 1;
 }
 
 .pf-v5-c-login::before {
-  content: 'Tenants · módulos · observabilidad';
+  content: 'Tu organización · operaciones · equipos';
   position: fixed;
-  left: clamp(1.75rem, 4vw, 3.25rem);
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
   top: 50%;
-  transform: translateY(-20%);
+  transform: translateY(-18%);
   z-index: 1;
   pointer-events: none;
-  max-width: min(340px, 38vw);
+  max-width: min(360px, 40vw);
+  text-align: right;
   font-family: var(--bb-font-display);
-  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
   font-weight: 600;
-  line-height: 1.25;
-  letter-spacing: 0.06em;
+  line-height: 1.28;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.82);
-  text-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  color: rgba(232, 238, 248, 0.88);
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
 }
 
 .pf-v5-c-login::after {
-  content: 'Babooni Platform';
+  content: 'Babooni · Tenant ERP';
   position: fixed;
-  left: clamp(1.75rem, 4vw, 3.25rem);
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
   top: clamp(1.75rem, 4vw, 3.25rem);
   z-index: 1;
   pointer-events: none;
   font-family: var(--bb-font-display);
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.58);
+  color: rgba(89, 168, 244, 0.85);
 }
 
 .pf-v5-c-login {
@@ -122,7 +127,7 @@ html.login-pf::after {
 }
 
 .pf-v5-c-login__container {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
   display: flex !important;
   align-items: center;
@@ -134,9 +139,8 @@ html.login-pf::after {
   padding: clamp(1.5rem, 4vw, 3rem);
   box-sizing: border-box;
   background:
-    radial-gradient(680px 380px at 50% -10%, rgba(0, 75, 147, 0.16), transparent 60%),
-    radial-gradient(520px 320px at 100% 100%, rgba(227, 6, 19, 0.08), transparent 55%),
-    linear-gradient(165deg, rgba(4, 8, 20, 0.98) 0%, rgba(10, 16, 32, 0.96) 100%);
+    radial-gradient(520px 320px at 20% 0%, rgba(0, 75, 147, 0.1), transparent 55%),
+    linear-gradient(165deg, rgba(6, 10, 18, 0.98) 0%, rgba(8, 14, 26, 0.96) 100%);
   overflow-y: auto;
 }
 
@@ -164,7 +168,7 @@ html.login-pf::after {
   top: 0;
   height: 3px;
   border-radius: 16px 16px 0 0;
-  background: linear-gradient(90deg, var(--bb-red) 0%, var(--bb-blue-light) 55%, var(--bb-blue) 100%);
+  background: linear-gradient(90deg, var(--bb-blue-light) 0%, var(--bb-blue) 55%, #003366 100%);
 }
 
 /* Cabecera: logo + idioma arriba; título a ancho completo debajo */
@@ -250,7 +254,7 @@ html.login-pf::after {
 }
 
 #kc-page-title::before {
-  content: 'Consola';
+  content: 'Tenant';
   display: block;
   margin-bottom: 0.4rem;
   font-family: var(--bb-font-sans);
@@ -265,7 +269,7 @@ html.login-pf::after {
 }
 
 .pf-v5-c-login__header > div:first-child::after {
-  content: 'Gestión de tenants, usuarios platform y permisos del producto.';
+  content: 'Entorno operativo de tu organización Babooni (shell Biosstel).';
   display: block;
   margin-top: 0.55rem;
   font-family: var(--bb-font-sans);
@@ -458,8 +462,10 @@ input[name='login'] {
   html.login-pf::before {
     position: relative;
     display: block;
+    right: auto;
+    left: 0;
     width: 100%;
-    height: min(200px, 32vh);
+    height: min(220px, 34vh);
   }
 
   html.login-pf::after,
@@ -487,30 +493,6 @@ input[name='login'] {
     padding-top: 1.25rem;
     padding-bottom: 2rem;
     background: var(--bb-bg0);
-  }
-
-  .pf-v5-c-login__header {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-  }
-
-  .pf-v5-c-login__header::before {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  #kc-locale,
-  .pf-v5-c-login__header .pf-v5-c-form-control,
-  .pf-v5-c-login__header select,
-  .pf-v5-c-login__header > div:last-child:not(:first-child) {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: start;
-    margin-top: 0.25rem !important;
-  }
-
-  .pf-v5-c-login__header > div:first-child {
-    grid-row: 3;
   }
 }
 

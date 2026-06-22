@@ -82,7 +82,33 @@ async function upsertClient(token, realm, clientId, payload) {
 
 const JOSANZ_REALM = 'josanz-web-app-realm';
 const JOSANZ_CLIENT_ID = 'josanz-figma-spa';
+const JOSANZ_WEB_SPA_CLIENT_ID = 'josanz-web-app-spa';
 const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
+
+function josanzWebAppClientPayload() {
+  return {
+    clientId: JOSANZ_WEB_SPA_CLIENT_ID,
+    name: 'Josanz Web App SPA',
+    description: 'Angular SPA Josanz ERP (tenants josanz, …)',
+    enabled: true,
+    publicClient: true,
+    directAccessGrantsEnabled: true,
+    standardFlowEnabled: true,
+    implicitFlowEnabled: false,
+    serviceAccountsEnabled: false,
+    protocol: 'openid-connect',
+    webOrigins: [...DEV_ORIGINS],
+    redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
+    attributes: {
+      'pkce.code.challenge.method': 'S256',
+      login_theme: 'josanz-figma',
+      'post.logout.redirect.uris':
+        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
+    },
+    defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
+    optionalClientScopes: ['offline_access'],
+  };
+}
 
 function josanzClientPayload() {
   return {
@@ -117,6 +143,7 @@ async function syncJosanzRealmLoginUx(token) {
   const realm = await getRes.json();
   const payload = {
     ...realm,
+    loginTheme: 'josanz-figma',
     internationalizationEnabled: true,
     supportedLocales: ['es', 'en'],
     defaultLocale: 'es',
@@ -132,7 +159,7 @@ async function syncJosanzRealmLoginUx(token) {
   if (!putRes.ok) {
     throw new Error(`Update realm login UX failed: ${await putRes.text()}`);
   }
-  console.log(`✓ ${JOSANZ_REALM}: recordarme, recuperar contraseña e i18n (es)`);
+  console.log(`✓ ${JOSANZ_REALM}: tema josanz-figma, i18n ES, recordarme`);
 }
 
 async function ensureClientRoles(token, realm, clientUuid, clientId, roleNames) {
@@ -213,9 +240,77 @@ async function upsertAlexisUser(token, clientUuid) {
 async function syncJosanzRealm(token) {
   console.log(`\n→ ${JOSANZ_REALM}`);
   await syncJosanzRealmLoginUx(token);
+  await upsertClient(token, JOSANZ_REALM, JOSANZ_WEB_SPA_CLIENT_ID, josanzWebAppClientPayload());
   const clientUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_CLIENT_ID, josanzClientPayload());
   await ensureClientRoles(token, JOSANZ_REALM, clientUuid, JOSANZ_CLIENT_ID, ['admin', 'user']);
   await upsertAlexisUser(token, clientUuid);
+}
+
+// --- Babooni ERP tenant (babooni-tenant) ---
+
+const BABOONI_TENANT_REALM = 'babooni-tenant';
+const BABOONI_TENANT_CLIENT_ID = 'josanz-web-app-spa';
+
+function babooniTenantClientPayload() {
+  return {
+    clientId: BABOONI_TENANT_CLIENT_ID,
+    name: 'Josanz Web App SPA (Babooni)',
+    description: 'ERP tenant babooni — login theme babooni-erp',
+    enabled: true,
+    publicClient: true,
+    directAccessGrantsEnabled: true,
+    standardFlowEnabled: true,
+    implicitFlowEnabled: false,
+    serviceAccountsEnabled: false,
+    protocol: 'openid-connect',
+    webOrigins: [...DEV_ORIGINS],
+    redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
+    attributes: {
+      'pkce.code.challenge.method': 'S256',
+      login_theme: 'babooni-erp',
+      'post.logout.redirect.uris':
+        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*',
+    },
+    defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
+    optionalClientScopes: ['offline_access'],
+  };
+}
+
+async function syncBabooniTenantRealmLoginUx(token) {
+  const getRes = await kc(token, BABOONI_TENANT_REALM, '');
+  if (!getRes.ok) {
+    throw new Error(`Read realm ${BABOONI_TENANT_REALM} failed: ${await getRes.text()}`);
+  }
+  const realm = await getRes.json();
+  const putRes = await kc(token, BABOONI_TENANT_REALM, '', {
+    method: 'PUT',
+    body: JSON.stringify({
+      ...realm,
+      loginTheme: 'babooni-erp',
+      internationalizationEnabled: true,
+      supportedLocales: ['es', 'en'],
+      defaultLocale: 'es',
+      loginWithEmailAllowed: true,
+      rememberMe: true,
+      resetPasswordAllowed: true,
+      registrationAllowed: false,
+    }),
+  });
+  if (!putRes.ok) {
+    throw new Error(`Update ${BABOONI_TENANT_REALM} login UX failed: ${await putRes.text()}`);
+  }
+  console.log(`✓ ${BABOONI_TENANT_REALM}: tema babooni-erp, i18n ES, recordarme`);
+}
+
+async function syncBabooniTenantRealm(token) {
+  console.log(`\n→ ${BABOONI_TENANT_REALM}`);
+  await syncBabooniTenantRealmLoginUx(token);
+  await upsertClient(
+    token,
+    BABOONI_TENANT_REALM,
+    BABOONI_TENANT_CLIENT_ID,
+    babooniTenantClientPayload(),
+  );
 }
 
 // --- Panel SaaS (babooni-platform) ---
@@ -485,8 +580,9 @@ async function main() {
   console.log(`Keycloak sync → ${KC_BASE}`);
   const token = await getAdminToken();
   await syncJosanzRealm(token);
+  await syncBabooniTenantRealm(token);
   await syncPlatformRealm(token);
-  console.log('\nListo. ERP: /auth/login?tenant=alexis · SaaS: http://localhost:4300/login');
+  console.log('\nListo. ERP: /auth/tenant · SaaS: http://localhost:4300/login');
 }
 
 main().catch((err) => {

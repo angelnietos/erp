@@ -1,4 +1,6 @@
-/* Josanz Figma login — extiende keycloak.v2 (PatternFly v5) sin override de FTL */
+/* Josanz Figma login — extiende keycloak.v2 (PatternFly v5) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+
 :root {
   --josanz-canvas: #fffefe;
   --josanz-heading: #222222;
@@ -7,7 +9,8 @@
   --josanz-field-radius: 8px;
   --josanz-cta: #0f1e2f;
   --josanz-on-cta: #ffffff;
-  --josanz-form-width: 22.5rem;
+  --josanz-form-width: 27rem;
+  --josanz-font: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
 }
 
 html,
@@ -16,7 +19,8 @@ body {
   margin: 0;
   overflow: hidden;
   background: var(--josanz-canvas) !important;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--josanz-font);
+  -webkit-font-smoothing: antialiased;
 }
 
 .login-pf,
@@ -24,20 +28,53 @@ body {
   background: var(--josanz-canvas) !important;
 }
 
-/* Hero izquierdo (fijo; no depende del grid de PatternFly) */
+/* Hero izquierdo — foto Josanz (portada propia del ERP clásico / Figma) */
 html.login-pf::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
-  width: 50vw;
+  width: 52vw;
   height: 100vh;
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
   background:
-    linear-gradient(135deg, rgba(232, 237, 245, 0.35), rgba(245, 247, 251, 0.2)),
+    linear-gradient(180deg, rgba(15, 30, 47, 0.08) 0%, rgba(15, 30, 47, 0.42) 100%),
+    linear-gradient(135deg, rgba(232, 237, 245, 0.25), rgba(245, 247, 251, 0.12)),
     url('../img/login-hero.png') center / cover no-repeat;
+}
+
+html.login-pf::after {
+  content: 'JOSANZ';
+  position: fixed;
+  left: clamp(1.5rem, 4vw, 2.75rem);
+  bottom: clamp(1.5rem, 4vw, 2.75rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--josanz-font);
+  font-size: clamp(2.5rem, 5.5vw, 4rem);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+  line-height: 1;
+}
+
+.pf-v5-c-login::after {
+  content: 'Audiovisuales · ERP';
+  position: fixed;
+  left: clamp(1.5rem, 4vw, 2.75rem);
+  top: clamp(1.5rem, 4vw, 2.75rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--josanz-font);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 
 /* Shell dos columnas: hero | formulario */
@@ -84,63 +121,118 @@ html.login-pf::before {
   width: 100%;
   max-width: var(--josanz-form-width);
   margin: 0 auto;
-  padding: 0 !important;
+  padding: clamp(1.5rem, 3vw, 2rem) !important;
   box-sizing: border-box;
+  border: 1px solid #ececec;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow:
+    0 24px 64px rgba(15, 30, 47, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  position: relative;
 }
 
-/* Cabecera: título ancho completo; idioma debajo a la derecha */
+.pf-v5-c-login__main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 14px 14px 0 0;
+  background: linear-gradient(90deg, #0f1e2f 0%, #5c6b7a 55%, #0f1e2f 100%);
+}
+
+/* Cabecera: logo + idioma arriba; título a ancho completo */
 .pf-v5-c-login__header {
-  display: flex !important;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.75rem;
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0.35rem 1rem;
   width: 100%;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.65rem;
   text-align: left;
 }
 
+.pf-v5-c-login__header::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: min(148px, 100%);
+  height: 68px;
+  margin: 0 0 0.25rem;
+  background: url('../img/login-logo.png') left center / contain no-repeat;
+}
+
+#kc-locale,
+.pf-v5-c-login__header .pf-v5-c-form-control,
+.pf-v5-c-login__header select,
+.pf-v5-c-login__header > div:last-child:not(:first-child) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: auto !important;
+  min-width: 6.75rem;
+  max-width: 9rem;
+  margin: 0 !important;
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.75rem !important;
+  font-family: var(--josanz-font) !important;
+  color: var(--josanz-muted) !important;
+  background: #ffffff !important;
+  border: 1px solid var(--josanz-field-stroke) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
 .pf-v5-c-login__header > div:first-child {
+  grid-column: 1 / -1;
+  grid-row: 2;
   width: 100%;
   min-width: 0;
 }
 
-/* Logo Josanz sobre el título */
-.pf-v5-c-login__header::before {
-  content: '';
-  display: block;
-  width: 148px;
-  height: 68px;
-  margin: 0 0 1.25rem;
-  background: url('../img/login-logo.png') center / contain no-repeat;
-}
-
 .pf-v5-c-title,
 #kc-page-title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   color: var(--josanz-heading) !important;
-  font-size: clamp(1.375rem, 2.5vw, 1.75rem) !important;
-  font-weight: 600 !important;
-  line-height: 1.25 !important;
-  letter-spacing: -0.01em;
+  font-family: var(--josanz-font) !important;
+  font-size: clamp(1.5rem, 3vw, 1.85rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em;
   text-align: left;
   white-space: normal;
   word-break: normal;
-  hyphens: manual;
   overflow-wrap: normal;
+  hyphens: manual;
   margin: 0 !important;
-  max-width: 100%;
 }
 
-/* Selector de idioma compacto (no compite con el título) */
-#kc-locale,
-.pf-v5-c-login__header .pf-v5-c-form-control,
-.pf-v5-c-login__header select {
-  align-self: flex-end;
-  width: auto !important;
-  min-width: 7.5rem;
-  max-width: 100%;
-  margin: 0 !important;
-  font-size: 0.8125rem !important;
-  color: var(--josanz-muted) !important;
+#kc-page-title::before {
+  content: 'Acceso';
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--josanz-muted);
+}
+
+.pf-v5-c-login__header > div:first-child::after {
+  content: 'Inicia sesión en tu organización Josanz ERP.';
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--josanz-muted);
 }
 
 .pf-v5-c-login__main-body {
@@ -307,8 +399,12 @@ input[name='login'] {
     position: relative;
     display: block;
     width: 100%;
-    height: 200px;
-    max-height: 34vh;
+    height: min(240px, 36vh);
+  }
+
+  html.login-pf::after,
+  .pf-v5-c-login::after {
+    display: none;
   }
 
   .pf-v5-c-login {
@@ -329,5 +425,28 @@ input[name='login'] {
     align-items: flex-start;
     padding-top: 1.5rem;
     padding-bottom: 2rem;
+  }
+
+  .pf-v5-c-login__header {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .pf-v5-c-login__header::before {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #kc-locale,
+  .pf-v5-c-login__header .pf-v5-c-form-control,
+  .pf-v5-c-login__header select,
+  .pf-v5-c-login__header > div:last-child:not(:first-child) {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .pf-v5-c-login__header > div:first-child {
+    grid-row: 3;
   }
 }

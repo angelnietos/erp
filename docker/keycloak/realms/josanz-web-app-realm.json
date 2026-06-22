@@ -2,6 +2,7 @@
   "realm": "josanz-web-app-realm",
   "enabled": true,
   "displayName": "Josanz ERP - Web App",
+  "loginTheme": "josanz-figma",
   "internationalizationEnabled": true,
   "supportedLocales": ["es", "en"],
   "defaultLocale": "es",
@@ -143,6 +144,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
+        "login_theme": "josanz-figma",
         "post.logout.redirect.uris": "http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*"
       },
       "protocolMappers": [
