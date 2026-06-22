@@ -570,13 +570,34 @@ export class BffAuthService {
     res: Response,
     cookies: Record<string, string | undefined>,
     sessionId?: string,
-  ): Promise<{ ok: true }> {
+    postLogoutRedirectUri?: string,
+  ): Promise<{ ok: true; keycloakLogoutUrl?: string }> {
     const sid = sessionId ?? readCookie(cookies, PLATFORM_BFF_COOKIE_NAMES.session);
+    let keycloakLogoutUrl: string | undefined;
+    const platformOrigin =
+      this.config.get<string>('PLATFORM_FRONTEND_URL')?.replace(/\/$/, '') ??
+      'http://localhost:4300';
+    const resolvedPostLogoutRedirectUri =
+      postLogoutRedirectUri?.trim() || `${platformOrigin}/login?reason=logout`;
+
     if (sid) {
+      const session = await this.sessions.get(sid);
+      if (
+        session?.kind === 'platform' &&
+        session.keycloakRealm &&
+        session.keycloakClientId
+      ) {
+        keycloakLogoutUrl = this.keycloak.buildRpInitiatedLogoutUrl({
+          realm: session.keycloakRealm,
+          clientId: session.keycloakClientId,
+          idTokenHint: session.idToken,
+          postLogoutRedirectUri: resolvedPostLogoutRedirectUri,
+        });
+      }
       await this.sessions.delete(sid);
     }
     clearBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES);
-    return { ok: true };
+    return keycloakLogoutUrl ? { ok: true, keycloakLogoutUrl } : { ok: true };
   }
 
   /** Comprueba realm + redirect_uri registrado antes del redirect PKCE del panel SaaS. */

@@ -1,6 +1,6 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, map, of, switchMap, throwError, timeout } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, tap, throwError, timeout } from 'rxjs';
 import {
   BffAuthClient,
   ENTERPRISE_AUTH_CONFIG,
@@ -249,15 +249,23 @@ export class KeycloakAuthService {
     return this.http.get('/api/platform/auth/session');
   }
 
-  logout(): Observable<void> {
+  logout(): Observable<{ keycloakLogoutUrl?: string }> {
+    const postLogoutRedirectUri =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/login?reason=logout`
+        : undefined;
     if (this.isBffMode() && this.bff) {
-      return this.bff.platformLogout().pipe(
-        map(() => undefined),
-        catchError(() => of(undefined)),
+      return this.bff.platformLogout(postLogoutRedirectUri).pipe(
+        tap(() => clearPlatformToken()),
+        map((res) => ({ keycloakLogoutUrl: res.keycloakLogoutUrl })),
+        catchError(() => {
+          clearPlatformToken();
+          return of({});
+        }),
       );
     }
     clearPlatformToken();
-    return of(undefined);
+    return of({});
   }
 
   isKeycloakAvailable(): Observable<boolean> {

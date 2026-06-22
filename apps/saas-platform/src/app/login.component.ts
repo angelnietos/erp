@@ -49,6 +49,13 @@ import { environment } from '../environments/environment';
             <span>{{ authStatusLabel() }}</span>
           </div>
 
+          <div class="org-context">
+            <span class="org-pill">Panel SaaS · platform</span>
+            @if (erpHubUrl) {
+              <a class="org-change" [href]="erpHubUrl">Cambiar organización</a>
+            }
+          </div>
+
           @if (isDev) {
             <div class="dev-hint" [class.dev-hint--kc]="!showLocalLoginForm()">
               <p class="dev-hint-kicker">Cuenta demo (dev)</p>
@@ -270,6 +277,36 @@ import { environment } from '../environments/environment';
         font-size: 0.68rem;
         letter-spacing: 0.38em;
         color: var(--sp-accent-secondary);
+      }
+
+      .org-context {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.85rem;
+        border-bottom: 1px solid var(--sp-line);
+      }
+
+      .org-pill {
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: var(--sp-muted);
+      }
+
+      .org-change {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--sp-accent-secondary);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+
+      .org-change:hover {
+        color: var(--sp-text);
       }
 
       .eyebrow {

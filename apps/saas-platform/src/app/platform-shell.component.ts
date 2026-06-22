@@ -252,9 +252,13 @@ export class PlatformShellComponent {
   readonly erpHubUrl = environment.erpHubUrl?.trim() ?? '';
 
   logout(): void {
-    this.auth.logout().subscribe(() => {
+    this.auth.logout().subscribe((result) => {
       clearPlatformToken();
-      void this.router.navigateByUrl('/login');
+      if (result.keycloakLogoutUrl && typeof window !== 'undefined') {
+        window.location.assign(result.keycloakLogoutUrl);
+        return;
+      }
+      void this.router.navigateByUrl('/login?reason=logout');
     });
   }
 }

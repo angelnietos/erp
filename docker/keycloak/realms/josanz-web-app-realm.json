@@ -145,7 +145,7 @@
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "login_theme": "josanz-figma",
-        "post.logout.redirect.uris": "http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*"
+        "post.logout.redirect.uris": "+"
       },
       "protocolMappers": [
         {
@@ -210,7 +210,7 @@
       "attributes": {
         "pkce.code.challenge.method": "S256",
         "login_theme": "josanz-figma",
-        "post.logout.redirect.uris": "http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*"
+        "post.logout.redirect.uris": "+"
       },
       "protocolMappers": [
         {

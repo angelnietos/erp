@@ -110,7 +110,13 @@ async function upsertClient(token, realm, clientId, payload) {
 const JOSANZ_REALM = 'josanz-web-app-realm';
 const JOSANZ_CLIENT_ID = 'josanz-figma-spa';
 const JOSANZ_WEB_SPA_CLIENT_ID = 'josanz-web-app-spa';
+const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
 const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
+const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
+const DEV_PASSWORD = 'Admin123!';
+
+/** Keycloak 24+: hereda Valid Redirect URIs (`http://localhost:4200/*`, …). */
+const POST_LOGOUT_REDIRECT_URIS = '+';
 
 function josanzWebAppClientPayload() {
   return {
@@ -129,8 +135,7 @@ function josanzWebAppClientPayload() {
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
-      'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
+      'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
@@ -154,8 +159,7 @@ function josanzClientPayload() {
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
-      'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
+      'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
@@ -207,70 +211,176 @@ async function ensureClientRoles(token, realm, clientUuid, clientId, roleNames) 
   }
 }
 
-async function upsertAlexisUser(token, clientUuid) {
-  const email = 'admin@alexis.local';
-  const listRes = await kc(token, JOSANZ_REALM, `/users?email=${encodeURIComponent(email)}&exact=true`);
+async function upsertRealmUser(token, realm, userDef) {
+  const email = userDef.email;
+  const listRes = await kc(token, realm, `/users?email=${encodeURIComponent(email)}&exact=true`);
   const users = listRes.ok ? await listRes.json() : [];
   let userId = users[0]?.id;
 
   const userBody = {
-    username: 'alexis-admin',
+    username: userDef.username,
     email,
-    firstName: 'Admin',
-    lastName: 'Alexis',
+    firstName: userDef.firstName,
+    lastName: userDef.lastName,
     enabled: true,
     emailVerified: true,
-    attributes: { tenant_id: [ALEXIS_TENANT_ID] },
+    ...(userDef.tenantId
+      ? { attributes: { tenant_id: [userDef.tenantId] } }
+      : {}),
   };
 
   if (userId) {
-    const putRes = await kc(token, JOSANZ_REALM, `/users/${userId}`, {
+    const putRes = await kc(token, realm, `/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(userBody),
     });
     if (!putRes.ok) {
-      throw new Error(`Update user failed: ${await putRes.text()}`);
+      throw new Error(`Update user ${email} failed: ${await putRes.text()}`);
     }
     console.log(`✓ Usuario ${email} actualizado`);
   } else {
-    const createRes = await kc(token, JOSANZ_REALM, '/users', {
+    const createRes = await kc(token, realm, '/users', {
       method: 'POST',
       body: JSON.stringify(userBody),
     });
     if (createRes.status !== 201) {
-      throw new Error(`Create user failed (${createRes.status}): ${await createRes.text()}`);
+      throw new Error(`Create user ${email} failed (${createRes.status}): ${await createRes.text()}`);
     }
     userId = (createRes.headers.get('location') ?? '').split('/').pop();
     console.log(`✓ Usuario ${email} creado`);
   }
 
-  const pwRes = await kc(token, JOSANZ_REALM, `/users/${userId}/reset-password`, {
+  const pwRes = await kc(token, realm, `/users/${userId}/reset-password`, {
     method: 'PUT',
-    body: JSON.stringify({ type: 'password', value: 'Admin123!', temporary: false }),
+    body: JSON.stringify({ type: 'password', value: DEV_PASSWORD, temporary: false }),
   });
   if (!pwRes.ok) {
-    throw new Error(`Set password failed: ${await pwRes.text()}`);
+    throw new Error(`Set password for ${email} failed: ${await pwRes.text()}`);
   }
 
-  for (const roleName of ['admin', 'user']) {
-    const roleRes = await kc(token, JOSANZ_REALM, `/clients/${clientUuid}/roles/${roleName}`);
+  return userId;
+}
+
+async function assignClientRolesToUser(token, realm, userId, clientUuid, roleNames) {
+  for (const roleName of roleNames) {
+    const roleRes = await kc(token, realm, `/clients/${clientUuid}/roles/${roleName}`);
     if (!roleRes.ok) continue;
     const role = await roleRes.json();
-    await kc(token, JOSANZ_REALM, `/users/${userId}/role-mappings/clients/${clientUuid}`, {
+    await kc(token, realm, `/users/${userId}/role-mappings/clients/${clientUuid}`, {
       method: 'POST',
       body: JSON.stringify([role]),
     });
   }
-  console.log(`✓ Roles ${JOSANZ_CLIENT_ID} asignados a ${email}`);
+}
+
+async function assignRealmRolesToUser(token, realm, userId, roleNames) {
+  for (const roleName of roleNames) {
+    const roleRes = await kc(token, realm, `/roles/${roleName}`);
+    if (!roleRes.ok) continue;
+    const role = await roleRes.json();
+    await kc(token, realm, `/users/${userId}/role-mappings/realm`, {
+      method: 'POST',
+      body: JSON.stringify([role]),
+    });
+  }
+}
+
+async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid) {
+  const users = [
+    {
+      username: 'admin',
+      email: 'admin@josanz.com',
+      firstName: 'Admin',
+      lastName: 'User',
+      tenantId: JOSANZ_TENANT_ID,
+      clientRoles: { [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'] },
+    },
+    {
+      username: 'dani',
+      email: 'dani@josanz.com',
+      firstName: 'Dani',
+      lastName: 'Sonido',
+      tenantId: JOSANZ_TENANT_ID,
+      clientRoles: { [JOSANZ_WEB_SPA_CLIENT_ID]: ['user'] },
+    },
+    {
+      username: 'alex',
+      email: 'alex@josanz.com',
+      firstName: 'Alex',
+      lastName: 'Ilu',
+      tenantId: JOSANZ_TENANT_ID,
+      clientRoles: { [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'] },
+    },
+    {
+      username: 'alexis-admin',
+      email: 'admin@alexis.local',
+      firstName: 'Admin',
+      lastName: 'Alexis',
+      tenantId: ALEXIS_TENANT_ID,
+      clientRoles: {
+        [JOSANZ_CLIENT_ID]: ['admin', 'user'],
+        [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'],
+      },
+    },
+  ];
+
+  for (const userDef of users) {
+    const userId = await upsertRealmUser(token, JOSANZ_REALM, userDef);
+    for (const [clientId, roles] of Object.entries(userDef.clientRoles)) {
+      const clientUuid = clientId === JOSANZ_CLIENT_ID ? figmaSpaUuid : webSpaUuid;
+      await assignClientRolesToUser(token, JOSANZ_REALM, userId, clientUuid, roles);
+    }
+    console.log(`✓ Roles asignados a ${userDef.email}`);
+  }
+}
+
+async function syncBabooniTenantUsers(token, clientUuid) {
+  const users = [
+    { username: 'root', email: 'root@babooni.com', firstName: 'Babooni', lastName: 'Root', roles: ['admin', 'user'] },
+    { username: 'florina', email: 'florina.mahalean@babooni.com', firstName: 'Florina', lastName: 'Mahalean', roles: ['user'] },
+    { username: 'alvaro', email: 'alvaro.ballesteros@babooni.com', firstName: 'Alvaro', lastName: 'Ballesteros', roles: ['admin', 'user'] },
+    { username: 'alejandro', email: 'alejandro.ballesteros@babooni.com', firstName: 'Alejandro', lastName: 'Ballesteros', roles: ['admin', 'user'] },
+    { username: 'angel', email: 'angel.nieto@babooni.com', firstName: 'Angel', lastName: 'Nieto', roles: ['user'] },
+  ];
+
+  for (const userDef of users) {
+    const userId = await upsertRealmUser(token, BABOONI_TENANT_REALM, {
+      ...userDef,
+      tenantId: BABOONI_TENANT_ID,
+    });
+    await assignClientRolesToUser(
+      token,
+      BABOONI_TENANT_REALM,
+      userId,
+      clientUuid,
+      userDef.roles,
+    );
+    console.log(`✓ ${BABOONI_TENANT_REALM}: ${userDef.email} (${userDef.roles.join(', ')})`);
+  }
+}
+
+async function syncPlatformUsers(token) {
+  const userId = await upsertRealmUser(token, PLATFORM_REALM, {
+    username: 'platform',
+    email: 'platform@babooni.com',
+    firstName: 'Platform',
+    lastName: 'Admin',
+  });
+  await assignRealmRolesToUser(token, PLATFORM_REALM, userId, [
+    'PlatformOwner',
+    'PlatformAdmin',
+  ]);
+  console.log(`✓ ${PLATFORM_REALM}: platform@babooni.com (PlatformOwner, PlatformAdmin)`);
 }
 
 async function syncJosanzRealm(token) {
   console.log(`\n→ ${JOSANZ_REALM}`);
   await syncJosanzRealmLoginUx(token);
-  await upsertClient(token, JOSANZ_REALM, JOSANZ_WEB_SPA_CLIENT_ID, josanzWebAppClientPayload());
-  const clientUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_CLIENT_ID, josanzClientPayload());
-  await ensureClientRoles(token, JOSANZ_REALM, clientUuid, JOSANZ_CLIENT_ID, ['admin', 'user']);
-  await upsertAlexisUser(token, clientUuid);
+  const webSpaUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_WEB_SPA_CLIENT_ID, josanzWebAppClientPayload());
+  const figmaSpaUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_CLIENT_ID, josanzClientPayload());
+  await ensureClientRoles(token, JOSANZ_REALM, webSpaUuid, JOSANZ_WEB_SPA_CLIENT_ID, ['admin', 'user']);
+  await ensureClientRoles(token, JOSANZ_REALM, figmaSpaUuid, JOSANZ_CLIENT_ID, ['admin', 'user']);
+  await syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid);
 }
 
 // --- Babooni ERP tenant (babooni-tenant) ---
@@ -295,8 +405,7 @@ function babooniTenantClientPayload() {
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'babooni-erp',
-      'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*',
+      'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
@@ -332,12 +441,17 @@ async function syncBabooniTenantRealmLoginUx(token) {
 async function syncBabooniTenantRealm(token) {
   console.log(`\n→ ${BABOONI_TENANT_REALM}`);
   await syncBabooniTenantRealmLoginUx(token);
-  await upsertClient(
+  const clientUuid = await upsertClient(
     token,
     BABOONI_TENANT_REALM,
     BABOONI_TENANT_CLIENT_ID,
     babooniTenantClientPayload(),
   );
+  await ensureClientRoles(token, BABOONI_TENANT_REALM, clientUuid, BABOONI_TENANT_CLIENT_ID, [
+    'admin',
+    'user',
+  ]);
+  await syncBabooniTenantUsers(token, clientUuid);
 }
 
 // --- Panel SaaS (babooni-platform) ---
@@ -377,8 +491,7 @@ function platformClientPayload() {
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'babooni-platform',
-      'post.logout.redirect.uris':
-        'http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*',
+      'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: [...PLATFORM_DEFAULT_SCOPES],
     optionalClientScopes: ['offline_access'],
@@ -599,6 +712,7 @@ async function syncPlatformRealm(token) {
     clientUuid,
     PLATFORM_DEFAULT_SCOPES,
   );
+  await syncPlatformUsers(token);
   console.log(`✓ Redirect PKCE panel: ${PLATFORM_CALLBACK}`);
   return clientUuid;
 }

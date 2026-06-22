@@ -174,7 +174,16 @@ export class BffPlatformAuthController {
   @PublicTenant()
   @HttpCode(HttpStatus.OK)
   @Post('logout')
-  logout(@Req() req: SessionRequest, @Res({ passthrough: true }) res: Response) {
-    return this.bffAuth.logoutPlatform(res, req.cookies ?? {}, req.bffSessionId);
+  logout(
+    @Body() dto: BffLogoutDto,
+    @Req() req: SessionRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.bffAuth.logoutPlatform(
+      res,
+      req.cookies ?? {},
+      req.bffSessionId,
+      dto.postLogoutRedirectUri,
+    );
   }
 }
