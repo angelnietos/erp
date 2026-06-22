@@ -93,3 +93,68 @@ html.login-pf .pf-v5-c-login__header {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ── Campos usuario/contraseña legibles (tema oscuro + autofill Chrome/Edge) ── */
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) {
+  --pf-v5-c-form-control--Color: #f3f7ff;
+  --pf-v5-c-form-control--BackgroundColor: rgba(8, 14, 28, 0.92);
+  --pf-v5-global--Color--100: #f3f7ff;
+  --pf-v5-global--Color--200: #dce8f8;
+}
+
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input.pf-v5-c-form-control,
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) #username,
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) #password,
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input[name='username'],
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input[name='password'],
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input[type='text'],
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input[type='email'],
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) input[type='password'] {
+  color: #f3f7ff !important;
+  -webkit-text-fill-color: #f3f7ff !important;
+  caret-color: #9fd0ff !important;
+  background-color: rgba(8, 14, 28, 0.92) !important;
+  opacity: 1 !important;
+}
+
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input.pf-v5-c-form-control::placeholder,
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  #username::placeholder,
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  #password::placeholder {
+  color: rgba(200, 220, 245, 0.62) !important;
+  -webkit-text-fill-color: rgba(200, 220, 245, 0.62) !important;
+  opacity: 1 !important;
+}
+
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input:-webkit-autofill,
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input:-webkit-autofill:hover,
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input:-webkit-autofill:focus,
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f3f7ff !important;
+  color: #f3f7ff !important;
+  caret-color: #9fd0ff !important;
+  -webkit-box-shadow: 0 0 0 1000px #0c1424 inset !important;
+  box-shadow: 0 0 0 1000px #0c1424 inset !important;
+  border-color: rgba(89, 168, 244, 0.45) !important;
+  transition: background-color 99999s ease-out 0s;
+}
+
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light)
+  input::selection {
+  background: rgba(89, 168, 244, 0.5);
+  color: #ffffff;
+}

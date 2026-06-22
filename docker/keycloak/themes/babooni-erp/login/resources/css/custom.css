@@ -319,11 +319,17 @@ label.pf-v5-c-form__label {
 }
 
 .pf-v5-c-form-control,
-input.pf-v5-c-form-control {
+input.pf-v5-c-form-control,
+#username,
+#password,
+input[name='username'],
+input[name='password'] {
   border: 1px solid var(--bb-line) !important;
   border-radius: var(--bb-radius) !important;
-  background: rgba(0, 0, 0, 0.32) !important;
-  color: var(--bb-text) !important;
+  background: rgba(8, 14, 28, 0.92) !important;
+  color: #f3f7ff !important;
+  -webkit-text-fill-color: #f3f7ff !important;
+  caret-color: #9fd0ff !important;
   min-height: 2.85rem;
   width: 100%;
   box-shadow: none !important;
