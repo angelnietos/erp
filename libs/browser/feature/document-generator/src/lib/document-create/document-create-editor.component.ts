@@ -3702,10 +3702,11 @@ blockquote {
         this.universalDocument.download(pdfBlob, `${title}${suffix}.pdf`);
       } catch (error) {
         console.error('Error generating PDF:', error);
-        this.showActionNotice(
-          'No se pudo generar el PDF. Revisa el contenido e inténtalo de nuevo.',
-          true,
-        );
+        const detail =
+          error instanceof Error && error.message
+            ? error.message
+            : 'Revisa el contenido e inténtalo de nuevo.';
+        this.showActionNotice(`No se pudo generar el PDF. ${detail}`, true);
       }
       return;
     }

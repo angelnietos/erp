@@ -339,7 +339,7 @@ export class PdfGenerationService {
       filename,
       image: { type: 'jpeg' as const, quality: 0.92 },
       html2canvas: {
-        scale: 2,
+        scale: 1.35,
         useCORS: true,
         letterRendering: true,
         scrollY: 0,
@@ -456,9 +456,6 @@ export class PdfGenerationService {
        <head>
          <meta charset="UTF-8">
          <title>${title}</title>
-         <link rel="preconnect" href="https://fonts.googleapis.com">
-         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
          <style>
            ${PDF_EXPORT_BASE_CSS}
            ${this.getPdfPaginationCss()}

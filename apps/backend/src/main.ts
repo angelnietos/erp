@@ -6,6 +6,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 
 loadEnv({ path: 'apps/backend/.env' });
@@ -67,7 +68,9 @@ function attachPublicRateLimits(app: INestApplication) {
 }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bodyParser: false });
+  app.use(json({ limit: '12mb' }));
+  app.use(urlencoded({ limit: '12mb', extended: true }));
   app.useWebSocketAdapter(new IoAdapter(app));
 
   // Security headers (ADR-009)

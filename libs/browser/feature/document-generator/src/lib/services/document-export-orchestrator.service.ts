@@ -5,6 +5,7 @@ import { DocumentPdfApiService } from './document-pdf-api.service';
 import { PdfGenerationService } from './pdf-generation.service';
 import { TemplatesRegistryService } from './templates-registry.service';
 import { buildRenderInputFromPersisted } from '../utils/document-render-input.utils';
+import { assertValidPdfBlob } from '../utils/pdf-blob.util';
 
 /**
  * Pipeline único: vista previa, PDF e HTML descargable comparten el mismo
@@ -38,16 +39,22 @@ export class DocumentExportOrchestratorService {
     const html = this.buildExportHtml(input);
     const safeTitle = title.trim() || 'Documento';
     try {
-      return await this.documentPdfApi.exportPdf({
+      const blob = await this.documentPdfApi.exportPdf({
         title: safeTitle,
         html,
       });
+      return blob;
     } catch (backendError) {
       console.warn(
         'Backend PDF failed, falling back to client renderer (same HTML)',
         backendError,
       );
-      return this.pdfFallback.generateFromExportHtml(html, safeTitle);
+      const blob = await this.pdfFallback.generateFromExportHtml(
+        html,
+        safeTitle,
+      );
+      await assertValidPdfBlob(blob);
+      return blob;
     }
   }
 

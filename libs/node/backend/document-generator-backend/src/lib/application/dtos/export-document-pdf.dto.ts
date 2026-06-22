@@ -6,6 +6,6 @@ export class ExportDocumentPdfDto {
   title!: string;
 
   @IsString()
-  @MaxLength(2_000_000)
+  @MaxLength(12_000_000)
   html!: string;
 }
