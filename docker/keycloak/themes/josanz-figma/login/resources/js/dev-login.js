@@ -117,6 +117,7 @@
     }
 
     const anchor =
+      document.querySelector('.pf-v5-c-login__main') ||
       document.getElementById('kc-form-buttons') ||
       document.getElementById('kc-form-login') ||
       document.querySelector('.pf-v5-c-login__main-body');
@@ -162,7 +163,13 @@
       '</code></p>' +
       (altItems ? '<ul class="kc-dev-login-hint__list">' + altItems + '</ul>' : '');
 
-    anchor.insertAdjacentElement('afterend', panel);
+    if (anchor.classList && anchor.classList.contains('pf-v5-c-login__main')) {
+      anchor.appendChild(panel);
+    } else if (anchor.id === 'kc-form-login' || anchor.id === 'kc-form-buttons') {
+      anchor.insertAdjacentElement('afterend', panel);
+    } else {
+      anchor.appendChild(panel);
+    }
 
     panel.querySelectorAll('[data-email]').forEach(function (btn) {
       btn.addEventListener('click', function () {

@@ -1,74 +1,89 @@
 /**
- * Layout compartido — formulario siempre visible con scroll en columna derecha/izquierda.
- * Evita recorte por overflow:hidden + vertical centering en viewports bajos.
+ * Layout compartido — formulario siempre visible con scroll en columna del formulario.
+ * El grid de Keycloak usa 1fr; sin min-height:0 el hijo no puede hacer scroll.
  */
 html.login-pf,
 html.login-pf body {
-  min-height: 100%;
-  height: auto;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
 }
 
 html.login-pf .pf-v5-c-login {
-  min-height: 100dvh;
-  max-height: none !important;
-  height: auto;
-  overflow: visible !important;
+  display: grid !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  min-height: 100dvh !important;
+  overflow: hidden !important;
 }
 
 html.login-pf .pf-v5-c-login__container {
   align-items: flex-start !important;
   justify-content: flex-start;
-  min-height: 100dvh;
-  max-height: none;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100% !important;
+  max-height: 100dvh !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-  scrollbar-color: rgba(128, 128, 128, 0.45) transparent;
-  padding-top: clamp(0.85rem, 2.5vh, 1.75rem) !important;
-  padding-bottom: clamp(1.25rem, 4vh, 2.5rem) !important;
+  scrollbar-color: rgba(126, 200, 255, 0.45) rgba(0, 0, 0, 0.15);
+  padding-top: clamp(0.75rem, 2vh, 1.5rem) !important;
+  padding-bottom: clamp(1.5rem, 4vh, 2.75rem) !important;
+  box-sizing: border-box;
+}
+
+html.login-pf .pf-v5-c-login__container::-webkit-scrollbar {
+  width: 8px;
+}
+
+html.login-pf .pf-v5-c-login__container::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(126, 200, 255, 0.35);
 }
 
 html.login-pf .pf-v5-c-login__main {
   flex-shrink: 0;
   margin-block: 0;
+  margin-bottom: 0.5rem;
 }
 
 html.login-pf .pf-v5-c-login__header {
-  margin-bottom: 1.15rem !important;
+  margin-bottom: 1rem !important;
 }
 
 /* Viewports bajos: cabecera más compacta */
-@media (max-height: 860px) {
+@media (max-height: 900px) {
   html.login-pf .pf-v5-c-login__header {
-    margin-bottom: 0.85rem !important;
-  }
-
-  html.login-pf .pf-v5-c-login__header > div:first-child::after {
-    font-size: 0.82rem;
-    line-height: 1.4;
-    margin-top: 0.35rem;
-  }
-
-  html.login-pf .pf-v5-c-login__main {
-    padding: 1.2rem 1.35rem !important;
-  }
-
-  html.login-pf .pf-v5-c-form__group {
     margin-bottom: 0.75rem !important;
   }
-}
 
-@media (max-height: 720px) {
   html.login-pf .pf-v5-c-login__header > div:first-child::after {
     display: none;
   }
 
-  html.login-pf .kc-dev-login-hint {
-    margin-top: 0.75rem;
+  html.login-pf .pf-v5-c-login__header::before {
+    height: 44px !important;
+  }
+
+  html.login-pf .pf-v5-c-login__main {
+    padding: 1.1rem 1.25rem 1.35rem !important;
+  }
+
+  html.login-pf .pf-v5-c-form__group {
+    margin-bottom: 0.65rem !important;
+  }
+
+  html.login-pf #kc-page-title::before {
+    margin-bottom: 0.2rem;
+  }
+}
+
+@media (max-height: 720px) {
+  html.login-pf .pf-v5-title,
+  html.login-pf #kc-page-title {
+    font-size: 1.45rem !important;
   }
 }
 

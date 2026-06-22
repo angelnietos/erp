@@ -332,7 +332,8 @@ input.pf-v5-c-form-control {
 }
 
 .pf-v5-c-form-control::placeholder {
-  color: rgba(220, 230, 245, 0.35);
+  color: rgba(220, 230, 245, 0.58);
+  opacity: 1;
 }
 
 .pf-v5-c-form-control:focus {

@@ -1,13 +1,18 @@
 /* Panel cuentas demo — solo visible con dev-login.js en localhost */
 .kc-dev-login-hint {
-  margin-top: 0.85rem;
-  padding: 0.65rem 0.85rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.15rem;
+  padding: 0.55rem 0.75rem;
   border-radius: 10px;
   border: 1px dashed rgba(89, 168, 244, 0.45);
   background: rgba(0, 75, 147, 0.1);
-  font-size: 0.76rem;
-  line-height: 1.45;
+  font-size: 0.74rem;
+  line-height: 1.4;
   text-align: left;
+}
+
+.kc-dev-login-hint[open] {
+  padding-bottom: 0.65rem;
 }
 
 .kc-dev-login-hint:not([open]) {
@@ -28,7 +33,11 @@
 }
 
 .kc-dev-login-hint__row {
-  margin: 0.55rem 0 0;
+  margin: 0.4rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
 }
 
 .kc-dev-login-hint__list {
