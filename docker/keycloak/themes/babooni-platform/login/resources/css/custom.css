@@ -394,7 +394,7 @@ input.pf-v5-c-form-control {
 }
 
 #kc-form-options a,
-.pf-v5-c-login__main-footer a {
+.pf-v5-c-login__main-footer a:not(.kc-change-org-link__action) {
   color: var(--bb-blue-light) !important;
   font-size: 0.875rem;
   text-decoration: none;
