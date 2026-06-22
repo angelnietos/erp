@@ -99,10 +99,25 @@
       anchor.prepend(wrap);
     }
 
+    markLightLoginCardIfNeeded();
+
     return true;
   }
 
+  /** Realm con tema claro (josanz-figma). */
+  function markLightLoginCardIfNeeded() {
+    const main = document.querySelector('.pf-v5-c-login__main');
+    if (!main || main.classList.contains('pf-v5-c-login__main--light')) {
+      return;
+    }
+    const realm = (window.location.pathname.match(/\/realms\/([^/]+)/) || [])[1] || '';
+    if (realm === 'josanz-web-app-realm') {
+      main.classList.add('pf-v5-c-login__main--light');
+    }
+  }
+
   function boot() {
+    markLightLoginCardIfNeeded();
     if (injectChangeOrgLink()) {
       return;
     }

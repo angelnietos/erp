@@ -5,37 +5,47 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.45rem 0.85rem;
-  margin: 0 0 1rem;
+  margin: 0 0 0.85rem;
   padding: 0.55rem 0.75rem;
-  border: 1px solid rgba(15, 30, 47, 0.12);
-  border-radius: 8px;
-  background: rgba(15, 30, 47, 0.04);
+  border: 1px solid rgba(89, 168, 244, 0.32);
+  border-radius: 10px;
+  background: rgba(0, 75, 147, 0.16);
   font-size: 0.78rem;
+  color: rgba(232, 238, 248, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .kc-change-org-link__pill {
   font-weight: 600;
   letter-spacing: 0.02em;
-  opacity: 0.85;
 }
 
 .kc-change-org-link__action {
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
-  color: inherit;
+  color: #7ec8ff !important;
   white-space: nowrap;
 }
 
 .kc-change-org-link__action:hover {
-  opacity: 0.85;
+  color: #b8e0ff !important;
 }
 
-html.login-pf .pf-v5-c-login__main .kc-change-org-link {
+/* Tema claro Josanz Figma */
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-change-org-link,
+html.login-pf .pf-v5-c-login__main--light .kc-change-org-link {
   border-color: rgba(15, 30, 47, 0.14);
-  background: rgba(15, 30, 47, 0.05);
+  background: linear-gradient(
+    135deg,
+    rgba(250, 204, 21, 0.08) 0%,
+    rgba(15, 30, 47, 0.04) 100%
+  );
+  color: #444;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
-html.login-pf .pf-v5-c-login__main .kc-change-org-link__action {
-  color: var(--josanz-cta, #0f1e2f);
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-change-org-link__action,
+html.login-pf .pf-v5-c-login__main--light .kc-change-org-link__action {
+  color: var(--josanz-cta, #0f1e2f) !important;
 }

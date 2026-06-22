@@ -21,9 +21,9 @@
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bb-bg0) !important;
   font-family: var(--bb-font-sans);
   color: var(--bb-text);
@@ -114,13 +114,10 @@ html.login-pf::after {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: 1fr;
-  min-height: 100vh;
   min-height: 100dvh;
-  max-height: 100dvh;
   max-width: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  overflow: hidden;
   background: transparent !important;
   position: relative;
   z-index: 2;
@@ -130,34 +127,49 @@ html.login-pf::after {
   grid-column: 1;
   grid-row: 1;
   display: flex !important;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100% !important;
   max-width: none !important;
   min-height: 0;
   margin: 0 !important;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
   box-sizing: border-box;
   background:
-    radial-gradient(520px 320px at 20% 0%, rgba(0, 75, 147, 0.1), transparent 55%),
+    radial-gradient(480px 300px at 12% 0%, rgba(78, 202, 114, 0.08), transparent 55%),
+    radial-gradient(520px 320px at 20% 0%, rgba(0, 75, 147, 0.12), transparent 55%),
     linear-gradient(165deg, rgba(6, 10, 18, 0.98) 0%, rgba(8, 14, 26, 0.96) 100%);
-  overflow-y: auto;
 }
 
 .pf-v5-c-login__main {
   width: 100%;
   max-width: var(--bb-form-width);
   margin: 0 auto;
-  padding: clamp(1.85rem, 3.5vw, 2.35rem) !important;
+  padding: clamp(1.35rem, 2.5vw, 1.85rem) !important;
   box-sizing: border-box;
-  border: 1px solid var(--bb-line);
-  border-radius: 16px;
-  background: linear-gradient(165deg, rgba(18, 21, 30, 0.96) 0%, rgba(11, 13, 20, 0.98) 100%);
+  border: 1px solid rgba(89, 168, 244, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(165deg, rgba(18, 21, 30, 0.97) 0%, rgba(11, 13, 20, 0.99) 100%);
   box-shadow:
+    0 0 0 1px rgba(45, 122, 62, 0.12),
     0 28px 90px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   position: relative;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+}
+
+.pf-v5-c-login__main::after {
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 12%;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78, 202, 114, 0.28) 0%, transparent 72%);
+  pointer-events: none;
+  filter: blur(4px);
+  z-index: -1;
 }
 
 .pf-v5-c-login__main::before {
@@ -179,7 +191,7 @@ html.login-pf::after {
   align-items: start;
   gap: 0.35rem 1rem;
   width: 100%;
-  margin-bottom: 1.65rem;
+  margin-bottom: 1.15rem;
   text-align: left;
 }
 

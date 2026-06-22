@@ -21,9 +21,9 @@
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--bb-bg0) !important;
   font-family: var(--bb-font-sans);
   color: var(--bb-text);
@@ -109,13 +109,10 @@ html.login-pf::after {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: 1fr;
-  min-height: 100vh;
   min-height: 100dvh;
-  max-height: 100dvh;
   max-width: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  overflow: hidden;
   background: transparent !important;
   position: relative;
   z-index: 2;
@@ -125,35 +122,35 @@ html.login-pf::after {
   grid-column: 2;
   grid-row: 1;
   display: flex !important;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100% !important;
   max-width: none !important;
   min-height: 0;
   margin: 0 !important;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
   box-sizing: border-box;
   background:
+    radial-gradient(480px 300px at 88% 0%, rgba(227, 6, 19, 0.1), transparent 55%),
     radial-gradient(680px 380px at 50% -10%, rgba(0, 75, 147, 0.16), transparent 60%),
-    radial-gradient(520px 320px at 100% 100%, rgba(227, 6, 19, 0.08), transparent 55%),
     linear-gradient(165deg, rgba(4, 8, 20, 0.98) 0%, rgba(10, 16, 32, 0.96) 100%);
-  overflow-y: auto;
 }
 
 .pf-v5-c-login__main {
   width: 100%;
   max-width: var(--bb-form-width);
   margin: 0 auto;
-  padding: clamp(1.85rem, 3.5vw, 2.35rem) !important;
+  padding: clamp(1.35rem, 2.5vw, 1.85rem) !important;
   box-sizing: border-box;
-  border: 1px solid var(--bb-line);
-  border-radius: 16px;
-  background: linear-gradient(165deg, rgba(18, 21, 30, 0.96) 0%, rgba(11, 13, 20, 0.98) 100%);
+  border: 1px solid rgba(227, 6, 19, 0.15);
+  border-radius: 18px;
+  background: linear-gradient(165deg, rgba(18, 21, 30, 0.97) 0%, rgba(11, 13, 20, 0.99) 100%);
   box-shadow:
+    0 0 0 1px rgba(227, 6, 19, 0.08),
     0 28px 90px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   position: relative;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
 .pf-v5-c-login__main::before {
@@ -175,7 +172,7 @@ html.login-pf::after {
   align-items: start;
   gap: 0.35rem 1rem;
   width: 100%;
-  margin-bottom: 1.65rem;
+  margin-bottom: 1.15rem;
   text-align: left;
 }
 

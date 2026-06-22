@@ -15,9 +15,9 @@
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
   background: var(--josanz-canvas) !important;
   font-family: var(--josanz-font);
   -webkit-font-smoothing: antialiased;
@@ -135,13 +135,10 @@ html.login-pf::after {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: 1fr;
-  min-height: 100vh;
   min-height: 100dvh;
-  max-height: 100dvh;
   max-width: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  overflow: hidden;
   background: transparent !important;
   position: relative;
   z-index: 1;
@@ -158,31 +155,47 @@ html.login-pf::after {
   grid-template-columns: minmax(0, 1fr) !important;
   grid-template-areas: 'main' !important;
   display: flex !important;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100% !important;
   max-width: none !important;
   min-height: 0;
   margin: 0 !important;
-  padding: clamp(1.5rem, 4vw, 3rem);
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
   box-sizing: border-box;
-  background: var(--josanz-canvas);
-  overflow-y: auto;
+  background:
+    radial-gradient(520px 380px at 85% 0%, rgba(250, 204, 21, 0.07), transparent 58%),
+    linear-gradient(180deg, #fffefe 0%, #f6f4f1 100%);
 }
 
 .pf-v5-c-login__main {
   width: 100%;
   max-width: var(--josanz-form-width);
   margin: 0 auto;
-  padding: clamp(1.5rem, 3vw, 2rem) !important;
+  padding: clamp(1.25rem, 2.5vw, 1.65rem) !important;
   box-sizing: border-box;
-  border: 1px solid #ececec;
-  border-radius: 14px;
+  border: 1px solid rgba(15, 30, 47, 0.08);
+  border-radius: 18px;
   background: #ffffff;
   box-shadow:
-    0 24px 64px rgba(15, 30, 47, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    0 4px 24px rgba(15, 30, 47, 0.06),
+    0 28px 64px rgba(15, 30, 47, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
   position: relative;
+}
+
+.pf-v5-c-login__main::after {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(2px);
+  z-index: -1;
 }
 
 .pf-v5-c-login__main::before {
@@ -204,7 +217,7 @@ html.login-pf::after {
   align-items: start;
   gap: 0.35rem 1rem;
   width: 100%;
-  margin-bottom: 1.65rem;
+  margin-bottom: 1.15rem;
   text-align: left;
 }
 
@@ -213,9 +226,9 @@ html.login-pf::after {
   grid-column: 1;
   grid-row: 1;
   display: block;
-  width: min(148px, 100%);
-  height: 68px;
-  margin: 0 0 0.25rem;
+  width: min(132px, 100%);
+  height: 52px;
+  margin: 0 0 0.15rem;
   background: url('../img/login-logo.png') left center / contain no-repeat;
 }
 

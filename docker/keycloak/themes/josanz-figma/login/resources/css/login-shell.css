@@ -1,0 +1,80 @@
+/**
+ * Layout compartido — formulario siempre visible con scroll en columna derecha/izquierda.
+ * Evita recorte por overflow:hidden + vertical centering en viewports bajos.
+ */
+html.login-pf,
+html.login-pf body {
+  min-height: 100%;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+html.login-pf .pf-v5-c-login {
+  min-height: 100dvh;
+  max-height: none !important;
+  height: auto;
+  overflow: visible !important;
+}
+
+html.login-pf .pf-v5-c-login__container {
+  align-items: flex-start !important;
+  justify-content: flex-start;
+  min-height: 100dvh;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(128, 128, 128, 0.45) transparent;
+  padding-top: clamp(0.85rem, 2.5vh, 1.75rem) !important;
+  padding-bottom: clamp(1.25rem, 4vh, 2.5rem) !important;
+}
+
+html.login-pf .pf-v5-c-login__main {
+  flex-shrink: 0;
+  margin-block: 0;
+}
+
+html.login-pf .pf-v5-c-login__header {
+  margin-bottom: 1.15rem !important;
+}
+
+/* Viewports bajos: cabecera más compacta */
+@media (max-height: 860px) {
+  html.login-pf .pf-v5-c-login__header {
+    margin-bottom: 0.85rem !important;
+  }
+
+  html.login-pf .pf-v5-c-login__header > div:first-child::after {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin-top: 0.35rem;
+  }
+
+  html.login-pf .pf-v5-c-login__main {
+    padding: 1.2rem 1.35rem !important;
+  }
+
+  html.login-pf .pf-v5-c-form__group {
+    margin-bottom: 0.75rem !important;
+  }
+}
+
+@media (max-height: 720px) {
+  html.login-pf .pf-v5-c-login__header > div:first-child::after {
+    display: none;
+  }
+
+  html.login-pf .kc-dev-login-hint {
+    margin-top: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.login-pf * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

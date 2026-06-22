@@ -1,13 +1,17 @@
 /* Panel cuentas demo — solo visible con dev-login.js en localhost */
 .kc-dev-login-hint {
-  margin-top: 1.15rem;
-  padding: 0.75rem 0.85rem;
+  margin-top: 0.85rem;
+  padding: 0.65rem 0.85rem;
   border-radius: 10px;
   border: 1px dashed rgba(89, 168, 244, 0.45);
   background: rgba(0, 75, 147, 0.1);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   line-height: 1.45;
   text-align: left;
+}
+
+.kc-dev-login-hint:not([open]) {
+  padding-bottom: 0.55rem;
 }
 
 .kc-dev-login-hint summary {
@@ -30,6 +34,9 @@
 .kc-dev-login-hint__list {
   margin: 0.45rem 0 0;
   padding-left: 1.1rem;
+  max-height: min(9rem, 28vh);
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .kc-dev-login-hint__list li {
@@ -77,21 +84,26 @@
 }
 
 /* Tema claro Josanz Figma */
-html.login-pf .pf-v5-c-login__main .kc-dev-login-hint {
+html.login-pf .pf-v5-c-login__main--light .kc-dev-login-hint,
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-dev-login-hint {
   border-color: rgba(15, 30, 47, 0.22);
   background: rgba(15, 30, 47, 0.04);
 }
 
-html.login-pf .pf-v5-c-login__main .kc-dev-login-hint summary {
+html.login-pf .pf-v5-c-login__main--light .kc-dev-login-hint summary,
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-dev-login-hint summary {
   color: #5c6b7a;
 }
 
-html.login-pf .pf-v5-c-login__main .kc-dev-login-hint code {
+html.login-pf .pf-v5-c-login__main--light .kc-dev-login-hint code,
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-dev-login-hint code {
   background: rgba(15, 30, 47, 0.06);
 }
 
-html.login-pf .pf-v5-c-login__main .kc-dev-login-hint__fill,
-html.login-pf .pf-v5-c-login__main .kc-dev-login-hint__pick {
+html.login-pf .pf-v5-c-login__main--light .kc-dev-login-hint__fill,
+html.login-pf .pf-v5-c-login__main--light .kc-dev-login-hint__pick,
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-dev-login-hint__fill,
+html.login-pf .pf-v5-c-login__main.kc-theme-light .kc-dev-login-hint__pick {
   border-color: rgba(15, 30, 47, 0.2);
   background: rgba(15, 30, 47, 0.06);
   color: #222;

@@ -128,7 +128,7 @@
     const panel = document.createElement('details');
     panel.id = 'kc-dev-login-hint';
     panel.className = 'kc-dev-login-hint';
-    panel.open = true;
+    panel.open = false;
 
     const altItems = (cfg.alternates || [])
       .map(function (alt) {
