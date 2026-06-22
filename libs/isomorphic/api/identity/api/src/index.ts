@@ -50,6 +50,7 @@ export {
 
 export {
   ERP_PLATFORM_APP_SLUG,
+  ERP_VERIFACTU_APP_SLUG,
   ERP_EXTERNAL_APP_CATALOG,
   configureErpExternalAppBaseUrls,
   resetErpExternalAppBaseUrlsForTests,

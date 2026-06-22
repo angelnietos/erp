@@ -48,6 +48,24 @@ const ATMOSPHERES: Record<string, LoginTenantAtmosphere> = {
     accentSoft: 'rgba(167, 139, 250, 0.22)',
     glow: 'rgba(251, 191, 36, 0.4)',
   },
+  platform: {
+    slug: 'platform',
+    defaultTheme: 'babooni-platform',
+    moodLine: 'Consola SaaS: tenants, permisos y observabilidad en la nube.',
+    heroBadge: 'Babooni · Plataforma',
+    accent: '#4a9eff',
+    accentSoft: 'rgba(74, 158, 255, 0.2)',
+    glow: 'rgba(45, 122, 62, 0.5)',
+  },
+  verifactu: {
+    slug: 'verifactu',
+    defaultTheme: 'nebula-cosmos',
+    moodLine: 'Huella fiscal, códigos QR y envío seguro a la AEAT.',
+    heroBadge: 'Verifactu · CRM',
+    accent: '#22c55e',
+    accentSoft: 'rgba(34, 197, 94, 0.22)',
+    glow: 'rgba(34, 197, 94, 0.4)',
+  },
 };
 
 const FALLBACK: LoginTenantAtmosphere = {

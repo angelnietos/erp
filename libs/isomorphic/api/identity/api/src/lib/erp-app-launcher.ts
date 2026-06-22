@@ -3,7 +3,10 @@ import { normalizeAuthTenantSlug } from './tenant-auth-policy';
 /** Slug del picker para abrir `apps/saas-platform` (app independiente). */
 export const ERP_PLATFORM_APP_SLUG = 'platform';
 
-export type ErpExternalAppKind = 'platform';
+/** Slug del picker para abrir el CRM Verifactu (`crm/apps/web`, :4230 en dev). */
+export const ERP_VERIFACTU_APP_SLUG = 'verifactu';
+
+export type ErpExternalAppKind = 'platform' | 'verifactu';
 
 export interface ErpExternalAppDefinition {
   slug: string;
@@ -23,10 +26,18 @@ export const ERP_EXTERNAL_APP_CATALOG: readonly ErpExternalAppDefinition[] = [
     description: 'Tenants, usuarios platform, permisos y observabilidad.',
     entryPath: '/login',
   },
+  {
+    slug: ERP_VERIFACTU_APP_SLUG,
+    kind: 'verifactu',
+    name: 'Verifactu',
+    description: 'Facturación electrónica AEAT (CRM · web, API y worker en repos aparte).',
+    entryPath: '/identity',
+  },
 ];
 
 const DEFAULT_EXTERNAL_APP_BASE_URLS: Readonly<Record<string, string>> = {
   [ERP_PLATFORM_APP_SLUG]: 'http://localhost:4300',
+  [ERP_VERIFACTU_APP_SLUG]: 'http://localhost:4230',
 };
 
 let externalAppBaseUrls: Record<string, string> = {
