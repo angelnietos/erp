@@ -12,6 +12,7 @@ import { RolesController } from './presentation/controllers/roles.controller';
 import { TenantModulesController } from './presentation/controllers/tenant-modules.controller';
 import { PlatformTenantsController } from './presentation/controllers/platform-tenants.controller';
 import { PlatformTenantIdentityController } from './presentation/controllers/platform-tenant-identity.controller';
+import { PlatformUsersController } from './presentation/controllers/platform-users.controller';
 import { PlatformAuthController } from './presentation/controllers/platform-auth.controller';
 import { AuthService } from './application/services/auth.service';
 import { BffAuthService } from './application/services/bff-auth.service';
@@ -20,6 +21,9 @@ import { RolesService } from './application/services/roles.service';
 import { TenantModulesService } from './application/services/tenant-modules.service';
 import { TenantModulesNotifierService } from './application/services/tenant-modules-notifier.service';
 import { TenantRealmSyncService } from './application/services/tenant-realm-sync.service';
+import { KeycloakAdminService } from './application/services/keycloak-admin.service';
+import { KeycloakIdentitySyncService } from './application/services/keycloak-identity-sync.service';
+import { PlatformUsersService } from './application/services/platform-users.service';
 import { TenantIdentityNotifierService } from './application/services/tenant-identity-notifier.service';
 import { TenantModulesRealtimeGateway } from './infrastructure/realtime/tenant-modules-realtime.gateway';
 import { PlatformOwnerGuard } from './presentation/guards/platform-owner.guard';
@@ -70,6 +74,7 @@ export class IdentityModule {
         TenantModulesController,
         PlatformTenantsController,
         PlatformTenantIdentityController,
+        PlatformUsersController,
         PlatformAuthController,
       ],
       providers: [
@@ -81,6 +86,9 @@ export class IdentityModule {
         TenantModulesService,
         TenantModulesNotifierService,
         TenantRealmSyncService,
+        KeycloakAdminService,
+        KeycloakIdentitySyncService,
+        PlatformUsersService,
         TenantIdentityNotifierService,
         PlatformTenantContextService,
         TenantModulesRealtimeGateway,

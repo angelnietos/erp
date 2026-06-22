@@ -19,6 +19,7 @@ import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 import { RolesService } from '../../application/services/roles.service';
 import { UsersService } from '../../application/services/users.service';
 import { PlatformTenantContextService } from '../../application/services/platform-tenant-context.service';
+import { KeycloakIdentitySyncService } from '../../application/services/keycloak-identity-sync.service';
 import { RoleType } from '@josanz-erp/identity-core';
 import {
   CreateUserDto,
@@ -81,6 +82,7 @@ export class PlatformTenantIdentityController {
     private readonly tenantContext: PlatformTenantContextService,
     private readonly rolesService: RolesService,
     private readonly usersService: UsersService,
+    private readonly kcSync: KeycloakIdentitySyncService,
   ) {}
 
   @Get('roles')
@@ -197,5 +199,14 @@ export class PlatformTenantIdentityController {
       this.usersService.delete(userId),
     );
     return { message: 'Usuario eliminado' };
+  }
+
+  @Post('users/:userId/sync/keycloak')
+  @RequirePermissions('platform.sync.manage', 'platform.identity.manage', 'platform.tenants.manage')
+  syncUserToKeycloak(
+    @Param('tenantId', ParseUUIDPipe) tenantId: string,
+    @Param('userId', ParseUUIDPipe) userId: string,
+  ) {
+    return this.kcSync.pushTenantUserToKeycloak(tenantId, userId);
   }
 }

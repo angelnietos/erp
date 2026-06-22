@@ -56,6 +56,9 @@ export class TenantDetailPageComponent {
 
   readonly moduleDraft = signal<string[]>([]);
   readonly savingModules = signal(false);
+  readonly syncingKc = signal(false);
+  readonly pullEmail = signal('');
+  readonly pullingKc = signal(false);
 
   readonly selectedRole = computed(() =>
     this.roles().find((r) => r.id === this.selectedRoleId()) ?? null,
@@ -265,6 +268,69 @@ export class TenantDetailPageComponent {
       this.success.set('Usuario eliminado.');
     } catch {
       this.error.set('No se pudo eliminar el usuario.');
+    }
+  }
+
+  async pushAllToKeycloak(): Promise<void> {
+    const id = this.tenantId();
+    this.syncingKc.set(true);
+    this.error.set(null);
+    try {
+      const result = await this.api.pushTenantToKeycloak(id);
+      if (result.skipped) {
+        this.success.set(result.reason ?? 'Tenant sin Keycloak.');
+      } else if (result.ok) {
+        this.success.set(
+          `Keycloak: ${result.rolesEnsured ?? 0} roles, ${result.usersSynced ?? 0} usuarios.`,
+        );
+      } else {
+        const detail = result.errors?.join('; ') ?? result.reason;
+        this.error.set(detail ?? 'Error de sincronización.');
+      }
+    } catch {
+      this.error.set('No se pudo sincronizar con Keycloak.');
+    } finally {
+      this.syncingKc.set(false);
+    }
+  }
+
+  async pullUserFromKeycloak(): Promise<void> {
+    const email = this.pullEmail().trim();
+    if (!email) {
+      this.error.set('Email para importar desde Keycloak.');
+      return;
+    }
+    this.pullingKc.set(true);
+    this.error.set(null);
+    try {
+      const result = await this.api.pullUserFromKeycloak(this.tenantId(), email);
+      if (result.ok) {
+        await this.loadUsers(this.tenantId());
+        this.success.set(`Usuario ${email} importado desde Keycloak.`);
+        this.pullEmail.set('');
+      } else {
+        this.error.set(result.reason ?? 'No se pudo importar.');
+      }
+    } catch {
+      this.error.set('Error al importar desde Keycloak.');
+    } finally {
+      this.pullingKc.set(false);
+    }
+  }
+
+  async syncUserToKeycloak(user: PlatformUserRow): Promise<void> {
+    try {
+      const result = await this.api.syncTenantUserToKeycloak(
+        this.tenantId(),
+        user.id,
+      );
+      if (result.ok) {
+        this.success.set(`${user.email} sincronizado con Keycloak.`);
+      } else {
+        this.error.set(result.reason ?? 'Error de sincronización.');
+      }
+    } catch {
+      this.error.set('No se pudo sincronizar el usuario.');
     }
   }
 

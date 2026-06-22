@@ -18,6 +18,13 @@
           <span class="hint">Permisos ERP → Postgres (igual local / KC)</span>
         </p>
       </div>
+      @if (t.authMode === 'keycloak') {
+        <div class="kc-actions">
+          <button type="button" class="btn btn--sm" [disabled]="syncingKc()" (click)="pushAllToKeycloak()">
+            {{ syncingKc() ? 'Sincronizando…' : 'Push Postgres → KC' }}
+          </button>
+        </div>
+      }
     </header>
 
     @if (success()) {
@@ -112,6 +119,18 @@
           <button type="button" class="btn btn--sm" (click)="openCreateUser()">+ Usuario</button>
         </div>
 
+        @if (tenant()?.authMode === 'keycloak') {
+          <div class="kc-pull">
+            <label class="field field--inline">
+              <span>Importar desde Keycloak (KC → Postgres)</span>
+              <input type="email" placeholder="email@empresa.com" [ngModel]="pullEmail()" (ngModelChange)="pullEmail.set($event)" />
+            </label>
+            <button type="button" class="btn btn--sm btn--ghost" [disabled]="pullingKc()" (click)="pullUserFromKeycloak()">
+              {{ pullingKc() ? 'Importando…' : 'Importar' }}
+            </button>
+          </div>
+        }
+
         @if (showUserForm()) {
           <div class="user-form">
             <h3>{{ editingUserId() ? 'Editar usuario' : 'Nuevo usuario' }}</h3>
@@ -167,6 +186,9 @@
                 <td>{{ u.isActive ? 'Activo' : 'Inactivo' }}</td>
                 <td class="actions">
                   <button type="button" class="btn btn--sm btn--ghost" (click)="openEditUser(u)">Editar</button>
+                  @if (tenant()?.authMode === 'keycloak') {
+                    <button type="button" class="btn btn--sm btn--ghost" (click)="syncUserToKeycloak(u)">Sync KC</button>
+                  }
                   <button type="button" class="btn btn--sm btn--ghost" (click)="removeUser(u)">Eliminar</button>
                 </td>
               </tr>

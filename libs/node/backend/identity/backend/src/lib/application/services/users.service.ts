@@ -31,6 +31,7 @@ import {
 } from '../dtos/user.dtos';
 import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
 import { PasswordResetService } from './password-reset.service';
+import { KeycloakIdentitySyncService } from './keycloak-identity-sync.service';
 
 @Injectable()
 export class UsersService {
@@ -41,6 +42,7 @@ export class UsersService {
     private readonly cls: ClsService<TenantContext>,
     private readonly identityNotifier: TenantIdentityNotifierService,
     private readonly passwordReset: PasswordResetService,
+    private readonly kcSync: KeycloakIdentitySyncService,
   ) {}
 
   private requireTenantId(): string {
@@ -223,6 +225,9 @@ export class UsersService {
 
     await this.userRepository.save(user);
     this.identityNotifier.notifyIdentityUpdated(tenantId);
+    void this.kcSync
+      .pushTenantUserToKeycloak(tenantId, user.id.value)
+      .catch(() => undefined);
 
     const created = await this.findById(user.id.value);
 
@@ -290,6 +295,7 @@ export class UsersService {
 
     await this.userRepository.save(user);
     this.identityNotifier.notifyIdentityUpdated(tenantId);
+    void this.kcSync.pushTenantUserToKeycloak(tenantId, id).catch(() => undefined);
 
     return this.findById(id);
   }

@@ -43,6 +43,11 @@ export {
   type TenantAuthPolicyView,
 } from './lib/tenant-auth-policy';
 
+export {
+  PLATFORM_KEYCLOAK_BINDING,
+  PLATFORM_KEYCLOAK_REALM_ROLES,
+} from './lib/platform-keycloak';
+
 // Shared interfaces for Identity domain
 export interface UserPayload {
   id: string;

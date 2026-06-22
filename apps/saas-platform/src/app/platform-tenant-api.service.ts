@@ -38,6 +38,27 @@ export type PermissionOption = {
   group: string;
 };
 
+export type PlatformSaasUserRow = {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  isActive: boolean;
+  keycloakLinked: boolean;
+  createdAt: string;
+  updatedAt?: string;
+};
+
+export type KeycloakSyncResponse = {
+  ok: boolean;
+  skipped?: boolean;
+  reason?: string;
+  rolesEnsured?: number;
+  usersSynced?: number;
+  errors?: string[];
+  userId?: string;
+};
+
 @Injectable({ providedIn: 'root' })
 export class PlatformTenantApiService {
   private readonly http = inject(HttpClient);
@@ -161,6 +182,98 @@ export class PlatformTenantApiService {
     await firstValueFrom(
       this.http.delete(
         `${this.base}/api/platform/tenants/${tenantId}/users/${userId}`,
+      ),
+    );
+  }
+
+  async pushTenantToKeycloak(tenantId: string): Promise<KeycloakSyncResponse> {
+    return firstValueFrom(
+      this.http.post<KeycloakSyncResponse>(
+        `${this.base}/api/platform/tenants/${tenantId}/sync/keycloak`,
+        {},
+      ),
+    );
+  }
+
+  async pullUserFromKeycloak(
+    tenantId: string,
+    email: string,
+  ): Promise<KeycloakSyncResponse> {
+    return firstValueFrom(
+      this.http.post<KeycloakSyncResponse>(
+        `${this.base}/api/platform/tenants/${tenantId}/sync/keycloak/pull`,
+        { email },
+      ),
+    );
+  }
+
+  async syncTenantUserToKeycloak(
+    tenantId: string,
+    userId: string,
+  ): Promise<KeycloakSyncResponse> {
+    return firstValueFrom(
+      this.http.post<KeycloakSyncResponse>(
+        `${this.base}/api/platform/tenants/${tenantId}/users/${userId}/sync/keycloak`,
+        {},
+      ),
+    );
+  }
+
+  async listPlatformUsers(): Promise<PlatformSaasUserRow[]> {
+    return firstValueFrom(
+      this.http.get<PlatformSaasUserRow[]>(`${this.base}/api/platform/users`),
+    );
+  }
+
+  async createPlatformUser(body: {
+    email: string;
+    password: string;
+    firstName?: string;
+    lastName?: string;
+    isActive?: boolean;
+    syncToKeycloak?: boolean;
+  }): Promise<PlatformSaasUserRow> {
+    return firstValueFrom(
+      this.http.post<PlatformSaasUserRow>(
+        `${this.base}/api/platform/users`,
+        body,
+      ),
+    );
+  }
+
+  async updatePlatformUser(
+    id: string,
+    body: {
+      email?: string;
+      password?: string;
+      firstName?: string;
+      lastName?: string;
+      isActive?: boolean;
+      syncToKeycloak?: boolean;
+    },
+  ): Promise<PlatformSaasUserRow> {
+    return firstValueFrom(
+      this.http.put<PlatformSaasUserRow>(
+        `${this.base}/api/platform/users/${id}`,
+        body,
+      ),
+    );
+  }
+
+  async deletePlatformUser(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.delete(`${this.base}/api/platform/users/${id}`),
+    );
+  }
+
+  async syncPlatformUserToKeycloak(
+    id: string,
+    password?: string,
+  ): Promise<{ ok: boolean; reason?: string }> {
+    return firstValueFrom(
+      this.http.post<{ ok: boolean; reason?: string }>(
+        `${this.base}/api/platform/users/${id}/sync/keycloak`,
+        password ? { password } : {},
       ),
     );
   }

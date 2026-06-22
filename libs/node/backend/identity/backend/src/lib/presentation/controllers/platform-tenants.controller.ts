@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Put,
+  Post,
   Param,
   Body,
   UseGuards,
@@ -16,6 +17,7 @@ import {
 import { PlatformJwtGuard } from '../guards/platform-jwt.guard';
 import { TenantModulesService } from '../../application/services/tenant-modules.service';
 import { TenantRealmSyncService } from '../../application/services/tenant-realm-sync.service';
+import { KeycloakIdentitySyncService } from '../../application/services/keycloak-identity-sync.service';
 import { normalizeTenantModuleIds } from '@josanz-erp/identity-api';
 import {
   PERMISSIONS_CATALOG,
@@ -23,13 +25,19 @@ import {
   TENANT_MODULE_CATALOG,
   permissionsGroupedByModule,
   TENANT_KEYCLOAK_REALM,
+  PLATFORM_KEYCLOAK_BINDING,
 } from '@josanz-erp/identity-api';
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsEmail, IsString } from 'class-validator';
 
 class UpdateTenantModulesDto {
   @IsArray()
   @IsString({ each: true })
   enabledModuleIds!: string[];
+}
+
+class PullKeycloakUserDto {
+  @IsEmail()
+  email!: string;
 }
 
 @UseGuards(JwtAuthGuard, PlatformJwtGuard, PermissionsGuard)
@@ -39,6 +47,7 @@ export class PlatformTenantsController {
   constructor(
     private readonly tenantModulesService: TenantModulesService,
     private readonly tenantRealmSyncService: TenantRealmSyncService,
+    private readonly kcSync: KeycloakIdentitySyncService,
   ) {}
 
   @Get('permissions-policy')
@@ -62,6 +71,7 @@ export class PlatformTenantsController {
           clientId: binding.clientId,
         }),
       ),
+      platformKeycloak: PLATFORM_KEYCLOAK_BINDING,
     };
   }
 
@@ -85,5 +95,20 @@ export class PlatformTenantsController {
     await this.tenantRealmSyncService.syncTenantModules(tenantId, normalized);
 
     return { tenantId, enabledModuleIds: normalized };
+  }
+
+  @Post(':tenantId/sync/keycloak')
+  @RequirePermissions('platform.sync.manage', 'platform.identity.manage', 'platform.tenants.manage')
+  pushToKeycloak(@Param('tenantId', ParseUUIDPipe) tenantId: string) {
+    return this.kcSync.pushTenantToKeycloak(tenantId);
+  }
+
+  @Post(':tenantId/sync/keycloak/pull')
+  @RequirePermissions('platform.sync.manage', 'platform.identity.manage', 'platform.tenants.manage')
+  pullFromKeycloak(
+    @Param('tenantId', ParseUUIDPipe) tenantId: string,
+    @Body() body: PullKeycloakUserDto,
+  ) {
+    return this.kcSync.pullTenantUserFromKeycloak(tenantId, body.email);
   }
 }

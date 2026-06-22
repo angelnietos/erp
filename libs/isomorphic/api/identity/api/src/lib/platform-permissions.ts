@@ -11,6 +11,9 @@ export const PLATFORM_PERMISSIONS_CATALOG: readonly PlatformPermissionEntry[] = 
   { id: 'platform.modules.manage', label: 'Configurar catálogo de módulos' },
   { id: 'platform.identity.read', label: 'Ver usuarios y roles por tenant' },
   { id: 'platform.identity.manage', label: 'Gestionar usuarios y roles por tenant' },
+  { id: 'platform.users.read', label: 'Ver usuarios del panel SaaS' },
+  { id: 'platform.users.manage', label: 'Gestionar usuarios del panel SaaS' },
+  { id: 'platform.sync.manage', label: 'Sincronizar identidad con Keycloak' },
   { id: 'platform.metrics.read', label: 'Ver métricas' },
 ] as const;
 
@@ -46,12 +49,24 @@ export function userHasPlatformPermission(
   if (p.includes('platform.tenants.manage')) {
     return true;
   }
+  if (
+    required === 'platform.sync.manage' &&
+    (p.includes('platform.identity.manage') || p.includes('platform.users.manage'))
+  ) {
+    return true;
+  }
   if (required === 'platform.tenants.read' && p.includes('platform.identity.read')) {
     return true;
   }
   if (
     (required === 'platform.identity.read' || required === 'platform.identity.manage') &&
     p.includes('platform.identity.manage')
+  ) {
+    return true;
+  }
+  if (
+    (required === 'platform.users.read' || required === 'platform.users.manage') &&
+    p.includes('platform.users.manage')
   ) {
     return true;
   }

@@ -38,6 +38,13 @@ export const appRoutes: Route[] = [
             (m) => m.PermissionsPolicyPageComponent,
           ),
       },
+      {
+        path: 'platform-users',
+        loadComponent: () =>
+          import('./platform-users-page.component').then(
+            (m) => m.PlatformUsersPageComponent,
+          ),
+      },
     ],
   },
   { path: '**', redirectTo: '' },

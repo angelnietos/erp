@@ -26,6 +26,7 @@ import { KeycloakAuthService } from './keycloak-auth.service';
               Organizaciones
             </a>
             <a routerLink="/metrics" routerLinkActive="tab--active" class="tab">Métricas</a>
+            <a routerLink="/platform-users" routerLinkActive="tab--active" class="tab">Usuarios SaaS</a>
             <a routerLink="/permissions" routerLinkActive="tab--active" class="tab">Permisos</a>
           </nav>
 

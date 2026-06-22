@@ -13,12 +13,14 @@ import {
   PERMISSIONS_CATALOG,
 } from '@josanz-erp/identity-api';
 import { TenantIdentityNotifierService } from './tenant-identity-notifier.service';
+import { KeycloakIdentitySyncService } from './keycloak-identity-sync.service';
 
 @Injectable()
 export class RolesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly identityNotifier: TenantIdentityNotifierService,
+    private readonly kcSync: KeycloakIdentitySyncService,
   ) {}
 
   private async resolveTenantEnabledModules(tenantId: string): Promise<string[]> {
@@ -72,6 +74,7 @@ export class RolesService {
       },
     });
     this.identityNotifier.notifyIdentityUpdated(tenantId);
+    void this.kcSync.pushTenantToKeycloak(tenantId).catch(() => undefined);
     return created;
   }
 
@@ -104,6 +107,7 @@ export class RolesService {
       data: nextData,
     });
     this.identityNotifier.notifyIdentityUpdated(tenantId);
+    void this.kcSync.pushTenantToKeycloak(tenantId).catch(() => undefined);
     return updated;
   }
 
@@ -117,6 +121,7 @@ export class RolesService {
       where: { id },
     });
     this.identityNotifier.notifyIdentityUpdated(tenantId);
+    void this.kcSync.pushTenantToKeycloak(tenantId).catch(() => undefined);
     return deleted;
   }
 
