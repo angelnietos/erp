@@ -13,8 +13,10 @@ const RENEW_BEFORE_MS = 5 * 60 * 1000;
 const CSRF_EXEMPT_PREFIXES = [
   '/api/bff/auth/login',
   '/api/bff/auth/logout',
+  '/api/bff/auth/callback',
   '/api/bff/platform/auth/login',
   '/api/bff/platform/auth/logout',
+  '/api/bff/platform/auth/callback',
   '/api/auth/login',
   '/api/auth/forgot-password',
   '/api/auth/reset-password',

@@ -1,7 +1,20 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, switchMap, throwError, timeout } from 'rxjs';
-import { BffAuthClient, ENTERPRISE_AUTH_CONFIG } from '@josanz-erp/shared-auth-keycloak';
+import {
+  BffAuthClient,
+  ENTERPRISE_AUTH_CONFIG,
+  buildKeycloakAuthorizeUrl,
+  clearPlatformPkceRedirectPending,
+  clearPlatformPkceSession,
+  consumePlatformPkceRedirectAborted,
+  createOidcState,
+  createPkcePair,
+  defaultOidcCallbackUri,
+  markPlatformPkceRedirectPending,
+  readPlatformPkceSession,
+  storePlatformPkceSession,
+} from '@josanz-erp/shared-auth-keycloak';
 import { environment } from '../environments/environment';
 import { clearPlatformToken, setPlatformToken } from './platform-auth.interceptor';
 
@@ -23,6 +36,7 @@ interface LocalPlatformLoginResponse {
 
 const AUTH_MODE_KEY = 'saas_platform_auth_mode';
 const KEYCLOAK_AVAILABLE_KEY = 'saas_platform_keycloak_available';
+const PLATFORM_CALLBACK_PATH = '/login/callback';
 
 @Injectable({ providedIn: 'root' })
 export class KeycloakAuthService {
@@ -41,13 +55,166 @@ export class KeycloakAuthService {
     return this.bff?.isBffMode() ?? this.enterpriseAuth?.mode === 'bff';
   }
 
+  canUsePlatformKeycloakPkce(): boolean {
+    return Boolean(this.keycloak?.enabled && this.keycloak.url && this.keycloak.realm);
+  }
+
+  getPlatformCallbackUri(callbackPath = PLATFORM_CALLBACK_PATH): string {
+    return defaultOidcCallbackUri(callbackPath);
+  }
+
+  /** Realm accesible y redirect_uri registrado en el cliente KC. */
+  checkPlatformSsoReady(callbackPath = PLATFORM_CALLBACK_PATH): Observable<{
+    ready: boolean;
+    realmReachable: boolean;
+    redirectUriAllowed: boolean;
+    hint?: string;
+  }> {
+    const redirectUri = this.getPlatformCallbackUri(callbackPath);
+
+    return this.isKeycloakAvailable().pipe(
+      switchMap((realmReachable) => {
+        if (!realmReachable) {
+          return of({
+            ready: false,
+            realmReachable: false,
+            redirectUriAllowed: false,
+          });
+        }
+        if (this.isBffMode() && this.bff) {
+          return this.bff.platformSsoCheck(redirectUri).pipe(
+            map((res) => ({
+              ready: res.realmReachable && res.redirectUriAllowed,
+              realmReachable: res.realmReachable,
+              redirectUriAllowed: res.redirectUriAllowed,
+              hint: res.hint,
+            })),
+            catchError(() =>
+              of({
+                ready: true,
+                realmReachable: true,
+                redirectUriAllowed: true,
+              }),
+            ),
+          );
+        }
+        return of({
+          ready: true,
+          realmReachable: true,
+          redirectUriAllowed: true,
+        });
+      }),
+    );
+  }
+
+  /** Redirige al login OIDC de Keycloak (Authorization Code + PKCE). */
+  async startPlatformKeycloakPkceRedirect(
+    callbackPath = PLATFORM_CALLBACK_PATH,
+  ): Promise<void> {
+    if (!this.canUsePlatformKeycloakPkce()) {
+      throw new Error('Keycloak no está configurado para el panel SaaS.');
+    }
+    const kcUrl = this.keycloak.url.replace(/\/$/, '');
+    const { codeVerifier, codeChallenge } = await createPkcePair();
+    const state = createOidcState();
+    const redirectUri = defaultOidcCallbackUri(callbackPath);
+    storePlatformPkceSession({ codeVerifier, state, redirectUri });
+    const authorizeUrl = buildKeycloakAuthorizeUrl({
+      authServerUrl: kcUrl,
+      realm: this.keycloak.realm,
+      clientId: this.keycloak.clientId,
+      redirectUri,
+      codeChallenge,
+      state,
+      uiLocales: 'es',
+    });
+    markPlatformPkceRedirectPending();
+    window.location.assign(authorizeUrl);
+  }
+
+  completePlatformPkceCallback(code: string, state: string): Observable<PlatformLoginResult> {
+    const stored = readPlatformPkceSession();
+    if (!stored) {
+      return throwError(() => new Error('Sesión PKCE no encontrada o caducada.'));
+    }
+    if (stored.state !== state.trim()) {
+      clearPlatformPkceSession();
+      return throwError(() => new Error('Estado OIDC inválido. Vuelve a iniciar sesión.'));
+    }
+    clearPlatformPkceSession();
+    clearPlatformPkceRedirectPending();
+
+    if (this.isBffMode() && this.bff) {
+      return this.bff
+        .platformCallbackWithCode({
+          code,
+          codeVerifier: stored.codeVerifier,
+          redirectUri: stored.redirectUri,
+        })
+        .pipe(
+          map((res) => {
+            this.remember('keycloak', true);
+            return {
+              accessToken: res.accessToken ?? '',
+              mode: 'keycloak' as const,
+              keycloakAvailable: true,
+            };
+          }),
+          catchError((error: unknown) =>
+            throwError(() => this.toLoginError(error, true)),
+          ),
+        );
+    }
+
+    const base = this.keycloak.url.replace(/\/$/, '');
+    const tokenUrl = `${base}/realms/${this.keycloak.realm}/protocol/openid-connect/token`;
+    const body = new URLSearchParams();
+    body.set('grant_type', 'authorization_code');
+    body.set('client_id', this.keycloak.clientId);
+    body.set('code', code.trim());
+    body.set('redirect_uri', stored.redirectUri);
+    body.set('code_verifier', stored.codeVerifier);
+
+    return this.http
+      .post<KeycloakTokenResponse>(tokenUrl, body.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      })
+      .pipe(
+        switchMap((response) => {
+          const token = response?.access_token;
+          if (!token) {
+            return throwError(() => new Error('Keycloak no devolvió token.'));
+          }
+          setPlatformToken(token);
+          this.remember('keycloak', true);
+          return this.refreshPlatformSession().pipe(
+            map(() => ({
+              accessToken: token,
+              mode: 'keycloak' as const,
+              keycloakAvailable: true,
+            })),
+            catchError(() =>
+              of({
+                accessToken: token,
+                mode: 'keycloak' as const,
+                keycloakAvailable: true,
+              }),
+            ),
+          );
+        }),
+        catchError((error: unknown) =>
+          throwError(() => this.toLoginError(error, true)),
+        ),
+      );
+  }
+
   login(email: string, password: string): Observable<PlatformLoginResult> {
     if (this.isBffMode() && this.bff) {
       return this.bff.platformLogin(email, password).pipe(
         map((res) => {
           this.remember(res.authMode, res.authMode === 'keycloak');
           return {
-            accessToken: '',
+            accessToken: res.accessToken ?? '',
             mode: res.authMode,
             keycloakAvailable: res.authMode === 'keycloak',
           };
@@ -105,6 +272,14 @@ export class KeycloakAuthService {
       map(() => true),
       catchError(() => of(false)),
     );
+  }
+
+  consumeRedirectAborted(): boolean {
+    return consumePlatformPkceRedirectAborted();
+  }
+
+  clearRedirectPending(): void {
+    clearPlatformPkceRedirectPending();
   }
 
   private keycloakLogin(email: string, password: string): Observable<PlatformLoginResult> {

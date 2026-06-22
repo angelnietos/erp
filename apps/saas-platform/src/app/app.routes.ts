@@ -8,6 +8,11 @@ export const appRoutes: Route[] = [
       import('./login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'login/callback',
+    loadComponent: () =>
+      import('./login-callback.component').then((m) => m.LoginCallbackComponent),
+  },
+  {
     path: '',
     canActivate: [platformAuthGuard],
     loadComponent: () =>

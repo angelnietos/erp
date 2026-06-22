@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Sincroniza cliente josanz-figma-spa + usuario alexis en Keycloak dev
- * (el JSON del realm solo se importa en el primer arranque del contenedor).
+ * Sincroniza clientes Keycloak dev (ERP + panel SaaS).
+ * El JSON del realm solo se importa en el primer arranque del contenedor.
  *
  * Uso: node scripts/keycloak-sync-dev.mjs
  * Env: KEYCLOAK_URL (default http://localhost:8081), KEYCLOAK_ADMIN, KEYCLOAK_ADMIN_PASSWORD
@@ -9,9 +9,10 @@
 const KC_BASE = (process.env.KEYCLOAK_URL ?? 'http://localhost:8081').replace(/\/$/, '');
 const ADMIN_USER = process.env.KEYCLOAK_ADMIN ?? 'admin';
 const ADMIN_PASS = process.env.KEYCLOAK_ADMIN_PASSWORD ?? 'admin';
-const REALM = 'josanz-web-app-realm';
-const CLIENT_ID = 'josanz-figma-spa';
-const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
+
+const DEV_ORIGINS = ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'];
+
+const PLATFORM_CALLBACK = 'http://localhost:4300/login/callback';
 
 async function getAdminToken() {
   const body = new URLSearchParams({
@@ -32,8 +33,8 @@ async function getAdminToken() {
   return json.access_token;
 }
 
-async function kc(token, path, options = {}) {
-  const res = await fetch(`${KC_BASE}/admin/realms/${REALM}${path}`, {
+async function kc(token, realm, path, options = {}) {
+  const res = await fetch(`${KC_BASE}/admin/realms/${realm}${path}`, {
     ...options,
     headers: {
       Authorization: `Bearer ${token}`,
@@ -44,9 +45,48 @@ async function kc(token, path, options = {}) {
   return res;
 }
 
-function clientPayload() {
+async function upsertClient(token, realm, clientId, payload) {
+  const listRes = await kc(token, realm, `/clients?clientId=${encodeURIComponent(clientId)}`);
+  if (!listRes.ok) {
+    throw new Error(`List clients failed (${realm}): ${await listRes.text()}`);
+  }
+  const existing = await listRes.json();
+
+  if (existing.length > 0) {
+    const id = existing[0].id;
+    const putRes = await kc(token, realm, `/clients/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ ...existing[0], ...payload }),
+    });
+    if (!putRes.ok) {
+      throw new Error(`Update client ${clientId} failed: ${await putRes.text()}`);
+    }
+    console.log(`✓ Cliente ${clientId} actualizado en ${realm} (${id})`);
+    return id;
+  }
+
+  const createRes = await kc(token, realm, '/clients', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  if (createRes.status !== 201) {
+    throw new Error(`Create client ${clientId} failed (${createRes.status}): ${await createRes.text()}`);
+  }
+  const location = createRes.headers.get('location') ?? '';
+  const id = location.split('/').pop();
+  console.log(`✓ Cliente ${clientId} creado en ${realm} (${id})`);
+  return id;
+}
+
+// --- ERP (josanz-web-app-realm) ---
+
+const JOSANZ_REALM = 'josanz-web-app-realm';
+const JOSANZ_CLIENT_ID = 'josanz-figma-spa';
+const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
+
+function josanzClientPayload() {
   return {
-    clientId: CLIENT_ID,
+    clientId: JOSANZ_CLIENT_ID,
     name: 'Josanz Figma SPA (Alexis)',
     description: 'Shell Figma / tenant alexis — login theme josanz-figma',
     enabled: true,
@@ -56,77 +96,21 @@ function clientPayload() {
     implicitFlowEnabled: false,
     serviceAccountsEnabled: false,
     protocol: 'openid-connect',
-    webOrigins: ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'],
-    redirectUris: [
-      'http://localhost:4200/*',
-      'http://localhost:4201/*',
-      'http://localhost:4300/*',
-    ],
+    webOrigins: [...DEV_ORIGINS],
+    redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
       'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*',
+        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
   };
 }
 
-async function upsertClient(token) {
-  const listRes = await kc(token, `/clients?clientId=${encodeURIComponent(CLIENT_ID)}`);
-  if (!listRes.ok) {
-    throw new Error(`List clients failed: ${await listRes.text()}`);
-  }
-  const existing = await listRes.json();
-  const payload = clientPayload();
-
-  if (existing.length > 0) {
-    const id = existing[0].id;
-    const putRes = await kc(token, `/clients/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({ ...existing[0], ...payload }),
-    });
-    if (!putRes.ok) {
-      throw new Error(`Update client failed: ${await putRes.text()}`);
-    }
-    console.log(`✓ Cliente ${CLIENT_ID} actualizado (${id})`);
-    return id;
-  }
-
-  const createRes = await kc(token, '/clients', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
-  if (createRes.status !== 201) {
-    throw new Error(`Create client failed (${createRes.status}): ${await createRes.text()}`);
-  }
-  const location = createRes.headers.get('location') ?? '';
-  const id = location.split('/').pop();
-  console.log(`✓ Cliente ${CLIENT_ID} creado (${id})`);
-  return id;
-}
-
-async function ensureClientRoles(token, clientUuid) {
-  for (const name of ['admin', 'user']) {
-    const listRes = await kc(token, `/clients/${clientUuid}/roles?search=${name}`);
-    const roles = listRes.ok ? await listRes.json() : [];
-    if (roles.some((r) => r.name === name)) {
-      continue;
-    }
-    const createRes = await kc(token, `/clients/${clientUuid}/roles`, {
-      method: 'POST',
-      body: JSON.stringify({ name }),
-    });
-    if (!createRes.ok && createRes.status !== 409) {
-      throw new Error(`Create role ${name} failed: ${await createRes.text()}`);
-    }
-    console.log(`✓ Rol cliente ${CLIENT_ID}/${name}`);
-  }
-}
-
-async function syncRealmLoginUx(token) {
-  const getRes = await kc(token, '');
+async function syncJosanzRealmLoginUx(token) {
+  const getRes = await kc(token, JOSANZ_REALM, '');
   if (!getRes.ok) {
     throw new Error(`Read realm failed: ${await getRes.text()}`);
   }
@@ -141,19 +125,37 @@ async function syncRealmLoginUx(token) {
     resetPasswordAllowed: true,
     registrationAllowed: false,
   };
-  const putRes = await kc(token, '', {
+  const putRes = await kc(token, JOSANZ_REALM, '', {
     method: 'PUT',
     body: JSON.stringify(payload),
   });
   if (!putRes.ok) {
     throw new Error(`Update realm login UX failed: ${await putRes.text()}`);
   }
-  console.log('✓ Realm: recordarme, recuperar contraseña e i18n (es) activados');
+  console.log(`✓ ${JOSANZ_REALM}: recordarme, recuperar contraseña e i18n (es)`);
+}
+
+async function ensureClientRoles(token, realm, clientUuid, clientId, roleNames) {
+  for (const name of roleNames) {
+    const listRes = await kc(token, realm, `/clients/${clientUuid}/roles?search=${name}`);
+    const roles = listRes.ok ? await listRes.json() : [];
+    if (roles.some((r) => r.name === name)) {
+      continue;
+    }
+    const createRes = await kc(token, realm, `/clients/${clientUuid}/roles`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+    if (!createRes.ok && createRes.status !== 409) {
+      throw new Error(`Create role ${name} failed: ${await createRes.text()}`);
+    }
+    console.log(`✓ Rol cliente ${clientId}/${name}`);
+  }
 }
 
 async function upsertAlexisUser(token, clientUuid) {
   const email = 'admin@alexis.local';
-  const listRes = await kc(token, `/users?email=${encodeURIComponent(email)}&exact=true`);
+  const listRes = await kc(token, JOSANZ_REALM, `/users?email=${encodeURIComponent(email)}&exact=true`);
   const users = listRes.ok ? await listRes.json() : [];
   let userId = users[0]?.id;
 
@@ -168,7 +170,7 @@ async function upsertAlexisUser(token, clientUuid) {
   };
 
   if (userId) {
-    const putRes = await kc(token, `/users/${userId}`, {
+    const putRes = await kc(token, JOSANZ_REALM, `/users/${userId}`, {
       method: 'PUT',
       body: JSON.stringify(userBody),
     });
@@ -177,7 +179,7 @@ async function upsertAlexisUser(token, clientUuid) {
     }
     console.log(`✓ Usuario ${email} actualizado`);
   } else {
-    const createRes = await kc(token, '/users', {
+    const createRes = await kc(token, JOSANZ_REALM, '/users', {
       method: 'POST',
       body: JSON.stringify(userBody),
     });
@@ -188,7 +190,7 @@ async function upsertAlexisUser(token, clientUuid) {
     console.log(`✓ Usuario ${email} creado`);
   }
 
-  const pwRes = await kc(token, `/users/${userId}/reset-password`, {
+  const pwRes = await kc(token, JOSANZ_REALM, `/users/${userId}/reset-password`, {
     method: 'PUT',
     body: JSON.stringify({ type: 'password', value: 'Admin123!', temporary: false }),
   });
@@ -197,25 +199,79 @@ async function upsertAlexisUser(token, clientUuid) {
   }
 
   for (const roleName of ['admin', 'user']) {
-    const roleRes = await kc(token, `/clients/${clientUuid}/roles/${roleName}`);
+    const roleRes = await kc(token, JOSANZ_REALM, `/clients/${clientUuid}/roles/${roleName}`);
     if (!roleRes.ok) continue;
     const role = await roleRes.json();
-    await kc(token, `/users/${userId}/role-mappings/clients/${clientUuid}`, {
+    await kc(token, JOSANZ_REALM, `/users/${userId}/role-mappings/clients/${clientUuid}`, {
       method: 'POST',
       body: JSON.stringify([role]),
     });
   }
-  console.log(`✓ Roles ${CLIENT_ID} asignados a ${email}`);
+  console.log(`✓ Roles ${JOSANZ_CLIENT_ID} asignados a ${email}`);
+}
+
+async function syncJosanzRealm(token) {
+  console.log(`\n→ ${JOSANZ_REALM}`);
+  await syncJosanzRealmLoginUx(token);
+  const clientUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_CLIENT_ID, josanzClientPayload());
+  await ensureClientRoles(token, JOSANZ_REALM, clientUuid, JOSANZ_CLIENT_ID, ['admin', 'user']);
+  await upsertAlexisUser(token, clientUuid);
+}
+
+// --- Panel SaaS (babooni-platform) ---
+
+const PLATFORM_REALM = 'babooni-platform';
+const PLATFORM_CLIENT_ID = 'babooni-saas-platform';
+
+function platformClientPayload() {
+  const redirectUris = [
+    ...DEV_ORIGINS.map((o) => `${o}/*`),
+    PLATFORM_CALLBACK,
+    'http://localhost:4300/login/callback',
+    'http://localhost:4200/login/callback',
+    'http://localhost:4201/login/callback',
+  ];
+  return {
+    clientId: PLATFORM_CLIENT_ID,
+    name: 'Babooni SaaS Platform',
+    description: 'Admin panel for managing ERP tenants and modules',
+    enabled: true,
+    publicClient: true,
+    directAccessGrantsEnabled: true,
+    standardFlowEnabled: true,
+    implicitFlowEnabled: false,
+    serviceAccountsEnabled: false,
+    protocol: 'openid-connect',
+    webOrigins: [...DEV_ORIGINS, '+'],
+    redirectUris: [...new Set(redirectUris)],
+    attributes: {
+      'pkce.code.challenge.method': 'S256',
+      'post.logout.redirect.uris':
+        'http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*',
+    },
+    defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
+    optionalClientScopes: ['offline_access'],
+  };
+}
+
+async function syncPlatformRealm(token) {
+  console.log(`\n→ ${PLATFORM_REALM}`);
+  const clientUuid = await upsertClient(
+    token,
+    PLATFORM_REALM,
+    PLATFORM_CLIENT_ID,
+    platformClientPayload(),
+  );
+  console.log(`✓ Redirect PKCE panel: ${PLATFORM_CALLBACK}`);
+  return clientUuid;
 }
 
 async function main() {
-  console.log(`Keycloak sync → ${KC_BASE} / ${REALM}`);
+  console.log(`Keycloak sync → ${KC_BASE}`);
   const token = await getAdminToken();
-  await syncRealmLoginUx(token);
-  const clientUuid = await upsertClient(token);
-  await ensureClientRoles(token, clientUuid);
-  await upsertAlexisUser(token, clientUuid);
-  console.log('Listo. Prueba PKCE en /auth/login?tenant=alexis');
+  await syncJosanzRealm(token);
+  await syncPlatformRealm(token);
+  console.log('\nListo. ERP: /auth/login?tenant=alexis · SaaS: http://localhost:4300/login');
 }
 
 main().catch((err) => {

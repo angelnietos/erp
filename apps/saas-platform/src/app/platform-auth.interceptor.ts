@@ -28,6 +28,7 @@ export const platformAuthInterceptor: HttpInterceptorFn = (req, next) => {
         req.url.includes('/api/platform/auth/login') ||
         req.url.includes('/api/platform/auth/session') ||
         req.url.includes('/api/bff/platform/auth/login') ||
+        req.url.includes('/api/bff/platform/auth/callback') ||
         req.url.includes('/api/bff/platform/auth/session');
       if (
         error instanceof HttpErrorResponse &&

@@ -114,6 +114,80 @@ export function clearPkceSession(): void {
   sessionStorage.removeItem(PKCE_REDIRECT_PENDING_KEY);
 }
 
+/** PKCE del panel SaaS (`apps/saas-platform`) — claves separadas del ERP. */
+export const PLATFORM_PKCE_VERIFIER_KEY = 'saas_pkce_verifier';
+export const PLATFORM_PKCE_STATE_KEY = 'saas_pkce_state';
+export const PLATFORM_PKCE_REDIRECT_URI_KEY = 'saas_pkce_redirect_uri';
+export const PLATFORM_PKCE_REDIRECT_PENDING_KEY = 'saas_pkce_redirect_pending';
+
+export function storePlatformPkceSession(params: {
+  codeVerifier: string;
+  state: string;
+  redirectUri: string;
+}): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.setItem(PLATFORM_PKCE_VERIFIER_KEY, params.codeVerifier);
+  sessionStorage.setItem(PLATFORM_PKCE_STATE_KEY, params.state);
+  sessionStorage.setItem(PLATFORM_PKCE_REDIRECT_URI_KEY, params.redirectUri);
+}
+
+export function readPlatformPkceSession(): {
+  codeVerifier: string;
+  state: string;
+  redirectUri: string;
+} | null {
+  if (typeof sessionStorage === 'undefined') {
+    return null;
+  }
+  const codeVerifier =
+    sessionStorage.getItem(PLATFORM_PKCE_VERIFIER_KEY)?.trim() ?? '';
+  const state = sessionStorage.getItem(PLATFORM_PKCE_STATE_KEY)?.trim() ?? '';
+  const redirectUri =
+    sessionStorage.getItem(PLATFORM_PKCE_REDIRECT_URI_KEY)?.trim() ?? '';
+  if (!codeVerifier || !state || !redirectUri) {
+    return null;
+  }
+  return { codeVerifier, state, redirectUri };
+}
+
+export function markPlatformPkceRedirectPending(): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.setItem(PLATFORM_PKCE_REDIRECT_PENDING_KEY, '1');
+}
+
+export function consumePlatformPkceRedirectAborted(): boolean {
+  if (typeof sessionStorage === 'undefined') {
+    return false;
+  }
+  const aborted =
+    sessionStorage.getItem(PLATFORM_PKCE_REDIRECT_PENDING_KEY) === '1';
+  if (aborted) {
+    sessionStorage.removeItem(PLATFORM_PKCE_REDIRECT_PENDING_KEY);
+  }
+  return aborted;
+}
+
+export function clearPlatformPkceRedirectPending(): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.removeItem(PLATFORM_PKCE_REDIRECT_PENDING_KEY);
+}
+
+export function clearPlatformPkceSession(): void {
+  if (typeof sessionStorage === 'undefined') {
+    return;
+  }
+  sessionStorage.removeItem(PLATFORM_PKCE_VERIFIER_KEY);
+  sessionStorage.removeItem(PLATFORM_PKCE_STATE_KEY);
+  sessionStorage.removeItem(PLATFORM_PKCE_REDIRECT_URI_KEY);
+  sessionStorage.removeItem(PLATFORM_PKCE_REDIRECT_PENDING_KEY);
+}
+
 export function buildKeycloakAuthorizeUrl(params: {
   authServerUrl: string;
   realm: string;

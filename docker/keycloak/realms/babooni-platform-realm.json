@@ -29,8 +29,17 @@
       "standardFlowEnabled": true,
       "implicitFlowEnabled": false,
       "serviceAccountsEnabled": false,
-      "webOrigins": ["http://localhost:4201", "http://localhost:4200"],
-      "redirectUris": ["http://localhost:4201/*", "http://localhost:4200/*"],
+      "webOrigins": ["http://localhost:4201", "http://localhost:4200", "http://localhost:4300", "+"],
+      "redirectUris": [
+        "http://localhost:4201/*",
+        "http://localhost:4200/*",
+        "http://localhost:4300/*",
+        "http://localhost:4300/login/callback"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*"
+      },
       "defaultClientScopes": [
         "web-origins",
         "roles",

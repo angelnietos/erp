@@ -1,4 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  OnInit,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { finalize } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -15,64 +22,79 @@ import { KeycloakAuthService } from './keycloak-auth.service';
       <div class="login-glow login-glow--a"></div>
       <div class="login-glow login-glow--b"></div>
       <div class="login-card">
-        <div class="brand">
-          <span class="brand-mark">BABOONI</span>
-          <span class="brand-sub">PLATFORM</span>
-        </div>
-        <p class="eyebrow">Acceso</p>
-        <h1 class="title">Panel de producto</h1>
-        <p class="lede">
-          Administración de organizaciones, módulos y observabilidad (Babooni).
-        </p>
-        <div
-          class="auth-status"
-          [class.auth-status--local]="authMode() === 'local'"
-          [class.auth-status--keycloak]="authMode() === 'keycloak'"
-        >
-          <span class="auth-status-dot"></span>
-          <span>{{ authStatusLabel() }}</span>
-        </div>
-
-        <label class="field-label" for="pf-email">Email</label>
-        <input
-          id="pf-email"
-          class="field-input"
-          type="email"
-          [(ngModel)]="email"
-          autocomplete="username"
-        />
-        <label class="field-label" for="pf-password">Contraseña</label>
-        <input
-          id="pf-password"
-          class="field-input"
-          type="password"
-          [(ngModel)]="password"
-          autocomplete="current-password"
-        />
-        @if (error()) {
-          <p class="err">{{ error() }}</p>
-        }
-        <button type="button" class="btn-submit" [disabled]="loading()" (click)="submit()">
-          @if (loading()) {
-            <span class="btn-submit-inner">
-              <span class="sp-loading-dots" aria-hidden="true">
-                <span></span><span></span><span></span>
-              </span>
-              {{ loadingLabel() }}
-            </span>
-          } @else {
-            Entrar
-          }
-        </button>
-
-        <div class="dev-hint">
-          <p class="dev-hint-kicker">Solo desarrollo</p>
-          <p class="hint">
-            Cuenta en <code>platform_users</code> (seed):
-            <code>platform&#64;babooni.com</code> · contraseña típica del seed:
-            Admin123!
+        @if (keycloakHandoffPending()) {
+          <div class="handoff" role="status" aria-live="polite">
+            <span class="handoff-spinner" aria-hidden="true"></span>
+            <p class="handoff-title">Redirigiendo a Keycloak…</p>
+            <p class="handoff-lede">Verificando el servidor de identidad del panel SaaS.</p>
+          </div>
+        } @else {
+          <div class="brand">
+            <span class="brand-mark">BABOONI</span>
+            <span class="brand-sub">PLATFORM</span>
+          </div>
+          <p class="eyebrow">Acceso</p>
+          <h1 class="title">Panel de producto</h1>
+          <p class="lede">
+            Administración de organizaciones, módulos y observabilidad (Babooni).
           </p>
-        </div>
+          <div
+            class="auth-status"
+            [class.auth-status--local]="authMode() === 'local'"
+            [class.auth-status--keycloak]="authMode() === 'keycloak'"
+          >
+            <span class="auth-status-dot"></span>
+            <span>{{ authStatusLabel() }}</span>
+          </div>
+
+          @if (showKeycloakRetryButton()) {
+            <button type="button" class="btn-sso" (click)="startKeycloakSso()">
+              Entrar con Keycloak
+            </button>
+          }
+
+          @if (showLocalLoginForm()) {
+            <label class="field-label" for="pf-email">Email</label>
+            <input
+              id="pf-email"
+              class="field-input"
+              type="email"
+              [(ngModel)]="email"
+              autocomplete="username"
+            />
+            <label class="field-label" for="pf-password">Contraseña</label>
+            <input
+              id="pf-password"
+              class="field-input"
+              type="password"
+              [(ngModel)]="password"
+              autocomplete="current-password"
+            />
+            @if (error()) {
+              <p class="err">{{ error() }}</p>
+            }
+            <button type="button" class="btn-submit" [disabled]="loading()" (click)="submit()">
+              @if (loading()) {
+                <span class="btn-submit-inner">
+                  <span class="sp-loading-dots" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                  </span>
+                  {{ loadingLabel() }}
+                </span>
+              } @else {
+                Entrar con acceso local
+              }
+            </button>
+
+            <div class="dev-hint">
+              <p class="dev-hint-kicker">Solo desarrollo</p>
+              <p class="hint">
+                Fallback <code>platform_users</code>:
+                <code>platform&#64;babooni.com</code> · Admin123!
+              </p>
+            </div>
+          }
+        }
       </div>
     </div>
   `,
@@ -160,6 +182,40 @@ import { KeycloakAuthService } from './keycloak-auth.service';
         background: linear-gradient(90deg, var(--sp-accent) 0%, var(--sp-gold) 55%, var(--sp-accent) 100%);
         background-size: 200% 100%;
         animation: sp-shimmer 8s ease-in-out infinite;
+      }
+
+      .handoff {
+        text-align: center;
+        padding: 1.5rem 0.5rem 0.75rem;
+      }
+
+      .handoff-spinner {
+        display: inline-block;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 2px solid rgba(255, 255, 255, 0.12);
+        border-top-color: var(--sp-accent-secondary);
+        border-radius: 50%;
+        animation: spin 0.85s linear infinite;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .handoff-title {
+        margin: 0 0 0.45rem;
+        font-family: var(--sp-font-display);
+        font-size: 1.25rem;
+      }
+
+      .handoff-lede {
+        margin: 0;
+        color: var(--sp-muted);
+        font-size: 0.88rem;
       }
 
       .brand {
@@ -255,6 +311,19 @@ import { KeycloakAuthService } from './keycloak-auth.service';
         box-shadow: 0 0 12px currentColor;
       }
 
+      .btn-sso {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.82rem 1rem;
+        border: 1px solid rgba(78, 202, 114, 0.35);
+        border-radius: var(--sp-radius-sm);
+        background: rgba(78, 202, 114, 0.12);
+        color: #d7ffe3;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
       .field-label {
         display: block;
         font-size: 0.62rem;
@@ -321,10 +390,6 @@ import { KeycloakAuthService } from './keycloak-auth.service';
         box-shadow: 0 14px 40px rgba(0, 75, 147, 0.4);
       }
 
-      .btn-submit:active:not(:disabled) {
-        transform: translateY(0);
-      }
-
       .btn-submit:disabled {
         opacity: 0.58;
         cursor: not-allowed;
@@ -378,11 +443,14 @@ import { KeycloakAuthService } from './keycloak-auth.service';
           animation: none;
           background: linear-gradient(90deg, var(--sp-accent) 0%, var(--sp-gold) 100%);
         }
+        .handoff-spinner {
+          animation: none;
+        }
       }
     `,
   ],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly auth = inject(KeycloakAuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -392,55 +460,179 @@ export class LoginComponent {
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly authMode = this.auth.authMode;
-  readonly loadingLabel = signal('Verificando Keycloak');
-  readonly authStatusLabel = computed(() => {
-    const mode = this.auth.authMode();
-    const available = this.auth.keycloakAvailable();
-    if (this.loading()) {
-      return this.loadingLabel();
+  readonly loadingLabel = signal('Entrando…');
+  readonly pkceRedirectLoading = signal(false);
+  readonly keycloakReachable = signal<boolean | null>(null);
+  readonly keycloakRedirectAborted = signal(false);
+  readonly forceLocalLogin = signal(
+    this.route.snapshot.queryParamMap.get('local') === '1',
+  );
+
+  readonly showLocalLoginForm = computed(() => {
+    if (this.forceLocalLogin()) {
+      return true;
     }
-    if (mode === 'keycloak') {
+    if (!this.auth.canUsePlatformKeycloakPkce()) {
+      return true;
+    }
+    if (this.keycloakRedirectAborted()) {
+      return true;
+    }
+    return this.keycloakReachable() === false;
+  });
+
+  readonly keycloakHandoffPending = computed(() => {
+    if (!this.auth.canUsePlatformKeycloakPkce()) {
+      return false;
+    }
+    if (this.forceLocalLogin()) {
+      return false;
+    }
+    if (this.keycloakRedirectAborted()) {
+      return false;
+    }
+    const reachable = this.keycloakReachable();
+    if (reachable === false) {
+      return false;
+    }
+    return reachable === null || this.pkceRedirectLoading();
+  });
+
+  readonly showKeycloakRetryButton = computed(
+    () =>
+      this.keycloakRedirectAborted() &&
+      this.keycloakReachable() === true &&
+      !this.pkceRedirectLoading(),
+  );
+
+  readonly authStatusLabel = computed(() => {
+    if (this.keycloakHandoffPending()) {
+      return 'Conectando con Keycloak…';
+    }
+    if (this.authMode() === 'keycloak') {
       return 'Keycloak SSO activo';
     }
-    if (mode === 'local') {
-      return available === false
+    if (this.showLocalLoginForm()) {
+      return this.keycloakReachable() === false
         ? 'Acceso local: Keycloak no disponible'
         : 'Acceso local de respaldo';
     }
-    return available === false
-      ? 'Keycloak no disponible'
-      : 'Keycloak SSO + fallback local';
+    return 'Keycloak SSO preferido';
   });
 
-  constructor() {
-    if (this.route.snapshot.queryParamMap.get('reason') === 'expired') {
+  ngOnInit(): void {
+    const reason = this.route.snapshot.queryParamMap.get('reason');
+    if (reason === 'expired') {
       this.error.set('La sesión ha caducado. Vuelve a iniciar sesión.');
+    }
+    if (reason === 'kc_error') {
+      const msg = this.route.snapshot.queryParamMap.get('msg');
+      this.error.set(
+        msg
+          ? `Keycloak no completó el login (${msg}). Usa acceso local o reintenta SSO.`
+          : 'Keycloak no completó el login. Usa acceso local o reintenta SSO.',
+      );
+      this.forceLocalLogin.set(true);
+      this.keycloakRedirectAborted.set(true);
+    }
+
+    this.pkceRedirectLoading.set(false);
+    if (this.isBackForwardNavigation() && this.auth.consumeRedirectAborted()) {
+      this.keycloakRedirectAborted.set(true);
+      if (!this.error()) {
+        this.error.set(
+          'Volviste desde Keycloak sin completar el login. Puedes usar acceso local o reintentar SSO.',
+        );
+      }
+    } else if (reason !== 'kc_error') {
+      this.auth.clearRedirectPending();
+    }
+
+    if (this.auth.canUsePlatformKeycloakPkce() && !this.forceLocalLogin()) {
+      this.auth.checkPlatformSsoReady().subscribe({
+        next: (check) => {
+          this.keycloakReachable.set(check.realmReachable);
+          if (!check.ready) {
+            if (!check.realmReachable) {
+              this.error.set('Keycloak no responde. Usando acceso local.');
+            } else if (!check.redirectUriAllowed) {
+              this.error.set(
+                check.hint ??
+                  'Keycloak no tiene registrado el redirect URI del panel. Ejecuta `pnpm keycloak:sync`.',
+              );
+            }
+            return;
+          }
+          if (!this.keycloakRedirectAborted()) {
+            void this.startKeycloakSso();
+          }
+        },
+        error: () => {
+          this.keycloakReachable.set(false);
+          this.error.set('No se pudo verificar Keycloak. Usando acceso local.');
+        },
+      });
+    } else if (!this.forceLocalLogin()) {
+      this.keycloakReachable.set(false);
+    }
+  }
+
+  @HostListener('window:pageshow', ['$event'])
+  onPageShow(event: PageTransitionEvent): void {
+    this.pkceRedirectLoading.set(false);
+    if (event.persisted && this.auth.consumeRedirectAborted()) {
+      this.keycloakRedirectAborted.set(true);
+    }
+  }
+
+  async startKeycloakSso(): Promise<void> {
+    if (this.pkceRedirectLoading()) {
+      return;
+    }
+    if (this.keycloakReachable() === false) {
+      return;
+    }
+    this.pkceRedirectLoading.set(true);
+    this.error.set(null);
+    this.keycloakRedirectAborted.set(false);
+    try {
+      await this.auth.startPlatformKeycloakPkceRedirect();
+    } catch (err) {
+      this.pkceRedirectLoading.set(false);
+      this.error.set(
+        err instanceof Error ? err.message : 'No se pudo redirigir a Keycloak.',
+      );
     }
   }
 
   submit(): void {
     this.error.set(null);
-    this.loadingLabel.set('Verificando Keycloak');
+    this.loadingLabel.set('Entrando con acceso local');
     this.loading.set(true);
     this.auth
       .login(this.email, this.password)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (result) => {
-          if (!this.auth.isBffMode()) {
+          if (!this.auth.isBffMode() && result.accessToken) {
             setPlatformToken(result.accessToken);
           }
-          this.loadingLabel.set(
-            result.mode === 'keycloak'
-              ? 'Entrando con Keycloak'
-              : 'Entrando con acceso local',
-          );
           void this.router.navigateByUrl('/tenants');
         },
         error: (e: unknown) => {
           this.error.set(this.errorMessage(e));
         },
       });
+  }
+
+  private isBackForwardNavigation(): boolean {
+    if (typeof performance === 'undefined') {
+      return false;
+    }
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    return nav?.type === 'back_forward';
   }
 
   private errorMessage(e: unknown): string {

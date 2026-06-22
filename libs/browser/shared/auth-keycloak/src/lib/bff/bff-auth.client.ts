@@ -142,6 +142,35 @@ export class BffAuthClient {
     );
   }
 
+  platformCallbackWithCode(body: {
+    code: string;
+    codeVerifier: string;
+    redirectUri: string;
+  }): Observable<BffPlatformLoginResponse> {
+    return this.http.post<BffPlatformLoginResponse>(
+      `${this.prefix()}/bff/platform/auth/callback`,
+      body,
+      { withCredentials: true },
+    ).pipe(
+      tap((res) => this.rememberPlatformCsrf(res.csrfToken)),
+    );
+  }
+
+  platformSsoCheck(redirectUri: string): Observable<{
+    realmReachable: boolean;
+    redirectUriAllowed: boolean;
+    hint?: string;
+  }> {
+    return this.http.get<{
+      realmReachable: boolean;
+      redirectUriAllowed: boolean;
+      hint?: string;
+    }>(`${this.prefix()}/bff/platform/auth/sso-check`, {
+      params: { redirectUri },
+      withCredentials: true,
+    });
+  }
+
   platformSession(): Observable<BffPlatformLoginResponse> {
     return this.http.get<BffPlatformLoginResponse>(`${this.prefix()}/bff/platform/auth/session`, {
       withCredentials: true,

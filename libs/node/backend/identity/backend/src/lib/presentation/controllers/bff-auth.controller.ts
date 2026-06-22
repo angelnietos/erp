@@ -117,6 +117,27 @@ export class BffPlatformAuthController {
     return this.bffAuth.loginPlatform(dto, res);
   }
 
+  /** Canje Authorization Code + PKCE tras redirect desde Keycloak (panel SaaS). */
+  @PublicTenant()
+  @HttpCode(HttpStatus.OK)
+  @Post('callback')
+  async callback(
+    @Body() dto: BffAuthCallbackDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.bffAuth.loginPlatformWithAuthorizationCode(dto, res);
+  }
+
+  @PublicTenant()
+  @Get('sso-check')
+  ssoCheck(@Req() req: Request) {
+    const redirectUri =
+      typeof req.query['redirectUri'] === 'string'
+        ? req.query['redirectUri']
+        : '';
+    return this.bffAuth.checkPlatformSso(redirectUri);
+  }
+
   @PublicTenant()
   @Get('session')
   async getSession(

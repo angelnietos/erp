@@ -346,6 +346,81 @@ export class BffAuthService {
     return { user: enriched.user, authMode, csrfToken: csrf, accessToken };
   }
 
+  /** Login panel SaaS vía Authorization Code + PKCE (redirect OIDC → callback → BFF). */
+  async loginPlatformWithAuthorizationCode(
+    dto: BffAuthCallbackDto,
+    res: Response,
+  ): Promise<{
+    user: unknown;
+    authMode: 'keycloak';
+    csrfToken: string;
+    accessToken: string;
+  }> {
+    const realm =
+      this.config.get<string>('KEYCLOAK_PLATFORM_REALM') ?? 'babooni-platform';
+    const clientId =
+      this.config.get<string>('KEYCLOAK_PLATFORM_CLIENT_ID') ??
+      'babooni-saas-platform';
+
+    if (!this.keycloak.isEnabled()) {
+      throw new BadRequestException('Keycloak no está habilitado');
+    }
+
+    const token = await this.keycloak.authorizationCodeGrant({
+      realm,
+      clientId,
+      code: dto.code,
+      codeVerifier: dto.codeVerifier,
+      redirectUri: dto.redirectUri,
+    });
+    if (!token) {
+      throw new UnauthorizedException(
+        'No se pudo canjear el código de autorización. Vuelve a iniciar sesión.',
+      );
+    }
+
+    const payload = this.decodeJwt(token.accessToken);
+    const email =
+      (typeof payload?.email === 'string' && payload.email) ||
+      (typeof payload?.preferred_username === 'string' &&
+        payload.preferred_username) ||
+      '';
+    if (!email.trim()) {
+      throw new UnauthorizedException('Token Keycloak sin email');
+    }
+
+    const realmAccess = payload?.realm_access as { roles?: string[] } | undefined;
+    const enriched = await this.authService.refreshPlatformSessionByEmail(email, {
+      firstName:
+        typeof payload?.given_name === 'string' ? payload.given_name : undefined,
+      lastName:
+        typeof payload?.family_name === 'string' ? payload.family_name : undefined,
+      realmRoles: realmAccess?.roles ?? [],
+    });
+
+    const csrf = this.newCsrf();
+    const sessionTtlMs = this.sessionMaxAgeMs();
+    const session = await this.sessions.create({
+      kind: 'platform',
+      accessToken: enriched.accessToken,
+      refreshToken: token.refreshToken,
+      idToken: token.idToken,
+      keycloakRealm: realm,
+      keycloakClientId: clientId,
+      expiresAt: Date.now() + sessionTtlMs,
+      csrfToken: csrf,
+    });
+
+    setBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES, session.id, csrf, sessionTtlMs);
+
+    return {
+      user: enriched.user,
+      authMode: 'keycloak',
+      csrfToken: csrf,
+      accessToken: enriched.accessToken,
+    };
+  }
+
   /** Renueva JWT en la sesión BFF (p. ej. tras GET /bff/auth/session). */
   async touchErpSession(
     sessionId: string,
@@ -496,6 +571,122 @@ export class BffAuthService {
     }
     clearBffSessionCookies(res, PLATFORM_BFF_COOKIE_NAMES);
     return { ok: true };
+  }
+
+  /** Comprueba realm + redirect_uri registrado antes del redirect PKCE del panel SaaS. */
+  async checkPlatformSso(redirectUri: string): Promise<{
+    realmReachable: boolean;
+    redirectUriAllowed: boolean;
+    realm: string;
+    clientId: string;
+    redirectUri: string;
+    hint?: string;
+  }> {
+    const realm =
+      this.config.get<string>('KEYCLOAK_PLATFORM_REALM') ?? 'babooni-platform';
+    const clientId =
+      this.config.get<string>('KEYCLOAK_PLATFORM_CLIENT_ID') ??
+      'babooni-saas-platform';
+    const normalizedRedirect = redirectUri.trim();
+
+    const realmReachable = this.keycloak.isEnabled()
+      ? await this.keycloak.isRealmReachable(realm)
+      : false;
+
+    let redirectUriAllowed = false;
+    if (realmReachable && normalizedRedirect) {
+      const patterns = await this.fetchKeycloakClientRedirectUris(realm, clientId);
+      redirectUriAllowed =
+        patterns !== null &&
+        patterns.some((p) =>
+          this.keycloakRedirectUriMatches(p, normalizedRedirect),
+        );
+    }
+
+    let hint: string | undefined;
+    if (realmReachable && !redirectUriAllowed) {
+      hint =
+        'Ejecuta `pnpm keycloak:sync` para registrar el redirect URI del panel SaaS en Keycloak.';
+    }
+
+    return {
+      realmReachable,
+      redirectUriAllowed,
+      realm,
+      clientId,
+      redirectUri: normalizedRedirect,
+      hint,
+    };
+  }
+
+  private keycloakRedirectUriMatches(pattern: string, redirectUri: string): boolean {
+    const p = pattern.trim();
+    const r = redirectUri.trim();
+    if (!p || !r) {
+      return false;
+    }
+    if (p === r) {
+      return true;
+    }
+    if (p.endsWith('*')) {
+      return r.startsWith(p.slice(0, -1));
+    }
+    return false;
+  }
+
+  private async fetchKeycloakClientRedirectUris(
+    realm: string,
+    clientId: string,
+  ): Promise<string[] | null> {
+    const adminUser = this.config.get<string>('KEYCLOAK_ADMIN_USER');
+    const adminPassword = this.config.get<string>('KEYCLOAK_ADMIN_PASSWORD');
+    if (!adminUser || !adminPassword) {
+      return null;
+    }
+
+    try {
+      const form = new URLSearchParams({
+        grant_type: 'password',
+        client_id: this.config.get<string>('KEYCLOAK_ADMIN_CLIENT_ID') ?? 'admin-cli',
+        username: adminUser,
+        password: adminPassword,
+        scope: 'openid',
+      });
+      const tokenRes = await fetch(
+        `${this.keycloak.authServerUrl}/realms/master/protocol/openid-connect/token`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: form.toString(),
+        },
+      );
+      if (!tokenRes.ok) {
+        return null;
+      }
+      const tokenJson = (await tokenRes.json()) as { access_token?: string };
+      const token = tokenJson.access_token;
+      if (!token) {
+        return null;
+      }
+
+      const clientsRes = await fetch(
+        `${this.keycloak.authServerUrl}/admin/realms/${realm}/clients?clientId=${encodeURIComponent(clientId)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+      if (!clientsRes.ok) {
+        return null;
+      }
+      const clients = (await clientsRes.json()) as Array<{ redirectUris?: string[] }>;
+      return clients[0]?.redirectUris ?? [];
+    } catch (err) {
+      this.logger.debug(`Platform SSO redirect check failed: ${String(err)}`);
+      return null;
+    }
   }
 
   private decodeJwt(token: string): Record<string, unknown> | null {
