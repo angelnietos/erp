@@ -114,6 +114,9 @@ async function upsertClient(token, realm, clientId, payload) {
 const JOSANZ_REALM = 'josanz-web-app-realm';
 const JOSANZ_CLIENT_ID = 'josanz-figma-spa';
 const JOSANZ_WEB_SPA_CLIENT_ID = 'josanz-web-app-spa';
+const VERIFACTU_CRM_CLIENT_ID = 'verifactu-crm-spa';
+const VERIFACTU_CRM_ORIGIN = 'http://localhost:4230';
+const VERIFACTU_CRM_CALLBACK = `${VERIFACTU_CRM_ORIGIN}/login/callback`;
 const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
 const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
 const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
@@ -139,6 +142,30 @@ function josanzWebAppClientPayload() {
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
+      'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
+    },
+    defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
+    optionalClientScopes: ['offline_access'],
+  };
+}
+
+function verifactuCrmClientPayload() {
+  return {
+    clientId: VERIFACTU_CRM_CLIENT_ID,
+    name: 'Verifactu CRM SPA',
+    description: 'CRM Verifactu (apps/web :4230) — facturación AEAT',
+    enabled: true,
+    publicClient: true,
+    directAccessGrantsEnabled: false,
+    standardFlowEnabled: true,
+    implicitFlowEnabled: false,
+    serviceAccountsEnabled: false,
+    protocol: 'openid-connect',
+    webOrigins: [VERIFACTU_CRM_ORIGIN, '+'],
+    redirectUris: [VERIFACTU_CRM_CALLBACK, `${VERIFACTU_CRM_ORIGIN}/*`],
+    attributes: {
+      'pkce.code.challenge.method': 'S256',
+      login_theme: 'babooni-erp',
       'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
@@ -256,7 +283,7 @@ async function upsertRealmUser(token, realm, userDef) {
 
   const pwRes = await kc(token, realm, `/users/${userId}/reset-password`, {
     method: 'PUT',
-    body: JSON.stringify({ type: 'password', value: DEV_PASSWORD, temporary: false }),
+    body: JSON.stringify({ type: 'password', value: userDef.password ?? DEV_PASSWORD, temporary: false }),
   });
   if (!pwRes.ok) {
     throw new Error(`Set password for ${email} failed: ${await pwRes.text()}`);
@@ -289,7 +316,7 @@ async function assignRealmRolesToUser(token, realm, userId, roleNames) {
   }
 }
 
-async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid) {
+async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid, verifactuCrmUuid) {
   const users = [
     {
       username: 'admin',
@@ -326,12 +353,26 @@ async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid) {
         [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'],
       },
     },
+    {
+      username: 'demo-admin',
+      email: 'admin@demo.local',
+      firstName: 'Demo',
+      lastName: 'Admin',
+      tenantId: JOSANZ_TENANT_ID,
+      password: 'Demo12345!',
+      clientRoles: { [VERIFACTU_CRM_CLIENT_ID]: ['admin', 'user'] },
+    },
   ];
 
   for (const userDef of users) {
     const userId = await upsertRealmUser(token, JOSANZ_REALM, userDef);
     for (const [clientId, roles] of Object.entries(userDef.clientRoles)) {
-      const clientUuid = clientId === JOSANZ_CLIENT_ID ? figmaSpaUuid : webSpaUuid;
+      const clientUuid =
+        clientId === JOSANZ_CLIENT_ID
+          ? figmaSpaUuid
+          : clientId === VERIFACTU_CRM_CLIENT_ID
+            ? verifactuCrmUuid
+            : webSpaUuid;
       await assignClientRolesToUser(token, JOSANZ_REALM, userId, clientUuid, roles);
     }
     console.log(`✓ Roles asignados a ${userDef.email}`);
@@ -382,9 +423,17 @@ async function syncJosanzRealm(token) {
   await syncJosanzRealmLoginUx(token);
   const webSpaUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_WEB_SPA_CLIENT_ID, josanzWebAppClientPayload());
   const figmaSpaUuid = await upsertClient(token, JOSANZ_REALM, JOSANZ_CLIENT_ID, josanzClientPayload());
+  const verifactuCrmUuid = await upsertClient(
+    token,
+    JOSANZ_REALM,
+    VERIFACTU_CRM_CLIENT_ID,
+    verifactuCrmClientPayload(),
+  );
   await ensureClientRoles(token, JOSANZ_REALM, webSpaUuid, JOSANZ_WEB_SPA_CLIENT_ID, ['admin', 'user']);
   await ensureClientRoles(token, JOSANZ_REALM, figmaSpaUuid, JOSANZ_CLIENT_ID, ['admin', 'user']);
-  await syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid);
+  await ensureClientRoles(token, JOSANZ_REALM, verifactuCrmUuid, VERIFACTU_CRM_CLIENT_ID, ['admin', 'user']);
+  await syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid, verifactuCrmUuid);
+  console.log(`✓ Redirect PKCE Verifactu CRM: ${VERIFACTU_CRM_CALLBACK}`);
 }
 
 // --- Babooni ERP tenant (babooni-tenant) ---

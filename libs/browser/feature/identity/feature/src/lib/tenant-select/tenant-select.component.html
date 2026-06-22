@@ -52,11 +52,16 @@
           <button
             type="button"
             class="tenant-card tenant-card--external"
+            [class.tenant-card--external]="true"
+            [class.tenant-card--verifactu]="app.kind === 'verifactu'"
             [class.tenant-card--active]="selectedSlug() === app.slug"
             (click)="selectTenant(app.slug)"
           >
             <div class="tenant-card__icon tenant-card__icon--external">
-              <lucide-icon name="layout-dashboard" size="18"></lucide-icon>
+              <lucide-icon
+                [name]="app.kind === 'verifactu' ? 'receipt' : 'layout-dashboard'"
+                size="18"
+              ></lucide-icon>
             </div>
             <div class="tenant-card__body">
               <span class="tenant-card__name">{{ app.name }}</span>
