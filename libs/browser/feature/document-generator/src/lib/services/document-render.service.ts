@@ -20,6 +20,7 @@ import {
   stylePresetCss,
 } from '../utils/document-style-presets';
 import { PDF_EXPORT_BASE_CSS } from '../utils/document-pdf-base';
+import { sanitizeSvgPathsInHtml } from '../utils/sanitize-export-svg';
 
 import type {
   ContentEditorMode,
@@ -191,17 +192,18 @@ export class DocumentRenderService {
       documentTitle: input.documentTitle,
     };
     const bodyHtml = assembleDocumentBodyHtml(contentMarkup, extras);
+    const safeBodyHtml = sanitizeSvgPathsInHtml(bodyHtml);
     const previewStylesheet = this.buildPreviewStylesheet(input);
     const exportStylesheet = this.buildExportStylesheet(input);
     const fullExportHtml = this.buildFullExportHtml(
       input.documentTitle ?? 'Documento',
-      bodyHtml,
+      safeBodyHtml,
       exportStylesheet,
     );
 
     return {
       contentMarkup,
-      bodyHtml,
+      bodyHtml: safeBodyHtml,
       previewStylesheet,
       exportStylesheet,
       fullExportHtml,
