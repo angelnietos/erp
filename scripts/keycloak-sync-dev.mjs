@@ -25,16 +25,19 @@ function copyKeycloakDevLoginAssets() {
     const target = path.join(KC_THEMES, theme, 'login', 'resources');
     fs.mkdirSync(path.join(target, 'js'), { recursive: true });
     fs.mkdirSync(path.join(target, 'css'), { recursive: true });
-    fs.copyFileSync(
-      path.join(shared, 'js', 'dev-login.js'),
-      path.join(target, 'js', 'dev-login.js'),
-    );
-    fs.copyFileSync(
-      path.join(shared, 'css', 'dev-login.css'),
-      path.join(target, 'css', 'dev-login.css'),
-    );
+    for (const file of [
+      ['js', 'change-org-link.js'],
+      ['js', 'dev-login.js'],
+      ['css', 'change-org-link.css'],
+      ['css', 'dev-login.css'],
+    ]) {
+      fs.copyFileSync(
+        path.join(shared, file[0], file[1]),
+        path.join(target, file[0], file[1]),
+      );
+    }
   }
-  console.log(`✓ Temas KC: dev-login.js copiado a ${KC_DEV_LOGIN_THEMES.join(', ')}`);
+  console.log(`✓ Temas KC: change-org-link + dev-login copiados a ${KC_DEV_LOGIN_THEMES.join(', ')}`);
 }
 
 const DEV_ORIGINS = ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'];

@@ -170,6 +170,33 @@
   max-width: 22rem;
 }
 
+.auth-post-logout {
+  margin: 0.5rem 0 1rem;
+}
+
+.auth-post-logout__lede {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: var(--text-muted, #64748b);
+  line-height: 1.45;
+}
+
+.auth-wrapper--figma .auth-post-logout__lede {
+  color: var(--josanz-muted, #7c7c7c);
+}
+
+.tenant-context--handoff {
+  margin-top: 1.15rem;
+  max-width: 22rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.auth-handoff-screen .link-muted {
+  color: rgba(255, 255, 255, 0.92);
+}
+
 .dev-login-hint--figma {
   background: rgba(85, 107, 47, 0.12);
   border-color: rgba(85, 107, 47, 0.45);

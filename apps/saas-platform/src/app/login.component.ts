@@ -56,6 +56,10 @@ import { environment } from '../environments/environment';
             }
           </div>
 
+          @if (sessionNotice()) {
+            <p class="notice">{{ sessionNotice() }}</p>
+          }
+
           @if (isDev) {
             <div class="dev-hint" [class.dev-hint--kc]="!showLocalLoginForm()">
               <p class="dev-hint-kicker">Cuenta demo (dev)</p>
@@ -468,6 +472,16 @@ import { environment } from '../environments/environment';
         background: rgba(230, 0, 18, 0.08);
       }
 
+      .notice {
+        color: var(--sp-text);
+        font-size: 0.86rem;
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.65rem;
+        border-radius: var(--sp-radius-sm);
+        border: 1px solid rgba(89, 168, 244, 0.35);
+        background: rgba(0, 75, 147, 0.12);
+      }
+
       .dev-hint {
         margin-top: 1.35rem;
         padding: 0.75rem 0.85rem;
@@ -565,6 +579,7 @@ export class LoginComponent implements OnInit {
   password = isDevMode() ? 'Admin123!' : '';
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly sessionNotice = signal<string | null>(null);
   readonly authMode = this.auth.authMode;
   readonly loadingLabel = signal('Entrando…');
   readonly pkceRedirectLoading = signal(false);
@@ -631,6 +646,10 @@ export class LoginComponent implements OnInit {
     if (reason === 'expired') {
       this.error.set('La sesión ha caducado. Vuelve a iniciar sesión.');
     }
+    if (reason === 'logout') {
+      this.sessionNotice.set('Has cerrado sesión correctamente.');
+      this.keycloakRedirectAborted.set(true);
+    }
     if (reason === 'kc_error') {
       const msg = this.route.snapshot.queryParamMap.get('msg');
       this.error.set(
@@ -669,7 +688,7 @@ export class LoginComponent implements OnInit {
             }
             return;
           }
-          if (!this.keycloakRedirectAborted()) {
+          if (!this.keycloakRedirectAborted() && reason !== 'logout') {
             void this.startKeycloakSso();
           }
         },

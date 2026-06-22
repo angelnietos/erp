@@ -1,0 +1,41 @@
+/* Cambiar organización — login Keycloak (todos los tenants) */
+.kc-change-org-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem 0.85rem;
+  margin: 0 0 1rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(15, 30, 47, 0.12);
+  border-radius: 8px;
+  background: rgba(15, 30, 47, 0.04);
+  font-size: 0.78rem;
+}
+
+.kc-change-org-link__pill {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+.kc-change-org-link__action {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: inherit;
+  white-space: nowrap;
+}
+
+.kc-change-org-link__action:hover {
+  opacity: 0.85;
+}
+
+html.login-pf .pf-v5-c-login__main .kc-change-org-link {
+  border-color: rgba(15, 30, 47, 0.14);
+  background: rgba(15, 30, 47, 0.05);
+}
+
+html.login-pf .pf-v5-c-login__main .kc-change-org-link__action {
+  color: var(--josanz-cta, #0f1e2f);
+}

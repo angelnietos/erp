@@ -9,6 +9,16 @@
     <div class="auth-handoff-screen" role="status" aria-live="polite">
       <span class="auth-handoff-screen__spinner" aria-hidden="true"></span>
       <p class="auth-handoff-screen__text">Redirigiendo a Keycloak…</p>
+      <div class="tenant-context tenant-context--handoff">
+        <div class="tenant-pill">
+          <lucide-icon name="building-2" size="14"></lucide-icon>
+          <span>{{ tenantLabel() }}</span>
+          <span class="tenant-pill__slug">· {{ tenantSlug() }}</span>
+        </div>
+        <button type="button" class="link-muted" (click)="goChangeTenant()">
+          Cambiar organización
+        </button>
+      </div>
       @if (isDev && devLoginHint(); as hint) {
         <div class="dev-login-hint dev-login-hint--keycloak dev-login-hint--handoff">
           <p class="dev-login-hint__label">Cuenta demo (dev)</p>
@@ -136,6 +146,23 @@
       <ui-alert [variant]="sessionExpiredNotice()?.includes('cerrado') ? 'info' : 'warning'">
         {{ sessionExpiredNotice() }}
       </ui-alert>
+    }
+
+    @if (showPostLogoutLanding()) {
+      <div class="auth-post-logout animate-in stagger-4">
+        <p class="auth-post-logout__lede">
+          Puedes volver a entrar con Keycloak o elegir otra organización arriba.
+        </p>
+        <ui-button
+          type="button"
+          [color]="useFigmaShellLogin() ? 'primary' : 'app'"
+          [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
+          [loading]="pkceRedirectLoading()"
+          (click)="startKeycloakSso()"
+        >
+          Iniciar sesión con Keycloak
+        </ui-button>
+      </div>
     }
 
     @if (showLocalLoginForm()) {

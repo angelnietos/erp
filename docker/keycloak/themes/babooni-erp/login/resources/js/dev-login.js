@@ -111,33 +111,6 @@
       .replace(/"/g, '&quot;');
   }
 
-  const ERP_TENANT_HUB = 'http://localhost:4200/auth/tenant';
-
-  function injectChangeOrgLink() {
-    if (document.getElementById('kc-change-org-link')) {
-      return;
-    }
-
-    const anchor =
-      document.querySelector('.pf-v5-c-login__header') ||
-      document.querySelector('#kc-header-wrapper') ||
-      document.querySelector('.pf-v5-c-login__main-header') ||
-      document.querySelector('.pf-v5-c-login__main-body');
-
-    if (!anchor) {
-      return;
-    }
-
-    const wrap = document.createElement('p');
-    wrap.id = 'kc-change-org-link';
-    wrap.className = 'kc-change-org-link';
-    wrap.innerHTML =
-      '<a href="' +
-      escapeHtml(ERP_TENANT_HUB) +
-      '">← Cambiar organización</a>';
-    anchor.insertAdjacentElement('afterend', wrap);
-  }
-
   function injectDevPanel(cfg) {
     if (document.getElementById('kc-dev-login-hint')) {
       return;
@@ -204,7 +177,6 @@
       return;
     }
     fillAccount(cfg.primary.email);
-    injectChangeOrgLink();
     injectDevPanel(cfg);
   }
 
