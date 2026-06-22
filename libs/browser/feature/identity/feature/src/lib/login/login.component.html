@@ -2,8 +2,13 @@
   class="auth-wrapper"
   [class.auth-wrapper--figma]="useFigmaShellLogin()"
   [class.auth-wrapper--docs]="useDocsShellLogin()"
+  [class.auth-wrapper--josanz]="tenantSlug() === 'josanz' && !useFigmaShellLogin() && !useDocsShellLogin()"
   [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
   [class.auth-wrapper--handoff]="keycloakHandoffPending()"
+  [attr.data-atmosphere]="tenantSlug()"
+  [style.--login-accent]="loginAtmosphere().accent"
+  [style.--login-accent-soft]="loginAtmosphere().accentSoft"
+  [style.--login-glow]="loginAtmosphere().glow"
 >
   @if (keycloakHandoffPending()) {
     <div class="auth-handoff-screen" role="status" aria-live="polite">
@@ -32,6 +37,13 @@
   } @else {
   @if (useFigmaShellLogin()) {
     <div class="auth-figma-hero" aria-hidden="true">
+      <div class="auth-figma-hero__atmosphere">
+        <span class="auth-lumen auth-lumen--1"></span>
+        <span class="auth-lumen auth-lumen--2"></span>
+        <span class="auth-lumen auth-lumen--3"></span>
+        <div class="auth-figma-hero__vignette"></div>
+        <p class="auth-figma-hero__mood">{{ loginMoodLine() }}</p>
+      </div>
       <img
         class="auth-figma-hero__img"
         src="assets/josanz-figma/login-hero.png"
@@ -125,6 +137,9 @@
       <h1 class="animate-in stagger-2">{{ loginHeading() }}</h1>
       @if (useDocsShellLogin()) {
         <p class="auth-subtitle animate-in stagger-2">{{ loginSubtitle() }}</p>
+      }
+      @if (!useFigmaShellLogin()) {
+        <p class="auth-mood-line animate-in stagger-2">{{ loginMoodLine() }}</p>
       }
     </div>
 

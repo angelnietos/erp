@@ -21,6 +21,12 @@ import { environment } from '../environments/environment';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="login-shell">
+      <div class="login-platform-floor" aria-hidden="true"></div>
+      <div class="login-lumens" aria-hidden="true">
+        <span class="login-lumen login-lumen--1"></span>
+        <span class="login-lumen login-lumen--2"></span>
+        <span class="login-lumen login-lumen--3"></span>
+      </div>
       <div class="login-glow login-glow--a"></div>
       <div class="login-glow login-glow--b"></div>
       <div class="login-card">
@@ -38,7 +44,7 @@ import { environment } from '../environments/environment';
           <p class="eyebrow">Acceso</p>
           <h1 class="title">Panel de producto</h1>
           <p class="lede">
-            Administración de organizaciones, módulos y observabilidad (Babooni).
+            Selva digital y consola de plataforma — organizaciones, módulos y observabilidad.
           </p>
           <div
             class="auth-status"
@@ -160,13 +166,84 @@ import { environment } from '../environments/environment';
         content: '';
         position: absolute;
         inset: 0;
-        background: radial-gradient(
-          700px 420px at 50% 120%,
-          rgba(0, 75, 147, 0.12),
-          transparent 55%
-        );
+        background:
+          radial-gradient(700px 420px at 50% 120%, rgba(45, 122, 62, 0.18), transparent 55%),
+          radial-gradient(480px 320px at 8% 15%, rgba(0, 75, 147, 0.14), transparent 60%);
         pointer-events: none;
         z-index: 0;
+      }
+
+      .login-platform-floor {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: min(28vh, 220px);
+        pointer-events: none;
+        z-index: 0;
+        background:
+          linear-gradient(180deg, transparent 0%, rgba(22, 101, 52, 0.22) 45%, rgba(15, 60, 32, 0.55) 100%),
+          repeating-linear-gradient(
+            90deg,
+            rgba(74, 222, 128, 0.06) 0,
+            rgba(74, 222, 128, 0.06) 48px,
+            transparent 48px,
+            transparent 96px
+          );
+        mask-image: linear-gradient(180deg, transparent, #000 35%);
+      }
+
+      .login-lumens {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+
+      .login-lumen {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(22px);
+        animation: sp-lumen-float 6.5s ease-in-out infinite;
+      }
+
+      .login-lumen--1 {
+        width: 96px;
+        height: 96px;
+        top: 16%;
+        left: 14%;
+        background: rgba(78, 202, 114, 0.45);
+      }
+
+      .login-lumen--2 {
+        width: 72px;
+        height: 72px;
+        top: 52%;
+        right: 18%;
+        background: rgba(89, 168, 244, 0.38);
+        animation-delay: 1.8s;
+      }
+
+      .login-lumen--3 {
+        width: 56px;
+        height: 56px;
+        bottom: 28%;
+        left: 28%;
+        background: rgba(201, 162, 39, 0.42);
+        animation-delay: 3.2s;
+      }
+
+      @keyframes sp-lumen-float {
+        0%,
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+          opacity: 0.5;
+        }
+        50% {
+          transform: translate3d(0, -16px, 0) scale(1.1);
+          opacity: 0.9;
+        }
       }
 
       .login-glow {

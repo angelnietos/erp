@@ -43,6 +43,59 @@ html.login-pf::before {
     linear-gradient(180deg, rgba(15, 30, 47, 0.08) 0%, rgba(15, 30, 47, 0.42) 100%),
     linear-gradient(135deg, rgba(232, 237, 245, 0.25), rgba(245, 247, 251, 0.12)),
     url('../img/login-hero.png') center / cover no-repeat;
+  animation: josanz-hero-breathe 14s ease-in-out infinite;
+}
+
+@keyframes josanz-hero-breathe {
+  0%,
+  100% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.06) saturate(1.08);
+  }
+}
+
+@keyframes josanz-lumen-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.1);
+    opacity: 0.92;
+  }
+}
+
+body.login-pf::before {
+  content: '';
+  position: fixed;
+  top: 18%;
+  left: 14%;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.55) 0%, transparent 72%);
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: 2;
+  animation: josanz-lumen-float 5.5s ease-in-out infinite;
+}
+
+body.login-pf::after {
+  content: '';
+  position: fixed;
+  top: 48%;
+  left: 28%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 2;
+  animation: josanz-lumen-float 6.8s ease-in-out infinite 1.6s;
 }
 
 html.login-pf::after {

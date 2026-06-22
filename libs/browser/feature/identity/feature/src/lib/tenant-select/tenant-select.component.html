@@ -1,4 +1,9 @@
-<div class="auth-wrapper">
+<div class="auth-wrapper hub-atmosphere">
+  <div class="hub-lumens" aria-hidden="true">
+    <span class="hub-lumen hub-lumen--1"></span>
+    <span class="hub-lumen hub-lumen--2"></span>
+    <span class="hub-lumen hub-lumen--3"></span>
+  </div>
   <lib-animated-background
     [theme]="backgroundTheme()"
     [tenantSlug]="selectedSlug() || ''"
@@ -12,9 +17,7 @@
         </div>
         <p class="brand-tag text-uppercase animate-in stagger-2">Babooni Hub</p>
         <h1 class="animate-in stagger-2">Elige tu aplicación</h1>
-        <p class="lead animate-in stagger-3">
-          Organizaciones ERP en este portal o panel SaaS de plataforma.
-        </p>
+        <p class="lead animate-in stagger-3 hub-mood">{{ hubMoodLine() }}</p>
       </div>
     </div>
 
@@ -26,6 +29,10 @@
             type="button"
             class="tenant-card"
             [class.tenant-card--active]="selectedSlug() === t.slug"
+            [class.tenant-card--josanz]="t.slug === 'josanz'"
+            [class.tenant-card--babooni]="t.slug === 'babooni'"
+            [class.tenant-card--alexis]="t.slug === 'alexis'"
+            [class.tenant-card--docs]="t.slug === 'docs'"
             (click)="selectTenant(t.slug)"
           >
             <div class="tenant-card__icon">

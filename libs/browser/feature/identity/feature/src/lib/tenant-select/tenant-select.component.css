@@ -187,7 +187,98 @@
 .tenant-card:hover {
   border-color: rgba(240, 62, 62, 0.45);
   background: rgba(240, 62, 62, 0.08);
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.01);
+}
+
+.tenant-card--josanz:hover,
+.tenant-card--josanz.tenant-card--active {
+  border-color: rgba(240, 62, 62, 0.55);
+  background: rgba(240, 62, 62, 0.1);
+  box-shadow: 0 0 24px -8px rgba(240, 62, 62, 0.45);
+}
+
+.tenant-card--babooni:hover,
+.tenant-card--babooni.tenant-card--active {
+  border-color: rgba(74, 222, 128, 0.5);
+  background: rgba(45, 122, 62, 0.18);
+  box-shadow: 0 0 24px -8px rgba(45, 122, 62, 0.55);
+}
+
+.tenant-card--alexis:hover,
+.tenant-card--alexis.tenant-card--active {
+  border-color: rgba(250, 204, 21, 0.45);
+  background: rgba(15, 30, 47, 0.22);
+  box-shadow: 0 0 24px -8px rgba(250, 204, 21, 0.35);
+}
+
+.tenant-card--docs:hover,
+.tenant-card--docs.tenant-card--active {
+  border-color: rgba(167, 139, 250, 0.5);
+  background: rgba(124, 58, 237, 0.14);
+  box-shadow: 0 0 24px -8px rgba(251, 191, 36, 0.35);
+}
+
+.hub-mood {
+  font-style: italic;
+  color: rgba(226, 232, 240, 0.72);
+  transition: color 0.35s ease;
+}
+
+.hub-atmosphere {
+  position: relative;
+}
+
+.hub-lumens {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hub-lumen {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: hub-lumen-drift 8s ease-in-out infinite;
+}
+
+.hub-lumen--1 {
+  width: 140px;
+  height: 140px;
+  top: 8%;
+  left: 6%;
+  background: rgba(240, 62, 62, 0.28);
+}
+
+.hub-lumen--2 {
+  width: 100px;
+  height: 100px;
+  bottom: 12%;
+  right: 10%;
+  background: rgba(99, 102, 241, 0.32);
+  animation-delay: 2s;
+}
+
+.hub-lumen--3 {
+  width: 72px;
+  height: 72px;
+  top: 42%;
+  right: 22%;
+  background: rgba(45, 122, 62, 0.35);
+  animation-delay: 4s;
+}
+
+@keyframes hub-lumen-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(0, -18px, 0);
+    opacity: 0.85;
+  }
 }
 
 .tenant-card--active {

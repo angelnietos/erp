@@ -30,6 +30,7 @@ import { clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent } from '../animated-background/animated-background.component';
 import type { BackgroundTheme } from '../animated-background/animated-background.component';
+import { resolveHubAtmosphere } from '../login/login-tenant-atmosphere';
 
 export interface TenantChoice {
   slug: string;
@@ -116,13 +117,11 @@ export class TenantSelectComponent implements OnInit {
     return this.isExternalSelection() ? 'Abrir aplicación' : 'Continuar al acceso';
   });
 
-  readonly backgroundTheme = computed<BackgroundTheme>(() => {
-    const slug = this.selectedSlug();
-    if (slug === 'babooni' || slug === 'platform') {
-      return 'babooni';
-    }
-    return 'josanz-classic';
-  });
+  readonly backgroundTheme = computed<BackgroundTheme>(() =>
+    resolveHubAtmosphere(this.selectedSlug()).defaultTheme,
+  );
+
+  readonly hubMoodLine = computed(() => resolveHubAtmosphere(this.selectedSlug()).moodLine);
 
   selectTenant(slug: string): void {
     const s = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');

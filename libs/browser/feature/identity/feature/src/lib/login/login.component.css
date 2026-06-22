@@ -1649,3 +1649,185 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
   background: transparent;
   border-style: dashed;
 }
+
+/* ── Rayman-inspired atmosphere (lumens, capas, glass orgánico) ── */
+
+@keyframes auth-lumen-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) scale(1.12);
+    opacity: 0.95;
+  }
+}
+
+@keyframes auth-lumen-pulse {
+  0%,
+  100% {
+    filter: blur(18px);
+    opacity: 0.35;
+  }
+  50% {
+    filter: blur(24px);
+    opacity: 0.65;
+  }
+}
+
+.auth-lumen {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: auth-lumen-float 5.5s ease-in-out infinite;
+}
+
+.auth-lumen--1 {
+  width: 88px;
+  height: 88px;
+  top: 14%;
+  left: 10%;
+  background: radial-gradient(circle, var(--login-glow, rgba(250, 204, 21, 0.7)) 0%, transparent 72%);
+  animation-delay: 0s;
+}
+
+.auth-lumen--2 {
+  width: 64px;
+  height: 64px;
+  top: 58%;
+  left: 22%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, transparent 70%);
+  animation-delay: 1.4s;
+}
+
+.auth-lumen--3 {
+  width: 52px;
+  height: 52px;
+  top: 32%;
+  right: 18%;
+  background: radial-gradient(circle, var(--login-accent-soft, rgba(240, 62, 62, 0.5)) 0%, transparent 68%);
+  animation-delay: 2.8s;
+}
+
+.auth-mood-line {
+  margin: 0.45rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  font-weight: 500;
+  color: rgba(248, 250, 252, 0.62);
+  max-width: 22rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.auth-wrapper--figma .auth-mood-line {
+  display: none;
+}
+
+.auth-wrapper--docs .auth-mood-line {
+  color: rgba(196, 181, 253, 0.85);
+}
+
+.auth-wrapper[data-atmosphere='josanz'] .glass {
+  box-shadow:
+    0 0 0 1px var(--login-accent-soft),
+    0 28px 64px -18px rgba(0, 0, 0, 0.78),
+    0 0 120px -36px var(--login-glow);
+}
+
+.auth-wrapper[data-atmosphere='josanz'] .logo-circle {
+  background: linear-gradient(135deg, var(--login-accent), #c026d3);
+  box-shadow: 0 0 28px var(--login-glow);
+}
+
+.auth-wrapper[data-atmosphere='docs'] .glass {
+  border-color: rgba(167, 139, 250, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.12),
+    0 32px 72px -20px rgba(0, 0, 0, 0.82),
+    0 0 100px -40px var(--login-glow);
+}
+
+.auth-wrapper[data-atmosphere='docs'] .logo-circle--docs {
+  background: linear-gradient(145deg, #7c3aed, #f59e0b);
+  box-shadow: 0 0 32px var(--login-glow);
+}
+
+.auth-wrapper--josanz::before,
+.auth-wrapper--babooni::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.55;
+  animation: auth-lumen-pulse 9s ease-in-out infinite;
+}
+
+.auth-wrapper--josanz::before {
+  background:
+    radial-gradient(420px 280px at 12% 88%, var(--login-glow), transparent 70%),
+    radial-gradient(320px 220px at 88% 12%, rgba(192, 38, 211, 0.25), transparent 68%);
+}
+
+.auth-wrapper--babooni::before {
+  background:
+    radial-gradient(480px 300px at 50% 100%, rgba(45, 122, 62, 0.45), transparent 72%),
+    radial-gradient(260px 180px at 8% 20%, rgba(74, 158, 255, 0.28), transparent 65%);
+}
+
+.auth-wrapper--babooni .glass {
+  border-color: rgba(74, 222, 128, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(45, 122, 62, 0.35),
+    0 28px 64px -16px rgba(0, 0, 0, 0.78),
+    0 0 90px -30px var(--login-glow);
+}
+
+.auth-figma-hero {
+  position: relative;
+}
+
+.auth-figma-hero__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.auth-figma-hero__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(15, 30, 47, 0.05) 0%, rgba(15, 30, 47, 0.55) 100%),
+    linear-gradient(90deg, transparent 55%, rgba(255, 254, 254, 0.08) 100%);
+}
+
+.auth-figma-hero__mood {
+  position: absolute;
+  left: clamp(1.25rem, 4vw, 2.5rem);
+  bottom: clamp(4.5rem, 12vh, 6.5rem);
+  margin: 0;
+  max-width: min(22rem, 80%);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
+  letter-spacing: 0.02em;
+}
+
+@media (max-width: 899px) {
+  .auth-figma-hero__mood {
+    display: none;
+  }
+}
+
+.auth-wrapper--docs .auth-docs-hero__glow {
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%, var(--login-glow), transparent 65%),
+    radial-gradient(ellipse 60% 50% at 70% 60%, rgba(124, 58, 237, 0.35), transparent 70%);
+  animation: auth-lumen-pulse 7s ease-in-out infinite;
+}

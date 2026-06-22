@@ -61,6 +61,7 @@ import {
 } from 'lucide-angular';
 import { AIBotStore } from '@josanz-erp/shared-data-access';
 import { AnimatedBackgroundComponent, BackgroundTheme } from '../animated-background/animated-background.component';
+import { resolveLoginAtmosphere } from './login-tenant-atmosphere';
 
 interface BackgroundThemeOption {
   id: BackgroundTheme;
@@ -272,14 +273,12 @@ export class LoginComponent implements OnInit {
     return known[slug] ?? slug;
   });
 
-  /** Subtítulo de la tarjeta: según tenant, no fijo a Josanz. */
-  readonly brandTagline = computed(() => {
-    const slug = this.tenantSlug();
-    if (slug === 'babooni') return 'Babooni Technologies';
-    if (slug === 'alexis') return 'Alexis';
-    if (slug === 'docs') return 'Generador de Documentos';
-    return 'Josanz Audiovisuales';
-  });
+  readonly loginAtmosphere = computed(() => resolveLoginAtmosphere(this.tenantSlug()));
+
+  readonly loginMoodLine = computed(() => this.loginAtmosphere().moodLine);
+
+  /** Subtítulo de la tarjeta: badge por atmósfera del tenant. */
+  readonly brandTagline = computed(() => this.loginAtmosphere().heroBadge);
 
   readonly authModeLabel = computed(() => {
     if (this.store.loading()) {
@@ -423,9 +422,7 @@ export class LoginComponent implements OnInit {
       return;
     }
     this.tenantSlug.set(slug);
-    if (slug === 'babooni') {
-      this.backgroundTheme.set('babooni-platform');
-    }
+    this.backgroundTheme.set(resolveLoginAtmosphere(slug).defaultTheme);
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem(ERP_TENANT_SLUG_SESSION_KEY, slug);
     }
