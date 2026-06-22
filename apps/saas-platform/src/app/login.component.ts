@@ -4,6 +4,7 @@ import {
   OnInit,
   computed,
   inject,
+  isDevMode,
   signal,
 } from '@angular/core';
 import { finalize } from 'rxjs';
@@ -48,6 +49,24 @@ import { environment } from '../environments/environment';
             <span>{{ authStatusLabel() }}</span>
           </div>
 
+          @if (isDev) {
+            <div class="dev-hint" [class.dev-hint--kc]="!showLocalLoginForm()">
+              <p class="dev-hint-kicker">Cuenta demo (dev)</p>
+              <p class="hint">
+                <code>{{ devEmail }}</code>
+                <span> · </span>
+                contraseña <code>{{ devPassword }}</code>
+              </p>
+              @if (showLocalLoginForm()) {
+                <button type="button" class="dev-hint-fill" (click)="fillDevCredentials()">
+                  Rellenar acceso rápido
+                </button>
+              } @else {
+                <p class="hint dev-hint-kc">Se autocompletará en Keycloak (localhost).</p>
+              }
+            </div>
+          }
+
           @if (showKeycloakRetryButton()) {
             <button type="button" class="btn-sso" (click)="startKeycloakSso()">
               Entrar con Keycloak
@@ -86,15 +105,17 @@ import { environment } from '../environments/environment';
                 Entrar con acceso local
               }
             </button>
-
-            <div class="dev-hint">
-              <p class="dev-hint-kicker">Solo desarrollo</p>
-              <p class="hint">
-                Fallback <code>platform_users</code>:
-                <code>platform&#64;babooni.com</code> · Admin123!
-              </p>
-            </div>
           }
+        }
+
+        @if (keycloakHandoffPending() && isDev) {
+          <div class="dev-hint dev-hint--handoff">
+            <p class="dev-hint-kicker">Cuenta demo (dev)</p>
+            <p class="hint">
+              <code>{{ devEmail }}</code> · <code>{{ devPassword }}</code>
+            </p>
+            <p class="hint dev-hint-kc">Se autocompletará en Keycloak (localhost).</p>
+          </div>
         }
       </div>
 
@@ -427,6 +448,29 @@ import { environment } from '../environments/environment';
         color: rgba(89, 168, 244, 0.9);
       }
 
+      .dev-hint-fill {
+        margin-top: 0.55rem;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid rgba(89, 168, 244, 0.45);
+        border-radius: 6px;
+        background: rgba(0, 75, 147, 0.18);
+        color: var(--sp-text);
+        font: inherit;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .dev-hint-kc {
+        margin-top: 0.35rem;
+      }
+
+      .dev-hint--handoff {
+        margin-top: 1rem;
+      }
+
       .hint {
         margin: 0;
         font-size: 0.74rem;
@@ -476,9 +520,12 @@ export class LoginComponent implements OnInit {
   private readonly router = inject(Router);
 
   readonly erpHubUrl = environment.erpHubUrl?.trim() ?? '';
+  readonly isDev = isDevMode();
+  readonly devEmail = 'platform@babooni.com';
+  readonly devPassword = 'Admin123!';
 
   email = 'platform@babooni.com';
-  password = '';
+  password = isDevMode() ? 'Admin123!' : '';
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
   readonly authMode = this.auth.authMode;
@@ -605,6 +652,11 @@ export class LoginComponent implements OnInit {
     if (event.persisted && this.auth.consumeRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
     }
+  }
+
+  fillDevCredentials(): void {
+    this.email = this.devEmail;
+    this.password = this.devPassword;
   }
 
   async startKeycloakSso(): Promise<void> {

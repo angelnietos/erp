@@ -6,6 +6,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, tap, switchMap, catchError, of, map, Observable, debounceTime, timer } from 'rxjs';
 import {
   AuthService,
+  buildErpPostLogoutRedirectUri,
   ERP_TENANT_SLUG_SESSION_KEY,
   type IdentityAuthMode,
 } from '../services/auth.service';
@@ -303,10 +304,17 @@ export const AuthStore = signalStore(
 
       logout() {
         tenantModulesRealtime.disconnect();
-        const postLogoutRedirectUri =
-          typeof window !== 'undefined'
-            ? `${window.location.origin}/auth/login?reason=logout`
-            : undefined;
+        const postLogoutRedirectUri = buildErpPostLogoutRedirectUri();
+        const logoutLoginQuery = (() => {
+          if (!postLogoutRedirectUri) {
+            return { reason: 'logout' as const };
+          }
+          const qs = new URL(postLogoutRedirectUri).searchParams;
+          const tenant = qs.get('tenant');
+          return tenant
+            ? { reason: 'logout' as const, tenant }
+            : { reason: 'logout' as const };
+        })();
         authService.logout(postLogoutRedirectUri).subscribe((result) => {
           resetSessionInvalidationGuard();
           patchState(store, {
@@ -315,9 +323,6 @@ export const AuthStore = signalStore(
             keycloakAvailable: null,
           });
           globalAuthStore.logout();
-          if (typeof sessionStorage !== 'undefined') {
-            sessionStorage.removeItem(ERP_TENANT_SLUG_SESSION_KEY);
-          }
           syncErpTenantHtmlTheme();
           themeService.reapplyTheme();
           if (result.keycloakLogoutUrl && typeof window !== 'undefined') {
@@ -325,7 +330,7 @@ export const AuthStore = signalStore(
             return;
           }
           void router.navigate(['/auth/login'], {
-            queryParams: { reason: 'logout' },
+            queryParams: logoutLoginQuery,
             replaceUrl: true,
           });
         });

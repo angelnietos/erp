@@ -32,6 +32,16 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     primary: true,
   },
   {
+    slug: 'babooni',
+    email: 'alvaro.ballesteros@babooni.com',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+  },
+  {
+    slug: 'babooni',
+    email: 'florina.mahalean@babooni.com',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+  },
+  {
     slug: 'alexis',
     email: 'admin@alexis.local',
     password: DEV_TENANT_LOGIN_PASSWORD,

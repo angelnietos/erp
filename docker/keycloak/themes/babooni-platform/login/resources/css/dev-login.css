@@ -1,0 +1,98 @@
+/* Panel cuentas demo — solo visible con dev-login.js en localhost */
+.kc-dev-login-hint {
+  margin-top: 1.15rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px dashed rgba(89, 168, 244, 0.45);
+  background: rgba(0, 75, 147, 0.1);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.kc-dev-login-hint summary {
+  cursor: pointer;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(89, 168, 244, 0.95);
+  list-style: none;
+}
+
+.kc-dev-login-hint summary::-webkit-details-marker {
+  display: none;
+}
+
+.kc-dev-login-hint__row {
+  margin: 0.55rem 0 0;
+}
+
+.kc-dev-login-hint__list {
+  margin: 0.45rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.kc-dev-login-hint__list li {
+  margin-bottom: 0.25rem;
+}
+
+.kc-dev-login-hint code {
+  font-size: 0.88em;
+  padding: 0.08em 0.28em;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.kc-dev-login-hint__fill,
+.kc-dev-login-hint__pick {
+  appearance: none;
+  border: 1px solid rgba(89, 168, 244, 0.45);
+  border-radius: 6px;
+  background: rgba(0, 75, 147, 0.22);
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.55rem;
+  cursor: pointer;
+}
+
+.kc-dev-login-hint__pick {
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 0.15rem 0.35rem;
+  background: transparent;
+}
+
+.kc-dev-login-hint__fill:hover,
+.kc-dev-login-hint__pick:hover {
+  filter: brightness(1.08);
+}
+
+.kc-dev-login-hint__note {
+  opacity: 0.75;
+  font-size: 0.92em;
+}
+
+/* Tema claro Josanz Figma */
+html.login-pf .pf-v5-c-login__main .kc-dev-login-hint {
+  border-color: rgba(15, 30, 47, 0.22);
+  background: rgba(15, 30, 47, 0.04);
+}
+
+html.login-pf .pf-v5-c-login__main .kc-dev-login-hint summary {
+  color: #5c6b7a;
+}
+
+html.login-pf .pf-v5-c-login__main .kc-dev-login-hint code {
+  background: rgba(15, 30, 47, 0.06);
+}
+
+html.login-pf .pf-v5-c-login__main .kc-dev-login-hint__fill,
+html.login-pf .pf-v5-c-login__main .kc-dev-login-hint__pick {
+  border-color: rgba(15, 30, 47, 0.2);
+  background: rgba(15, 30, 47, 0.06);
+  color: #222;
+}

@@ -539,6 +539,12 @@ export class BffAuthService {
   ): Promise<{ ok: true; keycloakLogoutUrl?: string }> {
     const sid = sessionId ?? readCookie(cookies, ERP_BFF_COOKIE_NAMES.session);
     let keycloakLogoutUrl: string | undefined;
+    const erpOrigin =
+      this.config.get<string>('FRONTEND_URL')?.replace(/\/$/, '') ??
+      'http://localhost:4200';
+    const resolvedPostLogoutRedirectUri =
+      postLogoutRedirectUri?.trim() ||
+      `${erpOrigin}/auth/login?reason=logout`;
 
     if (sid) {
       const session = await this.sessions.get(sid);
@@ -551,7 +557,7 @@ export class BffAuthService {
           realm: session.keycloakRealm,
           clientId: session.keycloakClientId,
           idTokenHint: session.idToken,
-          postLogoutRedirectUri,
+          postLogoutRedirectUri: resolvedPostLogoutRedirectUri,
         });
       }
       await this.sessions.delete(sid);

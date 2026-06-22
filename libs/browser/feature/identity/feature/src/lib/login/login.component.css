@@ -140,6 +140,36 @@
   background: rgba(240, 62, 62, 0.22);
 }
 
+.dev-login-hint__pick {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+
+.dev-login-hint__pick:hover code {
+  text-decoration: underline;
+}
+
+.dev-login-hint__kc-note {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  opacity: 0.88;
+}
+
+.dev-login-hint--keycloak {
+  border-style: dashed;
+  opacity: 0.95;
+}
+
+.dev-login-hint--handoff {
+  margin-top: 1.25rem;
+  max-width: 22rem;
+}
+
 .dev-login-hint--figma {
   background: rgba(85, 107, 47, 0.12);
   border-color: rgba(85, 107, 47, 0.45);

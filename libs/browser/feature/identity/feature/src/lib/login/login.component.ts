@@ -411,9 +411,19 @@ export class LoginComponent implements OnInit {
     }
     if (forceLocal) {
       this.keycloakReachablePreview.set(false);
+      this.prefillDevCredentialsIfLocal();
       return;
     }
     this.probeKeycloakAvailability(slug);
+    this.prefillDevCredentialsIfLocal();
+  }
+
+  /** Autocompletar credenciales demo en formulario local (dev). */
+  private prefillDevCredentialsIfLocal(): void {
+    if (!this.isDev || !this.showLocalLoginForm()) {
+      return;
+    }
+    this.fillDevCredentials();
   }
 
   private isBackForwardNavigation(): boolean {
@@ -437,11 +447,17 @@ export class LoginComponent implements OnInit {
     this.authService.isKeycloakAvailable(cfg.realm).subscribe({
       next: (available) => {
         this.keycloakReachablePreview.set(available);
+        if (!available) {
+          this.prefillDevCredentialsIfLocal();
+        }
         if (available && !this.keycloakRedirectAborted() && !this.forceLocalLogin()) {
           void this.startKeycloakSso();
         }
       },
-      error: () => this.keycloakReachablePreview.set(false),
+      error: () => {
+        this.keycloakReachablePreview.set(false);
+        this.prefillDevCredentialsIfLocal();
+      },
     });
   }
 
@@ -472,14 +488,14 @@ export class LoginComponent implements OnInit {
     this.aiBotStore.clearLoginDynamicOverlay();
   }
 
-  fillDevCredentials(): void {
+  fillDevCredentials(email?: string, password?: string): void {
     const hint = this.devLoginHint();
-    if (!hint) {
+    if (!hint && !email) {
       return;
     }
     this.loginForm.patchValue({
-      email: hint.email,
-      password: hint.password,
+      email: email ?? hint!.email,
+      password: password ?? hint!.password,
     });
   }
 

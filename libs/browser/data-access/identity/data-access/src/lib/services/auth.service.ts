@@ -153,6 +153,25 @@ function mapKeycloakTokenToUserPayload(
 export const DEFAULT_LOGIN_TENANT_SLUG = 'josanz';
 
 export const ERP_TENANT_SLUG_SESSION_KEY = 'erp_tenant_slug';
+
+/** URL de vuelta al login ERP tras RP-initiated logout en Keycloak. */
+export function buildErpPostLogoutRedirectUri(origin?: string): string | undefined {
+  if (typeof window === 'undefined' && !origin) {
+    return undefined;
+  }
+  const base = (origin ?? window.location.origin).replace(/\/$/, '');
+  const slug =
+    (typeof sessionStorage !== 'undefined'
+      ? sessionStorage.getItem(ERP_TENANT_SLUG_SESSION_KEY)
+      : null) ?? '';
+  const params = new URLSearchParams({ reason: 'logout' });
+  const normalizedSlug = slug.trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  if (normalizedSlug) {
+    params.set('tenant', normalizedSlug);
+  }
+  return `${base}/auth/login?${params.toString()}`;
+}
+
 export type IdentityAuthMode = 'keycloak' | 'local' | 'none';
 export const IDENTITY_AUTH_MODE_SESSION_KEY = 'identity_auth_mode';
 export const IDENTITY_KEYCLOAK_AVAILABLE_SESSION_KEY = 'identity_keycloak_available';

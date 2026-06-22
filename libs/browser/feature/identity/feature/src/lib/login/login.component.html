@@ -9,6 +9,15 @@
     <div class="auth-handoff-screen" role="status" aria-live="polite">
       <span class="auth-handoff-screen__spinner" aria-hidden="true"></span>
       <p class="auth-handoff-screen__text">Redirigiendo a Keycloak…</p>
+      @if (isDev && devLoginHint(); as hint) {
+        <div class="dev-login-hint dev-login-hint--keycloak dev-login-hint--handoff">
+          <p class="dev-login-hint__label">Cuenta demo (dev)</p>
+          <p class="dev-login-hint__credentials">
+            <code>{{ hint.email }}</code> · <code>{{ hint.password }}</code>
+          </p>
+          <p class="dev-login-hint__kc-note">Se autocompletará en Keycloak (localhost).</p>
+        </div>
+      }
     </div>
   } @else {
   @if (useFigmaShellLogin()) {
@@ -109,8 +118,10 @@
       }
     </div>
 
-    @if (!useFigmaShellLogin()) {
-    <div class="tenant-context animate-in stagger-3">
+    <div
+      class="tenant-context animate-in stagger-3"
+      [class.tenant-context--figma]="useFigmaShellLogin()"
+    >
       <div class="tenant-pill">
         <lucide-icon name="building-2" size="14"></lucide-icon>
         <span>{{ tenantLabel() }}</span>
@@ -120,7 +131,6 @@
         Cambiar organización
       </button>
     </div>
-    }
 
     @if (sessionExpiredNotice()) {
       <ui-alert [variant]="sessionExpiredNotice()?.includes('cerrado') ? 'info' : 'warning'">
@@ -186,12 +196,13 @@
       </ui-alert>
     }
 
-    @if (isDev && devLoginHint() && showLocalLoginForm()) {
+    @if (isDev && devLoginHint()) {
       @if (devLoginHint(); as hint) {
       <div
         class="dev-login-hint animate-in stagger-3"
         [class.dev-login-hint--figma]="useFigmaShellLogin()"
         [class.dev-login-hint--docs]="useDocsShellLogin()"
+        [class.dev-login-hint--keycloak]="!showLocalLoginForm()"
       >
         <p class="dev-login-hint__label">Cuenta demo (dev)</p>
         <p class="dev-login-hint__credentials">
@@ -202,12 +213,20 @@
         @for (alt of devLoginAlternates(); track alt.email) {
           <p class="dev-login-hint__alt">
             {{ alt.note ?? 'Alternativa' }}:
-            <code>{{ alt.email }}</code>
+            <button type="button" class="dev-login-hint__pick" (click)="fillDevCredentials(alt.email, alt.password)">
+              <code>{{ alt.email }}</code>
+            </button>
           </p>
         }
-        <button type="button" class="dev-login-hint__fill" (click)="fillDevCredentials()">
-          Rellenar acceso rápido
-        </button>
+        @if (showLocalLoginForm()) {
+          <button type="button" class="dev-login-hint__fill" (click)="fillDevCredentials()">
+            Rellenar acceso rápido
+          </button>
+        } @else if (tenantUsesKeycloak()) {
+          <p class="dev-login-hint__kc-note">
+            En Keycloak (localhost) se autocompletará al abrir el login SSO.
+          </p>
+        }
       </div>
       }
     }

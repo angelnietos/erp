@@ -10,6 +10,33 @@ const KC_BASE = (process.env.KEYCLOAK_URL ?? 'http://localhost:8081').replace(/\
 const ADMIN_USER = process.env.KEYCLOAK_ADMIN ?? 'admin';
 const ADMIN_PASS = process.env.KEYCLOAK_ADMIN_PASSWORD ?? 'admin';
 
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(__dirname, '..');
+const KC_THEMES = path.join(REPO_ROOT, 'docker', 'keycloak', 'themes');
+const KC_DEV_LOGIN_THEMES = ['josanz-figma', 'babooni-platform', 'babooni-erp'];
+
+function copyKeycloakDevLoginAssets() {
+  const shared = path.join(KC_THEMES, '_shared', 'login', 'resources');
+  for (const theme of KC_DEV_LOGIN_THEMES) {
+    const target = path.join(KC_THEMES, theme, 'login', 'resources');
+    fs.mkdirSync(path.join(target, 'js'), { recursive: true });
+    fs.mkdirSync(path.join(target, 'css'), { recursive: true });
+    fs.copyFileSync(
+      path.join(shared, 'js', 'dev-login.js'),
+      path.join(target, 'js', 'dev-login.js'),
+    );
+    fs.copyFileSync(
+      path.join(shared, 'css', 'dev-login.css'),
+      path.join(target, 'css', 'dev-login.css'),
+    );
+  }
+  console.log(`✓ Temas KC: dev-login.js copiado a ${KC_DEV_LOGIN_THEMES.join(', ')}`);
+}
+
 const DEV_ORIGINS = ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4300'];
 
 const PLATFORM_CALLBACK = 'http://localhost:4300/login/callback';
@@ -103,7 +130,7 @@ function josanzWebAppClientPayload() {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
       'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
+        'http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
@@ -128,7 +155,7 @@ function josanzClientPayload() {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
       'post.logout.redirect.uris':
-        'http://localhost:4200/auth/login*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
+        'http://localhost:4200/auth/login*+http://localhost:4200/auth/tenant*+http://localhost:4201/auth/login*+http://localhost:4300/auth/login*+http://localhost:4300/login*',
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
     optionalClientScopes: ['offline_access'],
@@ -577,6 +604,7 @@ async function syncPlatformRealm(token) {
 }
 
 async function main() {
+  copyKeycloakDevLoginAssets();
   console.log(`Keycloak sync → ${KC_BASE}`);
   const token = await getAdminToken();
   await syncJosanzRealm(token);
