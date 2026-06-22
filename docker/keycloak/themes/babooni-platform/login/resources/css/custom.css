@@ -1,0 +1,507 @@
+/* Babooni Platform — login Keycloak (realm babooni-platform) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Rajdhani:wght@500;600;700&display=swap');
+
+:root {
+  --bb-bg0: #040814;
+  --bb-bg1: #0a1020;
+  --bb-surface: #0c1220;
+  --bb-line: rgba(255, 255, 255, 0.1);
+  --bb-line-strong: rgba(255, 255, 255, 0.15);
+  --bb-muted: rgba(220, 230, 245, 0.55);
+  --bb-text: #e8eef8;
+  --bb-red: #e30613;
+  --bb-red-glow: rgba(227, 6, 19, 0.35);
+  --bb-blue: #004b93;
+  --bb-blue-light: #59a8f4;
+  --bb-form-width: 27.5rem;
+  --bb-radius: 10px;
+  --bb-font-sans: 'DM Sans', system-ui, sans-serif;
+  --bb-font-display: 'Rajdhani', 'Segoe UI', sans-serif;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bb-bg0) !important;
+  font-family: var(--bb-font-sans);
+  color: var(--bb-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-pf,
+.login-pf body {
+  background: var(--bb-bg0) !important;
+}
+
+/* Hero izquierdo — gradiente marca */
+html.login-pf::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    radial-gradient(900px 520px at 18% 88%, rgba(227, 6, 19, 0.42), transparent 58%),
+    radial-gradient(700px 420px at 82% 12%, rgba(0, 75, 147, 0.26), transparent 55%),
+    linear-gradient(145deg, #120003 0%, #5a000c 38%, #c00510 72%, #e30613 100%);
+  background-size: 56px 56px, 56px 56px, auto, auto, auto;
+}
+
+html.login-pf::after {
+  content: 'PLATFORM';
+  position: fixed;
+  left: clamp(1.75rem, 4vw, 3.25rem);
+  bottom: clamp(1.75rem, 4vw, 3.25rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--bb-font-display);
+  font-size: clamp(2.75rem, 6vw, 4.75rem);
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  color: rgba(255, 255, 255, 0.07);
+  line-height: 1;
+}
+
+.pf-v5-c-login {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-height: 100dvh;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden;
+  background: transparent !important;
+  position: relative;
+  z-index: 2;
+}
+
+.pf-v5-c-login::before {
+  content: none;
+  display: none;
+}
+
+/* Marca en el hero (solo desktop) */
+.pf-v5-c-login::after {
+  content: 'babooni Technologies';
+  position: fixed;
+  left: clamp(1.75rem, 4vw, 3.25rem);
+  top: clamp(1.75rem, 4vw, 3.25rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--bb-font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.pf-v5-c-login__container {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0;
+  margin: 0 !important;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  box-sizing: border-box;
+  background:
+    radial-gradient(680px 380px at 50% -10%, rgba(0, 75, 147, 0.16), transparent 60%),
+    radial-gradient(520px 320px at 100% 100%, rgba(227, 6, 19, 0.08), transparent 55%),
+    linear-gradient(165deg, rgba(4, 8, 20, 0.98) 0%, rgba(10, 16, 32, 0.96) 100%);
+  overflow-y: auto;
+}
+
+.pf-v5-c-login__main {
+  width: 100%;
+  max-width: var(--bb-form-width);
+  margin: 0 auto;
+  padding: clamp(1.85rem, 3.5vw, 2.35rem) !important;
+  box-sizing: border-box;
+  border: 1px solid var(--bb-line);
+  border-radius: 16px;
+  background: linear-gradient(165deg, rgba(18, 21, 30, 0.96) 0%, rgba(11, 13, 20, 0.98) 100%);
+  box-shadow:
+    0 28px 90px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+.pf-v5-c-login__main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--bb-red) 0%, var(--bb-blue-light) 55%, var(--bb-blue) 100%);
+}
+
+/* Cabecera: logo + idioma arriba; título a ancho completo debajo */
+.pf-v5-c-login__header {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0.35rem 1rem;
+  width: 100%;
+  margin-bottom: 1.65rem;
+  text-align: left;
+}
+
+.pf-v5-c-login__header::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: min(210px, 100%);
+  height: 52px;
+  margin: 0 0 0.25rem;
+  background: url('../img/babooni-logo.svg') left center / contain no-repeat;
+}
+
+#kc-locale,
+.pf-v5-c-login__header .pf-v5-c-form-control,
+.pf-v5-c-login__header select,
+.pf-v5-c-login__header > div:last-child:not(:first-child) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: auto !important;
+  min-width: 6.75rem;
+  max-width: 9rem;
+  margin: 0 !important;
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.75rem !important;
+  font-family: var(--bb-font-sans) !important;
+  color: var(--bb-muted) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid var(--bb-line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.pf-v5-c-login__header select option {
+  background: var(--bb-bg1);
+  color: var(--bb-text);
+}
+
+.pf-v5-c-login__header > div:first-child {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+}
+
+.pf-v5-c-title,
+#kc-page-title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  color: var(--bb-text) !important;
+  font-family: var(--bb-font-display) !important;
+  font-size: clamp(1.75rem, 3.5vw, 2.15rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-align: left;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: manual;
+  margin: 0 !important;
+  background: linear-gradient(95deg, #fff 0%, rgba(255, 255, 255, 0.72) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+#kc-page-title::before {
+  content: 'Acceso';
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--bb-font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bb-muted);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+}
+
+.pf-v5-c-login__header > div:first-child::after {
+  content: 'Administración de organizaciones, módulos y observabilidad (Babooni).';
+  display: block;
+  margin-top: 0.55rem;
+  font-family: var(--bb-font-sans);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--bb-muted);
+  letter-spacing: normal;
+}
+
+.pf-v5-c-login__main-body {
+  width: 100%;
+}
+
+#kc-form-login,
+#kc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+}
+
+.pf-v5-c-form__group {
+  margin-bottom: 1rem;
+}
+
+.pf-v5-c-form__label,
+label.pf-v5-c-form__label {
+  color: var(--bb-muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+
+.pf-v5-c-form-control,
+input.pf-v5-c-form-control {
+  border: 1px solid var(--bb-line) !important;
+  border-radius: var(--bb-radius) !important;
+  background: rgba(0, 0, 0, 0.32) !important;
+  color: var(--bb-text) !important;
+  min-height: 2.85rem;
+  width: 100%;
+  box-shadow: none !important;
+  font-family: var(--bb-font-sans) !important;
+  font-size: 0.95rem !important;
+}
+
+.pf-v5-c-form-control::placeholder {
+  color: rgba(220, 230, 245, 0.35);
+}
+
+.pf-v5-c-form-control:focus {
+  outline: none !important;
+  border-color: rgba(89, 168, 244, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(0, 75, 147, 0.25) !important;
+}
+
+.pf-v5-c-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: 0 !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button,
+.pf-v5-c-input-group button {
+  flex: 0 0 auto;
+  border: 1px solid var(--bb-line) !important;
+  border-left: 0 !important;
+  border-radius: 0 var(--bb-radius) var(--bb-radius) 0 !important;
+  background: rgba(0, 0, 0, 0.32) !important;
+  color: var(--bb-muted) !important;
+  min-height: 2.85rem;
+  min-width: 2.85rem;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--bb-text) !important;
+}
+
+#kc-form-options,
+.pf-v5-c-login__main-footer-band {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 0.35rem 0 1.35rem;
+  width: 100%;
+}
+
+#kc-form-options .checkbox,
+#kc-form-options .pf-v5-c-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#kc-form-options label,
+#kc-form-options .pf-v5-c-check__label {
+  color: var(--bb-muted) !important;
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#kc-form-options input[type='checkbox'],
+#kc-form-options .pf-v5-c-check__input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--bb-red);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#kc-form-options a,
+.pf-v5-c-login__main-footer a {
+  color: var(--bb-blue-light) !important;
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#kc-form-options a:hover,
+.pf-v5-c-login__main-footer a:hover {
+  color: #9fd0ff !important;
+  text-decoration: underline;
+}
+
+#kc-form-buttons {
+  margin-top: 0.15rem;
+}
+
+.pf-v5-c-button.pf-m-primary,
+#kc-login,
+input[name='login'] {
+  background: linear-gradient(185deg, #0a5cb8 0%, var(--bb-blue) 100%) !important;
+  border: 1px solid rgba(89, 168, 244, 0.35) !important;
+  color: #fff !important;
+  border-radius: var(--bb-radius) !important;
+  min-height: 2.85rem;
+  font-family: var(--bb-font-sans) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  width: 100%;
+  box-shadow: 0 10px 32px rgba(0, 75, 147, 0.35);
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+#kc-login:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+#kc-header,
+#kc-header-wrapper {
+  display: none !important;
+}
+
+.pf-v5-c-alert,
+.kc-feedback-text {
+  border-radius: var(--bb-radius);
+  font-size: 0.875rem;
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  background: rgba(227, 6, 19, 0.12) !important;
+  border-color: rgba(227, 6, 19, 0.35) !important;
+  color: #ffb4b8 !important;
+}
+
+@media (max-width: 900px) {
+  html.login-pf::before {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: min(200px, 32vh);
+  }
+
+  html.login-pf::after,
+  .pf-v5-c-login::after {
+    display: none;
+  }
+
+  .pf-v5-c-login {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+    max-height: none;
+  }
+
+  html,
+  body {
+    overflow: auto;
+  }
+
+  .pf-v5-c-login__container {
+    grid-column: 1;
+    grid-row: 2;
+    align-items: flex-start;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+    background: var(--bb-bg0);
+  }
+
+  .pf-v5-c-login__header {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .pf-v5-c-login__header::before {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  #kc-locale,
+  .pf-v5-c-login__header .pf-v5-c-form-control,
+  .pf-v5-c-login__header select,
+  .pf-v5-c-login__header > div:last-child:not(:first-child) {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+    margin-top: 0.25rem !important;
+  }
+
+  .pf-v5-c-login__header > div:first-child {
+    grid-row: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-v5-c-button.pf-m-primary:hover,
+  #kc-login:hover {
+    transform: none;
+  }
+}

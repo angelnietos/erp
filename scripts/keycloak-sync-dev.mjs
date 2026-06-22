@@ -254,6 +254,7 @@ function platformClientPayload() {
     redirectUris: [...new Set(redirectUris)],
     attributes: {
       'pkce.code.challenge.method': 'S256',
+      login_theme: 'babooni-platform',
       'post.logout.redirect.uris':
         'http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*',
     },
@@ -434,8 +435,35 @@ async function assignDefaultClientScopes(token, realm, clientUuid, scopeNames) {
   }
 }
 
+async function syncPlatformRealmLoginUx(token) {
+  const getRes = await kc(token, PLATFORM_REALM, '');
+  if (!getRes.ok) {
+    throw new Error(`Read realm ${PLATFORM_REALM} failed: ${await getRes.text()}`);
+  }
+  const realm = await getRes.json();
+  const putRes = await kc(token, PLATFORM_REALM, '', {
+    method: 'PUT',
+    body: JSON.stringify({
+      ...realm,
+      loginTheme: 'babooni-platform',
+      internationalizationEnabled: true,
+      supportedLocales: ['es', 'en'],
+      defaultLocale: 'es',
+      loginWithEmailAllowed: true,
+      rememberMe: true,
+      resetPasswordAllowed: true,
+      registrationAllowed: false,
+    }),
+  });
+  if (!putRes.ok) {
+    throw new Error(`Update ${PLATFORM_REALM} login UX failed: ${await putRes.text()}`);
+  }
+  console.log(`✓ ${PLATFORM_REALM}: tema babooni-platform, i18n ES, recordarme`);
+}
+
 async function syncPlatformRealm(token) {
   console.log(`\n→ ${PLATFORM_REALM}`);
+  await syncPlatformRealmLoginUx(token);
   await ensurePlatformClientScopes(token);
   const clientUuid = await upsertClient(
     token,

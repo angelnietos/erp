@@ -2,6 +2,14 @@
   "realm": "babooni-platform",
   "enabled": true,
   "displayName": "Babooni SaaS Platform",
+  "loginTheme": "babooni-platform",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["es", "en"],
+  "defaultLocale": "es",
+  "loginWithEmailAllowed": true,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "registrationAllowed": false,
   "users": [
     {
       "username": "platform",
@@ -38,6 +46,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
+        "login_theme": "babooni-platform",
         "post.logout.redirect.uris": "http://localhost:4300/login*+http://localhost:4200/*+http://localhost:4201/*"
       },
       "defaultClientScopes": [
