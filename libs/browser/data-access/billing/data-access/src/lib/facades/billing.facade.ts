@@ -184,16 +184,11 @@ export class BillingFacade {
   }
 
   submitToVerifactu(invoiceId: string): void {
-    const tenantId = getStoredTenantId();
-    if (!tenantId) return;
-    this.verifactuService.submitInvoiceDirect(invoiceId, tenantId).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.loadInvoices(true);
-        } else {
-          this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
-        }
-      },
+    this.service.sendInvoice(invoiceId).subscribe({
+      next: (updatedItem) =>
+        this._allInvoices.update((items) =>
+          items.map((i) => (i.id === invoiceId ? updatedItem : i)),
+        ),
       error: () => {
         this.updateInvoice(invoiceId, { verifactuStatus: 'error' });
       },

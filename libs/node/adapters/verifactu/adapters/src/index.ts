@@ -10,4 +10,5 @@ export * from './lib/security/erp-internal-sync-api-key.guard';
 export * from './lib/services/verifactu-prisma.service';
 export * from './lib/services/verifactu-queue.service';
 export * from './lib/webhooks/prisma-webhook-notifier.service';
+export * from './lib/webhooks/crm-webhook-bootstrap.service';
 

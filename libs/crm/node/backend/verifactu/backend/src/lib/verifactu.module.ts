@@ -15,7 +15,9 @@ import { ErpVerifactuQueueForwardClient } from './infrastructure/http/erp-verifa
 import { VerifactuController } from './presentation/verifactu.controller';
 import { ErpInvoiceMirrorController } from './presentation/erp-invoice-mirror.controller';
 import { ErpVerifactuSyncController } from './presentation/erp-verifactu-sync.controller';
+import { ErpVerifactuWebhookController } from './presentation/erp-verifactu-webhook.controller';
 import { CrmErpSyncApiKeyGuard } from './guards/crm-erp-sync-api-key.guard';
+import { CrmErpWebhookSignatureGuard } from './guards/crm-erp-webhook-signature.guard';
 
 @Module({
   imports: [SharedInfrastructureModule, ScheduleModule.forRoot()],
@@ -23,6 +25,7 @@ import { CrmErpSyncApiKeyGuard } from './guards/crm-erp-sync-api-key.guard';
     VerifactuController,
     ErpInvoiceMirrorController,
     ErpVerifactuSyncController,
+    ErpVerifactuWebhookController,
   ],
   providers: [
     VerifactuApplicationService,
@@ -30,6 +33,7 @@ import { CrmErpSyncApiKeyGuard } from './guards/crm-erp-sync-api-key.guard';
     VerifactuCrmQueueSchedulerService,
     ErpVerifactuQueueForwardClient,
     CrmErpSyncApiKeyGuard,
+    CrmErpWebhookSignatureGuard,
     StubVerifactuSubmissionAdapter,
     HttpAeatVerifactuSubmissionAdapter,
     PrismaVerifactuRepository,

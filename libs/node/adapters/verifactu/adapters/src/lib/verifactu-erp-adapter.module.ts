@@ -3,6 +3,7 @@ import { VerifactuSubmissionHttpClient } from './http/verifactu-submission-http.
 import { CrmErpInvoiceMirrorHttpClient } from './http/crm-erp-invoice-mirror-http.client';
 import { ErpInternalSyncApiKeyGuard } from './security/erp-internal-sync-api-key.guard';
 import { PrismaWebhookNotifierService } from './webhooks/prisma-webhook-notifier.service';
+import { CrmWebhookBootstrapService } from './webhooks/crm-webhook-bootstrap.service';
 import { VerifactuPrismaService } from './services/verifactu-prisma.service';
 
 @Module({
@@ -12,6 +13,7 @@ import { VerifactuPrismaService } from './services/verifactu-prisma.service';
     CrmErpInvoiceMirrorHttpClient,
     ErpInternalSyncApiKeyGuard,
     PrismaWebhookNotifierService,
+    CrmWebhookBootstrapService,
   ],
   exports: [
     VerifactuPrismaService,
@@ -19,6 +21,7 @@ import { VerifactuPrismaService } from './services/verifactu-prisma.service';
     CrmErpInvoiceMirrorHttpClient,
     ErpInternalSyncApiKeyGuard,
     PrismaWebhookNotifierService,
+    CrmWebhookBootstrapService,
   ],
 })
 export class VerifactuErpAdapterModule {}

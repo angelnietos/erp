@@ -1111,12 +1111,15 @@ async function main() {
   });
   console.log('- Created Verifactu log + queue item');
 
+  const crmWebhookBase =
+    process.env.VERIFACTU_CRM_API_URL?.replace(/\/$/, '') ||
+    'http://localhost:3120/api';
   const webhook = await prisma.verifactuWebhookEndpoint.create({
     data: {
       tenantId: tenant.id,
       eventType: 'invoice.sent',
-      url: 'https://example.com/webhooks/verifactu',
-      secret: 'dev_webhook_secret_seed_only',
+      url: `${crmWebhookBase}/internal/erp/verifactu/webhook-event`,
+      secret: 'dev-crm-erp-sync',
     },
   });
 

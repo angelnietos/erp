@@ -147,6 +147,53 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     });
   }
 
+  async applyErpWebhookEvent(input: {
+    eventType: 'invoice.sent' | 'invoice.error';
+    tenantId: string;
+    invoiceId: string;
+    payload: Record<string, unknown>;
+  }): Promise<void> {
+    const isSuccess = input.eventType === 'invoice.sent';
+    await this.applyErpQueueStatus(input.tenantId, input.invoiceId, {
+      status: isSuccess ? 'COMPLETED' : 'FAILED',
+      lastError:
+        !isSuccess && typeof input.payload['error'] === 'string'
+          ? input.payload['error']
+          : undefined,
+    });
+
+    if (isSuccess) {
+      await this.prisma.invoice.updateMany({
+        where: { id: input.invoiceId, tenantId: input.tenantId },
+        data: { status: 'ISSUED' },
+      });
+    }
+
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: input.invoiceId, tenantId: input.tenantId },
+    });
+    if (!invoice) {
+      return;
+    }
+
+    await this.prisma.verifactuLog.create({
+      data: {
+        invoiceId: input.invoiceId,
+        tenantId: input.tenantId,
+        requestPayload: {
+          source: 'erp-webhook',
+          eventType: input.eventType,
+        },
+        responsePayload: input.payload as Prisma.InputJsonValue,
+        status: isSuccess ? 'SUCCESS' : 'ERROR',
+        errorMessage:
+          !isSuccess && typeof input.payload['error'] === 'string'
+            ? input.payload['error']
+            : null,
+      },
+    });
+  }
+
   async listSeries(tenantId: string): Promise<VerifactuSeriesRow[]> {
     const rows = await this.prisma.verifactuSeries.findMany({
       where: { tenantId },
