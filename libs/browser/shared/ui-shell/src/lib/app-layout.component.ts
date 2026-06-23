@@ -21,7 +21,7 @@ import {
   AIBotStore,
   getAiFeatureFromUrl,
 } from '@josanz-erp/shared-data-access';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { AuthStore, getErpTenantDisplayName } from '@josanz-erp/identity-data-access';
 import { NotificationDrawerComponent } from './notification-drawer.component';
 import { CommandPaletteComponent } from './command-palette.component';
 import { CrmBackgroundComponent } from './crm-background/crm-background.component';
@@ -79,10 +79,10 @@ import { UIAIChatComponent } from '@josanz-erp/shared-ui-kit';
 
           <div class="actions-container">
             <!-- Tenant Badge -->
-            @if (tenantName) {
+            @if (resolvedTenantName()) {
               <div class="tenant-badge">
                 <lucide-icon name="building-2" size="16" aria-hidden="true"></lucide-icon>
-                <span>{{ tenantName }}</span>
+                <span>{{ resolvedTenantName() }}</span>
               </div>
             }
 
@@ -870,7 +870,15 @@ export class AppLayoutComponent {
 
   showThemeMenu = signal(false);
 
-  @Input() tenantName = 'Josanz Audiovisuales S.L.';
+  /** Override opcional (p. ej. Storybook). Si vacío, usa nombre del tenant activo. */
+  @Input() tenantName = '';
+
+  readonly resolvedTenantName = computed(() => {
+    this.navEvents();
+    const override = this.tenantName.trim();
+    return override || getErpTenantDisplayName();
+  });
+
   showNotifications = signal(false);
   showCommandPalette = signal(false);
   showUserMenu = signal(false);

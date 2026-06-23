@@ -133,7 +133,7 @@ function contextTrackKey(item: MasterFilterResultItem, index: number): string {
             <span><kbd>Enter</kbd> abrir</span>
             <span><kbd>Esc</kbd> cerrar</span>
           </div>
-          <div class="footer-logo">Josanz <span class="text-brand">Core</span></div>
+          <div class="footer-logo">Generic <span class="text-brand">ERP</span></div>
         </footer>
       </div>
     </div>

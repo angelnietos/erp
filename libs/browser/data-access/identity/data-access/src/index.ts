@@ -31,7 +31,10 @@ export {
   syncErpTenantHtmlTheme,
   syncErpRoutePhaseFromPath,
   resolveTenantSlugFromId,
+  getErpTenantDisplayName,
+  getClassicShellBrand,
   TENANT_ID_TO_SLUG,
+  TENANT_DISPLAY_NAME_BY_SLUG,
 } from './lib/utils/erp-tenant-theme';
 export {
   getTenantUiShell,

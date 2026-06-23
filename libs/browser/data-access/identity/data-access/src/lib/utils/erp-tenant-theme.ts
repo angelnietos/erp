@@ -1,6 +1,39 @@
 import { ERP_TENANT_SLUG_SESSION_KEY } from '../services/auth.service';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
-import { getTenantUiShell } from './tenant-ui-shell';
+import { getTenantUiShell, normalizeTenantSlug } from './tenant-ui-shell';
+
+/** Nombre visible en UI (topbar, login, etc.). */
+export const TENANT_DISPLAY_NAME_BY_SLUG: Readonly<Record<string, string>> = {
+  josanz: 'Generic ERP',
+  babooni: 'Babooni Technologies',
+  alexis: 'Alexis',
+  docs: 'Generador de Documentos',
+};
+
+export function getErpTenantDisplayName(slug?: string | null): string {
+  const key = normalizeTenantSlug(slug ?? getErpTenantSlug());
+  if (!key) {
+    return 'Generic ERP';
+  }
+  return TENANT_DISPLAY_NAME_BY_SLUG[key] ?? key.charAt(0).toUpperCase() + key.slice(1);
+}
+
+/** Marca del sidebar del shell clásico (logo + tag). */
+export function getClassicShellBrand(slug?: string | null): { main: string; tag: string } {
+  const key = normalizeTenantSlug(slug ?? getErpTenantSlug());
+  if (!key || key === 'josanz') {
+    return { main: 'GENERIC', tag: 'ERP' };
+  }
+  const name = getErpTenantDisplayName(key);
+  const parts = name.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return {
+      main: parts[0]!.toUpperCase(),
+      tag: parts.slice(1).join(' ').toUpperCase(),
+    };
+  }
+  return { main: name.toUpperCase(), tag: 'ERP' };
+}
 
 /** IDs fijos del seed (`apps/backend/prisma/seed.ts`) → slug. */
 export const TENANT_ID_TO_SLUG: Readonly<Record<string, string>> = {

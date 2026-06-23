@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { PluginStore, GlobalAuthStore } from '@josanz-erp/shared-data-access';
-import { AuthStore } from '@josanz-erp/identity-data-access';
+import { AuthStore, getClassicShellBrand, getErpTenantSlug } from '@josanz-erp/identity-data-access';
 import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
 
 @Component({
@@ -20,8 +20,8 @@ import { ERP_MAIN_NAV_ITEMS } from './erp-nav-items';
               <div class="logo-inner"></div>
             </div>
             <div class="logo-brand">
-              <span class="logo-text">JOSANZ</span>
-              <span class="logo-tag">PRO</span>
+              <span class="logo-text">{{ shellBrand().main }}</span>
+              <span class="logo-tag">{{ shellBrand().tag }}</span>
             </div>
           </div>
         }
@@ -341,6 +341,8 @@ export class SidebarComponent {
   private readonly pluginStore = inject(PluginStore);
 
   private readonly navItems = ERP_MAIN_NAV_ITEMS;
+
+  readonly shellBrand = computed(() => getClassicShellBrand(getErpTenantSlug()));
 
   readonly canAccessSettings = computed(() => {
     const permissions = this.globalAuth.permissions();

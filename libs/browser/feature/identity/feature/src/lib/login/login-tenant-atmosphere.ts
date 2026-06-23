@@ -72,7 +72,7 @@ const FALLBACK: LoginTenantAtmosphere = {
   slug: 'default',
   defaultTheme: 'nebula-cosmos',
   moodLine: 'Elige tu mundo y entra al portal.',
-  heroBadge: 'Josanz ERP',
+  heroBadge: 'Generic ERP',
   accent: '#6366f1',
   accentSoft: 'rgba(99, 102, 241, 0.2)',
   glow: 'rgba(139, 92, 246, 0.4)',
