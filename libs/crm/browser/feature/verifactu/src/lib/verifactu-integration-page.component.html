@@ -1,21 +1,21 @@
 <gcrm-page
-  title="Integración CRM / API / worker"
-  subtitle="Arquitectura y comprobaciones del tenant (NIF, certificados, resumen del servidor)."
+  title="Integración ERP"
+  subtitle="Flujo demo: crear factura → emitir → encolar Verifactu → seguir en Cola e Historial."
 >
-  <ul class="bullets intro">
-    <li>
-      <strong>CRM (puerto 3100)</strong>: facturación e idénticos endpoints
-      <code>/api/verifactu/*</code> y <code>/api/invoices/*</code>.
-    </li>
-    <li>
-      <strong>API Verifactu</strong> (p. ej. 3110): mismos contratos; misma BD y
-      JWT.
-    </li>
-    <li>
-      <strong>Worker</strong>: solo BD + adaptador de envío; convive con ambos
-      APIs.
-    </li>
-  </ul>
+  <div class="vf-arch-row">
+    <div class="vf-arch-card">
+      <strong>CRM API</strong>
+      <p>Facturación y endpoints <code>/api/verifactu/*</code> e <code>/api/invoices/*</code>.</p>
+    </div>
+    <div class="vf-arch-card">
+      <strong>Worker único</strong>
+      <p>Procesa cola AEAT en BD compartida; el CRM muestra espejo de estado.</p>
+    </div>
+    <div class="vf-arch-card">
+      <strong>Webhooks</strong>
+      <p>Notificaciones <code>invoice.sent</code> / <code>invoice.error</code> al ERP.</p>
+    </div>
+  </div>
 
   <div class="vf-toolbar">
     @if (snapshotLoading) {
@@ -24,68 +24,149 @@
     <gcrm-button
       type="button"
       variant="secondary"
-      [disabled]="snapshotLoading"
+      [disabled]="snapshotLoading || actionBusy"
       [busy]="snapshotLoading"
       (click)="refresh()"
     >
       {{ snapshotLoading ? 'Actualizando…' : 'Actualizar' }}
     </gcrm-button>
+    <gcrm-button
+      type="button"
+      variant="primary"
+      [disabled]="snapshotLoading || actionBusy"
+      [busy]="creatingDemo"
+      (click)="createDemoInvoice()"
+    >
+      {{ creatingDemo ? 'Creando…' : 'Crear factura demo' }}
+    </gcrm-button>
   </div>
+
+  @if (actionFeedback) {
+    <gcrm-inline-message [variant]="actionFeedbackVariant">{{ actionFeedback }}</gcrm-inline-message>
+  }
 
   @if (snapshot$ | async; as data) {
     @if (data.loadError) {
-      <gcrm-inline-message variant="error">{{
-        data.loadError
-      }}</gcrm-inline-message>
+      <gcrm-inline-message variant="error">{{ data.loadError }}</gcrm-inline-message>
     }
-    <div class="grid-two">
-      <gcrm-panel title="Este tenant" padding="sm">
-        <dl class="dl">
-          <dt>NIF emisor (BD)</dt>
+
+    <div class="vf-stats-grid vf-stats-grid--3">
+      <gcrm-stat-card
+        label="Facturas"
+        [value]="data.invoices.length"
+        hint="En el tenant actual"
+        tone="info"
+      />
+      <gcrm-stat-card
+        label="Cert. pruebas"
+        [value]="data.credSlots?.test?.configured ? 'OK' : '—'"
+        [tone]="data.credSlots?.test?.configured ? 'success' : 'warning'"
+      />
+      <gcrm-stat-card
+        label="Cert. producción"
+        [value]="data.credSlots?.production?.configured ? 'OK' : '—'"
+        [tone]="data.credSlots?.production?.configured ? 'success' : 'warning'"
+      />
+    </div>
+
+    <div class="vf-grid-two">
+      <gcrm-panel title="Tenant" padding="sm">
+        <dl class="vf-dl">
+          <dt>NIF emisor</dt>
           <dd>{{ data.settings.emitterTaxId || '—' }}</dd>
-          <dt>Facturas (muestra)</dt>
-          <dd>{{ data.invoices.length }} cargadas</dd>
+          <dt>Modo envío</dt>
+          <dd>{{ data.integration?.aeat?.submissionMode ?? '—' }}</dd>
+          <dt>Entorno AEAT</dt>
+          <dd>{{ data.integration?.aeat?.submissionEnv ?? '—' }}</dd>
         </dl>
-        <p class="links">
-          <a routerLink="../credentials">Editar certificado y NIF</a>
+        <p class="vf-links">
+          <a routerLink="../credentials">Certificado y NIF</a>
+          <a routerLink="../queue">Ver cola</a>
         </p>
       </gcrm-panel>
 
-      <gcrm-panel title="Certificados mTLS" padding="sm">
-        @if (data.credSlots) {
-          <p class="small">
-            Pruebas:
-            {{
-              data.credSlots.test.configured ? 'configurado' : 'no configurado'
-            }}
-            · Producción:
-            {{
-              data.credSlots.production.configured
-                ? 'configurado'
-                : 'no configurado'
-            }}
-          </p>
-        } @else {
-          <p class="muted small">No se pudo leer el estado.</p>
-        }
+      <gcrm-panel title="Referencias" padding="sm">
+        <ul class="vf-bullets">
+          <li>{{ data.crm }}</li>
+          <li>{{ data.standaloneApi }}</li>
+          <li>{{ data.worker }}</li>
+        </ul>
       </gcrm-panel>
     </div>
 
-    <gcrm-panel title="Textos de referencia" padding="sm">
-      <ul class="bullets">
-        <li>{{ data.crm }}</li>
-        <li>{{ data.standaloneApi }}</li>
-        <li>{{ data.worker }}</li>
-      </ul>
+    <gcrm-panel title="Facturas — flujo demo" padding="sm">
+      @if (data.invoices.length === 0) {
+        <p class="vf-empty">
+          No hay facturas. Pulsa «Crear factura demo» para generar una y probar el flujo.
+        </p>
+      } @else {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th scope="col">Número</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Total</th>
+                <th scope="col">ID</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of data.invoices; track inv.id) {
+                <tr>
+                  <td>{{ inv.number || '—' }}</td>
+                  <td>
+                    <gcrm-badge [variant]="invoiceBadgeVariant(inv.status)">
+                      {{ invoiceStatusLabel(inv.status) }}
+                    </gcrm-badge>
+                  </td>
+                  <td class="nowrap">
+                    @if (inv.total != null) {
+                      {{ inv.total | number: '1.2-2' }} {{ inv.currency || 'EUR' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="mono small">{{ inv.id }}</td>
+                  <td>
+                    <div class="tbl-actions">
+                      @if (inv.status === 'DRAFT') {
+                        <gcrm-button
+                          type="button"
+                          variant="secondary"
+                          [disabled]="actionBusy"
+                          [busy]="issuingId === inv.id"
+                          (click)="issueInvoice(inv.id)"
+                        >
+                          Emitir
+                        </gcrm-button>
+                      }
+                      <gcrm-button
+                        type="button"
+                        variant="primary"
+                        [disabled]="actionBusy || inv.status === 'DRAFT'"
+                        [busy]="enqueuingId === inv.id"
+                        (click)="enqueueInvoice(inv.id)"
+                      >
+                        Encolar AEAT
+                      </gcrm-button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </gcrm-panel>
 
-    <gcrm-panel title="Respuesta integration (servidor)" padding="sm">
-      <details class="details-json">
-        <summary>JSON completo</summary>
-        <pre class="block">{{ data.integration | json }}</pre>
+    <gcrm-panel title="Datos técnicos" padding="sm">
+      <details class="vf-details-json">
+        <summary>Ver JSON de integración (servidor)</summary>
+        <pre class="vf-block">{{ data.integration | json }}</pre>
       </details>
     </gcrm-panel>
   } @else {
-    <p class="muted">Cargando…</p>
+    <gcrm-spinner label="Cargando integración" />
   }
 </gcrm-page>

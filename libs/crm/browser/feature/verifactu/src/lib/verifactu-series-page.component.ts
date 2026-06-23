@@ -8,11 +8,13 @@ import {
   type VerifactuSeriesRowDto,
 } from '@generic-crm/verifactu-data-access';
 import {
+  GcrmBadgeComponent,
   GcrmButtonComponent,
   GcrmInlineMessageComponent,
   GcrmPageComponent,
   GcrmPanelComponent,
   GcrmSpinnerComponent,
+  GcrmStatCardComponent,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -20,6 +22,7 @@ import {
   finalize,
   map,
   of,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs';
@@ -36,13 +39,17 @@ import { verifactuHttpErrorMessage } from './http-error-message';
     GcrmPageComponent,
     GcrmPanelComponent,
     GcrmButtonComponent,
+    GcrmBadgeComponent,
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
+    GcrmStatCardComponent,
   ],
   templateUrl: './verifactu-series-page.component.html',
   styleUrls: [
     './verifactu-series-page.component.css',
     './verifactu-shared-tables.css',
+    './verifactu-shared-layout.css',
+    './verifactu-shared-forms.css',
     './verifactu-toolbar.css',
   ],
 })
@@ -53,11 +60,20 @@ export class VerifactuSeriesPageComponent {
 
   tableLoading = false;
 
-  readonly series$ = this.refresh$.pipe(
+  readonly snapshot$ = this.refresh$.pipe(
     switchMap(() => {
       this.tableLoading = true;
       return this.verifactu.series().pipe(
-        map((rows) => (rows ?? []) as VerifactuSeriesRowDto[]),
+        map((rows) => {
+          const list = (rows ?? []) as VerifactuSeriesRowDto[];
+          const active = list.filter((r) => r.isActive).length;
+          return {
+            loading: false as const,
+            rows: list,
+            active,
+            inactive: list.length - active,
+          };
+        }),
         tap(() => {
           this.loadError = null;
         }),
@@ -66,10 +82,21 @@ export class VerifactuSeriesPageComponent {
             e,
             'No se pudieron cargar las series',
           );
-          return of([] as VerifactuSeriesRowDto[]);
+          return of({
+            loading: false as const,
+            rows: [] as VerifactuSeriesRowDto[],
+            active: 0,
+            inactive: 0,
+          });
         }),
         finalize(() => {
           this.tableLoading = false;
+        }),
+        startWith({
+          loading: true as const,
+          rows: [] as VerifactuSeriesRowDto[],
+          active: 0,
+          inactive: 0,
         }),
       );
     }),

@@ -1,66 +1,67 @@
-<section class="page" aria-labelledby="identity-heading">
-  <h1 id="identity-heading">Identidad</h1>
-  <p class="hint">Login contra <code>/api/auth/login</code></p>
-  @if (devMode) {
-    <p class="dev-hint" role="note">
-      <strong>Desarrollo:</strong> tras <code>npm run db:setup</code> puedes
-      <button type="button" class="link-btn" (click)="fillDemoAdmin()">
-        rellenar admin demo
-      </button>
-      o
-      <button type="button" class="link-btn" (click)="fillDemoViewer()">
-        visor (solo lectura)
-      </button>
-      — contraseña <code>Demo12345!</code>, tenant <code>demo</code>.
-    </p>
-  }
-  <form (ngSubmit)="login()">
-    <label for="identity-email">
-      Email
+<gcrm-page
+  title="Acceso local"
+  subtitle="Inicio de sesión con email y contraseña contra el API del CRM."
+>
+  <gcrm-panel title="Credenciales" padding="sm">
+    @if (devMode) {
+      <p class="dev-hint" role="note">
+        <strong>Demo:</strong>
+        <button type="button" class="link-btn" (click)="fillDemoAdmin()">Admin</button>
+        o
+        <button type="button" class="link-btn" (click)="fillDemoViewer()">Visor</button>
+        — <code>Demo12345!</code> · tenant <code>demo</code>
+      </p>
+    }
+
+    <form class="identity-form" (ngSubmit)="login()">
+      <label class="vf-label" for="identity-email">Email</label>
       <input
         id="identity-email"
+        class="vf-input"
         name="email"
         type="email"
         [(ngModel)]="email"
         required
         autocomplete="username"
       />
-    </label>
-    <label for="identity-password">
-      Contraseña
+
+      <label class="vf-label" for="identity-password">Contraseña</label>
       <input
         id="identity-password"
+        class="vf-input"
         name="password"
         type="password"
         [(ngModel)]="password"
         required
         autocomplete="current-password"
       />
-    </label>
-    <label for="identity-tenant-slug">
-      Tenant (slug, opcional)
+
+      <label class="vf-label" for="identity-tenant-slug">Tenant (slug, opcional)</label>
       <input
         id="identity-tenant-slug"
+        class="vf-input"
         name="tenantSlug"
         type="text"
         [(ngModel)]="tenantSlug"
         autocomplete="organization"
       />
-    </label>
-    <gcrm-button
-      type="submit"
-      variant="primary"
-      [disabled]="submitting"
-      [busy]="submitting"
-    >
-      {{ submitting ? 'Entrando…' : 'Entrar' }}
-    </gcrm-button>
-  </form>
-  <div class="feedback-region" role="status" aria-live="polite">
-    @if (feedback) {
-      <gcrm-inline-message [variant]="feedbackVariant">{{
-        feedback
-      }}</gcrm-inline-message>
-    }
-  </div>
-</section>
+
+      <div class="vf-row-actions">
+        <gcrm-button
+          type="submit"
+          variant="primary"
+          [disabled]="submitting"
+          [busy]="submitting"
+        >
+          {{ submitting ? 'Entrando…' : 'Entrar' }}
+        </gcrm-button>
+      </div>
+    </form>
+
+    <div class="feedback-region" role="status" aria-live="polite">
+      @if (feedback) {
+        <gcrm-inline-message [variant]="feedbackVariant">{{ feedback }}</gcrm-inline-message>
+      }
+    </div>
+  </gcrm-panel>
+</gcrm-page>

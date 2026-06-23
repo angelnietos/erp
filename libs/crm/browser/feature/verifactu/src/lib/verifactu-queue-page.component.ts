@@ -3,6 +3,7 @@ import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   VerifactuApiService,
   type VerifactuQueueItemDto,
@@ -15,6 +16,7 @@ import {
   GcrmPageComponent,
   GcrmPanelComponent,
   GcrmSpinnerComponent,
+  GcrmStatCardComponent,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -22,10 +24,12 @@ import {
   finalize,
   map,
   of,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs';
 import { verifactuHttpErrorMessage } from './http-error-message';
+import { queueStatusLabel } from './verifactu-status-labels';
 
 @Component({
   selector: 'lib-verifactu-queue-page',
@@ -35,17 +39,21 @@ import { verifactuHttpErrorMessage } from './http-error-message';
     AsyncPipe,
     DatePipe,
     FormsModule,
+    RouterLink,
     GcrmPageComponent,
     GcrmPanelComponent,
     GcrmButtonComponent,
     GcrmBadgeComponent,
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
+    GcrmStatCardComponent,
   ],
   templateUrl: './verifactu-queue-page.component.html',
   styleUrls: [
     './verifactu-queue-page.component.css',
     './verifactu-shared-tables.css',
+    './verifactu-shared-layout.css',
+    './verifactu-shared-forms.css',
     './verifactu-toolbar.css',
   ],
 })
@@ -54,13 +62,29 @@ export class VerifactuQueuePageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
+  readonly queueStatusLabel = queueStatusLabel;
+
   tableLoading = false;
 
-  readonly queue$ = this.refresh$.pipe(
+  readonly snapshot$ = this.refresh$.pipe(
     switchMap(() => {
       this.tableLoading = true;
       return this.verifactu.queue().pipe(
-        map((rows) => (rows ?? []) as VerifactuQueueItemDto[]),
+        map((rows) => {
+          const list = (rows ?? []) as VerifactuQueueItemDto[];
+          const pending = list.filter((q) =>
+            ['PENDING', 'PROCESSING', 'FORWARDED'].includes(q.status),
+          ).length;
+          const completed = list.filter((q) => q.status === 'COMPLETED').length;
+          const failed = list.filter((q) => q.status === 'FAILED').length;
+          return {
+            loading: false as const,
+            rows: list,
+            pending,
+            completed,
+            failed,
+          };
+        }),
         tap(() => {
           this.loadError = null;
         }),
@@ -69,10 +93,23 @@ export class VerifactuQueuePageComponent {
             e,
             'No se pudo cargar la cola',
           );
-          return of([] as VerifactuQueueItemDto[]);
+          return of({
+            loading: false as const,
+            rows: [] as VerifactuQueueItemDto[],
+            pending: 0,
+            completed: 0,
+            failed: 0,
+          });
         }),
         finalize(() => {
           this.tableLoading = false;
+        }),
+        startWith({
+          loading: true as const,
+          rows: [] as VerifactuQueueItemDto[],
+          pending: 0,
+          completed: 0,
+          failed: 0,
         }),
       );
     }),
@@ -108,7 +145,7 @@ export class VerifactuQueuePageComponent {
       .subscribe({
         next: () => {
           this.invoiceIdToEnqueue = '';
-          this.feedback = 'Factura encolada.';
+          this.feedback = 'Factura encolada correctamente.';
           this.refresh();
         },
         error: (e: HttpErrorResponse) => {
@@ -125,7 +162,6 @@ export class VerifactuQueuePageComponent {
       case 'PENDING':
         return 'warning';
       case 'FORWARDED':
-        return 'info';
       case 'PROCESSING':
         return 'info';
       case 'COMPLETED':

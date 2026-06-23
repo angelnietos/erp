@@ -20,6 +20,8 @@ import {
   GcrmButtonComponent,
   type GcrmInlineMessageVariant,
   GcrmInlineMessageComponent,
+  GcrmPageComponent,
+  GcrmPanelComponent,
 } from '@generic-crm/shared-ui';
 import { finalize } from 'rxjs';
 
@@ -31,6 +33,8 @@ import { finalize } from 'rxjs';
     FormsModule,
     GcrmButtonComponent,
     GcrmInlineMessageComponent,
+    GcrmPageComponent,
+    GcrmPanelComponent,
   ],
   templateUrl: './identity-home-page.component.html',
   styleUrl: './identity-home-page.component.css',
@@ -41,7 +45,6 @@ export class IdentityHomePageComponent implements OnInit {
   private readonly tokens = inject(SessionTokenStorageService);
   private readonly destroyRef = inject(DestroyRef);
 
-  /** Solo true en `ng serve` / build sin optimización de producción; no muestra datos de demo en prod. */
   readonly devMode = isDevMode();
 
   email = '';
@@ -51,7 +54,6 @@ export class IdentityHomePageComponent implements OnInit {
   feedbackVariant: GcrmInlineMessageVariant = 'info';
   submitting = false;
 
-  /** Misma contraseña que `apps/api/prisma/seed.ts` (solo entornos de prueba). */
   private static readonly demoPassword = 'Demo12345!';
 
   fillDemoAdmin(): void {
@@ -84,7 +86,6 @@ export class IdentityHomePageComponent implements OnInit {
     }
   }
 
-  /** Tras login o si ya hay JWT: `returnUrl` del query (guard) o `/clients`. */
   private navigateAfterAuth(): void {
     const tree = this.router.parseUrl(this.router.url);
     const v = tree.queryParams['returnUrl'];
@@ -93,7 +94,7 @@ export class IdentityHomePageComponent implements OnInit {
       void this.router.navigateByUrl(raw);
       return;
     }
-    void this.router.navigateByUrl('/clients');
+    void this.router.navigateByUrl('/verifactu/overview');
   }
 
   login(): void {

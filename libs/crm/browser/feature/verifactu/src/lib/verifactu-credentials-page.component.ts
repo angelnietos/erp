@@ -14,11 +14,13 @@ import {
   type VerifactuIntegrationSummaryDto,
 } from '@generic-crm/verifactu-data-access';
 import {
+  GcrmBadgeComponent,
   GcrmButtonComponent,
   GcrmInlineMessageComponent,
   GcrmPageComponent,
   GcrmPanelComponent,
   GcrmSpinnerComponent,
+  GcrmStatCardComponent,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -42,10 +44,15 @@ import {
     GcrmButtonComponent,
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
+    GcrmStatCardComponent,
+    GcrmBadgeComponent,
   ],
   templateUrl: './verifactu-credentials-page.component.html',
   styleUrls: [
     './verifactu-credentials-page.component.css',
+    './verifactu-shared-layout.css',
+    './verifactu-shared-forms.css',
+    './verifactu-shared-tables.css',
     './verifactu-toolbar.css',
   ],
 })

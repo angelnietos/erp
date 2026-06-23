@@ -1,18 +1,15 @@
 <gcrm-page
   title="Historial de envíos"
-  subtitle="Últimos intentos de envío al adaptador AEAT (stub o HTTP). Pulsa una fila para ver el detalle."
+  subtitle="Últimos intentos de envío al adaptador AEAT. Pulsa una fila para ver el detalle."
 >
   <gcrm-panel title="Filtro" padding="sm">
-    <form
-      class="filter"
-      (ngSubmit)="applyFilter()"
-      [attr.aria-busy]="logsLoading"
-    >
+    <form class="vf-form-row" (ngSubmit)="applyFilter()" [attr.aria-busy]="logsLoading">
       <label class="sr-only" for="verifactu-logs-invoice-filter">
         UUID de factura (opcional)
       </label>
       <input
         id="verifactu-logs-invoice-filter"
+        class="vf-input vf-input--grow"
         type="text"
         name="invoiceFilter"
         placeholder="UUID de factura (opcional)"
@@ -20,7 +17,7 @@
         autocomplete="off"
         [disabled]="logsLoading"
       />
-      <gcrm-button type="submit" variant="primary" [disabled]="logsLoading">
+      <gcrm-button type="submit" variant="primary" [disabled]="logsLoading" [busy]="logsLoading">
         {{ logsLoading ? 'Cargando…' : 'Aplicar' }}
       </gcrm-button>
       <gcrm-button
@@ -29,7 +26,7 @@
         [disabled]="logsLoading"
         (click)="refreshLogs()"
       >
-        {{ logsLoading ? 'Cargando…' : 'Actualizar' }}
+        Actualizar
       </gcrm-button>
     </form>
   </gcrm-panel>
@@ -38,53 +35,77 @@
     @if (loadError) {
       <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
     }
-    @if (!loadError && rows.length === 0) {
-      <p class="muted">Sin registros.</p>
-    }
-    @if (!loadError && rows.length > 0) {
-      <div class="table-wrap">
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th scope="col">Fecha</th>
-              <th scope="col">Estado</th>
-              <th scope="col">Factura</th>
-              <th scope="col">Error</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (row of rows; track row.id ?? $index) {
-              <tr>
-                <td class="nowrap">
-                  {{ row.createdAt | date: 'short' }}
-                </td>
-                <td>
-                  <gcrm-badge [variant]="logStatusBadgeVariant(row.status)">{{
-                    row.status
-                  }}</gcrm-badge>
-                </td>
-                <td class="mono small">{{ row.invoiceId }}</td>
-                <td class="err-cell">{{ row.errorMessage || '—' }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
 
-      <gcrm-panel title="Detalle JSON (últimos registros)" padding="sm">
-        <details class="details-json">
-          <summary>Mostrar payloads completos</summary>
-          <ul class="raw-list">
-            @for (row of rows; track row.id ?? $index) {
-              <li>
-                <pre class="block">{{ row | json }}</pre>
-              </li>
-            }
-          </ul>
+    <gcrm-panel [title]="'Registros (' + rows.length + ')'" padding="sm">
+      @if (logsLoading) {
+        <gcrm-spinner size="sm" label="Cargando historial" />
+      }
+      @if (!logsLoading && !loadError && rows.length === 0) {
+        <p class="vf-empty">Sin registros de envío. Encola una factura para generar trazas.</p>
+      }
+      @if (!loadError && rows.length > 0) {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Factura</th>
+                <th scope="col">Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows; track row.id ?? $index) {
+                <tr
+                  class="is-clickable"
+                  [class.is-selected]="selectedId === row.id"
+                  (click)="selectRow(row)"
+                  (keydown.enter)="selectRow(row)"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-pressed]="selectedId === row.id"
+                >
+                  <td class="nowrap">{{ row.createdAt | date: 'short' }}</td>
+                  <td>
+                    <gcrm-badge [variant]="logStatusBadgeVariant(row.status)">
+                      {{ logStatusLabel(row.status) }}
+                    </gcrm-badge>
+                  </td>
+                  <td class="mono small">{{ row.invoiceId }}</td>
+                  <td class="err-cell">{{ row.errorMessage || '—' }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </gcrm-panel>
+
+    @if (selectedRow) {
+      <gcrm-panel title="Detalle del envío" padding="sm">
+        <dl class="vf-dl">
+          <dt>ID registro</dt>
+          <dd class="mono small">{{ selectedRow.id }}</dd>
+          <dt>Factura</dt>
+          <dd class="mono small">{{ selectedRow.invoiceId }}</dd>
+          <dt>Estado</dt>
+          <dd>
+            <gcrm-badge [variant]="logStatusBadgeVariant(selectedRow.status)">
+              {{ logStatusLabel(selectedRow.status) }}
+            </gcrm-badge>
+          </dd>
+          <dt>Fecha</dt>
+          <dd>{{ selectedRow.createdAt | date: 'medium' }}</dd>
+          @if (selectedRow.errorMessage) {
+            <dt>Error</dt>
+            <dd class="err-cell">{{ selectedRow.errorMessage }}</dd>
+          }
+        </dl>
+        <details class="vf-details-json">
+          <summary>Ver payloads request/response</summary>
+          <pre class="vf-block">{{ selectedRow | json }}</pre>
         </details>
       </gcrm-panel>
     }
-  } @else {
-    <p class="muted">Cargando…</p>
   }
 </gcrm-page>

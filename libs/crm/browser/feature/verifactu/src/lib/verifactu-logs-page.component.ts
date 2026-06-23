@@ -13,6 +13,7 @@ import {
   GcrmInlineMessageComponent,
   GcrmPageComponent,
   GcrmPanelComponent,
+  GcrmSpinnerComponent,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -24,6 +25,7 @@ import {
   tap,
 } from 'rxjs';
 import { verifactuHttpErrorMessage } from './http-error-message';
+import { logStatusLabel } from './verifactu-status-labels';
 
 @Component({
   selector: 'lib-verifactu-logs-page',
@@ -39,11 +41,14 @@ import { verifactuHttpErrorMessage } from './http-error-message';
     GcrmButtonComponent,
     GcrmBadgeComponent,
     GcrmInlineMessageComponent,
+    GcrmSpinnerComponent,
   ],
   templateUrl: './verifactu-logs-page.component.html',
   styleUrls: [
     './verifactu-logs-page.component.css',
     './verifactu-shared-tables.css',
+    './verifactu-shared-layout.css',
+    './verifactu-shared-forms.css',
     './verifactu-toolbar.css',
   ],
 })
@@ -51,13 +56,19 @@ export class VerifactuLogsPageComponent {
   private readonly verifactu = inject(VerifactuApiService);
   private readonly filter$ = new BehaviorSubject<string | undefined>(undefined);
 
+  readonly logStatusLabel = logStatusLabel;
+
   invoiceFilter = '';
   loadError: string | null = null;
   logsLoading = false;
+  selectedId: string | null = null;
+  selectedRow: VerifactuLogRowDto | null = null;
 
   readonly logs$ = this.filter$.pipe(
     switchMap((invoiceId) => {
       this.logsLoading = true;
+      this.selectedId = null;
+      this.selectedRow = null;
       return this.verifactu.logs(invoiceId, 80).pipe(
         map((rows) => (rows ?? []) as VerifactuLogRowDto[]),
         tap(() => {
@@ -86,6 +97,16 @@ export class VerifactuLogsPageComponent {
   refreshLogs(): void {
     this.loadError = null;
     this.filter$.next(this.filter$.getValue());
+  }
+
+  selectRow(row: VerifactuLogRowDto): void {
+    if (this.selectedId === row.id) {
+      this.selectedId = null;
+      this.selectedRow = null;
+      return;
+    }
+    this.selectedId = row.id;
+    this.selectedRow = row;
   }
 
   logStatusBadgeVariant(status: string): GcrmBadgeVariant {

@@ -1,71 +1,83 @@
 <gcrm-page
-  title="Cola Verifactu"
-  subtitle="Elementos pendientes o en proceso de envío al adaptador AEAT. Encola por UUID de factura."
+  title="Cola AEAT"
+  subtitle="Facturas pendientes de envío al adaptador AEAT. El worker único procesa la cola y sincroniza el estado en el CRM."
 >
-  <gcrm-panel title="Encolar factura" padding="sm">
-    <form
-      class="enqueue"
-      (ngSubmit)="enqueue()"
-      [attr.aria-busy]="enqueueInProgress"
-    >
-      <label class="sr-only" for="verifactu-queue-invoice-id"
-        >UUID de la factura</label
-      >
-      <input
-        id="verifactu-queue-invoice-id"
-        type="text"
-        name="invoiceIdToEnqueue"
-        placeholder="UUID de la factura"
-        [(ngModel)]="invoiceIdToEnqueue"
-        autocomplete="off"
-        [disabled]="enqueueInProgress"
-      />
-      <gcrm-button
-        type="submit"
-        variant="primary"
-        [disabled]="enqueueInProgress"
-        [busy]="enqueueInProgress"
-      >
-        {{ enqueueInProgress ? 'Encolando…' : 'Encolar' }}
-      </gcrm-button>
-    </form>
-    @if (feedback) {
-      <gcrm-inline-message variant="success">{{
-        feedback
-      }}</gcrm-inline-message>
+  @if (snapshot$ | async; as vm) {
+    @if (!vm.loading) {
+      <div class="vf-stats-grid">
+        <gcrm-stat-card label="Total" [value]="vm.rows.length" hint="Elementos en cola" />
+        <gcrm-stat-card
+          label="Pendientes"
+          [value]="vm.pending"
+          hint="Pendiente, procesando o reenviado"
+          tone="warning"
+        />
+        <gcrm-stat-card label="Completados" [value]="vm.completed" tone="success" />
+        <gcrm-stat-card
+          label="Con error"
+          [value]="vm.failed"
+          [tone]="vm.failed > 0 ? 'danger' : 'default'"
+        />
+      </div>
     }
-    @if (errorMessage) {
-      <gcrm-inline-message variant="error">{{
-        errorMessage
-      }}</gcrm-inline-message>
-    }
-  </gcrm-panel>
 
-  <gcrm-panel title="Cola actual" padding="sm">
-    <div class="vf-toolbar">
-      @if (tableLoading) {
-        <gcrm-spinner size="sm" label="Cargando cola" />
+    <gcrm-panel title="Encolar factura manualmente" padding="sm">
+      <p class="vf-form-hint">
+        Introduce el UUID de una factura emitida. En la demo también puedes encolar desde
+        <a routerLink="../integration">Integración</a>.
+      </p>
+      <form class="vf-form-row" (ngSubmit)="enqueue()" [attr.aria-busy]="enqueueInProgress">
+        <label class="sr-only" for="verifactu-queue-invoice-id">UUID de la factura</label>
+        <input
+          id="verifactu-queue-invoice-id"
+          class="vf-input vf-input--grow"
+          type="text"
+          name="invoiceIdToEnqueue"
+          placeholder="UUID de la factura"
+          [(ngModel)]="invoiceIdToEnqueue"
+          autocomplete="off"
+          [disabled]="enqueueInProgress"
+        />
+        <gcrm-button
+          type="submit"
+          variant="primary"
+          [disabled]="enqueueInProgress"
+          [busy]="enqueueInProgress"
+        >
+          {{ enqueueInProgress ? 'Encolando…' : 'Encolar' }}
+        </gcrm-button>
+      </form>
+      @if (feedback) {
+        <gcrm-inline-message variant="success">{{ feedback }}</gcrm-inline-message>
       }
-      <gcrm-button
-        type="button"
-        variant="secondary"
-        [disabled]="tableLoading || enqueueInProgress"
-        [busy]="tableLoading"
-        (click)="refresh()"
-      >
-        {{ tableLoading ? 'Actualizando…' : 'Actualizar' }}
-      </gcrm-button>
-    </div>
-    @if (queue$ | async; as rows) {
+      @if (errorMessage) {
+        <gcrm-inline-message variant="error">{{ errorMessage }}</gcrm-inline-message>
+      }
+    </gcrm-panel>
+
+    <gcrm-panel title="Cola actual" padding="sm">
+      <div class="vf-toolbar">
+        @if (vm.loading || tableLoading) {
+          <gcrm-spinner size="sm" label="Cargando cola" />
+        }
+        <gcrm-button
+          type="button"
+          variant="secondary"
+          [disabled]="vm.loading || tableLoading || enqueueInProgress"
+          [busy]="vm.loading || tableLoading"
+          (click)="refresh()"
+        >
+          {{ vm.loading || tableLoading ? 'Actualizando…' : 'Actualizar' }}
+        </gcrm-button>
+      </div>
+
       @if (loadError) {
-        <gcrm-inline-message variant="error">{{
-          loadError
-        }}</gcrm-inline-message>
+        <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
       }
-      @if (!loadError && rows.length === 0) {
-        <p class="muted">La cola está vacía.</p>
+      @if (!loadError && !vm.loading && vm.rows.length === 0) {
+        <p class="vf-empty">La cola está vacía. Emite una factura y encólala para ver el flujo AEAT.</p>
       }
-      @if (!loadError && rows.length > 0) {
+      @if (!loadError && vm.rows.length > 0) {
         <div class="table-wrap">
           <table class="tbl">
             <thead>
@@ -80,12 +92,12 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of rows; track row.id) {
+              @for (row of vm.rows; track row.id) {
                 <tr>
                   <td>
-                    <gcrm-badge [variant]="queueBadgeVariant(row.status)">{{
-                      row.status
-                    }}</gcrm-badge>
+                    <gcrm-badge [variant]="queueBadgeVariant(row.status)">
+                      {{ queueStatusLabel(row.status) }}
+                    </gcrm-badge>
                   </td>
                   <td>{{ row.invoice.number || '—' }}</td>
                   <td class="mono small">{{ row.invoiceId }}</td>
@@ -98,17 +110,13 @@
                     }
                   </td>
                   <td class="err-cell">{{ row.lastError || '—' }}</td>
-                  <td class="nowrap small">
-                    {{ row.updatedAt | date: 'short' }}
-                  </td>
+                  <td class="nowrap small">{{ row.updatedAt | date: 'short' }}</td>
                 </tr>
               }
             </tbody>
           </table>
         </div>
       }
-    } @else {
-      <p class="muted">Cargando…</p>
-    }
-  </gcrm-panel>
+    </gcrm-panel>
+  }
 </gcrm-page>

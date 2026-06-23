@@ -19,9 +19,9 @@
     </div>
 
     @if (vm.loading) {
-      <div class="stats-grid stats-grid--skeleton" aria-hidden="true">
+      <div class="vf-stats-grid vf-skeleton" aria-hidden="true">
         @for (_ of [1, 2, 3, 4]; track $index) {
-          <div class="skel"></div>
+          <div class="vf-skel"></div>
         }
       </div>
     } @else {
@@ -29,7 +29,7 @@
         <gcrm-inline-message variant="error">{{ vm.loadError }}</gcrm-inline-message>
       }
 
-      <div class="stats-grid">
+      <div class="vf-stats-grid">
         <gcrm-stat-card
           label="En cola"
           [value]="vm.pendingCount"
@@ -56,35 +56,33 @@
         />
       </div>
 
-      <div class="grid-cards">
+      <div class="vf-grid-two">
         <gcrm-panel title="Estado AEAT" padding="sm">
-          <dl class="dl">
+          <dl class="vf-dl">
             <dt>NIF emisor</dt>
             <dd>{{ vm.emitterTaxId || '— Configura en Certificado —' }}</dd>
             <dt>Entorno</dt>
-            <dd>
-              <span class="env-pill">{{ vm.submissionEnv }}</span>
-            </dd>
+            <dd><span class="env-pill">{{ vm.submissionEnv }}</span></dd>
             <dt>Modo envío</dt>
             <dd class="mono">{{ vm.submissionMode }}</dd>
             <dt>Cifrado certificados</dt>
             <dd>
               @if (vm.encryptionConfigured) {
-                <span class="ok">✓ Activo en servidor</span>
+                <span class="vf-ok">✓ Activo en servidor</span>
               } @else {
-                <span class="warn">Requiere VERIFACTU_CREDENTIALS_ENCRYPTION_KEY</span>
+                <span class="vf-warn">Requiere VERIFACTU_CREDENTIALS_ENCRYPTION_KEY</span>
               }
             </dd>
           </dl>
-          <div class="quick-actions">
-            <a class="qa" routerLink="../credentials">Certificado AEAT</a>
-            <a class="qa" routerLink="../queue">Ver cola</a>
-            <a class="qa" routerLink="../integration">Integración ERP</a>
+          <div class="vf-links">
+            <a routerLink="../credentials">Certificado AEAT</a>
+            <a routerLink="../queue">Ver cola</a>
+            <a routerLink="../integration">Integración ERP</a>
           </div>
         </gcrm-panel>
 
         <gcrm-panel title="Flujo demo" padding="sm">
-          <ol class="flow">
+          <ol class="vf-bullets">
             <li>ERP encola factura → worker único procesa AEAT</li>
             <li>Espejo en CRM + webhooks de estado</li>
             <li>Historial y trazabilidad en esta app</li>
@@ -97,9 +95,9 @@
       </div>
 
       <gcrm-panel title="Datos técnicos" padding="sm">
-        <details class="details-json">
+        <details class="vf-details-json">
           <summary>Ver JSON de cola, series e integración</summary>
-          <pre class="block">{{ vm.raw | json }}</pre>
+          <pre class="vf-block">{{ vm.raw | json }}</pre>
         </details>
       </gcrm-panel>
     }

@@ -48,6 +48,7 @@ import {
   templateUrl: './verifactu-overview-page.component.html',
   styleUrls: [
     './verifactu-overview-page.component.css',
+    './verifactu-shared-layout.css',
     './verifactu-toolbar.css',
   ],
 })
