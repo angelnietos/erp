@@ -72,8 +72,8 @@ export class TenantSelectComponent implements OnInit {
   readonly erpTenants: TenantChoice[] = [
     {
       slug: 'josanz',
-      name: 'Josanz Audiovisuales',
-      description: 'ERP con diseño Figma (josanz-ui).',
+      name: 'Generic ERP',
+      description: 'ERP estándar (shell clásico) — como Babooni pero con estilos propios.',
     },
     {
       slug: 'babooni',

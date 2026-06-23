@@ -3,7 +3,7 @@ import { NotFoundComponent } from './not-found.component';
 
 /**
  * Mismas rutas que apps/josanz-web-app (josanz-ui + shells josanz-*).
- * Se activan con canMatch cuando el tenant usa shell josanz-figma (josanz, alexis).
+ * Se activan con canMatch cuando el tenant usa shell josanz-figma (alexis).
  */
 export const josanzFigmaAppRoutes: Route[] = [
   {

@@ -55,7 +55,7 @@ export function getErpTenantSlug(): string {
 
 /**
  * Marca el tenant ERP en `<html>` para estilos condicionales.
- * `babooni` → paleta Biosstel; `alexis` → shell Figma (`josanz-ui`); resto → clásico.
+ * `babooni` → paleta Biosstel; `alexis` → shell Figma (`josanz-ui`); `josanz` → ERP clásico.
  */
 export function syncErpTenantHtmlTheme(): void {
   if (typeof document === 'undefined') {

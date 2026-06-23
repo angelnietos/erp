@@ -265,7 +265,7 @@ export class LoginComponent implements OnInit {
   readonly tenantLabel = computed(() => {
     const slug = this.tenantSlug();
     const known: Record<string, string> = {
-      josanz: 'Josanz Audiovisuales',
+      josanz: 'Generic ERP',
       babooni: 'Babooni Technologies',
       alexis: 'Alexis',
       docs: 'Generador de Documentos',

@@ -451,10 +451,10 @@ async function main() {
    const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
    const tenant = await prisma.tenant.upsert({
      where: { id: JOSANZ_TENANT_ID },
-     update: {},
+     update: { name: 'Generic ERP' },
      create: {
        id: JOSANZ_TENANT_ID,
-       name: 'Josanz Audiovisuales',
+       name: 'Generic ERP',
        slug: 'josanz',
        enabledModuleIds: [
          'dashboard',

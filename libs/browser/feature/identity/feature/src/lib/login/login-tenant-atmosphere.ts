@@ -15,8 +15,8 @@ const ATMOSPHERES: Record<string, LoginTenantAtmosphere> = {
   josanz: {
     slug: 'josanz',
     defaultTheme: 'josanz-classic',
-    moodLine: 'Luces de plató, auroras suaves y un equipo listo para rodar.',
-    heroBadge: 'Audiovisuales · ERP',
+    moodLine: 'ERP modular multi-tenant — shell clásico listo para demo.',
+    heroBadge: 'Generic ERP',
     accent: '#f03e3e',
     accentSoft: 'rgba(240, 62, 62, 0.22)',
     glow: 'rgba(240, 62, 62, 0.45)',
