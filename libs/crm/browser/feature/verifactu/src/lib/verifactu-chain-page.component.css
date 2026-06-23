@@ -1,0 +1,22 @@
+.vf-chain-stats {
+  margin-bottom: 1.25rem;
+}
+
+.vf-chain-errors {
+  margin: 0.75rem 0 1rem;
+  padding-left: 1.25rem;
+  color: var(--vf-danger, #b42318);
+  font-size: 0.9rem;
+}
+
+.vf-cell-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.vf-mono-sm {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  color: var(--vf-text-muted, #64748b);
+}

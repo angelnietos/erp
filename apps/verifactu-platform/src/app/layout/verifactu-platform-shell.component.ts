@@ -361,6 +361,7 @@ export class VerifactuPlatformShellComponent implements OnInit {
     { label: 'Cola AEAT', route: '/verifactu/queue', icon: 'list-ordered' },
     { label: 'Series', route: '/verifactu/series', icon: 'hash' },
     { label: 'Historial', route: '/verifactu/logs', icon: 'history' },
+    { label: 'Cadena fiscal', route: '/verifactu/chain', icon: 'link-2' },
     { label: 'Certificado', route: '/verifactu/credentials', icon: 'shield' },
     { label: 'Integración', route: '/verifactu/integration', icon: 'plug' },
   ];

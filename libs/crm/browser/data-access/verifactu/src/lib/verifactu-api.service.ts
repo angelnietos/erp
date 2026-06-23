@@ -109,6 +109,29 @@ export class VerifactuApiService {
       joinApiUrl(this.baseUrl, verifactuPaths.invoiceDetail(invoiceId)),
     );
   }
+
+  chainBlocks(
+    invoiceId?: string,
+    limit?: number,
+  ): Observable<VerifactuChainBlockDto[]> {
+    const params: Record<string, string> = {};
+    if (invoiceId) {
+      params['invoiceId'] = invoiceId;
+    }
+    if (limit != null) {
+      params['limit'] = String(limit);
+    }
+    return this.http.get<VerifactuChainBlockDto[]>(
+      joinApiUrl(this.baseUrl, verifactuPaths.chain),
+      { params },
+    );
+  }
+
+  chainVerify(): Observable<VerifactuChainVerificationDto> {
+    return this.http.get<VerifactuChainVerificationDto>(
+      joinApiUrl(this.baseUrl, verifactuPaths.chainVerify),
+    );
+  }
 }
 
 export interface VerifactuCredentialSlotDto {
@@ -218,4 +241,37 @@ export interface VerifactuInvoiceDetailDto {
   qrCode: string | null;
   qrValidationUrl: string | null;
   timeline: VerifactuTimelineEventDto[];
+}
+
+/** Fila de GET /verifactu/chain */
+export interface VerifactuChainBlockDto {
+  id: string;
+  tenantId: string;
+  environment: string;
+  blockIndex: number;
+  invoiceId: string;
+  invoiceNumber: string | null;
+  invoiceTotal: number;
+  queueItemId: string | null;
+  logId: string | null;
+  previousHash: string;
+  currentHash: string;
+  aeatHuella: string;
+  aeatIdRegistro: string;
+  verificationCode: string | null;
+  createdAt: string;
+}
+
+/** GET /verifactu/chain/verify */
+export interface VerifactuChainVerificationDto {
+  isValid: boolean;
+  totalRecords: number;
+  verifiedAt: string;
+  environment: string;
+  headBlockIndex: number | null;
+  errors: Array<{
+    blockId: string;
+    blockIndex: number;
+    error: string;
+  }>;
 }

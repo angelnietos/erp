@@ -1,5 +1,7 @@
 import type {
   ClaimedVerifactuJob,
+  VerifactuChainBlockRow,
+  VerifactuChainVerificationView,
   VerifactuLogRow,
   VerifactuQueueRow,
   VerifactuSeriesRow,
@@ -43,15 +45,24 @@ export interface VerifactuRepositoryPort {
     queueItemId: string,
     tenantId: string,
     log: { requestPayload: unknown; responsePayload: unknown },
+    submissionResult?: VerifactuSubmissionResult,
   ): Promise<void>;
 
   /**
    * Actualiza la cabeza de cadena tras un envío exitoso si el resultado aporta huella/id (o CSV mapeable).
+   * @deprecated Preferir completeWithSuccess con submissionResult (atómico con el bloque del ledger).
    */
   persistAeatChainHeadIfPresent(
     tenantId: string,
     result: VerifactuSubmissionResult,
   ): Promise<void>;
+
+  listChainBlocks(
+    tenantId: string,
+    query?: { limit?: number; invoiceId?: string },
+  ): Promise<VerifactuChainBlockRow[]>;
+
+  verifyChainIntegrity(tenantId: string): Promise<VerifactuChainVerificationView>;
 
   completeWithFailure(
     queueItemId: string,

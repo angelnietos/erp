@@ -97,6 +97,31 @@ export class VerifactuInvoiceDetailPageComponent {
     this.refresh$.next();
   }
 
+  pageTitle(vm: DetailVm): string {
+    if (vm.loading) {
+      return 'Ficha de factura';
+    }
+    if ('error' in vm) {
+      return 'Ficha de factura';
+    }
+    const label = vm.data.number || vm.data.invoiceId.slice(0, 8);
+    return `Factura ${label}`;
+  }
+
+  isDetailLoading(vm: DetailVm): vm is { loading: true } {
+    return vm.loading;
+  }
+
+  isDetailError(vm: DetailVm): vm is { loading: false; error: string } {
+    return !vm.loading && 'error' in vm;
+  }
+
+  isDetailData(
+    vm: DetailVm,
+  ): vm is { loading: false; data: VerifactuInvoiceDetailDto } {
+    return !vm.loading && 'data' in vm;
+  }
+
   verifactuBadgeVariant(
     status: VerifactuInvoiceDetailDto['verifactuStatus'],
   ): GcrmBadgeVariant {

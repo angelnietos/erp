@@ -10,16 +10,28 @@ import {
 import { PrismaService } from '@generic-crm/shared-infrastructure';
 import type {
   ClaimedVerifactuJob,
+  VerifactuChainBlockRow,
+  VerifactuChainVerificationView,
   VerifactuLogRow,
   VerifactuQueueRow,
   VerifactuRepositoryPort,
   VerifactuSeriesRow,
   VerifactuSubmissionResult,
 } from '@generic-crm/verifactu-core';
+import {
+  VERIFACTU_CHAIN_GENESIS_HASH,
+  VerifactuChainService,
+} from '@generic-crm/verifactu-core';
 import { extractAeatChainHead } from '../aeat/verifactu-aeat-chain-extract';
+import {
+  chainHeadFromSubmission,
+  submissionResultFromPayload,
+} from '../chain/verifactu-chain-payload.util';
 
 @Injectable()
 export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
+  private readonly chainService = new VerifactuChainService();
+
   constructor(private readonly prisma: PrismaService) {}
 
   async listQueue(tenantId: string): Promise<VerifactuQueueRow[]> {
@@ -176,21 +188,45 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
       return;
     }
 
-    await this.prisma.verifactuLog.create({
-      data: {
-        invoiceId: input.invoiceId,
-        tenantId: input.tenantId,
-        requestPayload: {
-          source: 'erp-webhook',
-          eventType: input.eventType,
+    await this.prisma.$transaction(async (tx) => {
+      const isSuccess = input.eventType === 'invoice.sent';
+      const log = await tx.verifactuLog.create({
+        data: {
+          invoiceId: input.invoiceId,
+          tenantId: input.tenantId,
+          requestPayload: {
+            source: 'erp-webhook',
+            eventType: input.eventType,
+          },
+          responsePayload: input.payload as Prisma.InputJsonValue,
+          status: isSuccess ? 'SUCCESS' : 'ERROR',
+          errorMessage:
+            !isSuccess && typeof input.payload['error'] === 'string'
+              ? input.payload['error']
+              : null,
         },
-        responsePayload: input.payload as Prisma.InputJsonValue,
-        status: isSuccess ? 'SUCCESS' : 'ERROR',
-        errorMessage:
-          !isSuccess && typeof input.payload['error'] === 'string'
-            ? input.payload['error']
-            : null,
-      },
+      });
+
+      if (isSuccess) {
+        const queueRow = await tx.verifactuQueueItem.findFirst({
+          where: { tenantId: input.tenantId, invoiceId: input.invoiceId },
+          orderBy: { createdAt: 'desc' },
+        });
+        const submission =
+          submissionResultFromPayload(input.payload) ??
+          submissionResultFromPayload(log.responsePayload);
+        if (submission) {
+          await this.appendChainBlockInTx(tx, {
+            tenantId: input.tenantId,
+            invoiceId: input.invoiceId,
+            invoiceNumber: invoice.number,
+            invoiceTotal: invoice.total,
+            queueItemId: queueRow?.id ?? null,
+            logId: log.id,
+            submissionResult: submission,
+          });
+        }
+      }
     });
   }
 
@@ -327,15 +363,17 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     queueItemId: string,
     tenantId: string,
     log: { requestPayload: unknown; responsePayload: unknown },
+    submissionResult?: VerifactuSubmissionResult,
   ): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
       const item = await tx.verifactuQueueItem.findFirst({
         where: { id: queueItemId, tenantId },
+        include: { invoice: true },
       });
       if (!item) {
         throw new NotFoundException('Elemento de cola no encontrado');
       }
-      await tx.verifactuLog.create({
+      const createdLog = await tx.verifactuLog.create({
         data: {
           invoiceId: item.invoiceId,
           tenantId,
@@ -351,6 +389,21 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
           lastError: null,
         },
       });
+
+      const result =
+        submissionResult ??
+        submissionResultFromPayload(log.responsePayload);
+      if (result) {
+        await this.appendChainBlockInTx(tx, {
+          tenantId,
+          invoiceId: item.invoiceId,
+          invoiceNumber: item.invoice.number,
+          invoiceTotal: item.invoice.total,
+          queueItemId,
+          logId: createdLog.id,
+          submissionResult: result,
+        });
+      }
     });
   }
 
@@ -407,6 +460,162 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     if (!head) {
       return;
     }
+    await this.upsertAeatChainHead(tenantId, head.huella, head.idRegistro);
+  }
+
+  async listChainBlocks(
+    tenantId: string,
+    query?: { limit?: number; invoiceId?: string },
+  ): Promise<VerifactuChainBlockRow[]> {
+    const take = Math.min(query?.limit ?? 100, 500);
+    const env = this.aeatChainEnvironment();
+    const rows = await this.prisma.verifactuChainBlock.findMany({
+      where: {
+        tenantId,
+        environment: env,
+        ...(query?.invoiceId ? { invoiceId: query.invoiceId } : {}),
+      },
+      orderBy: { blockIndex: 'desc' },
+      take,
+    });
+    return rows.map((r) => this.mapChainBlockRow(r));
+  }
+
+  async verifyChainIntegrity(
+    tenantId: string,
+  ): Promise<VerifactuChainVerificationView> {
+    const env = this.aeatChainEnvironment();
+    const rows = await this.prisma.verifactuChainBlock.findMany({
+      where: { tenantId, environment: env },
+      orderBy: { blockIndex: 'asc' },
+    });
+    const blocks = rows.map((r) => this.mapChainBlockRow(r));
+    const result = this.chainService.verifyChain(blocks, env);
+    return {
+      isValid: result.isValid,
+      totalRecords: result.totalRecords,
+      verifiedAt: result.verifiedAt,
+      environment: env,
+      headBlockIndex: result.headBlockIndex,
+      errors: result.errors,
+    };
+  }
+
+  private mapChainBlockRow(r: {
+    id: string;
+    tenantId: string;
+    environment: VerifactuCredentialEnvironment;
+    blockIndex: number;
+    invoiceId: string;
+    invoiceNumber: string | null;
+    invoiceTotal: number;
+    queueItemId: string | null;
+    logId: string | null;
+    previousHash: string;
+    currentHash: string;
+    aeatHuella: string;
+    aeatIdRegistro: string;
+    verificationCode: string | null;
+    createdAt: Date;
+  }): VerifactuChainBlockRow {
+    return {
+      id: r.id,
+      tenantId: r.tenantId,
+      environment: r.environment,
+      blockIndex: r.blockIndex,
+      invoiceId: r.invoiceId,
+      invoiceNumber: r.invoiceNumber,
+      invoiceTotal: r.invoiceTotal,
+      queueItemId: r.queueItemId,
+      logId: r.logId,
+      previousHash: r.previousHash,
+      currentHash: r.currentHash,
+      aeatHuella: r.aeatHuella,
+      aeatIdRegistro: r.aeatIdRegistro,
+      verificationCode: r.verificationCode,
+      createdAt: r.createdAt,
+    };
+  }
+
+  private async appendChainBlockInTx(
+    tx: Prisma.TransactionClient,
+    input: {
+      tenantId: string;
+      invoiceId: string;
+      invoiceNumber: string | null;
+      invoiceTotal: number;
+      queueItemId: string | null;
+      logId: string;
+      submissionResult: VerifactuSubmissionResult;
+    },
+  ): Promise<void> {
+    const head = chainHeadFromSubmission(input.submissionResult);
+    if (!head) {
+      return;
+    }
+    const env = this.aeatChainEnvironment();
+    const last = await tx.verifactuChainBlock.findFirst({
+      where: { tenantId: input.tenantId, environment: env },
+      orderBy: { blockIndex: 'desc' },
+    });
+    const blockIndex = last ? last.blockIndex + 1 : 0;
+    const previousHash = last?.currentHash ?? VERIFACTU_CHAIN_GENESIS_HASH;
+    const currentHash = this.chainService.buildBlockHash({
+      blockIndex,
+      tenantId: input.tenantId,
+      environment: env,
+      invoiceId: input.invoiceId,
+      invoiceNumber: input.invoiceNumber,
+      invoiceTotal: input.invoiceTotal,
+      previousHash,
+      aeatHuella: head.huella,
+      aeatIdRegistro: head.idRegistro,
+      verificationCode: head.verificationCode,
+    });
+
+    await tx.verifactuChainBlock.create({
+      data: {
+        tenantId: input.tenantId,
+        environment: env,
+        blockIndex,
+        invoiceId: input.invoiceId,
+        invoiceNumber: input.invoiceNumber,
+        invoiceTotal: input.invoiceTotal,
+        queueItemId: input.queueItemId,
+        logId: input.logId,
+        previousHash,
+        currentHash,
+        aeatHuella: head.huella,
+        aeatIdRegistro: head.idRegistro,
+        verificationCode: head.verificationCode,
+      },
+    });
+
+    await tx.verifactuAeatChainHead.upsert({
+      where: {
+        tenantId_environment: {
+          tenantId: input.tenantId,
+          environment: env,
+        },
+      },
+      create: {
+        tenantId: input.tenantId,
+        environment: env,
+        lastHuella: head.huella,
+        lastIdRegistro: head.idRegistro,
+      },
+      update: {
+        lastHuella: head.huella,
+        lastIdRegistro: head.idRegistro,
+      },
+    });
+  }
+
+  private async upsertAeatChainHead(
+    tenantId: string,
+    lastHuella: string,
+    lastIdRegistro: string,
+  ): Promise<void> {
     const env = this.aeatChainEnvironment();
     await this.prisma.verifactuAeatChainHead.upsert({
       where: {
@@ -418,12 +627,12 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
       create: {
         tenantId,
         environment: env,
-        lastHuella: head.huella,
-        lastIdRegistro: head.idRegistro,
+        lastHuella,
+        lastIdRegistro,
       },
       update: {
-        lastHuella: head.huella,
-        lastIdRegistro: head.idRegistro,
+        lastHuella,
+        lastIdRegistro,
       },
     });
   }

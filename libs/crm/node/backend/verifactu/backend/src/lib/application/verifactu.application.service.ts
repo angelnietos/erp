@@ -69,6 +69,14 @@ export class VerifactuApplicationService {
     return this.verifactu.listLogs(tenantId, query);
   }
 
+  chainList(tenantId: string, query?: { invoiceId?: string; limit?: number }) {
+    return this.verifactu.listChainBlocks(tenantId, query);
+  }
+
+  chainVerify(tenantId: string) {
+    return this.verifactu.verifyChainIntegrity(tenantId);
+  }
+
   integrationSummary() {
     const submissionEnv =
       (process.env['AEAT_SUBMISSION_ENV'] || 'test').toLowerCase() ===
@@ -94,7 +102,7 @@ export class VerifactuApplicationService {
         emitterNif:
           'Por tenant: GET/PATCH `verifactu/settings` (campo emitterTaxId) o columna BD; prioridad sobre AEAT_EMISOR_NIF.',
         chainPersistence:
-          'Encadenamiento: al reclamar la cola se carga la cabeza por tenant y entorno; el worker la persiste tras éxito. AEAT_ENCADENAMIENTO_* sigue como respaldo si no hay historial en BD.',
+          'Ledger append-only por tenant/entorno (`verifactu_chain_blocks`): cada envío exitoso añade un bloque con huella AEAT y encadenamiento SHA-256. Verificación en GET `verifactu/chain/verify`. La cabeza AEAT (`verifactu_aeat_chain_heads`) alimenta el siguiente envío.',
         optionalThirdParty:
           'Un proveedor homologado externo solo si externalizas parte del servicio; no es obligatorio para ser editor.',
       },

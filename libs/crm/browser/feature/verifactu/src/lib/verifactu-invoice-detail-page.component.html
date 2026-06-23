@@ -1,25 +1,26 @@
 @if (vm$ | async; as vm) {
   <gcrm-page
-    [title]="vm.loading ? 'Ficha de factura' : vm.error ? 'Ficha de factura' : 'Factura ' + (vm.data.number || vm.data.invoiceId.slice(0, 8))"
+    [title]="pageTitle(vm)"
     subtitle="Detalle fiscal Verifactu, código QR de validación y línea temporal AEAT."
   >
     <div class="vf-detail-toolbar">
       <a routerLink="/verifactu/queue" class="vf-back-link">← Cola AEAT</a>
       <a routerLink="/verifactu/logs" class="vf-back-link">Historial</a>
-      @if (!vm.loading) {
+      <a routerLink="/verifactu/chain" class="vf-back-link">Cadena fiscal</a>
+      @if (!isDetailLoading(vm)) {
         <gcrm-button type="button" variant="secondary" (click)="refresh()">
           Actualizar
         </gcrm-button>
       }
     </div>
 
-    @if (vm.loading) {
+    @if (isDetailLoading(vm)) {
       <div class="vf-detail-loading">
         <gcrm-spinner label="Cargando ficha de factura" />
       </div>
-    } @else if (vm.error) {
+    } @else if (isDetailError(vm)) {
       <gcrm-inline-message variant="error">{{ vm.error }}</gcrm-inline-message>
-    } @else {
+    } @else if (isDetailData(vm)) {
       <div class="vf-detail-grid">
         <section class="vf-detail-main">
           <gcrm-panel title="Resumen" padding="sm">

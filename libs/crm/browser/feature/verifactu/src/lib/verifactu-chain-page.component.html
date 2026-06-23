@@ -1,0 +1,156 @@
+<gcrm-page
+  title="Cadena fiscal inmutable"
+  subtitle="Ledger append-only por tenant y entorno AEAT. Cada envío exitoso añade un bloque encadenado con huella SHA-256 para trazabilidad ante inspección."
+>
+  <div class="vf-toolbar">
+    <form class="vf-form-row" (ngSubmit)="applyFilter()">
+      <label class="sr-only" for="vf-chain-invoice-filter">Filtrar por factura</label>
+      <input
+        id="vf-chain-invoice-filter"
+        type="text"
+        class="vf-input"
+        placeholder="UUID factura (opcional)"
+        name="invoiceFilter"
+        [(ngModel)]="invoiceFilter"
+        [disabled]="blocksLoading || verifyLoading"
+      />
+      <gcrm-button type="submit" variant="secondary" [disabled]="blocksLoading">
+        Filtrar
+      </gcrm-button>
+    </form>
+    <gcrm-button
+      type="button"
+      variant="secondary"
+      [disabled]="blocksLoading"
+      [busy]="blocksLoading"
+      (click)="refresh()"
+    >
+      Actualizar
+    </gcrm-button>
+    <gcrm-button
+      type="button"
+      variant="primary"
+      [disabled]="verifyLoading"
+      [busy]="verifyLoading"
+      (click)="verifyChain()"
+    >
+      Verificar integridad
+    </gcrm-button>
+  </div>
+
+  @if (verification) {
+    <gcrm-inline-message [variant]="verification.isValid ? 'success' : 'error'">
+      <strong>
+        {{ verification.isValid ? 'Cadena íntegra' : 'Cadena comprometida' }}
+      </strong>
+      — {{ verification.totalRecords }} bloque(s) en entorno
+      {{ envLabel(verification.environment) }}.
+      @if (verification.headBlockIndex != null) {
+        Cabeza: bloque #{{ verification.headBlockIndex }}.
+      }
+      Verificado {{ verification.verifiedAt | date: 'short' }}.
+    </gcrm-inline-message>
+    @if (verification.errors.length) {
+      <ul class="vf-chain-errors">
+        @for (err of verification.errors; track err.blockId) {
+          <li>
+            Bloque #{{ err.blockIndex }}: {{ err.error }}
+          </li>
+        }
+      </ul>
+    }
+  }
+  @if (verifyError) {
+    <gcrm-inline-message variant="error">{{ verifyError }}</gcrm-inline-message>
+  }
+  @if (loadError) {
+    <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
+  }
+
+  @if (vm$ | async; as vm) {
+    @if (vm.loading) {
+      <gcrm-spinner size="md" label="Cargando cadena fiscal" />
+    } @else if (!vm.blocks.length) {
+      <verifactu-empty-state
+        title="Sin bloques en el ledger"
+        description="Los envíos exitosos a AEAT generan bloques encadenados aquí. Encola una factura y completa el envío para iniciar la cadena."
+        icon="default"
+      >
+        <a routerLink="../queue" class="vf-empty-cta">Ir a cola AEAT</a>
+      </verifactu-empty-state>
+    } @else {
+      <div class="vf-stats-grid vf-chain-stats">
+        <gcrm-stat-card
+          label="Bloques"
+          [value]="vm.blocks.length"
+          hint="Registros inmutables visibles"
+          tone="info"
+        />
+        <gcrm-stat-card
+          label="Último índice"
+          [value]="vm.blocks[0].blockIndex"
+          hint="Bloque más reciente"
+          tone="neutral"
+        />
+        <gcrm-stat-card
+          label="Entorno"
+          [value]="envLabel(vm.blocks[0].environment)"
+          hint="AEAT pruebas o producción"
+          tone="neutral"
+        />
+      </div>
+
+      <gcrm-panel title="Bloques (más recientes primero)">
+        <div class="vf-table-wrap">
+          <table class="vf-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Factura</th>
+                <th>Huella AEAT</th>
+                <th>Hash bloque</th>
+                <th>Anterior</th>
+                <th>Fecha</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of vm.blocks; track row.id) {
+                <tr>
+                  <td>
+                    <gcrm-badge variant="neutral">{{ row.blockIndex }}</gcrm-badge>
+                  </td>
+                  <td>
+                    <div class="vf-cell-stack">
+                      <span>{{ row.invoiceNumber || '—' }}</span>
+                      <code class="vf-mono-sm">{{ truncateHash(row.invoiceId, 8, 6) }}</code>
+                    </div>
+                  </td>
+                  <td>
+                    <code class="vf-mono-sm" [title]="row.aeatHuella">
+                      {{ truncateHash(row.aeatHuella) }}
+                    </code>
+                  </td>
+                  <td>
+                    <code class="vf-mono-sm" [title]="row.currentHash">
+                      {{ truncateHash(row.currentHash) }}
+                    </code>
+                  </td>
+                  <td>
+                    <code class="vf-mono-sm" [title]="row.previousHash">
+                      {{ truncateHash(row.previousHash) }}
+                    </code>
+                  </td>
+                  <td>{{ row.createdAt | date: 'short' }}</td>
+                  <td>
+                    <a [routerLink]="['../invoices', row.invoiceId]">Ficha</a>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </gcrm-panel>
+    }
+  }
+</gcrm-page>

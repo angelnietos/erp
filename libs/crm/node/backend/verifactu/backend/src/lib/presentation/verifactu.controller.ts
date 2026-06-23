@@ -119,6 +119,30 @@ export class VerifactuController {
     });
   }
 
+  @Get('chain')
+  @ApiOperation({ summary: 'Ledger inmutable Verifactu del tenant (bloques encadenados)' })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'invoiceId', required: false })
+  chain(
+    @Req() req: Request,
+    @Query('invoiceId') invoiceId?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const tenantId = requireRequestTenantId(req);
+    const n = limit ? Number.parseInt(limit, 10) : undefined;
+    return this.verifactu.chainList(tenantId, {
+      invoiceId: invoiceId?.trim() || undefined,
+      limit: Number.isFinite(n) ? n : undefined,
+    });
+  }
+
+  @Get('chain/verify')
+  @ApiOperation({ summary: 'Verifica integridad de la cadena fiscal del tenant' })
+  chainVerify(@Req() req: Request) {
+    const tenantId = requireRequestTenantId(req);
+    return this.verifactu.chainVerify(tenantId);
+  }
+
   @Get('integration')
   @ApiOperation({ summary: 'Resumen integración AEAT / despliegue' })
   integration() {

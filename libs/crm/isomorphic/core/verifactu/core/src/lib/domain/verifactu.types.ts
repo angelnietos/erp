@@ -59,6 +59,37 @@ export interface ClaimedVerifactuJob {
   };
 }
 
+export interface VerifactuChainBlockRow {
+  id: string;
+  tenantId: string;
+  environment: string;
+  blockIndex: number;
+  invoiceId: string;
+  invoiceNumber: string | null;
+  invoiceTotal: number;
+  queueItemId: string | null;
+  logId: string | null;
+  previousHash: string;
+  currentHash: string;
+  aeatHuella: string;
+  aeatIdRegistro: string;
+  verificationCode: string | null;
+  createdAt: Date;
+}
+
+export interface VerifactuChainVerificationView {
+  isValid: boolean;
+  totalRecords: number;
+  verifiedAt: string;
+  environment: string;
+  headBlockIndex: number | null;
+  errors: Array<{
+    blockId: string;
+    blockIndex: number;
+    error: string;
+  }>;
+}
+
 export interface VerifactuSubmissionPayload {
   tenantId: string;
   invoiceId: string;

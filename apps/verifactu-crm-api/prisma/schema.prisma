@@ -30,6 +30,7 @@ model Tenant {
   verifactuCustomers      VerifactuCustomer[]
   verifactuTenantCredentials VerifactuTenantCredential[]
   verifactuAeatChainHeads    VerifactuAeatChainHead[]
+  verifactuChainBlocks       VerifactuChainBlock[]
 
   @@map("tenants")
 }
@@ -70,6 +71,32 @@ model VerifactuAeatChainHead {
 
   @@id([tenantId, environment])
   @@map("verifactu_aeat_chain_heads")
+}
+
+/// Bloque append-only del ledger fiscal Verifactu por tenant y entorno AEAT.
+model VerifactuChainBlock {
+  id               String                         @id @default(uuid()) @db.Uuid
+  tenantId         String                         @map("tenant_id") @db.Uuid
+  environment      VerifactuCredentialEnvironment @map("environment")
+  blockIndex       Int                            @map("block_index")
+  invoiceId        String                         @map("invoice_id") @db.Uuid
+  invoiceNumber    String?                        @map("invoice_number")
+  invoiceTotal     Float                          @map("invoice_total")
+  queueItemId      String?                        @map("queue_item_id") @db.Uuid
+  logId            String?                        @map("log_id") @db.Uuid
+  previousHash     String                         @map("previous_hash")
+  currentHash      String                         @map("current_hash")
+  aeatHuella       String                         @map("aeat_huella")
+  aeatIdRegistro   String                         @map("aeat_id_registro")
+  verificationCode String?                        @map("verification_code")
+  createdAt        DateTime                       @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, environment, blockIndex], name: "uq_verifactu_chain_tenant_env_index")
+  @@index([tenantId, environment, createdAt], map: "idx_verifactu_chain_tenant_env_created")
+  @@index([tenantId, invoiceId], map: "idx_verifactu_chain_tenant_invoice")
+  @@map("verifactu_chain_blocks")
 }
 
 /// Operadores del panel plataforma (venta / soporte). Sin tenant de producto.

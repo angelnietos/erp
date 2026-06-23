@@ -40,16 +40,7 @@ export class VerifactuQueueProcessorService {
       await this.repo.completeWithSuccess(job.queueItemId, job.tenantId, {
         requestPayload: payload,
         responsePayload: res,
-      });
-      try {
-        await this.repo.persistAeatChainHeadIfPresent(job.tenantId, res);
-      } catch (chainErr) {
-        this.log.warn(
-          `Encadenamiento: no se pudo persistir cabeza AEAT para tenant ${job.tenantId}: ${
-            chainErr instanceof Error ? chainErr.message : String(chainErr)
-          }`,
-        );
-      }
+      }, res);
       this.log.log(
         `Verifactu: envío correcto (cola ${job.queueItemId}, factura ${job.invoiceId}, tenant ${job.tenantId})`,
       );
