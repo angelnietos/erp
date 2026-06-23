@@ -4,6 +4,7 @@ import {
   VerifactuPrismaService,
   VerifactuSubmissionHttpClient,
   CrmErpInvoiceMirrorHttpClient,
+  PrismaWebhookNotifierService,
 } from '@josanz-erp/verifactu-adapters';
 
 @Injectable()
@@ -15,6 +16,7 @@ export class VerifactuWorkerService implements OnModuleInit {
     private readonly prisma: VerifactuPrismaService,
     private readonly verifactuClient: VerifactuSubmissionHttpClient,
     private readonly crmMirror: CrmErpInvoiceMirrorHttpClient,
+    private readonly webhookNotifier: PrismaWebhookNotifierService,
   ) {}
 
   onModuleInit() {
@@ -101,6 +103,16 @@ export class VerifactuWorkerService implements OnModuleInit {
         tenantId: item.tenantId,
         status: 'COMPLETED',
       });
+
+      await this.webhookNotifier.notify({
+        eventType: 'invoice.sent',
+        tenantId: item.tenantId,
+        invoiceId: item.invoiceId,
+        payload: {
+          currentHash: response.currentHash,
+          previousHash: response.previousHash,
+        },
+      });
       
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -130,6 +142,13 @@ export class VerifactuWorkerService implements OnModuleInit {
           tenantId: item.tenantId,
           status: 'FAILED',
           lastError: err.message,
+        });
+
+        await this.webhookNotifier.notify({
+          eventType: 'invoice.error',
+          tenantId: item.tenantId,
+          invoiceId: item.invoiceId,
+          payload: { error: err.message },
         });
       }
     }

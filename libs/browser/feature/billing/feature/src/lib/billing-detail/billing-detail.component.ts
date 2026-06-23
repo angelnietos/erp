@@ -458,21 +458,19 @@ export class BillingDetailComponent implements OnInit {
 
   sendToAEAT() {
     const inv = this.invoice();
-    const tenantId = getStoredTenantId();
-    if (!inv || !tenantId) return;
-    this.verifactuApi.submitInvoiceDirect(inv.id, tenantId, inv.invoiceNumber, inv.total).subscribe({
-      next: (res) => {
-        if (!res.success) {
-          this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
-        } else {
-          // Si el envío a la cola fue OK, esperamos un poco y recargamos para ver el resultado del worker
-          setTimeout(() => this.loadInvoice(inv.id), 2000);
-        }
-        this.loadInvoice(inv.id);
+    if (!inv) return;
+    this.isLoading.set(true);
+    this.invoiceService.sendInvoice(inv.id).subscribe({
+      next: (updated) => {
+        this.invoice.set(updated);
+        this.isLoading.set(false);
+        setTimeout(() => this.loadInvoice(inv.id), 2000);
       },
       error: () => {
-        this.facade.updateInvoice(inv.id, { verifactuStatus: 'error' });
-        this.loadInvoice(inv.id);
+        this.invoice.update((current) =>
+          current ? { ...current, verifactuStatus: 'error' } : current,
+        );
+        this.isLoading.set(false);
       },
     });
   }

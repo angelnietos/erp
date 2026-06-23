@@ -1,16 +1,18 @@
 /* Verifactu CRM — login Keycloak (client verifactu-crm-spa · :4230) */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@500;600&display=swap');
 
 :root {
   --vf-bg0: #020617;
   --vf-bg1: #0f172a;
   --vf-surface: #111827;
-  --vf-line: rgba(148, 163, 184, 0.18);
+  --vf-line: rgba(148, 163, 184, 0.2);
+  --vf-line-strong: rgba(148, 163, 184, 0.28);
   --vf-muted: rgba(203, 213, 225, 0.62);
   --vf-text: #f1f5f9;
   --vf-green: #22c55e;
+  --vf-green-light: #4ade80;
   --vf-green-soft: rgba(34, 197, 94, 0.22);
-  --vf-green-glow: rgba(34, 197, 94, 0.45);
+  --vf-green-glow: rgba(34, 197, 94, 0.42);
   --vf-form-width: 27.5rem;
   --vf-radius: 12px;
   --vf-font-sans: 'DM Sans', system-ui, sans-serif;
@@ -33,16 +35,25 @@ body {
   background: var(--vf-bg0) !important;
 }
 
+/* Hero izquierdo — panel decorativo separado del formulario */
 html.login-pf::before {
   content: '';
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: auto;
+  width: min(52vw, 640px);
+  height: 100vh;
+  height: 100dvh;
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(720px 480px at 18% 72%, var(--vf-green-glow), transparent 58%),
-    radial-gradient(560px 360px at 82% 18%, rgba(56, 189, 248, 0.14), transparent 55%),
+    linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+    radial-gradient(720px 480px at 22% 78%, var(--vf-green-glow), transparent 58%),
+    radial-gradient(480px 320px at 68% 22%, rgba(56, 189, 248, 0.12), transparent 55%),
     linear-gradient(155deg, #020617 0%, #0f172a 42%, #14532d 100%);
+  background-size: 56px 56px, 56px 56px, auto, auto, auto;
 }
 
 html.login-pf::after {
@@ -54,9 +65,9 @@ html.login-pf::after {
   pointer-events: none;
   font-family: var(--vf-font-mono);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.28em;
-  color: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.07);
 }
 
 .pf-v5-c-login::before {
@@ -67,101 +78,457 @@ html.login-pf::after {
   transform: translateY(-22%);
   z-index: 1;
   pointer-events: none;
-  max-width: min(360px, 40vw);
-  font-size: clamp(1.1rem, 1.8vw, 1.55rem);
+  max-width: min(340px, 38vw);
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
   font-weight: 600;
-  line-height: 1.35;
-  letter-spacing: 0.04em;
-  color: rgba(241, 245, 249, 0.88);
+  line-height: 1.38;
+  letter-spacing: 0.03em;
+  color: rgba(241, 245, 249, 0.9);
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
 }
 
 .pf-v5-c-login::after {
-  content: 'Verifactu · CRM independiente';
+  content: 'CRM independiente';
   position: fixed;
   left: clamp(1.75rem, 4vw, 3.25rem);
   top: clamp(1.5rem, 3vw, 2.5rem);
   z-index: 1;
   pointer-events: none;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--vf-green);
+  color: var(--vf-green-light);
 }
 
-.pf-v5-c-login__container,
-.pf-v5-c-login__main {
+.pf-v5-c-login {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  min-height: 100dvh;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
   position: relative;
   z-index: 2;
 }
 
-.pf-v5-c-login__main {
-  margin-left: auto;
-  margin-right: clamp(1rem, 4vw, 3rem);
-  max-width: var(--vf-form-width);
-  background: rgba(15, 23, 42, 0.82) !important;
-  border: 1px solid var(--vf-line) !important;
-  border-radius: var(--vf-radius) !important;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 80px var(--vf-green-soft) !important;
-  backdrop-filter: blur(18px);
+.pf-v5-c-login__container {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0;
+  margin: 0 !important;
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
+  box-sizing: border-box;
+  background:
+    radial-gradient(420px 260px at 88% 0%, rgba(34, 197, 94, 0.1), transparent 55%),
+    linear-gradient(195deg, rgba(6, 10, 18, 0.97) 0%, rgba(8, 14, 26, 0.95) 100%);
 }
 
-#kc-page-title,
-.pf-v5-c-title {
+.pf-v5-c-login__main {
+  width: 100%;
+  max-width: var(--vf-form-width);
+  margin: 0 auto;
+  padding: clamp(1.35rem, 2.5vw, 1.85rem) !important;
+  box-sizing: border-box;
+  border: 1px solid var(--vf-line) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(165deg, rgba(17, 24, 39, 0.97) 0%, rgba(11, 15, 25, 0.99) 100%) !important;
+  box-shadow:
+    0 0 0 1px rgba(34, 197, 94, 0.1),
+    0 28px 90px rgba(0, 0, 0, 0.5),
+    0 0 60px var(--vf-green-soft),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  position: relative;
+  backdrop-filter: blur(14px);
+}
+
+.pf-v5-c-login__main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--vf-green-light) 0%, var(--vf-green) 55%, #15803d 100%);
+}
+
+.pf-v5-c-login__main::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: 10%;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.3) 0%, transparent 72%);
+  pointer-events: none;
+  filter: blur(4px);
+  z-index: -1;
+}
+
+/* Cabecera: logo + idioma; título debajo */
+.pf-v5-c-login__header {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0.35rem 1rem;
+  width: 100%;
+  margin-bottom: 1.1rem;
+  text-align: left;
+}
+
+.pf-v5-c-login__header::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: min(200px, 100%);
+  height: 48px;
+  margin: 0 0 0.2rem;
+  background: url('../img/verifactu-logo.svg') left center / contain no-repeat;
+}
+
+#kc-locale,
+.pf-v5-c-login__header .pf-v5-c-form-control,
+.pf-v5-c-login__header select,
+.pf-v5-c-login__header > div:last-child:not(:first-child) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: auto !important;
+  min-width: 6.5rem;
+  max-width: 8.5rem;
+  margin: 0 !important;
+  padding: 0.38rem 2rem 0.38rem 0.65rem !important;
+  font-size: 0.74rem !important;
+  font-family: var(--vf-font-sans) !important;
+  font-weight: 500 !important;
+  color: var(--vf-muted) !important;
+  background: rgba(2, 6, 23, 0.75) !important;
+  border: 1px solid var(--vf-line) !important;
+  border-radius: 8px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--vf-green-light) 50%),
+    linear-gradient(135deg, var(--vf-green-light) 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 14px) calc(50% - 2px),
+    calc(100% - 9px) calc(50% - 2px) !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+}
+
+.pf-v5-c-login__header select option {
+  background: var(--vf-bg1);
+  color: var(--vf-text);
+}
+
+.pf-v5-c-login__header > div:first-child {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+}
+
+.pf-v5-c-title,
+#kc-page-title {
+  display: block;
+  width: 100%;
   color: var(--vf-text) !important;
+  font-family: var(--vf-font-sans) !important;
+  font-size: clamp(1.55rem, 3vw, 1.95rem) !important;
   font-weight: 700 !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.01em;
+  text-align: left;
+  margin: 0 !important;
+  background: linear-gradient(95deg, #fff 0%, rgba(241, 245, 249, 0.78) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+#kc-page-title::before {
+  content: 'Acceso seguro';
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--vf-green-light);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+}
+
+.pf-v5-c-login__header > div:first-child::after {
+  content: 'Gestiona facturas, envíos AEAT y el estado de tu cola Verifactu.';
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.88rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--vf-muted);
+  letter-spacing: normal;
+}
+
+.pf-v5-c-login__main-body,
+#kc-form-login,
+#kc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+}
+
+.pf-v5-c-form__group {
+  margin-bottom: 1rem;
+}
+
+.pf-v5-c-form__label,
+label.pf-v5-c-form__label {
+  color: var(--vf-muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
 }
 
 .pf-v5-c-form-control,
-input[type='text'],
-input[type='password'],
-input[type='email'] {
-  background: rgba(2, 6, 23, 0.65) !important;
+input.pf-v5-c-form-control,
+#username,
+#password,
+input[name='username'],
+input[name='password'] {
   border: 1px solid var(--vf-line) !important;
-  color: var(--vf-text) !important;
-  border-radius: 8px !important;
+  border-radius: var(--vf-radius) !important;
+  background: rgba(2, 6, 23, 0.82) !important;
+  color: #f3f7ff !important;
+  -webkit-text-fill-color: #f3f7ff !important;
+  caret-color: var(--vf-green-light) !important;
+  min-height: 2.85rem;
+  width: 100%;
+  box-shadow: none !important;
+  font-family: var(--vf-font-sans) !important;
+  font-size: 0.95rem !important;
 }
 
 .pf-v5-c-form-control:focus,
 input:focus {
-  border-color: var(--vf-green) !important;
-  box-shadow: 0 0 0 2px var(--vf-green-soft) !important;
+  outline: none !important;
+  border-color: rgba(34, 197, 94, 0.65) !important;
+  box-shadow: 0 0 0 3px var(--vf-green-soft) !important;
+}
+
+.pf-v5-c-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: 0 !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button,
+.pf-v5-c-input-group button {
+  flex: 0 0 auto;
+  border: 1px solid var(--vf-line) !important;
+  border-left: 0 !important;
+  border-radius: 0 var(--vf-radius) var(--vf-radius) 0 !important;
+  background: rgba(2, 6, 23, 0.65) !important;
+  color: var(--vf-muted) !important;
+  min-height: 2.85rem;
+  min-width: 2.85rem;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button:hover,
+.pf-v5-c-input-group button:hover {
+  background: rgba(34, 197, 94, 0.12) !important;
+  color: var(--vf-green-light) !important;
+}
+
+#kc-form-options,
+.pf-v5-c-login__main-footer-band {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 0.35rem 0 1.25rem;
+  width: 100%;
+}
+
+#kc-form-options input[type='checkbox'],
+#kc-form-options .pf-v5-c-check__input {
+  accent-color: var(--vf-green);
+}
+
+#kc-form-options a,
+.pf-v5-c-login__main-footer a:not(.kc-change-org-link__action) {
+  color: var(--vf-green-light) !important;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+#kc-form-options a:hover {
+  color: #bbf7d0 !important;
+  text-decoration: underline;
 }
 
 .pf-v5-c-button.pf-m-primary,
 #kc-login,
-input[type='submit'] {
-  background: linear-gradient(90deg, #22c55e, #16a34a) !important;
-  border: none !important;
+input[name='login'] {
+  background: linear-gradient(185deg, #4ade80 0%, var(--vf-green) 48%, #15803d 100%) !important;
+  border: 1px solid rgba(74, 222, 128, 0.35) !important;
   color: #052e16 !important;
+  border-radius: var(--vf-radius) !important;
+  min-height: 2.85rem;
+  font-family: var(--vf-font-sans) !important;
   font-weight: 700 !important;
-  border-radius: 8px !important;
+  letter-spacing: 0.04em;
+  width: 100%;
+  box-shadow: 0 10px 32px rgba(34, 197, 94, 0.28);
+  transition: filter 0.15s ease, transform 0.15s ease;
 }
 
-.pf-v5-c-helper-text,
-.pf-v5-c-form__label-text,
-label {
-  color: var(--vf-muted) !important;
+.pf-v5-c-button.pf-m-primary:hover,
+#kc-login:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+#kc-header,
+#kc-header-wrapper {
+  display: none !important;
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #fecaca !important;
+  border-radius: var(--vf-radius);
+}
+
+/* Panel organización — tema verde Verifactu */
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light):not(.kc-theme-light) .kc-change-org-link,
+html.login-pf .pf-v5-c-login__main:not(.kc-theme-light) .kc-change-org-link {
+  border-color: rgba(34, 197, 94, 0.35) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(20, 83, 45, 0.45) 0%,
+    rgba(12, 18, 32, 0.72) 100%
+  ) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 20px rgba(34, 197, 94, 0.1) !important;
+}
+
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light) .kc-change-org-link__pill::before,
+html.login-pf .pf-v5-c-login__main:not(.kc-theme-light) .kc-change-org-link__pill::before {
+  content: '⌂ ';
+  opacity: 0.85;
+}
+
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light)
+  .kc-change-org-link
+  a.kc-change-org-link__action,
+html.login-pf
+  .pf-v5-c-login__main:not(.kc-theme-light)
+  .kc-change-org-link
+  a.kc-change-org-link__action {
+  border-color: rgba(134, 239, 172, 0.45) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(34, 197, 94, 0.32) 0%,
+    rgba(21, 128, 61, 0.42) 100%
+  ) !important;
+  color: #ecfdf5 !important;
+  -webkit-text-fill-color: #ecfdf5;
+  box-shadow: 0 2px 10px rgba(21, 128, 61, 0.3) !important;
+}
+
+html.login-pf
+  .pf-v5-c-login__main:not(.pf-v5-c-login__main--light)
+  .kc-change-org-link
+  a.kc-change-org-link__action:hover,
+html.login-pf
+  .pf-v5-c-login__main:not(.kc-theme-light)
+  .kc-change-org-link
+  a.kc-change-org-link__action:hover {
+  border-color: rgba(187, 247, 208, 0.7) !important;
+  background: linear-gradient(
+    180deg,
+    rgba(74, 222, 128, 0.45) 0%,
+    rgba(22, 163, 74, 0.5) 100%
+  ) !important;
 }
 
 .kc-change-org-link__pill {
-  background: rgba(34, 197, 94, 0.14) !important;
-  color: #86efac !important;
-  border-color: rgba(34, 197, 94, 0.35) !important;
+  color: #bbf7d0 !important;
 }
 
-.kc-change-org-link__action {
-  color: #93c5fd !important;
+/* Dev login hint — acento verde */
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light) .kc-dev-login-hint {
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  background: rgba(20, 83, 45, 0.15) !important;
 }
 
-@media (max-width: 960px) {
+html.login-pf .pf-v5-c-login__main:not(.pf-v5-c-login__main--light) .kc-dev-login-hint summary {
+  color: var(--vf-green-light) !important;
+}
+
+@media (max-width: 900px) {
+  html.login-pf::before {
+    position: relative;
+    display: block;
+    left: 0;
+    width: 100%;
+    height: min(200px, 32vh);
+  }
+
   html.login-pf::after,
   .pf-v5-c-login::before,
   .pf-v5-c-login::after {
     display: none;
   }
 
-  .pf-v5-c-login__main {
-    margin-inline: auto;
+  .pf-v5-c-login {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  html,
+  body {
+    overflow: auto;
+  }
+
+  .pf-v5-c-login__container {
+    grid-column: 1;
+    grid-row: 2;
+    align-items: flex-start;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+    background: var(--vf-bg0);
   }
 }
