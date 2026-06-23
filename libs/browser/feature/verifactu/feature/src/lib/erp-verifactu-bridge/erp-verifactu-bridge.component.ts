@@ -26,6 +26,10 @@ import {
   getStoredTenantId,
 } from '@josanz-erp/identity-data-access';
 import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
+import {
+  erpVerifactuPrefersBridge,
+  setErpVerifactuPreferBridge,
+} from '../erp-verifactu-bridge-preference';
 import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-data-access';
 import {
   ErpVerifactuOverview,
@@ -67,11 +71,20 @@ import { catchError, interval, of, startWith, Subscription, switchMap } from 'rx
             <ui-button variant="glass" icon="refresh-cw" (clicked)="refresh()">
               ACTUALIZAR
             </ui-button>
+            @if (!preferBridge()) {
+              <ui-button variant="glass" icon="external-link" (clicked)="openPlatformNow()">
+                ABRIR PLATAFORMA
+              </ui-button>
+            } @else {
+              <ui-button variant="glass" icon="layout-dashboard" (clicked)="clearBridgePreference()">
+                AUTO-REDIRIGIR
+              </ui-button>
+            }
             <ui-button variant="glass" icon="history" routerLink="/billing">
               FACTURACIÓN
             </ui-button>
-            <ui-button variant="app" icon="external-link" (clicked)="openPlatform()">
-              PLATAFORMA :4230
+            <ui-button variant="app" icon="pin" (clicked)="pinBridgeView()">
+              FIJAR VISTA ERP
             </ui-button>
           </div>
         </ui-feature-header>
@@ -227,6 +240,7 @@ export class ErpVerifactuBridgeComponent implements OnInit, OnDestroy {
   readonly overview = signal<ErpVerifactuOverview | null>(null);
   readonly loading = signal(true);
   readonly loadError = signal<string | null>(null);
+  readonly preferBridge = signal(erpVerifactuPrefersBridge());
 
   private pollSub?: Subscription;
 
@@ -294,6 +308,27 @@ export class ErpVerifactuBridgeComponent implements OnInit, OnDestroy {
 
   openPlatform(): void {
     this.openPath('/verifactu/overview');
+  }
+
+  openPlatformNow(): void {
+    const url = resolveVerifactuPlatformDeepLink(this.tenantSlug(), '/verifactu/overview');
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  }
+
+  pinBridgeView(): void {
+    setErpVerifactuPreferBridge(true);
+    this.preferBridge.set(true);
+  }
+
+  clearBridgePreference(): void {
+    setErpVerifactuPreferBridge(false);
+    this.preferBridge.set(false);
+    const url = resolveVerifactuPlatformDeepLink(this.tenantSlug(), '/verifactu/overview');
+    if (url) {
+      window.location.assign(url);
+    }
   }
 
   openPath(path: string): void {

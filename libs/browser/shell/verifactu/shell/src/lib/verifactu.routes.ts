@@ -4,7 +4,7 @@ export const verifactuRoutes: Route[] = [
 	{
 		path: '',
 		loadComponent: () =>
-			import('@josanz-erp/verifactu-feature').then((m) => m.ErpVerifactuBridgeComponent),
+			import('@josanz-erp/verifactu-feature').then((m) => m.ErpVerifactuEntryComponent),
 	},
 ];
 
