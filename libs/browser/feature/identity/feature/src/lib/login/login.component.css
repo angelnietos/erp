@@ -1831,3 +1831,67 @@ input.invalid { border-color: rgba(239, 68, 68, 0.5); }
     radial-gradient(ellipse 60% 50% at 70% 60%, rgba(124, 58, 237, 0.35), transparent 70%);
   animation: auth-lumen-pulse 7s ease-in-out infinite;
 }
+
+.hub-atmosphere {
+  position: relative;
+}
+
+.hub-lumens {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.hub-lumen {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  animation: hub-lumen-drift 8s ease-in-out infinite;
+}
+
+.hub-lumen--1 {
+  width: 140px;
+  height: 140px;
+  top: 8%;
+  left: 6%;
+  background: rgba(240, 62, 62, 0.28);
+}
+
+.hub-lumen--2 {
+  width: 100px;
+  height: 100px;
+  bottom: 12%;
+  right: 10%;
+  background: rgba(99, 102, 241, 0.32);
+  animation-delay: 2s;
+}
+
+.hub-lumen--3 {
+  width: 72px;
+  height: 72px;
+  top: 42%;
+  right: 22%;
+  background: rgba(45, 122, 62, 0.35);
+  animation-delay: 4s;
+}
+
+@keyframes hub-lumen-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(0, -14px, 0);
+    opacity: 0.9;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-lumen {
+    animation: none;
+  }
+}
+

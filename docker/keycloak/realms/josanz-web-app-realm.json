@@ -2,7 +2,7 @@
   "realm": "josanz-web-app-realm",
   "enabled": true,
   "displayName": "Josanz ERP - Web App",
-  "loginTheme": "josanz-figma",
+  "loginTheme": "generic-erp",
   "internationalizationEnabled": true,
   "supportedLocales": ["es", "en"],
   "defaultLocale": "es",
@@ -114,8 +114,8 @@
   "clients": [
     {
       "clientId": "josanz-web-app-spa",
-      "name": "Josanz Web App SPA",
-      "description": "Angular SPA for Josanz ERP",
+      "name": "Generic ERP Web SPA",
+      "description": "Angular SPA — tenant josanz (Generic ERP shell clásico)",
       "enabled": true,
       "publicClient": true,
       "directAccessGrantsEnabled": true,
@@ -144,7 +144,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "login_theme": "josanz-figma",
+        "login_theme": "generic-erp",
         "post.logout.redirect.uris": "+"
       },
       "protocolMappers": [

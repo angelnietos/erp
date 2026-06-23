@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 const KC_THEMES = path.join(REPO_ROOT, 'docker', 'keycloak', 'themes');
-const KC_DEV_LOGIN_THEMES = ['josanz-figma', 'babooni-platform', 'babooni-erp', 'verifactu-crm'];
+const KC_DEV_LOGIN_THEMES = ['generic-erp', 'josanz-figma', 'babooni-platform', 'babooni-erp', 'verifactu-crm'];
 
 function copyKeycloakDevLoginAssets() {
   const shared = path.join(KC_THEMES, '_shared', 'login', 'resources');
@@ -128,8 +128,8 @@ const POST_LOGOUT_REDIRECT_URIS = '+';
 function josanzWebAppClientPayload() {
   return {
     clientId: JOSANZ_WEB_SPA_CLIENT_ID,
-    name: 'Josanz Web App SPA',
-    description: 'Angular SPA Josanz ERP (tenants josanz, …)',
+    name: 'Generic ERP Web SPA',
+    description: 'Angular SPA — tenant josanz (Generic ERP shell clásico)',
     enabled: true,
     publicClient: true,
     directAccessGrantsEnabled: true,
@@ -141,7 +141,7 @@ function josanzWebAppClientPayload() {
     redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
     attributes: {
       'pkce.code.challenge.method': 'S256',
-      login_theme: 'josanz-figma',
+      login_theme: 'generic-erp',
       'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
@@ -209,7 +209,7 @@ async function syncJosanzRealmLoginUx(token) {
   const realm = await getRes.json();
   const payload = {
     ...realm,
-    loginTheme: 'josanz-figma',
+    loginTheme: 'generic-erp',
     internationalizationEnabled: true,
     supportedLocales: ['es', 'en'],
     defaultLocale: 'es',
@@ -225,7 +225,7 @@ async function syncJosanzRealmLoginUx(token) {
   if (!putRes.ok) {
     throw new Error(`Update realm login UX failed: ${await putRes.text()}`);
   }
-  console.log(`✓ ${JOSANZ_REALM}: tema josanz-figma, i18n ES, recordarme`);
+  console.log(`✓ ${JOSANZ_REALM}: tema generic-erp, i18n ES, recordarme`);
 }
 
 async function ensureClientRoles(token, realm, clientUuid, clientId, roleNames) {

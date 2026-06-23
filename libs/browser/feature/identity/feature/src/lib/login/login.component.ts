@@ -219,6 +219,14 @@ export class LoginComponent implements OnInit {
     usesDocumentGeneratorLogin(this.tenantSlug()),
   );
 
+  /** Generic ERP (tenant josanz, shell clásico — no Figma ni docs). */
+  readonly isGenericErpTenant = computed(
+    () =>
+      this.tenantSlug() === 'josanz' &&
+      !this.useFigmaShellLogin() &&
+      !this.useDocsShellLogin(),
+  );
+
   readonly useSolidLoginFields = computed(
     () => this.useFigmaShellLogin() || this.useDocsShellLogin(),
   );
@@ -227,7 +235,13 @@ export class LoginComponent implements OnInit {
     if (this.useFigmaShellLogin()) {
       return 'Iniciar sesión';
     }
-    return this.useDocsShellLogin() ? 'Acceso documentos' : 'Acceso ERP';
+    if (this.useDocsShellLogin()) {
+      return 'Acceso documentos';
+    }
+    if (this.isGenericErpTenant()) {
+      return this.tenantLabel();
+    }
+    return 'Acceso ERP';
   });
 
   readonly loginSubmitLabel = computed(() =>
@@ -331,7 +345,7 @@ export class LoginComponent implements OnInit {
   ];
 
   private readonly josanzThemeList: BackgroundThemeOption[] = [
-    { id: 'josanz-classic', name: 'Josanz Classic', icon: Palette, color: '#dc2626' },
+    { id: 'josanz-classic', name: 'Generic Classic', icon: Palette, color: '#dc2626' },
     { id: 'cyber-neon', name: 'Cyber Neon', icon: Zap, color: '#06b6d4' },
     { id: 'golden-vintage', name: 'Golden Vintage', icon: Sparkles, color: '#f59e0b' },
     { id: 'deep-abyss', name: 'Deep Abyss', icon: Waves, color: '#1e3a8a' },

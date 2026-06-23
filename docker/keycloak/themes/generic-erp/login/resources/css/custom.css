@@ -1,0 +1,578 @@
+/* Generic ERP tenant — login Keycloak (realm josanz-web-app-realm, client josanz-web-app-spa) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Rajdhani:wght@500;600;700&display=swap');
+
+:root {
+  --ge-bg0: #040814;
+  --ge-bg1: #0a1020;
+  --ge-surface: #0c1220;
+  --ge-line: rgba(255, 255, 255, 0.1);
+  --ge-line-strong: rgba(255, 255, 255, 0.15);
+  --ge-muted: rgba(220, 230, 245, 0.55);
+  --ge-text: #e8eef8;
+  --ge-red: #f03e3e;
+  --ge-red-glow: rgba(240, 62, 62, 0.38);
+  --ge-purple: #6366f1;
+  --ge-purple-light: #a78bfa;
+  --ge-form-width: 27.5rem;
+  --ge-radius: 10px;
+  --ge-font-sans: 'DM Sans', system-ui, sans-serif;
+  --ge-font-display: 'Rajdhani', 'Segoe UI', sans-serif;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--ge-bg0) !important;
+  font-family: var(--ge-font-sans);
+  color: var(--ge-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.login-pf,
+.login-pf body {
+  background: var(--ge-bg0) !important;
+}
+
+/* Hero derecho — Generic ERP */
+html.login-pf::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: auto;
+  width: 56vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(240, 62, 62, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px),
+    url('../img/hero-erp.svg') center / cover no-repeat,
+    radial-gradient(760px 520px at 72% 78%, rgba(240, 62, 62, 0.32), transparent 58%),
+    radial-gradient(540px 360px at 24% 22%, rgba(99, 102, 241, 0.2), transparent 55%),
+    linear-gradient(215deg, #020610 0%, #120818 38%, #1a0a28 72%, #2d0a18 100%);
+  background-size: 64px 64px, 64px 64px, cover, auto, auto, auto;
+}
+
+html.login-pf::after {
+  content: 'GENERIC';
+  position: fixed;
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
+  bottom: clamp(1.75rem, 4vw, 3.25rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--ge-font-display);
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  color: rgba(255, 255, 255, 0.09);
+  line-height: 1;
+}
+
+.pf-v5-c-login::before {
+  content: 'ERP modular · multi-tenant · shell clásico';
+  position: fixed;
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
+  top: 50%;
+  transform: translateY(-18%);
+  z-index: 1;
+  pointer-events: none;
+  max-width: min(360px, 40vw);
+  text-align: right;
+  font-family: var(--ge-font-display);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 600;
+  line-height: 1.28;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(232, 238, 248, 0.88);
+  text-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+}
+
+.pf-v5-c-login::after {
+  content: 'Generic ERP · Multi-tenant';
+  position: fixed;
+  right: clamp(1.75rem, 4vw, 3.25rem);
+  left: auto;
+  top: clamp(1.75rem, 4vw, 3.25rem);
+  z-index: 1;
+  pointer-events: none;
+  font-family: var(--ge-font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: rgba(240, 62, 62, 0.88);
+}
+
+.pf-v5-c-login {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  min-height: 100dvh;
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  position: relative;
+  z-index: 2;
+}
+
+.pf-v5-c-login__container {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex !important;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 0;
+  margin: 0 !important;
+  padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
+  box-sizing: border-box;
+  background:
+    radial-gradient(480px 300px at 12% 0%, rgba(240, 62, 62, 0.1), transparent 55%),
+    radial-gradient(520px 320px at 20% 0%, rgba(99, 102, 241, 0.12), transparent 55%),
+    linear-gradient(165deg, rgba(6, 10, 18, 0.98) 0%, rgba(8, 14, 26, 0.96) 100%);
+}
+
+.pf-v5-c-login__main {
+  width: 100%;
+  max-width: var(--ge-form-width);
+  margin: 0 auto;
+  padding: clamp(1.35rem, 2.5vw, 1.85rem) !important;
+  box-sizing: border-box;
+  border: 1px solid rgba(240, 62, 62, 0.2);
+  border-radius: 18px;
+  background: linear-gradient(165deg, rgba(18, 21, 30, 0.97) 0%, rgba(11, 13, 20, 0.99) 100%);
+  box-shadow:
+    0 0 0 1px rgba(240, 62, 62, 0.1),
+    0 28px 90px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  position: relative;
+  backdrop-filter: blur(12px);
+}
+
+.pf-v5-c-login__main::after {
+  content: '';
+  position: absolute;
+  bottom: -24px;
+  left: 12%;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 62, 62, 0.28) 0%, transparent 72%);
+  pointer-events: none;
+  filter: blur(4px);
+  z-index: -1;
+}
+
+.pf-v5-c-login__main::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--ge-red) 0%, var(--ge-purple) 55%, #4338ca 100%);
+}
+
+.pf-v5-c-login__header {
+  display: grid !important;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: start;
+  gap: 0.35rem 1rem;
+  width: 100%;
+  margin-bottom: 1.15rem;
+  text-align: left;
+}
+
+.pf-v5-c-login__header::before {
+  content: 'GENERIC ERP';
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  width: min(210px, 100%);
+  height: 52px;
+  margin: 0 0 0.25rem;
+  font-family: var(--ge-font-display);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 52px;
+  color: var(--ge-text);
+  background: linear-gradient(95deg, #fff 0%, rgba(240, 62, 62, 0.85) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+#kc-locale,
+.pf-v5-c-login__header .pf-v5-c-form-control,
+.pf-v5-c-login__header select,
+.pf-v5-c-login__header > div:last-child:not(:first-child) {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  width: auto !important;
+  min-width: 6.75rem;
+  max-width: 9rem;
+  margin: 0 !important;
+  padding: 0.35rem 0.55rem !important;
+  font-size: 0.75rem !important;
+  font-family: var(--ge-font-sans) !important;
+  color: var(--ge-muted) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border: 1px solid var(--ge-line) !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.pf-v5-c-login__header select option {
+  background: var(--ge-bg1);
+  color: var(--ge-text);
+}
+
+.pf-v5-c-login__header > div:first-child {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  min-width: 0;
+}
+
+.pf-v5-c-title,
+#kc-page-title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  color: var(--ge-text) !important;
+  font-family: var(--ge-font-display) !important;
+  font-size: clamp(1.75rem, 3.5vw, 2.15rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.12 !important;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  text-align: left;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: manual;
+  margin: 0 !important;
+  background: linear-gradient(95deg, #fff 0%, rgba(255, 255, 255, 0.72) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+}
+
+#kc-page-title::before {
+  content: 'Acceso';
+  display: block;
+  margin-bottom: 0.4rem;
+  font-family: var(--ge-font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ge-muted);
+  background: none;
+  -webkit-background-clip: unset;
+  background-clip: unset;
+}
+
+.pf-v5-c-login__header > div:first-child::after {
+  content: 'Entorno operativo multi-tenant con shell clásico listo para demo.';
+  display: block;
+  margin-top: 0.55rem;
+  font-family: var(--ge-font-sans);
+  font-size: 0.9rem;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ge-muted);
+  letter-spacing: normal;
+}
+
+.pf-v5-c-login__main-body {
+  width: 100%;
+}
+
+#kc-form-login,
+#kc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+}
+
+.pf-v5-c-form__group {
+  margin-bottom: 1rem;
+}
+
+.pf-v5-c-form__label,
+label.pf-v5-c-form__label {
+  color: var(--ge-muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.45rem;
+}
+
+.pf-v5-c-form-control,
+input.pf-v5-c-form-control,
+#username,
+#password,
+input[name='username'],
+input[name='password'] {
+  border: 1px solid var(--ge-line) !important;
+  border-radius: var(--ge-radius) !important;
+  background: rgba(8, 14, 28, 0.92) !important;
+  color: #f3f7ff !important;
+  -webkit-text-fill-color: #f3f7ff !important;
+  caret-color: #fca5a5 !important;
+  min-height: 2.85rem;
+  width: 100%;
+  box-shadow: none !important;
+  font-family: var(--ge-font-sans) !important;
+  font-size: 0.95rem !important;
+}
+
+.pf-v5-c-form-control::placeholder {
+  color: rgba(220, 230, 245, 0.58);
+  opacity: 1;
+}
+
+.pf-v5-c-form-control:focus {
+  outline: none !important;
+  border-color: rgba(240, 62, 62, 0.55) !important;
+  box-shadow: 0 0 0 3px var(--ge-red-glow) !important;
+}
+
+.pf-v5-c-input-group {
+  display: flex;
+  width: 100%;
+}
+
+.pf-v5-c-input-group .pf-v5-c-form-control {
+  flex: 1 1 auto;
+  min-width: 0;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  border-right: 0 !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button,
+.pf-v5-c-input-group button {
+  flex: 0 0 auto;
+  border: 1px solid var(--ge-line) !important;
+  border-left: 0 !important;
+  border-radius: 0 var(--ge-radius) var(--ge-radius) 0 !important;
+  background: rgba(0, 0, 0, 0.32) !important;
+  color: var(--ge-muted) !important;
+  min-height: 2.85rem;
+  min-width: 2.85rem;
+  box-shadow: none !important;
+}
+
+.pf-v5-c-input-group .pf-v5-c-button:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--ge-text) !important;
+}
+
+#kc-form-options,
+.pf-v5-c-login__main-footer-band {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin: 0.35rem 0 1.35rem;
+  width: 100%;
+}
+
+#kc-form-options .checkbox,
+#kc-form-options .pf-v5-c-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#kc-form-options label,
+#kc-form-options .pf-v5-c-check__label {
+  color: var(--ge-muted) !important;
+  font-size: 0.875rem;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#kc-form-options input[type='checkbox'],
+#kc-form-options .pf-v5-c-check__input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--ge-red);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#kc-form-options a,
+.pf-v5-c-login__main-footer a:not(.kc-change-org-link__action) {
+  color: var(--ge-purple-light) !important;
+  font-size: 0.875rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+#kc-form-options a:hover,
+.pf-v5-c-login__main-footer a:hover {
+  color: #c4b5fd !important;
+  text-decoration: underline;
+}
+
+#kc-form-buttons {
+  margin-top: 0.15rem;
+}
+
+.pf-v5-c-button.pf-m-primary,
+#kc-login,
+input[name='login'] {
+  background: linear-gradient(185deg, #f87171 0%, var(--ge-red) 48%, #b91c1c 100%) !important;
+  border: 1px solid rgba(240, 62, 62, 0.45) !important;
+  color: #fff !important;
+  border-radius: var(--ge-radius) !important;
+  min-height: 2.85rem;
+  font-family: var(--ge-font-sans) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  width: 100%;
+  box-shadow: 0 10px 32px var(--ge-red-glow);
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.pf-v5-c-button.pf-m-primary:hover,
+#kc-login:hover {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+#kc-header,
+#kc-header-wrapper {
+  display: none !important;
+}
+
+.pf-v5-c-alert,
+.kc-feedback-text {
+  border-radius: var(--ge-radius);
+  font-size: 0.875rem;
+}
+
+.pf-v5-c-alert.pf-m-danger {
+  background: rgba(240, 62, 62, 0.12) !important;
+  border-color: rgba(240, 62, 62, 0.35) !important;
+  color: #fecaca !important;
+}
+
+@media (max-width: 900px) {
+  html.login-pf::before {
+    position: relative;
+    display: block;
+    right: auto;
+    left: 0;
+    width: 100%;
+    height: min(220px, 34vh);
+  }
+
+  html.login-pf::after,
+  .pf-v5-c-login::before,
+  .pf-v5-c-login::after {
+    display: none;
+  }
+
+  .pf-v5-c-login {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    overflow-y: auto;
+    max-height: none;
+  }
+
+  html,
+  body {
+    overflow: auto;
+  }
+
+  .pf-v5-c-login__container {
+    grid-column: 1;
+    grid-row: 2;
+    align-items: flex-start;
+    padding-top: 1.25rem;
+    padding-bottom: 2rem;
+    background: var(--ge-bg0);
+  }
+}
+
+@keyframes ge-lumen-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translate3d(0, -12px, 0) scale(1.08);
+    opacity: 0.88;
+  }
+}
+
+body.login-pf::before {
+  content: '';
+  position: fixed;
+  bottom: 22%;
+  right: 18%;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 62, 62, 0.5) 0%, transparent 72%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 2;
+  animation: ge-lumen-float 6s ease-in-out infinite;
+}
+
+body.login-pf::after {
+  content: '';
+  position: fixed;
+  top: 24%;
+  right: 32%;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: 2;
+  animation: ge-lumen-float 7.2s ease-in-out infinite 1.5s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-v5-c-button.pf-m-primary:hover,
+  #kc-login:hover {
+    transform: none;
+  }
+
+  body.login-pf::before,
+  body.login-pf::after {
+    animation: none;
+  }
+}

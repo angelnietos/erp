@@ -2,7 +2,8 @@
   class="auth-wrapper"
   [class.auth-wrapper--figma]="useFigmaShellLogin()"
   [class.auth-wrapper--docs]="useDocsShellLogin()"
-  [class.auth-wrapper--josanz]="tenantSlug() === 'josanz' && !useFigmaShellLogin() && !useDocsShellLogin()"
+  [class.auth-wrapper--josanz]="isGenericErpTenant()"
+  [class.hub-atmosphere]="isGenericErpTenant()"
   [class.auth-wrapper--babooni]="tenantSlug() === 'babooni' && !useFigmaShellLogin() && !useDocsShellLogin()"
   [class.auth-wrapper--handoff]="keycloakHandoffPending()"
   [attr.data-atmosphere]="tenantSlug()"
@@ -88,6 +89,13 @@
       </div>
     </div>
   } @else {
+    @if (isGenericErpTenant()) {
+      <div class="hub-lumens" aria-hidden="true">
+        <span class="hub-lumen hub-lumen--1"></span>
+        <span class="hub-lumen hub-lumen--2"></span>
+        <span class="hub-lumen hub-lumen--3"></span>
+      </div>
+    }
     <lib-animated-background
       [theme]="backgroundTheme()"
       [tenantSlug]="tenantSlug()"
@@ -126,6 +134,8 @@
           <lucide-icon [name]="icons.Code2" class="logo-icon"></lucide-icon>
         } @else if (useDocsShellLogin()) {
           <lucide-icon [name]="icons.FileText" class="logo-icon"></lucide-icon>
+        } @else if (isGenericErpTenant()) {
+          <lucide-icon name="layout-dashboard" class="logo-icon"></lucide-icon>
         } @else {
           <lucide-icon name="clapperboard" class="logo-icon"></lucide-icon>
         }

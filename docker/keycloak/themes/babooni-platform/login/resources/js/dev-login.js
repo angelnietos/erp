@@ -15,6 +15,7 @@
     'josanz-web-app-realm': {
       'josanz-web-app-spa': {
         slug: 'josanz',
+        displayName: 'Generic ERP',
         primary: { email: 'admin@josanz.com' },
         alternates: [
           { email: 'dani@josanz.com' },
@@ -159,7 +160,7 @@
     const displayPassword = cfg.password || DEV_PASSWORD;
     panel.innerHTML =
       '<summary>Cuentas demo (dev · ' +
-      escapeHtml(cfg.slug) +
+      escapeHtml(cfg.displayName || cfg.slug) +
       ')</summary>' +
       '<p class="kc-dev-login-hint__row">' +
       '<button type="button" class="kc-dev-login-hint__fill" data-email="' +
