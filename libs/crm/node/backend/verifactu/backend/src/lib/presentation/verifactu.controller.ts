@@ -24,6 +24,8 @@ import { requireRequestTenantId } from '@generic-crm/shared-infrastructure';
 import { VerifactuApplicationService } from '../application/verifactu.application.service';
 import { CreateVerifactuSeriesDto } from '../dto/create-verifactu-series.dto';
 import { EnqueueInvoiceDto } from '../dto/enqueue-invoice.dto';
+import { CreateRectificativaDto } from '../dto/create-rectificativa.dto';
+import { CancelVerifactuInvoiceDto } from '../dto/cancel-invoice.dto';
 import { PatchVerifactuSettingsDto } from '../dto/patch-verifactu-settings.dto';
 import { UpsertVerifactuCredentialsDto } from '../dto/upsert-verifactu-credentials.dto';
 
@@ -169,6 +171,28 @@ export class VerifactuController {
   getInvoiceDetails(@Req() req: Request, @Param('id') id: string) {
     const tenantId = requireRequestTenantId(req);
     return this.verifactu.getInvoiceDetail(tenantId, id);
+  }
+
+  @Post('invoices/:id/rectify')
+  @ApiOperation({ summary: 'Crear factura rectificativa y encolarla en AEAT' })
+  rectifyInvoice(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: CreateRectificativaDto,
+  ) {
+    const tenantId = requireRequestTenantId(req);
+    return this.verifactu.createRectificativa(tenantId, id, dto);
+  }
+
+  @Post('invoices/:id/cancel')
+  @ApiOperation({ summary: 'Anular factura enviada (registro en ledger)' })
+  cancelInvoice(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: CancelVerifactuInvoiceDto,
+  ) {
+    const tenantId = requireRequestTenantId(req);
+    return this.verifactu.cancelInvoice(tenantId, id, dto);
   }
 
   @Get('credentials/status')

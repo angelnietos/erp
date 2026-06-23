@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { IsIn, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsIn, IsObject, IsOptional, IsString, IsUUID } from 'class-validator';
 import { PublicTenant, PrismaService } from '@generic-crm/shared-infrastructure';
 import { CrmErpSyncApiKeyGuard } from '../guards/crm-erp-sync-api-key.guard';
 import { PrismaVerifactuRepository } from '../infrastructure/persistence/prisma-verifactu.repository';
@@ -18,6 +18,10 @@ class SyncErpQueueStatusDto {
   @IsOptional()
   @IsString()
   lastError?: string;
+
+  @IsOptional()
+  @IsObject()
+  responsePayload?: Record<string, unknown>;
 }
 
 @ApiTags('internal')
@@ -38,6 +42,7 @@ export class ErpVerifactuSyncController {
     await this.verifactuRepo.applyErpQueueStatus(dto.tenantId, dto.invoiceId, {
       status: dto.status,
       lastError: dto.lastError,
+      responsePayload: dto.responsePayload,
     });
 
     if (dto.status === 'COMPLETED') {

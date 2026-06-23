@@ -24,6 +24,7 @@ import {
   finalize,
   map,
   of,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs';
@@ -70,12 +71,11 @@ export class VerifactuChainPageComponent {
 
   readonly vm$ = this.refresh$.pipe(
     switchMap(() => {
-      this.blocksLoading = true;
       const invoiceId = this.invoiceFilter.trim() || undefined;
       return this.verifactu.chainBlocks(invoiceId, 120).pipe(
         map((rows) => ({
           blocks: (rows ?? []) as VerifactuChainBlockDto[],
-          loading: false,
+          loading: false as const,
         })),
         tap(() => {
           this.loadError = null;
@@ -85,14 +85,20 @@ export class VerifactuChainPageComponent {
             e,
             'No se pudo cargar la cadena fiscal',
           );
-          return of({ blocks: [] as VerifactuChainBlockDto[], loading: false });
+          return of({
+            blocks: [] as VerifactuChainBlockDto[],
+            loading: false as const,
+          });
         }),
-        finalize(() => {
-          this.blocksLoading = false;
+        startWith({
+          blocks: [] as VerifactuChainBlockDto[],
+          loading: true as const,
         }),
       );
     }),
-    map((state) => ({ ...state, loading: this.blocksLoading })),
+    tap((vm) => {
+      this.blocksLoading = vm.loading;
+    }),
   );
 
   applyFilter(): void {
@@ -141,6 +147,28 @@ export class VerifactuChainPageComponent {
 
   envLabel(env: string): string {
     return env === 'PRODUCTION' ? 'Producción' : 'Pruebas';
+  }
+
+  recordKindLabel(kind: string): string {
+    switch (kind) {
+      case 'RECTIFICATIVE':
+        return 'Rectificativa';
+      case 'CANCELLATION':
+        return 'Anulación';
+      default:
+        return 'Factura';
+    }
+  }
+
+  recordKindBadgeVariant(kind: string): GcrmBadgeVariant {
+    switch (kind) {
+      case 'RECTIFICATIVE':
+        return 'warning';
+      case 'CANCELLATION':
+        return 'danger';
+      default:
+        return 'success';
+    }
   }
 
   verifyBadgeVariant(): GcrmBadgeVariant {

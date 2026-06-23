@@ -9,6 +9,12 @@ import type { VerifactuRepositoryPort } from '@generic-crm/verifactu-core';
 import { VERIFACTU_REPOSITORY } from '@generic-crm/verifactu-core';
 import type { PatchVerifactuSettingsDto } from '../dto/patch-verifactu-settings.dto';
 import type { UpsertVerifactuCredentialsDto } from '../dto/upsert-verifactu-credentials.dto';
+import type { CreateRectificativaDto } from '../dto/create-rectificativa.dto';
+import type { CancelVerifactuInvoiceDto } from '../dto/cancel-invoice.dto';
+import {
+  MOTIVO_ANULACION_LABELS,
+  RECTIFICATION_TYPE_LABELS,
+} from '../domain/verifactu-fiscal.constants';
 import { isCredentialEncryptionConfigured } from '../infrastructure/credentials/verifactu-credential-crypto';
 import { PrismaVerifactuCredentialRepository } from '../infrastructure/credentials/prisma-verifactu-credential.repository';
 import { isErpWorkerMode } from '../config/verifactu-worker-mode';
@@ -189,6 +195,18 @@ export class VerifactuApplicationService {
       where: { id: invoiceId, tenantId },
       include: {
         client: true,
+        rectifiesInvoice: { select: { id: true, number: true, issuedAt: true } },
+        rectifications: {
+          select: {
+            id: true,
+            number: true,
+            total: true,
+            status: true,
+            rectificationType: true,
+            issuedAt: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
         verifactuQueue: { orderBy: { createdAt: 'asc' } },
         verifactuLogs: { orderBy: { createdAt: 'asc' } },
       },
@@ -268,6 +286,134 @@ export class VerifactuApplicationService {
         invoice.verifactuQueue,
         invoice.verifactuLogs,
       ),
+      invoiceKind: invoice.invoiceKind,
+      rectificationType: invoice.rectificationType,
+      rectificationReason: invoice.rectificationReason,
+      rectifiesInvoice: invoice.rectifiesInvoice
+        ? {
+            id: invoice.rectifiesInvoice.id,
+            number: invoice.rectifiesInvoice.number,
+            issuedAt: invoice.rectifiesInvoice.issuedAt?.toISOString() ?? null,
+          }
+        : null,
+      rectifications: invoice.rectifications.map((r) => ({
+        id: r.id,
+        number: r.number,
+        total: r.total,
+        status: r.status,
+        rectificationType: r.rectificationType,
+        issuedAt: r.issuedAt?.toISOString() ?? null,
+      })),
+      rectificationTypeLabel: invoice.rectificationType
+        ? (RECTIFICATION_TYPE_LABELS[invoice.rectificationType] ??
+          invoice.rectificationType)
+        : null,
+      canRectify:
+        verifactuStatus === 'sent' && invoice.invoiceKind !== 'RECTIFICATIVE',
+      canCancel:
+        verifactuStatus === 'sent' && invoice.status !== 'CANCELLED',
+    };
+  }
+
+  async createRectificativa(
+    tenantId: string,
+    originalInvoiceId: string,
+    dto: CreateRectificativaDto,
+  ) {
+    const original = await this.prisma.invoice.findFirst({
+      where: { id: originalInvoiceId, tenantId },
+      include: {
+        verifactuQueue: true,
+        verifactuLogs: true,
+      },
+    });
+    if (!original) {
+      throw new NotFoundException('Factura original no encontrada.');
+    }
+    if (original.invoiceKind === 'RECTIFICATIVE') {
+      throw new BadRequestException(
+        'No se puede rectificar directamente otra rectificativa.',
+      );
+    }
+
+    const verifactuStatus = resolveVerifactuInvoiceStatus(
+      original.verifactuQueue,
+      original.verifactuLogs,
+    );
+    if (verifactuStatus !== 'sent') {
+      throw new BadRequestException(
+        'La factura original debe estar enviada correctamente a AEAT.',
+      );
+    }
+
+    const baseNumber =
+      original.number?.trim() || `FAC-${original.id.slice(0, 8)}`;
+    const rectNumber =
+      dto.number?.trim() || `R-${baseNumber.replace(/^R-/, '')}`;
+
+    const rect = await this.prisma.invoice.create({
+      data: {
+        tenantId,
+        clientId: original.clientId,
+        number: rectNumber,
+        total: dto.total ?? original.total,
+        currency: original.currency,
+        status: 'ISSUED',
+        issuedAt: new Date(),
+        invoiceKind: 'RECTIFICATIVE',
+        rectifiesInvoiceId: original.id,
+        rectificationType: dto.rectificationType,
+        rectificationReason: dto.reason.trim(),
+      },
+    });
+
+    const queued = await this.enqueue(tenantId, rect.id);
+    return {
+      ok: true as const,
+      rectificativaInvoiceId: rect.id,
+      number: rect.number,
+      queueItemId: queued.id,
+    };
+  }
+
+  async cancelInvoice(
+    tenantId: string,
+    invoiceId: string,
+    dto: CancelVerifactuInvoiceDto,
+  ) {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: invoiceId, tenantId },
+      include: {
+        verifactuQueue: true,
+        verifactuLogs: true,
+      },
+    });
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada.');
+    }
+    if (invoice.status === 'CANCELLED') {
+      throw new BadRequestException('La factura ya está anulada.');
+    }
+
+    const verifactuStatus = resolveVerifactuInvoiceStatus(
+      invoice.verifactuQueue,
+      invoice.verifactuLogs,
+    );
+    if (verifactuStatus !== 'sent') {
+      throw new BadRequestException(
+        'Solo se pueden anular facturas ya enviadas a AEAT.',
+      );
+    }
+
+    await this.verifactu.appendCancellationBlock(tenantId, invoiceId, {
+      motivoAnulacion: dto.motivoAnulacion,
+      additionalInfo: dto.additionalInfo?.trim() || null,
+    });
+
+    return {
+      ok: true as const,
+      motivoLabel:
+        MOTIVO_ANULACION_LABELS[dto.motivoAnulacion] ?? dto.motivoAnulacion,
     };
   }
 }

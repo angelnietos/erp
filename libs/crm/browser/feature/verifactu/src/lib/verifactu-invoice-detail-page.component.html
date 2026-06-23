@@ -21,6 +21,13 @@
     } @else if (isDetailError(vm)) {
       <gcrm-inline-message variant="error">{{ vm.error }}</gcrm-inline-message>
     } @else if (isDetailData(vm)) {
+      @if (actionMessage) {
+        <gcrm-inline-message variant="success">{{ actionMessage }}</gcrm-inline-message>
+      }
+      @if (actionError) {
+        <gcrm-inline-message variant="error">{{ actionError }}</gcrm-inline-message>
+      }
+
       <div class="vf-detail-grid">
         <section class="vf-detail-main">
           <gcrm-panel title="Resumen" padding="sm">
@@ -53,6 +60,22 @@
               <dd class="mono">{{ vm.data.emitterNif }}</dd>
               <dt>UUID</dt>
               <dd class="mono small">{{ vm.data.invoiceId }}</dd>
+              <dt>Tipo fiscal</dt>
+              <dd>{{ invoiceKindLabel(vm.data.invoiceKind) }}</dd>
+              @if (vm.data.invoiceKind === 'RECTIFICATIVE') {
+                <dt>Tipo rectificativa</dt>
+                <dd>{{ vm.data.rectificationTypeLabel || vm.data.rectificationType || '—' }}</dd>
+                <dt>Motivo</dt>
+                <dd>{{ vm.data.rectificationReason || '—' }}</dd>
+                @if (vm.data.rectifiesInvoice) {
+                  <dt>Rectifica a</dt>
+                  <dd>
+                    <a [routerLink]="['/verifactu/invoices', vm.data.rectifiesInvoice.id]">
+                      {{ vm.data.rectifiesInvoice.number || vm.data.rectifiesInvoice.id.slice(0, 8) }}
+                    </a>
+                  </dd>
+                }
+              }
             </dl>
           </gcrm-panel>
 
@@ -117,6 +140,128 @@
           </gcrm-panel>
         </aside>
       </div>
+
+      @if (vm.data.rectifications.length) {
+        <gcrm-panel title="Rectificativas emitidas" padding="sm">
+          <div class="vf-table-wrap">
+            <table class="vf-table">
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Tipo</th>
+                  <th>Importe</th>
+                  <th>Estado</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (rect of vm.data.rectifications; track rect.id) {
+                  <tr>
+                    <td>{{ rect.number || '—' }}</td>
+                    <td>{{ rect.rectificationType === 'S' ? 'Sustitución' : 'Diferencias' }}</td>
+                    <td>{{ rect.total | currency: vm.data.currency : 'symbol' : '1.2-2' }}</td>
+                    <td>{{ invoiceStatusLabel(rect.status) }}</td>
+                    <td>
+                      <a [routerLink]="['/verifactu/invoices', rect.id]">Ver ficha</a>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </gcrm-panel>
+      }
+
+      @if (vm.data.canRectify || vm.data.canCancel) {
+        <div class="vf-detail-grid vf-fiscal-actions">
+          @if (vm.data.canRectify) {
+            <gcrm-panel title="Emitir rectificativa (R1)" padding="sm">
+              <p class="vf-muted vf-panel-lede">
+                Crea una factura rectificativa encadenada a esta y la envía a la cola AEAT.
+                Tipo <strong>S</strong> sustituye el registro; <strong>I</strong> corrige por diferencias.
+              </p>
+              <form class="vf-form-stack" (ngSubmit)="submitRectificativa(vm.data.invoiceId)">
+                <label class="vf-field">
+                  <span>Tipo rectificativa</span>
+                  <select class="vf-input" name="rectifyType" [(ngModel)]="rectifyType" [disabled]="rectifyBusy">
+                    <option value="I">I — Por diferencias</option>
+                    <option value="S">S — Por sustitución</option>
+                  </select>
+                </label>
+                <label class="vf-field">
+                  <span>Motivo (obligatorio)</span>
+                  <textarea
+                    class="vf-input"
+                    name="rectifyReason"
+                    rows="3"
+                    [(ngModel)]="rectifyReason"
+                    [disabled]="rectifyBusy"
+                    placeholder="Ej. error en base imponible, devolución parcial…"
+                  ></textarea>
+                </label>
+                <label class="vf-field">
+                  <span>Importe corregido (opcional)</span>
+                  <input
+                    class="vf-input"
+                    type="number"
+                    step="0.01"
+                    name="rectifyTotal"
+                    [(ngModel)]="rectifyTotal"
+                    [disabled]="rectifyBusy"
+                    [placeholder]="vm.data.total"
+                  />
+                </label>
+                <label class="vf-field">
+                  <span>Número serie (opcional)</span>
+                  <input
+                    class="vf-input"
+                    type="text"
+                    name="rectifyNumber"
+                    [(ngModel)]="rectifyNumber"
+                    [disabled]="rectifyBusy"
+                    [placeholder]="'R-' + (vm.data.number || 'FAC')"
+                  />
+                </label>
+                <gcrm-button type="submit" variant="primary" [busy]="rectifyBusy" [disabled]="rectifyBusy">
+                  Crear y encolar rectificativa
+                </gcrm-button>
+              </form>
+            </gcrm-panel>
+          }
+
+          @if (vm.data.canCancel) {
+            <gcrm-panel title="Anular factura" padding="sm">
+              <p class="vf-muted vf-panel-lede">
+                Registra la anulación en el ledger inmutable del tenant. Conecta el XML de anulación
+                AEAT en el adaptador cuando pases a producción.
+              </p>
+              <form class="vf-form-stack" (ngSubmit)="submitCancel(vm.data.invoiceId)">
+                <label class="vf-field">
+                  <span>Motivo AEAT</span>
+                  <select class="vf-input" name="cancelMotivo" [(ngModel)]="cancelMotivo" [disabled]="cancelBusy">
+                    <option value="01">01 — Factura incorrecta</option>
+                    <option value="02">02 — Devolución</option>
+                    <option value="03">03 — Otros motivos</option>
+                  </select>
+                </label>
+                <label class="vf-field">
+                  <span>Información adicional (opcional)</span>
+                  <textarea
+                    class="vf-input"
+                    name="cancelInfo"
+                    rows="2"
+                    [(ngModel)]="cancelInfo"
+                    [disabled]="cancelBusy"
+                  ></textarea>
+                </label>
+                <gcrm-button type="submit" variant="secondary" [busy]="cancelBusy" [disabled]="cancelBusy">
+                  Anular y registrar en cadena
+                </gcrm-button>
+              </form>
+            </gcrm-panel>
+          }
+        </div>
+      }
 
       <gcrm-panel title="Línea temporal AEAT" padding="sm">
         @if (vm.data.timeline.length === 0) {

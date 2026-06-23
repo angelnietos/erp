@@ -26,7 +26,18 @@ export interface VerifactuRepositoryPort {
   applyErpQueueStatus(
     tenantId: string,
     invoiceId: string,
-    input: { status: 'COMPLETED' | 'FAILED'; lastError?: string | null },
+    input: {
+      status: 'COMPLETED' | 'FAILED';
+      lastError?: string | null;
+      responsePayload?: Record<string, unknown>;
+    },
+  ): Promise<void>;
+
+  /** Registra anulación en el ledger inmutable (trazabilidad interna). */
+  appendCancellationBlock(
+    tenantId: string,
+    invoiceId: string,
+    input: { motivoAnulacion: string; additionalInfo?: string | null },
   ): Promise<void>;
   listSeries(tenantId: string): Promise<VerifactuSeriesRow[]>;
   createSeries(

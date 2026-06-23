@@ -106,6 +106,7 @@
             <thead>
               <tr>
                 <th>#</th>
+                <th>Tipo</th>
                 <th>Factura</th>
                 <th>Huella AEAT</th>
                 <th>Hash bloque</th>
@@ -119,6 +120,11 @@
                 <tr>
                   <td>
                     <gcrm-badge variant="neutral">{{ row.blockIndex }}</gcrm-badge>
+                  </td>
+                  <td>
+                    <gcrm-badge [variant]="recordKindBadgeVariant(row.recordKind)">
+                      {{ recordKindLabel(row.recordKind) }}
+                    </gcrm-badge>
                   </td>
                   <td>
                     <div class="vf-cell-stack">

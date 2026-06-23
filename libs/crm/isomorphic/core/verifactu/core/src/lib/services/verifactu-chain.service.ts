@@ -14,6 +14,7 @@ export interface VerifactuChainBlockInput {
   aeatHuella: string;
   aeatIdRegistro: string;
   verificationCode: string | null;
+  recordKind?: string;
 }
 
 export interface VerifactuChainBlockRecord {
@@ -29,6 +30,7 @@ export interface VerifactuChainBlockRecord {
   aeatHuella: string;
   aeatIdRegistro: string;
   verificationCode: string | null;
+  recordKind: string;
   queueItemId: string | null;
   logId: string | null;
   createdAt: Date;
@@ -62,6 +64,7 @@ export class VerifactuChainService {
       input.aeatHuella,
       input.aeatIdRegistro,
       input.verificationCode ?? '',
+      input.recordKind ?? 'INVOICE',
     ].join('|');
     return createHash('sha256').update(canonical, 'utf8').digest('hex');
   }
@@ -113,6 +116,7 @@ export class VerifactuChainService {
         aeatHuella: block.aeatHuella,
         aeatIdRegistro: block.aeatIdRegistro,
         verificationCode: block.verificationCode,
+        recordKind: block.recordKind ?? 'INVOICE',
       });
 
       if (recomputed !== block.currentHash) {

@@ -53,9 +53,16 @@ export interface ClaimedVerifactuJob {
     total: number;
     currency: string;
     status: string;
-    /** Fecha de expedición en BD (emisión); alimenta fecha AEAT si existe. */
+    invoiceKind: string;
+    rectificationType: string | null;
+    rectificationReason: string | null;
     issuedAt: Date | null;
     client: { taxId: string | null; name: string } | null;
+    rectifiesInvoice: {
+      id: string;
+      number: string | null;
+      issuedAt: Date | null;
+    } | null;
   };
 }
 
@@ -74,6 +81,7 @@ export interface VerifactuChainBlockRow {
   aeatHuella: string;
   aeatIdRegistro: string;
   verificationCode: string | null;
+  recordKind: string;
   createdAt: Date;
 }
 
@@ -113,4 +121,12 @@ export interface VerifactuSubmissionPayload {
    * / política que definas). Origen típico: último envío aceptado persistido.
    */
   previousRegistry: { huella: string; idRegistro: string } | null;
+  invoiceKind?: 'NORMAL' | 'RECTIFICATIVE';
+  rectificationType?: 'S' | 'I' | null;
+  rectificationReason?: string | null;
+  rectifiesInvoice?: {
+    id: string;
+    number: string | null;
+    issuedOn: string | null;
+  } | null;
 }

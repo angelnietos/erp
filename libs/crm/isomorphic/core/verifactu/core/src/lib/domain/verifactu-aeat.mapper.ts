@@ -38,17 +38,35 @@ export function buildAeatFacturaAltaSolicitud(
         }
       : undefined);
 
+  const isRectificative = payload.invoiceKind === 'RECTIFICATIVE';
+  const emisorNif = (payload.emitterTaxId?.trim() || ctx.emisorNif).trim();
+
+  const facturasRectificadas =
+    isRectificative && payload.rectifiesInvoice?.number
+      ? [
+          {
+            idEmisorFactura: emisorNif,
+            numSerieFactura: payload.rectifiesInvoice.number.trim(),
+            fechaExpedicion:
+              payload.rectifiesInvoice.issuedOn?.trim().slice(0, 10) ||
+              fechaExpedicion,
+          },
+        ]
+      : undefined;
+
   return {
     meta: {
       versionEsquema: ctx.versionEsquema,
       entorno: ctx.entorno,
     },
     registro: {
-      idEmisorFactura: (payload.emitterTaxId?.trim() || ctx.emisorNif).trim(),
+      idEmisorFactura: emisorNif,
       numSerieFactura: numSerie,
       fechaExpedicion,
-      tipoFactura: 'F1',
-      descripcionOperacion: 'Prestación de bienes o servicios',
+      tipoFactura: isRectificative ? 'R1' : 'F1',
+      descripcionOperacion: isRectificative
+        ? `Rectificativa: ${payload.rectificationReason?.trim() || 'Corrección de factura'}`
+        : 'Prestación de bienes o servicios',
       destinatario: {
         nif: payload.customerTaxId,
         nombre: payload.customerName,
@@ -58,6 +76,13 @@ export function buildAeatFacturaAltaSolicitud(
       encadenamiento: {
         ...(enc ? { registroAnterior: enc } : {}),
       },
+      ...(isRectificative && payload.rectificationType
+        ? { tipoRectificativa: payload.rectificationType }
+        : {}),
+      ...(isRectificative && payload.rectificationReason
+        ? { motivoRectificacion: payload.rectificationReason.trim() }
+        : {}),
+      ...(facturasRectificadas ? { facturasRectificadas } : {}),
     },
   };
 }

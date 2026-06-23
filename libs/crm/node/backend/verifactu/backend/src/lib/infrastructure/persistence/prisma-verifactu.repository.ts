@@ -27,6 +27,7 @@ import {
   chainHeadFromSubmission,
   submissionResultFromPayload,
 } from '../chain/verifactu-chain-payload.util';
+import { resolveChainRecordKind } from '../../domain/verifactu-fiscal.constants';
 
 @Injectable()
 export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
@@ -137,7 +138,11 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
   async applyErpQueueStatus(
     tenantId: string,
     invoiceId: string,
-    input: { status: 'COMPLETED' | 'FAILED'; lastError?: string | null },
+    input: {
+      status: 'COMPLETED' | 'FAILED';
+      lastError?: string | null;
+      responsePayload?: Record<string, unknown>;
+    },
   ): Promise<void> {
     const row = await this.prisma.verifactuQueueItem.findFirst({
       where: { tenantId, invoiceId },
@@ -156,6 +161,83 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
             : null,
         updatedAt: new Date(),
       },
+    });
+
+    if (input.status === 'COMPLETED') {
+      await this.recordErpCompletionLedger(tenantId, invoiceId, {
+        responsePayload: input.responsePayload,
+      });
+    }
+  }
+
+  private async recordErpCompletionLedger(
+    tenantId: string,
+    invoiceId: string,
+    input: { responsePayload?: Record<string, unknown> },
+  ): Promise<void> {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: invoiceId, tenantId },
+    });
+    if (!invoice) {
+      return;
+    }
+
+    const existingLog = await this.prisma.verifactuLog.findFirst({
+      where: { tenantId, invoiceId, status: 'SUCCESS' },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (existingLog) {
+      const linked = await this.prisma.verifactuChainBlock.findFirst({
+        where: { tenantId, logId: existingLog.id },
+      });
+      if (linked) {
+        return;
+      }
+    }
+
+    const payload =
+      input.responsePayload ??
+      (existingLog?.responsePayload as Record<string, unknown> | undefined);
+    const submission = submissionResultFromPayload(payload);
+    if (!submission) {
+      return;
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const log =
+        existingLog ??
+        (await tx.verifactuLog.create({
+          data: {
+            invoiceId,
+            tenantId,
+            requestPayload: { source: 'erp-sync' },
+            responsePayload: payload as Prisma.InputJsonValue,
+            status: 'SUCCESS',
+          },
+        }));
+
+      const duplicate = await tx.verifactuChainBlock.findFirst({
+        where: { tenantId, logId: log.id },
+      });
+      if (duplicate) {
+        return;
+      }
+
+      const queueRow = await tx.verifactuQueueItem.findFirst({
+        where: { tenantId, invoiceId },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      await this.appendChainBlockInTx(tx, {
+        tenantId,
+        invoiceId,
+        invoiceNumber: invoice.number,
+        invoiceTotal: invoice.total,
+        invoiceKind: invoice.invoiceKind,
+        queueItemId: queueRow?.id ?? null,
+        logId: log.id,
+        submissionResult: submission,
+      });
     });
   }
 
@@ -221,6 +303,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
             invoiceId: input.invoiceId,
             invoiceNumber: invoice.number,
             invoiceTotal: invoice.total,
+            invoiceKind: invoice.invoiceKind,
             queueItemId: queueRow?.id ?? null,
             logId: log.id,
             submissionResult: submission,
@@ -324,6 +407,9 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
         invoice: {
           include: {
             client: { select: { taxId: true, name: true } },
+            rectifiesInvoice: {
+              select: { id: true, number: true, issuedAt: true },
+            },
           },
         },
       },
@@ -348,11 +434,21 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
         total: row.invoice.total,
         currency: row.invoice.currency,
         status: row.invoice.status,
+        invoiceKind: row.invoice.invoiceKind,
+        rectificationType: row.invoice.rectificationType,
+        rectificationReason: row.invoice.rectificationReason,
         issuedAt: row.invoice.issuedAt,
         client: row.invoice.client
           ? {
               taxId: row.invoice.client.taxId,
               name: row.invoice.client.name,
+            }
+          : null,
+        rectifiesInvoice: row.invoice.rectifiesInvoice
+          ? {
+              id: row.invoice.rectifiesInvoice.id,
+              number: row.invoice.rectifiesInvoice.number,
+              issuedAt: row.invoice.rectifiesInvoice.issuedAt,
             }
           : null,
       },
@@ -399,6 +495,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
           invoiceId: item.invoiceId,
           invoiceNumber: item.invoice.number,
           invoiceTotal: item.invoice.total,
+          invoiceKind: item.invoice.invoiceKind,
           queueItemId,
           logId: createdLog.id,
           submissionResult: result,
@@ -467,6 +564,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     tenantId: string,
     query?: { limit?: number; invoiceId?: string },
   ): Promise<VerifactuChainBlockRow[]> {
+    await this.backfillChainBlocksFromLogs(tenantId);
     const take = Math.min(query?.limit ?? 100, 500);
     const env = this.aeatChainEnvironment();
     const rows = await this.prisma.verifactuChainBlock.findMany({
@@ -484,6 +582,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
   async verifyChainIntegrity(
     tenantId: string,
   ): Promise<VerifactuChainVerificationView> {
+    await this.backfillChainBlocksFromLogs(tenantId);
     const env = this.aeatChainEnvironment();
     const rows = await this.prisma.verifactuChainBlock.findMany({
       where: { tenantId, environment: env },
@@ -516,6 +615,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     aeatHuella: string;
     aeatIdRegistro: string;
     verificationCode: string | null;
+    recordKind: string;
     createdAt: Date;
   }): VerifactuChainBlockRow {
     return {
@@ -533,8 +633,139 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
       aeatHuella: r.aeatHuella,
       aeatIdRegistro: r.aeatIdRegistro,
       verificationCode: r.verificationCode,
+      recordKind: r.recordKind,
       createdAt: r.createdAt,
     };
+  }
+
+  async appendCancellationBlock(
+    tenantId: string,
+    invoiceId: string,
+    input: { motivoAnulacion: string; additionalInfo?: string | null },
+  ): Promise<void> {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: invoiceId, tenantId },
+    });
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada');
+    }
+
+    const syntheticId = `ANUL-${invoiceId}-${input.motivoAnulacion}`;
+    const submission = submissionResultFromPayload({
+      currentHash: syntheticId,
+      previousHash: invoice.id,
+      verificationCode: syntheticId,
+      motivoAnulacion: input.motivoAnulacion,
+      additionalInfo: input.additionalInfo ?? null,
+    });
+    if (!submission) {
+      return;
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const log = await tx.verifactuLog.create({
+        data: {
+          invoiceId,
+          tenantId,
+          requestPayload: {
+            operation: 'CANCELLATION',
+            motivoAnulacion: input.motivoAnulacion,
+            additionalInfo: input.additionalInfo ?? null,
+          },
+          responsePayload: {
+            operation: 'CANCELLATION',
+            motivoAnulacion: input.motivoAnulacion,
+            syntheticId,
+          },
+          status: 'SUCCESS',
+        },
+      });
+
+      await this.appendChainBlockInTx(tx, {
+        tenantId,
+        invoiceId,
+        invoiceNumber: invoice.number,
+        invoiceTotal: invoice.total,
+        invoiceKind: invoice.invoiceKind,
+        recordKind: 'CANCELLATION',
+        queueItemId: null,
+        logId: log.id,
+        submissionResult: submission,
+      });
+
+      await tx.invoice.update({
+        where: { id: invoiceId },
+        data: { status: 'CANCELLED' },
+      });
+    });
+  }
+
+  private async backfillChainBlocksFromLogs(tenantId: string): Promise<void> {
+    const env = this.aeatChainEnvironment();
+    const chainedLogIds = new Set(
+      (
+        await this.prisma.verifactuChainBlock.findMany({
+          where: { tenantId, environment: env, logId: { not: null } },
+          select: { logId: true },
+        })
+      )
+        .map((r) => r.logId)
+        .filter((id): id is string => Boolean(id)),
+    );
+
+    const logs = await this.prisma.verifactuLog.findMany({
+      where: { tenantId, status: 'SUCCESS' },
+      orderBy: { createdAt: 'asc' },
+      include: { invoice: true },
+    });
+
+    for (const log of logs) {
+      if (chainedLogIds.has(log.id)) {
+        continue;
+      }
+      const submission = submissionResultFromPayload(log.responsePayload);
+      if (!submission) {
+        continue;
+      }
+
+      await this.prisma.$transaction(async (tx) => {
+        const exists = await tx.verifactuChainBlock.findFirst({
+          where: { tenantId, logId: log.id },
+        });
+        if (exists) {
+          return;
+        }
+
+        const queueRow = await tx.verifactuQueueItem.findFirst({
+          where: { tenantId, invoiceId: log.invoiceId },
+          orderBy: { createdAt: 'desc' },
+        });
+
+        const operation =
+          typeof log.requestPayload === 'object' &&
+          log.requestPayload &&
+          (log.requestPayload as Record<string, unknown>)['operation'] ===
+            'CANCELLATION'
+            ? 'CANCELLATION'
+            : null;
+
+        await this.appendChainBlockInTx(tx, {
+          tenantId,
+          invoiceId: log.invoiceId,
+          invoiceNumber: log.invoice.number,
+          invoiceTotal: log.invoice.total,
+          invoiceKind: log.invoice.invoiceKind,
+          recordKind: resolveChainRecordKind({
+            invoiceKind: log.invoice.invoiceKind,
+            operation,
+          }),
+          queueItemId: queueRow?.id ?? null,
+          logId: log.id,
+          submissionResult: submission,
+        });
+      });
+      chainedLogIds.add(log.id);
+    }
   }
 
   private async appendChainBlockInTx(
@@ -544,6 +775,8 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
       invoiceId: string;
       invoiceNumber: string | null;
       invoiceTotal: number;
+      invoiceKind?: string | null;
+      recordKind?: string;
       queueItemId: string | null;
       logId: string;
       submissionResult: VerifactuSubmissionResult;
@@ -553,6 +786,9 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     if (!head) {
       return;
     }
+    const recordKind =
+      input.recordKind ??
+      resolveChainRecordKind({ invoiceKind: input.invoiceKind ?? 'NORMAL' });
     const env = this.aeatChainEnvironment();
     const last = await tx.verifactuChainBlock.findFirst({
       where: { tenantId: input.tenantId, environment: env },
@@ -571,6 +807,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
       aeatHuella: head.huella,
       aeatIdRegistro: head.idRegistro,
       verificationCode: head.verificationCode,
+      recordKind,
     });
 
     await tx.verifactuChainBlock.create({
@@ -581,6 +818,7 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
         invoiceId: input.invoiceId,
         invoiceNumber: input.invoiceNumber,
         invoiceTotal: input.invoiceTotal,
+        recordKind,
         queueItemId: input.queueItemId,
         logId: input.logId,
         previousHash,

@@ -66,6 +66,7 @@ export class VerifactuQueueProcessorService {
     const issuedOn = job.invoice.issuedAt
       ? job.invoice.issuedAt.toISOString().slice(0, 10)
       : null;
+    const rectifies = job.invoice.rectifiesInvoice;
     return {
       tenantId: job.tenantId,
       invoiceId: job.invoiceId,
@@ -77,6 +78,23 @@ export class VerifactuQueueProcessorService {
       issuedOn,
       emitterTaxId: job.emitterTaxId,
       previousRegistry: job.previousRegistry,
+      invoiceKind:
+        job.invoice.invoiceKind === 'RECTIFICATIVE' ? 'RECTIFICATIVE' : 'NORMAL',
+      rectificationType:
+        job.invoice.rectificationType === 'S' ||
+        job.invoice.rectificationType === 'I'
+          ? job.invoice.rectificationType
+          : null,
+      rectificationReason: job.invoice.rectificationReason,
+      rectifiesInvoice: rectifies
+        ? {
+            id: rectifies.id,
+            number: rectifies.number,
+            issuedOn: rectifies.issuedAt
+              ? rectifies.issuedAt.toISOString().slice(0, 10)
+              : null,
+          }
+        : null,
     };
   }
 }

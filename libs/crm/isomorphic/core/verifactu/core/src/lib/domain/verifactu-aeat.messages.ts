@@ -36,6 +36,14 @@ export interface AeatFacturaAltaSolicitud {
         idRegistro: string;
       };
     };
+    /** R1, R2… en rectificativas. */
+    tipoRectificativa?: string;
+    motivoRectificacion?: string;
+    facturasRectificadas?: Array<{
+      idEmisorFactura: string;
+      numSerieFactura: string;
+      fechaExpedicion: string;
+    }>;
   };
 }
 

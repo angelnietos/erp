@@ -82,6 +82,8 @@ model VerifactuChainBlock {
   invoiceId        String                         @map("invoice_id") @db.Uuid
   invoiceNumber    String?                        @map("invoice_number")
   invoiceTotal     Float                          @map("invoice_total")
+  /// INVOICE | RECTIFICATIVE | CANCELLATION
+  recordKind       String                         @default("INVOICE") @map("record_kind")
   queueItemId      String?                        @map("queue_item_id") @db.Uuid
   logId            String?                        @map("log_id") @db.Uuid
   previousHash     String                         @map("previous_hash")
@@ -203,10 +205,18 @@ model Invoice {
   currency  String   @default("EUR")
   status    String   @default("DRAFT")
   issuedAt  DateTime? @map("issued_at")
+  /// NORMAL | RECTIFICATIVE
+  invoiceKind String @default("NORMAL") @map("invoice_kind")
+  rectifiesInvoiceId String? @map("rectifies_invoice_id") @db.Uuid
+  /// S sustitución · I diferencias (AEAT TipoRectificativa)
+  rectificationType String? @map("rectification_type")
+  rectificationReason String? @map("rectification_reason")
   createdAt DateTime @default(now()) @map("created_at")
 
   tenant           Tenant               @relation(fields: [tenantId], references: [id])
   client           Client?              @relation(fields: [clientId], references: [id])
+  rectifiesInvoice Invoice?             @relation("InvoiceRectification", fields: [rectifiesInvoiceId], references: [id], onDelete: SetNull)
+  rectifications   Invoice[]            @relation("InvoiceRectification")
   verifactuQueue   VerifactuQueueItem[]
   verifactuLogs    VerifactuLog[]
 

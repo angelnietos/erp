@@ -106,6 +106,10 @@ export class VerifactuWorkerService implements OnModuleInit {
         invoiceId: item.invoiceId,
         tenantId: item.tenantId,
         status: 'COMPLETED',
+        responsePayload: {
+          currentHash: response.currentHash,
+          previousHash: response.previousHash,
+        },
       });
 
       await this.webhookNotifier.notify({

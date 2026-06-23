@@ -13,6 +13,7 @@ export interface SyncCrmQueueStatusRequest {
   tenantId: string;
   status: 'COMPLETED' | 'FAILED';
   lastError?: string;
+  responsePayload?: Record<string, unknown>;
 }
 
 @Injectable()

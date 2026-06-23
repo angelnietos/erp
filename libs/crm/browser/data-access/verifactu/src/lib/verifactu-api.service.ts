@@ -110,6 +110,38 @@ export class VerifactuApiService {
     );
   }
 
+  createRectificativa(
+    invoiceId: string,
+    body: {
+      rectificationType: 'S' | 'I';
+      reason: string;
+      total?: number;
+      number?: string;
+    },
+  ): Observable<{
+    ok: boolean;
+    rectificativaInvoiceId: string;
+    number: string | null;
+    queueItemId: string;
+  }> {
+    return this.http.post<{
+      ok: boolean;
+      rectificativaInvoiceId: string;
+      number: string | null;
+      queueItemId: string;
+    }>(joinApiUrl(this.baseUrl, verifactuPaths.invoiceRectify(invoiceId)), body);
+  }
+
+  cancelInvoice(
+    invoiceId: string,
+    body: { motivoAnulacion: '01' | '02' | '03'; additionalInfo?: string },
+  ): Observable<{ ok: boolean; motivoLabel: string }> {
+    return this.http.post<{ ok: boolean; motivoLabel: string }>(
+      joinApiUrl(this.baseUrl, verifactuPaths.invoiceCancel(invoiceId)),
+      body,
+    );
+  }
+
   chainBlocks(
     invoiceId?: string,
     limit?: number,
@@ -241,6 +273,25 @@ export interface VerifactuInvoiceDetailDto {
   qrCode: string | null;
   qrValidationUrl: string | null;
   timeline: VerifactuTimelineEventDto[];
+  invoiceKind: string;
+  rectificationType: string | null;
+  rectificationReason: string | null;
+  rectificationTypeLabel: string | null;
+  rectifiesInvoice: {
+    id: string;
+    number: string | null;
+    issuedAt: string | null;
+  } | null;
+  rectifications: Array<{
+    id: string;
+    number: string | null;
+    total: number;
+    status: string;
+    rectificationType: string | null;
+    issuedAt: string | null;
+  }>;
+  canRectify: boolean;
+  canCancel: boolean;
 }
 
 /** Fila de GET /verifactu/chain */
@@ -259,6 +310,7 @@ export interface VerifactuChainBlockDto {
   aeatHuella: string;
   aeatIdRegistro: string;
   verificationCode: string | null;
+  recordKind: string;
   createdAt: string;
 }
 
