@@ -25,12 +25,11 @@ export class IdentityAuthService {
     const url = joinApiUrl(this.baseUrl, identityPaths.login);
     return this.http.post<LoginResponse>(url, body).pipe(
       tap((res) => {
-        console.log('login tap', res);
         this.tokens.setAccessToken(res.accessToken);
-        this.tokens.setTenantId(res.tenantId);
-        console.log('token and tenantId stored', {
-          token: !!this.tokens.getAccessToken(),
-          tenantId: this.tokens.getTenantId(),
+        this.tokens.setTenantContext({
+          tenantId: res.tenantId,
+          tenantSlug: res.tenantSlug,
+          tenantName: res.tenantName,
         });
       }),
     );

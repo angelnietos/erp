@@ -81,25 +81,60 @@ export class AuthApplicationService {
     );
   }
 
-  /** Resuelve tenant CRM tras login OIDC: slug explícito → claim tenant_id de Keycloak. */
+  /** Resuelve tenant CRM tras login OIDC: JWT tenant_id (si el usuario existe) → slug explícito. */
   private async resolveOidcTenantId(
     tenantSlug: string,
     rawToken: string,
+    email: string,
   ): Promise<string | null> {
-    const bySlug = await this.tenants.findActiveIdBySlug(tenantSlug);
-    if (bySlug) {
-      return bySlug;
-    }
+    const normalizedEmail = email.trim().toLowerCase();
 
     const kcTenantId = this.readClaimFromJwt(rawToken, 'tenant_id');
     if (kcTenantId && isTenantUuid(kcTenantId)) {
-      const exists = await this.tenants.existsActiveById(kcTenantId);
-      if (exists) {
+      const user = await this.users.findForLogin(kcTenantId, normalizedEmail);
+      if (user?.isActive) {
         return kcTenantId;
       }
     }
 
+    const bySlug = await this.tenants.findActiveIdBySlug(tenantSlug);
+    if (bySlug) {
+      const user = await this.users.findForLogin(bySlug, normalizedEmail);
+      if (user?.isActive) {
+        return bySlug;
+      }
+    }
+
     return null;
+  }
+
+  private async buildLoginResponse(
+    tenantId: string,
+    user: {
+      id: string;
+      email: string;
+      firstName: string | null;
+      lastName: string | null;
+      roleNames: string[];
+    },
+    permissions: string[],
+    accessToken: string,
+  ) {
+    const summary = await this.tenants.findActiveSummaryById(tenantId);
+    return {
+      accessToken,
+      tenantId,
+      tenantSlug: summary?.slug ?? 'unknown',
+      tenantName: summary?.name ?? tenantId,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        roles: user.roleNames,
+        permissions,
+      },
+    };
   }
 
   private readClaimFromJwt(token: string, claim: string): string | null {
@@ -183,18 +218,7 @@ export class AuthApplicationService {
       permissions,
       tenantId,
     });
-    return {
-      accessToken,
-      tenantId,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roles: user.roleNames,
-        permissions,
-      },
-    };
+    return this.buildLoginResponse(tenantId, user, permissions, accessToken);
   }
 
   async getSession(userId: string, tenantId: string) {
@@ -206,6 +230,7 @@ export class AuthApplicationService {
       tenantId,
       userId,
     );
+    const summary = await this.tenants.findActiveSummaryById(tenantId);
     return {
       user: {
         id: base.id,
@@ -216,6 +241,8 @@ export class AuthApplicationService {
         permissions,
       },
       tenantId,
+      tenantSlug: summary?.slug ?? 'unknown',
+      tenantName: summary?.name ?? tenantId,
     };
   }
 
@@ -265,10 +292,14 @@ export class AuthApplicationService {
       dto.tenantSlug?.trim() ||
       this.config.get<string>('DEFAULT_TENANT_SLUG') ||
       'demo';
-    const tenantId = await this.resolveOidcTenantId(tenantSlug, rawToken);
+    const tenantId = await this.resolveOidcTenantId(
+      tenantSlug,
+      rawToken,
+      email.trim().toLowerCase(),
+    );
     if (!tenantId) {
       throw new BadRequestException(
-        `Tenant desconocido: ${tenantSlug}. Ejecuta \`pnpm run crm:db:seed\` para la demo.`,
+        `Tenant desconocido o sin usuario CRM: ${tenantSlug}. Ejecuta \`pnpm run crm:db:seed\` para la demo.`,
       );
     }
 
@@ -288,17 +319,6 @@ export class AuthApplicationService {
       tenantId,
     });
 
-    return {
-      accessToken,
-      tenantId,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        roles: user.roleNames,
-        permissions,
-      },
-    };
+    return this.buildLoginResponse(tenantId, user, permissions, accessToken);
   }
 }

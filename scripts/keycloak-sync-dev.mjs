@@ -329,7 +329,10 @@ async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid, verifactuCr
       firstName: 'Admin',
       lastName: 'User',
       tenantId: JOSANZ_TENANT_ID,
-      clientRoles: { [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'] },
+      clientRoles: {
+        [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'],
+        [VERIFACTU_CRM_CLIENT_ID]: ['admin', 'user'],
+      },
     },
     {
       username: 'dani',
@@ -356,6 +359,7 @@ async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid, verifactuCr
       clientRoles: {
         [JOSANZ_CLIENT_ID]: ['admin', 'user'],
         [JOSANZ_WEB_SPA_CLIENT_ID]: ['admin', 'user'],
+        [VERIFACTU_CRM_CLIENT_ID]: ['admin', 'user'],
       },
     },
     {

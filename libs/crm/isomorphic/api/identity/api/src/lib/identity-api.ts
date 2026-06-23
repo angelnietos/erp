@@ -15,6 +15,8 @@ export interface LoginRequestBody {
 export interface LoginResponse {
   accessToken: string;
   tenantId: string;
+  tenantSlug: string;
+  tenantName: string;
   user: {
     id: string;
     email: string;
@@ -28,6 +30,8 @@ export interface LoginResponse {
 /** GET auth/session (usuario autenticado + permisos efectivos). */
 export interface SessionResponse {
   tenantId: string;
+  tenantSlug: string;
+  tenantName: string;
   user: {
     id: string;
     email: string;

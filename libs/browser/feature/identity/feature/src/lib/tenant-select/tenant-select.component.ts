@@ -151,7 +151,11 @@ export class TenantSelectComponent implements OnInit {
     }
 
     if (isExternalErpAppSlug(slug)) {
-      const launchUrl = resolveExternalAppLaunchUrl(slug);
+      const erpContext =
+        typeof sessionStorage !== 'undefined'
+          ? sessionStorage.getItem(ERP_TENANT_SLUG_SESSION_KEY)
+          : null;
+      const launchUrl = resolveExternalAppLaunchUrl(slug, erpContext);
       if (!launchUrl) {
         return;
       }

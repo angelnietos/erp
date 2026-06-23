@@ -110,7 +110,11 @@ export class VerifactuKeycloakAuthService {
       .pipe(
         map((res) => {
           this.tokens.setAccessToken(res.accessToken);
-          this.tokens.setTenantId(res.tenantId);
+          this.tokens.setTenantContext({
+            tenantId: res.tenantId,
+            tenantSlug: res.tenantSlug,
+            tenantName: res.tenantName,
+          });
           return res;
         }),
       );

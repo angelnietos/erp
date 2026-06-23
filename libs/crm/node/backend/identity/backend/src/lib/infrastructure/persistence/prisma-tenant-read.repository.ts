@@ -21,4 +21,16 @@ export class PrismaTenantReadRepository implements TenantReadRepositoryPort {
     });
     return row?.id ?? null;
   }
+
+  async findActiveSummaryById(id: string): Promise<{
+    id: string;
+    slug: string;
+    name: string;
+  } | null> {
+    const row = await this.prisma.tenant.findFirst({
+      where: { id, isActive: true },
+      select: { id: true, slug: true, name: true },
+    });
+    return row ?? null;
+  }
 }

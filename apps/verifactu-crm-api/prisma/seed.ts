@@ -77,7 +77,7 @@ async function main() {
 
   const josanz = await ensureErpAlignedTenant(prisma, {
     id: ERP_TENANT_IDS.josanz,
-    name: 'Josanz ERP',
+    name: 'Generic ERP',
     slug: 'josanz',
     enabledModuleIds: ['identity', 'clients', 'verifactu'],
   });
@@ -132,6 +132,18 @@ async function main() {
     lastName: 'Ballesteros',
   });
 
+  await ensureUserWithRole(prisma, babooni.id, passwordHash, adminRoleBabooni.id, {
+    email: 'root@babooni.com',
+    firstName: 'Babooni',
+    lastName: 'Root',
+  });
+
+  await ensureUserWithRole(prisma, babooni.id, passwordHash, adminRoleBabooni.id, {
+    email: 'alvaro.ballesteros@babooni.com',
+    firstName: 'Alvaro',
+    lastName: 'Ballesteros',
+  });
+
   const clientDemo = await ensureClientDemo(prisma, demo.id);
   await ensureDraftInvoice(prisma, demo.id, clientDemo.id);
 
@@ -149,6 +161,8 @@ async function main() {
   console.log('| josanz         | admin@josanz.com     | ADMIN  |');
   console.log('| alexis         | admin@alexis.local   | ADMIN  |');
   console.log('| babooni        | alejandro.ballesteros@babooni.com | ADMIN  |');
+  console.log('| babooni        | root@babooni.com     | ADMIN  |');
+  console.log('| babooni        | alvaro.ballesteros@babooni.com | ADMIN  |');
   console.log('');
   console.log(
     'Login: en el formulario usar "Tenant (slug)" = demo, acme, josanz, alexis o babooni (o cabecera x-tenant-id con UUID).',

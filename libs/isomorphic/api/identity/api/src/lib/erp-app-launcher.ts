@@ -83,7 +83,10 @@ export function getExternalErpAppDefinition(
 }
 
 /** URL completa para abrir la app externa; `null` si slug desconocido o sin base URL. */
-export function resolveExternalAppLaunchUrl(slug: string | null | undefined): string | null {
+export function resolveExternalAppLaunchUrl(
+  slug: string | null | undefined,
+  erpOrgSlug?: string | null,
+): string | null {
   const app = getExternalErpAppDefinition(slug);
   if (!app) {
     return null;
@@ -92,6 +95,19 @@ export function resolveExternalAppLaunchUrl(slug: string | null | undefined): st
   if (!base) {
     return null;
   }
-  const path = app.entryPath.startsWith('/') ? app.entryPath : `/${app.entryPath}`;
+  let path = app.entryPath.startsWith('/') ? app.entryPath : `/${app.entryPath}`;
+
+  if (app.slug === ERP_VERIFACTU_APP_SLUG) {
+    const org = erpOrgSlug?.trim().toLowerCase().replace(/[^a-z0-9-]/g, '') ?? '';
+    const crmTenantByErp: Record<string, string> = {
+      josanz: 'josanz',
+      babooni: 'babooni',
+      alexis: 'alexis',
+    };
+    const tenant = crmTenantByErp[org] ?? 'demo';
+    const sep = path.includes('?') ? '&' : '?';
+    path = `${path}${sep}tenant=${encodeURIComponent(tenant)}`;
+  }
+
   return `${base}${path}`;
 }

@@ -21,7 +21,11 @@ export const sessionRequiredGuard: CanActivateFn = (
   if (storage.getAccessToken()) {
     return true;
   }
+  const tenant = storage.getTenantSlug()?.trim();
   return router.createUrlTree(['/login'], {
-    queryParams: { returnUrl: state.url },
+    queryParams: {
+      returnUrl: state.url,
+      ...(tenant ? { tenant } : {}),
+    },
   });
 };

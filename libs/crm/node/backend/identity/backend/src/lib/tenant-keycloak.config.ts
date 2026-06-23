@@ -7,6 +7,10 @@ export const VERIFACTU_TENANT_KEYCLOAK: Record<
     realm: 'josanz-web-app-realm',
     clientId: 'verifactu-crm-spa',
   },
+  verifactu: {
+    realm: 'josanz-web-app-realm',
+    clientId: 'verifactu-crm-spa',
+  },
   josanz: {
     realm: 'josanz-web-app-realm',
     clientId: 'verifactu-crm-spa',

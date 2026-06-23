@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   NavigationEnd,
@@ -76,7 +76,14 @@ interface NavItem {
         <header class="vf-topbar">
           <div>
             <p class="vf-topbar__eyebrow">Tenant activo</p>
-            <p class="vf-topbar__tenant">{{ tenantLabel() }}</p>
+            <p class="vf-topbar__tenant">{{ tenantName() }}</p>
+            <p class="vf-topbar__meta">
+              <span class="vf-topbar__slug">{{ tenantSlug() }}</span>
+              @if (userEmail()) {
+                <span class="vf-topbar__sep">·</span>
+                <span>{{ userEmail() }}</span>
+              }
+            </p>
           </div>
           <div class="vf-topbar__badge">
             <span class="vf-pulse" aria-hidden="true"></span>
@@ -215,6 +222,30 @@ interface NavItem {
         font-size: 1rem;
         font-weight: 600;
       }
+      .vf-topbar__meta {
+        margin: 0.2rem 0 0;
+        font-size: 0.78rem;
+        color: var(--vf-text-muted);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .vf-topbar__slug {
+        display: inline-flex;
+        padding: 0.12rem 0.45rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #166534;
+        background: var(--vf-accent-soft);
+        border: 1px solid rgba(34, 197, 94, 0.22);
+      }
+      .vf-topbar__sep {
+        opacity: 0.45;
+      }
       .vf-topbar__badge {
         display: inline-flex;
         align-items: center;
@@ -272,7 +303,7 @@ interface NavItem {
     `,
   ],
 })
-export class VerifactuPlatformShellComponent {
+export class VerifactuPlatformShellComponent implements OnInit {
   readonly mainNav: NavItem[] = [
     { label: 'Resumen', route: '/verifactu/overview', icon: 'layout-dashboard' },
     { label: 'Cola AEAT', route: '/verifactu/queue', icon: 'list-ordered' },
@@ -297,21 +328,54 @@ export class VerifactuPlatformShellComponent {
     { initialValue: this.router.url },
   );
 
-  readonly tenantLabel = computed(
-    () => environment.defaultTenantSlug || 'demo',
+  readonly tenantSlug = computed(
+    () => this.session.tenantSlug() || environment.defaultTenantSlug || 'demo',
   );
 
+  readonly tenantName = computed(
+    () => this.session.tenantName() || this.tenantSlug(),
+  );
+
+  readonly userEmail = signal<string | null>(null);
+
+  ngOnInit(): void {
+    this.refreshSessionContext();
+  }
+
+  private refreshSessionContext(): void {
+    if (!this.session.getAccessToken()) {
+      return;
+    }
+    this.auth.session().subscribe({
+      next: (res) => {
+        if (res.tenantSlug && res.tenantName) {
+          this.session.setTenantContext({
+            tenantId: res.tenantId,
+            tenantSlug: res.tenantSlug,
+            tenantName: res.tenantName,
+          });
+        }
+        this.userEmail.set(res.user.email);
+      },
+      error: () => {
+        /* ignore — topbar uses stored tenant context */
+      },
+    });
+  }
+
   logout(): void {
+    const tenantSlug =
+      this.session.getTenantSlug()?.trim() ||
+      environment.defaultTenantSlug;
     this.auth.logout();
     clearVerifactuPkceSession();
     clearVerifactuPkceRedirectPending();
-    const tenantSlug = environment.defaultTenantSlug;
     if (this.keycloak.canUseKeycloak(tenantSlug)) {
       this.keycloak.endSessionLogout(tenantSlug);
       return;
     }
     void this.router.navigate(['/login'], {
-      queryParams: { reason: 'logout' },
+      queryParams: { reason: 'logout', tenant: tenantSlug },
       replaceUrl: true,
     });
   }

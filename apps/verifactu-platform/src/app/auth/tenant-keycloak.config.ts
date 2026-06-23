@@ -8,6 +8,11 @@ export const VERIFACTU_TENANT_KEYCLOAK: Record<
     realm: 'josanz-web-app-realm',
     clientId: 'verifactu-crm-spa',
   },
+  verifactu: {
+    url: 'http://localhost:8081',
+    realm: 'josanz-web-app-realm',
+    clientId: 'verifactu-crm-spa',
+  },
   josanz: {
     url: 'http://localhost:8081',
     realm: 'josanz-web-app-realm',

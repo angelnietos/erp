@@ -49,6 +49,11 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
               Entra con Keycloak o usa acceso local para la demo con el cliente.
             </p>
 
+            <p class="tenant-context">
+              Tenant CRM · <strong>{{ tenantDisplayName() }}</strong>
+              <code class="tenant-context__slug">{{ tenantSlug }}</code>
+            </p>
+
             @if (erpHubUrl) {
               <a class="hub-link" [href]="erpHubUrl">Ir al hub</a>
             }
@@ -188,6 +193,23 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         line-height: 1.5;
         font-size: 0.95rem;
       }
+      .tenant-context {
+        margin: 0 0 0.85rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 0.55rem;
+        font-size: 0.82rem;
+        color: var(--vf-text-muted, #64748b);
+        background: var(--vf-bg-subtle, #f1f5f9);
+        border: 1px solid var(--vf-border, #e2e8f0);
+      }
+      .tenant-context__slug {
+        margin-left: 0.35rem;
+        padding: 0.1rem 0.35rem;
+        border-radius: 0.35rem;
+        font-size: 0.72rem;
+        background: rgba(34, 197, 94, 0.12);
+        color: #166534;
+      }
       .hub-link {
         display: inline-block;
         margin-bottom: 1rem;
@@ -279,9 +301,21 @@ export class VerifactuLoginComponent implements OnInit {
   readonly showRetry = signal(false);
   readonly isDev = isDevMode();
   readonly erpHubUrl = environment.erpHubUrl;
+  tenantSlug = environment.defaultTenantSlug;
+
+  private readonly tenantLabels: Record<string, string> = {
+    demo: 'Organización demo',
+    josanz: 'Generic ERP',
+    alexis: 'Alexis',
+    babooni: 'Babooni Technologies',
+    verifactu: 'Organización demo',
+  };
+
+  tenantDisplayName(): string {
+    return this.tenantLabels[this.tenantSlug] ?? this.tenantSlug;
+  }
 
   private returnUrl = '/verifactu/overview';
-  private tenantSlug = environment.defaultTenantSlug;
 
   ngOnInit(): void {
     this.returnUrl = this.readReturnUrl();
