@@ -15,6 +15,7 @@ import {
   DEFAULT_TENANT_MODULE_IDS,
   PLATFORM_OWNER_PERMISSIONS,
   isPlatformAdminRole,
+  normalizeTenantModuleIds,
 } from '@josanz-erp/identity-api';
 import { mergeEffectiveUserPermissions } from '../utils/permission-merge';
 
@@ -71,6 +72,7 @@ export class AuthService {
     user: AuthenticatedUserView;
     tenantId: string;
     tenantSlug?: string;
+    enabledModuleIds: string[];
   }> {
     const tenantId = await this.resolveLoginTenantId(dto);
     const user = await this.userRepository.findByEmail(dto.email, tenantId);
@@ -116,8 +118,13 @@ export class AuthService {
 
     const tenant = await this.prisma.tenant.findUnique({
       where: { id: tenantId },
-      select: { slug: true },
+      select: { slug: true, enabledModuleIds: true },
     });
+
+    const enabledModuleIds =
+      tenant?.enabledModuleIds && tenant.enabledModuleIds.length > 0
+        ? normalizeTenantModuleIds(tenant.enabledModuleIds)
+        : [...DEFAULT_TENANT_MODULE_IDS];
 
     return {
       accessToken: await this.jwtService.signAsync(payload),
@@ -133,6 +140,7 @@ export class AuthService {
       },
       tenantId,
       tenantSlug: tenant?.slug,
+      enabledModuleIds,
     };
   }
 

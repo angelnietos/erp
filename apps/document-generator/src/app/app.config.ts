@@ -3,6 +3,7 @@ import {
   APP_INITIALIZER,
   provideZoneChangeDetection,
   importProvidersFrom,
+  inject,
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -13,7 +14,12 @@ import {
   AUTH_KEYCLOAK_CONFIG,
   setErpTenantSlug,
   syncErpTenantHtmlTheme,
+  AuthService,
+  AuthStore,
+  ERP_AUTH_SESSION_MODE,
+  IdentitySessionHydrationService,
 } from '@josanz-erp/identity-data-access';
+import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { provideEnterpriseAuth } from '@josanz-erp/shared-auth-keycloak';
 import { environment } from '../environments/environment';
 import { apiOriginInterceptor } from './api-origin.interceptor';
@@ -165,6 +171,48 @@ export const appConfig: ApplicationConfig = {
       apiPrefix: '/api',
       defaultTenantSlug: 'docs',
     }),
+    {
+      provide: ERP_AUTH_SESSION_MODE,
+      useValue: { mode: 'legacy' as const },
+    },
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => {
+        const authService = inject(AuthService);
+        const globalAuthStore = inject(GlobalAuthStore);
+        const pluginStore = inject(PluginStore);
+        const sessionHydration = inject(IdentitySessionHydrationService);
+        const authStore = inject(AuthStore);
+        const apiOrigin = environment.apiOrigin?.replace(/\/$/, '') ?? '';
+        return async () => {
+          setErpTenantSlug('docs');
+          syncErpTenantHtmlTheme();
+          if (!authService.isBffMode() && !localStorage.getItem('auth_token')) {
+            pluginStore.loadFromStorage();
+            return;
+          }
+          if (globalAuthStore.isAuthenticated()) {
+            return;
+          }
+          const session = authService.readPersistedSession();
+          if (session) {
+            globalAuthStore.setUser({
+              id: session.user.id,
+              email: session.user.email,
+              name: session.user.email,
+              tenantId: session.tenantId,
+              permissions: session.user.permissions,
+            });
+            authStore.loadUserFromToken();
+            return;
+          }
+          if (authService.isBffMode()) {
+            await sessionHydration.tryRestoreFromBffCookie(apiOrigin);
+          }
+        };
+      },
+    },
     {
       provide: APP_INITIALIZER,
       multi: true,

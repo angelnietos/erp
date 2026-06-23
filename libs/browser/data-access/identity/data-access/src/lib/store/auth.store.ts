@@ -19,6 +19,30 @@ import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-d
 import { AuthResponse, UserPayload } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
+function resolveEnabledModules$(
+  response: AuthResponse,
+  tenantId: string | undefined,
+  tenantModulesApi: TenantModulesApiService,
+  pluginStore: {
+    loadFromStorage(): void;
+    enabledPlugins(): string[];
+    setPlugins(ids: string[]): void;
+  },
+): Observable<{ enabledModuleIds: string[] }> {
+  if (response.enabledModuleIds?.length) {
+    return of({ enabledModuleIds: response.enabledModuleIds });
+  }
+  if (tenantId) {
+    return tenantModulesApi.fetchEnabledModules(tenantId).pipe(
+      catchError(() => {
+        pluginStore.loadFromStorage();
+        return of({ enabledModuleIds: pluginStore.enabledPlugins() });
+      }),
+    );
+  }
+  return of({ enabledModuleIds: pluginStore.enabledPlugins() });
+}
+
 export interface IdentityAuthState {
   user: UserPayload | null;
   loading: boolean;
@@ -152,16 +176,12 @@ export const AuthStore = signalStore(
                   }
                 }
 
-                const modules$ = tenantId
-                  ? tenantModulesApi.fetchEnabledModules(tenantId).pipe(
-                      catchError(() => {
-                        pluginStore.loadFromStorage();
-                        return of({
-                          enabledModuleIds: pluginStore.enabledPlugins(),
-                        });
-                      }),
-                    )
-                  : of({ enabledModuleIds: pluginStore.enabledPlugins() });
+                const modules$ = resolveEnabledModules$(
+                  response,
+                  tenantId,
+                  tenantModulesApi,
+                  pluginStore,
+                );
 
                 return modules$.pipe(
                   tap((modules) => pluginStore.setPlugins(modules.enabledModuleIds)),
@@ -257,16 +277,12 @@ export const AuthStore = signalStore(
                   themeService.reapplyTheme();
                 }
 
-                const modules$ = tenantId
-                  ? tenantModulesApi.fetchEnabledModules(tenantId).pipe(
-                      catchError(() => {
-                        pluginStore.loadFromStorage();
-                        return of({
-                          enabledModuleIds: pluginStore.enabledPlugins(),
-                        });
-                      }),
-                    )
-                  : of({ enabledModuleIds: pluginStore.enabledPlugins() });
+                const modules$ = resolveEnabledModules$(
+                  response,
+                  tenantId,
+                  tenantModulesApi,
+                  pluginStore,
+                );
 
                 return modules$.pipe(
                   tap((modules) => pluginStore.setPlugins(modules.enabledModuleIds)),
@@ -455,12 +471,15 @@ export const AuthStore = signalStore(
               permissions: response.user.permissions,
             });
 
-            // Only fetch tenant modules if we have a tenant context
-            if (response.tenantId || getStoredTenantId()) {
-              tenantModulesApi.fetchEnabledModules(response.tenantId ?? getStoredTenantId()!).subscribe({
-                next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
-                error: () => pluginStore.loadFromStorage(),
-              });
+            if (response.enabledModuleIds?.length) {
+              pluginStore.setPlugins(response.enabledModuleIds);
+            } else if (response.tenantId || getStoredTenantId()) {
+              tenantModulesApi
+                .fetchEnabledModules(response.tenantId ?? getStoredTenantId()!)
+                .subscribe({
+                  next: (r) => pluginStore.setPlugins(r.enabledModuleIds),
+                  error: () => pluginStore.loadFromStorage(),
+                });
             }
             tenantModulesRealtime.afterAccessTokenChanged();
           })

@@ -103,7 +103,9 @@ export class IdentitySessionHydrationService {
     });
 
     const tenantId = response.tenantId || getStoredTenantId();
-    if (tenantId) {
+    if (response.enabledModuleIds?.length) {
+      this.pluginStore.setPlugins(response.enabledModuleIds);
+    } else if (tenantId) {
       this.tenantModulesApi.fetchEnabledModules(tenantId).subscribe({
         next: (r) => this.pluginStore.setPlugins(r.enabledModuleIds),
         error: () => this.pluginStore.loadFromStorage(),

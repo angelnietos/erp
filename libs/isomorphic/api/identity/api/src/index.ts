@@ -99,6 +99,8 @@ export interface AuthResponse {
   tenantId?: string;
   /** Tenant slug resuelto desde el backend (ej. "josanz", "babooni"). */
   tenantSlug?: string;
+  /** Módulos activos del tenant (evita GET /tenant/modules justo tras login). */
+  enabledModuleIds?: string[];
 }
 
 // DTOs shared between Backend and Frontend (no decorators - pure types)

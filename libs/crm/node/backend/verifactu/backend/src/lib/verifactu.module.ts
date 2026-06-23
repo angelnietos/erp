@@ -10,13 +10,16 @@ import { PrismaVerifactuCredentialRepository } from './infrastructure/credential
 import { VerifactuTenantTlsService } from './infrastructure/credentials/verifactu-tenant-tls.service';
 import { PrismaVerifactuRepository } from './infrastructure/persistence/prisma-verifactu.repository';
 import { VerifactuController } from './presentation/verifactu.controller';
+import { ErpInvoiceMirrorController } from './presentation/erp-invoice-mirror.controller';
+import { CrmErpSyncApiKeyGuard } from './guards/crm-erp-sync-api-key.guard';
 
 @Module({
   imports: [SharedInfrastructureModule],
-  controllers: [VerifactuController],
+  controllers: [VerifactuController, ErpInvoiceMirrorController],
   providers: [
     VerifactuApplicationService,
     VerifactuQueueProcessorService,
+    CrmErpSyncApiKeyGuard,
     StubVerifactuSubmissionAdapter,
     HttpAeatVerifactuSubmissionAdapter,
     PrismaVerifactuRepository,

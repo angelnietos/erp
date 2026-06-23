@@ -1,10 +1,17 @@
 import * as bcrypt from 'bcrypt';
-import { PrismaClient } from '@generic-crm/prisma-client';
+import { PrismaClient } from '../../../node_modules/.prisma/crm-client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
 /** Contraseña compartida para todos los usuarios de prueba (solo desarrollo). */
 const DEMO_PASSWORD = 'Demo12345!';
+
+/** UUID alineados con `apps/backend/prisma/seed.ts` (organizaciones ERP). */
+const ERP_TENANT_IDS = {
+  josanz: 'c363035a-2a98-4054-9207-38c8aa5732d9',
+  alexis: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
+  babooni: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
+} as const;
 
 async function main() {
   const connectionString = process.env['DATABASE_URL'];
@@ -66,7 +73,8 @@ async function main() {
     lastName: 'Acme',
   });
 
-  const josanz = await ensureTenant(prisma, {
+  const josanz = await ensureErpAlignedTenant(prisma, {
+    id: ERP_TENANT_IDS.josanz,
     name: 'Josanz ERP',
     slug: 'josanz',
     enabledModuleIds: ['identity', 'clients', 'verifactu'],
@@ -84,7 +92,8 @@ async function main() {
     lastName: 'Josanz',
   });
 
-  const alexis = await ensureTenant(prisma, {
+  const alexis = await ensureErpAlignedTenant(prisma, {
+    id: ERP_TENANT_IDS.alexis,
     name: 'Alexis',
     slug: 'alexis',
     enabledModuleIds: ['identity', 'clients', 'verifactu'],
@@ -102,7 +111,8 @@ async function main() {
     lastName: 'Alexis',
   });
 
-  const babooni = await ensureTenant(prisma, {
+  const babooni = await ensureErpAlignedTenant(prisma, {
+    id: ERP_TENANT_IDS.babooni,
     name: 'Babooni Technologies',
     slug: 'babooni',
     enabledModuleIds: ['identity', 'clients', 'verifactu'],
@@ -144,6 +154,58 @@ async function main() {
 
   await prisma.$disconnect();
   await pool.end();
+}
+
+async function removeMisalignedTenant(prisma: PrismaClient, tenantId: string) {
+  const users = await prisma.user.findMany({
+    where: { tenantId },
+    select: { id: true },
+  });
+  for (const user of users) {
+    await prisma.userRole.deleteMany({ where: { userId: user.id } });
+  }
+  await prisma.user.deleteMany({ where: { tenantId } });
+  await prisma.role.deleteMany({ where: { tenantId } });
+  await prisma.verifactuQueueItem.deleteMany({ where: { tenantId } });
+  await prisma.verifactuLog.deleteMany({ where: { tenantId } });
+  await prisma.invoice.deleteMany({ where: { tenantId } });
+  await prisma.client.deleteMany({ where: { tenantId } });
+  await prisma.verifactuSeries.deleteMany({ where: { tenantId } });
+  await prisma.verifactuCustomer.deleteMany({ where: { tenantId } });
+  await prisma.verifactuTenantCredential.deleteMany({ where: { tenantId } });
+  await prisma.verifactuAeatChainHead.deleteMany({ where: { tenantId } });
+  await prisma.tenant.delete({ where: { id: tenantId } });
+}
+
+async function ensureErpAlignedTenant(
+  prisma: PrismaClient,
+  data: {
+    id: string;
+    name: string;
+    slug: string;
+    enabledModuleIds: string[];
+  },
+) {
+  const bySlug = await prisma.tenant.findUnique({ where: { slug: data.slug } });
+  if (bySlug && bySlug.id !== data.id) {
+    await removeMisalignedTenant(prisma, bySlug.id);
+  }
+  return prisma.tenant.upsert({
+    where: { id: data.id },
+    create: {
+      id: data.id,
+      name: data.name,
+      slug: data.slug,
+      enabledModuleIds: data.enabledModuleIds,
+      isActive: true,
+    },
+    update: {
+      name: data.name,
+      slug: data.slug,
+      enabledModuleIds: data.enabledModuleIds,
+      isActive: true,
+    },
+  });
 }
 
 async function ensureTenant(
