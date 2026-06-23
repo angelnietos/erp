@@ -1,0 +1,91 @@
+<gcrm-page
+  title="Integración CRM / API / worker"
+  subtitle="Arquitectura y comprobaciones del tenant (NIF, certificados, resumen del servidor)."
+>
+  <ul class="bullets intro">
+    <li>
+      <strong>CRM (puerto 3100)</strong>: facturación e idénticos endpoints
+      <code>/api/verifactu/*</code> y <code>/api/invoices/*</code>.
+    </li>
+    <li>
+      <strong>API Verifactu</strong> (p. ej. 3110): mismos contratos; misma BD y
+      JWT.
+    </li>
+    <li>
+      <strong>Worker</strong>: solo BD + adaptador de envío; convive con ambos
+      APIs.
+    </li>
+  </ul>
+
+  <div class="vf-toolbar">
+    @if (snapshotLoading) {
+      <gcrm-spinner size="sm" label="Cargando integración" />
+    }
+    <gcrm-button
+      type="button"
+      variant="secondary"
+      [disabled]="snapshotLoading"
+      [busy]="snapshotLoading"
+      (click)="refresh()"
+    >
+      {{ snapshotLoading ? 'Actualizando…' : 'Actualizar' }}
+    </gcrm-button>
+  </div>
+
+  @if (snapshot$ | async; as data) {
+    @if (data.loadError) {
+      <gcrm-inline-message variant="error">{{
+        data.loadError
+      }}</gcrm-inline-message>
+    }
+    <div class="grid-two">
+      <gcrm-panel title="Este tenant" padding="sm">
+        <dl class="dl">
+          <dt>NIF emisor (BD)</dt>
+          <dd>{{ data.settings.emitterTaxId || '—' }}</dd>
+          <dt>Facturas (muestra)</dt>
+          <dd>{{ data.invoices.length }} cargadas</dd>
+        </dl>
+        <p class="links">
+          <a routerLink="../credentials">Editar certificado y NIF</a>
+        </p>
+      </gcrm-panel>
+
+      <gcrm-panel title="Certificados mTLS" padding="sm">
+        @if (data.credSlots) {
+          <p class="small">
+            Pruebas:
+            {{
+              data.credSlots.test.configured ? 'configurado' : 'no configurado'
+            }}
+            · Producción:
+            {{
+              data.credSlots.production.configured
+                ? 'configurado'
+                : 'no configurado'
+            }}
+          </p>
+        } @else {
+          <p class="muted small">No se pudo leer el estado.</p>
+        }
+      </gcrm-panel>
+    </div>
+
+    <gcrm-panel title="Textos de referencia" padding="sm">
+      <ul class="bullets">
+        <li>{{ data.crm }}</li>
+        <li>{{ data.standaloneApi }}</li>
+        <li>{{ data.worker }}</li>
+      </ul>
+    </gcrm-panel>
+
+    <gcrm-panel title="Respuesta integration (servidor)" padding="sm">
+      <details class="details-json">
+        <summary>JSON completo</summary>
+        <pre class="block">{{ data.integration | json }}</pre>
+      </details>
+    </gcrm-panel>
+  } @else {
+    <p class="muted">Cargando…</p>
+  }
+</gcrm-page>

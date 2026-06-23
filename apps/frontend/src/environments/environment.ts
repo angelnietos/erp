@@ -25,7 +25,7 @@ export const environment = {
   /** Hub de apps externas (dev). */
   apps: {
     platform: 'http://localhost:4300',
-    /** CRM Verifactu (`crm`: `nx serve web` → :4230; API/worker aparte). */
+    /** App Verifactu CRM standalone (`nx serve verifactu-platform` → :4230). */
     verifactu: 'http://localhost:4230',
     erpHub: 'http://localhost:4200/auth/tenant',
   },

@@ -1,0 +1,23 @@
+{
+  "name": "crm-identity-api",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/api/identity/api",
+  "sourceRoot": "libs/crm/isomorphic/api/identity/api/src",
+  "projectType": "library",
+  "tags": ["type:api", "scope:identity"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/api/identity/api",
+        "main": "libs/crm/isomorphic/api/identity/api/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/api/identity/api/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

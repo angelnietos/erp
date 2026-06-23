@@ -1,0 +1,31 @@
+{
+  "name": "crm-verifactu-backend",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/node/backend/verifactu/backend",
+  "sourceRoot": "libs/crm/node/backend/verifactu/backend/src",
+  "projectType": "library",
+  "implicitDependencies": ["crm-verifactu-core"],
+  "tags": ["scope:verifactu", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node/backend/verifactu/backend",
+        "main": "libs/crm/node/backend/verifactu/backend/src/index.ts",
+        "tsConfig": "libs/crm/node/backend/verifactu/backend/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/crm/node/backend/verifactu/backend/jest.config.cjs"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

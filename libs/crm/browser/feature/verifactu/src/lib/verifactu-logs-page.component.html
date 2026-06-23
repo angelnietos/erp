@@ -1,0 +1,90 @@
+<gcrm-page
+  title="Historial de envíos"
+  subtitle="Últimos intentos de envío al adaptador AEAT (stub o HTTP). Pulsa una fila para ver el detalle."
+>
+  <gcrm-panel title="Filtro" padding="sm">
+    <form
+      class="filter"
+      (ngSubmit)="applyFilter()"
+      [attr.aria-busy]="logsLoading"
+    >
+      <label class="sr-only" for="verifactu-logs-invoice-filter">
+        UUID de factura (opcional)
+      </label>
+      <input
+        id="verifactu-logs-invoice-filter"
+        type="text"
+        name="invoiceFilter"
+        placeholder="UUID de factura (opcional)"
+        [(ngModel)]="invoiceFilter"
+        autocomplete="off"
+        [disabled]="logsLoading"
+      />
+      <gcrm-button type="submit" variant="primary" [disabled]="logsLoading">
+        {{ logsLoading ? 'Cargando…' : 'Aplicar' }}
+      </gcrm-button>
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="logsLoading"
+        (click)="refreshLogs()"
+      >
+        {{ logsLoading ? 'Cargando…' : 'Actualizar' }}
+      </gcrm-button>
+    </form>
+  </gcrm-panel>
+
+  @if (logs$ | async; as rows) {
+    @if (loadError) {
+      <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
+    }
+    @if (!loadError && rows.length === 0) {
+      <p class="muted">Sin registros.</p>
+    }
+    @if (!loadError && rows.length > 0) {
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Factura</th>
+              <th scope="col">Error</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows; track row.id ?? $index) {
+              <tr>
+                <td class="nowrap">
+                  {{ row.createdAt | date: 'short' }}
+                </td>
+                <td>
+                  <gcrm-badge [variant]="logStatusBadgeVariant(row.status)">{{
+                    row.status
+                  }}</gcrm-badge>
+                </td>
+                <td class="mono small">{{ row.invoiceId }}</td>
+                <td class="err-cell">{{ row.errorMessage || '—' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <gcrm-panel title="Detalle JSON (últimos registros)" padding="sm">
+        <details class="details-json">
+          <summary>Mostrar payloads completos</summary>
+          <ul class="raw-list">
+            @for (row of rows; track row.id ?? $index) {
+              <li>
+                <pre class="block">{{ row | json }}</pre>
+              </li>
+            }
+          </ul>
+        </details>
+      </gcrm-panel>
+    }
+  } @else {
+    <p class="muted">Cargando…</p>
+  }
+</gcrm-page>

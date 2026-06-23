@@ -1,0 +1,71 @@
+.page {
+  max-width: 28rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hint {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.dev-hint {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.375rem;
+  border: 1px dashed #94a3b8;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.dev-hint code {
+  font-size: 0.8125rem;
+}
+
+.link-btn {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: #1d4ed8;
+}
+
+.link-btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+}
+
+gcrm-button {
+  align-self: flex-start;
+}

@@ -1,0 +1,23 @@
+{
+  "name": "crm-clients-api",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/api/clients/api",
+  "sourceRoot": "libs/crm/isomorphic/api/clients/api/src",
+  "projectType": "library",
+  "tags": ["type:api", "scope:clients"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/api/clients/api",
+        "main": "libs/crm/isomorphic/api/clients/api/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/api/clients/api/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

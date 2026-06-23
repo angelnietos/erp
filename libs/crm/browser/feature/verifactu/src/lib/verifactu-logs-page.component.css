@@ -1,0 +1,52 @@
+.filter {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter input {
+  flex: 1;
+  min-width: 14rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+}
+
+.table-wrap {
+  margin-bottom: 1rem;
+}
+
+.err-cell {
+  color: #b91c1c;
+}
+
+.details-json summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.raw-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.raw-list li {
+  margin-bottom: 0.75rem;
+}
+
+.block {
+  margin: 0;
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f8fafc;
+  padding: 0.65rem;
+  border-radius: 0.35rem;
+  border: 1px solid #e2e8f0;
+  max-height: 12rem;
+  overflow: auto;
+}

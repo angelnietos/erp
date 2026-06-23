@@ -1,0 +1,30 @@
+{
+  "name": "crm-shared-infrastructure",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/node/shared-infrastructure",
+  "sourceRoot": "libs/crm/node/shared-infrastructure/src",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node/shared-infrastructure",
+        "main": "libs/crm/node/shared-infrastructure/src/index.ts",
+        "tsConfig": "libs/crm/node/shared-infrastructure/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/crm/node/shared-infrastructure/jest.config.cjs"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

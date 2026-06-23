@@ -1,0 +1,100 @@
+.grid-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 720px) {
+  .grid-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metric {
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.metric .num {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+.metric .lbl {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.links {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
+.links a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.links a:hover {
+  text-decoration: underline;
+}
+
+.dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.35rem 1rem;
+  font-size: 0.875rem;
+}
+
+.dl dt {
+  margin: 0;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.dl dd {
+  margin: 0;
+  color: #0f172a;
+}
+
+.mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+}
+
+.ok {
+  color: #15803d;
+}
+
+.warn {
+  color: #b45309;
+}
+
+.muted {
+  color: #64748b;
+}
+
+.details-json summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+}
+
+.block {
+  font-size: 0.7rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: #f8fafc;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  max-height: 24rem;
+  overflow: auto;
+}

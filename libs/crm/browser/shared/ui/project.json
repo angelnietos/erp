@@ -1,0 +1,14 @@
+{
+  "name": "crm-shared-ui",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/browser/shared/ui",
+  "sourceRoot": "libs/crm/browser/shared/ui/src",
+  "prefix": "gcrm",
+  "projectType": "library",
+  "tags": ["scope:shared", "type:ui"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

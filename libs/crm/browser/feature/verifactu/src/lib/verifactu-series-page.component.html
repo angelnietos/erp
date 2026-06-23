@@ -1,0 +1,112 @@
+<gcrm-page
+  title="Series de facturación"
+  subtitle="Series por tenant (numeración y trazabilidad AEAT en evolución)."
+>
+  <gcrm-panel title="Nueva serie" padding="sm">
+    <form
+      class="form"
+      (ngSubmit)="create()"
+      [attr.aria-busy]="createInProgress"
+    >
+      <div class="row">
+        <label class="sr-only" for="verifactu-series-code">Código</label>
+        <input
+          id="verifactu-series-code"
+          name="code"
+          [(ngModel)]="code"
+          placeholder="Código"
+          required
+          maxlength="32"
+          autocomplete="off"
+          [disabled]="createInProgress"
+        />
+        <label class="sr-only" for="verifactu-series-description"
+          >Descripción (opcional)</label
+        >
+        <input
+          id="verifactu-series-description"
+          name="description"
+          [(ngModel)]="description"
+          placeholder="Descripción (opcional)"
+          maxlength="500"
+          [disabled]="createInProgress"
+        />
+        <gcrm-button
+          type="submit"
+          variant="primary"
+          [disabled]="createInProgress"
+          [busy]="createInProgress"
+        >
+          {{ createInProgress ? 'Creando…' : 'Crear serie' }}
+        </gcrm-button>
+      </div>
+    </form>
+    @if (feedback) {
+      <gcrm-inline-message variant="success">{{
+        feedback
+      }}</gcrm-inline-message>
+    }
+    @if (errorMessage) {
+      <gcrm-inline-message variant="error">{{
+        errorMessage
+      }}</gcrm-inline-message>
+    }
+  </gcrm-panel>
+
+  <gcrm-panel title="Series del tenant" padding="sm">
+    <div class="vf-toolbar">
+      @if (tableLoading) {
+        <gcrm-spinner size="sm" label="Cargando series" />
+      }
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="tableLoading || createInProgress"
+        [busy]="tableLoading"
+        (click)="refresh()"
+      >
+        {{ tableLoading ? 'Actualizando…' : 'Actualizar' }}
+      </gcrm-button>
+    </div>
+    @if (series$ | async; as rows) {
+      @if (loadError) {
+        <gcrm-inline-message variant="error">{{
+          loadError
+        }}</gcrm-inline-message>
+      }
+      @if (!loadError && rows.length === 0) {
+        <p class="muted">No hay series todavía.</p>
+      }
+      @if (!loadError && rows.length > 0) {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th scope="col">Código</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Activa</th>
+                <th scope="col">Creada</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows; track row.id) {
+                <tr>
+                  <td>
+                    <strong>{{ row.code }}</strong>
+                  </td>
+                  <td>{{ row.description || '—' }}</td>
+                  <td>{{ row.isActive ? 'Sí' : 'No' }}</td>
+                  <td class="nowrap small">
+                    {{ row.createdAt | date: 'short' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    } @else {
+      <p class="muted">Cargando…</p>
+    }
+  </gcrm-panel>
+</gcrm-page>

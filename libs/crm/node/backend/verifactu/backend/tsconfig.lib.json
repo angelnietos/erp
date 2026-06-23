@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../../../../dist/out-tsc",
+    "declaration": true,
+    "types": ["node"],
+    "paths": {
+      "@generic-crm/verifactu-core": [
+        "dist/libs/isomorphic/core/verifactu/core/src/index.d.ts"
+      ]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "jest.config.ts",
+    "jest.config.cjs",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ]
+}

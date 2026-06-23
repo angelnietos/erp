@@ -1,0 +1,23 @@
+{
+  "name": "crm-clients-core",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/core/clients/core",
+  "sourceRoot": "libs/crm/isomorphic/core/clients/core/src",
+  "projectType": "library",
+  "tags": ["type:core", "scope:clients"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/core/clients/core",
+        "main": "libs/crm/isomorphic/core/clients/core/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/core/clients/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

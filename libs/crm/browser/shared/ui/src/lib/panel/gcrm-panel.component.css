@@ -1,0 +1,40 @@
+.panel {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+
+.head {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.body {
+  min-width: 0;
+}
+
+.pad-none .body {
+  padding: 0;
+}
+
+.pad-sm .body {
+  padding: 0.75rem;
+}
+
+.pad-md .body {
+  padding: 1rem 1.25rem;
+}
+
+.pad-none .head + .body {
+  border-radius: 0 0 0.5rem 0.5rem;
+}

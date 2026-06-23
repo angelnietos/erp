@@ -1,0 +1,47 @@
+{
+  "name": "verifactu-crm-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/verifactu-crm-api/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:backend", "scope:verifactu-platform"],
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "defaultConfiguration": "production",
+      "options": {
+        "command": "webpack-cli build",
+        "args": ["--node-env=production"],
+        "cwd": "apps/verifactu-crm-api"
+      },
+      "configurations": {
+        "development": {
+          "args": ["--node-env=development"]
+        },
+        "production": {
+          "args": ["--node-env=production"]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "verifactu-crm-api:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "verifactu-crm-api:build:development"
+        },
+        "production": {
+          "buildTarget": "verifactu-crm-api:build:production"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,114 @@
+<gcrm-page
+  title="Cola Verifactu"
+  subtitle="Elementos pendientes o en proceso de envío al adaptador AEAT. Encola por UUID de factura."
+>
+  <gcrm-panel title="Encolar factura" padding="sm">
+    <form
+      class="enqueue"
+      (ngSubmit)="enqueue()"
+      [attr.aria-busy]="enqueueInProgress"
+    >
+      <label class="sr-only" for="verifactu-queue-invoice-id"
+        >UUID de la factura</label
+      >
+      <input
+        id="verifactu-queue-invoice-id"
+        type="text"
+        name="invoiceIdToEnqueue"
+        placeholder="UUID de la factura"
+        [(ngModel)]="invoiceIdToEnqueue"
+        autocomplete="off"
+        [disabled]="enqueueInProgress"
+      />
+      <gcrm-button
+        type="submit"
+        variant="primary"
+        [disabled]="enqueueInProgress"
+        [busy]="enqueueInProgress"
+      >
+        {{ enqueueInProgress ? 'Encolando…' : 'Encolar' }}
+      </gcrm-button>
+    </form>
+    @if (feedback) {
+      <gcrm-inline-message variant="success">{{
+        feedback
+      }}</gcrm-inline-message>
+    }
+    @if (errorMessage) {
+      <gcrm-inline-message variant="error">{{
+        errorMessage
+      }}</gcrm-inline-message>
+    }
+  </gcrm-panel>
+
+  <gcrm-panel title="Cola actual" padding="sm">
+    <div class="vf-toolbar">
+      @if (tableLoading) {
+        <gcrm-spinner size="sm" label="Cargando cola" />
+      }
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="tableLoading || enqueueInProgress"
+        [busy]="tableLoading"
+        (click)="refresh()"
+      >
+        {{ tableLoading ? 'Actualizando…' : 'Actualizar' }}
+      </gcrm-button>
+    </div>
+    @if (queue$ | async; as rows) {
+      @if (loadError) {
+        <gcrm-inline-message variant="error">{{
+          loadError
+        }}</gcrm-inline-message>
+      }
+      @if (!loadError && rows.length === 0) {
+        <p class="muted">La cola está vacía.</p>
+      }
+      @if (!loadError && rows.length > 0) {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th scope="col">Estado</th>
+                <th scope="col">Nº factura</th>
+                <th scope="col">Factura (id)</th>
+                <th scope="col">Reintentos</th>
+                <th scope="col">Próximo intento</th>
+                <th scope="col">Último error</th>
+                <th scope="col">Actualizado</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of rows; track row.id) {
+                <tr>
+                  <td>
+                    <gcrm-badge [variant]="queueBadgeVariant(row.status)">{{
+                      row.status
+                    }}</gcrm-badge>
+                  </td>
+                  <td>{{ row.invoice.number || '—' }}</td>
+                  <td class="mono small">{{ row.invoiceId }}</td>
+                  <td>{{ row.retries }} / {{ row.maxRetries }}</td>
+                  <td class="nowrap small">
+                    @if (row.nextRetryAt) {
+                      {{ row.nextRetryAt | date: 'short' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="err-cell">{{ row.lastError || '—' }}</td>
+                  <td class="nowrap small">
+                    {{ row.updatedAt | date: 'short' }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    } @else {
+      <p class="muted">Cargando…</p>
+    }
+  </gcrm-panel>
+</gcrm-page>

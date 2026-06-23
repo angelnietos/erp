@@ -1,0 +1,79 @@
+<gcrm-page
+  title="Resumen Verifactu"
+  subtitle="Cola de envío, series y datos AEAT del tenant. Enlaces rápidos a la configuración."
+>
+  @if (snapshot$ | async; as vm) {
+    <div class="vf-toolbar">
+      @if (vm.loading) {
+        <gcrm-spinner size="sm" label="Cargando resumen" />
+      }
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="vm.loading"
+        [busy]="vm.loading"
+        (click)="refresh()"
+      >
+        {{ vm.loading ? 'Actualizando…' : 'Actualizar' }}
+      </gcrm-button>
+    </div>
+
+    @if (vm.loading) {
+      <p class="muted">Cargando…</p>
+    } @else {
+      @if (vm.loadError) {
+        <gcrm-inline-message variant="error">{{
+          vm.loadError
+        }}</gcrm-inline-message>
+      }
+      <div class="grid-cards">
+        <gcrm-panel title="Cola y series" padding="sm">
+          <p class="metric">
+            <span class="num">{{ vm.queueCount }}</span>
+            <span class="lbl">en cola / procesando</span>
+          </p>
+          <p class="metric">
+            <span class="num">{{ vm.seriesCount }}</span>
+            <span class="lbl">series definidas</span>
+          </p>
+          <p class="links">
+            <a routerLink="../queue">Ver cola</a> ·
+            <a routerLink="../series">Series</a> ·
+            <a routerLink="../integration">Integración</a>
+          </p>
+        </gcrm-panel>
+
+        <gcrm-panel title="Tenant (AEAT)" padding="sm">
+          <dl class="dl">
+            <dt>NIF emisor</dt>
+            <dd>{{ vm.emitterTaxId || '— no configurado —' }}</dd>
+            <dt>Cifrado certificados</dt>
+            <dd>
+              @if (vm.encryptionConfigured) {
+                <span class="ok">clave en servidor</span>
+              } @else {
+                <span class="warn"
+                  >falta VERIFACTU_CREDENTIALS_ENCRYPTION_KEY</span
+                >
+              }
+            </dd>
+            <dt>Modo envío (servidor)</dt>
+            <dd class="mono">{{ vm.submissionMode }}</dd>
+            <dt>Entorno AEAT activo</dt>
+            <dd class="mono">{{ vm.submissionEnv }}</dd>
+          </dl>
+          <p class="links">
+            <a routerLink="../credentials">Certificado y NIF</a>
+          </p>
+        </gcrm-panel>
+      </div>
+
+      <gcrm-panel title="Detalle técnico (JSON)" padding="sm">
+        <details class="details-json">
+          <summary>Mostrar cola, series e integración</summary>
+          <pre class="block">{{ vm.raw | json }}</pre>
+        </details>
+      </gcrm-panel>
+    }
+  }
+</gcrm-page>

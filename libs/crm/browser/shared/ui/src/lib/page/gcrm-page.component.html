@@ -1,0 +1,18 @@
+<div class="page">
+  @if (title || subtitle) {
+    <header class="header">
+      @if (title) {
+        <h1 class="title">{{ title }}</h1>
+      }
+      @if (subtitle) {
+        <p class="subtitle">{{ subtitle }}</p>
+      }
+      <div class="actions">
+        <ng-content select="[gcrmPageActions]" />
+      </div>
+    </header>
+  }
+  <div class="content">
+    <ng-content />
+  </div>
+</div>

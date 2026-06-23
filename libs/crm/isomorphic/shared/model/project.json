@@ -1,0 +1,23 @@
+{
+  "name": "crm-shared-model",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/shared/model",
+  "sourceRoot": "libs/crm/isomorphic/shared/model/src",
+  "projectType": "library",
+  "tags": ["type:core", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/shared/model",
+        "main": "libs/crm/isomorphic/shared/model/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/shared/model/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

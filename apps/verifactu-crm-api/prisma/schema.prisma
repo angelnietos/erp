@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+  /** Cliente Prisma CRM separado del ERP (`@prisma/client` del backend). */
+  output   = "../../../node_modules/.prisma/crm-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Organización (cliente B2B). Todo el CRM es multi-tenant.
+model Tenant {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String   @unique
+  isActive         Boolean  @default(true) @map("is_active")
+  enabledModuleIds String[] @default([]) @map("enabled_module_ids")
+  /** NIF/CIF del obligado emisor para Verifactu (opcional; si null, AEAT_EMISOR_NIF en servidor). */
+  emitterTaxId     String?  @map("emitter_tax_id") @db.VarChar(32)
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  users              User[]
+  roles              Role[]
+  clients            Client[]
+  clientContacts     ClientContact[]
+  invoices           Invoice[]
+  verifactuQueue     VerifactuQueueItem[]
+  verifactuLogs      VerifactuLog[]
+  verifactuSeries    VerifactuSeries[]
+  verifactuCustomers      VerifactuCustomer[]
+  verifactuTenantCredentials VerifactuTenantCredential[]
+  verifactuAeatChainHeads    VerifactuAeatChainHead[]
+
+  @@map("tenants")
+}
+
+/// Certificado de empresa (mTLS) por tenant y entorno AEAT (pruebas vs producción).
+enum VerifactuCredentialEnvironment {
+  TEST
+  PRODUCTION
+}
+
+model VerifactuTenantCredential {
+  id          String                         @id @default(uuid()) @db.Uuid
+  tenantId    String                         @map("tenant_id") @db.Uuid
+  environment VerifactuCredentialEnvironment @map("environment")
+  /// PEM cifrado (AES-256-GCM + clave maestra en servidor).
+  certEncrypted String @map("cert_encrypted") @db.Text
+  keyEncrypted  String @map("key_encrypted") @db.Text
+  certSubject   String?   @map("cert_subject") @db.VarChar(512)
+  certValidTo   DateTime? @map("cert_valid_to")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, environment], name: "uq_verifactu_cred_tenant_env")
+  @@map("verifactu_tenant_credentials")
+}
+
+/// Último registro AEAT aceptado por tenant y entorno (encadenamiento del siguiente envío).
+model VerifactuAeatChainHead {
+  tenantId       String                         @map("tenant_id") @db.Uuid
+  environment    VerifactuCredentialEnvironment @map("environment")
+  lastHuella     String                         @map("last_huella")
+  lastIdRegistro String                         @map("last_id_registro")
+  updatedAt      DateTime                       @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, environment])
+  @@map("verifactu_aeat_chain_heads")
+}
+
+/// Operadores del panel plataforma (venta / soporte). Sin tenant de producto.
+model PlatformUser {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique
+  password  String
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("platform_users")
+}
+
+model User {
+  id               String     @id @default(uuid()) @db.Uuid
+  tenantId         String     @map("tenant_id") @db.Uuid
+  email            String
+  password         String
+  firstName        String?    @map("first_name")
+  lastName         String?    @map("last_name")
+  isActive         Boolean    @default(true) @map("is_active")
+  extraPermissions String[]   @default([]) @map("extra_permissions")
+  createdAt        DateTime   @default(now()) @map("created_at")
+  roles            UserRole[]
+  tenant           Tenant     @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, email])
+  @@map("users")
+}
+
+model Role {
+  id          String     @id @default(uuid()) @db.Uuid
+  tenantId    String?    @map("tenant_id") @db.Uuid
+  name        String
+  description String?
+  permissions String[]
+  users       UserRole[]
+  tenant      Tenant?    @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, name], name: "roles_tenant_name")
+  @@map("roles")
+}
+
+model UserRole {
+  userId String @map("user_id") @db.Uuid
+  roleId String @map("role_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model Client {
+  id          String          @id @default(uuid()) @db.Uuid
+  tenantId    String          @map("tenant_id") @db.Uuid
+  name        String
+  description String?
+  sector      String?
+  type        String          @default("COMPANY")
+  taxId       String?         @map("tax_id")
+  email       String?
+  phone       String?
+  address     String?
+  city        String?
+  zipCode     String?         @map("zip_code")
+  country     String?         @default("ES")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  deletedAt   DateTime?       @map("deleted_at")
+  contacts    ClientContact[]
+  tenant      Tenant          @relation(fields: [tenantId], references: [id])
+  invoices    Invoice[]
+
+  @@map("clients")
+}
+
+model ClientContact {
+  id        String   @id @default(uuid()) @db.Uuid
+  clientId  String   @map("client_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  name      String
+  email     String?
+  phone     String?
+  position  String?
+  notes     String?
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@map("client_contacts")
+}
+
+/// Factura mínima para encolar envíos Veri*factu (amplía con líneas/impuestos en el producto).
+model Invoice {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  clientId  String?  @map("client_id") @db.Uuid
+  number    String?
+  total     Float    @default(0)
+  currency  String   @default("EUR")
+  status    String   @default("DRAFT")
+  issuedAt  DateTime? @map("issued_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  tenant           Tenant               @relation(fields: [tenantId], references: [id])
+  client           Client?              @relation(fields: [clientId], references: [id])
+  verifactuQueue   VerifactuQueueItem[]
+  verifactuLogs    VerifactuLog[]
+
+  @@map("invoices")
+}
+
+model VerifactuQueueItem {
+  id          String    @id @default(uuid()) @db.Uuid
+  tenantId    String    @map("tenant_id") @db.Uuid
+  invoiceId   String    @map("invoice_id") @db.Uuid
+  status      String    @default("PENDING")
+  retries     Int       @default(0)
+  maxRetries  Int       @default(5) @map("max_retries")
+  nextRetryAt DateTime? @map("next_retry_at")
+  lastError   String?   @map("last_error")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+
+  @@index([status, nextRetryAt], map: "idx_verifactu_queue_status_retry")
+  @@map("verifactu_queue_items")
+}
+
+model VerifactuLog {
+  id              String   @id @default(uuid()) @db.Uuid
+  invoiceId       String   @map("invoice_id") @db.Uuid
+  tenantId        String   @map("tenant_id") @db.Uuid
+  requestPayload  Json     @map("request_payload")
+  responsePayload Json     @map("response_payload")
+  status          String
+  errorMessage    String?  @map("error_message")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+
+  @@map("verifactu_logs")
+}
+
+model VerifactuSeries {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  code        String
+  description String?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, code], name: "uq_verifactu_series_tenant_code")
+  @@map("verifactu_series")
+}
+
+model VerifactuCustomer {
+  id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id") @db.Uuid
+  taxId       String   @map("tax_id")
+  name        String
+  email       String?
+  countryCode String?  @map("country_code")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, taxId], name: "uq_verifactu_customer_tenant_taxid")
+  @@map("verifactu_customers")
+}
+
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id") @db.Uuid
+  eventType     String    @map("event_type")
+  payload       Json
+  status        String    @default("PENDING")
+  retries       Int       @default(0)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  processedAt   DateTime? @map("processed_at")
+
+  @@map("outbox_events")
+}

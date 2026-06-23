@@ -1,0 +1,16 @@
+.gcrm-inline-msg {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+}
+
+.gcrm-inline-msg--success {
+  color: #15803d;
+}
+
+.gcrm-inline-msg--error {
+  color: #b91c1c;
+}
+
+.gcrm-inline-msg--info {
+  color: #475569;
+}

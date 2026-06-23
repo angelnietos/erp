@@ -1,0 +1,23 @@
+{
+  "name": "crm-verifactu-api",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/api/verifactu/api",
+  "sourceRoot": "libs/crm/isomorphic/api/verifactu/api/src",
+  "projectType": "library",
+  "tags": ["type:api", "scope:verifactu"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/api/verifactu/api",
+        "main": "libs/crm/isomorphic/api/verifactu/api/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/api/verifactu/api/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

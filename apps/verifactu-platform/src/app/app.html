@@ -1,0 +1,34 @@
+<div class="app-root-layout">
+  <a class="skip-to-main" href="#app-main">Saltar al contenido</a>
+  <header class="app-header">
+    <p class="app-brand">{{ title }}</p>
+    <nav class="nav" aria-label="Principal">
+      <a
+        routerLink="/identity"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Identidad</a
+      >
+      <a
+        routerLink="/clients"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Clientes</a
+      >
+      <a
+        routerLink="/verifactu"
+        routerLinkActive="active"
+        ariaCurrentWhenActive="page"
+        >Verifactu</a
+      >
+      @if (session.hasSession()) {
+      <button type="button" class="nav-logout" (click)="logout()">
+        Cerrar sesión
+      </button>
+      }
+    </nav>
+  </header>
+  <main id="app-main" class="app-main" tabindex="-1">
+    <router-outlet />
+  </main>
+</div>

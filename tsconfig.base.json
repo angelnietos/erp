@@ -344,6 +344,80 @@
       ],
       "@josanz-erp/josanz-figma-report-new": [
         "apps/josanz-web-app/src/app/pages/josanz-report-new.component.ts"
+      ],
+      "@generic-crm/prisma-client": ["node_modules/.prisma/crm-client"],
+      "@generic-crm/shared-infrastructure": [
+        "libs/crm/node/shared-infrastructure/src/index.ts"
+      ],
+      "@generic-crm/identity-backend": [
+        "libs/crm/node/backend/identity/backend/src/index.ts"
+      ],
+      "@generic-crm/clients-backend": [
+        "libs/crm/node/backend/clients/backend/src/index.ts"
+      ],
+      "@generic-crm/verifactu-backend": [
+        "libs/crm/node/backend/verifactu/backend/src/index.ts"
+      ],
+      "@generic-crm/invoicing-backend": [
+        "libs/crm/node/backend/invoicing/backend/src/index.ts"
+      ],
+      "@generic-crm/identity-core": [
+        "libs/crm/isomorphic/core/identity/core/src/index.ts"
+      ],
+      "@generic-crm/clients-core": [
+        "libs/crm/isomorphic/core/clients/core/src/index.ts"
+      ],
+      "@generic-crm/verifactu-core": [
+        "libs/crm/isomorphic/core/verifactu/core/src/index.ts"
+      ],
+      "@generic-crm/identity-api": [
+        "libs/crm/isomorphic/api/identity/api/src/index.ts"
+      ],
+      "@generic-crm/clients-api": [
+        "libs/crm/isomorphic/api/clients/api/src/index.ts"
+      ],
+      "@generic-crm/verifactu-api": [
+        "libs/crm/isomorphic/api/verifactu/api/src/index.ts"
+      ],
+      "@generic-crm/invoices-api": [
+        "libs/crm/isomorphic/api/invoices/api/src/index.ts"
+      ],
+      "@generic-crm/shared-model": [
+        "libs/crm/isomorphic/shared/model/src/index.ts"
+      ],
+      "@generic-crm/shared-browser-data-access": [
+        "libs/crm/browser/shared/data-access/src/index.ts"
+      ],
+      "@generic-crm/shared-ui": ["libs/crm/browser/shared/ui/src/index.ts"],
+      "@generic-crm/identity-data-access": [
+        "libs/crm/browser/data-access/identity/src/index.ts"
+      ],
+      "@generic-crm/clients-data-access": [
+        "libs/crm/browser/data-access/clients/src/index.ts"
+      ],
+      "@generic-crm/verifactu-data-access": [
+        "libs/crm/browser/data-access/verifactu/src/index.ts"
+      ],
+      "@generic-crm/invoices-data-access": [
+        "libs/crm/browser/data-access/invoices/src/index.ts"
+      ],
+      "@generic-crm/identity-feature": [
+        "libs/crm/browser/feature/identity/src/index.ts"
+      ],
+      "@generic-crm/clients-feature": [
+        "libs/crm/browser/feature/clients/src/index.ts"
+      ],
+      "@generic-crm/verifactu-feature": [
+        "libs/crm/browser/feature/verifactu/src/index.ts"
+      ],
+      "@generic-crm/identity-shell": [
+        "libs/crm/browser/shell/identity/src/index.ts"
+      ],
+      "@generic-crm/clients-shell": [
+        "libs/crm/browser/shell/clients/src/index.ts"
+      ],
+      "@generic-crm/verifactu-shell": [
+        "libs/crm/browser/shell/verifactu/src/index.ts"
       ]
     }
   },

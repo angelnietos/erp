@@ -1,0 +1,55 @@
+<div class="layout">
+  <a class="skip-to-main" href="#verifactu-main">Saltar al contenido</a>
+  <div class="layout-body">
+    <aside class="side" aria-label="Navegación Verifactu">
+      <h2 class="side-title">Verifactu</h2>
+      <nav class="side-nav" aria-label="Secciones">
+        <a
+          routerLink="overview"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Resumen</a
+        >
+        <a
+          routerLink="queue"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Cola</a
+        >
+        <a
+          routerLink="series"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Series</a
+        >
+        <a
+          routerLink="logs"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Historial</a
+        >
+        <a
+          routerLink="credentials"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Certificado AEAT</a
+        >
+        <a
+          routerLink="integration"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          >Integración</a
+        >
+      </nav>
+    </aside>
+    <div
+      id="verifactu-main"
+      class="content"
+      tabindex="-1"
+      role="region"
+      aria-label="Contenido Verifactu"
+    >
+      <router-outlet />
+    </div>
+  </div>
+</div>

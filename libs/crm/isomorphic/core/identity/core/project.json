@@ -1,0 +1,23 @@
+{
+  "name": "crm-identity-core",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/isomorphic/core/identity/core",
+  "sourceRoot": "libs/crm/isomorphic/core/identity/core/src",
+  "projectType": "library",
+  "tags": ["type:core", "scope:identity"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/isomorphic/core/identity/core",
+        "main": "libs/crm/isomorphic/core/identity/core/src/index.ts",
+        "tsConfig": "libs/crm/isomorphic/core/identity/core/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

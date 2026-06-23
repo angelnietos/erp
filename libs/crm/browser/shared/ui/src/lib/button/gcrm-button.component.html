@@ -1,0 +1,10 @@
+<button
+  [attr.type]="type"
+  [disabled]="disabled"
+  [attr.aria-busy]="busy ? true : null"
+  [attr.aria-label]="ariaLabel || null"
+  [class]="variant"
+  [class.block]="block"
+>
+  <ng-content />
+</button>

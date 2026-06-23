@@ -1,0 +1,24 @@
+{
+  "name": "crm-invoicing-backend",
+  "$schema": "../../../../../node_modules/nx/schemas/project-schema.json",
+  "root": "libs/crm/node/backend/invoicing/backend",
+  "sourceRoot": "libs/crm/node/backend/invoicing/backend/src",
+  "projectType": "library",
+  "implicitDependencies": ["crm-verifactu-backend"],
+  "tags": ["scope:invoicing", "type:backend"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/node/backend/invoicing/backend",
+        "main": "libs/crm/node/backend/invoicing/backend/src/index.ts",
+        "tsConfig": "libs/crm/node/backend/invoicing/backend/tsconfig.lib.json",
+        "assets": []
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+<section
+  class="panel"
+  [class.pad-none]="padding === 'none'"
+  [class.pad-sm]="padding === 'sm'"
+  [class.pad-md]="padding === 'md'"
+>
+  @if (title) {
+    <header class="head">
+      <h2 class="title">{{ title }}</h2>
+    </header>
+  }
+  <div class="body">
+    <ng-content />
+  </div>
+</section>
