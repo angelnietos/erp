@@ -31,7 +31,12 @@
             "input": "apps/document-generator/public"
           }
         ],
-        "styles": ["apps/document-generator/src/styles.css"],
+        "styles": [
+          "apps/document-generator/src/styles.css",
+          "apps/frontend/src/document-generator-theme.css",
+          "apps/document-generator/src/tailwind.css",
+          "apps/frontend/src/document-generator-shell.css"
+        ],
         "budgets": [
           {
             "type": "initial",
@@ -79,8 +84,8 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "20kb",
-              "maximumError": "32kb"
+              "maximumWarning": "36kb",
+              "maximumError": "48kb"
             }
           ]
         }

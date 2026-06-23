@@ -17,6 +17,9 @@
       "@josanz-erp/identity-data-access": [
         "libs/browser/data-access/identity/data-access/src/index.ts"
       ],
+      "@josanz-erp/shared-auth-keycloak": [
+        "libs/browser/shared/auth-keycloak/src/index.ts"
+      ],
 
       "@josanz-erp/shared-ui-shell": [
         "libs/browser/shared/ui-shell/src/index.ts"

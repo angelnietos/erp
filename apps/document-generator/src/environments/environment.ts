@@ -4,8 +4,8 @@
  */
 export const environment = {
   production: false,
-  /** Vacío = mismas peticiones relativas (p. ej. detrás de un reverse proxy en prod). */
   apiOrigin: 'http://localhost:3000',
+  erpHubUrl: 'http://localhost:4200/auth/tenant',
   /** Opcional: si el verifactu-api exige VERIFACTU_REQUIRE_API_KEY, pegar aquí la clave del tenant. */
   verifactuApiKey: '',
   aiApiKey: '',

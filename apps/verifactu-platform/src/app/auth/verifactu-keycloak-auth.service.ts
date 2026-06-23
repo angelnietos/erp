@@ -120,4 +120,25 @@ export class VerifactuKeycloakAuthService {
     const stored = readVerifactuPkceSession();
     return stored?.returnUrl ?? '/verifactu/overview';
   }
+
+  /** Cierra sesión local y, si aplica, la sesión SSO en Keycloak. */
+  endSessionLogout(tenantSlug?: string): void {
+    const slug = tenantSlug?.trim() || environment.defaultTenantSlug;
+    const config = this.resolveConfig(slug);
+    this.tokens.clear();
+
+    if (!config?.url?.trim() || !config.realm?.trim() || !config.clientId?.trim()) {
+      window.location.assign(`${window.location.origin}/login?reason=logout`);
+      return;
+    }
+
+    const base = config.url.replace(/\/$/, '');
+    const postLogout = `${window.location.origin}/login?reason=logout`;
+    const url = new URL(
+      `${base}/realms/${encodeURIComponent(config.realm)}/protocol/openid-connect/logout`,
+    );
+    url.searchParams.set('client_id', config.clientId);
+    url.searchParams.set('post_logout_redirect_uri', postLogout);
+    window.location.assign(url.toString());
+  }
 }

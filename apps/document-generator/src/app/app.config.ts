@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  APP_INITIALIZER,
   provideZoneChangeDetection,
   importProvidersFrom,
 } from '@angular/core';
@@ -9,7 +10,12 @@ import { appRoutes } from './app.routes';
 import {
   authInterceptor,
   tenantInterceptor,
+  AUTH_KEYCLOAK_CONFIG,
+  setErpTenantSlug,
+  syncErpTenantHtmlTheme,
 } from '@josanz-erp/identity-data-access';
+import { provideEnterpriseAuth } from '@josanz-erp/shared-auth-keycloak';
+import { environment } from '../environments/environment';
 import { apiOriginInterceptor } from './api-origin.interceptor';
 import { verifactuApiKeyInterceptor } from './verifactu-api-key.interceptor';
 import {
@@ -150,6 +156,23 @@ import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    {
+      provide: AUTH_KEYCLOAK_CONFIG,
+      useValue: { enabled: false, url: '', realm: '', clientId: '' },
+    },
+    provideEnterpriseAuth({
+      mode: 'legacy',
+      apiPrefix: '/api',
+      defaultTenantSlug: 'docs',
+    }),
+    {
+      provide: APP_INITIALIZER,
+      multi: true,
+      useFactory: () => () => {
+        setErpTenantSlug('docs');
+        syncErpTenantHtmlTheme();
+      },
+    },
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(
       appRoutes,
