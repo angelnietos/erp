@@ -124,6 +124,8 @@ export class VerifactuQueuePageComponent {
     switch (status) {
       case 'PENDING':
         return 'warning';
+      case 'FORWARDED':
+        return 'info';
       case 'PROCESSING':
         return 'info';
       case 'COMPLETED':

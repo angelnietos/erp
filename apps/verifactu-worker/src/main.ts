@@ -5,7 +5,12 @@
 
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { config as loadEnv } from 'dotenv';
 import { AppModule } from './app/app.module';
+
+loadEnv({ path: 'apps/backend/.env' });
+loadEnv({ path: 'apps/verifactu-worker/.env' });
+loadEnv();
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

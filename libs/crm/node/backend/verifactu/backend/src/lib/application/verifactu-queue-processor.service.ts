@@ -9,6 +9,7 @@ import {
   VERIFACTU_REPOSITORY,
   VERIFACTU_SUBMISSION,
 } from '@generic-crm/verifactu-core';
+import { isCrmQueueProcessorEnabled } from '../config/verifactu-worker-mode';
 
 @Injectable()
 export class VerifactuQueueProcessorService {
@@ -23,6 +24,9 @@ export class VerifactuQueueProcessorService {
 
   /** Procesa un único trabajo de cola; devuelve si había trabajo. */
   async runOnce(): Promise<boolean> {
+    if (!isCrmQueueProcessorEnabled()) {
+      return false;
+    }
     const job = await this.repo.claimNextForProcessing();
     if (!job) {
       return false;

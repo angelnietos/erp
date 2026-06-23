@@ -92,7 +92,7 @@ export class VerifactuIntegrationPageComponent {
           standaloneApi:
             'Despliegue paralelo: nx serve verifactu-api (puerto 3110) misma BD y JWT.',
           worker:
-            'Proceso: nx serve verifactu-worker — cola en BD (SKIP LOCKED); el envío AEAT lo implementa el adaptador (stub o http según AEAT_SUBMISSION_MODE).',
+            'Proceso único: pnpm run dev:verifactu-worker — cola en josanz_erp; el CRM solo muestra espejo (FORWARDED → COMPLETED).',
         })),
         finalize(() => {
           this.snapshotLoading = false;

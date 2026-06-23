@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { PrismaModule } from '@josanz-erp/shared-infrastructure';
 import { BillingController } from './infrastructure/http/billing.controller';
+import { InternalVerifactuController } from './infrastructure/http/internal-verifactu.controller';
 import { SubmitInvoiceToVerifactuUseCase } from './application/use-cases/submit-invoice-to-verifactu.use-case';
 import { VERIFACTU_SUBMISSION_PORT } from './application/ports/verifactu-submission.port';
 import { VerifactuSubmissionAdapter } from './infrastructure/adapters/verifactu/verifactu-submission.adapter';
@@ -17,7 +18,7 @@ export class BillingModule {
     return {
       module: BillingModule,
       imports: [PrismaModule, VerifactuErpAdapterModule],
-      controllers: [BillingController],
+      controllers: [BillingController, InternalVerifactuController],
       providers: [
         SubmitInvoiceToVerifactuUseCase,
         InvoiceService,

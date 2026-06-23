@@ -11,6 +11,8 @@ import type { PatchVerifactuSettingsDto } from '../dto/patch-verifactu-settings.
 import type { UpsertVerifactuCredentialsDto } from '../dto/upsert-verifactu-credentials.dto';
 import { isCredentialEncryptionConfigured } from '../infrastructure/credentials/verifactu-credential-crypto';
 import { PrismaVerifactuCredentialRepository } from '../infrastructure/credentials/prisma-verifactu-credential.repository';
+import { isErpWorkerMode } from '../config/verifactu-worker-mode';
+import { ErpVerifactuQueueForwardClient } from '../infrastructure/http/erp-verifactu-queue-forward.client';
 
 @Injectable()
 export class VerifactuApplicationService {
@@ -19,13 +21,27 @@ export class VerifactuApplicationService {
     private readonly verifactu: VerifactuRepositoryPort,
     private readonly aeatCredentials: PrismaVerifactuCredentialRepository,
     private readonly prisma: PrismaService,
+    private readonly erpForward: ErpVerifactuQueueForwardClient,
   ) {}
 
   queueList(tenantId: string) {
     return this.verifactu.listQueue(tenantId);
   }
 
-  enqueue(tenantId: string, invoiceId: string) {
+  async enqueue(tenantId: string, invoiceId: string) {
+    if (isErpWorkerMode()) {
+      if (!this.erpForward.isConfigured()) {
+        throw new BadRequestException(
+          'Modo worker ERP activo: configura ERP_API_URL y CRM_ERP_SYNC_API_KEY en verifactu-crm-api.',
+        );
+      }
+      const erp = await this.erpForward.enqueue(tenantId, invoiceId);
+      return this.verifactu.trackErpForwardedQueueItem(
+        tenantId,
+        invoiceId,
+        erp.queueItemId,
+      );
+    }
     return this.verifactu.enqueuePendingInvoice(tenantId, invoiceId);
   }
 
@@ -51,7 +67,7 @@ export class VerifactuApplicationService {
         ? 'production'
         : 'test';
     return {
-      modes: ['crm_monolith', 'standalone_verifactu_api', 'worker'],
+      modes: ['erp_worker', 'crm_monolith', 'standalone_verifactu_api'],
       credentials: {
         encryptionKeyConfigured: isCredentialEncryptionConfigured(),
         hint: 'Sube certificado (.pem) y clave privada por entorno (pruebas / producción) en Verifactu → Certificado AEAT. Requiere VERIFACTU_CREDENTIALS_ENCRYPTION_KEY en el servidor.',
@@ -74,7 +90,7 @@ export class VerifactuApplicationService {
           'Un proveedor homologado externo solo si externalizas parte del servicio; no es obligatorio para ser editor.',
       },
       description:
-        'El CRM expone /api/verifactu con JWT. La API Verifactu independiente replica las mismas rutas. El worker consume la cola en BD (SKIP LOCKED). El certificado de empresa se usa en mTLS al conectar por HTTPS con AEAT o tu gateway.',
+        'Encolado canónico en josanz_erp (VERIFACTU_USE_ERP_WORKER=true) y procesamiento con verifactu-worker. El CRM mantiene espejo de facturas/cola para la UI. Solo activa VERIFACTU_CRM_QUEUE_PROCESSOR_ENABLED=true para desarrollo CRM aislado.',
     };
   }
 

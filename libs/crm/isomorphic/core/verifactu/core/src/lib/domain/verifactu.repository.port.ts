@@ -14,6 +14,18 @@ export interface VerifactuRepositoryPort {
     tenantId: string,
     invoiceId: string,
   ): Promise<{ id: string }>;
+  /** Fila espejo en CRM cuando la cola real está en josanz_erp (verifactu-worker). */
+  trackErpForwardedQueueItem(
+    tenantId: string,
+    invoiceId: string,
+    erpQueueItemId: string,
+  ): Promise<{ id: string }>;
+  /** Actualiza el espejo CRM tras procesar verifactu-worker. */
+  applyErpQueueStatus(
+    tenantId: string,
+    invoiceId: string,
+    input: { status: 'COMPLETED' | 'FAILED'; lastError?: string | null },
+  ): Promise<void>;
   listSeries(tenantId: string): Promise<VerifactuSeriesRow[]>;
   createSeries(
     tenantId: string,

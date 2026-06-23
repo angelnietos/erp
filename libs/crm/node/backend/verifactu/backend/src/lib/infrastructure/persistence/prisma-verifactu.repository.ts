@@ -81,6 +81,72 @@ export class PrismaVerifactuRepository implements VerifactuRepositoryPort {
     return { id: created.id };
   }
 
+  async trackErpForwardedQueueItem(
+    tenantId: string,
+    invoiceId: string,
+    erpQueueItemId: string,
+  ): Promise<{ id: string }> {
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: invoiceId, tenantId },
+    });
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada en el tenant');
+    }
+
+    const existing = await this.prisma.verifactuQueueItem.findFirst({
+      where: {
+        tenantId,
+        invoiceId,
+        status: { in: ['FORWARDED', 'PENDING', 'PROCESSING'] },
+      },
+    });
+    if (existing) {
+      await this.prisma.verifactuQueueItem.update({
+        where: { id: existing.id },
+        data: {
+          status: 'FORWARDED',
+          lastError: `erpQueueItemId:${erpQueueItemId}`,
+        },
+      });
+      return { id: existing.id };
+    }
+
+    const created = await this.prisma.verifactuQueueItem.create({
+      data: {
+        tenantId,
+        invoiceId,
+        status: 'FORWARDED',
+        lastError: `erpQueueItemId:${erpQueueItemId}`,
+      },
+    });
+    return { id: created.id };
+  }
+
+  async applyErpQueueStatus(
+    tenantId: string,
+    invoiceId: string,
+    input: { status: 'COMPLETED' | 'FAILED'; lastError?: string | null },
+  ): Promise<void> {
+    const row = await this.prisma.verifactuQueueItem.findFirst({
+      where: { tenantId, invoiceId },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!row) {
+      return;
+    }
+    await this.prisma.verifactuQueueItem.update({
+      where: { id: row.id },
+      data: {
+        status: input.status,
+        lastError:
+          input.status === 'FAILED'
+            ? (input.lastError?.trim() || row.lastError)
+            : null,
+        updatedAt: new Date(),
+      },
+    });
+  }
+
   async listSeries(tenantId: string): Promise<VerifactuSeriesRow[]> {
     const rows = await this.prisma.verifactuSeries.findMany({
       where: { tenantId },

@@ -6,6 +6,7 @@ export * from './lib/http/verifactu-submission-http.client';
 export * from './lib/http/crm-erp-invoice-mirror-http.client';
 export * from './lib/persistence/prisma-verifactu.repository';
 export * from './lib/security/verifactu-api-key.guard';
+export * from './lib/security/erp-internal-sync-api-key.guard';
 export * from './lib/services/verifactu-prisma.service';
 export * from './lib/services/verifactu-queue.service';
 

@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   VerifactuPrismaService,
   VerifactuSubmissionHttpClient,
+  CrmErpInvoiceMirrorHttpClient,
 } from '@josanz-erp/verifactu-adapters';
 
 @Injectable()
@@ -13,6 +14,7 @@ export class VerifactuWorkerService implements OnModuleInit {
   constructor(
     private readonly prisma: VerifactuPrismaService,
     private readonly verifactuClient: VerifactuSubmissionHttpClient,
+    private readonly crmMirror: CrmErpInvoiceMirrorHttpClient,
   ) {}
 
   onModuleInit() {
@@ -93,6 +95,12 @@ export class VerifactuWorkerService implements OnModuleInit {
       });
 
       this.logger.log(`✅ Success for Invoice ${item.invoiceId}`);
+
+      await this.crmMirror.syncQueueStatusSafe({
+        invoiceId: item.invoiceId,
+        tenantId: item.tenantId,
+        status: 'COMPLETED',
+      });
       
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -100,6 +108,8 @@ export class VerifactuWorkerService implements OnModuleInit {
       const nextRetries = item.retries + 1;
       const nextRetryAt = new Date();
       nextRetryAt.setMinutes(nextRetryAt.getMinutes() + Math.pow(2, nextRetries)); // Exponential backoff
+      const maxRetries = item.maxRetries ?? 5;
+      const exceeded = nextRetries >= maxRetries;
 
       this.logger.warn(`❌ Failed for Invoice ${item.invoiceId}. Retries: ${nextRetries}. Error: ${err.message}`);
 
@@ -113,6 +123,15 @@ export class VerifactuWorkerService implements OnModuleInit {
           updatedAt: new Date()
         }
       });
+
+      if (exceeded) {
+        await this.crmMirror.syncQueueStatusSafe({
+          invoiceId: item.invoiceId,
+          tenantId: item.tenantId,
+          status: 'FAILED',
+          lastError: err.message,
+        });
+      }
     }
   }
 }
