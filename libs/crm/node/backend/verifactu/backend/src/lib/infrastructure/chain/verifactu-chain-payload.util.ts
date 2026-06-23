@@ -17,7 +17,7 @@ export function submissionResultFromPayload(
     p['ack'] &&
     typeof p['ack'] === 'object'
   ) {
-    return p as VerifactuSubmissionResult;
+    return p as unknown as VerifactuSubmissionResult;
   }
 
   const currentHash =
