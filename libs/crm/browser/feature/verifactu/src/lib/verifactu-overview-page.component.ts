@@ -14,6 +14,7 @@ import {
   GcrmPageComponent,
   GcrmPanelComponent,
   GcrmSpinnerComponent,
+  GcrmStatCardComponent,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -42,6 +43,7 @@ import {
     GcrmPanelComponent,
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
+    GcrmStatCardComponent,
   ],
   templateUrl: './verifactu-overview-page.component.html',
   styleUrls: [
@@ -86,9 +88,17 @@ export class VerifactuOverviewPageComponent {
           const integ = integration as VerifactuIntegrationSummaryDto | null;
           const aeat = integ?.aeat;
           const cred = integ?.credentials;
+          const pendingCount = queue.filter((q) =>
+            ['PENDING', 'PROCESSING', 'FORWARDED'].includes(q.status),
+          ).length;
+          const completedCount = queue.filter((q) => q.status === 'COMPLETED').length;
+          const failedCount = queue.filter((q) => q.status === 'FAILED').length;
           return {
             loading: false as const,
             queueCount: queue.length,
+            pendingCount,
+            completedCount,
+            failedCount,
             seriesCount: series.length,
             emitterTaxId: settings.emitterTaxId,
             submissionEnv: aeat?.submissionEnv ?? '—',

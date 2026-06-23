@@ -17,100 +17,195 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
   selector: 'app-verifactu-login',
   imports: [CommonModule],
   template: `
-    <div class="login-shell">
-      <div class="login-card">
-        @if (handoffPending()) {
-          <div class="handoff" role="status" aria-live="polite">
-            <span class="spinner" aria-hidden="true"></span>
-            <h1>Redirigiendo a Keycloak…</h1>
-            <p>Acceso seguro a Verifactu (facturación AEAT).</p>
-          </div>
-        } @else {
-          <p class="eyebrow">Verifactu · CRM</p>
-          <h1>Facturación electrónica</h1>
-          <p class="lede">
-            Huella fiscal, cola de envíos y credenciales AEAT — app independiente del ERP.
+    <div class="login-layout">
+      <aside class="login-brand" aria-hidden="true">
+        <div class="login-brand__inner">
+          <span class="login-brand__mark">VF</span>
+          <p class="login-brand__eyebrow">Verifactu</p>
+          <h2 class="login-brand__title">Facturación electrónica AEAT</h2>
+          <p class="login-brand__lede">
+            Cola de envíos, series fiscales, certificados y trazabilidad — independiente del ERP.
           </p>
+          <ul class="login-brand__features">
+            <li>Envío Verifactu con worker único</li>
+            <li>Espejo CRM + webhooks de estado</li>
+            <li>Multi-tenant listo para demo</li>
+          </ul>
+        </div>
+      </aside>
 
-          @if (erpHubUrl) {
-            <a class="hub-link" [href]="erpHubUrl">← Cambiar aplicación (Babooni Hub)</a>
-          }
-
-          @if (error()) {
-            <p class="err">{{ error() }}</p>
-          }
-
-          @if (isDev) {
-            <p class="dev-hint">
-              Demo KC: <code>admin&#64;demo.local</code> · contraseña
-              <code>Demo12345!</code> · tenant <code>demo</code>
+      <main class="login-main">
+        <div class="login-card">
+          @if (handoffPending()) {
+            <div class="handoff" role="status" aria-live="polite">
+              <span class="spinner" aria-hidden="true"></span>
+              <h1>Redirigiendo a Keycloak…</h1>
+              <p>Acceso seguro a Verifactu.</p>
+            </div>
+          } @else {
+            <p class="eyebrow">Iniciar sesión</p>
+            <h1>Bienvenido</h1>
+            <p class="lede">
+              Entra con Keycloak o usa acceso local para la demo con el cliente.
             </p>
-          }
 
-          @if (showRetry()) {
-            <button type="button" class="btn-primary" (click)="startKeycloak()">
-              Entrar con Keycloak
+            @if (erpHubUrl) {
+              <a class="hub-link" [href]="erpHubUrl">← Volver al Babooni Hub</a>
+            }
+
+            @if (error()) {
+              <p class="err" role="alert">{{ error() }}</p>
+            }
+
+            @if (isDev) {
+              <p class="dev-hint">
+                Demo: <code>admin&#64;demo.local</code> · <code>Demo12345!</code> · tenant
+                <code>demo</code>
+              </p>
+            }
+
+            @if (showRetry()) {
+              <button type="button" class="btn-primary" (click)="startKeycloak()">
+                Entrar con Keycloak
+              </button>
+            } @else if (!error()) {
+              <button type="button" class="btn-primary" (click)="startKeycloak()">
+                Entrar con Keycloak
+              </button>
+            }
+
+            <button type="button" class="btn-secondary" (click)="goLocalIdentity()">
+              Acceso local (email/contraseña)
             </button>
           }
-
-          <button type="button" class="btn-secondary" (click)="goLocalIdentity()">
-            Acceso local (email/contraseña)
-          </button>
-        }
-      </div>
+        </div>
+      </main>
     </div>
   `,
   styles: [
     `
       :host {
+        display: block;
+        min-height: 100dvh;
+        font-family: var(--vf-font, system-ui, sans-serif);
+      }
+      .login-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        min-height: 100dvh;
+      }
+      .login-brand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2.5rem;
+        background: linear-gradient(160deg, #0b1220 0%, #0f172a 45%, #14532d 120%);
+        color: #e2e8f0;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .login-brand__inner {
+        max-width: 22rem;
+      }
+      .login-brand__mark {
         display: grid;
         place-items: center;
-        min-height: 100vh;
-        padding: 1.5rem;
-        background: radial-gradient(circle at 20% 20%, #1e1b4b, #0f172a 55%, #020617);
-        color: #f8fafc;
-        font-family: system-ui, sans-serif;
+        width: 3rem;
+        height: 3rem;
+        margin-bottom: 1.25rem;
+        border-radius: 0.75rem;
+        font-size: 0.85rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: #052e16;
+        background: linear-gradient(135deg, #4ade80, #16a34a);
+        box-shadow: 0 0 32px var(--vf-accent-glow, rgba(34, 197, 94, 0.28));
       }
-      .login-card {
-        width: min(100%, 420px);
-        padding: 2rem;
-        border-radius: 1.25rem;
-        background: rgba(15, 23, 42, 0.82);
-        border: 1px solid rgba(148, 163, 184, 0.2);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
-      }
-      .eyebrow {
+      .login-brand__eyebrow {
         margin: 0 0 0.35rem;
         font-size: 0.72rem;
         letter-spacing: 0.18em;
         text-transform: uppercase;
         color: #86efac;
       }
+      .login-brand__title {
+        margin: 0 0 0.75rem;
+        font-size: 1.65rem;
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      .login-brand__lede {
+        margin: 0 0 1.25rem;
+        color: #94a3b8;
+        line-height: 1.55;
+      }
+      .login-brand__features {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+      .login-brand__features li::before {
+        content: '✓';
+        margin-right: 0.5rem;
+        color: #4ade80;
+        font-weight: 700;
+      }
+      .login-main {
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        background: var(--vf-bg, #f4f7fb);
+      }
+      .login-card {
+        width: min(100%, 400px);
+        padding: 2rem;
+        border-radius: var(--vf-radius, 0.75rem);
+        background: var(--vf-bg-elevated, #fff);
+        border: 1px solid var(--vf-border, #e2e8f0);
+        box-shadow: var(--vf-shadow, 0 8px 24px rgb(15 23 42 / 0.06));
+      }
+      .eyebrow {
+        margin: 0 0 0.35rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--vf-accent, #16a34a);
+        font-weight: 600;
+      }
       h1 {
         margin: 0 0 0.5rem;
         font-size: 1.45rem;
+        color: var(--vf-text, #0f172a);
       }
       .lede {
         margin: 0 0 1.25rem;
-        color: #cbd5e1;
+        color: var(--vf-text-muted, #64748b);
         line-height: 1.5;
+        font-size: 0.95rem;
       }
       .hub-link {
         display: inline-block;
         margin-bottom: 1rem;
-        color: #93c5fd;
+        color: var(--vf-info, #2563eb);
         text-decoration: none;
         font-size: 0.9rem;
+        font-weight: 500;
       }
       .handoff {
         text-align: center;
+        color: var(--vf-text, #0f172a);
       }
       .spinner {
         display: inline-block;
         width: 2rem;
         height: 2rem;
-        border: 2px solid rgba(255, 255, 255, 0.15);
-        border-top-color: #22c55e;
+        border: 2px solid #e2e8f0;
+        border-top-color: var(--vf-accent-light, #22c55e);
         border-radius: 50%;
         animation: spin 0.85s linear infinite;
         margin-bottom: 1rem;
@@ -121,13 +216,17 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         }
       }
       .err {
-        color: #fca5a5;
+        color: var(--vf-danger, #dc2626);
         margin: 0 0 1rem;
+        font-size: 0.9rem;
       }
       .dev-hint {
         font-size: 0.82rem;
-        color: #94a3b8;
+        color: var(--vf-text-muted, #64748b);
         margin: 0 0 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: var(--vf-radius-sm, 0.5rem);
+        background: var(--vf-bg-subtle, #eef2f7);
       }
       .btn-primary,
       .btn-secondary {
@@ -135,21 +234,36 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         width: 100%;
         margin-top: 0.65rem;
         padding: 0.75rem 1rem;
-        border-radius: 0.65rem;
+        border-radius: 0.55rem;
         text-align: center;
-        text-decoration: none;
         font-weight: 600;
         cursor: pointer;
         border: none;
+        font-family: inherit;
+        font-size: 0.95rem;
       }
       .btn-primary {
         background: linear-gradient(90deg, #22c55e, #16a34a);
         color: #052e16;
       }
+      .btn-primary:hover {
+        filter: brightness(1.03);
+      }
       .btn-secondary {
         background: transparent;
-        color: #cbd5e1;
-        border: 1px solid rgba(148, 163, 184, 0.35);
+        color: var(--vf-text-muted, #64748b);
+        border: 1px solid var(--vf-border, #e2e8f0);
+      }
+      .btn-secondary:hover {
+        background: var(--vf-bg-subtle, #eef2f7);
+      }
+      @media (max-width: 860px) {
+        .login-layout {
+          grid-template-columns: 1fr;
+        }
+        .login-brand {
+          display: none;
+        }
       }
     `,
   ],

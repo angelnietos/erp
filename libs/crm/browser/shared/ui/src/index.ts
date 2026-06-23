@@ -1,3 +1,4 @@
+export * from './lib/stat-card/gcrm-stat-card.component';
 export * from './lib/badge/gcrm-badge.component';
 export * from './lib/button/gcrm-button.component';
 export * from './lib/inline-message/gcrm-inline-message.component';

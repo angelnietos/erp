@@ -6,6 +6,6 @@ export const clientsShellRoutes: Route[] = [
     path: '',
     pathMatch: 'full',
     component: ClientsHomePageComponent,
-    title: 'Clientes · Generic CRM',
+    title: 'Verifactu · Clientes',
   },
 ];

@@ -1,47 +1,34 @@
-import { Component, inject } from '@angular/core';
-import {
-  Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterModule,
-} from '@angular/router';
-import { IdentityAuthService } from '@generic-crm/identity-data-access';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { filter, map, startWith } from 'rxjs/operators';
 import { SessionTokenStorageService } from '@generic-crm/shared-browser-data-access';
-import { environment } from '../environments/environment';
-import {
-  clearVerifactuPkceRedirectPending,
-  clearVerifactuPkceSession,
-} from './auth/pkce.util';
-import { VerifactuKeycloakAuthService } from './auth/verifactu-keycloak-auth.service';
+import { VerifactuPlatformShellComponent } from './layout/verifactu-platform-shell.component';
 
 @Component({
-  imports: [RouterModule, RouterLink, RouterLinkActive],
+  imports: [RouterModule, VerifactuPlatformShellComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = 'Generic CRM';
-  protected readonly session = inject(SessionTokenStorageService);
-  private readonly auth = inject(IdentityAuthService);
-  private readonly keycloak = inject(VerifactuKeycloakAuthService);
   private readonly router = inject(Router);
+  private readonly session = inject(SessionTokenStorageService);
 
-  logout(): void {
-    this.auth.logout();
-    clearVerifactuPkceSession();
-    clearVerifactuPkceRedirectPending();
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url.split('?')[0] ?? ''),
+      startWith(this.router.url.split('?')[0] ?? ''),
+    ),
+    { initialValue: '' },
+  );
 
-    const tenantSlug = environment.defaultTenantSlug;
-
-    if (this.keycloak.canUseKeycloak(tenantSlug)) {
-      this.keycloak.endSessionLogout(tenantSlug);
-      return;
+  readonly showChrome = computed(() => {
+    const path = this.url();
+    if (!this.session.hasSession()) {
+      return false;
     }
-
-    void this.router.navigate(['/login'], {
-      queryParams: { reason: 'logout' },
-      replaceUrl: true,
-    });
-  }
+    return !path.startsWith('/login');
+  });
 }

@@ -18,32 +18,32 @@ export const verifactuShellRoutes: Route[] = [
       {
         path: 'overview',
         component: VerifactuOverviewPageComponent,
-        title: 'Verifactu · Resumen · Generic CRM',
+        title: 'Verifactu · Resumen',
       },
       {
         path: 'queue',
         component: VerifactuQueuePageComponent,
-        title: 'Verifactu · Cola · Generic CRM',
+        title: 'Verifactu · Cola AEAT',
       },
       {
         path: 'series',
         component: VerifactuSeriesPageComponent,
-        title: 'Verifactu · Series · Generic CRM',
+        title: 'Verifactu · Series',
       },
       {
         path: 'logs',
         component: VerifactuLogsPageComponent,
-        title: 'Verifactu · Historial · Generic CRM',
+        title: 'Verifactu · Historial',
       },
       {
         path: 'credentials',
         component: VerifactuCredentialsPageComponent,
-        title: 'Verifactu · Certificado AEAT · Generic CRM',
+        title: 'Verifactu · Certificado AEAT',
       },
       {
         path: 'integration',
         component: VerifactuIntegrationPageComponent,
-        title: 'Verifactu · Integración · Generic CRM',
+        title: 'Verifactu · Integración ERP',
       },
     ],
   },

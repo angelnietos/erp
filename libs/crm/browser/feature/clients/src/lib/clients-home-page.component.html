@@ -1,40 +1,76 @@
-<section class="page" aria-labelledby="clients-heading">
-  <div class="page-head">
-    <h1 id="clients-heading">Clientes</h1>
+<gcrm-page
+  title="Clientes"
+  subtitle="Directorio de clientes del tenant — datos sincronizados con el CRM."
+>
+  <div gcrmPageActions class="toolbar">
     @if (listLoading()) {
       <gcrm-spinner size="sm" label="Cargando clientes" />
     }
-    <button
+    <gcrm-button
       type="button"
-      class="btn-refresh"
+      variant="secondary"
       [disabled]="listLoading()"
-      [attr.aria-busy]="listLoading()"
+      [busy]="listLoading()"
       (click)="refresh()"
-      aria-label="Actualizar lista de clientes"
     >
       {{ listLoading() ? 'Actualizando…' : 'Actualizar' }}
-    </button>
+    </gcrm-button>
   </div>
-  <p class="hint">GET <code>/api/clients</code></p>
+
   @if (clients$ | async; as rows) {
     @if (loadError()) {
-      <gcrm-inline-message variant="error">{{
-        loadError()
-      }}</gcrm-inline-message>
+      <gcrm-inline-message variant="error">{{ loadError() }}</gcrm-inline-message>
     }
-    @if (!loadError && rows.length === 0) {
-      <p class="muted">No hay clientes.</p>
-    }
-    @if (!loadError && rows.length > 0) {
-      <ul>
-        @for (c of rows; track c.id) {
-          <li>
-            <pre>{{ c | json }}</pre>
-          </li>
-        }
-      </ul>
-    }
-  } @else {
-    <div aria-hidden="true"></div>
+
+    <gcrm-panel [title]="'Listado (' + rows.length + ')'" padding="none">
+      @if (!loadError() && rows.length === 0 && !listLoading()) {
+        <p class="empty">No hay clientes registrados en este tenant.</p>
+      }
+      @if (rows.length > 0) {
+        <div class="table-wrap">
+          <table class="clients-table">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">NIF/CIF</th>
+                <th scope="col">Tipo</th>
+                <th scope="col">Contacto</th>
+                <th scope="col">Ubicación</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of rows; track c.id) {
+                <tr>
+                  <td>
+                    <span class="name">{{ c.name }}</span>
+                    @if (c.sector) {
+                      <span class="sector">{{ c.sector }}</span>
+                    }
+                  </td>
+                  <td class="mono">{{ c.taxId || '—' }}</td>
+                  <td>
+                    <gcrm-badge [variant]="typeBadge(c.type)">{{ c.type }}</gcrm-badge>
+                  </td>
+                  <td>
+                    @if (c.email) {
+                      <span class="contact">{{ c.email }}</span>
+                    }
+                    @if (c.phone) {
+                      <span class="contact muted">{{ c.phone }}</span>
+                    }
+                    @if (!c.email && !c.phone) {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                  <td class="location">
+                    {{ locationLabel(c) }}
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </gcrm-panel>
   }
-</section>
+</gcrm-page>

@@ -1,0 +1,35 @@
+/* Verifactu Platform — design tokens (demo AEAT) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+
+:root {
+  --vf-font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --vf-bg: #f4f7fb;
+  --vf-bg-elevated: #ffffff;
+  --vf-bg-subtle: #eef2f7;
+  --vf-sidebar: #0b1220;
+  --vf-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --vf-sidebar-active: rgba(34, 197, 94, 0.14);
+  --vf-text: #0f172a;
+  --vf-text-muted: #64748b;
+  --vf-text-on-dark: #e2e8f0;
+  --vf-text-on-dark-muted: #94a3b8;
+  --vf-border: #e2e8f0;
+  --vf-accent: #16a34a;
+  --vf-accent-light: #22c55e;
+  --vf-accent-soft: rgba(34, 197, 94, 0.12);
+  --vf-accent-glow: rgba(34, 197, 94, 0.28);
+  --vf-danger: #dc2626;
+  --vf-warning: #d97706;
+  --vf-info: #2563eb;
+  --vf-radius: 0.75rem;
+  --vf-radius-sm: 0.5rem;
+  --vf-shadow: 0 1px 3px rgb(15 23 42 / 0.06), 0 8px 24px rgb(15 23 42 / 0.04);
+  --vf-focus: #22c55e;
+}
+
+html,
+body {
+  font-family: var(--vf-font);
+  background: var(--vf-bg);
+  color: var(--vf-text);
+}

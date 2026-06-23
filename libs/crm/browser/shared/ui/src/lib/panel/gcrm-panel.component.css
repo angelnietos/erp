@@ -1,22 +1,22 @@
 .panel {
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  background: #fff;
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+  border: 1px solid var(--vf-border, #e2e8f0);
+  border-radius: var(--vf-radius, 0.5rem);
+  background: var(--vf-bg-elevated, #fff);
+  box-shadow: var(--vf-shadow, 0 1px 2px rgb(15 23 42 / 0.05));
 }
 
 .head {
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 0.5rem 0.5rem 0 0;
+  border-bottom: 1px solid var(--vf-border, #e2e8f0);
+  background: var(--vf-bg-subtle, #f8fafc);
+  border-radius: var(--vf-radius, 0.5rem) var(--vf-radius, 0.5rem) 0 0;
 }
 
 .title {
   margin: 0;
   font-size: 0.9375rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--vf-text, #0f172a);
 }
 
 .body {
@@ -36,5 +36,5 @@
 }
 
 .pad-none .head + .body {
-  border-radius: 0 0 0.5rem 0.5rem;
+  border-radius: 0 0 var(--vf-radius, 0.5rem) var(--vf-radius, 0.5rem);
 }

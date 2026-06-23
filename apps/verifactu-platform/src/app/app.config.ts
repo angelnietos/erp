@@ -6,9 +6,22 @@ import {
 import {
   APP_INITIALIZER,
   ApplicationConfig,
+  importProvidersFrom,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
+import {
+  LayoutDashboard,
+  ListOrdered,
+  Hash,
+  History,
+  Shield,
+  Plug,
+  Users,
+  ExternalLink,
+  LogOut,
+  LucideAngularModule,
+} from 'lucide-angular';
 import {
   API_BASE_URL,
   authBearerInterceptor,
@@ -30,6 +43,19 @@ export const appConfig: ApplicationConfig = {
       }),
     ),
     provideHttpClient(withInterceptors([authBearerInterceptor])),
+    importProvidersFrom(
+      LucideAngularModule.pick({
+        LayoutDashboard,
+        ListOrdered,
+        Hash,
+        History,
+        Shield,
+        Plug,
+        Users,
+        ExternalLink,
+        LogOut,
+      }),
+    ),
     {
       provide: APP_INITIALIZER,
       useFactory: initAppRuntimeConfig,
