@@ -17,12 +17,11 @@
       <p class="auth-handoff-screen__text">Redirigiendo a Keycloak…</p>
       <div class="tenant-context tenant-context--handoff">
         <div class="tenant-pill">
-          <lucide-icon name="building-2" size="14"></lucide-icon>
-          <span>{{ tenantLabel() }}</span>
-          <span class="tenant-pill__slug">· {{ tenantSlug() }}</span>
+          <lucide-icon [name]="contextIcon()" size="14"></lucide-icon>
+          <span>{{ contextKindLabel() }} · {{ tenantLabel() }}</span>
         </div>
         <button type="button" class="link-muted" (click)="goChangeTenant()">
-          Cambiar organización
+          {{ hubSwitchLabel() }}
         </button>
       </div>
       @if (isDev && devLoginHint(); as hint) {
@@ -158,12 +157,11 @@
       [class.tenant-context--figma]="useFigmaShellLogin()"
     >
       <div class="tenant-pill">
-        <lucide-icon name="building-2" size="14"></lucide-icon>
-        <span>{{ tenantLabel() }}</span>
-        <span class="tenant-pill__slug">· {{ tenantSlug() }}</span>
+        <lucide-icon [name]="contextIcon()" size="14"></lucide-icon>
+        <span>{{ contextKindLabel() }} · {{ tenantLabel() }}</span>
       </div>
       <button type="button" class="link-muted" (click)="goChangeTenant()">
-        Cambiar organización
+        {{ hubSwitchLabel() }}
       </button>
     </div>
 

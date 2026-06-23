@@ -28,6 +28,7 @@ import {
 import {
   getTenantKeycloakConfig,
   tenantUsesKeycloakLogin,
+  isExternalErpAppSlug,
 } from '@josanz-erp/identity-api';
 import { consumePkceRedirectAborted, clearPkceRedirectPending } from '@josanz-erp/shared-auth-keycloak';
 import { ThemeService } from '@josanz-erp/shared-data-access';
@@ -274,9 +275,26 @@ export class LoginComponent implements OnInit {
       babooni: 'Babooni Technologies',
       alexis: 'Alexis',
       docs: 'Generador de Documentos',
+      verifactu: 'Verifactu',
+      platform: 'Panel SaaS',
     };
     return known[slug] ?? slug;
   });
+
+  /** Apps del hub (:4230, :4210, :4300) vs tenants ERP. */
+  readonly isAppLogin = computed(() => isExternalErpAppSlug(this.tenantSlug()));
+
+  readonly hubSwitchLabel = computed(() =>
+    this.isAppLogin() ? 'Ir al hub' : 'Cambiar organización',
+  );
+
+  readonly contextKindLabel = computed(() =>
+    this.isAppLogin() ? 'App' : 'Organización',
+  );
+
+  readonly contextIcon = computed(() =>
+    this.isAppLogin() ? 'layout-grid' : 'building-2',
+  );
 
   readonly loginAtmosphere = computed(() => resolveLoginAtmosphere(this.tenantSlug()));
 

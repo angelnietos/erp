@@ -50,7 +50,7 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
             </p>
 
             @if (erpHubUrl) {
-              <a class="hub-link" [href]="erpHubUrl">← Volver al Babooni Hub</a>
+              <a class="hub-link" [href]="erpHubUrl">Ir al hub</a>
             }
 
             @if (error()) {

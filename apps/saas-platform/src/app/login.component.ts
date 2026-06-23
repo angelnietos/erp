@@ -56,9 +56,9 @@ import { environment } from '../environments/environment';
           </div>
 
           <div class="org-context">
-            <span class="org-pill">Panel SaaS · platform</span>
+            <span class="org-pill">App · Panel SaaS</span>
             @if (erpHubUrl) {
-              <a class="org-change" [href]="erpHubUrl">Cambiar organización</a>
+              <a class="org-change" [href]="erpHubUrl">Ir al hub</a>
             }
           </div>
 

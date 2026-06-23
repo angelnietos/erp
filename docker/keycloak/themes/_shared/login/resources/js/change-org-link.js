@@ -1,9 +1,20 @@
 /**
- * Enlace «Cambiar organización» en login/logout Keycloak — todos los tenants.
- * Hub ERP: /auth/tenant (desde redirect_uri del cliente OIDC).
+ * Enlace al hub ERP (/auth/tenant) desde login Keycloak.
+ * Apps independientes → «Ir al hub»; tenants ERP → «Cambiar organización».
  */
 (function () {
   const ERP_TENANT_PATH = '/auth/tenant';
+
+  const APP_CLIENT_IDS = new Set(['verifactu-crm-spa', 'babooni-saas-platform']);
+
+  const SLUG_LABELS = {
+    josanz: 'Generic ERP',
+    babooni: 'Babooni',
+    alexis: 'Alexis',
+    verifactu: 'Verifactu',
+    platform: 'Panel SaaS',
+    docs: 'Documentos',
+  };
 
   function escapeHtml(value) {
     return String(value)
@@ -18,7 +29,7 @@
     if (redirectUri) {
       try {
         const u = new URL(redirectUri);
-        if (u.port === '4300' || u.port === '4230') {
+        if (u.port === '4300' || u.port === '4230' || u.port === '4210') {
           return u.protocol + '//' + u.hostname + ':4200' + ERP_TENANT_PATH;
         }
         return u.origin + ERP_TENANT_PATH;
@@ -49,6 +60,32 @@
     return '';
   }
 
+  function resolveClientId() {
+    return new URLSearchParams(window.location.search).get('client_id') || '';
+  }
+
+  function isAppContext(slug, clientId, realm) {
+    if (APP_CLIENT_IDS.has(clientId)) {
+      return true;
+    }
+    if (slug === 'verifactu' || slug === 'platform' || slug === 'docs') {
+      return true;
+    }
+    return realm === 'babooni-platform';
+  }
+
+  function resolveContextCopy(slug, clientId, realm) {
+    const app = isAppContext(slug, clientId, realm);
+    const displayName = SLUG_LABELS[slug] || slug;
+    return {
+      app,
+      displayName,
+      pillPrefix: app ? 'App' : 'Organización',
+      actionLabel: app ? 'Ir al hub' : 'Cambiar organización',
+      ariaLabel: app ? 'Hub de aplicaciones' : 'Organización',
+    };
+  }
+
   function findAnchor() {
     return (
       document.getElementById('kc-form-login') ||
@@ -72,24 +109,31 @@
     }
 
     const slug = resolveTenantSlug();
+    const clientId = resolveClientId();
+    const realm = (window.location.pathname.match(/\/realms\/([^/]+)/) || [])[1] || '';
+    const ctx = resolveContextCopy(slug, clientId, realm);
     const hubUrl = resolveHubUrl();
     const wrap = document.createElement('div');
     wrap.id = 'kc-change-org-link';
     wrap.className = 'kc-change-org-link';
     wrap.setAttribute('role', 'navigation');
-    wrap.setAttribute('aria-label', 'Organización');
+    wrap.setAttribute('aria-label', ctx.ariaLabel);
 
     let inner = '';
     if (slug) {
       inner +=
-        '<span class="kc-change-org-link__pill">Organización · ' +
-        escapeHtml(slug) +
+        '<span class="kc-change-org-link__pill">' +
+        escapeHtml(ctx.pillPrefix) +
+        ' · ' +
+        escapeHtml(ctx.displayName) +
         '</span>';
     }
     inner +=
       '<a class="kc-change-org-link__action" href="' +
       escapeHtml(hubUrl) +
-      '">Cambiar organización</a>';
+      '">' +
+      escapeHtml(ctx.actionLabel) +
+      '</a>';
     wrap.innerHTML = inner;
 
     if (anchor.id === 'kc-form-login' || anchor.id === 'kc-form-buttons') {
