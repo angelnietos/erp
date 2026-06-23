@@ -11,8 +11,12 @@ import {
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
 import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
-import { getStoredTenantId } from '@josanz-erp/identity-data-access';
-import { VerifactuService } from '@josanz-erp/verifactu-data-access';
+import {
+  getErpTenantSlug,
+  getStoredTenantId,
+  resolveTenantSlugFromId,
+} from '@josanz-erp/identity-data-access';
+import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
 
 @Component({
   selector: 'lib-billing-detail',
@@ -143,15 +147,18 @@ import { VerifactuService } from '@josanz-erp/verifactu-data-access';
                  <lucide-icon [name]="getVerifactuIcon(inv.verifactuStatus)" [size]="28" aria-hidden="true"></lucide-icon>
                  <div class="vf-text">
                    <h4 class="text-uppercase">{{ getVerifactuLabel(inv.verifactuStatus) }}</h4>
-                   <p class="text-friendly">Certificación VeriFactu cumplimentada bajo normativa 2026/02/AEAT.</p>
+                   <p class="text-friendly">Estado sincronizado desde el ERP. QR y trazabilidad en la plataforma Verifactu.</p>
                  </div>
                </div>
                @if (inv.verifactuStatus === 'sent') {
                  <div class="qr-placeholder ui-filled">
                     <lucide-icon name="qr-code" size="64" aria-hidden="true"></lucide-icon>
-                    <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Código HASH Certificado</p>
+                    <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Ver certificado en plataforma</p>
                  </div>
                }
+               <ui-button variant="glass" icon="external-link" (clicked)="openVerifactuPlatform()">
+                 ABRIR EN VERIFACTU
+               </ui-button>
             </ui-card>
 
             <ui-card variant="glass" title="Notas del Expediente">
@@ -321,7 +328,6 @@ export class BillingDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly invoiceService = inject(InvoiceService);
   private readonly facade = inject(BillingFacade);
-  private readonly verifactuApi = inject(VerifactuService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
@@ -348,18 +354,6 @@ export class BillingDetailComponent implements OnInit {
       next: (inv) => {
         if (inv) {
           this.invoice.set(inv);
-          // Consultar estado real en Verifactu (CRM) para sincronizar UI
-          this.verifactuApi.getInvoiceDetail(id).subscribe({
-             next: (vf) => {
-                this.invoice.update(current => current ? { 
-                  ...current, 
-                  verifactuStatus: vf.verifactuStatus as 'sent' | 'error' | 'pending',
-                  aeatReference: vf.aeatReference,
-                  qrCode: vf.qrCode
-                } : current);
-             },
-             error: () => { /* Ignorar si no hay registro aún */ }
-          });
         } else if (!fromList) {
           this.setMockInvoice(id);
         }
@@ -477,17 +471,19 @@ export class BillingDetailComponent implements OnInit {
 
   rectifyInvoice() {
     const inv = this.invoice();
-    const tenantId = getStoredTenantId();
-    if (!inv || !tenantId) return;
+    if (!inv) return;
     if (confirm(`¿Estás seguro de que deseas emitir una factura rectificativa para ${inv.invoiceNumber}?`)) {
-      this.verifactuApi.cancelInvoice(inv.id, tenantId).subscribe({
-        next: (ok) => {
-          if (ok) {
-            this.facade.updateInvoice(inv.id, { status: 'cancelled', verifactuStatus: 'error' });
-            this.loadInvoice(inv.id);
-          }
-        },
-      });
+      this.facade.cancelInvoice(inv.id);
+      this.loadInvoice(inv.id);
+    }
+  }
+
+  openVerifactuPlatform(): void {
+    const slug =
+      getErpTenantSlug() ?? resolveTenantSlugFromId(getStoredTenantId()) ?? 'demo';
+    const url = resolveVerifactuPlatformDeepLink(slug, '/verifactu/logs');
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
     }
   }
 }

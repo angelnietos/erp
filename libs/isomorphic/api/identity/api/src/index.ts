@@ -58,6 +58,7 @@ export {
   isExternalErpAppSlug,
   getExternalErpAppDefinition,
   resolveExternalAppLaunchUrl,
+  resolveVerifactuPlatformDeepLink,
   type ErpExternalAppDefinition,
   type ErpExternalAppKind,
 } from './lib/erp-app-launcher';

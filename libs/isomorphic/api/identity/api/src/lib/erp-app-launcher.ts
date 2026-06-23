@@ -82,6 +82,17 @@ export function getExternalErpAppDefinition(
   return ERP_EXTERNAL_APP_CATALOG.find((app) => app.slug === key);
 }
 
+const CRM_TENANT_BY_ERP_SLUG: Readonly<Record<string, string>> = {
+  josanz: 'josanz',
+  babooni: 'babooni',
+  alexis: 'alexis',
+};
+
+function resolveCrmTenantSlug(erpOrgSlug?: string | null): string {
+  const org = erpOrgSlug?.trim().toLowerCase().replace(/[^a-z0-9-]/g, '') ?? '';
+  return CRM_TENANT_BY_ERP_SLUG[org] ?? 'demo';
+}
+
 /** URL completa para abrir la app externa; `null` si slug desconocido o sin base URL. */
 export function resolveExternalAppLaunchUrl(
   slug: string | null | undefined,
@@ -98,16 +109,25 @@ export function resolveExternalAppLaunchUrl(
   let path = app.entryPath.startsWith('/') ? app.entryPath : `/${app.entryPath}`;
 
   if (app.slug === ERP_VERIFACTU_APP_SLUG) {
-    const org = erpOrgSlug?.trim().toLowerCase().replace(/[^a-z0-9-]/g, '') ?? '';
-    const crmTenantByErp: Record<string, string> = {
-      josanz: 'josanz',
-      babooni: 'babooni',
-      alexis: 'alexis',
-    };
-    const tenant = crmTenantByErp[org] ?? 'demo';
+    const tenant = resolveCrmTenantSlug(erpOrgSlug);
     const sep = path.includes('?') ? '&' : '?';
     path = `${path}${sep}tenant=${encodeURIComponent(tenant)}`;
   }
 
   return `${base}${path}`;
+}
+
+/** Login en la plataforma Verifactu con `returnUrl` hacia una ruta interna (p. ej. cola AEAT). */
+export function resolveVerifactuPlatformDeepLink(
+  erpOrgSlug?: string | null,
+  verifactuPath = '/verifactu/overview',
+): string | null {
+  const base = (externalAppBaseUrls[ERP_VERIFACTU_APP_SLUG] ?? '').trim().replace(/\/$/, '');
+  if (!base) {
+    return null;
+  }
+  const path = verifactuPath.startsWith('/') ? verifactuPath : `/${verifactuPath}`;
+  const tenant = resolveCrmTenantSlug(erpOrgSlug);
+  const returnUrl = encodeURIComponent(path);
+  return `${base}/login?returnUrl=${returnUrl}&tenant=${encodeURIComponent(tenant)}`;
 }

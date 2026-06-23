@@ -2,8 +2,6 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { Invoice, InvoiceService } from '../services/invoice.service';
 import { Budget } from '@josanz-erp/budget-api';
-import { VerifactuService } from '@josanz-erp/verifactu-data-access';
-import { getStoredTenantId } from '@josanz-erp/identity-data-access';
 
 export interface BillingTabs {
   id: string;
@@ -14,7 +12,6 @@ export interface BillingTabs {
 @Injectable({ providedIn: 'root' })
 export class BillingFacade {
   private readonly service = inject(InvoiceService);
-  private readonly verifactuService = inject(VerifactuService);
 
   /** Full list from API; tabs and mutations keep this in sync. */
   private readonly _allInvoices = signal<Invoice[]>([]);
@@ -196,17 +193,13 @@ export class BillingFacade {
   }
 
   cancelInvoice(invoiceId: string): void {
-    const tenantId = getStoredTenantId();
-    if (!tenantId) return;
-    this.verifactuService.cancelInvoice(invoiceId, tenantId).subscribe({
-      next: (ok) => {
-        if (ok) {
-          this.updateInvoice(invoiceId, {
-            status: 'cancelled',
-            verifactuStatus: 'error',
-          });
-        }
-      },
-    });
+    this.service
+      .updateInvoice(invoiceId, { status: 'cancelled', verifactuStatus: 'error' })
+      .subscribe({
+        next: (updated) =>
+          this._allInvoices.update((items) =>
+            items.map((i) => (i.id === invoiceId ? updated : i)),
+          ),
+      });
   }
 }

@@ -15,7 +15,6 @@ import {
   UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
@@ -40,7 +39,12 @@ import {
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
 import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
-import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
+import {
+  getErpTenantSlug,
+  getStoredTenantId,
+  resolveTenantSlugFromId,
+} from '@josanz-erp/identity-data-access';
+import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
 
 @Component({
   selector: 'lib-billing-list',
@@ -53,7 +57,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
     UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
-  UiModalComponent,
   UiTabsComponent,
   UiStatCardComponent,
     UiFeatureHeaderComponent,
@@ -82,7 +85,13 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         icon="banknote"
         actionLabel="EMITIR FACTURA"
         (actionClicked)="goToNewInvoice()"
-      ></ui-feature-header>
+      >
+        <div actions>
+          <ui-button variant="glass" icon="external-link" (clicked)="openVerifactuPlatform()">
+            PLATAFORMA VERIFACTU
+          </ui-button>
+        </div>
+      </ui-feature-header>
 
       <ui-feature-stats>
         <ui-stat-card
@@ -423,8 +432,8 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
                       variant="ghost"
                       size="sm"
                       icon="qr-code"
-                      (click)="$event.stopPropagation(); viewVerifactuQr(inv)"
-                      title="Ver Certificado"
+                      (click)="$event.stopPropagation(); viewVerifactuQr()"
+                      title="Ver en plataforma Verifactu"
                     ></ui-button>
                   }
                 }
@@ -485,47 +494,6 @@ import { VerifactuStore } from '@josanz-erp/verifactu-data-access';
         </footer>
       }
     </ui-feature-page-shell>
-
-    <ui-modal
-      [isOpen]="isVerifactuQrModalOpen()"
-      title="CERTIFICADO FISCAL AEAT"
-      variant="glass"
-      [showFooter]="false"
-      (closed)="closeVerifactuQrModal()"
-    >
-      @if (verifactuStore.selectedInvoice(); as inv) {
-        <div class="qr-panel">
-          <div class="qr-header">
-            <h3>Garantía de Integridad</h3>
-            <span class="ref">{{ inv.series }}{{ inv.number }}</span>
-          </div>
-
-          <div class="qr-display">
-            @if (inv.qrCode) {
-              <div class="qr-box animate-scale-in">
-                <img [src]="inv.qrCode" alt="Verifactu QR" />
-              </div>
-              <p>
-                Escanea este código para verificar la legalidad en la sede
-                electrónica.
-              </p>
-            } @else {
-              <ui-loader message="Generando certificado..."></ui-loader>
-            }
-          </div>
-
-          <div class="qr-footer">
-            <div class="stat">
-              <span class="lbl">TOTAL OPERACIÓN</span>
-              <span class="val">{{ formatCurrencyEu(inv.total) }}</span>
-            </div>
-            <ui-button variant="glass" (clicked)="closeVerifactuQrModal()"
-              >CERRAR</ui-button
-            >
-          </div>
-        </div>
-      }
-    </ui-modal>
     }
   `,
   styles: [
@@ -830,7 +798,6 @@ export class BillingListComponent
   private readonly facade = inject(BillingFacade);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly toast = inject(ToastService);
-  readonly verifactuStore = inject<VerifactuStore>(VerifactuStore);
   private readonly authStore = inject(GlobalAuthStore);
   readonly canAccess = rbacAllows(
     this.authStore,
@@ -861,9 +828,6 @@ export class BillingListComponent
 
   // Bulk selection
   selectedInvoices = signal<Set<string>>(new Set());
-
-  // QR modal
-  isVerifactuQrModalOpen = signal(false);
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -1009,16 +973,22 @@ export class BillingListComponent
     this.facade.updateInvoice(inv.id, { status: 'pending' });
   }
 
-  viewVerifactuQr(invoice: Invoice): void {
-    this.verifactuStore.clearError();
-    this.isVerifactuQrModalOpen.set(true);
-    this.verifactuStore.loadInvoiceDetailWithQr(invoice.id);
+  viewVerifactuQr(): void {
+    this.openVerifactuPlatform('/verifactu/logs');
   }
 
   sendToVerifactu(inv: Invoice): void {
     if (!inv.id) return;
-    this.verifactuStore.clearError();
     this.facade.submitToVerifactu(inv.id);
+  }
+
+  openVerifactuPlatform(path = '/verifactu/overview'): void {
+    const slug =
+      getErpTenantSlug() ?? resolveTenantSlugFromId(getStoredTenantId()) ?? 'demo';
+    const url = resolveVerifactuPlatformDeepLink(slug, path);
+    if (url) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   }
 
   rectifyInvoice(inv: Invoice): void {
@@ -1030,11 +1000,6 @@ export class BillingListComponent
     ) {
       this.facade.cancelInvoice(inv.id);
     }
-  }
-
-  closeVerifactuQrModal(): void {
-    this.isVerifactuQrModalOpen.set(false);
-    this.verifactuStore.clearSelectedInvoice();
   }
 
   getStatusVariant(
