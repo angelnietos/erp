@@ -15,6 +15,7 @@ import {
   UiFeatureFilterBarComponent,
   UiPaginationComponent,
   UiLoaderComponent,
+  UiModalComponent,
   UiTabsComponent,
   UiStatCardComponent,
   UiFeatureHeaderComponent,
@@ -38,7 +39,7 @@ import {
 } from '@josanz-erp/shared-data-access';
 import { Observable, of } from 'rxjs';
 import { BILLING_FEATURE_CONFIG } from '../billing-feature.config';
-import { BillingFacade, Invoice } from '@josanz-erp/billing-data-access';
+import { BillingFacade, Invoice, ErpVerifactuFiscalDetail, ErpVerifactuService } from '@josanz-erp/billing-data-access';
 import {
   getErpTenantSlug,
   getStoredTenantId,
@@ -57,6 +58,7 @@ import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
     UiFeatureFilterBarComponent,
     UiPaginationComponent,
     UiLoaderComponent,
+    UiModalComponent,
   UiTabsComponent,
   UiStatCardComponent,
     UiFeatureHeaderComponent,
@@ -432,8 +434,8 @@ import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
                       variant="ghost"
                       size="sm"
                       icon="qr-code"
-                      (click)="$event.stopPropagation(); viewVerifactuQr()"
-                      title="Ver en plataforma Verifactu"
+                      (click)="$event.stopPropagation(); viewVerifactuQr(inv)"
+                      title="Ver QR Verifactu"
                     ></ui-button>
                   }
                 }
@@ -494,6 +496,51 @@ import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
         </footer>
       }
     </ui-feature-page-shell>
+
+    <ui-modal
+      [isOpen]="isVerifactuQrModalOpen()"
+      title="CERTIFICADO FISCAL AEAT"
+      variant="glass"
+      [showFooter]="false"
+      (closed)="closeVerifactuQrModal()"
+    >
+      @if (fiscalQrLoading()) {
+        <ui-loader message="Generando certificado QR..."></ui-loader>
+      } @else if (fiscalQr(); as fiscal) {
+        <div class="qr-panel">
+          <div class="qr-header">
+            <h3>Garantía de Integridad VeriFactu</h3>
+            <span class="ref">{{ fiscal.invoiceNumber }}</span>
+          </div>
+
+          <div class="qr-display">
+            @if (fiscal.qrCode) {
+              <div class="qr-box animate-scale-in">
+                <img [src]="fiscal.qrCode" alt="Verifactu QR" />
+              </div>
+              <p>Escanea para validar en la sede electrónica AEAT.</p>
+            } @else {
+              <p class="text-muted">QR disponible cuando la factura esté en estado SINCRO OK.</p>
+            }
+          </div>
+
+          @if (fiscal.aeatReference) {
+            <p class="qr-aeat-ref">Ref. AEAT: {{ fiscal.aeatReference }}</p>
+          }
+          @if (fiscal.currentHash) {
+            <p class="qr-hash font-mono">HASH: {{ fiscal.currentHash }}</p>
+          }
+
+          <div class="qr-footer">
+            <div class="stat">
+              <span class="lbl">TOTAL OPERACIÓN</span>
+              <span class="val">{{ formatCurrencyEu(fiscal.total) }}</span>
+            </div>
+            <ui-button variant="glass" (clicked)="closeVerifactuQrModal()">CERRAR</ui-button>
+          </div>
+        </div>
+      }
+    </ui-modal>
     }
   `,
   styles: [
@@ -796,6 +843,7 @@ export class BillingListComponent
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
   private readonly facade = inject(BillingFacade);
+  private readonly erpVerifactu = inject(ErpVerifactuService);
   private readonly masterFilter = inject(MasterFilterService);
   private readonly toast = inject(ToastService);
   private readonly authStore = inject(GlobalAuthStore);
@@ -828,6 +876,10 @@ export class BillingListComponent
 
   // Bulk selection
   selectedInvoices = signal<Set<string>>(new Set());
+
+  isVerifactuQrModalOpen = signal(false);
+  fiscalQr = signal<ErpVerifactuFiscalDetail | null>(null);
+  fiscalQrLoading = signal(false);
 
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -973,13 +1025,31 @@ export class BillingListComponent
     this.facade.updateInvoice(inv.id, { status: 'pending' });
   }
 
-  viewVerifactuQr(): void {
-    this.openVerifactuPlatform('/verifactu/logs');
+  viewVerifactuQr(invoice: Invoice): void {
+    if (!invoice.id) return;
+    this.fiscalQr.set(null);
+    this.fiscalQrLoading.set(true);
+    this.isVerifactuQrModalOpen.set(true);
+    this.erpVerifactu.getInvoiceFiscal(invoice.id).subscribe({
+      next: (detail) => {
+        this.fiscalQr.set(detail);
+        this.fiscalQrLoading.set(false);
+      },
+      error: () => {
+        this.fiscalQrLoading.set(false);
+      },
+    });
   }
 
   sendToVerifactu(inv: Invoice): void {
     if (!inv.id) return;
     this.facade.submitToVerifactu(inv.id);
+    this.toast.show('Factura encolada para envío AEAT', 'success');
+  }
+
+  closeVerifactuQrModal(): void {
+    this.isVerifactuQrModalOpen.set(false);
+    this.fiscalQr.set(null);
   }
 
   openVerifactuPlatform(path = '/verifactu/overview'): void {

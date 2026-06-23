@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
@@ -8,6 +16,7 @@ import {
   UiFeatureAccessDeniedComponent,
   UiFeatureHeaderComponent,
   UiFeaturePageShellComponent,
+  UiLoaderComponent,
   UiStatCardComponent,
 } from '@josanz-erp/shared-ui-kit';
 import {
@@ -18,6 +27,11 @@ import {
 } from '@josanz-erp/identity-data-access';
 import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
 import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-data-access';
+import {
+  ErpVerifactuOverview,
+  ErpVerifactuService,
+} from '@josanz-erp/billing-data-access';
+import { catchError, interval, of, startWith, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'erp-verifactu-bridge',
@@ -31,6 +45,7 @@ import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-dat
     UiFeatureAccessDeniedComponent,
     UiFeatureHeaderComponent,
     UiFeaturePageShellComponent,
+    UiLoaderComponent,
     UiStatCardComponent,
   ],
   template: `
@@ -44,78 +59,90 @@ import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-dat
         <ui-feature-header
           title="VeriFactu AEAT"
           breadcrumbLead="CUMPLIMIENTO FISCAL"
-          breadcrumbTail="PLATAFORMA INTEGRADA"
-          subtitle="Envíos, cola y certificados se gestionan en la app Verifactu (tenant {{ tenantLabel() }})."
+          breadcrumbTail="MONITOR TENANT"
+          subtitle="Cola y certificados en tiempo real para {{ tenantLabel() }}."
           icon="file-check"
         >
           <div actions>
+            <ui-button variant="glass" icon="refresh-cw" (clicked)="refresh()">
+              ACTUALIZAR
+            </ui-button>
             <ui-button variant="glass" icon="history" routerLink="/billing">
-              IR A FACTURACIÓN
+              FACTURACIÓN
             </ui-button>
             <ui-button variant="app" icon="external-link" (clicked)="openPlatform()">
-              ABRIR PLATAFORMA
+              PLATAFORMA :4230
             </ui-button>
           </div>
         </ui-feature-header>
 
-        <section class="vf-bridge__stats">
-          <ui-stat-card
-            label="Organización ERP"
-            [value]="tenantLabel()"
-            icon="building-2"
-            [accent]="true"
-          ></ui-stat-card>
-          <ui-stat-card
-            label="Estado integración"
-            value="ACTIVA"
-            icon="shield-check"
-            [trend]="1"
-          ></ui-stat-card>
-          <ui-stat-card
-            label="API legacy"
-            value="DEPRECADA"
-            icon="unlink"
-          ></ui-stat-card>
-        </section>
+        @if (loading()) {
+          <ui-loader message="Sincronizando cola Verifactu del tenant..."></ui-loader>
+        } @else if (loadError()) {
+          <div class="vf-bridge__error ui-glass-panel">
+            <lucide-icon name="alert-circle" size="20" aria-hidden="true"></lucide-icon>
+            <span>{{ loadError() }}</span>
+            <ui-button variant="glass" size="sm" (clicked)="refresh()">Reintentar</ui-button>
+          </div>
+        } @else if (overview(); as o) {
+          <section class="vf-bridge__stats">
+            <ui-stat-card
+              label="Cola pendiente"
+              [value]="o.queuePending.toString()"
+              icon="clock"
+              [accent]="o.queuePending > 0"
+            ></ui-stat-card>
+            <ui-stat-card
+              label="Procesadas OK"
+              [value]="o.queueCompleted.toString()"
+              icon="check-check"
+              [trend]="o.queueCompleted > 0 ? 1 : 0"
+            ></ui-stat-card>
+            <ui-stat-card
+              label="Facturas AEAT"
+              [value]="o.invoicesSent.toString()"
+              icon="shield-check"
+            ></ui-stat-card>
+            <ui-stat-card
+              label="Errores cola"
+              [value]="o.queueFailed.toString()"
+              icon="alert-triangle"
+              [accent]="o.queueFailed > 0"
+            ></ui-stat-card>
+          </section>
 
-        <div class="vf-bridge__grid">
-          <ui-card variant="glass" title="Plataforma Verifactu">
-            <p class="vf-bridge__lead">
-              Desde Facturación puedes encolar facturas hacia AEAT. El seguimiento de cola,
-              series, historial y certificado digital vive en la plataforma dedicada
-              <strong>:4230</strong>, sincronizada con el worker y el CRM fiscal.
-            </p>
-            <div class="vf-bridge__actions">
-              <ui-button variant="app" icon="layout-dashboard" (clicked)="openPath('/verifactu/overview')">
-                RESUMEN
-              </ui-button>
-              <ui-button variant="glass" icon="list-ordered" (clicked)="openPath('/verifactu/queue')">
-                COLA AEAT
-              </ui-button>
-              <ui-button variant="glass" icon="history" (clicked)="openPath('/verifactu/logs')">
-                HISTORIAL
-              </ui-button>
-              <ui-button variant="glass" icon="badge-check" (clicked)="openPath('/verifactu/credentials')">
-                CERTIFICADO
-              </ui-button>
-            </div>
-          </ui-card>
+          <div class="vf-bridge__grid">
+            <ui-card variant="glass" title="Estado del servicio">
+              <dl class="vf-bridge__dl">
+                <div><dt>Operativo</dt><dd>{{ o.serviceOperational ? 'SÍ' : 'NO' }}</dd></div>
+                <div><dt>Pendientes AEAT</dt><dd>{{ o.invoicesPending }}</dd></div>
+                <div><dt>Con error fiscal</dt><dd>{{ o.invoicesError }}</dd></div>
+                <div><dt>Última actividad</dt><dd>{{ formatActivity(o.lastActivityAt) }}</dd></div>
+              </dl>
+            </ui-card>
 
-          <ui-card variant="glass" title="Flujo desde el ERP">
-            <ol class="vf-bridge__steps">
-              <li>Emite o selecciona una factura en <a routerLink="/billing">Facturación</a>.</li>
-              <li>Pulsa <em>Enviar AEAT</em> para encolarla en el backend ERP.</li>
-              <li>Abre la plataforma Verifactu para ver estado, QR y trazabilidad AEAT.</li>
-            </ol>
-            <div class="vf-bridge__note ui-glass-panel">
-              <lucide-icon name="info" size="16" aria-hidden="true"></lucide-icon>
-              <span>
-                Si ves errores de conexión a <code>localhost:3110</code>, ignóralos: ese servicio
-                legacy ya no se usa en desarrollo.
-              </span>
-            </div>
-          </ui-card>
-        </div>
+            <ui-card variant="glass" title="Accesos rápidos">
+              <div class="vf-bridge__actions">
+                <ui-button variant="app" icon="layout-dashboard" (clicked)="openPath('/verifactu/overview')">
+                  RESUMEN CRM
+                </ui-button>
+                <ui-button variant="glass" icon="list-ordered" (clicked)="openPath('/verifactu/queue')">
+                  COLA AEAT
+                </ui-button>
+                <ui-button variant="glass" icon="history" (clicked)="openPath('/verifactu/logs')">
+                  HISTORIAL
+                </ui-button>
+                <ui-button variant="glass" icon="badge-check" (clicked)="openPath('/verifactu/credentials')">
+                  CERTIFICADO
+                </ui-button>
+              </div>
+              <p class="vf-bridge__hint">
+                Emite facturas en <a routerLink="/billing">Facturación</a> y pulsa
+                <em>Enviar AEAT</em>. El worker procesa la cola y genera QR conforme VeriFactu.
+              </p>
+            </ui-card>
+          </div>
+        }
       </ui-feature-page-shell>
     }
   `,
@@ -123,7 +150,7 @@ import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-dat
     `
       .vf-bridge__stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
         gap: 1rem;
         margin-bottom: 1.5rem;
       }
@@ -134,54 +161,74 @@ import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-dat
         gap: 1.25rem;
       }
 
-      .vf-bridge__lead {
-        margin: 0 0 1.25rem;
-        color: var(--text-muted);
-        line-height: 1.6;
-        font-size: 0.9rem;
-      }
-
       .vf-bridge__actions {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
+        margin-bottom: 1rem;
       }
 
-      .vf-bridge__steps {
-        margin: 0 0 1rem;
-        padding-left: 1.25rem;
+      .vf-bridge__hint {
+        margin: 0;
+        font-size: 0.8rem;
         color: var(--text-muted);
-        line-height: 1.7;
-        font-size: 0.85rem;
+        line-height: 1.6;
       }
 
-      .vf-bridge__steps a {
+      .vf-bridge__hint a {
         color: var(--primary);
         text-decoration: none;
       }
 
-      .vf-bridge__note {
-        display: flex;
-        align-items: flex-start;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        color: var(--text-muted);
+      .vf-bridge__dl {
+        margin: 0;
+        display: grid;
+        gap: 0.75rem;
       }
 
-      .vf-bridge__note code {
-        font-size: 0.7rem;
+      .vf-bridge__dl div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        font-size: 0.85rem;
+      }
+
+      .vf-bridge__dl dt {
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      .vf-bridge__dl dd {
+        margin: 0;
+        font-weight: 800;
+        color: #fff;
+      }
+
+      .vf-bridge__error {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 1.25rem;
+        border-radius: 10px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
       }
     `,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ErpVerifactuBridgeComponent {
+export class ErpVerifactuBridgeComponent implements OnInit, OnDestroy {
   private readonly auth = inject(GlobalAuthStore);
+  private readonly verifactu = inject(ErpVerifactuService);
   readonly pluginStore = inject(PluginStore);
 
   readonly canAccess = rbacAllows(this.auth, 'verifactu.view');
+
+  readonly overview = signal<ErpVerifactuOverview | null>(null);
+  readonly loading = signal(true);
+  readonly loadError = signal<string | null>(null);
+
+  private pollSub?: Subscription;
 
   readonly tenantSlug = computed(() => {
     const fromSession = getErpTenantSlug();
@@ -192,6 +239,58 @@ export class ErpVerifactuBridgeComponent {
   });
 
   readonly tenantLabel = computed(() => getErpTenantDisplayName(this.tenantSlug()));
+
+  ngOnInit(): void {
+    this.pollSub = interval(15_000)
+      .pipe(
+        startWith(0),
+        switchMap(() =>
+          this.verifactu.getOverview().pipe(
+            catchError(() => of(null)),
+          ),
+        ),
+      )
+      .subscribe((data) => {
+        if (data) {
+          this.overview.set(data);
+          this.loadError.set(null);
+        } else if (!this.overview()) {
+          this.loadError.set(
+            'No se pudo cargar la cola Verifactu. Comprueba que el backend ERP (:3000) y el worker estén activos.',
+          );
+        }
+        this.loading.set(false);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
+  }
+
+  refresh(): void {
+    this.loading.set(true);
+    this.verifactu.getOverview().subscribe({
+      next: (data) => {
+        this.overview.set(data);
+        this.loadError.set(null);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadError.set('Error al actualizar estadísticas Verifactu.');
+        this.loading.set(false);
+      },
+    });
+  }
+
+  formatActivity(iso: string | null): string {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleString('es-ES', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  }
 
   openPlatform(): void {
     this.openPath('/verifactu/overview');

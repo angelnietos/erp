@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import { CrmErpInvoiceMirrorHttpClient } from '@josanz-erp/verifactu-adapters';
+import { InvoiceService } from '../services/invoice.service';
 
 @Injectable()
 export class SubmitInvoiceToVerifactuUseCase {
   constructor(
     private readonly prisma: PrismaService,
     private readonly crmMirror: CrmErpInvoiceMirrorHttpClient,
+    private readonly invoiceService: InvoiceService,
   ) {}
 
   async execute(input: { invoiceId: string; tenantId: string }) {
@@ -24,7 +26,7 @@ export class SubmitInvoiceToVerifactuUseCase {
       throw new NotFoundException(`Invoice ${input.invoiceId} not found for tenant`);
     }
 
-    const queueItem = await this.prisma.verifactuQueueItem.create({
+    await this.prisma.verifactuQueueItem.create({
       data: {
         invoiceId: input.invoiceId,
         tenantId: input.tenantId,
@@ -42,6 +44,11 @@ export class SubmitInvoiceToVerifactuUseCase {
       issuedAt: invoice.issueDate.toISOString(),
     });
 
-    return queueItem;
+    await this.prisma.invoice.update({
+      where: { id: input.invoiceId },
+      data: { verifactuStatus: 'PENDING' },
+    });
+
+    return this.invoiceService.findOne(input.tenantId, input.invoiceId);
   }
 }

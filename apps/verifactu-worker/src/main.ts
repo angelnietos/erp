@@ -16,9 +16,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
-  /** Por defecto 3120: evita chocar con el API principal (3000) y verifactu-api (3110). */
+  /** Por defecto 3130: evita chocar con verifactu-crm-api (3120) y ERP API (3000). */
   const port = Number(
-    process.env.VERIFACTU_WORKER_PORT ?? process.env.PORT ?? 3120,
+    process.env.VERIFACTU_WORKER_PORT ?? process.env.PORT ?? 3130,
   );
   await app.listen(port);
   Logger.log(

@@ -10,7 +10,8 @@ import {
   UiFeaturePageShellComponent,
 } from '@josanz-erp/shared-ui-kit';
 import { ThemeService, PluginStore } from '@josanz-erp/shared-data-access';
-import { Invoice, InvoiceService, BillingFacade } from '@josanz-erp/billing-data-access';
+import { Invoice, InvoiceService, BillingFacade, ErpVerifactuFiscalDetail, ErpVerifactuService } from '@josanz-erp/billing-data-access';
+import { timer, switchMap, take, catchError, of } from 'rxjs';
 import {
   getErpTenantSlug,
   getStoredTenantId,
@@ -150,11 +151,26 @@ import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
                    <p class="text-friendly">Estado sincronizado desde el ERP. QR y trazabilidad en la plataforma Verifactu.</p>
                  </div>
                </div>
-               @if (inv.verifactuStatus === 'sent') {
-                 <div class="qr-placeholder ui-filled">
-                    <lucide-icon name="qr-code" size="64" aria-hidden="true"></lucide-icon>
-                    <p class="text-uppercase" style="font-size: 0.5rem; margin-top: 8px;">Ver certificado en plataforma</p>
+               @if (fiscal()?.qrCode; as qr) {
+                 <div class="qr-display animate-scale-in">
+                   <img [src]="qr" alt="Código QR Verifactu AEAT" class="qr-img" />
+                   <p class="qr-caption text-uppercase">Validación AEAT · VeriFactu</p>
                  </div>
+               } @else if (inv.verifactuStatus === 'sent') {
+                 <ui-loader message="Generando certificado QR..."></ui-loader>
+               } @else if (inv.verifactuStatus === 'pending') {
+                 <div class="qr-placeholder ui-filled">
+                   <lucide-icon name="loader" size="32" aria-hidden="true"></lucide-icon>
+                   <p class="text-friendly">En cola AEAT — el worker procesará el envío en breve.</p>
+                 </div>
+               }
+               @if (fiscal()?.aeatReference) {
+                 <p class="aeat-ref"><span>Ref. AEAT</span> {{ fiscal()!.aeatReference }}</p>
+               }
+               @if (fiscal()?.currentHash) {
+                 <p class="hash-ref font-mono" [title]="fiscal()!.currentHash!">
+                   HASH: {{ fiscal()!.currentHash!.slice(0, 16) }}…
+                 </p>
                }
                <ui-button variant="glass" icon="external-link" (clicked)="openVerifactuPlatform()">
                  ABRIR EN VERIFACTU
@@ -254,6 +270,45 @@ import { resolveVerifactuPlatformDeepLink } from '@josanz-erp/identity-api';
 
     .notes-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.6; }
 
+    .qr-display {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .qr-img {
+      width: 180px;
+      height: 180px;
+      border-radius: 8px;
+      background: #fff;
+      padding: 8px;
+    }
+    .qr-caption {
+      font-size: 0.55rem;
+      letter-spacing: 0.12em;
+      margin-top: 0.75rem;
+      color: var(--text-muted);
+    }
+    .aeat-ref {
+      font-size: 0.7rem;
+      margin: 0.5rem 0 0;
+      color: var(--text-muted);
+    }
+    .aeat-ref span {
+      font-weight: 800;
+      color: var(--primary);
+      margin-right: 0.35rem;
+    }
+    .hash-ref {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      margin: 0.35rem 0 0.75rem;
+      word-break: break-all;
+    }
+
     .line-items-cards {
       display: flex;
       flex-direction: column;
@@ -328,11 +383,13 @@ export class BillingDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly invoiceService = inject(InvoiceService);
   private readonly facade = inject(BillingFacade);
+  private readonly erpVerifactu = inject(ErpVerifactuService);
   public readonly themeService = inject(ThemeService);
   public readonly pluginStore = inject(PluginStore);
 
   currentTheme = this.themeService.currentThemeData;
   invoice = signal<Invoice | null>(null);
+  fiscal = signal<ErpVerifactuFiscalDetail | null>(null);
   isLoading = signal(true);
 
   ngOnInit() {
@@ -354,6 +411,7 @@ export class BillingDetailComponent implements OnInit {
       next: (inv) => {
         if (inv) {
           this.invoice.set(inv);
+          this.loadFiscalDetail(id);
         } else if (!fromList) {
           this.setMockInvoice(id);
         }
@@ -366,6 +424,58 @@ export class BillingDetailComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  loadFiscalDetail(id: string) {
+    this.erpVerifactu.getInvoiceFiscal(id).subscribe({
+      next: (detail) => {
+        this.fiscal.set(detail);
+        this.invoice.update((current) =>
+          current
+            ? {
+                ...current,
+                verifactuStatus: detail.verifactuStatus,
+                aeatReference: detail.aeatReference ?? undefined,
+                qrCode: detail.qrCode ?? undefined,
+              }
+            : current,
+        );
+      },
+      error: () => {
+        /* Sin registro fiscal aún */
+      },
+    });
+  }
+
+  pollFiscalUntilSettled(invoiceId: string) {
+    timer(0, 2500)
+      .pipe(
+        take(15),
+        switchMap(() =>
+          this.erpVerifactu.getInvoiceFiscal(invoiceId).pipe(catchError(() => of(null))),
+        ),
+      )
+      .subscribe((detail) => {
+        if (!detail) return;
+        this.fiscal.set(detail);
+        this.invoice.update((current) =>
+          current
+            ? {
+                ...current,
+                verifactuStatus: detail.verifactuStatus,
+                aeatReference: detail.aeatReference ?? undefined,
+                qrCode: detail.qrCode ?? undefined,
+              }
+            : current,
+        );
+        if (detail.verifactuStatus === 'sent') {
+          this.facade.updateInvoice(invoiceId, {
+            verifactuStatus: 'sent',
+            aeatReference: detail.aeatReference ?? undefined,
+            qrCode: detail.qrCode ?? undefined,
+          });
+        }
+      });
   }
 
   private setMockInvoice(id: string) {
@@ -458,7 +568,7 @@ export class BillingDetailComponent implements OnInit {
       next: (updated) => {
         this.invoice.set(updated);
         this.isLoading.set(false);
-        setTimeout(() => this.loadInvoice(inv.id), 2000);
+        this.pollFiscalUntilSettled(inv.id);
       },
       error: () => {
         this.invoice.update((current) =>

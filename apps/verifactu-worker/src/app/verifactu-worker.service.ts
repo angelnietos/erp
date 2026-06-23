@@ -2,10 +2,10 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import {
   VerifactuPrismaService,
-  VerifactuSubmissionHttpClient,
   CrmErpInvoiceMirrorHttpClient,
   PrismaWebhookNotifierService,
 } from '@josanz-erp/verifactu-adapters';
+import { VerifactuService } from '@josanz-erp/verifactu-core';
 
 @Injectable()
 export class VerifactuWorkerService implements OnModuleInit {
@@ -14,7 +14,7 @@ export class VerifactuWorkerService implements OnModuleInit {
 
   constructor(
     private readonly prisma: VerifactuPrismaService,
-    private readonly verifactuClient: VerifactuSubmissionHttpClient,
+    private readonly verifactuService: VerifactuService,
     private readonly crmMirror: CrmErpInvoiceMirrorHttpClient,
     private readonly webhookNotifier: PrismaWebhookNotifierService,
   ) {}
@@ -72,10 +72,14 @@ export class VerifactuWorkerService implements OnModuleInit {
     this.logger.debug(`Submiting Invoice ${item.invoiceId} for Tenant ${item.tenantId}...`);
 
     try {
-      const response = await this.verifactuClient.submitInvoice({
+      const response = await this.verifactuService.submitInvoice({
         invoiceId: item.invoiceId,
-        tenantId: item.tenantId
+        tenantId: item.tenantId,
       });
+
+      if (response.status === 'ERROR') {
+        throw new Error('Verifactu submission returned ERROR');
+      }
 
       // Success
       await this.prisma.verifactuQueueItem.update({
@@ -137,6 +141,11 @@ export class VerifactuWorkerService implements OnModuleInit {
       });
 
       if (exceeded) {
+        await this.prisma.invoice.update({
+          where: { id: item.invoiceId },
+          data: { verifactuStatus: 'ERROR' },
+        });
+
         await this.crmMirror.syncQueueStatusSafe({
           invoiceId: item.invoiceId,
           tenantId: item.tenantId,

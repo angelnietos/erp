@@ -7,6 +7,9 @@ import { VERIFACTU_SUBMISSION_PORT } from './application/ports/verifactu-submiss
 import { VerifactuSubmissionAdapter } from './infrastructure/adapters/verifactu/verifactu-submission.adapter';
 import { VerifactuErpAdapterModule } from '@josanz-erp/verifactu-adapters';
 import { InvoiceService } from './application/services/invoice.service';
+import { ErpVerifactuTenantService } from './application/services/erp-verifactu-tenant.service';
+import { ErpVerifactuController } from './infrastructure/http/erp-verifactu.controller';
+import { VerifactuHashService, VerifactuQrService } from '@josanz-erp/verifactu-core';
 
 export interface BillingConfig {
   _isBillingConfig?: boolean;
@@ -18,10 +21,13 @@ export class BillingModule {
     return {
       module: BillingModule,
       imports: [PrismaModule, VerifactuErpAdapterModule],
-      controllers: [BillingController, InternalVerifactuController],
+      controllers: [BillingController, InternalVerifactuController, ErpVerifactuController],
       providers: [
         SubmitInvoiceToVerifactuUseCase,
         InvoiceService,
+        ErpVerifactuTenantService,
+        VerifactuQrService,
+        VerifactuHashService,
         {
           provide: VERIFACTU_SUBMISSION_PORT,
           useClass: VerifactuSubmissionAdapter,
