@@ -8,6 +8,7 @@ const DEMO_PASSWORD = 'Demo12345!';
 
 /** UUID alineados con `apps/backend/prisma/seed.ts` (organizaciones ERP). */
 const ERP_TENANT_IDS = {
+  demo: 'a0b1c2d3-e4f5-4678-9abc-def012345678',
   josanz: 'c363035a-2a98-4054-9207-38c8aa5732d9',
   alexis: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
   babooni: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
@@ -25,7 +26,8 @@ async function main() {
 
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
 
-  const demo = await ensureTenant(prisma, {
+  const demo = await ensureErpAlignedTenant(prisma, {
+    id: ERP_TENANT_IDS.demo,
     name: 'Organización demo',
     slug: 'demo',
     enabledModuleIds: ['identity', 'clients', 'verifactu'],

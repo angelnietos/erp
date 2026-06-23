@@ -81,6 +81,52 @@ export class AuthApplicationService {
     );
   }
 
+  /** Resuelve tenant CRM tras login OIDC: slug explícito → claim tenant_id de Keycloak. */
+  private async resolveOidcTenantId(
+    tenantSlug: string,
+    rawToken: string,
+  ): Promise<string | null> {
+    const bySlug = await this.tenants.findActiveIdBySlug(tenantSlug);
+    if (bySlug) {
+      return bySlug;
+    }
+
+    const kcTenantId = this.readClaimFromJwt(rawToken, 'tenant_id');
+    if (kcTenantId && isTenantUuid(kcTenantId)) {
+      const exists = await this.tenants.existsActiveById(kcTenantId);
+      if (exists) {
+        return kcTenantId;
+      }
+    }
+
+    return null;
+  }
+
+  private readClaimFromJwt(token: string, claim: string): string | null {
+    try {
+      const part = token.split('.')[1];
+      if (!part) {
+        return null;
+      }
+      const padded = part.replace(/-/g, '+').replace(/_/g, '/');
+      const json = Buffer.from(padded, 'base64').toString('utf8');
+      const payload = JSON.parse(json) as Record<string, unknown>;
+      const value = payload[claim];
+      return typeof value === 'string' && value.trim() ? value.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private readEmailFromJwt(token: string): string | null {
+    const email = this.readClaimFromJwt(token, 'email');
+    if (email) {
+      return email.toLowerCase();
+    }
+    const username = this.readClaimFromJwt(token, 'preferred_username');
+    return username ? username.toLowerCase() : null;
+  }
+
   async login(dto: LoginDto) {
     console.log('[DEBUG:login] Starting login request for email:', dto.email);
 
@@ -219,9 +265,11 @@ export class AuthApplicationService {
       dto.tenantSlug?.trim() ||
       this.config.get<string>('DEFAULT_TENANT_SLUG') ||
       'demo';
-    const tenantId = await this.tenants.findActiveIdBySlug(tenantSlug);
+    const tenantId = await this.resolveOidcTenantId(tenantSlug, rawToken);
     if (!tenantId) {
-      throw new BadRequestException(`Tenant desconocido: ${tenantSlug}`);
+      throw new BadRequestException(
+        `Tenant desconocido: ${tenantSlug}. Ejecuta \`pnpm run crm:db:seed\` para la demo.`,
+      );
     }
 
     const user = await this.users.findForLogin(tenantId, email.trim().toLowerCase());
@@ -252,21 +300,5 @@ export class AuthApplicationService {
         permissions,
       },
     };
-  }
-
-  private readEmailFromJwt(token: string): string | null {
-    try {
-      const part = token.split('.')[1];
-      if (!part) {
-        return null;
-      }
-      const padded = part.replace(/-/g, '+').replace(/_/g, '/');
-      const json = Buffer.from(padded, 'base64').toString('utf8');
-      const payload = JSON.parse(json) as { email?: string; preferred_username?: string };
-      const email = (payload.email ?? payload.preferred_username ?? '').trim().toLowerCase();
-      return email || null;
-    } catch {
-      return null;
-    }
   }
 }

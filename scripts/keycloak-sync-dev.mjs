@@ -118,6 +118,7 @@ const VERIFACTU_CRM_CLIENT_ID = 'verifactu-crm-spa';
 const VERIFACTU_CRM_ORIGIN = 'http://localhost:4230';
 const VERIFACTU_CRM_CALLBACK = `${VERIFACTU_CRM_ORIGIN}/login/callback`;
 const JOSANZ_TENANT_ID = 'c363035a-2a98-4054-9207-38c8aa5732d9';
+const DEMO_TENANT_ID = 'a0b1c2d3-e4f5-4678-9abc-def012345678';
 const ALEXIS_TENANT_ID = 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a';
 const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
 const DEV_PASSWORD = 'Admin123!';
@@ -362,7 +363,7 @@ async function syncJosanzRealmUsers(token, webSpaUuid, figmaSpaUuid, verifactuCr
       email: 'admin@demo.local',
       firstName: 'Demo',
       lastName: 'Admin',
-      tenantId: JOSANZ_TENANT_ID,
+      tenantId: DEMO_TENANT_ID,
       password: 'Demo12345!',
       clientRoles: { [VERIFACTU_CRM_CLIENT_ID]: ['admin', 'user'] },
     },
