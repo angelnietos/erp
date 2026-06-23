@@ -3,12 +3,7 @@
   "compilerOptions": {
     "outDir": "../../../../../dist/out-tsc",
     "declaration": true,
-    "types": ["node"],
-    "paths": {
-      "@generic-crm/clients-core": [
-        "dist/libs/isomorphic/core/clients/core/src/index.d.ts"
-      ]
-    }
+    "types": ["node"]
   },
   "include": ["src/**/*.ts"],
   "exclude": [
