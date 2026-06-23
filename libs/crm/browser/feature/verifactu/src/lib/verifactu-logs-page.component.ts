@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, DatePipe, JsonPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import {
   VerifactuApiService,
   type VerifactuLogRowDto,
@@ -25,6 +26,7 @@ import {
   tap,
 } from 'rxjs';
 import { verifactuHttpErrorMessage } from './http-error-message';
+import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component';
 import { logStatusLabel } from './verifactu-status-labels';
 
 @Component({
@@ -36,12 +38,14 @@ import { logStatusLabel } from './verifactu-status-labels';
     DatePipe,
     JsonPipe,
     FormsModule,
+    RouterLink,
     GcrmPageComponent,
     GcrmPanelComponent,
     GcrmButtonComponent,
     GcrmBadgeComponent,
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
+    VerifactuEmptyStateComponent,
   ],
   templateUrl: './verifactu-logs-page.component.html',
   styleUrls: [

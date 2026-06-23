@@ -1,0 +1,200 @@
+.vf-detail-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.vf-back-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--vf-radius-pill, 999px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--vf-text-muted, #5c6b82);
+  background: var(--vf-bg-subtle, #eef2f8);
+  border: 1px solid var(--vf-border, #dde4ef);
+  transition:
+    color var(--vf-duration, 0.2s) ease,
+    border-color var(--vf-duration, 0.2s) ease;
+}
+
+.vf-back-link:hover {
+  color: var(--vf-text, #0c1222);
+  border-color: var(--vf-border-strong, #c8d2e0);
+}
+
+.vf-detail-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.vf-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.9fr);
+  gap: 1.15rem;
+  margin-bottom: 1.15rem;
+}
+
+@media (max-width: 900px) {
+  .vf-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vf-detail-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.vf-detail-aside {
+  min-width: 0;
+}
+
+.vf-dl--wide {
+  gap: 0.55rem 1.25rem;
+}
+
+.vf-hash {
+  word-break: break-all;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.vf-qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.65rem;
+}
+
+.vf-qr-img {
+  width: min(100%, 220px);
+  height: auto;
+  border-radius: var(--vf-radius-sm, 0.625rem);
+  border: 1px solid var(--vf-border, #dde4ef);
+  background: #fff;
+  box-shadow: var(--vf-shadow-sm);
+}
+
+.vf-qr-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--vf-text-muted, #5c6b82);
+}
+
+.vf-qr-link {
+  display: inline-flex;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--vf-radius-pill, 999px);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  color: #047857;
+  background: var(--vf-accent-soft, rgba(16, 217, 129, 0.12));
+  border: 1px solid rgba(16, 217, 129, 0.22);
+}
+
+.vf-qr-pending {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--vf-text-muted, #5c6b82);
+  background: var(--vf-bg-subtle, #eef2f8);
+  border-radius: var(--vf-radius-sm, 0.625rem);
+  border-left: 3px solid var(--vf-warning, #ea580c);
+}
+
+.vf-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0 0 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.vf-timeline__item {
+  display: grid;
+  grid-template-columns: 1.1rem 1fr;
+  gap: 0 1rem;
+  padding-bottom: 1.15rem;
+  position: relative;
+}
+
+.vf-timeline__item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 0.45rem;
+  top: 1.1rem;
+  bottom: 0;
+  width: 2px;
+  background: var(--vf-border, #dde4ef);
+}
+
+.vf-timeline__dot {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-top: 0.2rem;
+  border-radius: 50%;
+  border: 2px solid var(--vf-border-strong, #c8d2e0);
+  background: var(--vf-bg-elevated, #fff);
+  position: relative;
+  z-index: 1;
+}
+
+.vf-timeline__item[data-tone='ok'] .vf-timeline__dot {
+  border-color: #10d981;
+  background: #ecfdf5;
+  box-shadow: 0 0 0 4px rgba(16, 217, 129, 0.15);
+}
+
+.vf-timeline__item[data-tone='err'] .vf-timeline__dot {
+  border-color: #f43f5e;
+  background: #fff1f2;
+  box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.12);
+}
+
+.vf-timeline__item[data-tone='info'] .vf-timeline__dot {
+  border-color: #0ea5e9;
+  background: #f0f9ff;
+}
+
+.vf-timeline__item[data-tone='warn'] .vf-timeline__dot {
+  border-color: #ea580c;
+  background: #fff7ed;
+}
+
+.vf-timeline__label {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--vf-text, #0c1222);
+}
+
+.vf-timeline__time {
+  margin: 0.15rem 0 0;
+  font-size: 0.78rem;
+  color: var(--vf-text-muted, #5c6b82);
+}
+
+.vf-timeline__detail {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--vf-text-muted, #5c6b82);
+  word-break: break-word;
+}
+
+.vf-timeline__item[data-tone='err'] .vf-timeline__detail {
+  color: #be123c;
+}

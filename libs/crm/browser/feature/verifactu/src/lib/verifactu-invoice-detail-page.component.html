@@ -1,0 +1,146 @@
+@if (vm$ | async; as vm) {
+  <gcrm-page
+    [title]="vm.loading ? 'Ficha de factura' : vm.error ? 'Ficha de factura' : 'Factura ' + (vm.data.number || vm.data.invoiceId.slice(0, 8))"
+    subtitle="Detalle fiscal Verifactu, código QR de validación y línea temporal AEAT."
+  >
+    <div class="vf-detail-toolbar">
+      <a routerLink="/verifactu/queue" class="vf-back-link">← Cola AEAT</a>
+      <a routerLink="/verifactu/logs" class="vf-back-link">Historial</a>
+      @if (!vm.loading) {
+        <gcrm-button type="button" variant="secondary" (click)="refresh()">
+          Actualizar
+        </gcrm-button>
+      }
+    </div>
+
+    @if (vm.loading) {
+      <div class="vf-detail-loading">
+        <gcrm-spinner label="Cargando ficha de factura" />
+      </div>
+    } @else if (vm.error) {
+      <gcrm-inline-message variant="error">{{ vm.error }}</gcrm-inline-message>
+    } @else {
+      <div class="vf-detail-grid">
+        <section class="vf-detail-main">
+          <gcrm-panel title="Resumen" padding="sm">
+            <dl class="vf-dl vf-dl--wide">
+              <dt>Estado factura</dt>
+              <dd>{{ invoiceStatusLabel(vm.data.status) }}</dd>
+              <dt>Verifactu</dt>
+              <dd>
+                <gcrm-badge [variant]="verifactuBadgeVariant(vm.data.verifactuStatus)">
+                  {{ verifactuStatusLabel(vm.data.verifactuStatus) }}
+                </gcrm-badge>
+              </dd>
+              <dt>Importe</dt>
+              <dd>
+                {{ vm.data.total | currency: vm.data.currency : 'symbol' : '1.2-2' }}
+              </dd>
+              <dt>Fecha emisión</dt>
+              <dd>
+                @if (vm.data.issuedAt) {
+                  {{ vm.data.issuedAt | date: 'mediumDate' }}
+                } @else {
+                  —
+                }
+              </dd>
+              <dt>Cliente</dt>
+              <dd>{{ vm.data.customerName || '—' }}</dd>
+              <dt>NIF cliente</dt>
+              <dd class="mono">{{ vm.data.customerNif || '—' }}</dd>
+              <dt>NIF emisor</dt>
+              <dd class="mono">{{ vm.data.emitterNif }}</dd>
+              <dt>UUID</dt>
+              <dd class="mono small">{{ vm.data.invoiceId }}</dd>
+            </dl>
+          </gcrm-panel>
+
+          <gcrm-panel title="Cola y referencias AEAT" padding="sm">
+            <dl class="vf-dl vf-dl--wide">
+              <dt>Estado cola</dt>
+              <dd>
+                @if (vm.data.queueStatus) {
+                  {{ queueStatusLabel(vm.data.queueStatus) }}
+                  @if (vm.data.queueRetries != null && vm.data.queueMaxRetries != null) {
+                    <span class="vf-muted">
+                      · {{ vm.data.queueRetries }} / {{ vm.data.queueMaxRetries }} reintentos
+                    </span>
+                  }
+                } @else {
+                  —
+                }
+              </dd>
+              <dt>Ref. AEAT</dt>
+              <dd class="mono small">{{ vm.data.aeatReference || '—' }}</dd>
+              <dt>Código verificación</dt>
+              <dd class="mono small">{{ vm.data.verificationCode || '—' }}</dd>
+              <dt>Huella (hash)</dt>
+              <dd class="mono small vf-hash">{{ vm.data.currentHash || '—' }}</dd>
+              @if (vm.data.lastError) {
+                <dt>Último error</dt>
+                <dd class="err-cell">{{ vm.data.lastError }}</dd>
+              }
+            </dl>
+          </gcrm-panel>
+        </section>
+
+        <aside class="vf-detail-aside">
+          <gcrm-panel title="QR validación AEAT" padding="sm">
+            @if (vm.data.qrCode) {
+              <div class="vf-qr-card">
+                <img
+                  [src]="vm.data.qrCode"
+                  alt="Código QR de validación Verifactu"
+                  class="vf-qr-img"
+                />
+                <p class="vf-qr-hint">
+                  Escanea para comprobar el registro en el entorno AEAT de pruebas.
+                </p>
+                @if (vm.data.qrValidationUrl) {
+                  <a
+                    class="vf-qr-link"
+                    [href]="vm.data.qrValidationUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Abrir validador AEAT
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="vf-qr-pending">
+                El QR estará disponible cuando el envío AEAT se complete correctamente y la
+                factura tenga número y fecha de emisión.
+              </p>
+            }
+          </gcrm-panel>
+        </aside>
+      </div>
+
+      <gcrm-panel title="Línea temporal AEAT" padding="sm">
+        @if (vm.data.timeline.length === 0) {
+          <p class="vf-muted">
+            Aún no hay eventos. Encola la factura desde
+            <a routerLink="/verifactu/integration">Integración</a>
+            o la <a routerLink="/verifactu/queue">Cola AEAT</a>.
+          </p>
+        } @else {
+          <ol class="vf-timeline" aria-label="Eventos AEAT">
+            @for (event of vm.data.timeline; track event.id) {
+              <li class="vf-timeline__item" [attr.data-tone]="timelineTone(event)">
+                <div class="vf-timeline__dot" aria-hidden="true"></div>
+                <div class="vf-timeline__body">
+                  <p class="vf-timeline__label">{{ event.label }}</p>
+                  <p class="vf-timeline__time">{{ event.at | date: 'medium' }}</p>
+                  @if (event.detail) {
+                    <p class="vf-timeline__detail">{{ event.detail }}</p>
+                  }
+                </div>
+              </li>
+            }
+          </ol>
+        }
+      </gcrm-panel>
+    }
+  </gcrm-page>
+}

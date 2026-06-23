@@ -6,4 +6,5 @@ export const verifactuPaths = {
   settings: 'verifactu/settings',
   credentialsStatus: 'verifactu/credentials/status',
   credentials: 'verifactu/credentials',
+  invoiceDetail: (id: string) => `verifactu/invoices/${id}`,
 } as const;

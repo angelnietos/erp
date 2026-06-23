@@ -41,7 +41,16 @@
         <gcrm-spinner size="sm" label="Cargando historial" />
       }
       @if (!logsLoading && !loadError && rows.length === 0) {
-        <p class="vf-empty">Sin registros de envío. Encola una factura para generar trazas.</p>
+        <lib-verifactu-empty-state
+          icon="history"
+          title="Sin historial de envíos"
+          description="Cuando encoles y proceses facturas Verifactu, aquí verás cada intento AEAT con su resultado y trazabilidad."
+        >
+          <a routerLink="../integration" class="vf-empty-cta vf-empty-cta--primary">
+            Ir a integración
+          </a>
+          <a routerLink="../queue" class="vf-empty-cta">Ver cola AEAT</a>
+        </lib-verifactu-empty-state>
       }
       @if (!loadError && rows.length > 0) {
         <div class="table-wrap">
@@ -101,6 +110,14 @@
             <dd class="err-cell">{{ selectedRow.errorMessage }}</dd>
           }
         </dl>
+        <div class="vf-row-actions">
+          <a
+            class="vf-empty-cta vf-empty-cta--primary"
+            [routerLink]="['/verifactu/invoices', selectedRow.invoiceId]"
+          >
+            Ficha completa · QR y timeline
+          </a>
+        </div>
         <details class="vf-details-json">
           <summary>Ver payloads request/response</summary>
           <pre class="vf-block">{{ selectedRow | json }}</pre>

@@ -29,6 +29,7 @@ import {
   tap,
 } from 'rxjs';
 import { verifactuHttpErrorMessage } from './http-error-message';
+import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component';
 import { queueStatusLabel } from './verifactu-status-labels';
 
 @Component({
@@ -47,6 +48,7 @@ import { queueStatusLabel } from './verifactu-status-labels';
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
     GcrmStatCardComponent,
+    VerifactuEmptyStateComponent,
   ],
   templateUrl: './verifactu-queue-page.component.html',
   styleUrls: [

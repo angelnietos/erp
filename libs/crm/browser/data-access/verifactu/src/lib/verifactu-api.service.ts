@@ -103,6 +103,12 @@ export class VerifactuApiService {
       { params: { environment } },
     );
   }
+
+  invoiceDetail(invoiceId: string): Observable<VerifactuInvoiceDetailDto> {
+    return this.http.get<VerifactuInvoiceDetailDto>(
+      joinApiUrl(this.baseUrl, verifactuPaths.invoiceDetail(invoiceId)),
+    );
+  }
 }
 
 export interface VerifactuCredentialSlotDto {
@@ -172,4 +178,44 @@ export interface VerifactuIntegrationSummaryDto {
     optionalThirdParty?: string;
   };
   description?: string;
+}
+
+export interface VerifactuTimelineEventDto {
+  id: string;
+  kind:
+    | 'enqueued'
+    | 'processing'
+    | 'forwarded'
+    | 'aeat_success'
+    | 'aeat_error'
+    | 'completed'
+    | 'failed'
+    | 'retry';
+  label: string;
+  detail: string | null;
+  at: string;
+}
+
+/** GET /verifactu/invoices/:id */
+export interface VerifactuInvoiceDetailDto {
+  invoiceId: string;
+  number: string | null;
+  status: string;
+  total: number;
+  currency: string;
+  issuedAt: string | null;
+  customerName: string | null;
+  customerNif: string | null;
+  emitterNif: string;
+  queueStatus: string | null;
+  queueRetries: number | null;
+  queueMaxRetries: number | null;
+  lastError: string | null;
+  verifactuStatus: 'pending' | 'sent' | 'error' | 'none';
+  aeatReference: string | null;
+  verificationCode: string | null;
+  currentHash: string | null;
+  qrCode: string | null;
+  qrValidationUrl: string | null;
+  timeline: VerifactuTimelineEventDto[];
 }

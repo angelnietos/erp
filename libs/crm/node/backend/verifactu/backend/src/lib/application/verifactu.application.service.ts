@@ -13,6 +13,15 @@ import { isCredentialEncryptionConfigured } from '../infrastructure/credentials/
 import { PrismaVerifactuCredentialRepository } from '../infrastructure/credentials/prisma-verifactu-credential.repository';
 import { isErpWorkerMode } from '../config/verifactu-worker-mode';
 import { ErpVerifactuQueueForwardClient } from '../infrastructure/http/erp-verifactu-queue-forward.client';
+import {
+  buildAeatQrValidationUrl,
+  qrPngDataUrl,
+} from '../infrastructure/qr/verifactu-qr-image.util';
+import {
+  buildVerifactuTimeline,
+  extractAeatFieldsFromLog,
+  resolveVerifactuInvoiceStatus,
+} from './verifactu-invoice-detail.builder';
 
 @Injectable()
 export class VerifactuApplicationService {
@@ -168,41 +177,89 @@ export class VerifactuApplicationService {
   }
 
   async getInvoiceDetail(tenantId: string, invoiceId: string) {
-    const log = await this.prisma.verifactuLog.findFirst({
-      where: { tenantId, invoiceId },
-      orderBy: { createdAt: 'desc' },
-      include: { 
-        invoice: {
-          include: { client: true }
-        } 
-      }
+    const invoice = await this.prisma.invoice.findFirst({
+      where: { id: invoiceId, tenantId },
+      include: {
+        client: true,
+        verifactuQueue: { orderBy: { createdAt: 'asc' } },
+        verifactuLogs: { orderBy: { createdAt: 'asc' } },
+      },
     });
 
-    if (!log) {
-      throw new NotFoundException('No se han encontrado registros de Verifactu para esta factura.');
+    if (!invoice) {
+      throw new NotFoundException('Factura no encontrada.');
     }
 
-    const response = log.responsePayload as any;
+    const settings = await this.tenantSettings(tenantId);
+    const submissionEnv =
+      (process.env['AEAT_SUBMISSION_ENV'] || 'test').toLowerCase() ===
+      'production'
+        ? 'production'
+        : 'test';
+
+    const latestSuccessLog = [...invoice.verifactuLogs]
+      .reverse()
+      .find((l) => l.status === 'SUCCESS');
+    const latestLog = invoice.verifactuLogs[invoice.verifactuLogs.length - 1];
+    const aeatFields = extractAeatFieldsFromLog(
+      latestSuccessLog ?? latestLog,
+    );
+
+    const latestQueue =
+      invoice.verifactuQueue[invoice.verifactuQueue.length - 1] ?? null;
+    const verifactuStatus = resolveVerifactuInvoiceStatus(
+      invoice.verifactuQueue,
+      invoice.verifactuLogs,
+    );
+
+    const emitterNif =
+      settings.emitterTaxId?.trim() ||
+      process.env['AEAT_EMISOR_NIF']?.trim() ||
+      invoice.client?.taxId?.trim() ||
+      'B00000000';
+
+    let qrValidationUrl: string | null = null;
+    let qrCode: string | null = null;
+
+    if (
+      verifactuStatus === 'sent' &&
+      invoice.number?.trim() &&
+      invoice.issuedAt
+    ) {
+      qrValidationUrl = buildAeatQrValidationUrl({
+        nif: emitterNif,
+        invoiceNumber: invoice.number.trim(),
+        issueDate: invoice.issuedAt.toISOString(),
+        totalAmount: invoice.total,
+        environment: submissionEnv,
+      });
+      qrCode = await qrPngDataUrl(qrValidationUrl);
+    }
 
     return {
-      id: log.id,
-      invoiceId: log.invoiceId,
-      series: '',
-      number: log.invoice.number,
-      issueDate: log.invoice.issuedAt?.toISOString(),
-      customerNif: log.invoice.client?.taxId || '',
-      customerName: log.invoice.client?.name || '',
-      subtotal: log.invoice.total,
-      taxAmount: 0,
-      total: log.invoice.total,
-      status: log.invoice.status,
-      verifactuStatus: log.status === 'SUCCESS' ? 'sent' : 'error',
-      createdAt: log.createdAt.toISOString(),
-      aeatReference: response?.ack?.aeat?.idRegistro || null,
-      qrCode: response?.verificationCode || null,
-      hashChain: {
-        currentHash: response?.ack?.aeat?.huella || '',
-      }
+      invoiceId: invoice.id,
+      number: invoice.number,
+      status: invoice.status,
+      total: invoice.total,
+      currency: invoice.currency,
+      issuedAt: invoice.issuedAt?.toISOString() ?? null,
+      customerName: invoice.client?.name ?? null,
+      customerNif: invoice.client?.taxId ?? null,
+      emitterNif,
+      queueStatus: latestQueue?.status ?? null,
+      queueRetries: latestQueue?.retries ?? null,
+      queueMaxRetries: latestQueue?.maxRetries ?? null,
+      lastError: latestQueue?.lastError ?? latestLog?.errorMessage ?? null,
+      verifactuStatus,
+      aeatReference: aeatFields.aeatReference,
+      verificationCode: aeatFields.verificationCode,
+      currentHash: aeatFields.currentHash,
+      qrCode,
+      qrValidationUrl,
+      timeline: buildVerifactuTimeline(
+        invoice.verifactuQueue,
+        invoice.verifactuLogs,
+      ),
     };
   }
 }

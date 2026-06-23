@@ -75,7 +75,16 @@
         <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
       }
       @if (!loadError && !vm.loading && vm.rows.length === 0) {
-        <p class="vf-empty">La cola está vacía. Emite una factura y encólala para ver el flujo AEAT.</p>
+        <lib-verifactu-empty-state
+          icon="queue"
+          title="La cola está vacía"
+          description="Todavía no hay facturas pendientes de envío AEAT. Crea una factura de prueba y encólala para ver el flujo completo."
+        >
+          <a routerLink="../integration" class="vf-empty-cta vf-empty-cta--primary">
+            Crear factura demo
+          </a>
+          <a routerLink="../overview" class="vf-empty-cta">Ver resumen</a>
+        </lib-verifactu-empty-state>
       }
       @if (!loadError && vm.rows.length > 0) {
         <div class="table-wrap">
@@ -85,6 +94,7 @@
                 <th scope="col">Estado</th>
                 <th scope="col">Nº factura</th>
                 <th scope="col">Factura (id)</th>
+                <th scope="col"></th>
                 <th scope="col">Reintentos</th>
                 <th scope="col">Próximo intento</th>
                 <th scope="col">Último error</th>
@@ -101,6 +111,14 @@
                   </td>
                   <td>{{ row.invoice.number || '—' }}</td>
                   <td class="mono small">{{ row.invoiceId }}</td>
+                  <td class="nowrap">
+                    <a
+                      class="vf-row-link"
+                      [routerLink]="['/verifactu/invoices', row.invoiceId]"
+                    >
+                      Ver ficha
+                    </a>
+                  </td>
                   <td>{{ row.retries }} / {{ row.maxRetries }}</td>
                   <td class="nowrap small">
                     @if (row.nextRetryAt) {
