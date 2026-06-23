@@ -49,9 +49,10 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
   },
   {
     slug: 'docs',
-    email: '—',
-    password: '—',
-    note: 'App documentos (:4210), sin login ERP',
+    email: 'admin@docs.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    primary: true,
+    note: 'App documentos (:4210)',
   },
   {
     slug: 'platform',
