@@ -307,12 +307,6 @@ export class VerifactuLoginComponent implements OnInit {
       return;
     }
 
-    const reason = this.route.snapshot.queryParamMap.get('reason');
-    if (reason === 'logout') {
-      this.showRetry.set(true);
-      return;
-    }
-
     if (this.route.snapshot.queryParamMap.get('local') === '1') {
       void this.router.navigate(['/identity'], {
         queryParams: { returnUrl: this.returnUrl, tenant: this.tenantSlug },

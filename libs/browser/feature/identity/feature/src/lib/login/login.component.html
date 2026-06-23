@@ -173,23 +173,6 @@
       </ui-alert>
     }
 
-    @if (showPostLogoutLanding()) {
-      <div class="auth-post-logout animate-in stagger-4">
-        <p class="auth-post-logout__lede">
-          Puedes volver a entrar con Keycloak o elegir otra organización arriba.
-        </p>
-        <ui-button
-          type="button"
-          [color]="useFigmaShellLogin() ? 'primary' : 'app'"
-          [shape]="useSolidLoginFields() ? 'solid' : 'auto'"
-          [loading]="pkceRedirectLoading()"
-          (click)="startKeycloakSso()"
-        >
-          Iniciar sesión con Keycloak
-        </ui-button>
-      </div>
-    }
-
     @if (showLocalLoginForm()) {
     <div
       class="auth-mode-pill animate-in stagger-3"

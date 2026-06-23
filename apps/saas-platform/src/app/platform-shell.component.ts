@@ -258,6 +258,10 @@ export class PlatformShellComponent {
         window.location.assign(result.keycloakLogoutUrl);
         return;
       }
+      if (this.auth.canUsePlatformKeycloakPkce()) {
+        void this.auth.startPlatformKeycloakPkceRedirect();
+        return;
+      }
       void this.router.navigateByUrl('/login?reason=logout');
     });
   }

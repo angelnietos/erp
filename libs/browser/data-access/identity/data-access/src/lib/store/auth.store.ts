@@ -16,7 +16,7 @@ import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.in
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
 import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
-import { AuthResponse, UserPayload } from '@josanz-erp/identity-api';
+import { AuthResponse, UserPayload, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
 
 function resolveEnabledModules$(
@@ -361,6 +361,15 @@ export const AuthStore = signalStore(
           themeService.reapplyTheme();
           if (result.keycloakLogoutUrl && typeof window !== 'undefined') {
             window.location.assign(result.keycloakLogoutUrl);
+            return;
+          }
+          const tenantSlug = logoutLoginQuery.tenant ?? '';
+          if (
+            tenantSlug &&
+            tenantUsesKeycloakLogin(tenantSlug) &&
+            authService.canUseKeycloakPkce(tenantSlug)
+          ) {
+            void authService.startKeycloakPkceRedirect(tenantSlug);
             return;
           }
           void router.navigate(['/auth/login'], {

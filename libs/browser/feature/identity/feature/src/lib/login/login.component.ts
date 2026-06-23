@@ -173,12 +173,6 @@ export class LoginComponent implements OnInit {
 
   /** Comprobando KC o redirigiendo (sin formulario intermedio). */
   readonly keycloakHandoffPending = computed(() => {
-    if (this.showPostLogoutLanding()) {
-      return false;
-    }
-    if (this.postAuthReason() === 'logout' && this.keycloakReachablePreview() !== true) {
-      return false;
-    }
     if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
       return false;
     }
@@ -196,9 +190,6 @@ export class LoginComponent implements OnInit {
 
   /** Formulario email/password: tenant sin KC, KC caído o usuario volvió atrás desde KC. */
   readonly showLocalLoginForm = computed(() => {
-    if (this.showPostLogoutLanding()) {
-      return false;
-    }
     if (this.forceLocalLogin()) {
       return true;
     }
@@ -385,20 +376,6 @@ export class LoginComponent implements OnInit {
   readonly pkceRedirectLoading = signal(false);
   readonly pkceError = signal<string | null>(null);
 
-  /** Tras logout: pantalla de bienvenida con cambio de org antes de volver a Keycloak. */
-  readonly showPostLogoutLanding = computed(() => {
-    if (this.postAuthReason() !== 'logout') {
-      return false;
-    }
-    if (this.pkceRedirectLoading() || this.keycloakRedirectAborted()) {
-      return false;
-    }
-    if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
-      return false;
-    }
-    return this.keycloakReachablePreview() === true;
-  });
-
   ngOnInit(): void {
     this.pkceRedirectLoading.set(false);
     if (this.isBackForwardNavigation() && consumePkceRedirectAborted()) {
@@ -488,9 +465,6 @@ export class LoginComponent implements OnInit {
           this.prefillDevCredentialsIfLocal();
         }
         if (available && !this.keycloakRedirectAborted() && !this.forceLocalLogin()) {
-          if (this.postAuthReason() === 'logout') {
-            return;
-          }
           void this.startKeycloakSso();
         }
       },

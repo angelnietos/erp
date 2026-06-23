@@ -725,7 +725,6 @@ export class LoginComponent implements OnInit {
     }
     if (reason === 'logout') {
       this.sessionNotice.set('Has cerrado sesión correctamente.');
-      this.keycloakRedirectAborted.set(true);
     }
     if (reason === 'kc_error') {
       const msg = this.route.snapshot.queryParamMap.get('msg');
@@ -765,7 +764,7 @@ export class LoginComponent implements OnInit {
             }
             return;
           }
-          if (!this.keycloakRedirectAborted() && reason !== 'logout') {
+          if (!this.keycloakRedirectAborted()) {
             void this.startKeycloakSso();
           }
         },
