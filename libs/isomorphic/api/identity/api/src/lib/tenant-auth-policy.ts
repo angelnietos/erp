@@ -4,7 +4,7 @@
  * - **Tenant (slug, módulos, shell)** → Postgres ERP (`Tenant` + seed). Fuente de verdad.
  * - **Keycloak** → IdP opcional para tenants listados en {@link TENANT_KEYCLOAK_REALM}.
  *   Infra: contenedor `keycloak` + BD `keycloak-db` (no es la BD del ERP).
- * - **Login local** → fallback / tenants sin KC (`docs`, …): usuarios en seed ERP.
+ * - **Login local** → fallback / slugs sin KC: usuarios en seed ERP.
  *
  * Reglas BFF:
  * 1. Keycloak solo si el slug está en {@link TENANT_KEYCLOAK_REALM}.

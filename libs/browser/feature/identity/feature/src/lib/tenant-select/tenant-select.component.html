@@ -16,13 +16,13 @@
           <lucide-icon name="layout-dashboard" class="logo-icon" size="24"></lucide-icon>
         </div>
         <p class="brand-tag text-uppercase animate-in stagger-2">Babooni Hub</p>
-        <h1 class="animate-in stagger-2">Elige tu aplicación</h1>
+        <h1 class="animate-in stagger-2">Organización o aplicación</h1>
         <p class="lead animate-in stagger-3 hub-mood">{{ hubMoodLine() }}</p>
       </div>
     </div>
 
     <div class="auth-card__body">
-      <p class="section-label animate-in stagger-3">Organizaciones ERP</p>
+      <p class="section-label animate-in stagger-3">Organizaciones</p>
       <div class="tenant-grid animate-in stagger-3">
         @for (t of erpTenants; track t.slug) {
           <button
@@ -32,7 +32,6 @@
             [class.tenant-card--josanz]="t.slug === 'josanz'"
             [class.tenant-card--babooni]="t.slug === 'babooni'"
             [class.tenant-card--alexis]="t.slug === 'alexis'"
-            [class.tenant-card--docs]="t.slug === 'docs'"
             (click)="selectTenant(t.slug)"
           >
             <div class="tenant-card__icon">
@@ -46,7 +45,7 @@
         }
       </div>
 
-      <p class="section-label animate-in stagger-4">Aplicaciones de plataforma</p>
+      <p class="section-label animate-in stagger-4">Aplicaciones</p>
       <div class="tenant-grid tenant-grid--apps animate-in stagger-4">
         @for (app of externalApps; track app.slug) {
           <button
@@ -54,18 +53,16 @@
             class="tenant-card tenant-card--external"
             [class.tenant-card--external]="true"
             [class.tenant-card--verifactu]="app.kind === 'verifactu'"
+            [class.tenant-card--docs]="app.kind === 'docs'"
             [class.tenant-card--active]="selectedSlug() === app.slug"
             (click)="selectTenant(app.slug)"
           >
             <div class="tenant-card__icon tenant-card__icon--external">
-              <lucide-icon
-                [name]="app.kind === 'verifactu' ? 'receipt' : 'layout-dashboard'"
-                size="18"
-              ></lucide-icon>
+              <lucide-icon [name]="externalAppIcon(app.kind)" size="18"></lucide-icon>
             </div>
             <div class="tenant-card__body">
               <span class="tenant-card__name">{{ app.name }}</span>
-              <span class="tenant-card__slug">{{ app.slug }} · app externa</span>
+              <span class="tenant-card__slug">{{ app.slug }} · app</span>
             </div>
           </button>
         }

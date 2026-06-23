@@ -19,6 +19,7 @@ export const environment = {
   apps: {
     platform: '',
     verifactu: '',
+    docs: '',
     erpHub: '/auth/tenant',
   },
 };

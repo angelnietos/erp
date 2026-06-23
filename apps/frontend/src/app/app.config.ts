@@ -215,6 +215,9 @@ configureErpExternalAppBaseUrls({
   ...(environment.apps?.verifactu?.trim()
     ? { verifactu: environment.apps.verifactu.trim() }
     : {}),
+  ...(environment.apps?.docs?.trim()
+    ? { docs: environment.apps.docs.trim() }
+    : {}),
 });
 
 export const appConfig: ApplicationConfig = {

@@ -84,15 +84,21 @@ export class TenantSelectComponent implements OnInit {
       name: 'Alexis',
       description: 'Shell Figma + Keycloak (tema josanz-figma en IdP).',
     },
-    {
-      slug: 'docs',
-      name: 'Generador de Documentos',
-      description: 'App de documentos IA integrada en el ERP.',
-    },
   ];
 
-  /** Apps independientes enlazadas desde el hub (p. ej. panel SaaS :4300). */
+  /** Apps independientes (sin tenant ERP): panel SaaS, Verifactu, documentos. */
   readonly externalApps = ERP_EXTERNAL_APP_CATALOG;
+
+  externalAppIcon(kind: (typeof ERP_EXTERNAL_APP_CATALOG)[number]['kind']): string {
+    switch (kind) {
+      case 'verifactu':
+        return 'receipt';
+      case 'docs':
+        return 'file-text';
+      default:
+        return 'layout-dashboard';
+    }
+  }
 
   readonly customSlug = signal('');
   readonly selectedSlug = signal<string | null>(null);

@@ -89,7 +89,7 @@ export function resolveHubAtmosphere(slug: string | null): LoginTenantAtmosphere
       ...FALLBACK,
       slug: 'hub',
       defaultTheme: 'nebula-cosmos',
-      moodLine: 'Portales a cada organización — cada uno con su propia atmósfera.',
+      moodLine: 'Portales a cada organización o aplicación — elige tu destino.',
       heroBadge: 'Hub · Babooni',
     };
   }

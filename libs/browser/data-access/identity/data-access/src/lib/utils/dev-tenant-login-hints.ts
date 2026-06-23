@@ -49,9 +49,9 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
   },
   {
     slug: 'docs',
-    email: 'admin@docs.local',
-    password: DEV_TENANT_LOGIN_PASSWORD,
-    primary: true,
+    email: '—',
+    password: '—',
+    note: 'App documentos (:4210), sin login ERP',
   },
   {
     slug: 'platform',
@@ -59,6 +59,12 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     password: DEV_TENANT_LOGIN_PASSWORD,
     primary: true,
     note: 'Panel SaaS (:4300)',
+  },
+  {
+    slug: 'verifactu',
+    email: 'admin@demo.local',
+    password: 'Demo12345!',
+    note: 'Verifactu CRM (:4230)',
   },
 ] as const;
 

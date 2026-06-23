@@ -3,10 +3,13 @@ import { normalizeAuthTenantSlug } from './tenant-auth-policy';
 /** Slug del picker para abrir `apps/saas-platform` (app independiente). */
 export const ERP_PLATFORM_APP_SLUG = 'platform';
 
-/** Slug del picker para abrir el CRM Verifactu (`crm/apps/web`, :4230 en dev). */
+/** Slug del picker para abrir el CRM Verifactu (`apps/verifactu-platform`, :4230 en dev). */
 export const ERP_VERIFACTU_APP_SLUG = 'verifactu';
 
-export type ErpExternalAppKind = 'platform' | 'verifactu';
+/** Slug del picker para abrir el generador de documentos (`apps/document-generator`, :4210 en dev). */
+export const ERP_DOCS_APP_SLUG = 'docs';
+
+export type ErpExternalAppKind = 'platform' | 'verifactu' | 'docs';
 
 export interface ErpExternalAppDefinition {
   slug: string;
@@ -17,7 +20,7 @@ export interface ErpExternalAppDefinition {
   entryPath: string;
 }
 
-/** Apps fuera del shell ERP en :4200; se abren por URL absoluta. */
+/** Apps fuera del shell ERP en :4200; no son organizaciones/tenants. */
 export const ERP_EXTERNAL_APP_CATALOG: readonly ErpExternalAppDefinition[] = [
   {
     slug: ERP_PLATFORM_APP_SLUG,
@@ -30,15 +33,22 @@ export const ERP_EXTERNAL_APP_CATALOG: readonly ErpExternalAppDefinition[] = [
     slug: ERP_VERIFACTU_APP_SLUG,
     kind: 'verifactu',
     name: 'Verifactu',
-    description: 'Facturación electrónica AEAT (CRM · web, API y worker en repos aparte).',
-    /** Tras OIDC abre el shell Verifactu (tenant demo por defecto). */
-    entryPath: '/login?returnUrl=%2Fverifactu%2Foverview&tenant=demo',
+    description: 'Facturación electrónica AEAT (app independiente del ERP).',
+    entryPath: '/login?returnUrl=%2Fverifactu%2Foverview',
+  },
+  {
+    slug: ERP_DOCS_APP_SLUG,
+    kind: 'docs',
+    name: 'Generador de Documentos',
+    description: 'Documentos con IA — global, sin organización ERP.',
+    entryPath: '/',
   },
 ];
 
 const DEFAULT_EXTERNAL_APP_BASE_URLS: Readonly<Record<string, string>> = {
   [ERP_PLATFORM_APP_SLUG]: 'http://localhost:4300',
   [ERP_VERIFACTU_APP_SLUG]: 'http://localhost:4230',
+  [ERP_DOCS_APP_SLUG]: 'http://localhost:4210',
 };
 
 let externalAppBaseUrls: Record<string, string> = {
