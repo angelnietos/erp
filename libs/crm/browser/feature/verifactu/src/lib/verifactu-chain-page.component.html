@@ -71,13 +71,13 @@
     @if (vm.loading) {
       <gcrm-spinner size="md" label="Cargando cadena fiscal" />
     } @else if (!vm.blocks.length) {
-      <verifactu-empty-state
+      <lib-verifactu-empty-state
         title="Sin bloques en el ledger"
         description="Los envíos exitosos a AEAT generan bloques encadenados aquí. Encola una factura y completa el envío para iniciar la cadena."
         icon="default"
       >
         <a routerLink="../queue" class="vf-empty-cta">Ir a cola AEAT</a>
-      </verifactu-empty-state>
+      </lib-verifactu-empty-state>
     } @else {
       <div class="vf-stats-grid vf-chain-stats">
         <gcrm-stat-card
