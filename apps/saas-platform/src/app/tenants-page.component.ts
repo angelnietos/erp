@@ -11,6 +11,11 @@ import {
   type TenantModuleCatalogEntry,
   type TenantModuleCategory,
 } from './tenant-module-catalog';
+import {
+  platformTenantDisplayName,
+  platformTenantRealmHint,
+  platformTenantSlugLabel,
+} from './platform-tenant-display';
 
 type TenantRow = {
   id: string;
@@ -102,12 +107,12 @@ type ModuleCategoryGroup = {
               <div class="tile-accent"></div>
               <div class="tile-head">
                 <div>
-                  <h2 class="tenant-name">{{ t.name }}</h2>
-                  <p class="tenant-slug">{{ t.slug }}</p>
+                  <h2 class="tenant-name">{{ displayName(t) }}</h2>
+                  <p class="tenant-slug">{{ displaySlug(t.slug) }}</p>
                   <p class="tenant-auth">
                     @if (t.authMode === 'keycloak') {
                       <span class="auth-badge auth-badge--kc">Keycloak</span>
-                      <span class="auth-detail">{{ t.keycloakRealm }}</span>
+                      <span class="auth-detail">{{ realmHint(t) }}</span>
                     } @else {
                       <span class="auth-badge auth-badge--local">Local</span>
                     }
@@ -185,7 +190,7 @@ type ModuleCategoryGroup = {
     `
       :host {
         --chip-off: rgba(255, 255, 255, 0.06);
-        --chip-on: rgba(0, 75, 147, 0.22);
+        --chip-on: rgba(230, 0, 0, 0.22);
         display: block;
         min-height: 100vh;
         font-family: var(--sp-font-sans);
@@ -316,7 +321,7 @@ type ModuleCategoryGroup = {
       }
 
       .search-field input:focus {
-        border-color: rgba(89, 168, 244, 0.65);
+        border-color: rgba(255, 102, 102, 0.65);
         box-shadow: var(--sp-focus);
       }
 
@@ -360,7 +365,7 @@ type ModuleCategoryGroup = {
         inset: -40% -20%;
         background: radial-gradient(
           circle at 50% 30%,
-          rgba(0, 75, 147, 0.12),
+          rgba(230, 0, 0, 0.12),
           transparent 55%
         );
         pointer-events: none;
@@ -455,9 +460,9 @@ type ModuleCategoryGroup = {
       }
 
       .auth-badge--kc {
-        background: rgba(89, 168, 244, 0.18);
-        color: #9fd0ff;
-        border: 1px solid rgba(89, 168, 244, 0.35);
+        background: rgba(255, 102, 102, 0.18);
+        color: var(--sp-accent-secondary);
+        border: 1px solid rgba(255, 102, 102, 0.35);
       }
 
       .auth-badge--local {
@@ -551,7 +556,7 @@ type ModuleCategoryGroup = {
         border-radius: var(--sp-radius-sm);
         opacity: 0;
         transition: opacity 0.2s ease;
-        background: radial-gradient(circle at 50% 50%, rgba(0, 75, 147, 0.45), transparent 72%);
+        background: radial-gradient(circle at 50% 50%, rgba(230, 0, 0, 0.45), transparent 72%);
         pointer-events: none;
       }
 
@@ -577,7 +582,7 @@ type ModuleCategoryGroup = {
 
       .chip--on .chip-body {
         background: var(--chip-on);
-        border-color: rgba(89, 168, 244, 0.45);
+        border-color: rgba(255, 102, 102, 0.45);
       }
 
       .chip-icon {
@@ -652,8 +657,8 @@ type ModuleCategoryGroup = {
         width: 100%;
         padding: 0.65rem 1rem;
         border-radius: var(--sp-radius-sm);
-        border: 1px solid rgba(89, 168, 244, 0.45);
-        background: rgba(0, 75, 147, 0.15);
+        border: 1px solid rgba(255, 102, 102, 0.45);
+        background: rgba(230, 0, 0, 0.15);
         color: #cfe8ff;
         font-family: inherit;
         font-size: 0.82rem;
@@ -664,7 +669,7 @@ type ModuleCategoryGroup = {
       }
 
       .btn-secondary:hover {
-        background: rgba(0, 75, 147, 0.28);
+        background: rgba(230, 0, 0, 0.28);
       }
 
       .btn-primary {
@@ -679,8 +684,8 @@ type ModuleCategoryGroup = {
         text-transform: uppercase;
         cursor: pointer;
         color: #fff;
-        background: linear-gradient(185deg, #0a5cb8 0%, var(--sp-accent-dim) 100%);
-        box-shadow: 0 8px 28px rgba(0, 75, 147, 0.32);
+        background: linear-gradient(185deg, #ff1a1a 0%, var(--sp-accent-dim) 100%);
+        box-shadow: 0 8px 28px rgba(230, 0, 0, 0.32);
         transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
       }
 
@@ -731,9 +736,23 @@ export class TenantsPageComponent {
       return this.tenants();
     }
     return this.tenants().filter((tenant) =>
-      `${tenant.name} ${tenant.slug}`.toLowerCase().includes(query),
+      `${tenant.name} ${tenant.slug} ${platformTenantDisplayName(tenant)} ${platformTenantSlugLabel(tenant.slug)}`
+        .toLowerCase()
+        .includes(query),
     );
   });
+
+  displayName(t: TenantRow): string {
+    return platformTenantDisplayName(t);
+  }
+
+  displaySlug(slug: string): string {
+    return platformTenantSlugLabel(slug);
+  }
+
+  realmHint(t: TenantRow): string {
+    return platformTenantRealmHint(t);
+  }
 
   readonly savingByTenant = signal<Record<string, boolean>>({});
   readonly saveErrorByTenant = signal<Record<string, string | undefined>>({});

@@ -38,13 +38,13 @@ import { environment } from '../environments/environment';
           </div>
         } @else {
           <div class="brand">
-            <span class="brand-mark">BABOONI</span>
-            <span class="brand-sub">PLATFORM</span>
+            <span class="brand-mark">GENERIC</span>
+            <span class="brand-sub">ERP PLATFORM</span>
           </div>
           <p class="eyebrow">Acceso</p>
           <h1 class="title">Panel de producto</h1>
           <p class="lede">
-            Selva digital y consola de plataforma — organizaciones, módulos y observabilidad.
+            Consola Generic ERP — organizaciones, módulos contratados y observabilidad multi-tenant.
           </p>
           <div
             class="auth-status"
@@ -56,7 +56,7 @@ import { environment } from '../environments/environment';
           </div>
 
           <div class="org-context">
-            <span class="org-pill">App · Panel SaaS</span>
+            <span class="org-pill">App · Generic ERP Platform</span>
             @if (erpHubUrl) {
               <a class="org-change" [href]="erpHubUrl">Ir al hub</a>
             }
@@ -168,7 +168,7 @@ import { environment } from '../environments/environment';
         inset: 0;
         background:
           radial-gradient(700px 420px at 50% 120%, rgba(45, 122, 62, 0.18), transparent 55%),
-          radial-gradient(480px 320px at 8% 15%, rgba(0, 75, 147, 0.14), transparent 60%);
+          radial-gradient(480px 320px at 8% 15%, rgba(230, 0, 0, 0.14), transparent 60%);
         pointer-events: none;
         z-index: 0;
       }
@@ -213,7 +213,7 @@ import { environment } from '../environments/environment';
         height: 96px;
         top: 16%;
         left: 14%;
-        background: rgba(78, 202, 114, 0.45);
+        background: rgba(230, 0, 0, 0.35);
       }
 
       .login-lumen--2 {
@@ -221,7 +221,7 @@ import { environment } from '../environments/environment';
         height: 72px;
         top: 52%;
         right: 18%;
-        background: rgba(89, 168, 244, 0.38);
+        background: rgba(255, 102, 102, 0.38);
         animation-delay: 1.8s;
       }
 
@@ -259,14 +259,14 @@ import { environment } from '../environments/environment';
         height: min(520px, 85vw);
         top: -14%;
         left: -10%;
-        background: rgba(0, 75, 147, 0.42);
+        background: rgba(230, 0, 0, 0.42);
       }
       .login-glow--b {
         width: min(380px, 65vw);
         height: min(380px, 65vw);
         bottom: -10%;
         right: -6%;
-        background: rgba(89, 168, 244, 0.22);
+        background: rgba(255, 102, 102, 0.22);
       }
 
       .login-card {
@@ -437,8 +437,8 @@ import { environment } from '../environments/environment';
 
       .auth-status--keycloak {
         color: #9be7b0;
-        border-color: rgba(78, 202, 114, 0.32);
-        background: rgba(78, 202, 114, 0.08);
+        border-color: rgba(230, 0, 0, 0.32);
+        background: rgba(230, 0, 0, 0.08);
       }
 
       .auth-status--local {
@@ -459,10 +459,10 @@ import { environment } from '../environments/environment';
         width: 100%;
         margin-bottom: 1rem;
         padding: 0.82rem 1rem;
-        border: 1px solid rgba(78, 202, 114, 0.35);
+        border: 1px solid rgba(230, 0, 0, 0.35);
         border-radius: var(--sp-radius-sm);
-        background: rgba(78, 202, 114, 0.12);
-        color: #d7ffe3;
+        background: rgba(230, 0, 0, 0.12);
+        color: #ffd7d7;
         font: inherit;
         font-weight: 700;
         cursor: pointer;
@@ -497,7 +497,7 @@ import { environment } from '../environments/environment';
       }
 
       .field-input:focus {
-        border-color: rgba(89, 168, 244, 0.65);
+        border-color: rgba(255, 102, 102, 0.65);
         box-shadow: 0 0 0 3px var(--sp-accent-soft);
         background: rgba(0, 0, 0, 0.38);
       }
@@ -515,8 +515,8 @@ import { environment } from '../environments/environment';
         text-transform: uppercase;
         cursor: pointer;
         color: #fff;
-        background: linear-gradient(185deg, #0a5cb8 0%, var(--sp-accent-dim) 100%);
-        box-shadow: 0 10px 32px rgba(0, 75, 147, 0.35);
+        background: linear-gradient(185deg, #ff1a1a 0%, var(--sp-accent-dim) 100%);
+        box-shadow: 0 10px 32px rgba(230, 0, 0, 0.35);
         transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease,
           box-shadow 0.18s ease;
       }
@@ -531,7 +531,7 @@ import { environment } from '../environments/environment';
       .btn-submit:hover:not(:disabled) {
         transform: translateY(-1px);
         filter: brightness(1.06);
-        box-shadow: 0 14px 40px rgba(0, 75, 147, 0.4);
+        box-shadow: 0 14px 40px rgba(230, 0, 0, 0.4);
       }
 
       .btn-submit:disabled {
@@ -555,16 +555,16 @@ import { environment } from '../environments/environment';
         margin: 0 0 0.85rem;
         padding: 0.55rem 0.65rem;
         border-radius: var(--sp-radius-sm);
-        border: 1px solid rgba(89, 168, 244, 0.35);
-        background: rgba(0, 75, 147, 0.12);
+        border: 1px solid rgba(255, 102, 102, 0.35);
+        background: rgba(230, 0, 0, 0.12);
       }
 
       .dev-hint {
         margin-top: 1.35rem;
         padding: 0.75rem 0.85rem;
         border-radius: var(--sp-radius-sm);
-        border: 1px dashed rgba(89, 168, 244, 0.35);
-        background: linear-gradient(135deg, rgba(0, 75, 147, 0.12), transparent);
+        border: 1px dashed rgba(255, 102, 102, 0.35);
+        background: linear-gradient(135deg, rgba(230, 0, 0, 0.12), transparent);
       }
 
       .dev-hint-kicker {
@@ -573,15 +573,15 @@ import { environment } from '../environments/environment';
         font-weight: 700;
         letter-spacing: 0.18em;
         text-transform: uppercase;
-        color: rgba(89, 168, 244, 0.9);
+        color: rgba(255, 102, 102, 0.9);
       }
 
       .dev-hint-fill {
         margin-top: 0.55rem;
         padding: 0.35rem 0.65rem;
-        border: 1px solid rgba(89, 168, 244, 0.45);
+        border: 1px solid rgba(255, 102, 102, 0.45);
         border-radius: 6px;
-        background: rgba(0, 75, 147, 0.18);
+        background: rgba(230, 0, 0, 0.18);
         color: var(--sp-text);
         font: inherit;
         font-size: 0.72rem;

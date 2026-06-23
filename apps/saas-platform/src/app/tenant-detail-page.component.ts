@@ -12,6 +12,11 @@ import {
 import {
   TENANT_MODULE_CATALOG_SAAS,
 } from './tenant-module-catalog';
+import {
+  platformTenantDisplayName,
+  platformTenantRealmHint,
+  platformTenantSlugLabel,
+} from './platform-tenant-display';
 
 type TabId = 'modules' | 'roles' | 'users';
 
@@ -372,5 +377,17 @@ export class TenantDetailPageComponent {
 
   private async loadPermissionOptions(tenantId: string): Promise<void> {
     this.permissionOptions.set(await this.api.listPermissionOptions(tenantId));
+  }
+
+  displayName(t: PlatformTenantRow): string {
+    return platformTenantDisplayName(t);
+  }
+
+  displaySlug(slug: string): string {
+    return platformTenantSlugLabel(slug);
+  }
+
+  realmHint(t: PlatformTenantRow): string {
+    return platformTenantRealmHint(t);
   }
 }

@@ -12,9 +12,9 @@ import { environment } from '../environments/environment';
     <div class="platform">
       <header class="top" role="banner">
         <div class="top-inner">
-          <a routerLink="/tenants" class="brand" aria-label="Babooni Platform — inicio">
-            <span class="brand-mark">BABOONI</span>
-            <span class="brand-sub">PLATFORM</span>
+          <a routerLink="/tenants" class="brand" aria-label="Generic ERP Platform — inicio">
+            <span class="brand-mark">GENERIC</span>
+            <span class="brand-sub">ERP PLATFORM</span>
           </a>
 
           <nav class="tabs" aria-label="Secciones del panel">
@@ -112,7 +112,7 @@ import { environment } from '../environments/environment';
 
       .brand:hover {
         border-color: var(--sp-line-strong);
-        box-shadow: 0 8px 28px rgba(0, 40, 120, 0.12);
+        box-shadow: 0 8px 28px rgba(100, 0, 0, 0.12);
       }
 
       .brand-mark {
@@ -161,10 +161,10 @@ import { environment } from '../environments/environment';
         color: #fff;
         background: linear-gradient(
           180deg,
-          rgba(0, 75, 147, 0.45) 0%,
-          rgba(0, 55, 110, 0.55) 100%
+          rgba(230, 0, 0, 0.45) 0%,
+          rgba(153, 0, 0, 0.55) 100%
         );
-        box-shadow: 0 2px 12px rgba(0, 75, 147, 0.25);
+        box-shadow: 0 2px 12px rgba(230, 0, 0, 0.25);
       }
 
       .btn-logout {
@@ -172,23 +172,23 @@ import { environment } from '../environments/environment';
         align-items: center;
         gap: 0.5rem;
         padding: 0.52rem 1rem;
-        border: 1px solid rgba(0, 75, 147, 0.45);
+        border: 1px solid rgba(230, 0, 0, 0.45);
         border-radius: var(--sp-radius-sm);
-        background: linear-gradient(185deg, rgba(0, 75, 147, 0.2), rgba(0, 40, 90, 0.35));
+        background: linear-gradient(185deg, rgba(230, 0, 0, 0.2), rgba(120, 0, 0, 0.35));
         color: var(--sp-text);
         font-family: inherit;
         font-size: 0.83rem;
         font-weight: 600;
         cursor: pointer;
         transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
-        box-shadow: 0 4px 18px rgba(0, 50, 130, 0.12);
+        box-shadow: 0 4px 18px rgba(110, 0, 0, 0.12);
         margin-left: auto;
       }
 
       .btn-logout:hover {
         transform: translateY(-1px);
-        border-color: rgba(89, 168, 244, 0.55);
-        box-shadow: 0 8px 26px rgba(0, 75, 147, 0.22);
+        border-color: rgba(255, 102, 102, 0.55);
+        box-shadow: 0 8px 26px rgba(230, 0, 0, 0.22);
       }
 
       .btn-logout-icon {

@@ -1,4 +1,4 @@
-/* Babooni Platform — login Keycloak (realm babooni-platform) */
+/* Generic ERP Platform — login Keycloak (realm babooni-platform) */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Rajdhani:wght@500;600;700&display=swap');
 
 :root {
@@ -9,10 +9,10 @@
   --bb-line-strong: rgba(255, 255, 255, 0.15);
   --bb-muted: rgba(220, 230, 245, 0.55);
   --bb-text: #e8eef8;
-  --bb-red: #e30613;
-  --bb-red-glow: rgba(227, 6, 19, 0.35);
-  --bb-blue: #004b93;
-  --bb-blue-light: #59a8f4;
+  --bb-red: #e60000;
+  --bb-red-glow: rgba(230, 0, 0, 0.35);
+  --bb-blue: #e60000;
+  --bb-blue-light: #ff6666;
   --bb-form-width: 27.5rem;
   --bb-radius: 10px;
   --bb-font-sans: 'DM Sans', system-ui, sans-serif;
@@ -51,8 +51,8 @@ html.login-pf::before {
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     url('../img/hero-platform.svg') center / cover no-repeat,
     radial-gradient(820px 480px at 28% 72%, rgba(227, 6, 19, 0.55), transparent 58%),
-    radial-gradient(640px 400px at 78% 18%, rgba(0, 75, 147, 0.22), transparent 55%),
-    linear-gradient(155deg, #0a0010 0%, #3a0008 35%, #8a0010 68%, #e30613 100%);
+    radial-gradient(640px 400px at 78% 18%, rgba(230, 0, 0, 0.22), transparent 55%),
+    linear-gradient(155deg, #0a0010 0%, #3a0008 35%, #8a0010 68%, #e60000 100%);
   background-size: 48px 48px, 48px 48px, cover, auto, auto, auto;
 }
 
@@ -91,7 +91,7 @@ html.login-pf::after {
 }
 
 .pf-v5-c-login::after {
-  content: 'Babooni Platform';
+  content: 'Generic ERP Platform';
   position: fixed;
   left: clamp(1.75rem, 4vw, 3.25rem);
   top: clamp(1.75rem, 4vw, 3.25rem);
@@ -132,7 +132,7 @@ html.login-pf::after {
   box-sizing: border-box;
   background:
     radial-gradient(480px 300px at 88% 0%, rgba(227, 6, 19, 0.1), transparent 55%),
-    radial-gradient(680px 380px at 50% -10%, rgba(0, 75, 147, 0.16), transparent 60%),
+    radial-gradient(680px 380px at 50% -10%, rgba(230, 0, 0, 0.16), transparent 60%),
     linear-gradient(165deg, rgba(4, 8, 20, 0.98) 0%, rgba(10, 16, 32, 0.96) 100%);
 }
 
@@ -310,7 +310,7 @@ input[name='password'] {
   background: rgba(8, 14, 28, 0.92) !important;
   color: #f3f7ff !important;
   -webkit-text-fill-color: #f3f7ff !important;
-  caret-color: #9fd0ff !important;
+  caret-color: var(--bb-blue-light) !important;
   min-height: 2.85rem;
   width: 100%;
   box-shadow: none !important;
@@ -325,8 +325,8 @@ input[name='password'] {
 
 .pf-v5-c-form-control:focus {
   outline: none !important;
-  border-color: rgba(89, 168, 244, 0.65) !important;
-  box-shadow: 0 0 0 3px rgba(0, 75, 147, 0.25) !important;
+  border-color: rgba(255, 102, 102, 0.65) !important;
+  box-shadow: 0 0 0 3px rgba(230, 0, 0, 0.25) !important;
 }
 
 .pf-v5-c-input-group {
@@ -410,7 +410,7 @@ input[name='password'] {
 
 #kc-form-options a:hover,
 .pf-v5-c-login__main-footer a:hover {
-  color: #9fd0ff !important;
+  color: #ffb3b3 !important;
   text-decoration: underline;
 }
 
@@ -421,8 +421,8 @@ input[name='password'] {
 .pf-v5-c-button.pf-m-primary,
 #kc-login,
 input[name='login'] {
-  background: linear-gradient(185deg, #0a5cb8 0%, var(--bb-blue) 100%) !important;
-  border: 1px solid rgba(89, 168, 244, 0.35) !important;
+  background: linear-gradient(185deg, #ff1a1a 0%, var(--bb-red) 100%) !important;
+  border: 1px solid rgba(255, 102, 102, 0.35) !important;
   color: #fff !important;
   border-radius: var(--bb-radius) !important;
   min-height: 2.85rem;
@@ -431,7 +431,7 @@ input[name='login'] {
   letter-spacing: 0.06em;
   text-transform: none;
   width: 100%;
-  box-shadow: 0 10px 32px rgba(0, 75, 147, 0.35);
+  box-shadow: 0 10px 32px rgba(230, 0, 0, 0.35);
   transition: filter 0.15s ease, transform 0.15s ease;
 }
 

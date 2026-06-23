@@ -7,11 +7,11 @@
     <header class="head">
       <div>
         <p class="eyebrow">Organización</p>
-        <h1>{{ t.name }}</h1>
+        <h1>{{ displayName(t) }}</h1>
         <p class="meta">
-          <code>{{ t.slug }}</code>
+          <code>{{ displaySlug(t.slug) }}</code>
           @if (t.authMode === 'keycloak') {
-            <span class="badge badge--kc">Keycloak · {{ t.keycloakRealm }}</span>
+            <span class="badge badge--kc">Keycloak · {{ realmHint(t) }}</span>
           } @else {
             <span class="badge badge--local">Login local</span>
           }

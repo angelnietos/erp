@@ -1,4 +1,4 @@
-/* Babooni Platform — tokens + baseline (dark UI, acento Biosstel / azul marca) */
+/* Generic ERP Platform — tokens (dark UI, acento rojo corporativo Babooni) */
 :root {
   --sp-bg0: #040814;
   --sp-bg1: #0a1020;
@@ -8,13 +8,12 @@
   --sp-line-strong: rgba(255, 255, 255, 0.15);
   --sp-muted: rgba(220, 230, 245, 0.52);
   --sp-text: #e8eef8;
-  /* Alineado con kit Babooni / Biosstel (--bio-primary, acentos) */
-  --sp-accent: #004b93;
-  --sp-accent-soft: rgba(0, 75, 147, 0.22);
-  --sp-accent-dim: #003366;
-  --sp-accent-secondary: #59a8f4;
-  --sp-gold: #59a8f4;
-  --sp-gold-soft: rgba(89, 168, 244, 0.12);
+  --sp-accent: #e60000;
+  --sp-accent-soft: rgba(230, 0, 0, 0.22);
+  --sp-accent-dim: #990000;
+  --sp-accent-secondary: #ff6666;
+  --sp-gold: #ff6666;
+  --sp-gold-soft: rgba(255, 102, 102, 0.12);
   --sp-danger-text: #ffb4b8;
   --sp-radius-sm: 8px;
   --sp-radius-md: 12px;
@@ -23,7 +22,7 @@
   --sp-shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.35);
   --sp-font-sans: 'DM Sans', system-ui, sans-serif;
   --sp-font-display: 'Rajdhani', sans-serif;
-  --sp-focus: 0 0 0 2px var(--sp-bg0), 0 0 0 4px rgba(89, 168, 244, 0.45);
+  --sp-focus: 0 0 0 2px var(--sp-bg0), 0 0 0 4px rgba(255, 102, 102, 0.45);
 }
 
 *,
@@ -45,8 +44,8 @@ body {
   font-optical-sizing: auto;
   background-color: var(--sp-bg0);
   background-image:
-    radial-gradient(1100px 600px at 10% -6%, rgba(0, 75, 147, 0.2), transparent 58%),
-    radial-gradient(900px 520px at 94% 6%, rgba(89, 168, 244, 0.1), transparent 54%),
+    radial-gradient(1100px 600px at 10% -6%, rgba(230, 0, 0, 0.18), transparent 58%),
+    radial-gradient(900px 520px at 94% 6%, rgba(255, 102, 102, 0.08), transparent 54%),
     linear-gradient(165deg, var(--sp-bg0) 0%, var(--sp-bg1) 44%, #060b14 100%),
     linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
@@ -61,7 +60,7 @@ body {
 }
 
 ::selection {
-  background: rgba(0, 75, 147, 0.45);
+  background: rgba(230, 0, 0, 0.45);
   color: #fff;
 }
 

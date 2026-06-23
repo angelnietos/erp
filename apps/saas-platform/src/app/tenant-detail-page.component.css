@@ -86,8 +86,8 @@
 }
 
 .badge--kc {
-  background: rgba(89, 168, 244, 0.15);
-  color: #9fd0ff;
+  background: rgba(255, 102, 102, 0.15);
+  color: var(--sp-accent-secondary);
 }
 
 .badge--local {
@@ -123,7 +123,7 @@
 }
 
 .tabs button.active {
-  background: rgba(0, 75, 147, 0.45);
+  background: rgba(230, 0, 0, 0.45);
   color: #fff;
 }
 
@@ -188,8 +188,8 @@
 }
 
 .chip--on {
-  border-color: rgba(89, 168, 244, 0.45);
-  background: rgba(0, 75, 147, 0.2);
+  border-color: rgba(255, 102, 102, 0.45);
+  background: rgba(230, 0, 0, 0.2);
 }
 
 .list {
@@ -218,8 +218,8 @@
 }
 
 .list-item.active {
-  border-color: rgba(89, 168, 244, 0.5);
-  background: rgba(0, 75, 147, 0.25);
+  border-color: rgba(255, 102, 102, 0.5);
+  background: rgba(230, 0, 0, 0.25);
 }
 
 .list-title {
@@ -308,7 +308,7 @@
   border: none;
   border-radius: 8px;
   padding: 0.65rem 1rem;
-  background: linear-gradient(185deg, #0a5cb8, var(--sp-accent-dim));
+  background: linear-gradient(185deg, #ff1a1a, var(--sp-accent-dim));
   color: #fff;
   font-weight: 700;
   cursor: pointer;
