@@ -27,6 +27,12 @@
         primary: { email: 'admin@alexis.local' },
         alternates: [],
       },
+      'verifactu-crm-spa': {
+        slug: 'verifactu',
+        password: 'Demo12345!',
+        primary: { email: 'admin@demo.local' },
+        alternates: [],
+      },
       default: {
         slug: 'josanz',
         primary: { email: 'admin@josanz.com' },
@@ -99,8 +105,10 @@
   }
 
   function fillAccount(email) {
+    const cfg = resolveAccountConfig();
+    const password = cfg?.password || DEV_PASSWORD;
     setInputValue(findUsernameInput(), email);
-    setInputValue(findPasswordInput(), DEV_PASSWORD);
+    setInputValue(findPasswordInput(), password);
   }
 
   function escapeHtml(value) {
@@ -148,6 +156,7 @@
       })
       .join('');
 
+    const displayPassword = cfg.password || DEV_PASSWORD;
     panel.innerHTML =
       '<summary>Cuentas demo (dev · ' +
       escapeHtml(cfg.slug) +
@@ -159,7 +168,7 @@
       '<code>' +
       escapeHtml(cfg.primary.email) +
       '</code> · contraseña <code>' +
-      escapeHtml(DEV_PASSWORD) +
+      escapeHtml(displayPassword) +
       '</code></p>' +
       (altItems ? '<ul class="kc-dev-login-hint__list">' + altItems + '</ul>' : '');
 

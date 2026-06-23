@@ -17,7 +17,7 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
 const KC_THEMES = path.join(REPO_ROOT, 'docker', 'keycloak', 'themes');
-const KC_DEV_LOGIN_THEMES = ['josanz-figma', 'babooni-platform', 'babooni-erp'];
+const KC_DEV_LOGIN_THEMES = ['josanz-figma', 'babooni-platform', 'babooni-erp', 'verifactu-crm'];
 
 function copyKeycloakDevLoginAssets() {
   const shared = path.join(KC_THEMES, '_shared', 'login', 'resources');
@@ -165,7 +165,7 @@ function verifactuCrmClientPayload() {
     redirectUris: [VERIFACTU_CRM_CALLBACK, `${VERIFACTU_CRM_ORIGIN}/*`],
     attributes: {
       'pkce.code.challenge.method': 'S256',
-      login_theme: 'babooni-erp',
+      login_theme: 'verifactu-crm',
       'post.logout.redirect.uris': POST_LOGOUT_REDIRECT_URIS,
     },
     defaultClientScopes: ['web-origins', 'roles', 'profile', 'email', 'openid'],
@@ -185,8 +185,12 @@ function josanzClientPayload() {
     implicitFlowEnabled: false,
     serviceAccountsEnabled: false,
     protocol: 'openid-connect',
-    webOrigins: [...DEV_ORIGINS],
-    redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
+    webOrigins: [...DEV_ORIGINS, VERIFACTU_CRM_ORIGIN],
+    redirectUris: [
+      ...DEV_ORIGINS.map((o) => `${o}/*`),
+      VERIFACTU_CRM_CALLBACK,
+      `${VERIFACTU_CRM_ORIGIN}/*`,
+    ],
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'josanz-figma',
@@ -453,8 +457,12 @@ function babooniTenantClientPayload() {
     implicitFlowEnabled: false,
     serviceAccountsEnabled: false,
     protocol: 'openid-connect',
-    webOrigins: [...DEV_ORIGINS],
-    redirectUris: DEV_ORIGINS.map((o) => `${o}/*`),
+    webOrigins: [...DEV_ORIGINS, VERIFACTU_CRM_ORIGIN],
+    redirectUris: [
+      ...DEV_ORIGINS.map((o) => `${o}/*`),
+      VERIFACTU_CRM_CALLBACK,
+      `${VERIFACTU_CRM_ORIGIN}/*`,
+    ],
     attributes: {
       'pkce.code.challenge.method': 'S256',
       login_theme: 'babooni-erp',

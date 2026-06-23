@@ -31,8 +31,8 @@ export const ERP_EXTERNAL_APP_CATALOG: readonly ErpExternalAppDefinition[] = [
     kind: 'verifactu',
     name: 'Verifactu',
     description: 'Facturación electrónica AEAT (CRM · web, API y worker en repos aparte).',
-    /** Login KC del CRM (:4230); tras OIDC abre el shell Verifactu. */
-    entryPath: '/login?returnUrl=%2Fverifactu%2Foverview',
+    /** Tras OIDC abre el shell Verifactu (tenant demo por defecto). */
+    entryPath: '/login?returnUrl=%2Fverifactu%2Foverview&tenant=demo',
   },
 ];
 

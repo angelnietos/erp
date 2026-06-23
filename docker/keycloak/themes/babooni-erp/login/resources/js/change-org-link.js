@@ -18,7 +18,7 @@
     if (redirectUri) {
       try {
         const u = new URL(redirectUri);
-        if (u.port === '4300') {
+        if (u.port === '4300' || u.port === '4230') {
           return u.protocol + '//' + u.hostname + ':4200' + ERP_TENANT_PATH;
         }
         return u.origin + ERP_TENANT_PATH;
@@ -35,6 +35,7 @@
     const byClient = {
       'josanz-figma-spa': 'alexis',
       'josanz-web-app-spa': 'josanz',
+      'verifactu-crm-spa': 'verifactu',
     };
     if (byClient[clientId]) {
       return byClient[clientId];
