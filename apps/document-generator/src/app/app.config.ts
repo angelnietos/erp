@@ -18,6 +18,7 @@ import {
   AuthStore,
   ERP_AUTH_SESSION_MODE,
   IdentitySessionHydrationService,
+  configureErpMainShellBaseUrl,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { provideEnterpriseAuth } from '@josanz-erp/shared-auth-keycloak';
@@ -159,6 +160,10 @@ import {
   StickyNote,
 } from 'lucide-angular';
 import { VERIFACTU_API_BASE_URL } from '@josanz-erp/verifactu-api';
+
+configureErpMainShellBaseUrl(
+  environment.erpHubUrl?.replace(/\/auth\/tenant\/?$/, '') ?? 'http://localhost:4200',
+);
 
 export const appConfig: ApplicationConfig = {
   providers: [

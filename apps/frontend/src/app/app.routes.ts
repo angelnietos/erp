@@ -38,6 +38,11 @@ export const appRoutes: Route[] = [
       ...withShellMatch(documentGeneratorAppRoutes, documentGeneratorShellCanMatch),
       ...withShellMatch(josanzFigmaAppRoutes, josanzFigmaShellCanMatch),
       ...withShellMatch(classicErpAppRoutes, classicErpShellCanMatch),
+      {
+        path: '**',
+        canActivate: [redirectToTenantHomeGuard],
+        children: [],
+      },
     ],
   },
   {

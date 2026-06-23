@@ -11,7 +11,7 @@ import {
   type IdentityAuthMode,
 } from '../services/auth.service';
 import { syncErpTenantHtmlTheme, setErpTenantSlug, resolveTenantSlugFromId } from '../utils/erp-tenant-theme';
-import { resolvePostLoginPath } from '../utils/post-login-navigation';
+import { resolvePostLoginPath, resolveErpMainShellHandoffUrl } from '../utils/post-login-navigation';
 import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.interceptor';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
@@ -201,6 +201,15 @@ export const AuthStore = signalStore(
                   response.tenantSlug ??
                     resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
                 );
+                const handoff = resolveErpMainShellHandoffUrl(
+                  target,
+                  response.tenantSlug ??
+                    resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
+                );
+                if (handoff) {
+                  window.location.assign(handoff);
+                  return;
+                }
                 void router.navigateByUrl(target, { replaceUrl: true });
               }),
               catchError((error) => {
@@ -302,6 +311,15 @@ export const AuthStore = signalStore(
                   response.tenantSlug ??
                     resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
                 );
+                const handoff = resolveErpMainShellHandoffUrl(
+                  target,
+                  response.tenantSlug ??
+                    resolveTenantSlugFromId(tenantId ?? getStoredTenantId()),
+                );
+                if (handoff) {
+                  window.location.assign(handoff);
+                  return;
+                }
                 void router.navigateByUrl(target, { replaceUrl: true });
               }),
               catchError((error) => {

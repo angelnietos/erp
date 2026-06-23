@@ -18,6 +18,7 @@ import {
   DEV_TENANT_LOGIN_HINTS,
   DEV_TENANT_LOGIN_PASSWORD,
   AuthService,
+  resolveErpTenantLoginHandoffUrl,
 } from '@josanz-erp/identity-data-access';
 import {
   ERP_EXTERNAL_APP_CATALOG,
@@ -141,6 +142,13 @@ export class TenantSelectComponent implements OnInit {
       this.selectedSlug()?.trim().toLowerCase() ||
       this.customSlug().trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!slug || this.handoffInProgress()) return;
+
+    const erpHubLogin = resolveErpTenantLoginHandoffUrl(slug);
+    if (erpHubLogin) {
+      this.handoffInProgress.set(true);
+      window.location.assign(erpHubLogin);
+      return;
+    }
 
     if (isExternalErpAppSlug(slug)) {
       const launchUrl = resolveExternalAppLaunchUrl(slug);

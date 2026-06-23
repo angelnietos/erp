@@ -3,7 +3,55 @@ import {
   getTenantUiShell,
   isDocumentGeneratorUiShell,
   isJosanzFigmaUiShell,
+  normalizeTenantSlug,
 } from './tenant-ui-shell';
+
+let erpMainShellBaseUrl = 'http://localhost:4200';
+
+/** Origen del hub ERP (`apps/frontend`, :4200 en dev). */
+export function configureErpMainShellBaseUrl(url: string | null | undefined): void {
+  const trimmed = url?.trim().replace(/\/$/, '');
+  if (trimmed) {
+    erpMainShellBaseUrl = trimmed;
+  }
+}
+
+/**
+ * Si el login de un tenant ERP ocurre en :4210 (docs), redirige al shell principal.
+ * Evita `/not-found` al navegar a rutas que solo existen en :4200.
+ */
+export function resolveErpMainShellHandoffUrl(
+  targetPath: string,
+  tenantSlug?: string | null,
+): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  if (window.location.port !== '4210') {
+    return null;
+  }
+  const slug = normalizeTenantSlug(tenantSlug ?? getErpTenantSlug());
+  if (!slug || isDocumentGeneratorUiShell(slug)) {
+    return null;
+  }
+  const path = targetPath.startsWith('/') ? targetPath : `/${targetPath}`;
+  return `${erpMainShellBaseUrl}${path}`;
+}
+
+/** Handoff al login del hub ERP cuando se elige organización en :4210. */
+export function resolveErpTenantLoginHandoffUrl(tenantSlug: string): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  if (window.location.port !== '4210') {
+    return null;
+  }
+  const slug = normalizeTenantSlug(tenantSlug);
+  if (!slug || isDocumentGeneratorUiShell(slug)) {
+    return null;
+  }
+  return `${erpMainShellBaseUrl}/auth/login?tenant=${encodeURIComponent(slug)}`;
+}
 
 export interface PostLoginRouteCandidate {
   path: string;

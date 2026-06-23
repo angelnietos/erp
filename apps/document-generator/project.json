@@ -29,6 +29,11 @@
           {
             "glob": "**/*",
             "input": "apps/document-generator/public"
+          },
+          {
+            "glob": "**/*",
+            "input": "apps/frontend/public/assets/josanz-figma",
+            "output": "assets/josanz-figma"
           }
         ],
         "styles": [

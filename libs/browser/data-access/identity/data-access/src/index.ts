@@ -18,7 +18,13 @@ export {
   type ErpBffLoginResult,
   type ErpAuthSessionMode,
 } from './lib/ports/erp-bff-auth.port';
-export { resolvePostLoginPath, resolveTenantHomePath } from './lib/utils/post-login-navigation';
+export {
+  resolvePostLoginPath,
+  resolveTenantHomePath,
+  configureErpMainShellBaseUrl,
+  resolveErpMainShellHandoffUrl,
+  resolveErpTenantLoginHandoffUrl,
+} from './lib/utils/post-login-navigation';
 export {
   getErpTenantSlug,
   setErpTenantSlug,

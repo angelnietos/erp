@@ -18,7 +18,8 @@ export type ErpTenantUiShell =
 /** Slug → shell. Añade tenants aquí; no hace falta duplicar backend ni despliegue. */
 export const TENANT_UI_SHELL_BY_SLUG: Readonly<Record<string, ErpTenantUiShell>> = {
   babooni: 'babooni',
-  /** Solo el tenant demo Figma; el resto usa ERP clásico por defecto. */
+  /** ERP principal con shell Figma / josanz-ui (hub :4200). */
+  josanz: 'josanz-figma',
   alexis: 'josanz-figma',
   /** Generador de documentos integrado (standalone en :4210). */
   docs: 'document-generator',

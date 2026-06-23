@@ -29,6 +29,7 @@ import {
   isJosanzFigmaUiShell,
   resolveTenantSlugFromId,
   setErpTenantSlug,
+  configureErpMainShellBaseUrl,
 } from '@josanz-erp/identity-data-access';
 import {
   bffAuthInterceptor,
@@ -219,6 +220,10 @@ configureErpExternalAppBaseUrls({
     ? { docs: environment.apps.docs.trim() }
     : {}),
 });
+
+configureErpMainShellBaseUrl(
+  environment.apps?.erpHub?.replace(/\/auth\/tenant\/?$/, '') ?? 'http://localhost:4200',
+);
 
 export const appConfig: ApplicationConfig = {
   providers: [

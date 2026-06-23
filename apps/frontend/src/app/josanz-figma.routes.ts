@@ -1,8 +1,9 @@
 import { Route } from '@angular/router';
+import { NotFoundComponent } from './not-found.component';
 
 /**
  * Mismas rutas que apps/josanz-web-app (josanz-ui + shells josanz-*).
- * Se activan con canMatch cuando el tenant usa shell josanz-figma (p. ej. alexis).
+ * Se activan con canMatch cuando el tenant usa shell josanz-figma (josanz, alexis).
  */
 export const josanzFigmaAppRoutes: Route[] = [
   {
@@ -77,5 +78,10 @@ export const josanzFigmaAppRoutes: Route[] = [
     path: 'billing',
     loadChildren: () =>
       import('@josanz-erp/josanz-events-shell').then((m) => m.josanzBillingRoutes),
+  },
+  {
+    path: 'not-found',
+    component: NotFoundComponent,
+    title: 'Página no encontrada',
   },
 ];
