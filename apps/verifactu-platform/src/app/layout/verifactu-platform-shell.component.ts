@@ -9,7 +9,11 @@ import {
 } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
 import { LucideAngularModule } from 'lucide-angular';
-import { SessionTokenStorageService } from '@generic-crm/shared-browser-data-access';
+import {
+  normalizeTenantSlug,
+  resolveTenantDisplayName,
+  SessionTokenStorageService,
+} from '@generic-crm/shared-browser-data-access';
 import { IdentityAuthService } from '@generic-crm/identity-data-access';
 import { environment } from '../../environments/environment';
 import {
@@ -108,37 +112,53 @@ interface NavItem {
         min-height: 100dvh;
       }
       .vf-sidebar {
+        position: sticky;
+        top: 0;
+        align-self: start;
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        padding: 1.25rem 0.85rem;
-        background: linear-gradient(180deg, #0b1220 0%, #0f172a 55%, #14532d 140%);
+        gap: 0;
+        height: 100dvh;
+        max-height: 100dvh;
+        overflow: hidden;
+        padding: 1.35rem 0.9rem 1rem;
+        background:
+          radial-gradient(420px 280px at 0% 0%, rgba(16, 217, 129, 0.12), transparent 60%),
+          radial-gradient(360px 240px at 100% 100%, rgba(14, 165, 233, 0.08), transparent 55%),
+          linear-gradient(185deg, var(--vf-sidebar, #0a0f1c) 0%, var(--vf-sidebar-mid, #111827) 52%, var(--vf-sidebar-deep, #0d2818) 130%);
         border-right: 1px solid rgba(255, 255, 255, 0.06);
-        color: var(--vf-text-on-dark, #e2e8f0);
+        color: var(--vf-text-on-dark, #eef2f8);
+        box-shadow: 4px 0 32px rgb(0 0 0 / 0.12);
       }
       .vf-brand {
         display: flex;
         align-items: center;
         gap: 0.65rem;
         padding: 0.35rem 0.5rem 0.85rem;
+        flex-shrink: 0;
       }
       .vf-brand__mark {
         display: grid;
         place-items: center;
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 0.65rem;
-        font-size: 0.72rem;
+        width: 2.65rem;
+        height: 2.65rem;
+        border-radius: 0.85rem;
+        font-family: var(--vf-font-display, inherit);
+        font-size: 0.78rem;
         font-weight: 800;
-        letter-spacing: 0.04em;
-        color: #052e16;
-        background: linear-gradient(135deg, #4ade80, #16a34a);
-        box-shadow: 0 0 24px var(--vf-accent-glow);
+        letter-spacing: 0.02em;
+        color: #042f1a;
+        background: var(--vf-accent-gradient, linear-gradient(135deg, #34f5a8, #0d9f5f));
+        box-shadow:
+          0 0 28px var(--vf-accent-glow),
+          0 4px 12px rgb(0 0 0 / 0.25),
+          inset 0 1px 0 rgb(255 255 255 / 0.35);
       }
       .vf-brand__title {
         margin: 0;
-        font-size: 1.05rem;
-        font-weight: 700;
+        font-family: var(--vf-font-display, inherit);
+        font-size: 1.1rem;
+        font-weight: 800;
         letter-spacing: -0.02em;
       }
       .vf-brand__sub {
@@ -152,24 +172,35 @@ interface NavItem {
         display: flex;
         flex-direction: column;
         gap: 0.2rem;
-        flex: 1;
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding: 0.25rem 0;
+        margin: 0 -0.15rem;
+        scrollbar-width: thin;
       }
       .vf-nav__link {
         display: flex;
         align-items: center;
-        gap: 0.55rem;
-        padding: 0.55rem 0.65rem;
-        border-radius: 0.55rem;
+        gap: 0.6rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: var(--vf-radius-sm, 0.625rem);
         color: var(--vf-text-on-dark-muted);
         text-decoration: none;
         font-size: 0.9rem;
-        font-weight: 500;
-        border: none;
+        font-weight: 600;
+        border: 1px solid transparent;
         background: transparent;
         width: 100%;
         text-align: left;
         cursor: pointer;
         font-family: inherit;
+        box-sizing: border-box;
+        transition:
+          background var(--vf-duration, 0.2s) var(--vf-ease, ease),
+          color var(--vf-duration, 0.2s) var(--vf-ease, ease),
+          border-color var(--vf-duration, 0.2s) var(--vf-ease, ease);
       }
       .vf-nav__link:hover {
         background: var(--vf-sidebar-hover);
@@ -177,7 +208,8 @@ interface NavItem {
       }
       .vf-nav__link.is-active {
         background: var(--vf-sidebar-active);
-        color: #bbf7d0;
+        color: #a7f3d0;
+        border-color: rgba(16, 217, 129, 0.2);
         box-shadow: inset 3px 0 0 var(--vf-accent-light);
       }
       .vf-nav__link--muted {
@@ -190,7 +222,9 @@ interface NavItem {
         display: flex;
         flex-direction: column;
         gap: 0.2rem;
+        flex-shrink: 0;
         padding-top: 0.75rem;
+        margin-top: 0.5rem;
         border-top: 1px solid rgba(255, 255, 255, 0.08);
       }
       .vf-main {
@@ -207,7 +241,10 @@ interface NavItem {
         gap: 0.75rem 1.5rem;
         padding: 1rem 1.5rem;
         border-bottom: 1px solid var(--vf-border);
-        background: var(--vf-bg-elevated);
+        background: rgb(255 255 255 / 0.82);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset;
       }
       .vf-topbar__eyebrow {
         margin: 0;
@@ -219,8 +256,10 @@ interface NavItem {
       }
       .vf-topbar__tenant {
         margin: 0.15rem 0 0;
-        font-size: 1rem;
-        font-weight: 600;
+        font-family: var(--vf-font-display, inherit);
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
       }
       .vf-topbar__meta {
         margin: 0.2rem 0 0;
@@ -233,15 +272,15 @@ interface NavItem {
       }
       .vf-topbar__slug {
         display: inline-flex;
-        padding: 0.12rem 0.45rem;
-        border-radius: 999px;
+        padding: 0.15rem 0.55rem;
+        border-radius: var(--vf-radius-pill, 999px);
         font-size: 0.68rem;
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: #166534;
+        color: #047857;
         background: var(--vf-accent-soft);
-        border: 1px solid rgba(34, 197, 94, 0.22);
+        border: 1px solid rgba(16, 217, 129, 0.25);
       }
       .vf-topbar__sep {
         opacity: 0.45;
@@ -250,54 +289,67 @@ interface NavItem {
         display: inline-flex;
         align-items: center;
         gap: 0.45rem;
-        padding: 0.35rem 0.75rem;
-        border-radius: 999px;
+        padding: 0.4rem 0.85rem;
+        border-radius: var(--vf-radius-pill, 999px);
         font-size: 0.78rem;
-        font-weight: 600;
-        color: #166534;
+        font-weight: 700;
+        color: #047857;
         background: var(--vf-accent-soft);
-        border: 1px solid rgba(34, 197, 94, 0.25);
+        border: 1px solid rgba(16, 217, 129, 0.28);
+        box-shadow: var(--vf-shadow-sm);
       }
       .vf-pulse {
-        width: 0.45rem;
-        height: 0.45rem;
+        width: 0.5rem;
+        height: 0.5rem;
         border-radius: 50%;
         background: var(--vf-accent-light);
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-        animation: vf-pulse 2s ease-out infinite;
+        box-shadow: 0 0 0 0 rgba(16, 217, 129, 0.55);
+        animation: vf-pulse 2.2s ease-out infinite;
       }
       @keyframes vf-pulse {
         70% {
-          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+          box-shadow: 0 0 0 10px rgba(16, 217, 129, 0);
         }
         100% {
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+          box-shadow: 0 0 0 0 rgba(16, 217, 129, 0);
         }
       }
       .vf-content {
         flex: 1;
-        padding: 1.25rem 1.5rem 2rem;
+        padding: 1.35rem 1.5rem 2.25rem;
         min-width: 0;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .vf-nav__link {
+          transition: none;
+        }
       }
       @media (max-width: 900px) {
         .vf-shell {
           grid-template-columns: 1fr;
         }
         .vf-sidebar {
+          position: relative;
+          height: auto;
+          max-height: none;
+          overflow: visible;
           flex-direction: row;
           flex-wrap: wrap;
           align-items: center;
+          gap: 0.5rem;
         }
         .vf-nav {
           flex-direction: row;
           flex-wrap: wrap;
           flex: unset;
+          overflow: visible;
         }
         .vf-sidebar__footer {
           flex-direction: row;
           flex-wrap: wrap;
           border-top: none;
           padding-top: 0;
+          margin-top: 0;
         }
       }
     `,
@@ -329,11 +381,14 @@ export class VerifactuPlatformShellComponent implements OnInit {
   );
 
   readonly tenantSlug = computed(
-    () => this.session.tenantSlug() || environment.defaultTenantSlug || 'demo',
+    () =>
+      normalizeTenantSlug(this.session.tenantSlug()) ??
+      environment.defaultTenantSlug ??
+      'demo',
   );
 
-  readonly tenantName = computed(
-    () => this.session.tenantName() || this.tenantSlug(),
+  readonly tenantName = computed(() =>
+    resolveTenantDisplayName(this.tenantSlug(), this.session.tenantName()),
   );
 
   readonly userEmail = signal<string | null>(null);
@@ -348,7 +403,7 @@ export class VerifactuPlatformShellComponent implements OnInit {
     }
     this.auth.session().subscribe({
       next: (res) => {
-        if (res.tenantSlug && res.tenantName) {
+        if (res.tenantId && res.tenantSlug && res.tenantName) {
           this.session.setTenantContext({
             tenantId: res.tenantId,
             tenantSlug: res.tenantSlug,

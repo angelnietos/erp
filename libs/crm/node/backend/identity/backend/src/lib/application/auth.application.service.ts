@@ -81,7 +81,7 @@ export class AuthApplicationService {
     );
   }
 
-  /** Resuelve tenant CRM tras login OIDC: JWT tenant_id (si el usuario existe) → slug explícito. */
+  /** Resuelve tenant CRM tras login OIDC: JWT tenant_id → slugs candidatos (explícito + email). */
   private async resolveOidcTenantId(
     tenantSlug: string,
     rawToken: string,
@@ -97,8 +97,16 @@ export class AuthApplicationService {
       }
     }
 
-    const bySlug = await this.tenants.findActiveIdBySlug(tenantSlug);
-    if (bySlug) {
+    const slugCandidates = [
+      tenantSlug.trim(),
+      this.inferTenantSlugFromEmail(normalizedEmail) ?? '',
+    ].filter((s, i, arr) => s && arr.indexOf(s) === i);
+
+    for (const slug of slugCandidates) {
+      const bySlug = await this.tenants.findActiveIdBySlug(slug);
+      if (!bySlug) {
+        continue;
+      }
       const user = await this.users.findForLogin(bySlug, normalizedEmail);
       if (user?.isActive) {
         return bySlug;
@@ -106,6 +114,22 @@ export class AuthApplicationService {
     }
 
     return null;
+  }
+
+  private inferTenantSlugFromEmail(email: string): string | null {
+    const at = email.lastIndexOf('@');
+    if (at < 0) {
+      return null;
+    }
+    const domain = email.slice(at + 1).toLowerCase();
+    const map: Record<string, string> = {
+      'babooni.com': 'babooni',
+      'josanz.com': 'josanz',
+      'demo.local': 'demo',
+      'alexis.local': 'alexis',
+      'acme.local': 'acme',
+    };
+    return map[domain] ?? null;
   }
 
   private async buildLoginResponse(

@@ -1,30 +1,69 @@
-/* Verifactu Platform — design tokens (demo AEAT) */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+/* Verifactu Platform — design tokens (premium fiscal UI) */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,500&display=swap');
 
 :root {
   --vf-font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --vf-bg: #f4f7fb;
+  --vf-font-display: 'Plus Jakarta Sans', var(--vf-font);
+
+  /* Surfaces — warm light canvas */
+  --vf-bg: #f3f6fb;
   --vf-bg-elevated: #ffffff;
-  --vf-bg-subtle: #eef2f7;
-  --vf-sidebar: #0b1220;
-  --vf-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --vf-sidebar-active: rgba(34, 197, 94, 0.14);
-  --vf-text: #0f172a;
-  --vf-text-muted: #64748b;
-  --vf-text-on-dark: #e2e8f0;
+  --vf-bg-subtle: #eef2f8;
+  --vf-bg-muted: #e4eaf3;
+
+  /* Sidebar — cinematic navy (not game UI) */
+  --vf-sidebar: #0a0f1c;
+  --vf-sidebar-mid: #111827;
+  --vf-sidebar-deep: #0d2818;
+  --vf-sidebar-hover: rgba(255, 255, 255, 0.07);
+  --vf-sidebar-active: rgba(16, 217, 129, 0.14);
+
+  /* Text */
+  --vf-text: #0c1222;
+  --vf-text-muted: #5c6b82;
+  --vf-text-on-dark: #eef2f8;
   --vf-text-on-dark-muted: #94a3b8;
-  --vf-border: #e2e8f0;
-  --vf-accent: #16a34a;
-  --vf-accent-light: #22c55e;
-  --vf-accent-soft: rgba(34, 197, 94, 0.12);
-  --vf-accent-glow: rgba(34, 197, 94, 0.28);
-  --vf-danger: #dc2626;
-  --vf-warning: #d97706;
-  --vf-info: #2563eb;
-  --vf-radius: 0.75rem;
-  --vf-radius-sm: 0.5rem;
-  --vf-shadow: 0 1px 3px rgb(15 23 42 / 0.06), 0 8px 24px rgb(15 23 42 / 0.04);
-  --vf-focus: #22c55e;
+
+  /* Borders */
+  --vf-border: #dde4ef;
+  --vf-border-strong: #c8d2e0;
+
+  /* Accent — AEAT green, vivid but controlled */
+  --vf-accent: #0d9f5f;
+  --vf-accent-light: #10d981;
+  --vf-accent-bright: #34f5a8;
+  --vf-accent-soft: rgba(16, 217, 129, 0.12);
+  --vf-accent-glow: rgba(16, 217, 129, 0.32);
+  --vf-accent-gradient: linear-gradient(135deg, #34f5a8 0%, #0d9f5f 55%, #047857 100%);
+
+  /* Secondary pop — subtle coral (Switch-inspired accent, not dominant) */
+  --vf-coral: #f43f5e;
+  --vf-coral-soft: rgba(244, 63, 94, 0.1);
+
+  /* Semantic */
+  --vf-danger: #e11d48;
+  --vf-warning: #ea580c;
+  --vf-info: #0ea5e9;
+
+  /* Shape */
+  --vf-radius-sm: 0.625rem;
+  --vf-radius: 1rem;
+  --vf-radius-lg: 1.25rem;
+  --vf-radius-pill: 999px;
+
+  /* Depth */
+  --vf-shadow-sm: 0 1px 2px rgb(12 18 34 / 0.04), 0 2px 8px rgb(12 18 34 / 0.03);
+  --vf-shadow: 0 2px 6px rgb(12 18 34 / 0.05), 0 12px 32px rgb(12 18 34 / 0.06);
+  --vf-shadow-lg: 0 8px 24px rgb(12 18 34 / 0.08), 0 24px 48px rgb(12 18 34 / 0.06);
+  --vf-shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.85);
+
+  --vf-focus: #10d981;
+  --vf-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --vf-duration: 0.2s;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 html,
@@ -32,4 +71,11 @@ body {
   font-family: var(--vf-font);
   background: var(--vf-bg);
   color: var(--vf-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

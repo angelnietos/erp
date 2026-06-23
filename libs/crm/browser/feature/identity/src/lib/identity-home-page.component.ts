@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { IdentityAuthService } from '@generic-crm/identity-data-access';
 import {
   httpApiErrorMessage,
+  inferTenantSlugFromEmail,
   isSafeAppInternalPath,
   SessionTokenStorageService,
 } from '@generic-crm/shared-browser-data-access';
@@ -100,11 +101,15 @@ export class IdentityHomePageComponent implements OnInit {
   login(): void {
     this.feedback = '';
     this.submitting = true;
+    const tenantSlug =
+      this.tenantSlug.trim() ||
+      inferTenantSlugFromEmail(this.email) ||
+      undefined;
     this.auth
       .login({
         email: this.email,
         password: this.password,
-        tenantSlug: this.tenantSlug || undefined,
+        tenantSlug,
       })
       .pipe(
         takeUntilDestroyed(this.destroyRef),

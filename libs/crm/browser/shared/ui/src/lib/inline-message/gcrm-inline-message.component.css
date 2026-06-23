@@ -1,16 +1,26 @@
 .gcrm-inline-msg {
   margin: 0.75rem 0 0;
-  font-size: 0.9rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  border-radius: var(--vf-radius-sm, 0.625rem);
+  border: 1px solid transparent;
 }
 
 .gcrm-inline-msg--success {
-  color: #15803d;
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
 }
 
 .gcrm-inline-msg--error {
-  color: #b91c1c;
+  color: #be123c;
+  background: #fff1f2;
+  border-color: #fecdd3;
 }
 
 .gcrm-inline-msg--info {
   color: #475569;
+  background: var(--vf-bg-subtle, #eef2f8);
+  border-color: var(--vf-border, #dde4ef);
 }

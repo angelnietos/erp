@@ -5,6 +5,7 @@ import {
   isSafeAppInternalPath,
   SessionTokenStorageService,
 } from '@generic-crm/shared-browser-data-access';
+import { resolveTenantDisplayName } from '@generic-crm/shared-browser-data-access';
 import { environment } from '../../environments/environment';
 import {
   clearVerifactuPkceRedirectPending,
@@ -104,8 +105,11 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         align-items: center;
         justify-content: center;
         padding: 2.5rem;
-        background: linear-gradient(160deg, #0b1220 0%, #0f172a 45%, #14532d 120%);
-        color: #e2e8f0;
+        background:
+          radial-gradient(480px 320px at 10% 20%, rgba(16, 217, 129, 0.14), transparent 58%),
+          radial-gradient(400px 280px at 90% 80%, rgba(14, 165, 233, 0.1), transparent 55%),
+          linear-gradient(165deg, var(--vf-sidebar, #0a0f1c) 0%, var(--vf-sidebar-mid, #111827) 48%, var(--vf-sidebar-deep, #0d2818) 120%);
+        color: var(--vf-text-on-dark, #eef2f8);
         border-right: 1px solid rgba(255, 255, 255, 0.06);
       }
       .login-brand__inner {
@@ -114,30 +118,35 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
       .login-brand__mark {
         display: grid;
         place-items: center;
-        width: 3rem;
-        height: 3rem;
-        margin-bottom: 1.25rem;
-        border-radius: 0.75rem;
-        font-size: 0.85rem;
+        width: 3.25rem;
+        height: 3.25rem;
+        margin-bottom: 1.35rem;
+        border-radius: 1rem;
+        font-family: var(--vf-font-display, inherit);
+        font-size: 0.9rem;
         font-weight: 800;
-        letter-spacing: 0.04em;
-        color: #052e16;
-        background: linear-gradient(135deg, #4ade80, #16a34a);
-        box-shadow: 0 0 32px var(--vf-accent-glow, rgba(34, 197, 94, 0.28));
+        letter-spacing: 0.02em;
+        color: #042f1a;
+        background: var(--vf-accent-gradient, linear-gradient(135deg, #34f5a8, #0d9f5f));
+        box-shadow:
+          0 0 36px var(--vf-accent-glow, rgba(16, 217, 129, 0.32)),
+          inset 0 1px 0 rgb(255 255 255 / 0.35);
       }
       .login-brand__eyebrow {
         margin: 0 0 0.35rem;
         font-size: 0.72rem;
         letter-spacing: 0.18em;
         text-transform: uppercase;
-        color: #86efac;
+        color: #6ee7b7;
+        font-weight: 700;
       }
       .login-brand__title {
         margin: 0 0 0.75rem;
-        font-size: 1.65rem;
-        font-weight: 700;
-        line-height: 1.2;
-        letter-spacing: -0.02em;
+        font-family: var(--vf-font-display, inherit);
+        font-size: 1.75rem;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
       }
       .login-brand__lede {
         margin: 0 0 1.25rem;
@@ -157,8 +166,8 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
       .login-brand__features li::before {
         content: '✓';
         margin-right: 0.5rem;
-        color: #4ade80;
-        font-weight: 700;
+        color: #34f5a8;
+        font-weight: 800;
       }
       .login-main {
         display: grid;
@@ -167,25 +176,28 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         background: var(--vf-bg, #f4f7fb);
       }
       .login-card {
-        width: min(100%, 400px);
-        padding: 2rem;
-        border-radius: var(--vf-radius, 0.75rem);
+        width: min(100%, 420px);
+        padding: 2.15rem;
+        border-radius: var(--vf-radius-lg, 1.25rem);
         background: var(--vf-bg-elevated, #fff);
-        border: 1px solid var(--vf-border, #e2e8f0);
-        box-shadow: var(--vf-shadow, 0 8px 24px rgb(15 23 42 / 0.06));
+        border: 1px solid var(--vf-border, #dde4ef);
+        box-shadow: var(--vf-shadow-lg, 0 8px 24px rgb(12 18 34 / 0.08));
       }
       .eyebrow {
         margin: 0 0 0.35rem;
         font-size: 0.72rem;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: var(--vf-accent, #16a34a);
-        font-weight: 600;
+        color: var(--vf-accent, #0d9f5f);
+        font-weight: 700;
       }
       h1 {
         margin: 0 0 0.5rem;
-        font-size: 1.45rem;
-        color: var(--vf-text, #0f172a);
+        font-family: var(--vf-font-display, inherit);
+        font-size: 1.55rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: var(--vf-text, #0c1222);
       }
       .lede {
         margin: 0 0 1.25rem;
@@ -195,20 +207,22 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
       }
       .tenant-context {
         margin: 0 0 0.85rem;
-        padding: 0.55rem 0.75rem;
-        border-radius: 0.55rem;
+        padding: 0.65rem 0.85rem;
+        border-radius: var(--vf-radius-sm, 0.625rem);
         font-size: 0.82rem;
-        color: var(--vf-text-muted, #64748b);
-        background: var(--vf-bg-subtle, #f1f5f9);
-        border: 1px solid var(--vf-border, #e2e8f0);
+        color: var(--vf-text-muted, #5c6b82);
+        background: var(--vf-bg-subtle, #eef2f8);
+        border: 1px solid var(--vf-border, #dde4ef);
       }
       .tenant-context__slug {
         margin-left: 0.35rem;
-        padding: 0.1rem 0.35rem;
-        border-radius: 0.35rem;
+        padding: 0.12rem 0.45rem;
+        border-radius: var(--vf-radius-pill, 999px);
         font-size: 0.72rem;
-        background: rgba(34, 197, 94, 0.12);
-        color: #166534;
+        font-weight: 700;
+        background: var(--vf-accent-soft, rgba(16, 217, 129, 0.12));
+        color: #047857;
+        border: 1px solid rgba(16, 217, 129, 0.22);
       }
       .hub-link {
         display: inline-block;
@@ -255,29 +269,35 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
         display: block;
         width: 100%;
         margin-top: 0.65rem;
-        padding: 0.75rem 1rem;
-        border-radius: 0.55rem;
+        padding: 0.8rem 1rem;
+        border-radius: var(--vf-radius-pill, 999px);
         text-align: center;
-        font-weight: 600;
+        font-weight: 700;
         cursor: pointer;
         border: none;
         font-family: inherit;
         font-size: 0.95rem;
+        transition:
+          transform var(--vf-duration, 0.2s) var(--vf-ease, ease),
+          box-shadow var(--vf-duration, 0.2s) var(--vf-ease, ease),
+          filter var(--vf-duration, 0.2s) var(--vf-ease, ease);
       }
       .btn-primary {
-        background: linear-gradient(90deg, #22c55e, #16a34a);
-        color: #052e16;
+        background: var(--vf-accent-gradient, linear-gradient(135deg, #34f5a8, #0d9f5f));
+        color: #042f1a;
+        box-shadow: 0 8px 24px var(--vf-accent-glow, rgba(16, 217, 129, 0.28));
       }
       .btn-primary:hover {
-        filter: brightness(1.03);
+        filter: brightness(1.04);
+        transform: translateY(-1px);
       }
       .btn-secondary {
         background: transparent;
-        color: var(--vf-text-muted, #64748b);
-        border: 1px solid var(--vf-border, #e2e8f0);
+        color: var(--vf-text-muted, #5c6b82);
+        border: 1px solid var(--vf-border-strong, #c8d2e0);
       }
       .btn-secondary:hover {
-        background: var(--vf-bg-subtle, #eef2f7);
+        background: var(--vf-bg-subtle, #eef2f8);
       }
       @media (max-width: 860px) {
         .login-layout {
@@ -303,16 +323,8 @@ export class VerifactuLoginComponent implements OnInit {
   readonly erpHubUrl = environment.erpHubUrl;
   tenantSlug = environment.defaultTenantSlug;
 
-  private readonly tenantLabels: Record<string, string> = {
-    demo: 'Organización demo',
-    josanz: 'Generic ERP',
-    alexis: 'Alexis',
-    babooni: 'Babooni Technologies',
-    verifactu: 'Organización demo',
-  };
-
   tenantDisplayName(): string {
-    return this.tenantLabels[this.tenantSlug] ?? this.tenantSlug;
+    return resolveTenantDisplayName(this.tenantSlug);
   }
 
   private returnUrl = '/verifactu/overview';

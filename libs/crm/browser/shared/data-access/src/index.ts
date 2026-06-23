@@ -1,3 +1,4 @@
+export * from './lib/tenant-context.util';
 export * from './lib/api-base-url';
 export * from './lib/auth-bearer.interceptor';
 export * from './lib/http-api-error-message';

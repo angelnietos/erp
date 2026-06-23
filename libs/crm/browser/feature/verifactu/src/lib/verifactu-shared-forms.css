@@ -14,17 +14,19 @@
 
 .vf-form-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
 .vf-label {
   display: block;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin: 0.75rem 0 0.35rem;
-  color: var(--vf-text-muted, #475569);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0.85rem 0 0.4rem;
+  color: var(--vf-text-muted, #5c6b82);
 }
 
 .vf-input,
@@ -32,25 +34,28 @@
 .vf-textarea {
   font-family: inherit;
   font-size: 0.9rem;
-  color: var(--vf-text, #0f172a);
+  color: var(--vf-text, #0c1222);
   background: var(--vf-bg-elevated, #fff);
-  border: 1px solid var(--vf-border, #cbd5e1);
-  border-radius: var(--vf-radius-sm, 0.375rem);
+  border: 1px solid var(--vf-border-strong, #c8d2e0);
+  border-radius: var(--vf-radius-sm, 0.625rem);
+  box-shadow: var(--vf-shadow-inset, inset 0 1px 0 rgb(255 255 255 / 0.85));
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+    border-color var(--vf-duration, 0.2s) var(--vf-ease, ease),
+    box-shadow var(--vf-duration, 0.2s) var(--vf-ease, ease);
 }
 
 .vf-input:focus,
 .vf-select:focus,
 .vf-textarea:focus {
   outline: none;
-  border-color: var(--vf-accent-light, #22c55e);
-  box-shadow: 0 0 0 3px var(--vf-accent-soft, rgba(34, 197, 94, 0.12));
+  border-color: var(--vf-accent-light, #10d981);
+  box-shadow:
+    0 0 0 3px var(--vf-accent-soft, rgba(16, 217, 129, 0.12)),
+    var(--vf-shadow-inset, inset 0 1px 0 rgb(255 255 255 / 0.85));
 }
 
 .vf-input {
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.85rem;
 }
 
 .vf-input--grow {
@@ -69,7 +74,7 @@
 }
 
 .vf-select {
-  padding: 0.45rem 0.55rem;
+  padding: 0.5rem 0.65rem;
   max-width: 20rem;
 }
 
@@ -77,7 +82,7 @@
   width: 100%;
   font-family: ui-monospace, monospace;
   font-size: 0.75rem;
-  padding: 0.5rem;
+  padding: 0.65rem;
   box-sizing: border-box;
   resize: vertical;
 }
@@ -87,19 +92,19 @@
 .vf-textarea:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-  background: var(--vf-bg-subtle, #f8fafc);
+  background: var(--vf-bg-subtle, #eef2f8);
 }
 
 .vf-row-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.75rem;
+  margin-top: 0.85rem;
 }
 
 .vf-form-hint {
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.85rem;
   font-size: 0.82rem;
-  color: var(--vf-text-muted, #64748b);
-  line-height: 1.45;
+  color: var(--vf-text-muted, #5c6b82);
+  line-height: 1.5;
 }

@@ -1,4 +1,8 @@
 import { Injectable, signal } from '@angular/core';
+import {
+  normalizeTenantName,
+  normalizeTenantSlug,
+} from './tenant-context.util';
 
 const STORAGE_KEY = 'gcrm.accessToken';
 const TENANT_ID_KEY = 'gcrm.tenantId';
@@ -18,8 +22,26 @@ export class SessionTokenStorageService {
 
   constructor() {
     this.hasSession.set(this.getAccessToken() !== null);
-    this.tenantSlug.set(this.readStored(TENANT_SLUG_KEY));
-    this.tenantName.set(this.readStored(TENANT_NAME_KEY));
+    this.tenantSlug.set(normalizeTenantSlug(this.readStored(TENANT_SLUG_KEY)));
+    this.tenantName.set(normalizeTenantName(this.readStored(TENANT_NAME_KEY)));
+    this.sanitizeCorruptStorage();
+  }
+
+  /** Limpia entradas corruptas de versiones anteriores (`"undefined"` como string). */
+  private sanitizeCorruptStorage(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+    const slug = normalizeTenantSlug(localStorage.getItem(TENANT_SLUG_KEY));
+    const name = normalizeTenantName(localStorage.getItem(TENANT_NAME_KEY));
+    if (!slug) {
+      localStorage.removeItem(TENANT_SLUG_KEY);
+      this.tenantSlug.set(null);
+    }
+    if (!name) {
+      localStorage.removeItem(TENANT_NAME_KEY);
+      this.tenantName.set(null);
+    }
   }
 
   private readStored(key: string): string | null {
@@ -66,11 +88,16 @@ export class SessionTokenStorageService {
     tenantSlug: string;
     tenantName: string;
   }): void {
+    const tenantSlug = normalizeTenantSlug(tenant.tenantSlug);
+    const tenantName = normalizeTenantName(tenant.tenantName);
+    if (!tenantSlug || !tenantName) {
+      return;
+    }
     localStorage.setItem(TENANT_ID_KEY, tenant.tenantId);
-    localStorage.setItem(TENANT_SLUG_KEY, tenant.tenantSlug);
-    localStorage.setItem(TENANT_NAME_KEY, tenant.tenantName);
-    this.tenantSlug.set(tenant.tenantSlug);
-    this.tenantName.set(tenant.tenantName);
+    localStorage.setItem(TENANT_SLUG_KEY, tenantSlug);
+    localStorage.setItem(TENANT_NAME_KEY, tenantName);
+    this.tenantSlug.set(tenantSlug);
+    this.tenantName.set(tenantName);
   }
 
   clear(): void {
