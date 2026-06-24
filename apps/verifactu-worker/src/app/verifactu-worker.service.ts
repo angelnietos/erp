@@ -4,166 +4,37 @@ import {
   VerifactuPrismaService,
   CrmErpInvoiceMirrorHttpClient,
   PrismaWebhookNotifierService,
+  VerifactuBullmqQueueService,
 } from '@josanz-erp/verifactu-adapters';
 import { VerifactuService } from '@josanz-erp/verifactu-core';
 
 @Injectable()
 export class VerifactuWorkerService implements OnModuleInit {
   private readonly logger = new Logger(VerifactuWorkerService.name);
-  private isProcessing = false;
 
   constructor(
     private readonly prisma: VerifactuPrismaService,
     private readonly verifactuService: VerifactuService,
     private readonly crmMirror: CrmErpInvoiceMirrorHttpClient,
     private readonly webhookNotifier: PrismaWebhookNotifierService,
+    private readonly bullmqQueue: VerifactuBullmqQueueService,
   ) {}
 
   onModuleInit() {
-    this.logger.log('🚀 Verifactu Outbox Worker Initialized');
+    this.logger.log('🚀 Verifactu Outbox Worker Initialized (BullMQ mode)');
+    this.processPendingQueue().catch((err) =>
+      this.logger.error('Initial queue processing failed', err),
+    );
   }
 
-  // Poll every 10 seconds for pending items
-  // Using Cron for standard NestJS approach
-  @Cron(CronExpression.EVERY_10_SECONDS)
-  async handleCron() {
-    if (this.isProcessing) return;
-    this.isProcessing = true;
-
-    try {
-      await this.processQueue();
-    } catch (error) {
-       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this.logger.error('Error during Verifactu queue processing', (error as any).stack);
-    } finally {
-      this.isProcessing = false;
-    }
-  }
-
-  private async processQueue() {
-    // We search for PENDING items or FAILED items with retries left
-    const items = await this.prisma.verifactuQueueItem.findMany({
-      where: {
-        OR: [
-          { status: 'PENDING' },
-          { 
-            status: 'FAILED', 
-            retries: { lt: 5 },
-            // Optional: only retry after 5 mins
-            nextRetryAt: { lte: new Date() }
-          }
-        ]
-      },
-      take: 10, // Process in batches
-      orderBy: { createdAt: 'asc' }
-    });
-
-    if (items.length === 0) return;
-
-    this.logger.log(`Processing ${items.length} Verifactu items...`);
-
-    for (const item of items) {
-      await this.processItem(item);
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private async processItem(item: any) {
-    this.logger.debug(`Submiting Invoice ${item.invoiceId} for Tenant ${item.tenantId}...`);
-
-    try {
-      const response = await this.verifactuService.submitInvoice({
-        invoiceId: item.invoiceId,
-        tenantId: item.tenantId,
-      });
-
-      if (response.status === 'ERROR') {
-        throw new Error('Verifactu submission returned ERROR');
-      }
-
-      // Success
-      await this.prisma.verifactuQueueItem.update({
-        where: { id: item.id },
-        data: {
-          status: 'COMPLETED',
-          updatedAt: new Date()
-        }
-      });
-
-      // Update Invoice status too
-      await this.prisma.invoice.update({
-        where: { id: item.invoiceId },
-        data: {
-          verifactuStatus: 'SENT',
-          currentHash: response.currentHash,
-          previousHash: response.previousHash
-        }
-      });
-
-      this.logger.log(`✅ Success for Invoice ${item.invoiceId}`);
-
-      await this.crmMirror.syncQueueStatusSafe({
-        invoiceId: item.invoiceId,
-        tenantId: item.tenantId,
-        status: 'COMPLETED',
-        responsePayload: {
-          currentHash: response.currentHash,
-          previousHash: response.previousHash,
-        },
-      });
-
-      await this.webhookNotifier.notify({
-        eventType: 'invoice.sent',
-        tenantId: item.tenantId,
-        invoiceId: item.invoiceId,
-        payload: {
-          currentHash: response.currentHash,
-          previousHash: response.previousHash,
-        },
-      });
-      
-    } catch (error) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const err = error as any;
-      const nextRetries = item.retries + 1;
-      const nextRetryAt = new Date();
-      nextRetryAt.setMinutes(nextRetryAt.getMinutes() + Math.pow(2, nextRetries)); // Exponential backoff
-      const maxRetries = item.maxRetries ?? 5;
-      const exceeded = nextRetries >= maxRetries;
-
-      this.logger.warn(`❌ Failed for Invoice ${item.invoiceId}. Retries: ${nextRetries}. Error: ${err.message}`);
-
-      await this.prisma.verifactuQueueItem.update({
-        where: { id: item.id },
-        data: {
-          status: 'FAILED',
-          retries: nextRetries,
-          lastError: err.message,
-          nextRetryAt,
-          updatedAt: new Date()
-        }
-      });
-
-      if (exceeded) {
-        await this.prisma.invoice.update({
-          where: { id: item.invoiceId },
-          data: { verifactuStatus: 'ERROR' },
-        });
-
-        await this.crmMirror.syncQueueStatusSafe({
-          invoiceId: item.invoiceId,
-          tenantId: item.tenantId,
-          status: 'FAILED',
-          lastError: err.message,
-        });
-
-        await this.webhookNotifier.notify({
-          eventType: 'invoice.error',
-          tenantId: item.tenantId,
-          invoiceId: item.invoiceId,
-          payload: { error: err.message },
-        });
-      }
+  // Poll every minute for health check (BullMQ handles processing)
+  @Cron(CronExpression.EVERY_MINUTE)
+  async processPendingQueue() {
+    const stats = await this.bullmqQueue.getQueueStats();
+    if (stats.waiting > 0) {
+      this.logger.log(
+        `Queue stats: waiting=${stats.waiting}, active=${stats.active}, completed=${stats.completed}, failed=${stats.failed}`,
+      );
     }
   }
 }

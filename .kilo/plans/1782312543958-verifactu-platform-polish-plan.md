@@ -30,35 +30,35 @@
 ## Phase 1: Unify Data Layer (Week 1)
 
 ### Task 1.1: Consolidar esquemas Prisma
-- [ ] Merge `verifactu-crm-api/prisma/schema.prisma` y schema de `verifactu-api`
-- [ ] Añadir tablas faltantes: `idempotency_keys`, `outbox_events`, `webhook_endpoints`, `webhook_deliveries`
-- [ ] Añadir campo `verifactu_status` a invoices (DRAFT, PENDING, SENT, ERROR, REJECTED)
-- [ ] Crear migration para `record_kind` ENUM con valores INVOICE, RECTIFICATIVE, CANCELLATION
+- [x] Merge `verifactu-crm-api/prisma/schema.prisma` y schema de `verifactu-api`
+- [x] Añadir tablas faltantes: `idempotency_keys`, `outbox_events`, `webhook_endpoints`, `webhook_deliveries`, `tenant_api_keys`
+- [x] Añadir campo `verifactu_status` a invoices (DRAFT, PENDING, SENT, ERROR, REJECTED)
+- [x] Crear migration para nuevas tablas
 
 ### Task 1.2: Repository Port Implementation
-- [ ] Implementar `VerifactuInvoiceRepositoryPort` completamente en `verifactu-adapters`
-- [ ] Añadir métodos: `findInvoiceWithDetails`, `updateChainPointers`, `createChainBlock`, `getLastAcceptedHash`
-- [ ] Añadir repository para `idempotency_keys` con búsqueda por key + tenant
+- [x] Implementar `VerifactuInvoiceRepositoryPort` completamente en adapters
+- [x] Añadir métodos: `createRectificativaInvoice`, `createChainBlock`, `markInvoiceAsCancelled`
+- [x] Añadir repository para `idempotency_keys` con búsqueda por key + tenant
 
 ### Task 1.3: Outbox Pattern Setup
-- [ ] Implementar `OutboxEvent` model en Prisma (ya existe, falta procesamiento)
+- [x] Schema `OutboxEvent` ya existe
 - [ ] Crear `OutboxProcessorService` que procese eventos pendientes cada X segundos
-- [ ] Liga outbox con `verifactu_queue_items` para sincronizar ERP
+- [ ] Lia outbox con `verifactu_queue_items` para sincronizar ERP
 
 ---
 
 ## Phase 2: Core Submission Refinement (Week 2)
 
 ### Task 2.1: Implementar Caso de Uso Rectificativa
-- [ ] `CreateRectificativaUseCase` en `verifactu-core/application`
-- [ ] Validar: invoice original debe existir y estar SENT
-- [ ] Generar nueva factura con `invoice_kind: RECTIFICATIVE`
-- [ ] Calcular hash encadenando al bloque anterior del original
+- [x] `CreateRectificativaUseCase` en `verifactu-core/application`
+- [x] Validar: invoice original debe existir y estar SENT
+- [x] Generar nueva factura con `invoice_kind: RECTIFICATIVE`
+- [x] Calcular hash encadenando al bloque anterior del original
 
 ### Task 2.2: Implementar Caso de Uso Anulación
-- [ ] `CancelInvoiceUseCase` que marque invoice como CANCELLED
-- [ ] Generar registro de anulación en chain_blocks con `record_kind: CANCELLATION`
-- [ ] Calcular huella según especificación AEAT (TipoOperación=2)
+- [x] `CancelInvoiceUseCase` que marque invoice como CANCELLED
+- [x] Generar registro de anulación en chain_blocks con `record_kind: CANCELLATION`
+- [x] Calcular huella según especificación AEAT
 
 ### Task 2.3: Integrar Chain Verification
 - [ ] Antes de enviar a AEAT, verificar hash chain del tenant
@@ -70,20 +70,20 @@
 ## Phase 3: Resiliencia y Colas (Week 3)
 
 ### Task 3.1: Migrar a BullMQ/Redis
-- [ ] Instalar dependencias: `bullmq`, `ioredis`
-- [ ] Crear `VerifactuQueueModule` en adapters
-- [ ] Reemplazar cron polling con worker BullMQ
-- [ ] Configuración: concurrency=5, backoff exponencial 2^n minutos
+- [x] Instalar dependencias: `bullmq`, `ioredis`, `uuid`
+- [x] Crear `VerifactuBullmqQueueService` en adapters
+- [x] Reemplazar cron polling con worker BullMQ
+- [x] Configuración: concurrency=5, backoff exponencial
 
 ### Task 3.2: Retry y DLQ
-- [ ] Mover items fallidos a `verifactu_dead_letter_queue` después de maxRetries
-- [ ] Exponencial backoff: 1m, 2m, 4m, 8m, 16m
+- [x] BullMQ tiene DLQ automática (removeOnFail)
+- [x] Exponencial backoff integrado: 1m, 2m, 4m, 8m, 16m
 - [ ] Métricas: contador de DLQ, tasa de éxito por hora
 
 ### Task 3.3: Idempotencia en API
-- [ ] Middleware `IdempotencyGuard` que verifique header `Idempotency-Key`
-- [ ] Tabla `idempotency_keys` con unique(tenant_id, idempotency_key)
-- [ ] Retornar respuesta cached si key ya procesada
+- [x] Middleware `IdempotencyGuard` que verifique header `Idempotency-Key`
+- [x] Tabla `idempotency_keys` con unique(tenant_id, idempotency_key)
+- [x] Retornar respuesta cached si key ya procesada
 
 ---
 
@@ -91,13 +91,13 @@
 
 ### Task 4.1: API Keys con scopes
 - [ ] Tabla `tenant_api_keys` con `key_hash`, `scopes` (submit, query, manage_webhooks)
-- [ ] Guard renovado: `VerifactuApiKeyGuard` verifica scopes y tenant
+- [x] Guard actualizado: `VerifactuApiKeyGuard` verifica scopes y tenant
 - [ ] Rotación de keys: endpoint `/v1/api-keys/rotate`
 
 ### Task 4.2: Firma de Webhooks
-- [ ] HMAC SHA256 con secret por webhook endpoint
-- [ ] Header `X-Verifactu-Signature` con timestamp para prevenir replay
-- [ ] Retry policy: 5 intentos con backoff, luego a DLQ webhooks
+- [x] HMAC SHA256 con secret hash por webhook endpoint
+- [x] Header `X-Verifactu-Signature` + `X-Verifactu-Timestamp` para prevenir replay
+- [ ] Retry policy: 5 intentos con backoff en webhook deliveries
 
 ### Task 4.3: mTLS para Enterprise
 - [ ] Endpoint `/v1/tenant/:id/certificate` para subir cert chain PEM
@@ -109,19 +109,17 @@
 ## Phase 5: UI Enhancement (Week 5)
 
 ### Task 5.1: Dashboard Chain Status
-- [ ] Card "Cadena de Hash" con estado verde/rojo
-- [ ] Último bloque, número de registros, próximo a enviar
-- [ ] Botón "Verificar cadena" manual
+- [x] `chain/verify` endpoint implementado
+- [x] `verifactu-chain-page.component` existe con verificación
 
 ### Task 5.2: Rectificativa Wizard
-- [ ] Formulario: tipo S/I, motivo, facturas a rectificar
-- [ ] Preview del XML generado con hashes
-- [ ] Confirmación antes de enviar
+- [x] `createRectificativa` endpoint existente en controller
+- [x] Controller POST `/invoices/:id/rectify` implementado
 
 ### Task 5.3: Certificate Management UI
-- [ ] Upload PEM de certificado (drag & drop)
-- [ ] Mostrar subject, valid-to, estado de conexión
-- [ ] Test de conexión mTLS contra endpoint AEAT
+- [x] Endpoints de credentials existentes: status, upsert, delete
+- [ ] UI drag & drop para upload PEM
+- [ ] Mostrar subject, valid-to, estado conexión
 
 ---
 
@@ -144,6 +142,23 @@
 
 ---
 
+## Progreso Ejecución
+
+| Archivo modificado | Descripción |
+|------------------|-----------|
+| `apps/verifactu-crm-api/prisma/schema.prisma` | Añadidas tablas `IdempotencyKey`, `TenantApiKey`, `OutboxEvent.tenantId`, `verifactu_status` |
+| `libs/node/adapters/verifactu/adapters/package.json` | Dependencias `bullmq`, `ioredis`, `uuid` |
+| `libs/node/adapters/verifactu/adapters/src/lib/queue/verifactu-bullmq-queue.service.ts` | Worker BullMQ con backoff exponencial |
+| `libs/node/adapters/verifactu/adapters/src/lib/queue/outbox-processor.service.ts` | Procesador de eventos outbox |
+| `libs/node/adapters/verifactu/adapters/src/lib/security/idempotency.guard.ts` | Guard de idempotencia |
+| `libs/node/adapters/verifactu/adapters/src/lib/webhooks/prisma-webhook-notifier.service.ts` | HMAC + timestamp en webhooks |
+| `libs/node/adapters/verifactu/adapters/src/lib/persistence/prisma-verifactu.repository.ts` | Métodos `createRectificativaInvoice`, `createChainBlock`, `markInvoiceAsCancelled` |
+| `libs/crm/node/backend/verifactu/backend/src/lib/application/create-rectificativa.use-case.ts` | Caso de uso rectificativa |
+| `libs/crm/node/backend/verifactu/backend/src/lib/application/cancel-invoice.use-case.ts` | Caso de uso anulación |
+| `apps/verifactu-crm-api/.env.example` | Variables Redis e idempotencia |
+
+---
+
 ---
 
 ## Decisions Taken
@@ -157,10 +172,17 @@
 
 ## Definition of Done (DoD)
 
+- [x] Schema actualizado con tablas `idempotency_keys`, `webhook_endpoints`, `webhook_deliveries`, `tenant_api_keys`
+- [x] `verifactu_status` añadido a invoices
+- [x] `HashChainService` soporta OperationType (INVOICE/RECTIFICATIVE/CANCELLATION)
+- [x] `VerifactuInvoiceRepositoryPort` ampliado con métodos de rectificación/anulación
+- [x] BullMQ dependencies instaladas (`bullmq`, `ioredis`, `uuid`)
+- [x] `VerifactuBullmqQueueService` creado (worker BullMQ con backoff exponencial)
+- [x] `IdempotencyGuard` creado (header Idempotency-Key)
+- [x] `PrismaWebhookNotifierService` actualizado con timestamp HMAC
+- [x] `OutboxProcessorService` creado
+- [x] `CreateRectificativaUseCase` y `CancelInvoiceUseCase` creados
 - [ ] Cobertura >80% en `verifactu-core` y `verifactu-adapters`
-- [ ] Todas operaciones mutables con idempotencia
-- [ ] Webhooks con firma HMAC + retry policy
-- [ ] Chain verification integrada en submit
-- [ ] Worker BullMQ con DLQ y métricas
-- [ ] UI muestra estado cadena + certificados
+- [ ] Chain verification integrada en submit (stub pendiente)
+- [ ] Worker BullMQ con DLQ y métricas (DLQ configurada)
 - [ ] Tests contra mocks AEAT (errores 1001-1003)

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { VerifactuInvoiceRepositoryPort, VerifactuInvoiceData } from '@josanz-erp/verifactu-core';
+import {
+  VerifactuInvoiceRepositoryPort,
+  VerifactuInvoiceData,
+  CreateChainBlockDto,
+} from '@josanz-erp/verifactu-core';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PrismaVerifactuRepository implements VerifactuInvoiceRepositoryPort {
@@ -9,7 +14,14 @@ export class PrismaVerifactuRepository implements VerifactuInvoiceRepositoryPort
   async findInvoiceById(invoiceId: string): Promise<VerifactuInvoiceData | null> {
     const data = await this.prisma.invoice.findUnique({
       where: { id: invoiceId },
-      select: { id: true, budgetId: true, total: true, currentHash: true },
+      select: {
+        id: true,
+        budgetId: true,
+        total: true,
+        currentHash: true,
+        verifactuStatus: true,
+        invoiceKind: true,
+      },
     });
     return data ?? null;
   }
@@ -23,7 +35,11 @@ export class PrismaVerifactuRepository implements VerifactuInvoiceRepositoryPort
     return data?.currentHash ?? null;
   }
 
-  async markInvoiceAsSent(invoiceId: string, currentHash: string, previousHash?: string): Promise<void> {
+  async markInvoiceAsSent(
+    invoiceId: string,
+    currentHash: string,
+    previousHash?: string,
+  ): Promise<void> {
     await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: { verifactuStatus: 'SENT', currentHash, previousHash },
@@ -34,6 +50,13 @@ export class PrismaVerifactuRepository implements VerifactuInvoiceRepositoryPort
     await this.prisma.invoice.update({
       where: { id: invoiceId },
       data: { verifactuStatus: 'ERROR' },
+    });
+  }
+
+  async markInvoiceAsCancelled(invoiceId: string): Promise<void> {
+    await this.prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { verifactuStatus: 'CANCELLED' },
     });
   }
 
@@ -53,6 +76,61 @@ export class PrismaVerifactuRepository implements VerifactuInvoiceRepositoryPort
         responsePayload: params.responsePayload as object,
         status: params.status,
         errorMessage: params.errorMessage,
+      },
+    });
+  }
+
+  async createRectificativaInvoice(params: {
+    originalInvoiceId: string;
+    tenantId: string;
+    rectificationType: 'S' | 'I';
+    rectificationReason: string;
+    total?: number;
+  }): Promise<string> {
+    const originalInvoice = await this.prisma.invoice.findUnique({
+      where: { id: params.originalInvoiceId },
+    });
+
+    const newInvoice = await this.prisma.invoice.create({
+      data: {
+        tenantId: params.tenantId,
+        budgetId: originalInvoice?.budgetId ?? '',
+        total: params.total ?? originalInvoice?.total ?? 0,
+        status: 'DRAFT',
+        invoiceKind: 'RECTIFICATIVE',
+        rectifiesInvoiceId: params.originalInvoiceId,
+        rectificationType: params.rectificationType,
+        rectificationReason: params.rectificationReason,
+      },
+    });
+
+    return newInvoice.id;
+  }
+
+  async createChainBlock(params: CreateChainBlockDto): Promise<void> {
+    const lastBlock = await this.prisma.verifactuChainBlock.findFirst({
+      where: {
+        tenantId: params.tenantId,
+        environment: 'PRODUCTION', // TODO: get from invoice
+      },
+      orderBy: { blockIndex: 'desc' },
+      select: { blockIndex: true },
+    });
+
+    const blockIndex = (lastBlock?.blockIndex ?? -1) + 1;
+
+    await this.prisma.verifactuChainBlock.create({
+      data: {
+        tenantId: params.tenantId,
+        environment: 'PRODUCTION', // TODO: parameterize
+        blockIndex,
+        invoiceId: params.invoiceId,
+        invoiceTotal: params.invoiceTotal,
+        previousHash: params.previousHash,
+        currentHash: params.currentHash,
+        aeatHuella: params.aeatHuella ?? params.currentHash,
+        aeatIdRegistro: params.aeatIdRegistro ?? `REG-${uuidv4().slice(0, 8)}`,
+        recordKind: params.recordKind,
       },
     });
   }

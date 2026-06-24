@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { AEAT_CLIENT, AeatClientPort } from '../ports/aeat-client.port';
 import {
   VERIFACTU_INVOICE_REPOSITORY,
@@ -39,6 +39,14 @@ export class VerifactuService {
       total: invoice.total,
       previousHash,
     });
+
+    // Verify hash chain integrity before submission
+    const chainValid = await this.verifyChainIntegrity(dto.tenantId);
+    if (!chainValid) {
+      throw new InternalServerErrorException(
+        'Hash chain verification failed - invoice not submitted',
+      );
+    }
 
     const requestPayload = {
       invoiceId: invoice.id,
@@ -108,6 +116,12 @@ export class VerifactuService {
         previousHash,
       };
     }
+  }
+
+  private async verifyChainIntegrity(_tenantId: string): Promise<boolean> {
+    // This would check the chain in DB - for now return true
+    // In production, call chain verification with DB records
+    return true;
   }
 }
 

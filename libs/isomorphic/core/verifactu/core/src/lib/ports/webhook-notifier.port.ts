@@ -1,5 +1,6 @@
 export interface VerifactuWebhookEvent {
-  eventType: 'invoice.sent' | 'invoice.error';
+  id?: string;
+  eventType: 'invoice.sent' | 'invoice.error' | 'invoice.cancelled';
   tenantId: string;
   invoiceId: string;
   payload: Record<string, unknown>;

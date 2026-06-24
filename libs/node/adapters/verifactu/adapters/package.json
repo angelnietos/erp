@@ -4,6 +4,9 @@
   "private": true,
   "type": "commonjs",
   "dependencies": {
-    "@josanz-erp/verifactu-core": "workspace:*"
+    "@josanz-erp/verifactu-core": "workspace:*",
+    "bullmq": "^4.16.0",
+    "ioredis": "^5.4.1",
+    "uuid": "^11.0.0"
   }
 }
