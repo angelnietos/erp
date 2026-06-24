@@ -42,8 +42,8 @@
 
 ### Task 1.3: Outbox Pattern Setup
 - [x] Schema `OutboxEvent` ya existe
-- [ ] Crear `OutboxProcessorService` que procese eventos pendientes cada X segundos
-- [ ] Lia outbox con `verifactu_queue_items` para sincronizar ERP
+- [x] `OutboxProcessorService` creado (procesa eventos pendientes cada 5s)
+- [ ] Lia outbox con `verifactu_queue_items` para sincronizar ERP (requiere integración)
 
 ---
 
@@ -172,6 +172,7 @@
 
 ## Definition of Done (DoD)
 
+✅ **COMPLETADO:**
 - [x] Schema actualizado con tablas `idempotency_keys`, `webhook_endpoints`, `webhook_deliveries`, `tenant_api_keys`
 - [x] `verifactu_status` añadido a invoices
 - [x] `HashChainService` soporta OperationType (INVOICE/RECTIFICATIVE/CANCELLATION)
@@ -182,7 +183,10 @@
 - [x] `PrismaWebhookNotifierService` actualizado con timestamp HMAC
 - [x] `OutboxProcessorService` creado
 - [x] `CreateRectificativaUseCase` y `CancelInvoiceUseCase` creados
-- [ ] Cobertura >80% en `verifactu-core` y `verifactu-adapters`
-- [ ] Chain verification integrada en submit (stub pendiente)
-- [ ] Worker BullMQ con DLQ y métricas (DLQ configurada)
+- [x] Migration SQL creada para nuevas tablas
+
+⚠️ **PENDIENTE (para sprint siguiente):**
+- [ ] Cobertura >80% en tests unitarios
+- [ ] Chain verification integrada en submit (actualmente stub)
+- [ ] Métricas BullMQ expuestas en `/metrics`
 - [ ] Tests contra mocks AEAT (errores 1001-1003)
