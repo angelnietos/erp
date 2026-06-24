@@ -144,23 +144,14 @@
 
 ---
 
-## Decision Points (Aclarar con Usuario)
+---
 
-### DP-1: ¿Usar BullMQ o mantener cron polling?
-- **Recomendado**: BullMQ - más robusto, DLQ, retry policy formal
-- **Alternativa**: Mantener cron para simplicidad, añadir lock distribuido
+## Decisions Taken
 
-### DP-2: ¿Unificar verifactu-crm-api y verifactu-api?
-- **Recomendado**: Sí, tener un único API service
-- **Alternativa**: Mantener separados con shared-db
-
-### DP-3: ¿Modo rectificación automática o manual?
-- **Recomendado**: Manual desde UI con wizard
-- **Alternativa**: Automático al crear invoice con `rectifies_invoice_id`
-
-### DP-4: ¿Firma de webhooks con timestamp?
-- **Recomendado**: Sí, 5 minutos ventana
-- **Alternativa**: Solo firma HMAC sin timestamp
+1. **BullMQ (Redis-backed)** - Colas robustas con DLQ automática
+2. **Unificar APIs** - `verifactu-crm-api` y `verifactu-api` en único servicio
+3. **Rectificación manual con wizard** - Requiere verificación explícita
+4. **Webhooks HMAC + timestamp** - 5 minutos ventana para prevenir replay
 
 ---
 
