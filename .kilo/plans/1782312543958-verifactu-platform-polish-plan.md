@@ -184,9 +184,10 @@
 - [x] `OutboxProcessorService` creado
 - [x] `CreateRectificativaUseCase` y `CancelInvoiceUseCase` creados
 - [x] Migration SQL creada para nuevas tablas
+- [x] Build exitoso sin errores
 
 ⚠️ **PENDIENTE (para sprint siguiente):**
-- [ ] Cobertura >80% en tests unitarios
+- [ ] Cobertura >80% en tests unitarios (tests creados, pendiente integración Jest)
 - [ ] Chain verification integrada en submit (actualmente stub)
 - [ ] Métricas BullMQ expuestas en `/metrics`
 - [ ] Tests contra mocks AEAT (errores 1001-1003)

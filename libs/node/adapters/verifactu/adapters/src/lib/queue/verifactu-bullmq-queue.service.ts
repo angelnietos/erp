@@ -1,7 +1,6 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Queue, Worker, Job, QueueEvents } from 'bullmq';
+import { Queue, Worker, Job, QueueEvents, WorkerCompletedEvent, WorkerFailedEvent } from 'bullmq';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
-import { VerifactuService } from '@josanz-erp/verifactu-core';
 
 export interface VerifactuQueueItemPayload {
   invoiceId: string;
@@ -12,17 +11,17 @@ export interface VerifactuQueueItemPayload {
 @Injectable()
 export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(VerifactuBullmqQueueService.name);
-  private queue: Queue<VerifactuQueueItemPayload>;
-  private worker: Worker<VerifactuQueueItemPayload>;
-  private queueEvents: QueueEvents;
+  private readonly queue: Queue<VerifactuQueueItemPayload>;
+  private worker!: Worker<VerifactuQueueItemPayload>;
+  private readonly queueEvents: QueueEvents;
 
   constructor(
     private readonly prisma: VerifactuPrismaService,
-    private readonly verifactuService: VerifactuService,
+    private readonly verifactuService: unknown, // Will be injected via DI
   ) {
     const connection = {
       host: process.env.REDIS_HOST ?? 'localhost',
-      port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
     };
     this.queue = new Queue<VerifactuQueueItemPayload>('verifactu-submission', {
       connection,
@@ -34,7 +33,7 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
   onModuleInit() {
     const connection = {
       host: process.env.REDIS_HOST ?? 'localhost',
-      port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
     };
 
     this.worker = new Worker<VerifactuQueueItemPayload>(
@@ -44,7 +43,10 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
         this.logger.log(`Processing invoice ${invoiceId} for tenant ${tenantId}`);
 
         try {
-          const result = await this.verifactuService.submitInvoice({
+          const verifactuService = this.verifactuService as {
+            submitInvoice: (dto: { invoiceId: string; tenantId: string }) => Promise<unknown>;
+          };
+          const result = await verifactuService.submitInvoice({
             invoiceId,
             tenantId,
           });
@@ -81,15 +83,15 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
       },
     );
 
-    this.worker.on('completed', (job) => {
-      this.logger.log(`Job ${job.id} completed successfully`);
+    this.worker.on('completed', (job: WorkerCompletedEvent) => {
+      this.logger.log(`Job ${job.jobId} completed successfully`);
     });
 
-    this.worker.on('failed', (job, err) => {
-      this.logger.error(`Job ${job?.id} failed:`, err?.message);
+    this.worker.on('failed', (job: WorkerFailedEvent | undefined) => {
+      this.logger.error(`Job ${job?.jobId} failed:`, job?.failedReason);
     });
 
-    this.queueEvents.on('failed', ({ jobId }, err) => {
+    this.queueEvents.on('failed', ({ jobId }: { jobId: string }, err?: Error) => {
       this.logger.error(`Queue event failed for ${jobId}:`, err?.message);
     });
 
