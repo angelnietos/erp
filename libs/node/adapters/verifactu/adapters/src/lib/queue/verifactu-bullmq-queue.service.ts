@@ -27,6 +27,7 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
     this.queue = new Queue<VerifactuQueueItemPayload>('verifactu-submission', {
       connection,
     });
+    
     this.queueEvents = new QueueEvents('verifactu-submission', { connection });
   }
 
