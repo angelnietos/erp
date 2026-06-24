@@ -63,8 +63,6 @@
     "crm:db:seed": "npx dotenv -o -e apps/verifactu-crm-api/.env -- npx ts-node --project apps/verifactu-crm-api/tsconfig.app.json apps/verifactu-crm-api/prisma/seed.ts",
     "crm:db:studio": "npx prisma studio --schema=apps/verifactu-crm-api/prisma/schema.prisma --port 5556",
     "crm:db:setup": "npm run crm:db:up && npm run crm:db:migrate:deploy && npm run crm:db:generate && npm run crm:db:seed",
-    "verifactu-worker:serve": "set NX_DAEMON=false&& set NX_PLUGIN_NO_TIMEOUTS=true&& nx run verifactu-worker:serve",
-    "verifactu-worker:serve:unix": "NX_DAEMON=false NX_PLUGIN_NO_TIMEOUTS=true nx run verifactu-worker:serve",
     "nx:reset": "nx reset",
     "test": "nx run-many --target=test --configuration=ci --all",
     "test:affected": "nx affected -t test --configuration=ci --parallel=3",

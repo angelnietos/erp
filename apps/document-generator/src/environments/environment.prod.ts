@@ -2,6 +2,7 @@
 export const environment = {
   production: true,
   apiOrigin: '',
+  erpHubUrl: '',
   verifactuApiKey: '',
   aiApiKey: '',
   googleApiKey: '',

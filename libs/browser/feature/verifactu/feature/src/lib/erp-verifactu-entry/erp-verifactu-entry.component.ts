@@ -18,7 +18,7 @@ import {
 } from '@josanz-erp/identity-api';
 import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import { UiLoaderComponent } from '@josanz-erp/shared-ui-kit';
-import { ErpVerifactuBridgeComponent } from './erp-verifactu-bridge.component';
+import { ErpVerifactuBridgeComponent } from '../erp-verifactu-bridge/erp-verifactu-bridge.component';
 import {
   erpVerifactuPrefersBridge,
   setErpVerifactuPreferBridge,

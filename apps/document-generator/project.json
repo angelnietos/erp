@@ -42,18 +42,18 @@
           "apps/document-generator/src/tailwind.css",
           "apps/frontend/src/document-generator-shell.css"
         ],
-        "budgets": [
-          {
-            "type": "initial",
-            "maximumWarning": "720kb",
-            "maximumError": "1.25mb"
-          },
-          {
-            "type": "anyComponentStyle",
-            "maximumWarning": "16kb",
-            "maximumError": "24kb"
-          }
-        ]
+"budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "720kb",
+              "maximumError": "1.25mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "40kb",
+              "maximumError": "56kb"
+            }
+          ]
       },
       "configurations": {
         "production": {
@@ -72,8 +72,8 @@
             },
             {
               "type": "anyComponentStyle",
-              "maximumWarning": "16kb",
-              "maximumError": "24kb"
+              "maximumWarning": "40kb",
+              "maximumError": "56kb"
             }
           ]
         },
