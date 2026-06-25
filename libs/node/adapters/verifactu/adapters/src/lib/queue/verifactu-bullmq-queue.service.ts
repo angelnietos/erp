@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { Queue, Worker, Job, QueueEvents, WorkerCompletedEvent, WorkerFailedEvent } from 'bullmq';
+import { Queue, Worker, Job, QueueEvents } from 'bullmq';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 
 export interface VerifactuQueueItemPayload {
@@ -20,8 +20,8 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
     private readonly verifactuService: unknown, // Will be injected via DI
   ) {
     const connection = {
-      host: process.env.REDIS_HOST ?? 'localhost',
-      port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      host: process.env['REDIS_HOST'] ?? 'localhost',
+      port: Number.parseInt(process.env['REDIS_PORT'] ?? '6379', 10),
     };
     this.queue = new Queue<VerifactuQueueItemPayload>('verifactu-submission', {
       connection,
@@ -32,8 +32,8 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
 
   onModuleInit() {
     const connection = {
-      host: process.env.REDIS_HOST ?? 'localhost',
-      port: Number.parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      host: process.env['REDIS_HOST'] ?? 'localhost',
+      port: Number.parseInt(process.env['REDIS_PORT'] ?? '6379', 10),
     };
 
     this.worker = new Worker<VerifactuQueueItemPayload>(
@@ -83,16 +83,16 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
       },
     );
 
-    this.worker.on('completed', (job: WorkerCompletedEvent) => {
-      this.logger.log(`Job ${job.jobId} completed successfully`);
+    this.worker.on('completed', () => {
+      this.logger.log('Job completed successfully');
     });
 
-    this.worker.on('failed', (job: WorkerFailedEvent | undefined) => {
-      this.logger.error(`Job ${job?.jobId} failed:`, job?.failedReason);
+    this.worker.on('failed', (job: Job<VerifactuQueueItemPayload> | undefined, err: Error) => {
+      this.logger.error(`Job ${job?.id} failed:`, err?.message);
     });
 
-    this.queueEvents.on('failed', ({ jobId }: { jobId: string }, err?: Error) => {
-      this.logger.error(`Queue event failed for ${jobId}:`, err?.message);
+    this.queueEvents.on('failed', ({ jobId }: { jobId: string }) => {
+      this.logger.error(`Queue event failed for ${jobId}`);
     });
 
     this.logger.log('Verifactu BullMQ worker initialized');

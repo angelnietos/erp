@@ -12,14 +12,14 @@ export class CrmWebhookBootstrapService implements OnModuleInit {
   constructor(private readonly prisma: VerifactuPrismaService) {}
 
   async onModuleInit(): Promise<void> {
-    if (process.env.VERIFACTU_CRM_WEBHOOK_AUTO_REGISTER === 'false') {
+    if (process.env['VERIFACTU_CRM_WEBHOOK_AUTO_REGISTER'] === 'false') {
       return;
     }
 
-    const crmApiBase = process.env.VERIFACTU_CRM_API_URL?.trim();
+    const crmApiBase = process.env['VERIFACTU_CRM_API_URL']?.trim();
     const secret =
-      process.env.CRM_ERP_WEBHOOK_SECRET?.trim() ||
-      process.env.CRM_ERP_SYNC_API_KEY?.trim();
+      process.env['CRM_ERP_WEBHOOK_SECRET']?.trim() ||
+      process.env['CRM_ERP_SYNC_API_KEY']?.trim();
 
     if (!crmApiBase || !secret) {
       this.logger.debug(
@@ -95,7 +95,7 @@ export class CrmWebhookBootstrapService implements OnModuleInit {
         tenantId,
         eventType,
         url,
-        secret: encrypt(secret),
+        secretHash: encrypt(secret),
         isActive: true,
       },
     });

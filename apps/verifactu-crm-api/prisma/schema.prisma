@@ -219,18 +219,21 @@ model ClientContact {
 
 /// Factura mínima para encolar envíos Veri*factu (amplía con líneas/impuestos en el producto).
 model Invoice {
-  id        String   @id @default(uuid()) @db.Uuid
-  tenantId  String   @map("tenant_id") @db.Uuid
-  clientId  String?  @map("client_id") @db.Uuid
-  number    String?
-  total     Float    @default(0)
-  currency  String   @default("EUR")
-  status    String   @default("DRAFT")
-  issuedAt  DateTime? @map("issued_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  tenantId     String   @map("tenant_id") @db.Uuid
+  clientId     String?  @map("client_id") @db.Uuid
+  budgetId     String?  @map("budget_id") @db.Uuid
+  number       String?
+  total        Float    @default(0)
+  currency     String   @default("EUR")
+  status       String   @default("DRAFT")
+  issuedAt     DateTime? @map("issued_at")
   /// NORMAL | RECTIFICATIVE | CANCELLATION
-  invoiceKind String @default("NORMAL") @map("invoice_kind")
+  invoiceKind  String   @default("NORMAL") @map("invoice_kind")
   /// DRAFT | PENDING | SENT | ERROR | REJECTED | CANCELLED
   verifactuStatus String @default("PENDING") @map("verifactu_status")
+  currentHash  String?  @map("current_hash")
+  previousHash String?  @map("previous_hash")
   rectifiesInvoiceId String? @map("rectifies_invoice_id") @db.Uuid
   /// S sustitución · I diferencias (AEAT TipoRectificativa)
   rectificationType String? @map("rectification_type")

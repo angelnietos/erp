@@ -209,6 +209,7 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/qrcode": "^1.5.6",
     "bcrypt": "^6.0.0",
+    "bullmq": "^4.16.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "clsx": "^2.1.1",

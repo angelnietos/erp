@@ -19,12 +19,12 @@ export class VerifactuSubmissionHttpClient {
   async submitInvoice(
     payload: SubmitInvoiceToVerifactuRequest,
   ): Promise<SubmitInvoiceToVerifactuResponse> {
-    const baseUrl = process.env.VERIFACTU_API_URL ?? 'http://localhost:3110/api';
+    const baseUrl = process.env['VERIFACTU_API_URL'] ?? 'http://localhost:3110/api';
     const response = await fetch(`${baseUrl}/verifactu/submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...(process.env.VERIFACTU_API_KEY ? { 'x-api-key': process.env.VERIFACTU_API_KEY } : {}),
+        ...(process.env['VERIFACTU_API_KEY'] ? { 'x-api-key': process.env['VERIFACTU_API_KEY'] } : {}),
       },
       body: JSON.stringify(payload),
     });

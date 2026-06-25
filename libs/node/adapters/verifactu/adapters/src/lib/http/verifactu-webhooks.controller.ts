@@ -37,7 +37,15 @@ export class VerifactuWebhooksController {
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map(({ secret: _secret, ...rest }) => rest);
+    return rows.map((row) => ({
+      id: row.id,
+      tenantId: row.tenantId,
+      eventType: row.eventType,
+      url: row.url,
+      isActive: row.isActive,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    }));
   }
 
   @Post()
@@ -47,7 +55,7 @@ export class VerifactuWebhooksController {
         tenantId: dto.tenantId,
         eventType: dto.eventType,
         url: dto.url,
-        secret: encrypt(dto.secret),
+        secretHash: encrypt(dto.secret),
         isActive: dto.isActive ?? true,
       },
     });

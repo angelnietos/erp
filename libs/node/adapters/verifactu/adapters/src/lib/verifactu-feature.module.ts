@@ -45,7 +45,7 @@ import { VerifactuQueueController } from './http/verifactu-queue.controller';
 		{
 			provide: AEAT_CLIENT,
 			useFactory: (realAeatClient: RealAeatClient) => {
-				const mode = process.env.VERIFACTU_MODE ?? 'mock';
+				const mode = process.env['VERIFACTU_MODE'] ?? 'mock';
 				return mode === 'real' ? realAeatClient : new MockAeatClient();
 			},
 			inject: [RealAeatClient],

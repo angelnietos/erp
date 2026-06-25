@@ -21,8 +21,8 @@ export class CrmErpInvoiceMirrorHttpClient {
   private readonly logger = new Logger(CrmErpInvoiceMirrorHttpClient.name);
 
   isConfigured(): boolean {
-    const baseUrl = process.env.VERIFACTU_CRM_API_URL?.trim();
-    const apiKey = process.env.CRM_ERP_SYNC_API_KEY?.trim();
+    const baseUrl = process.env['VERIFACTU_CRM_API_URL']?.trim();
+    const apiKey = process.env['CRM_ERP_SYNC_API_KEY']?.trim();
     return Boolean(baseUrl && apiKey);
   }
 
@@ -31,8 +31,8 @@ export class CrmErpInvoiceMirrorHttpClient {
       return;
     }
 
-    const baseUrl = process.env.VERIFACTU_CRM_API_URL!.replace(/\/$/, '');
-    const apiKey = process.env.CRM_ERP_SYNC_API_KEY!.trim();
+    const baseUrl = process.env['VERIFACTU_CRM_API_URL']!.replace(/\/$/, '');
+    const apiKey = process.env['CRM_ERP_SYNC_API_KEY']!.trim();
 
     const response = await fetch(`${baseUrl}/internal/erp/invoices/mirror`, {
       method: 'POST',
@@ -70,8 +70,8 @@ export class CrmErpInvoiceMirrorHttpClient {
       return;
     }
 
-    const baseUrl = process.env.VERIFACTU_CRM_API_URL!.replace(/\/$/, '');
-    const apiKey = process.env.CRM_ERP_SYNC_API_KEY!.trim();
+    const baseUrl = process.env['VERIFACTU_CRM_API_URL']!.replace(/\/$/, '');
+    const apiKey = process.env['CRM_ERP_SYNC_API_KEY']!.trim();
 
     const response = await fetch(`${baseUrl}/internal/erp/verifactu/queue-status`, {
       method: 'POST',

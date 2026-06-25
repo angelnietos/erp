@@ -8,7 +8,7 @@ import {
 @Injectable()
 export class ErpInternalSyncApiKeyGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
-    const expected = process.env.CRM_ERP_SYNC_API_KEY?.trim();
+    const expected = process.env['CRM_ERP_SYNC_API_KEY']?.trim();
     if (!expected) {
       throw new UnauthorizedException('CRM_ERP_SYNC_API_KEY is not configured');
     }

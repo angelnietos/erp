@@ -25,14 +25,11 @@ export class PrismaWebhookNotifierService implements WebhookNotifierPort {
         timestamp,
       });
 
-      const signature = createHmac('sha256', decrypt(endpoint.secretHash))
+const signature = createHmac('sha256', decrypt(endpoint.secretHash))
         .update(body)
         .digest('hex');
 
-      const statusCode = 0;
-       
-      const ok = false;
-       
+      let statusCode = 0;
       let responsePayload: unknown = {};
 
       // Create delivery record before attempting
@@ -41,8 +38,6 @@ export class PrismaWebhookNotifierService implements WebhookNotifierPort {
           endpointId: endpoint.id,
           tenantId: event.tenantId,
           eventId: event.id ?? '',
-          eventType: event.eventType,
-          payload: JSON.parse(body) as object,
           signature,
           status: 'PENDING',
           attempts: 1,
@@ -61,7 +56,6 @@ export class PrismaWebhookNotifierService implements WebhookNotifierPort {
           body,
         });
         statusCode = response.status;
-        ok = response.ok;
         responsePayload = await response.json().catch(() => ({}));
 
         await this.prisma.verifactuWebhookDelivery.update({

@@ -31,7 +31,7 @@ export class IdempotencyGuard implements CanActivate {
   constructor(private readonly prisma: VerifactuPrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (process.env.VERIFACTU_IDEMPOTENCY_ENABLED !== 'true') {
+    if (process.env['VERIFACTU_IDEMPOTENCY_ENABLED'] !== 'true') {
       return true;
     }
 

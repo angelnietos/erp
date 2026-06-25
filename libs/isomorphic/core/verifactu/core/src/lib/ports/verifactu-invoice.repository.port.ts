@@ -1,6 +1,6 @@
 export interface VerifactuInvoiceData {
   id: string;
-  budgetId: string;
+  budgetId?: string | null;
   total: number;
   currentHash?: string | null;
   verifactuStatus?: string;

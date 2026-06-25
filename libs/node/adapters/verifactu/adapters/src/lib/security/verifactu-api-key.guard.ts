@@ -27,7 +27,7 @@ export class VerifactuApiKeyGuard implements CanActivate {
   constructor(private readonly prisma: VerifactuPrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    if (process.env.VERIFACTU_REQUIRE_API_KEY !== 'true') {
+    if (process.env['VERIFACTU_REQUIRE_API_KEY'] !== 'true') {
       return true;
     }
 

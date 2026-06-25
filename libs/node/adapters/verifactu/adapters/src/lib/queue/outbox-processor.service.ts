@@ -1,5 +1,5 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { VerifactuPrismaService } from './verifactu-prisma.service';
+import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
 
 @Injectable()
 export class OutboxProcessorService implements OnModuleInit {
@@ -92,7 +92,7 @@ export class OutboxProcessorService implements OnModuleInit {
     payload: unknown;
   }) {
     // Sync with ERP if needed
-    const erpApiUrl = process.env.ERP_API_URL;
+    const erpApiUrl = process.env['ERP_API_URL'];
     if (!erpApiUrl) return;
 
     const payload = event.payload as {

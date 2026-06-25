@@ -15,10 +15,10 @@ interface AeatSoapClient extends soap.Client {
 @Injectable()
 export class RealAeatClient implements AeatClientPort {
   private readonly endpoint =
-    process.env.VERIFACTU_AEAT_ENDPOINT ??
+    process.env['VERIFACTU_AEAT_ENDPOINT'] ??
     'https://prewww2.aeat.es/wlpl/TIKE-CONT/ws/SistemaFacturacion/VerifactuSOAP';
   private readonly wsdlUrl =
-    process.env.VERIFACTU_AEAT_WSDL_URL ??
+    process.env['VERIFACTU_AEAT_WSDL_URL'] ??
     'https://prewww2.aeat.es/static_files/common/internet/dep/aplicaciones/es/aeat/tikeV1.0/cont/ws/SistemaFacturacion.wsdl';
 
   constructor(
@@ -30,8 +30,8 @@ export class RealAeatClient implements AeatClientPort {
     const hash = request.currentHash || this.hashService.generateSha256Hash(`${request.tenantId}|${request.invoiceId}|${request.total}`);
     const timestamp = this.hashService.generateTimestamp();
     const registroAltaXml = this.xmlBuilder.buildRegistroAltaXml({
-      sellerNif: process.env.VERIFACTU_SELLER_NIF ?? 'B00000000',
-      sellerName: process.env.VERIFACTU_SELLER_NAME ?? 'Verifactu Tenant',
+      sellerNif: process.env['VERIFACTU_SELLER_NIF'] ?? 'B00000000',
+      sellerName: process.env['VERIFACTU_SELLER_NAME'] ?? 'Verifactu Tenant',
       invoiceNumber: request.invoiceId,
       invoiceDate: new Date().toISOString().slice(0, 10).split('-').reverse().join('-'),
       totalAmount: request.total,
