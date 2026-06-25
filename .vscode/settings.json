@@ -3,5 +3,7 @@
     "NX_ISOLATE_PLUGINS": "false"
   },
   "nxConsole.nxWorkspacePath": ".",
-  "nxConsole.disableFileWatching": false
+  "nxConsole.disableFileWatching": false,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }
