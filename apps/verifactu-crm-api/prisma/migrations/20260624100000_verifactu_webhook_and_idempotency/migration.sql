@@ -21,7 +21,7 @@ CREATE TABLE "webhook_endpoints" (
     "tenant_id" UUID NOT NULL,
     "event_type" VARCHAR(64) NOT NULL,
     "url" TEXT NOT NULL,
-    "secret_hash" VARCHAR(64) NOT NULL,
+    "secret_hash" TEXT NOT NULL,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT now(),
     "updated_at" TIMESTAMP(3) NOT NULL,
