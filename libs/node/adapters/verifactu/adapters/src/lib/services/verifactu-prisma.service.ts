@@ -5,7 +5,7 @@ import { config as loadEnv } from 'dotenv';
 
 const originalDbUrl = process.env['DATABASE_URL'];
 loadEnv({ path: 'apps/verifactu-crm-api/.env' });
-const crmDbUrl = process.env['DATABASE_URL'];
+const crmDbUrl = process.env['VERIFACTU_DATABASE_URL'];
 if (originalDbUrl) process.env['DATABASE_URL'] = originalDbUrl;
 if (crmDbUrl) process.env['VERIFACTU_DATABASE_URL'] = crmDbUrl;
 
