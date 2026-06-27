@@ -4,7 +4,8 @@
     subtitle="Detalle fiscal Verifactu, código QR de validación y línea temporal AEAT."
   >
     <div class="vf-detail-toolbar">
-      <a routerLink="/verifactu/queue" class="vf-back-link">← Cola AEAT</a>
+          <a routerLink="/verifactu/invoices" class="vf-back-link">← Facturas</a>
+          <a routerLink="/verifactu/queue" class="vf-back-link">Cola AEAT</a>
       <a routerLink="/verifactu/logs" class="vf-back-link">Historial</a>
       <a routerLink="/verifactu/chain" class="vf-back-link">Cadena fiscal</a>
       @if (!isDetailLoading(vm)) {

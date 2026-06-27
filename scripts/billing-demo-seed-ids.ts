@@ -32,3 +32,13 @@ export const SEED_CLIENT_IDS = {
     biosstel: 'c2c2c3d4-e5f6-4789-a012-345678901001',
   },
 } as const;
+
+/** Bloques del ledger fiscal demo (CRM verifactu_chain_blocks). */
+export const SEED_CHAIN_BLOCK_IDS = {
+  josanz: {
+    paid: 'd1d2d3d4-e5f6-4789-a012-345678901001',
+  },
+  babooni: {
+    paid: 'd2d2d3d4-e5f6-4789-a012-345678901001',
+  },
+} as const;

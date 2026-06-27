@@ -3,6 +3,7 @@ import {
   VerifactuCredentialsPageComponent,
   VerifactuDashboardComponent,
   VerifactuIntegrationPageComponent,
+  VerifactuInvoicesPageComponent,
   VerifactuInvoiceDetailPageComponent,
   VerifactuLogsPageComponent,
   VerifactuChainPageComponent,
@@ -41,6 +42,11 @@ export const verifactuShellRoutes: Route[] = [
         path: 'chain',
         component: VerifactuChainPageComponent,
         title: 'Verifactu · Cadena fiscal',
+      },
+      {
+        path: 'invoices',
+        component: VerifactuInvoicesPageComponent,
+        title: 'Verifactu · Facturas',
       },
       {
         path: 'invoices/:invoiceId',

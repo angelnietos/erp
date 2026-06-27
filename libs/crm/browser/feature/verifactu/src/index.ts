@@ -5,6 +5,8 @@ export * from './lib/verifactu-series-page.component';
 export * from './lib/verifactu-logs-page.component';
 export * from './lib/verifactu-chain-page.component';
 export * from './lib/verifactu-integration-page.component';
+export * from './lib/verifactu-invoices-page.component';
+export * from './lib/verifactu-invoice-actions.service';
 export * from './lib/verifactu-invoice-detail-page.component';
 export * from './lib/verifactu-empty-state.component';
 export * from './lib/verifactu-credentials-page.component';

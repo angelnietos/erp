@@ -38,3 +38,20 @@ export function invoiceStatusLabel(status: string | undefined): string {
       return status ?? '—';
   }
 }
+
+export function verifactuStatusLabel(status: string | undefined): string {
+  switch (status?.toUpperCase()) {
+    case 'PENDING':
+      return 'Pendiente AEAT';
+    case 'SENT':
+      return 'Enviada AEAT';
+    case 'ERROR':
+      return 'Error AEAT';
+    case 'REJECTED':
+      return 'Rechazada AEAT';
+    case 'CANCELLED':
+      return 'Anulada AEAT';
+    default:
+      return status ?? 'Sin envío';
+  }
+}

@@ -23,7 +23,8 @@
 
     <gcrm-panel title="Encolar factura manualmente" padding="sm">
       <p class="vf-form-hint">
-        Introduce el UUID de una factura emitida. En la demo también puedes encolar desde
+        Introduce el UUID de una factura emitida. También puedes encolar desde
+        <a routerLink="../invoices">Facturas</a> o
         <a routerLink="../integration">Integración</a>.
       </p>
       <form class="vf-form-row" (ngSubmit)="enqueue()" [attr.aria-busy]="enqueueInProgress">
@@ -47,12 +48,6 @@
           {{ enqueueInProgress ? 'Encolando…' : 'Encolar' }}
         </gcrm-button>
       </form>
-      @if (feedback) {
-        <gcrm-inline-message variant="success">{{ feedback }}</gcrm-inline-message>
-      }
-      @if (errorMessage) {
-        <gcrm-inline-message variant="error">{{ errorMessage }}</gcrm-inline-message>
-      }
     </gcrm-panel>
 
     <gcrm-panel title="Cola actual" padding="sm">
@@ -80,10 +75,10 @@
           title="La cola está vacía"
           description="Todavía no hay facturas pendientes de envío AEAT. Crea una factura de prueba y encólala para ver el flujo completo."
         >
-          <a routerLink="../integration" class="vf-empty-cta vf-empty-cta--primary">
-            Crear factura demo
+          <a routerLink="../invoices" class="vf-empty-cta vf-empty-cta--primary">
+            Ver facturas
           </a>
-          <a routerLink="../overview" class="vf-empty-cta">Ver resumen</a>
+          <a routerLink="../integration" class="vf-empty-cta">Crear factura demo</a>
         </lib-verifactu-empty-state>
       }
       @if (!loadError && vm.rows.length > 0) {

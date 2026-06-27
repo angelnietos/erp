@@ -18,6 +18,7 @@ import {
   GcrmPanelComponent,
   GcrmSpinnerComponent,
   GcrmStatCardComponent,
+  GcrmToastService,
 } from '@generic-crm/shared-ui';
 import {
   BehaviorSubject,
@@ -68,6 +69,7 @@ type ChainVerifyViewState =
 })
 export class VerifactuChainPageComponent {
   private readonly verifactu = inject(VerifactuApiService);
+  private readonly toast = inject(GcrmToastService);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
   private readonly verifyClick$ = new Subject<void>();
 
@@ -80,21 +82,30 @@ export class VerifactuChainPageComponent {
       this.verifyClick$.pipe(
         switchMap(() =>
           this.verifactu.chainVerify().pipe(
+            tap((result) => {
+              if (result.isValid) {
+                this.toast.success(this.verifyHeadline(result));
+              } else {
+                this.toast.error('La cadena fiscal presenta inconsistencias.');
+              }
+            }),
             map(
               (result): ChainVerifyViewState => ({
                 phase: 'done',
                 result,
               }),
             ),
-            catchError((e: HttpErrorResponse) =>
-              of({
+            catchError((e: HttpErrorResponse) => {
+              const message = verifactuHttpErrorMessage(
+                e,
+                'No se pudo verificar la cadena',
+              );
+              this.toast.error(message);
+              return of({
                 phase: 'error' as const,
-                message: verifactuHttpErrorMessage(
-                  e,
-                  'No se pudo verificar la cadena',
-                ),
-              }),
-            ),
+                message,
+              });
+            }),
             startWith({ phase: 'loading' } as ChainVerifyViewState),
           ),
         ),

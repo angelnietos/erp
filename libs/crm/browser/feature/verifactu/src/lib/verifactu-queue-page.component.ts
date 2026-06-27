@@ -1,7 +1,5 @@
-import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -21,15 +19,16 @@ import {
 import {
   BehaviorSubject,
   catchError,
-  finalize,
   map,
   of,
   startWith,
   switchMap,
   tap,
 } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { verifactuHttpErrorMessage } from './http-error-message';
 import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component';
+import { VerifactuInvoiceActionsService } from './verifactu-invoice-actions.service';
 import { queueStatusLabel } from './verifactu-status-labels';
 
 @Component({
@@ -61,7 +60,7 @@ import { queueStatusLabel } from './verifactu-status-labels';
 })
 export class VerifactuQueuePageComponent {
   private readonly verifactu = inject(VerifactuApiService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly actions = inject(VerifactuInvoiceActionsService);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
   readonly queueStatusLabel = queueStatusLabel;
@@ -113,8 +112,6 @@ export class VerifactuQueuePageComponent {
 
   invoiceIdToEnqueue = '';
   enqueueInProgress = false;
-  feedback: string | null = null;
-  errorMessage: string | null = null;
   loadError: string | null = null;
 
   refresh(): void {
@@ -123,34 +120,21 @@ export class VerifactuQueuePageComponent {
   }
 
   enqueue(): void {
-    this.feedback = null;
-    this.errorMessage = null;
     const id = this.invoiceIdToEnqueue.trim();
     if (!id) {
+      this.actions.enqueueById('');
       return;
     }
     this.enqueueInProgress = true;
-    this.verifactu
-      .enqueue(id)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.enqueueInProgress = false;
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.invoiceIdToEnqueue = '';
-          this.feedback = 'Factura encolada correctamente.';
-          this.refresh();
-        },
-        error: (e: HttpErrorResponse) => {
-          this.errorMessage = verifactuHttpErrorMessage(
-            e,
-            'No se pudo encolar',
-          );
-        },
-      });
+    this.actions.enqueueById(id, {
+      onSuccess: () => {
+        this.invoiceIdToEnqueue = '';
+        this.refresh();
+      },
+      onSettled: () => {
+        this.enqueueInProgress = false;
+      },
+    });
   }
 
   queueBadgeVariant(status: string): GcrmBadgeVariant {

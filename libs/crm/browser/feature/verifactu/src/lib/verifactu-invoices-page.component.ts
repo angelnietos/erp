@@ -1,8 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { AsyncPipe, CommonModule, DecimalPipe, JsonPipe } from '@angular/common';
+import { AsyncPipe, CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { VerifactuApiService } from '@generic-crm/verifactu-data-access';
 import {
   InvoicesApiService,
   type InvoiceRowDto,
@@ -20,27 +19,28 @@ import {
 import {
   BehaviorSubject,
   catchError,
-  forkJoin,
+  finalize,
   map,
   of,
   startWith,
   switchMap,
 } from 'rxjs';
-import {
-  appendVerifactuBranchError,
-  joinVerifactuLoadErrors,
-} from './http-error-message';
+import { appendVerifactuBranchError, joinVerifactuLoadErrors } from './http-error-message';
+import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component';
 import { VerifactuInvoiceActionsService } from './verifactu-invoice-actions.service';
-import { invoiceStatusLabel } from './verifactu-status-labels';
+import {
+  invoiceStatusLabel,
+  verifactuStatusLabel,
+} from './verifactu-status-labels';
 
 @Component({
-  selector: 'lib-verifactu-integration-page',
+  selector: 'lib-verifactu-invoices-page',
   standalone: true,
   imports: [
     CommonModule,
     AsyncPipe,
     DecimalPipe,
-    JsonPipe,
+    DatePipe,
     RouterLink,
     GcrmBadgeComponent,
     GcrmButtonComponent,
@@ -49,22 +49,23 @@ import { invoiceStatusLabel } from './verifactu-status-labels';
     GcrmInlineMessageComponent,
     GcrmSpinnerComponent,
     GcrmStatCardComponent,
+    VerifactuEmptyStateComponent,
   ],
-  templateUrl: './verifactu-integration-page.component.html',
+  templateUrl: './verifactu-invoices-page.component.html',
   styleUrls: [
-    './verifactu-integration-page.component.css',
     './verifactu-shared-layout.css',
     './verifactu-shared-tables.css',
     './verifactu-toolbar.css',
   ],
 })
-export class VerifactuIntegrationPageComponent {
-  private readonly verifactu = inject(VerifactuApiService);
+export class VerifactuInvoicesPageComponent {
   private readonly invoices = inject(InvoicesApiService);
   private readonly actions = inject(VerifactuInvoiceActionsService);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
   readonly invoiceStatusLabel = invoiceStatusLabel;
+  readonly verifactuStatusLabel = verifactuStatusLabel;
+  readonly canEnqueue = (inv: InvoiceRowDto) => this.actions.canEnqueue(inv);
 
   creatingDemo = false;
   issuingId: string | null = null;
@@ -74,55 +75,47 @@ export class VerifactuIntegrationPageComponent {
     return this.creatingDemo || this.issuingId !== null || this.enqueuingId !== null;
   }
 
-  readonly snapshot$ = this.refresh$.pipe(
+  readonly vm$ = this.refresh$.pipe(
     switchMap(() => {
       const loadErrors: string[] = [];
-      return forkJoin({
-        integration: this.verifactu.integration().pipe(
-          catchError((e: HttpErrorResponse) => {
-            appendVerifactuBranchError(loadErrors, 'Integración', e);
-            return of(null);
-          }),
-        ),
-        invoices: this.invoices.list().pipe(
-          catchError((e: HttpErrorResponse) => {
-            appendVerifactuBranchError(loadErrors, 'Facturas', e);
-            return of([] as InvoiceRowDto[]);
-          }),
-        ),
-        settings: this.verifactu.tenantSettings().pipe(
-          catchError((e: HttpErrorResponse) => {
-            appendVerifactuBranchError(loadErrors, 'Ajustes', e);
-            return of({ emitterTaxId: null as string | null });
-          }),
-        ),
-        credSlots: this.verifactu.credentialsStatus().pipe(
-          catchError((e: HttpErrorResponse) => {
-            appendVerifactuBranchError(loadErrors, 'Certificados', e);
-            return of(null);
-          }),
-        ),
-      }).pipe(
-        map((v) => ({
-          ...v,
-          loading: false as const,
-          loadError: joinVerifactuLoadErrors(loadErrors),
-          crm: 'Emisión: PATCH /api/invoices/:id/issue. Con VERIFACTU_AUTO_ENQUEUE=true se encola sola.',
-          standaloneApi:
-            'API paralela: nx serve verifactu-crm-api (3120) — misma BD y JWT.',
-          worker:
-            'Worker: pnpm run dev:verifactu-worker — cola en BD; CRM espeja FORWARDED → COMPLETED.',
-        })),
+      return this.invoices.list().pipe(
+        map((rows) => {
+          const list = (rows ?? []) as InvoiceRowDto[];
+          const issuedCount = list.filter((i) => i.status === 'ISSUED').length;
+          const sentCount = list.filter(
+            (i) => i.verifactuStatus?.toUpperCase() === 'SENT',
+          ).length;
+          const pendingVerifactuCount = list.filter((i) => {
+            const vf = i.verifactuStatus?.toUpperCase();
+            return !vf || vf === 'PENDING';
+          }).length;
+          return {
+            loading: false as const,
+            invoices: list,
+            issuedCount,
+            sentCount,
+            pendingVerifactuCount,
+            loadError: joinVerifactuLoadErrors(loadErrors),
+          };
+        }),
+        catchError((e: HttpErrorResponse) => {
+          appendVerifactuBranchError(loadErrors, 'Facturas', e);
+          return of({
+            loading: false as const,
+            invoices: [] as InvoiceRowDto[],
+            issuedCount: 0,
+            sentCount: 0,
+            pendingVerifactuCount: 0,
+            loadError: joinVerifactuLoadErrors(loadErrors),
+          });
+        }),
         startWith({
-          integration: null,
-          invoices: [] as InvoiceRowDto[],
-          settings: { emitterTaxId: null as string | null },
-          credSlots: null,
           loading: true as const,
+          invoices: [] as InvoiceRowDto[],
+          issuedCount: 0,
+          sentCount: 0,
+          pendingVerifactuCount: 0,
           loadError: null as string | null,
-          crm: '',
-          standaloneApi: '',
-          worker: '',
         }),
       );
     }),
@@ -169,6 +162,20 @@ export class VerifactuIntegrationPageComponent {
       case 'DRAFT':
         return 'warning';
       case 'CANCELLED':
+        return 'danger';
+      default:
+        return 'neutral';
+    }
+  }
+
+  verifactuBadgeVariant(status: string | undefined): GcrmBadgeVariant {
+    switch (status?.toUpperCase()) {
+      case 'SENT':
+        return 'success';
+      case 'PENDING':
+        return 'warning';
+      case 'ERROR':
+      case 'REJECTED':
         return 'danger';
       default:
         return 'neutral';

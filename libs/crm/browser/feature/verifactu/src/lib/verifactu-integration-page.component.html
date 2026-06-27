@@ -17,39 +17,36 @@
     </div>
   </div>
 
-  <div class="vf-toolbar">
-    @if (snapshotLoading) {
-      <gcrm-spinner size="sm" label="Cargando integración" />
-    }
-    <gcrm-button
-      type="button"
-      variant="secondary"
-      [disabled]="snapshotLoading || actionBusy"
-      [busy]="snapshotLoading"
-      (click)="refresh()"
-    >
-      {{ snapshotLoading ? 'Actualizando…' : 'Actualizar' }}
-    </gcrm-button>
-    <gcrm-button
-      type="button"
-      variant="primary"
-      [disabled]="snapshotLoading || actionBusy"
-      [busy]="creatingDemo"
-      (click)="createDemoInvoice()"
-    >
-      {{ creatingDemo ? 'Creando…' : 'Crear factura demo' }}
-    </gcrm-button>
-  </div>
-
-  @if (actionFeedback) {
-    <gcrm-inline-message [variant]="actionFeedbackVariant">{{ actionFeedback }}</gcrm-inline-message>
-  }
-
   @if (snapshot$ | async; as data) {
+    <div class="vf-toolbar">
+      @if (data.loading) {
+        <gcrm-spinner size="sm" label="Cargando integración" />
+      }
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="data.loading || actionBusy"
+        [busy]="data.loading"
+        (click)="refresh()"
+      >
+        {{ data.loading ? 'Actualizando…' : 'Actualizar' }}
+      </gcrm-button>
+      <gcrm-button
+        type="button"
+        variant="primary"
+        [disabled]="data.loading || actionBusy"
+        [busy]="creatingDemo"
+        (click)="createDemoInvoice()"
+      >
+        {{ creatingDemo ? 'Creando…' : 'Crear factura demo' }}
+      </gcrm-button>
+    </div>
+
     @if (data.loadError) {
       <gcrm-inline-message variant="error">{{ data.loadError }}</gcrm-inline-message>
     }
 
+    @if (!data.loading) {
     <div class="vf-stats-grid vf-stats-grid--3">
       <gcrm-stat-card
         label="Facturas"
@@ -80,6 +77,7 @@
           <dd>{{ data.integration?.aeat?.submissionEnv ?? '—' }}</dd>
         </dl>
         <p class="vf-links">
+          <a routerLink="../invoices">Ver todas las facturas</a>
           <a routerLink="../credentials">Certificado y NIF</a>
           <a routerLink="../queue">Ver cola</a>
         </p>
@@ -166,6 +164,7 @@
         <pre class="vf-block">{{ data.integration | json }}</pre>
       </details>
     </gcrm-panel>
+    }
   } @else {
     <gcrm-spinner label="Cargando integración" />
   }

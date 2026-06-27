@@ -14,4 +14,10 @@ export interface InvoiceRowDto {
   status?: string;
   issuedAt?: string | null;
   createdAt?: string;
+  verifactuStatus?: string;
+  client?: {
+    id: string;
+    name: string;
+    taxId?: string | null;
+  } | null;
 }

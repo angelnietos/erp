@@ -1,0 +1,164 @@
+<gcrm-page
+  title="Facturas"
+  subtitle="Listado del tenant activo: emitir, encolar en AEAT y abrir la ficha fiscal."
+>
+  @if (vm$ | async; as vm) {
+    <div class="vf-toolbar">
+      @if (vm.loading) {
+        <gcrm-spinner size="sm" label="Cargando facturas" />
+      }
+      <gcrm-button
+        type="button"
+        variant="secondary"
+        [disabled]="vm.loading || actionBusy"
+        [busy]="vm.loading"
+        (click)="refresh()"
+      >
+        {{ vm.loading ? 'Actualizando…' : 'Actualizar' }}
+      </gcrm-button>
+      <gcrm-button
+        type="button"
+        variant="primary"
+        [disabled]="vm.loading || actionBusy"
+        [busy]="creatingDemo"
+        (click)="createDemoInvoice()"
+      >
+        {{ creatingDemo ? 'Creando…' : 'Nueva factura demo' }}
+      </gcrm-button>
+    </div>
+
+    @if (vm.loadError) {
+      <gcrm-inline-message variant="error">{{ vm.loadError }}</gcrm-inline-message>
+    }
+
+    @if (!vm.loading && !vm.loadError) {
+      <div class="vf-stats-grid">
+        <gcrm-stat-card label="Total" [value]="vm.invoices.length" hint="Facturas del tenant" />
+        <gcrm-stat-card
+          label="Emitidas"
+          [value]="vm.issuedCount"
+          hint="Listas para AEAT"
+          tone="info"
+        />
+        <gcrm-stat-card
+          label="Enviadas AEAT"
+          [value]="vm.sentCount"
+          hint="Verifactu SENT"
+          tone="success"
+        />
+        <gcrm-stat-card
+          label="Pendientes AEAT"
+          [value]="vm.pendingVerifactuCount"
+          hint="Sin envío o en cola"
+          tone="warning"
+        />
+      </div>
+    }
+
+    <gcrm-panel title="Facturas del tenant" padding="sm">
+      @if (vm.loading) {
+        <gcrm-spinner label="Cargando facturas" />
+      } @else if (vm.invoices.length === 0) {
+        <lib-verifactu-empty-state
+          icon="default"
+          title="Sin facturas"
+          description="Crea una factura demo o sincroniza desde el ERP para empezar el flujo Verifactu."
+        >
+          <button
+            type="button"
+            class="vf-empty-cta vf-empty-cta--primary"
+            [disabled]="actionBusy"
+            (click)="createDemoInvoice()"
+          >
+            Crear factura demo
+          </button>
+          <a routerLink="../integration" class="vf-empty-cta">Integración ERP</a>
+        </lib-verifactu-empty-state>
+      } @else {
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th scope="col">Número</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Estado</th>
+                <th scope="col">Verifactu</th>
+                <th scope="col">Total</th>
+                <th scope="col">Emisión</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (inv of vm.invoices; track inv.id) {
+                <tr>
+                  <td>
+                    <a class="vf-row-link" [routerLink]="['/verifactu/invoices', inv.id]">
+                      {{ inv.number || '—' }}
+                    </a>
+                  </td>
+                  <td>{{ inv.client?.name || '—' }}</td>
+                  <td>
+                    <gcrm-badge [variant]="invoiceBadgeVariant(inv.status)">
+                      {{ invoiceStatusLabel(inv.status) }}
+                    </gcrm-badge>
+                  </td>
+                  <td>
+                    <gcrm-badge [variant]="verifactuBadgeVariant(inv.verifactuStatus)">
+                      {{ verifactuStatusLabel(inv.verifactuStatus) }}
+                    </gcrm-badge>
+                  </td>
+                  <td class="nowrap">
+                    @if (inv.total != null) {
+                      {{ inv.total | number: '1.2-2' }} {{ inv.currency || 'EUR' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td class="nowrap small">
+                    @if (inv.issuedAt) {
+                      {{ inv.issuedAt | date: 'shortDate' }}
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>
+                    <div class="tbl-actions">
+                      <a
+                        class="vf-row-link"
+                        [routerLink]="['/verifactu/invoices', inv.id]"
+                      >
+                        Ficha
+                      </a>
+                      @if (inv.status === 'DRAFT') {
+                        <gcrm-button
+                          type="button"
+                          variant="secondary"
+                          [disabled]="actionBusy"
+                          [busy]="issuingId === inv.id"
+                          (click)="issueInvoice(inv.id)"
+                        >
+                          Emitir
+                        </gcrm-button>
+                      }
+                      @if (canEnqueue(inv)) {
+                        <gcrm-button
+                          type="button"
+                          variant="primary"
+                          [disabled]="actionBusy"
+                          [busy]="enqueuingId === inv.id"
+                          (click)="enqueueInvoice(inv.id)"
+                        >
+                          Encolar AEAT
+                        </gcrm-button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </gcrm-panel>
+  }
+</gcrm-page>

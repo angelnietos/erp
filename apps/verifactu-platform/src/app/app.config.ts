@@ -12,6 +12,7 @@ import {
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import {
   LayoutDashboard,
+  FileText,
   ListOrdered,
   Hash,
   History,
@@ -47,6 +48,7 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom(
       LucideAngularModule.pick({
         LayoutDashboard,
+        FileText,
         ListOrdered,
         Hash,
         History,

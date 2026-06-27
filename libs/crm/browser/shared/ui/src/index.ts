@@ -5,3 +5,5 @@ export * from './lib/inline-message/gcrm-inline-message.component';
 export * from './lib/page/gcrm-page.component';
 export * from './lib/panel/gcrm-panel.component';
 export * from './lib/spinner/gcrm-spinner.component';
+export * from './lib/toast/gcrm-toast.service';
+export * from './lib/toast/gcrm-toast-stack.component';

@@ -6,9 +6,14 @@ import pg from 'pg';
 import { resolveCrmDatabaseUrl } from '../../../libs/crm/node/shared-infrastructure/src/lib/prisma/crm-database-url';
 import {
   ERP_TENANT_IDS,
+  SEED_CHAIN_BLOCK_IDS,
   SEED_CLIENT_IDS,
   SEED_INVOICE_IDS,
 } from '../../../scripts/billing-demo-seed-ids';
+import {
+  VERIFACTU_CHAIN_GENESIS_HASH,
+  VerifactuChainService,
+} from '../../../libs/crm/isomorphic/core/verifactu/core/src/lib/services/verifactu-chain.service';
 
 export async function seedCrmDatabase(): Promise<void> {
   const connectionString = resolveCrmDatabaseUrl();
@@ -453,20 +458,55 @@ async function seedErpMirroredBillingDemo(prisma: PrismaClient) {
     SEED_INVOICE_IDS.babooni.pending,
   );
 
-  await ensureVerifactuLogSuccess(
+  const josanzLog = await ensureVerifactuLogSuccess(
     prisma,
     ERP_TENANT_IDS.josanz,
     SEED_INVOICE_IDS.josanz.paid,
     'F/2026/0001',
   );
-  await ensureVerifactuLogSuccess(
+  const babooniLog = await ensureVerifactuLogSuccess(
     prisma,
     ERP_TENANT_IDS.babooni,
     SEED_INVOICE_IDS.babooni.paid,
     'BB/2026/0001',
   );
 
-  console.log('- CRM: facturas espejo josanz + babooni (Verifactu cola/log/series)');
+  await ensureCompletedQueueItem(
+    prisma,
+    ERP_TENANT_IDS.josanz,
+    SEED_INVOICE_IDS.josanz.paid,
+  );
+  await ensureCompletedQueueItem(
+    prisma,
+    ERP_TENANT_IDS.babooni,
+    SEED_INVOICE_IDS.babooni.paid,
+  );
+
+  await ensureDemoChainBlockFromLog(prisma, {
+    blockId: SEED_CHAIN_BLOCK_IDS.josanz.paid,
+    tenantId: ERP_TENANT_IDS.josanz,
+    invoiceId: SEED_INVOICE_IDS.josanz.paid,
+    invoiceNumber: 'F/2026/0001',
+    invoiceTotal: josanzTotal1,
+    logId: josanzLog.id,
+    aeatHuella: 'DEMO-HUELLA-JOSANZ-0001',
+    aeatIdRegistro: 'DEMO-REG-JOSANZ-0001',
+    verificationCode: 'VERIF-JOSANZ-2026-0001',
+  });
+
+  await ensureDemoChainBlockFromLog(prisma, {
+    blockId: SEED_CHAIN_BLOCK_IDS.babooni.paid,
+    tenantId: ERP_TENANT_IDS.babooni,
+    invoiceId: SEED_INVOICE_IDS.babooni.paid,
+    invoiceNumber: 'BB/2026/0001',
+    invoiceTotal: babooniTotal1,
+    logId: babooniLog.id,
+    aeatHuella: 'DEMO-HUELLA-BABOONI-0001',
+    aeatIdRegistro: 'DEMO-REG-BABOONI-0001',
+    verificationCode: 'VERIF-BABOONI-2026-0001',
+  });
+
+  console.log('- CRM: facturas espejo josanz + babooni (Verifactu cola/log/series/cadena)');
 }
 
 async function upsertClient(
@@ -576,6 +616,121 @@ async function ensureVerifactuQueueItem(
       invoiceId,
       status: 'PENDING',
       retries: 0,
+    },
+  });
+}
+
+async function ensureCompletedQueueItem(
+  prisma: PrismaClient,
+  tenantId: string,
+  invoiceId: string,
+) {
+  const existing = await prisma.verifactuQueueItem.findFirst({
+    where: { tenantId, invoiceId },
+  });
+  if (existing) {
+    return prisma.verifactuQueueItem.update({
+      where: { id: existing.id },
+      data: { status: 'COMPLETED', lastError: null },
+    });
+  }
+  return prisma.verifactuQueueItem.create({
+    data: {
+      tenantId,
+      invoiceId,
+      status: 'COMPLETED',
+      retries: 0,
+    },
+  });
+}
+
+const chainBuilder = new VerifactuChainService();
+const CHAIN_ENV = 'TEST' as const;
+
+async function ensureDemoChainBlockFromLog(
+  prisma: PrismaClient,
+  params: {
+    blockId: string;
+    tenantId: string;
+    invoiceId: string;
+    invoiceNumber: string;
+    invoiceTotal: number;
+    logId: string;
+    aeatHuella: string;
+    aeatIdRegistro: string;
+    verificationCode: string;
+  },
+) {
+  const blockIndex = 0;
+  const previousHash = VERIFACTU_CHAIN_GENESIS_HASH;
+  const currentHash = chainBuilder.buildBlockHash({
+    blockIndex,
+    tenantId: params.tenantId,
+    environment: CHAIN_ENV,
+    invoiceId: params.invoiceId,
+    invoiceNumber: params.invoiceNumber,
+    invoiceTotal: params.invoiceTotal,
+    previousHash,
+    aeatHuella: params.aeatHuella,
+    aeatIdRegistro: params.aeatIdRegistro,
+    verificationCode: params.verificationCode,
+    recordKind: 'INVOICE',
+  });
+
+  await prisma.verifactuChainBlock.upsert({
+    where: { id: params.blockId },
+    create: {
+      id: params.blockId,
+      tenantId: params.tenantId,
+      environment: CHAIN_ENV,
+      blockIndex,
+      invoiceId: params.invoiceId,
+      invoiceNumber: params.invoiceNumber,
+      invoiceTotal: params.invoiceTotal,
+      recordKind: 'INVOICE',
+      logId: params.logId,
+      previousHash,
+      currentHash,
+      aeatHuella: params.aeatHuella,
+      aeatIdRegistro: params.aeatIdRegistro,
+      verificationCode: params.verificationCode,
+    },
+    update: {
+      invoiceNumber: params.invoiceNumber,
+      invoiceTotal: params.invoiceTotal,
+      logId: params.logId,
+      previousHash,
+      currentHash,
+      aeatHuella: params.aeatHuella,
+      aeatIdRegistro: params.aeatIdRegistro,
+      verificationCode: params.verificationCode,
+    },
+  });
+
+  await prisma.verifactuAeatChainHead.upsert({
+    where: {
+      tenantId_environment: {
+        tenantId: params.tenantId,
+        environment: CHAIN_ENV,
+      },
+    },
+    create: {
+      tenantId: params.tenantId,
+      environment: CHAIN_ENV,
+      lastHuella: params.aeatHuella,
+      lastIdRegistro: params.aeatIdRegistro,
+    },
+    update: {
+      lastHuella: params.aeatHuella,
+      lastIdRegistro: params.aeatIdRegistro,
+    },
+  });
+
+  await prisma.invoice.update({
+    where: { id: params.invoiceId },
+    data: {
+      currentHash,
+      previousHash,
     },
   });
 }

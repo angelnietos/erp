@@ -20,6 +20,7 @@ import {
   clearVerifactuPkceRedirectPending,
   clearVerifactuPkceSession,
 } from '../auth/pkce.util';
+import { GcrmToastStackComponent } from '@generic-crm/shared-ui';
 import { VerifactuKeycloakAuthService } from '../auth/verifactu-keycloak-auth.service';
 
 interface NavItem {
@@ -32,7 +33,7 @@ interface NavItem {
 @Component({
   selector: 'app-verifactu-platform-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, GcrmToastStackComponent],
   template: `
     <div class="vf-shell">
       <aside class="vf-sidebar" aria-label="Navegación Verifactu">
@@ -98,6 +99,7 @@ interface NavItem {
           <router-outlet />
         </main>
       </div>
+      <gcrm-toast-stack />
     </div>
   `,
   styles: [
@@ -358,6 +360,7 @@ interface NavItem {
 export class VerifactuPlatformShellComponent implements OnInit {
   readonly mainNav: NavItem[] = [
     { label: 'Resumen', route: '/verifactu/overview', icon: 'layout-dashboard' },
+    { label: 'Facturas', route: '/verifactu/invoices', icon: 'file-text' },
     { label: 'Cola AEAT', route: '/verifactu/queue', icon: 'list-ordered' },
     { label: 'Series', route: '/verifactu/series', icon: 'hash' },
     { label: 'Historial', route: '/verifactu/logs', icon: 'history' },
