@@ -16,7 +16,8 @@
   box-shadow: var(--bb-shadow-bar);
   transition:
     width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
-    min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s ease;
 }
 
 .bb-sidebar.collapsed {
@@ -34,6 +35,18 @@
   background: var(--bb-surface);
   border-bottom: 1px solid var(--bb-border);
   flex-shrink: 0;
+  position: relative;
+}
+
+.bb-sidebar__header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bio-primary), transparent);
+  opacity: 0.15;
 }
 
 .collapsed .bb-sidebar__header {
@@ -60,15 +73,22 @@
   width: 36px;
   height: 36px;
   border-radius: var(--bb-radius-md);
-  background: var(--bio-primary);
+  background: linear-gradient(135deg, var(--bio-primary), color-mix(in srgb, var(--bio-primary) 70%, #0f172a));
   color: var(--bio-white);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px color-mix(in srgb, var(--bio-primary) 28%, transparent);
+  box-shadow:
+    0 2px 8px color-mix(in srgb, var(--bio-primary) 28%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s var(--vf-ease);
+}
+
+.bb-sidebar__logo-icon:hover {
+  transform: scale(1.05) rotate(2deg);
 }
 
 .bb-sidebar__brand-text {
@@ -79,18 +99,20 @@
 }
 
 .bb-sidebar__title {
-  font-weight: 600;
+  font-weight: 800;
   font-size: 1.05rem;
   letter-spacing: -0.02em;
   color: var(--bb-ink);
   line-height: 1.2;
+  font-family: var(--font-display, inherit);
 }
 
 .bb-sidebar__subtitle {
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--bb-ink-muted);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .bb-sidebar__toggle {
@@ -107,7 +129,8 @@
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -115,6 +138,7 @@
   border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 45%, var(--bb-border));
   color: var(--brand, var(--bio-primary));
   background: color-mix(in srgb, var(--brand, var(--bio-primary)) 7%, var(--bb-surface));
+  transform: rotate(180deg);
 }
 
 .bb-sidebar__nav {
@@ -139,7 +163,6 @@
   gap: 2px;
 }
 
-/* Staggered Nav Animation */
 .bb-sidebar__list > li {
   animation: bbNavSlide 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -170,12 +193,29 @@
   line-height: 1.35;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+}
+
+.bb-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--brand, var(--bio-primary)) 15%, transparent), transparent);
+  transition: left 0.4s;
 }
 
 .bb-nav-link:hover {
   background: color-mix(in srgb, var(--bb-ink-muted) 8%, transparent);
   color: var(--text-primary, var(--bio-gray-900));
-  transform: translateX(2px);
+  transform: translateX(4px);
+}
+
+.bb-nav-link:hover::before {
+  left: 100%;
 }
 
 .bb-nav-link:focus-visible {
@@ -189,6 +229,17 @@
   font-weight: 700;
   border-color: color-mix(in srgb, var(--brand, var(--bio-primary)) 20%, transparent);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--brand, var(--bio-primary)) 8%, transparent);
+}
+
+.bb-nav-link.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  background: var(--brand, var(--bio-primary));
+  border-radius: 0 2px 2px 0;
 }
 
 .bb-nav-link--btn {
@@ -213,6 +264,11 @@
   flex-shrink: 0;
   color: inherit;
   opacity: 0.92;
+  transition: transform 0.2s ease;
+}
+
+.bb-nav-link:hover .bb-nav-link__icon {
+  transform: scale(1.1);
 }
 
 .bb-nav-link__label {
@@ -224,7 +280,24 @@
 ::-webkit-scrollbar {
   width: 5px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--bio-gray-300);
   border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--bio-primary) 50%, var(--bio-gray-300));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bb-nav-link:hover {
+    transform: none;
+  }
+  .bb-sidebar__logo-icon:hover {
+    transform: none;
+  }
+  .bb-sidebar__toggle:hover {
+    transform: none;
+  }
 }

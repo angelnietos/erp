@@ -1,65 +1,107 @@
-/* Verifactu Platform — design tokens (premium fiscal UI) */
+/* Verifactu Platform — Premium Fiscal UI Design Tokens */
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Plus+Jakarta+Sans:ital,wght@0,500;0,600;0,700;0,800;1,500&display=swap');
 
 :root {
   --vf-font: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --vf-font-display: 'Plus Jakarta Sans', var(--vf-font);
 
-  /* Surfaces — warm light canvas */
+  /* Surfaces — warm light canvas con texturas sutiles */
   --vf-bg: #f3f6fb;
   --vf-bg-elevated: #ffffff;
   --vf-bg-subtle: #eef2f8;
   --vf-bg-muted: #e4eaf3;
 
-  /* Sidebar — cinematic navy (not game UI) */
+  /* Sidebar — cinematic navy gradient */
   --vf-sidebar: #0a0f1c;
   --vf-sidebar-mid: #111827;
   --vf-sidebar-deep: #0d2818;
   --vf-sidebar-hover: rgba(255, 255, 255, 0.07);
   --vf-sidebar-active: rgba(16, 217, 129, 0.14);
 
-  /* Text */
+  /* Text hierarchy */
   --vf-text: #0c1222;
   --vf-text-muted: #5c6b82;
   --vf-text-on-dark: #eef2f8;
   --vf-text-on-dark-muted: #94a3b8;
+  --vf-text-on-dark-subtle: #64748b;
 
-  /* Borders */
+  /* Borders y divisores */
   --vf-border: #dde4ef;
   --vf-border-strong: #c8d2e0;
+  --vf-border-subtle: #e2e8f0;
 
-  /* Accent — AEAT green, vivid but controlled */
+  /* Accent — AEAT green (verifactu brand) */
   --vf-accent: #0d9f5f;
   --vf-accent-light: #10d981;
   --vf-accent-bright: #34f5a8;
   --vf-accent-soft: rgba(16, 217, 129, 0.12);
   --vf-accent-glow: rgba(16, 217, 129, 0.32);
   --vf-accent-gradient: linear-gradient(135deg, #34f5a8 0%, #0d9f5f 55%, #047857 100%);
+  --vf-accent-glow-strong: rgba(16, 217, 129, 0.45);
 
-  /* Secondary pop — subtle coral (Switch-inspired accent, not dominant) */
+  /* Secondary pop — coral accent */
   --vf-coral: #f43f5e;
   --vf-coral-soft: rgba(244, 63, 94, 0.1);
 
-  /* Semantic */
+  /* Semantic states */
   --vf-danger: #e11d48;
   --vf-warning: #ea580c;
   --vf-info: #0ea5e9;
+  --vf-success: #22c55e;
 
-  /* Shape */
+  /* Shape system */
   --vf-radius-sm: 0.625rem;
-  --vf-radius: 1rem;
-  --vf-radius-lg: 1.25rem;
+  --vf-radius: 0.75rem;
+  --vf-radius-lg: 1rem;
+  --vf-radius-xl: 1.25rem;
   --vf-radius-pill: 999px;
+  --vf-radius-full: 50%;
 
-  /* Depth */
+  /* Depth & shadows premium */
+  --vf-shadow-xs: 0 1px 2px rgb(12 18 34 / 0.02), 0 1px 1px rgb(12 18 34 / 0.01);
   --vf-shadow-sm: 0 1px 2px rgb(12 18 34 / 0.04), 0 2px 8px rgb(12 18 34 / 0.03);
   --vf-shadow: 0 2px 6px rgb(12 18 34 / 0.05), 0 12px 32px rgb(12 18 34 / 0.06);
   --vf-shadow-lg: 0 8px 24px rgb(12 18 34 / 0.08), 0 24px 48px rgb(12 18 34 / 0.06);
+  --vf-shadow-xl: 0 20px 60px -10px rgb(12 18 34 / 0.12), 0 30px 60px -20px rgb(12 18 34 / 0.15);
   --vf-shadow-inset: inset 0 1px 0 rgb(255 255 255 / 0.85);
+  --vf-shadow-glow: 0 0 0 0 rgba(16, 217, 129, 0.4);
 
+  /* Focus & easing */
   --vf-focus: #10d981;
   --vf-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --vf-ease-in: cubic-bezier(0.12, 1, 0.36, 1);
+  --vf-ease-out: cubic-bezier(0.68, 0, 0.22, 1);
   --vf-duration: 0.2s;
+  --vf-duration-slow: 0.35s;
+
+  /* Transitions premium */
+  --vf-transition-all: all var(--vf-duration) var(--vf-ease);
+  --vf-transition-transform: transform var(--vf-duration) var(--vf-ease);
+  --vf-transition-colors: background-color var(--vf-duration) var(--vf-ease), color var(--vf-duration) var(--vf-ease), border-color var(--vf-duration) var(--vf-ease);
+
+  /* Glass effect tokens */
+  --vf-glass-bg: rgba(255, 255, 255, 0.06);
+  --vf-glass-border: rgba(255, 255, 255, 0.08);
+  --vf-glass-dark: rgba(255, 255, 255, 0.04);
+
+  /* Z-index scale */
+  --vf-z-dropdown: 1000;
+  --vf-z-sticky: 1100;
+  --vf-z-fixed: 1200;
+  --vf-z-modal: 1300;
+  --vf-z-toast: 1400;
+
+  /* Spacing scale */
+  --vf-space-xs: 0.25rem;
+  --vf-space-sm: 0.5rem;
+  --vf-space-md: 0.75rem;
+  --vf-space-lg: 1rem;
+  --vf-space-xl: 1.5rem;
+  --vf-space-2xl: 2rem;
+
+  /* Animation easings */
+  --vf-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --vf-emphasized: cubic-bezier(0.12, 1, 0.36, 1);
 }
 
 html {
@@ -72,10 +114,78 @@ body {
   background: var(--vf-bg);
   color: var(--vf-text);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Typography scale premium */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--vf-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
+
+.vf-text-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vf-text-muted);
+}
+
+.vf-text-mono {
+  font-family: ui-monospace, 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 0.75rem;
+}
+
+/* Utility classes */
+.vf-glass {
+  background: var(--vf-glass-bg);
+  border: 1px solid var(--vf-glass-border);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+}
+
+.vf-glass:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.vf-elevated {
+  background: var(--vf-bg-elevated);
+  border: 1px solid var(--vf-border);
+  box-shadow: var(--vf-shadow);
+}
+
+.vf-interactive {
+  transition: var(--vf-transition-all);
+}
+
+.vf-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--vf-shadow-lg);
+}
+
+.vf-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--vf-accent-soft), 0 0 0 6px var(--vf-accent-glow);
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .vf-interactive {
+    transition: none;
+  }
+  .vf-interactive:hover {
+    transform: none;
   }
 }

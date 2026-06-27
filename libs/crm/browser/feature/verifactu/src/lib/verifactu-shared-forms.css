@@ -1,4 +1,4 @@
-/* Formularios compartidos — páginas Verifactu */
+/* Formularios compartidos — páginas Verifactu (Premium Style) */
 
 .sr-only {
   position: absolute;
@@ -26,32 +26,38 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin: 0.85rem 0 0.4rem;
-  color: var(--vf-text-muted, #5c6b82);
+  color: var(--vf-text-muted);
 }
 
 .vf-input,
 .vf-select,
 .vf-textarea {
-  font-family: inherit;
+  font-family: var(--vf-font);
   font-size: 0.9rem;
-  color: var(--vf-text, #0c1222);
-  background: var(--vf-bg-elevated, #fff);
-  border: 1px solid var(--vf-border-strong, #c8d2e0);
-  border-radius: var(--vf-radius-sm, 0.625rem);
-  box-shadow: var(--vf-shadow-inset, inset 0 1px 0 rgb(255 255 255 / 0.85));
+  color: var(--vf-text);
+  background: var(--vf-bg-elevated);
+  border: 1px solid var(--vf-border-strong);
+  border-radius: var(--vf-radius-sm);
+  box-shadow: var(--vf-shadow-inset);
   transition:
-    border-color var(--vf-duration, 0.2s) var(--vf-ease, ease),
-    box-shadow var(--vf-duration, 0.2s) var(--vf-ease, ease);
+    border-color var(--vf-duration) var(--vf-ease),
+    box-shadow var(--vf-duration) var(--vf-ease),
+    background-color var(--vf-duration) var(--vf-ease);
+}
+
+.vf-input::placeholder,
+.vf-textarea::placeholder {
+  color: var(--vf-text-muted);
 }
 
 .vf-input:focus,
 .vf-select:focus,
 .vf-textarea:focus {
   outline: none;
-  border-color: var(--vf-accent-light, #10d981);
+  border-color: var(--vf-accent-light);
   box-shadow:
-    0 0 0 3px var(--vf-accent-soft, rgba(16, 217, 129, 0.12)),
-    var(--vf-shadow-inset, inset 0 1px 0 rgb(255 255 255 / 0.85));
+    0 0 0 3px var(--vf-accent-soft),
+    var(--vf-shadow-inset);
 }
 
 .vf-input {
@@ -80,7 +86,7 @@
 
 .vf-textarea {
   width: 100%;
-  font-family: ui-monospace, monospace;
+  font-family: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
   font-size: 0.75rem;
   padding: 0.65rem;
   box-sizing: border-box;
@@ -92,7 +98,7 @@
 .vf-textarea:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-  background: var(--vf-bg-subtle, #eef2f8);
+  background: var(--vf-bg-subtle);
 }
 
 .vf-row-actions {
@@ -105,6 +111,64 @@
 .vf-form-hint {
   margin: 0 0 0.85rem;
   font-size: 0.82rem;
-  color: var(--vf-text-muted, #5c6b82);
+  color: var(--vf-text-muted);
   line-height: 1.5;
+}
+
+/* Premium toggle switch styling */
+.vf-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.vf-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.vf-toggle__track {
+  width: 40px;
+  height: 20px;
+  background: var(--vf-border-strong);
+  border-radius: 10px;
+  transition: background var(--vf-duration) var(--vf-ease);
+}
+
+.vf-toggle input:checked + .vf-toggle__track {
+  background: var(--vf-accent);
+}
+
+.vf-toggle__thumb {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--vf-bg-elevated);
+  border-radius: 50%;
+  top: 1px;
+  left: 1px;
+  transition: transform var(--vf-duration) var(--vf-ease);
+  box-shadow: var(--vf-shadow-xs);
+}
+
+.vf-toggle input:checked + .vf-toggle__track .vf-toggle__thumb {
+  transform: translateX(20px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vf-input,
+  .vf-select,
+  .vf-textarea {
+    transition: none;
+  }
+  .vf-input:focus,
+  .vf-select:focus,
+  .vf-textarea:focus {
+    box-shadow: none;
+    border-color: var(--vf-accent);
+  }
 }

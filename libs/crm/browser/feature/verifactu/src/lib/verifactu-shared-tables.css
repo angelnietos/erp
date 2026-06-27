@@ -1,11 +1,16 @@
-/* Tablas comunes en páginas Verifactu */
+/* Tablas comunes en páginas Verifactu — Premium Style */
 
 .table-wrap {
   overflow-x: auto;
-  border-radius: var(--vf-radius, 1rem);
-  border: 1px solid var(--vf-border, #dde4ef);
-  background: var(--vf-bg-elevated, #fff);
+  border-radius: var(--vf-radius);
+  border: 1px solid var(--vf-border);
+  background: var(--vf-bg-elevated);
   box-shadow: var(--vf-shadow-sm);
+  transition: var(--vf-transition-all);
+}
+
+.table-wrap:hover {
+  box-shadow: var(--vf-shadow);
 }
 
 .tbl {
@@ -16,34 +21,40 @@
 
 .tbl th {
   text-align: left;
-  padding: 0.75rem 1.1rem;
-  font-size: 0.68rem;
+  padding: 0.85rem 1.1rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--vf-text-muted, #5c6b82);
-  background: linear-gradient(180deg, var(--vf-bg-subtle, #eef2f8) 0%, var(--vf-bg-elevated, #fff) 100%);
-  border-bottom: 1px solid var(--vf-border, #dde4ef);
+  color: var(--vf-text-muted);
+  background: linear-gradient(180deg, var(--vf-bg-subtle) 0%, var(--vf-bg-elevated) 100%);
+  border-bottom: 1px solid var(--vf-border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .tbl td {
   text-align: left;
-  padding: 0.8rem 1.1rem;
-  border-bottom: 1px solid var(--vf-border, #dde4ef);
+  padding: 0.95rem 1.1rem;
+  border-bottom: 1px solid var(--vf-border-subtle);
   vertical-align: top;
-  color: var(--vf-text, #0c1222);
+  color: var(--vf-text);
+  transition: var(--vf-transition-colors);
 }
 
 .tbl tbody tr {
-  transition: background var(--vf-duration, 0.15s) ease;
+  transition: background var(--vf-duration) var(--vf-ease);
 }
 
 .tbl tbody tr:hover {
-  background: rgb(16 217 129 / 0.04);
+  background: rgba(16, 217, 129, 0.05);
 }
 
 .tbl tbody tr.is-selected {
-  background: var(--vf-accent-soft, rgba(16, 217, 129, 0.1));
+  background: var(--vf-accent-soft);
+  outline: 2px solid var(--vf-accent);
+  outline-offset: -1px;
 }
 
 .tbl tbody tr.is-clickable {
@@ -59,7 +70,7 @@
 }
 
 .mono {
-  font-family: ui-monospace, monospace;
+  font-family: ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
   font-size: 0.78rem;
   word-break: break-all;
 }
@@ -69,7 +80,7 @@
 }
 
 .err-cell {
-  color: var(--vf-danger, #be123c);
+  color: var(--vf-danger);
   font-size: 0.78rem;
   font-weight: 500;
   max-width: 18rem;
@@ -80,4 +91,40 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  align-items: center;
+}
+
+/* Action button in table premium */
+.tbl-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--vf-radius-sm);
+  border: 1px solid var(--vf-border);
+  background: var(--vf-bg-elevated);
+  color: var(--vf-text-muted);
+  cursor: pointer;
+  transition: var(--vf-transition-all);
+}
+
+.tbl-action-btn:hover {
+  background: var(--vf-accent);
+  color: #fff;
+  border-color: var(--vf-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--vf-accent-glow);
+}
+
+.tbl-action-btn--danger:hover {
+  background: var(--vf-danger);
+  border-color: var(--vf-danger);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tbl tbody tr:hover {
+    background: var(--vf-bg-subtle);
+  }
 }
