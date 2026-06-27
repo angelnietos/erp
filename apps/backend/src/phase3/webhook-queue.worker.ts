@@ -9,16 +9,38 @@ type QueueItemWithRelations = IntegrationWebhookQueueItem & {
   domainEvent: DomainEventRecord;
 };
 
+function isDatabaseUnavailable(error: unknown): boolean {
+  const code =
+    error && typeof error === 'object' && 'code' in error
+      ? String((error as { code: unknown }).code)
+      : '';
+  if (code === 'ECONNREFUSED' || code === 'P1001') {
+    return true;
+  }
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase();
+    return msg.includes('econnrefused') || msg.includes("can't reach database");
+  }
+  return false;
+}
+
 @Injectable()
 export class WebhookQueueWorker {
   private readonly logger = new Logger(WebhookQueueWorker.name);
   private isProcessing = false;
+  private dbUnavailableLogged = false;
+  private skipUntilMs = 0;
 
   constructor(private readonly prisma: PrismaService) {}
 
   @Cron(CronExpression.EVERY_10_SECONDS)
   async processQueue() {
-    if (this.isProcessing) return;
+    if (process.env['INTEGRATION_WEBHOOK_WORKER_ENABLED'] === 'false') {
+      return;
+    }
+    if (this.isProcessing || Date.now() < this.skipUntilMs) {
+      return;
+    }
     this.isProcessing = true;
 
     try {
@@ -37,16 +59,27 @@ export class WebhookQueueWorker {
       }) as unknown as QueueItemWithRelations[];
 
       if (pendingItems.length === 0) {
-        this.isProcessing = false;
         return;
       }
 
+      this.dbUnavailableLogged = false;
       this.logger.log(`Processing ${pendingItems.length} webhook queue items`);
 
       for (const item of pendingItems) {
         await this.deliverItem(item);
       }
     } catch (error) {
+      if (isDatabaseUnavailable(error)) {
+        this.skipUntilMs = Date.now() + 60_000;
+        if (!this.dbUnavailableLogged) {
+          this.dbUnavailableLogged = true;
+          this.logger.warn(
+            'Webhook queue worker pausado: Postgres ERP no disponible. ' +
+              'Ejecuta `pnpm run services:up` o desactiva con INTEGRATION_WEBHOOK_WORKER_ENABLED=false.',
+          );
+        }
+        return;
+      }
       this.logger.error('Error in webhook queue worker', error);
     } finally {
       this.isProcessing = false;
