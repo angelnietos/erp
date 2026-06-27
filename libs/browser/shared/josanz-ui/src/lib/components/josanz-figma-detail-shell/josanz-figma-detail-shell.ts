@@ -4,10 +4,12 @@ import {
   Input,
   OnInit,
   Output,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import {
   buildTabSlugMap,
   navigateDetailTab,
@@ -18,6 +20,7 @@ import {
   resolveFigmaDetailShellFeatures,
   type JosanzFigmaDetailShellConfig,
 } from './josanz-figma-detail-shell-config';
+import { resolveJosanzUserDisplayName } from '../../utils/resolve-josanz-user-display';
 
 /**
  * Shell de detalle Figma: tabs con `?tab=`, volver al listado y proyección de contenido.
@@ -42,7 +45,7 @@ import {
       [layoutVariant]="config.layoutVariant ?? 'figma-event'"
       [statusLabel]="resolvedFeatures.statusPill ? (config.statusLabel ?? '') : ''"
       [statusPillKey]="config.statusPillKey ?? 'confirmado'"
-      [userLabel]="config.userLabel ?? 'Usuari@'"
+      [userLabel]="resolvedUserLabel()"
       [saveLabel]="config.saveLabel ?? 'Guardar cambios'"
       [cancelLabel]="config.cancelLabel ?? 'Cancelar'"
       [saveDisabled]="config.saveDisabled ?? true"
@@ -64,8 +67,17 @@ import {
 export class JosanzFigmaDetailShellComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly globalAuth = inject(GlobalAuthStore);
 
   @Input({ required: true }) config!: JosanzFigmaDetailShellConfig;
+
+  readonly resolvedUserLabel = computed(() => {
+    const explicit = this.config?.userLabel?.trim();
+    if (explicit) {
+      return explicit;
+    }
+    return resolveJosanzUserDisplayName(this.globalAuth.user());
+  });
 
   @Output() readonly save = new EventEmitter<void>();
   @Output() readonly cancel = new EventEmitter<void>();

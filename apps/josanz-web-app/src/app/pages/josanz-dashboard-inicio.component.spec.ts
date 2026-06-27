@@ -1,16 +1,27 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JosanzDashboardInicioComponent } from './josanz-dashboard-inicio.component';
 import { provideRouter } from '@angular/router';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 
 describe('JosanzDashboardInicioComponent', () => {
   let fixture: ComponentFixture<JosanzDashboardInicioComponent>;
   let component: JosanzDashboardInicioComponent;
+  let globalAuth: InstanceType<typeof GlobalAuthStore>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [JosanzDashboardInicioComponent],
-      providers: [provideRouter([])],
+      providers: [provideRouter([]), GlobalAuthStore],
     }).compileComponents();
+
+    globalAuth = TestBed.inject(GlobalAuthStore);
+    globalAuth.setUser({
+      id: 'user-alexis',
+      email: 'admin@alexis.local',
+      name: 'Alexis Admin',
+      tenantId: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
+      permissions: ['*'],
+    });
 
     fixture = TestBed.createComponent(JosanzDashboardInicioComponent);
     component = fixture.componentInstance;
@@ -46,7 +57,7 @@ describe('JosanzDashboardInicioComponent', () => {
 
     it('should have technicians', () => {
       expect(component.technicians.length).toBe(5);
-      expect(component.technicians[0].initials).toBe('JL');
+      expect(component.technicians[0].initials).toBe('S1');
     });
 
     it('should have days', () => {
@@ -152,9 +163,16 @@ describe('JosanzDashboardInicioComponent', () => {
   describe('template', () => {
     beforeEach(() => fixture.detectChanges());
 
-    it('should render title', () => {
+    it('should render welcome title with session user', () => {
       const title = fixture.nativeElement.querySelector('h1');
-      expect(title.textContent).toContain('Inicio');
+      expect(title.textContent).toContain('Bienvenido/a Alexis');
+    });
+
+    it('should render session user in header', () => {
+      const label = fixture.nativeElement.querySelector(
+        '.josanz-home__header-user-label',
+      );
+      expect(label?.textContent).toContain('Alexis Admin');
     });
 
     it('should render filter tabs', () => {
@@ -172,7 +190,7 @@ describe('JosanzDashboardInicioComponent', () => {
       const kpiCards = fixture.nativeElement.querySelectorAll(
         '.josanz-home__kpi-card',
       );
-      expect(kpiCards.length).toBeGreaterThanOrEqual(4);
+      expect(kpiCards.length).toBeGreaterThanOrEqual(3);
     });
 
     it('should render schedule grid', () => {

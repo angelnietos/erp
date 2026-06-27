@@ -44,6 +44,7 @@ export * from './lib/components/document-item';
 export * from './lib/components/document-list';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
+export * from './lib/utils/resolve-josanz-user-display';
 export * from './lib/theme/josanz-theme-tokens';
 export type { JosanzAtmosphereCatalogEntry } from './lib/theme/josanz-theme-tokens';
 export {

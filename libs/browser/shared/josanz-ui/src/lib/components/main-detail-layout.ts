@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import { JosanzThemeService } from '../services/theme.service';
+import { resolveJosanzUserDisplayName } from '../utils/resolve-josanz-user-display';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import { MainTabsComponent } from './main-tabs';
 import { ButtonComponent } from './button';
@@ -34,6 +36,7 @@ export type JosanzDetailLayoutVariant = 'default' | 'figma-event';
 })
 export class MainDetailLayoutComponent {
   readonly themeService = inject(JosanzThemeService);
+  private readonly globalAuth = inject(GlobalAuthStore);
 
   @Input() title = '';
   @Input() tabs: string[] = [];
@@ -43,9 +46,18 @@ export class MainDetailLayoutComponent {
   @Input() layoutVariant: JosanzDetailLayoutVariant = 'default';
   @Input() statusLabel = '';
   @Input() statusPillKey: JosanzStatusPillKey = 'confirmado';
-  @Input() userLabel = 'Usuari@';
+  /** Si vacío, usa el usuario de sesión ERP. */
+  @Input() userLabel = '';
   @Input() avatarLink: string | null = '/settings';
   @Input() avatarAriaLabel = 'Cuenta y ajustes';
+
+  readonly resolvedUserLabel = computed(() => {
+    const explicit = this.userLabel.trim();
+    if (explicit) {
+      return explicit;
+    }
+    return resolveJosanzUserDisplayName(this.globalAuth.user());
+  });
 
   @Input() showFooterActions = true;
   /** Botón guardar en la barra de tabs (solo `figma-event`). */

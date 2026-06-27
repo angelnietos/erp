@@ -1,11 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { GlobalAuthStore } from '@josanz-erp/shared-data-access';
 import {
   FilterTabsComponent,
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_SHELL,
   JosanzThemeService,
+  resolveJosanzUserDisplayName,
+  resolveJosanzWelcomeTitle,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 
@@ -38,8 +41,16 @@ interface JosanzHomeScheduleCell {
 })
 export class JosanzDashboardInicioComponent {
   readonly theme = inject(JosanzThemeService);
+  private readonly globalAuth = inject(GlobalAuthStore);
   readonly shell = JOSANZ_FIGMA_SHELL;
   readonly dash = JOSANZ_FIGMA_DASHBOARD;
+
+  readonly userDisplayName = computed(() =>
+    resolveJosanzUserDisplayName(this.globalAuth.user()),
+  );
+  readonly welcomeTitle = computed(() =>
+    resolveJosanzWelcomeTitle(this.globalAuth.user()),
+  );
 
   viewMode: 'Eventos' | 'Técnicos' | 'Proveedores' = 'Técnicos';
   period: 'Día' | 'Semana' | 'Mes' | 'Lista' = 'Semana';
