@@ -65,7 +65,6 @@ export class VerifactuChainPageComponent {
   invoiceFilter = '';
   loadError: string | null = null;
   verifyError: string | null = null;
-  blocksLoading = false;
   verifyLoading = false;
   verification: VerifactuChainVerificationDto | null = null;
 
@@ -95,9 +94,6 @@ export class VerifactuChainPageComponent {
           loading: true as const,
         }),
       );
-    }),
-    tap((vm) => {
-      this.blocksLoading = vm.loading;
     }),
   );
 
