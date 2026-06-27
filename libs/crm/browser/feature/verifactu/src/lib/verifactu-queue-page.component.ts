@@ -66,12 +66,9 @@ export class VerifactuQueuePageComponent {
 
   readonly queueStatusLabel = queueStatusLabel;
 
-  tableLoading = false;
-
   readonly snapshot$ = this.refresh$.pipe(
-    switchMap(() => {
-      this.tableLoading = true;
-      return this.verifactu.queue().pipe(
+    switchMap(() =>
+      this.verifactu.queue().pipe(
         map((rows) => {
           const list = (rows ?? []) as VerifactuQueueItemDto[];
           const pending = list.filter((q) =>
@@ -103,9 +100,6 @@ export class VerifactuQueuePageComponent {
             failed: 0,
           });
         }),
-        finalize(() => {
-          this.tableLoading = false;
-        }),
         startWith({
           loading: true as const,
           rows: [] as VerifactuQueueItemDto[],
@@ -113,8 +107,8 @@ export class VerifactuQueuePageComponent {
           completed: 0,
           failed: 0,
         }),
-      );
-    }),
+      ),
+    ),
   );
 
   invoiceIdToEnqueue = '';

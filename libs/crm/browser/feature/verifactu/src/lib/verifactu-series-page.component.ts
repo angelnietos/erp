@@ -58,12 +58,9 @@ export class VerifactuSeriesPageComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
 
-  tableLoading = false;
-
   readonly snapshot$ = this.refresh$.pipe(
-    switchMap(() => {
-      this.tableLoading = true;
-      return this.verifactu.series().pipe(
+    switchMap(() =>
+      this.verifactu.series().pipe(
         map((rows) => {
           const list = (rows ?? []) as VerifactuSeriesRowDto[];
           const active = list.filter((r) => r.isActive).length;
@@ -89,17 +86,14 @@ export class VerifactuSeriesPageComponent {
             inactive: 0,
           });
         }),
-        finalize(() => {
-          this.tableLoading = false;
-        }),
         startWith({
           loading: true as const,
           rows: [] as VerifactuSeriesRowDto[],
           active: 0,
           inactive: 0,
         }),
-      );
-    }),
+      ),
+    ),
   );
 
   code = '';

@@ -13,7 +13,7 @@
           placeholder="UUID factura (opcional)"
           name="invoiceFilter"
           [(ngModel)]="invoiceFilter"
-          [disabled]="vm.loading || verifyLoading"
+          [disabled]="vm.loading || verifyBusy()"
         />
         <gcrm-button type="submit" variant="secondary" [disabled]="vm.loading">
           Filtrar
@@ -31,39 +31,72 @@
       <gcrm-button
         type="button"
         variant="primary"
-        [disabled]="verifyLoading"
-        [busy]="verifyLoading"
+        [disabled]="verifyBusy()"
+        [busy]="verifyBusy()"
         (click)="verifyChain()"
       >
-        Verificar integridad
+        {{ verifyBusy() ? 'Verificando…' : 'Verificar integridad' }}
       </gcrm-button>
     </div>
 
-    @if (verification) {
-      <gcrm-inline-message [variant]="verification.isValid ? 'success' : 'error'">
-        <strong>
-          {{ verification.isValid ? 'Cadena íntegra' : 'Cadena comprometida' }}
-        </strong>
-        — {{ verification.totalRecords }} bloque(s) en entorno
-        {{ envLabel(verification.environment) }}.
-        @if (verification.headBlockIndex != null) {
-          Cabeza: bloque #{{ verification.headBlockIndex }}.
-        }
-        Verificado {{ verification.verifiedAt | date: 'short' }}.
-      </gcrm-inline-message>
-      @if (verification.errors.length) {
-        <ul class="vf-chain-errors">
-          @for (err of verification.errors; track err.blockId) {
-            <li>
-              Bloque #{{ err.blockIndex }}: {{ err.error }}
-            </li>
-          }
-        </ul>
+    @if (verifyView(); as verify) {
+      @if (verify.phase === 'loading') {
+        <gcrm-panel title="Verificación en curso" padding="sm">
+          <gcrm-spinner size="sm" label="Comprobando hashes encadenados…" />
+        </gcrm-panel>
+      } @else if (verify.phase === 'error') {
+        <gcrm-inline-message variant="error">{{ verify.message }}</gcrm-inline-message>
+      } @else if (verify.phase === 'done') {
+        <gcrm-panel title="Resultado de verificación" padding="sm">
+          <div class="vf-verify-result">
+            <div class="vf-verify-result__head">
+              <gcrm-badge [variant]="verifyBadgeVariant(verify.result)">
+                {{ verifyHeadline(verify.result) }}
+              </gcrm-badge>
+              <p class="vf-verify-result__summary">
+                {{ verifySummary(verify.result) }}
+              </p>
+            </div>
+            <div class="vf-stats-grid vf-chain-stats vf-chain-stats--verify">
+              <gcrm-stat-card
+                label="Bloques"
+                [value]="verify.result.totalRecords"
+                hint="Registros en el ledger"
+                [tone]="verify.result.totalRecords > 0 ? 'info' : 'default'"
+              />
+              <gcrm-stat-card
+                label="Entorno AEAT"
+                [value]="envLabel(verify.result.environment)"
+                hint="Pruebas o producción"
+                tone="default"
+              />
+              <gcrm-stat-card
+                label="Estado"
+                [value]="verify.result.isValid ? 'Válida' : 'Inválida'"
+                [tone]="verify.result.isValid ? 'success' : 'danger'"
+              />
+            </div>
+            @if (verify.result.errors.length) {
+              <ul class="vf-chain-errors">
+                @for (err of verify.result.errors; track err.blockId) {
+                  <li>
+                    Bloque #{{ err.blockIndex }}: {{ err.error }}
+                  </li>
+                }
+              </ul>
+            }
+            @if (verify.result.totalRecords === 0) {
+              <p class="vf-verify-result__hint">
+                Encola y envía una factura desde la
+                <a routerLink="../queue">cola AEAT</a>
+                para crear el primer bloque.
+              </p>
+            }
+          </div>
+        </gcrm-panel>
       }
     }
-    @if (verifyError) {
-      <gcrm-inline-message variant="error">{{ verifyError }}</gcrm-inline-message>
-    }
+
     @if (loadError) {
       <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
     }

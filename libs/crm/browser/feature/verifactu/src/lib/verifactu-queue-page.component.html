@@ -57,17 +57,17 @@
 
     <gcrm-panel title="Cola actual" padding="sm">
       <div class="vf-toolbar">
-        @if (vm.loading || tableLoading) {
+        @if (vm.loading) {
           <gcrm-spinner size="sm" label="Cargando cola" />
         }
         <gcrm-button
           type="button"
           variant="secondary"
-          [disabled]="vm.loading || tableLoading || enqueueInProgress"
-          [busy]="vm.loading || tableLoading"
+          [disabled]="vm.loading || enqueueInProgress"
+          [busy]="vm.loading"
           (click)="refresh()"
         >
-          {{ vm.loading || tableLoading ? 'Actualizando…' : 'Actualizar' }}
+          {{ vm.loading ? 'Actualizando…' : 'Actualizar' }}
         </gcrm-button>
       </div>
 

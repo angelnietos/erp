@@ -2,45 +2,46 @@
   title="Historial de envíos"
   subtitle="Últimos intentos de envío al adaptador AEAT. Pulsa una fila para ver el detalle."
 >
-  <gcrm-panel title="Filtro" padding="sm">
-    <form class="vf-form-row" (ngSubmit)="applyFilter()" [attr.aria-busy]="logsLoading">
-      <label class="sr-only" for="verifactu-logs-invoice-filter">
-        UUID de factura (opcional)
-      </label>
-      <input
-        id="verifactu-logs-invoice-filter"
-        class="vf-input vf-input--grow"
-        type="text"
-        name="invoiceFilter"
-        placeholder="UUID de factura (opcional)"
-        [(ngModel)]="invoiceFilter"
-        autocomplete="off"
-        [disabled]="logsLoading"
-      />
-      <gcrm-button type="submit" variant="primary" [disabled]="logsLoading" [busy]="logsLoading">
-        {{ logsLoading ? 'Cargando…' : 'Aplicar' }}
-      </gcrm-button>
-      <gcrm-button
-        type="button"
-        variant="secondary"
-        [disabled]="logsLoading"
-        (click)="refreshLogs()"
-      >
-        Actualizar
-      </gcrm-button>
-    </form>
-  </gcrm-panel>
+  @if (vm$ | async; as vm) {
+    <gcrm-panel title="Filtro" padding="sm">
+      <form class="vf-form-row" (ngSubmit)="applyFilter()" [attr.aria-busy]="vm.loading">
+        <label class="sr-only" for="verifactu-logs-invoice-filter">
+          UUID de factura (opcional)
+        </label>
+        <input
+          id="verifactu-logs-invoice-filter"
+          class="vf-input vf-input--grow"
+          type="text"
+          name="invoiceFilter"
+          placeholder="UUID de factura (opcional)"
+          [(ngModel)]="invoiceFilter"
+          autocomplete="off"
+          [disabled]="vm.loading"
+        />
+        <gcrm-button type="submit" variant="primary" [disabled]="vm.loading" [busy]="vm.loading">
+          {{ vm.loading ? 'Cargando…' : 'Aplicar' }}
+        </gcrm-button>
+        <gcrm-button
+          type="button"
+          variant="secondary"
+          [disabled]="vm.loading"
+          [busy]="vm.loading"
+          (click)="refreshLogs()"
+        >
+          Actualizar
+        </gcrm-button>
+      </form>
+    </gcrm-panel>
 
-  @if (logs$ | async; as rows) {
     @if (loadError) {
       <gcrm-inline-message variant="error">{{ loadError }}</gcrm-inline-message>
     }
 
-    <gcrm-panel [title]="'Registros (' + rows.length + ')'" padding="sm">
-      @if (logsLoading) {
+    <gcrm-panel [title]="'Registros (' + vm.rows.length + ')'" padding="sm">
+      @if (vm.loading) {
         <gcrm-spinner size="sm" label="Cargando historial" />
       }
-      @if (!logsLoading && !loadError && rows.length === 0) {
+      @if (!vm.loading && !loadError && vm.rows.length === 0) {
         <lib-verifactu-empty-state
           icon="history"
           title="Sin historial de envíos"
@@ -52,7 +53,7 @@
           <a routerLink="../queue" class="vf-empty-cta">Ver cola AEAT</a>
         </lib-verifactu-empty-state>
       }
-      @if (!loadError && rows.length > 0) {
+      @if (!loadError && vm.rows.length > 0) {
         <div class="table-wrap">
           <table class="tbl">
             <thead>
@@ -64,7 +65,7 @@
               </tr>
             </thead>
             <tbody>
-              @for (row of rows; track row.id ?? $index) {
+              @for (row of vm.rows; track row.id ?? $index) {
                 <tr
                   class="is-clickable"
                   [class.is-selected]="selectedId === row.id"

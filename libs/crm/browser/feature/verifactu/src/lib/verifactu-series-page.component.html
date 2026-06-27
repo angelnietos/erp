@@ -63,17 +63,17 @@
 
     <gcrm-panel title="Series del tenant" padding="sm">
       <div class="vf-toolbar">
-        @if (vm.loading || tableLoading) {
+        @if (vm.loading) {
           <gcrm-spinner size="sm" label="Cargando series" />
         }
         <gcrm-button
           type="button"
           variant="secondary"
-          [disabled]="vm.loading || tableLoading || createInProgress"
-          [busy]="vm.loading || tableLoading"
+          [disabled]="vm.loading || createInProgress"
+          [busy]="vm.loading"
           (click)="refresh()"
         >
-          {{ vm.loading || tableLoading ? 'Actualizando…' : 'Actualizar' }}
+          {{ vm.loading ? 'Actualizando…' : 'Actualizar' }}
         </gcrm-button>
       </div>
 

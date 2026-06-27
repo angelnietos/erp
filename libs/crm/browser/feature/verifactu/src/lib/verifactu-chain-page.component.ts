@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { AsyncPipe, CommonModule, DatePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
@@ -21,15 +22,22 @@ import {
 import {
   BehaviorSubject,
   catchError,
-  finalize,
   map,
+  merge,
   of,
   startWith,
+  Subject,
   switchMap,
   tap,
 } from 'rxjs';
 import { verifactuHttpErrorMessage } from './http-error-message';
 import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component';
+
+type ChainVerifyViewState =
+  | { phase: 'idle' }
+  | { phase: 'loading' }
+  | { phase: 'done'; result: VerifactuChainVerificationDto }
+  | { phase: 'error'; message: string };
 
 @Component({
   selector: 'lib-verifactu-chain-page',
@@ -61,12 +69,41 @@ import { VerifactuEmptyStateComponent } from './verifactu-empty-state.component'
 export class VerifactuChainPageComponent {
   private readonly verifactu = inject(VerifactuApiService);
   private readonly refresh$ = new BehaviorSubject<void>(undefined);
+  private readonly verifyClick$ = new Subject<void>();
 
   invoiceFilter = '';
   loadError: string | null = null;
-  verifyError: string | null = null;
-  verifyLoading = false;
-  verification: VerifactuChainVerificationDto | null = null;
+
+  readonly verifyView = toSignal(
+    merge(
+      of({ phase: 'idle' } as ChainVerifyViewState),
+      this.verifyClick$.pipe(
+        switchMap(() =>
+          this.verifactu.chainVerify().pipe(
+            map(
+              (result): ChainVerifyViewState => ({
+                phase: 'done',
+                result,
+              }),
+            ),
+            catchError((e: HttpErrorResponse) =>
+              of({
+                phase: 'error' as const,
+                message: verifactuHttpErrorMessage(
+                  e,
+                  'No se pudo verificar la cadena',
+                ),
+              }),
+            ),
+            startWith({ phase: 'loading' } as ChainVerifyViewState),
+          ),
+        ),
+      ),
+    ),
+    { initialValue: { phase: 'idle' } as ChainVerifyViewState },
+  );
+
+  readonly verifyBusy = computed(() => this.verifyView().phase === 'loading');
 
   readonly vm$ = this.refresh$.pipe(
     switchMap(() => {
@@ -108,27 +145,7 @@ export class VerifactuChainPageComponent {
   }
 
   verifyChain(): void {
-    this.verifyLoading = true;
-    this.verifyError = null;
-    this.verifactu
-      .chainVerify()
-      .pipe(
-        finalize(() => {
-          this.verifyLoading = false;
-        }),
-      )
-      .subscribe({
-        next: (result) => {
-          this.verification = result;
-        },
-        error: (e: HttpErrorResponse) => {
-          this.verifyError = verifactuHttpErrorMessage(
-            e,
-            'No se pudo verificar la cadena',
-          );
-          this.verification = null;
-        },
-      });
+    this.verifyClick$.next();
   }
 
   truncateHash(value: string | null | undefined, head = 10, tail = 8): string {
@@ -167,10 +184,30 @@ export class VerifactuChainPageComponent {
     }
   }
 
-  verifyBadgeVariant(): GcrmBadgeVariant {
-    if (!this.verification) {
-      return 'neutral';
+  verifyBadgeVariant(result: VerifactuChainVerificationDto): GcrmBadgeVariant {
+    return result.isValid ? 'success' : 'danger';
+  }
+
+  verifyHeadline(result: VerifactuChainVerificationDto): string {
+    if (!result.isValid) {
+      return 'Cadena comprometida';
     }
-    return this.verification.isValid ? 'success' : 'danger';
+    if (result.totalRecords === 0) {
+      return 'Cadena vacía e íntegra';
+    }
+    return 'Cadena íntegra';
+  }
+
+  verifySummary(result: VerifactuChainVerificationDto): string {
+    const env = this.envLabel(result.environment);
+    const verifiedAt = new Date(result.verifiedAt).toLocaleString();
+    if (result.totalRecords === 0) {
+      return `No hay bloques registrados todavía en entorno ${env}. La estructura del ledger es válida. Verificado ${verifiedAt}.`;
+    }
+    const head =
+      result.headBlockIndex != null
+        ? ` Cabeza en bloque #${result.headBlockIndex}.`
+        : '';
+    return `${result.totalRecords} bloque(s) verificados en entorno ${env}.${head} Verificado ${verifiedAt}.`;
   }
 }

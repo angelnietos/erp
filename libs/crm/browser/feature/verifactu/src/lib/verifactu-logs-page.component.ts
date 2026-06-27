@@ -19,9 +19,9 @@ import {
 import {
   BehaviorSubject,
   catchError,
-  finalize,
   map,
   of,
+  startWith,
   switchMap,
   tap,
 } from 'rxjs';
@@ -64,32 +64,37 @@ export class VerifactuLogsPageComponent {
 
   invoiceFilter = '';
   loadError: string | null = null;
-  logsLoading = false;
   selectedId: string | null = null;
   selectedRow: VerifactuLogRowDto | null = null;
 
-  readonly logs$ = this.filter$.pipe(
-    switchMap((invoiceId) => {
-      this.logsLoading = true;
-      this.selectedId = null;
-      this.selectedRow = null;
-      return this.verifactu.logs(invoiceId, 80).pipe(
-        map((rows) => (rows ?? []) as VerifactuLogRowDto[]),
+  readonly vm$ = this.filter$.pipe(
+    switchMap((invoiceId) =>
+      this.verifactu.logs(invoiceId, 80).pipe(
+        map((rows) => ({
+          rows: (rows ?? []) as VerifactuLogRowDto[],
+          loading: false as const,
+        })),
         tap(() => {
           this.loadError = null;
+          this.selectedId = null;
+          this.selectedRow = null;
         }),
         catchError((e: HttpErrorResponse) => {
           this.loadError = verifactuHttpErrorMessage(
             e,
             'No se pudo cargar el historial',
           );
-          return of([] as VerifactuLogRowDto[]);
+          return of({
+            rows: [] as VerifactuLogRowDto[],
+            loading: false as const,
+          });
         }),
-        finalize(() => {
-          this.logsLoading = false;
+        startWith({
+          rows: [] as VerifactuLogRowDto[],
+          loading: true as const,
         }),
-      );
-    }),
+      ),
+    ),
   );
 
   applyFilter(): void {
