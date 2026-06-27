@@ -116,7 +116,7 @@ export class VerifactuRuntimeFacade {
       where: { tenantId },
       orderBy: { createdAt: 'desc' },
     });
-    return rows.map(({ secret: _s, ...rest }) => rest);
+    return rows.map(({ secretHash: _secretHash, ...rest }) => rest);
   }
 
   createWebhookEndpoint(dto: CreateWebhookEndpointDto) {
@@ -125,8 +125,17 @@ export class VerifactuRuntimeFacade {
         tenantId: dto.tenantId,
         eventType: dto.eventType,
         url: dto.url,
-        secret: encrypt(dto.secret),
+        secretHash: encrypt(dto.secret),
         isActive: dto.isActive ?? true,
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        eventType: true,
+        url: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
   }
@@ -221,7 +230,7 @@ export class VerifactuRuntimeFacade {
           : {}),
       },
       include: {
-        invoice: { select: { total: true, invoiceNumber: true } },
+        invoice: { select: { total: true, number: true } },
       },
       orderBy: { createdAt: 'desc' },
       take: 200,
@@ -233,7 +242,7 @@ export class VerifactuRuntimeFacade {
       total: row.invoice?.total,
       status: row.status,
       createdAt: row.createdAt.toISOString(),
-      reference: row.invoice?.invoiceNumber,
+      reference: row.invoice?.number ?? undefined,
     }));
   }
 
@@ -314,7 +323,7 @@ export class VerifactuRuntimeFacade {
     const row = await this.prisma.invoice.findUnique({
       where: { id: invoicePk },
       include: {
-        budget: { include: { client: true } },
+        client: true,
         verifactuLogs: { orderBy: { createdAt: 'desc' }, take: 1 },
       },
     });
@@ -333,14 +342,19 @@ export class VerifactuRuntimeFacade {
       if (typeof v === 'string') aeatReference = v;
     }
 
+    const issueAt = row.issuedAt ?? row.createdAt;
+    const invoiceLabel = row.number?.trim() ?? '';
+
     return {
       id: log?.id ?? row.id,
       invoiceId: row.id,
-      series: '—',
-      number: 0,
-      issueDate: row.createdAt.toISOString().slice(0, 10),
-      customerNif: '',
-      customerName: row.budget.client.name,
+      series: invoiceLabel.includes('/') ? invoiceLabel.split('/')[0] : '—',
+      number: invoiceLabel.includes('/')
+        ? Number.parseInt(invoiceLabel.split('/').pop() ?? '0', 10) || 0
+        : 0,
+      issueDate: issueAt.toISOString().slice(0, 10),
+      customerNif: row.client?.taxId ?? '',
+      customerName: row.client?.name ?? '—',
       subtotal,
       taxAmount,
       total: row.total,
@@ -360,7 +374,9 @@ export class VerifactuRuntimeFacade {
     const invoiceNumber =
       detail.number > 0
         ? this.invoiceNumberForQr(detail.series, detail.number)
-        : `ERP-${detail.invoiceId.replace(/[^a-z0-9-]/gi, '').slice(0, 12)}`;
+        : detail.invoiceId.length >= 8
+          ? `CRM-${detail.invoiceId.replace(/[^a-z0-9-]/gi, '').slice(0, 12)}`
+          : 'CRM-0001';
     const base64 = await this.qrService.generateQrBase64({
       nif: detail.customerNif || 'B00000000',
       invoiceNumber,
