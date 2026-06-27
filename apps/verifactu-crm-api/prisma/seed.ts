@@ -1,19 +1,14 @@
 import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 import { PrismaClient } from '../../../node_modules/.prisma/crm-client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 import { resolveCrmDatabaseUrl } from '../../../libs/crm/node/shared-infrastructure/src/lib/prisma/crm-database-url';
-
-/** Contraseña compartida para todos los usuarios de prueba (solo desarrollo). */
-export const CRM_DEMO_PASSWORD = 'Demo12345!';
-
-/** UUID alineados con `apps/backend/prisma/seed.ts` (organizaciones ERP). */
-const ERP_TENANT_IDS = {
-  demo: 'a0b1c2d3-e4f5-4678-9abc-def012345678',
-  josanz: 'c363035a-2a98-4054-9207-38c8aa5732d9',
-  alexis: 'd4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a',
-  babooni: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
-} as const;
+import {
+  ERP_TENANT_IDS,
+  SEED_CLIENT_IDS,
+  SEED_INVOICE_IDS,
+} from '../../../scripts/billing-demo-seed-ids';
 
 export async function seedCrmDatabase(): Promise<void> {
   const connectionString = resolveCrmDatabaseUrl();
@@ -145,6 +140,8 @@ export async function seedCrmDatabase(): Promise<void> {
   const clientDemo = await ensureClientDemo(prisma, demo.id);
   await ensureDraftInvoice(prisma, demo.id, clientDemo.id);
 
+  await seedErpMirroredBillingDemo(prisma);
+
   console.log('');
   console.log(
     'Seed OK — usuarios de prueba (contraseña para todos):',
@@ -164,6 +161,10 @@ export async function seedCrmDatabase(): Promise<void> {
   console.log('');
   console.log(
     'Login: en el formulario usar "Tenant (slug)" = demo, acme, josanz, alexis o babooni (o cabecera x-tenant-id con UUID).',
+  );
+  console.log('');
+  console.log(
+    'Facturas espejo ERP: josanz (F/2026/0001-0002), babooni (BB/2026/0001-0002) — mismos UUID que apps/backend/prisma/seed.ts',
   );
 
   await prisma.$disconnect();
@@ -339,7 +340,7 @@ async function ensureDraftInvoice(
   clientId: string,
 ) {
   const existing = await prisma.invoice.findFirst({
-    where: { tenantId, status: 'DRAFT' },
+    where: { tenantId, status: 'DRAFT', number: null },
   });
   if (existing) {
     return;
@@ -351,6 +352,253 @@ async function ensureDraftInvoice(
       total: 121.0,
       currency: 'EUR',
       status: 'DRAFT',
+    },
+  });
+}
+
+/** Contraseña compartida para todos los usuarios de prueba (solo desarrollo). */
+export const CRM_DEMO_PASSWORD = 'Demo12345!';
+
+/**
+ * Réplica en CRM de facturas demo del ERP (mismos UUID) para probar Verifactu e integración.
+ */
+async function seedErpMirroredBillingDemo(prisma: PrismaClient) {
+  const josanzClient = await upsertClient(prisma, {
+    id: SEED_CLIENT_IDS.josanz.eventosGlobal,
+    tenantId: ERP_TENANT_IDS.josanz,
+    name: 'Eventos Global S.L.',
+    taxId: 'B12345678',
+    email: 'info@eventosglobal.es',
+  });
+
+  const babooniClient = await upsertClient(prisma, {
+    id: SEED_CLIENT_IDS.babooni.biosstel,
+    tenantId: ERP_TENANT_IDS.babooni,
+    name: 'Biosstel Eventos S.L.',
+    taxId: 'B11111111',
+    email: 'hola@biosstel.demo',
+  });
+
+  const josanzHash1 = createHash('sha256').update('hash1').digest('hex');
+  const josanzHash2 = createHash('sha256').update('hash2').digest('hex');
+  const babooniHash1 = createHash('sha256').update('babooni-hash1').digest('hex');
+  const babooniHash2 = createHash('sha256').update('babooni-hash2').digest('hex');
+
+  const josanzTotal1 = 2300 * 1.21;
+  const josanzTotal2 = 1200 * 1.21;
+  const babooniTotal1 = 1620 * 1.21;
+  const babooniTotal2 = 6400 * 1.21;
+
+  await upsertMirroredInvoice(prisma, {
+    id: SEED_INVOICE_IDS.josanz.paid,
+    tenantId: ERP_TENANT_IDS.josanz,
+    clientId: josanzClient.id,
+    number: 'F/2026/0001',
+    total: josanzTotal1,
+    status: 'ISSUED',
+    issuedAt: new Date('2026-04-15'),
+    verifactuStatus: 'SENT',
+    currentHash: josanzHash1,
+  });
+
+  await upsertMirroredInvoice(prisma, {
+    id: SEED_INVOICE_IDS.josanz.pending,
+    tenantId: ERP_TENANT_IDS.josanz,
+    clientId: josanzClient.id,
+    number: 'F/2026/0002',
+    total: josanzTotal2,
+    status: 'ISSUED',
+    issuedAt: new Date('2026-04-22'),
+    verifactuStatus: 'PENDING',
+    currentHash: josanzHash2,
+    previousHash: josanzHash1,
+  });
+
+  await upsertMirroredInvoice(prisma, {
+    id: SEED_INVOICE_IDS.babooni.paid,
+    tenantId: ERP_TENANT_IDS.babooni,
+    clientId: babooniClient.id,
+    number: 'BB/2026/0001',
+    total: babooniTotal1,
+    status: 'ISSUED',
+    issuedAt: new Date('2026-05-05'),
+    verifactuStatus: 'SENT',
+    currentHash: babooniHash1,
+  });
+
+  await upsertMirroredInvoice(prisma, {
+    id: SEED_INVOICE_IDS.babooni.pending,
+    tenantId: ERP_TENANT_IDS.babooni,
+    clientId: babooniClient.id,
+    number: 'BB/2026/0002',
+    total: babooniTotal2,
+    status: 'ISSUED',
+    issuedAt: new Date('2026-06-12'),
+    verifactuStatus: 'PENDING',
+    currentHash: babooniHash2,
+    previousHash: babooniHash1,
+  });
+
+  await ensureVerifactuSeries(prisma, ERP_TENANT_IDS.josanz, 'A', 'Serie principal');
+  await ensureVerifactuSeries(prisma, ERP_TENANT_IDS.babooni, 'BB', 'Serie fiscal Babooni');
+
+  await ensureVerifactuQueueItem(
+    prisma,
+    ERP_TENANT_IDS.josanz,
+    SEED_INVOICE_IDS.josanz.pending,
+  );
+  await ensureVerifactuQueueItem(
+    prisma,
+    ERP_TENANT_IDS.babooni,
+    SEED_INVOICE_IDS.babooni.pending,
+  );
+
+  await ensureVerifactuLogSuccess(
+    prisma,
+    ERP_TENANT_IDS.josanz,
+    SEED_INVOICE_IDS.josanz.paid,
+    'F/2026/0001',
+  );
+  await ensureVerifactuLogSuccess(
+    prisma,
+    ERP_TENANT_IDS.babooni,
+    SEED_INVOICE_IDS.babooni.paid,
+    'BB/2026/0001',
+  );
+
+  console.log('- CRM: facturas espejo josanz + babooni (Verifactu cola/log/series)');
+}
+
+async function upsertClient(
+  prisma: PrismaClient,
+  data: {
+    id: string;
+    tenantId: string;
+    name: string;
+    taxId: string;
+    email: string;
+  },
+) {
+  return prisma.client.upsert({
+    where: { id: data.id },
+    create: {
+      id: data.id,
+      tenantId: data.tenantId,
+      name: data.name,
+      type: 'COMPANY',
+      taxId: data.taxId,
+      email: data.email,
+      country: 'ES',
+    },
+    update: {
+      name: data.name,
+      taxId: data.taxId,
+      email: data.email,
+    },
+  });
+}
+
+async function upsertMirroredInvoice(
+  prisma: PrismaClient,
+  data: {
+    id: string;
+    tenantId: string;
+    clientId: string;
+    number: string;
+    total: number;
+    status: string;
+    issuedAt: Date;
+    verifactuStatus: string;
+    currentHash: string;
+    previousHash?: string;
+  },
+) {
+  return prisma.invoice.upsert({
+    where: { id: data.id },
+    create: {
+      id: data.id,
+      tenantId: data.tenantId,
+      clientId: data.clientId,
+      number: data.number,
+      total: data.total,
+      currency: 'EUR',
+      status: data.status,
+      issuedAt: data.issuedAt,
+      verifactuStatus: data.verifactuStatus,
+      currentHash: data.currentHash,
+      previousHash: data.previousHash,
+      invoiceKind: 'NORMAL',
+    },
+    update: {
+      clientId: data.clientId,
+      number: data.number,
+      total: data.total,
+      status: data.status,
+      issuedAt: data.issuedAt,
+      verifactuStatus: data.verifactuStatus,
+      currentHash: data.currentHash,
+      previousHash: data.previousHash,
+    },
+  });
+}
+
+async function ensureVerifactuSeries(
+  prisma: PrismaClient,
+  tenantId: string,
+  code: string,
+  description: string,
+) {
+  const existing = await prisma.verifactuSeries.findFirst({
+    where: { tenantId, code },
+  });
+  if (existing) {
+    return existing;
+  }
+  return prisma.verifactuSeries.create({
+    data: { tenantId, code, description },
+  });
+}
+
+async function ensureVerifactuQueueItem(
+  prisma: PrismaClient,
+  tenantId: string,
+  invoiceId: string,
+) {
+  const existing = await prisma.verifactuQueueItem.findFirst({
+    where: { tenantId, invoiceId },
+  });
+  if (existing) {
+    return existing;
+  }
+  return prisma.verifactuQueueItem.create({
+    data: {
+      tenantId,
+      invoiceId,
+      status: 'PENDING',
+      retries: 0,
+    },
+  });
+}
+
+async function ensureVerifactuLogSuccess(
+  prisma: PrismaClient,
+  tenantId: string,
+  invoiceId: string,
+  invoiceNumber: string,
+) {
+  const existing = await prisma.verifactuLog.findFirst({
+    where: { tenantId, invoiceId, status: 'SUCCESS' },
+  });
+  if (existing) {
+    return existing;
+  }
+  return prisma.verifactuLog.create({
+    data: {
+      tenantId,
+      invoiceId,
+      status: 'SUCCESS',
+      requestPayload: { invoiceId, invoiceNumber, demo: true },
+      responsePayload: { ok: true, status: 'ACCEPTED' },
     },
   });
 }

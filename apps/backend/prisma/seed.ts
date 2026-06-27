@@ -3,6 +3,9 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import * as bcrypt from 'bcrypt';
 import { createHash } from 'crypto';
 import { config as loadEnv } from 'dotenv';
+import {
+  SEED_INVOICE_IDS,
+} from '../../../scripts/billing-demo-seed-ids';
 
 loadEnv({ path: 'apps/backend/.env' });
 loadEnv();
@@ -362,27 +365,30 @@ const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // 1. BABOONI Tenant — 10 activated modules (events, availability, fleet, rentals, billing, verifactu deactivated)
+  // 1. BABOONI Tenant — billing + verifactu para probar facturación e integración CRM
+   const babooniEnabledModules = [
+     'dashboard',
+     'ai-insights',
+     'clients',
+     'projects',
+     'identity',
+     'services',
+     'reports',
+     'audit',
+     'inventory',
+     'budgets',
+     'delivery',
+     'billing',
+     'verifactu',
+   ] as const;
    const babooniTenant = await prisma.tenant.upsert({
     where: { id: BABOONI_TENANT_ID },
-    update: {},
+    update: { enabledModuleIds: [...babooniEnabledModules] },
     create: {
       id: BABOONI_TENANT_ID,
       name: 'Babooni Technologies',
       slug: 'babooni',
-      enabledModuleIds: [
-        'dashboard',
-        'ai-insights',
-        'clients',
-        'projects',
-        'identity',
-        'services',
-        'reports',
-        'audit',
-        'inventory',
-        'budgets',
-        'delivery',
-      ],
+      enabledModuleIds: [...babooniEnabledModules],
     },
   });
 
@@ -1059,11 +1065,14 @@ async function main() {
 
   const invoice1 = await prisma.invoice.create({
     data: {
+      id: SEED_INVOICE_IDS.josanz.paid,
       tenantId: tenant.id,
       budgetId: budgetApproved1.id,
       invoiceNumber: 'F/2026/0001',
       status: 'PAID',
       type: 'NORMAL',
+      issueDate: new Date('2026-04-15'),
+      dueDate: new Date('2026-05-15'),
       total: 2300 * 1.21,
       verifactuStatus: 'SENT',
       currentHash: hash1,
@@ -1072,11 +1081,14 @@ async function main() {
 
   const invoice2 = await prisma.invoice.create({
     data: {
+      id: SEED_INVOICE_IDS.josanz.pending,
       tenantId: tenant.id,
       budgetId: budgetApproved2.id,
       invoiceNumber: 'F/2026/0002',
       status: 'PENDING',
       type: 'NORMAL',
+      issueDate: new Date('2026-04-22'),
+      dueDate: new Date('2026-05-22'),
       total: 1200 * 1.21,
       verifactuStatus: 'PENDING',
       currentHash: hash2,
@@ -2143,17 +2155,33 @@ async function seedBabooniTenantDemo(tenantId: string) {
     },
   });
 
-  await prisma.budget.create({
+  const budgetApprovedBabooni2 = await prisma.budget.create({
     data: {
       tenantId,
       clientId: clientB.id,
       startDate: new Date('2026-06-10'),
       endDate: new Date('2026-06-12'),
-      status: 'DRAFT',
+      status: 'APPROVED',
       total: 6400,
       items: {
         create: [
           { productId: inserted[1].id, quantity: 2, price: 3200, tax: 21 },
+        ],
+      },
+    },
+  });
+
+  await prisma.budget.create({
+    data: {
+      tenantId,
+      clientId: clientB.id,
+      startDate: new Date('2026-08-01'),
+      endDate: new Date('2026-08-03'),
+      status: 'DRAFT',
+      total: 3200,
+      items: {
+        create: [
+          { productId: inserted[1].id, quantity: 1, price: 3200, tax: 21 },
         ],
       },
     },
@@ -2180,6 +2208,116 @@ async function seedBabooniTenantDemo(tenantId: string) {
       status: 'pending',
     },
   });
+
+  const babooniHash1 = createHash('sha256').update('babooni-hash1').digest('hex');
+  const babooniHash2 = createHash('sha256').update('babooni-hash2').digest('hex');
+  const babooniInvoiceTotal1 = 1620 * 1.21;
+  const babooniInvoiceTotal2 = 6400 * 1.21;
+
+  const babooniInvoice1 = await prisma.invoice.create({
+    data: {
+      id: SEED_INVOICE_IDS.babooni.paid,
+      tenantId,
+      budgetId: budgetApprovedBabooni.id,
+      invoiceNumber: 'BB/2026/0001',
+      status: 'PAID',
+      type: 'NORMAL',
+      issueDate: new Date('2026-05-05'),
+      dueDate: new Date('2026-06-05'),
+      total: babooniInvoiceTotal1,
+      verifactuStatus: 'SENT',
+      currentHash: babooniHash1,
+    },
+  });
+
+  const babooniInvoice2 = await prisma.invoice.create({
+    data: {
+      id: SEED_INVOICE_IDS.babooni.pending,
+      tenantId,
+      budgetId: budgetApprovedBabooni2.id,
+      invoiceNumber: 'BB/2026/0002',
+      status: 'PENDING',
+      type: 'NORMAL',
+      issueDate: new Date('2026-06-12'),
+      dueDate: new Date('2026-07-12'),
+      total: babooniInvoiceTotal2,
+      verifactuStatus: 'PENDING',
+      currentHash: babooniHash2,
+      previousHash: babooniHash1,
+    },
+  });
+
+  await prisma.verifactuLog.create({
+    data: {
+      invoiceId: babooniInvoice1.id,
+      tenantId,
+      requestPayload: {
+        invoiceId: babooniInvoice1.id,
+        demo: true,
+        tenant: 'babooni',
+      } as Prisma.InputJsonValue,
+      responsePayload: {
+        ok: true,
+        status: 'ACCEPTED',
+      } as Prisma.InputJsonValue,
+      status: 'SUCCESS',
+    },
+  });
+
+  await prisma.verifactuQueueItem.create({
+    data: {
+      tenantId,
+      invoiceId: babooniInvoice2.id,
+      status: 'PENDING',
+      retries: 0,
+    },
+  });
+
+  await prisma.verifactuSeries.upsert({
+    where: {
+      uq_verifactu_series_tenant_code: { tenantId, code: 'BB' },
+    },
+    update: {},
+    create: {
+      tenantId,
+      code: 'BB',
+      description: 'Serie fiscal Babooni',
+    },
+  });
+
+  const crmWebhookBase =
+    process.env.VERIFACTU_CRM_API_URL?.replace(/\/$/, '') ||
+    'http://localhost:3120/api';
+  await prisma.verifactuWebhookEndpoint.create({
+    data: {
+      tenantId,
+      eventType: 'invoice.sent',
+      url: `${crmWebhookBase}/internal/erp/verifactu/webhook-event`,
+      secret: 'dev-crm-erp-sync',
+    },
+  });
+
+  await prisma.erpReceipt.createMany({
+    data: [
+      {
+        tenantId,
+        invoiceId: babooniInvoice1.id,
+        amount: babooniInvoiceTotal1,
+        status: 'PAID',
+        paymentMethod: 'BANK_TRANSFER',
+        paymentDate: new Date('2026-05-10'),
+        dueDate: new Date('2026-06-05'),
+      },
+      {
+        tenantId,
+        invoiceId: babooniInvoice2.id,
+        amount: babooniInvoiceTotal2 * 0.5,
+        status: 'PENDING',
+        dueDate: new Date('2026-07-12'),
+      },
+    ],
+  });
+  console.log('- Babooni: facturas demo + Verifactu (cola, log, recibos)');
 
   const babooniDrivers = await prisma.$transaction([
     prisma.driver.create({
@@ -2281,7 +2419,7 @@ async function seedBabooniTenantDemo(tenantId: string) {
   });
 
   console.log(
-    '- Babooni: clientes, proyectos, productos, presupuestos, albaranes, flota y alquileres demo',
+    '- Babooni: clientes, proyectos, productos, presupuestos, albaranes, facturas, flota y alquileres demo',
   );
 }
 
