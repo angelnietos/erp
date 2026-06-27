@@ -1,5 +1,6 @@
 export * from './lib/prisma/prisma.module';
 export * from './lib/prisma/prisma.service';
+export * from './lib/prisma/crm-database-url';
 export * from './lib/shared-infrastructure.module';
 export * from './lib/utils/tenant-uuid';
 export * from './lib/utils/request-tenant';

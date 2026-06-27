@@ -12,6 +12,7 @@ import { ClientsModule } from '@generic-crm/clients-backend';
 import { InvoicingModule } from '@generic-crm/invoicing-backend';
 import { VerifactuModule } from '@generic-crm/verifactu-backend';
 import { AppController } from './app.controller';
+import { CrmDemoSeedBootstrap } from '../bootstrap/crm-demo-seed.bootstrap';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { AppController } from './app.controller';
   ],
   controllers: [AppController],
   providers: [
+    CrmDemoSeedBootstrap,
     {
       provide: APP_GUARD,
       useClass: TenantGuard,

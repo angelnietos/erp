@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { Queue, Worker, Job, QueueEvents } from 'bullmq';
 import { VerifactuPrismaService } from '../services/verifactu-prisma.service';
+import { VerifactuService } from '@josanz-erp/verifactu-core';
 
 export interface VerifactuQueueItemPayload {
   invoiceId: string;
@@ -17,7 +18,7 @@ export class VerifactuBullmqQueueService implements OnModuleInit, OnModuleDestro
 
   constructor(
     private readonly prisma: VerifactuPrismaService,
-    private readonly verifactuService: unknown, // Will be injected via DI
+    private readonly verifactuService: VerifactuService,
   ) {
     const connection = {
       host: process.env['REDIS_HOST'] ?? 'localhost',

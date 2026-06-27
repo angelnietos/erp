@@ -1,10 +1,7 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@generic-crm/prisma-client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { config as loadEnv } from 'dotenv';
-
-loadEnv({ path: 'apps/verifactu-crm-api/.env' });
-loadEnv();
+import { resolveCrmDatabaseUrl } from './crm-database-url';
 
 @Injectable()
 export class PrismaService
@@ -12,10 +9,7 @@ export class PrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    const connectionString = process.env['DATABASE_URL'];
-    if (!connectionString) {
-      throw new Error('DATABASE_URL is required for Prisma');
-    }
+    const connectionString = resolveCrmDatabaseUrl();
     super({ adapter: new PrismaPg({ connectionString }) });
   }
 

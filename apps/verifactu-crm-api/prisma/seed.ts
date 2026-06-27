@@ -2,9 +2,10 @@ import * as bcrypt from 'bcrypt';
 import { PrismaClient } from '../../../node_modules/.prisma/crm-client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
+import { resolveCrmDatabaseUrl } from '../../../libs/crm/node/shared-infrastructure/src/lib/prisma/crm-database-url';
 
 /** Contraseña compartida para todos los usuarios de prueba (solo desarrollo). */
-const DEMO_PASSWORD = 'Demo12345!';
+export const CRM_DEMO_PASSWORD = 'Demo12345!';
 
 /** UUID alineados con `apps/backend/prisma/seed.ts` (organizaciones ERP). */
 const ERP_TENANT_IDS = {
@@ -14,17 +15,14 @@ const ERP_TENANT_IDS = {
   babooni: 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
 } as const;
 
-async function main() {
-  const connectionString = process.env['DATABASE_URL'];
-  if (!connectionString) {
-    throw new Error('DATABASE_URL is required for seed');
-  }
+export async function seedCrmDatabase(): Promise<void> {
+  const connectionString = resolveCrmDatabaseUrl();
 
   const pool = new pg.Pool({ connectionString });
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
-  const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
+  const passwordHash = await bcrypt.hash(CRM_DEMO_PASSWORD, 10);
 
   const demo = await ensureErpAlignedTenant(prisma, {
     id: ERP_TENANT_IDS.demo,
@@ -150,7 +148,7 @@ async function main() {
   console.log('');
   console.log(
     'Seed OK — usuarios de prueba (contraseña para todos):',
-    DEMO_PASSWORD,
+    CRM_DEMO_PASSWORD,
   );
   console.log('');
   console.log('| Tenant (slug) | Email                | Rol    |');
@@ -357,7 +355,12 @@ async function ensureDraftInvoice(
   });
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+main()
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+
+async function main(): Promise<void> {
+  await seedCrmDatabase();
+}

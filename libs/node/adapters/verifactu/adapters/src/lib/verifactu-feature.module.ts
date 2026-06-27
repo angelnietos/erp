@@ -13,6 +13,7 @@ import { RealAeatClient } from './aeat/real-aeat.client';
 import { PrismaVerifactuRepository } from './persistence/prisma-verifactu.repository';
 import { VerifactuApiKeyGuard } from './security/verifactu-api-key.guard';
 import { VerifactuQueueService } from './services/verifactu-queue.service';
+import { VerifactuBullmqQueueService } from './queue/verifactu-bullmq-queue.service';
 import { VerifactuPrismaService } from './services/verifactu-prisma.service';
 import { PrismaWebhookNotifierService } from './webhooks/prisma-webhook-notifier.service';
 import { VerifactuController } from './http/verifactu.controller';
@@ -32,6 +33,7 @@ import { VerifactuQueueController } from './http/verifactu-queue.controller';
 		VerifactuQrService,
 		VerifactuPrismaService,
 		VerifactuQueueService,
+		VerifactuBullmqQueueService,
 		RealAeatClient,
 		VerifactuApiKeyGuard,
 		{
@@ -55,6 +57,7 @@ import { VerifactuQueueController } from './http/verifactu-queue.controller';
 		VerifactuService,
 		VerifactuPrismaService,
 		VerifactuQueueService,
+		VerifactuBullmqQueueService,
 		VerifactuApiKeyGuard,
 		VerifactuQrService,
 	],
