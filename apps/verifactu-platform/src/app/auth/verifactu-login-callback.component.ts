@@ -63,13 +63,22 @@ export class VerifactuLoginCallbackComponent {
         : '/verifactu/overview';
 
     if (kcError) {
-      void this.router.navigate(['/login'], {
-        queryParams: { returnUrl, error: String(kcError) },
-      });
+      const errStr = String(kcError);
+      if (this.isUserCancelledOidc(errStr)) {
+        void this.router.navigate(['/login'], {
+          queryParams: {
+            returnUrl,
+            error: errStr,
+            tenant: stored?.tenantSlug,
+          },
+        });
+        return;
+      }
+      this.goLocalIdentity(returnUrl, stored?.tenantSlug);
       return;
     }
     if (!code || !state) {
-      void this.router.navigate(['/login'], { queryParams: { returnUrl } });
+      this.goLocalIdentity(returnUrl, stored?.tenantSlug);
       return;
     }
 
@@ -80,13 +89,26 @@ export class VerifactuLoginCallbackComponent {
         next: () => {
           void this.router.navigateByUrl(returnUrl);
         },
-        error: (e: unknown) => {
-          const message =
-            e instanceof Error ? e.message : 'No se pudo completar el login.';
-          void this.router.navigate(['/login'], {
-            queryParams: { returnUrl, error: message },
-          });
+        error: () => {
+          this.goLocalIdentity(returnUrl, stored?.tenantSlug);
         },
       });
+  }
+
+  /** Usuario canceló o cerró Keycloak — mostrar login con reintento. */
+  private isUserCancelledOidc(message: string): boolean {
+    return /access_denied|login_required|consent_required|interaction_required/i.test(
+      message,
+    );
+  }
+
+  /** Fallback local cuando OIDC no puede completarse (KC caído, API, etc.). */
+  private goLocalIdentity(returnUrl: string, tenantSlug?: string): void {
+    void this.router.navigate(['/identity'], {
+      queryParams: {
+        returnUrl,
+        ...(tenantSlug?.trim() ? { tenant: tenantSlug.trim() } : {}),
+      },
+    });
   }
 }

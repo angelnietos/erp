@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { ClsService } from 'nestjs-cls';
 import * as bcrypt from 'bcrypt';
 import type { TenantClsStore } from '@generic-crm/shared-infrastructure';
-import { isTenantUuid } from '@generic-crm/shared-infrastructure';
+import { isTenantUuid, PrismaService } from '@generic-crm/shared-infrastructure';
 import {
   AUTH_TOKEN_PORT,
   TENANT_READ_REPOSITORY,
@@ -16,6 +16,7 @@ import {
   type AuthTokenPort,
   type TenantReadRepositoryPort,
   type UserAuthRepositoryPort,
+  type UserForLogin,
 } from '@generic-crm/identity-core';
 import { LoginDto } from '../dto/login.dto';
 import { OidcCallbackDto } from '../dto/oidc-callback.dto';
@@ -32,6 +33,7 @@ export class AuthApplicationService {
     private readonly tokens: AuthTokenPort,
     private readonly cls: ClsService<TenantClsStore>,
     private readonly config: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   private async resolveLoginTenantId(dto: LoginDto): Promise<string> {
@@ -81,39 +83,74 @@ export class AuthApplicationService {
     );
   }
 
-  /** Resuelve tenant CRM tras login OIDC: JWT tenant_id → slugs candidatos (explícito + email). */
+  /** Resuelve tenant CRM activo (sin exigir usuario previo — el JIT OIDC lo crea). */
   private async resolveOidcTenantId(
     tenantSlug: string,
     rawToken: string,
     email: string,
   ): Promise<string | null> {
-    const normalizedEmail = email.trim().toLowerCase();
-
     const kcTenantId = this.readClaimFromJwt(rawToken, 'tenant_id');
     if (kcTenantId && isTenantUuid(kcTenantId)) {
-      const user = await this.users.findForLogin(kcTenantId, normalizedEmail);
-      if (user?.isActive) {
+      if (await this.tenants.existsActiveById(kcTenantId)) {
         return kcTenantId;
       }
     }
 
     const slugCandidates = [
       tenantSlug.trim(),
-      this.inferTenantSlugFromEmail(normalizedEmail) ?? '',
+      this.inferTenantSlugFromEmail(email.trim().toLowerCase()) ?? '',
     ].filter((s, i, arr) => s && arr.indexOf(s) === i);
 
     for (const slug of slugCandidates) {
       const bySlug = await this.tenants.findActiveIdBySlug(slug);
-      if (!bySlug) {
-        continue;
-      }
-      const user = await this.users.findForLogin(bySlug, normalizedEmail);
-      if (user?.isActive) {
+      if (bySlug) {
         return bySlug;
       }
     }
 
     return null;
+  }
+
+  /** Primer login Keycloak: crea usuario CRM en el tenant si no existe (cuentas solo-Verifactu). */
+  private async ensureOidcCrmUser(
+    tenantId: string,
+    email: string,
+    rawToken: string,
+  ): Promise<UserForLogin> {
+    if (this.config.get<string>('CRM_OIDC_AUTO_PROVISION') === 'false') {
+      throw new UnauthorizedException(
+        'No hay usuario CRM para este email. Contacta con el administrador del tenant.',
+      );
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const sub = this.readClaimFromJwt(rawToken, 'sub') ?? normalizedEmail;
+    const passwordHash = await bcrypt.hash(`keycloak:${sub}`, 10);
+
+    const role = await this.prisma.role.findFirst({
+      where: { tenantId, name: { in: ['ADMIN', 'VIEWER'] } },
+      orderBy: { name: 'asc' },
+    });
+
+    const created = await this.prisma.user.create({
+      data: {
+        tenantId,
+        email: normalizedEmail,
+        password: passwordHash,
+        firstName: this.readClaimFromJwt(rawToken, 'given_name'),
+        lastName: this.readClaimFromJwt(rawToken, 'family_name'),
+        ...(role ? { roles: { create: [{ roleId: role.id }] } } : {}),
+      },
+    });
+
+    const user = await this.users.findForLogin(tenantId, normalizedEmail);
+    if (!user?.isActive) {
+      throw new UnauthorizedException('No se pudo provisionar el usuario CRM.');
+    }
+    if (user.id !== created.id) {
+      return user;
+    }
+    return user;
   }
 
   private inferTenantSlugFromEmail(email: string): string | null {
@@ -323,12 +360,15 @@ export class AuthApplicationService {
     );
     if (!tenantId) {
       throw new BadRequestException(
-        `Tenant desconocido o sin usuario CRM: ${tenantSlug}. Ejecuta \`pnpm run crm:db:seed\` para la demo.`,
+        `Tenant CRM no registrado: ${tenantSlug}. Crea el tenant en generic_crm (pnpm run crm:db:seed) o desde el panel SaaS.`,
       );
     }
 
-    const user = await this.users.findForLogin(tenantId, email.trim().toLowerCase());
-    if (!user?.isActive) {
+    const normalizedEmail = email.trim().toLowerCase();
+    let user = await this.users.findForLogin(tenantId, normalizedEmail);
+    if (!user) {
+      user = await this.ensureOidcCrmUser(tenantId, normalizedEmail, rawToken);
+    } else if (!user.isActive) {
       throw new UnauthorizedException(
         'No hay usuario CRM activo con ese email en el tenant indicado.',
       );

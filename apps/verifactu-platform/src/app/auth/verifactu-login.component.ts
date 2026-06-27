@@ -47,7 +47,8 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
             <p class="eyebrow">Iniciar sesión</p>
             <h1>Bienvenido</h1>
             <p class="lede">
-              Entra con Keycloak o usa acceso local para la demo con el cliente.
+              Acceso preferente con Keycloak (SSO). Si Keycloak no está disponible, usa acceso
+              local con email y contraseña del CRM.
             </p>
 
             <p class="tenant-context">
@@ -80,9 +81,11 @@ import { VerifactuKeycloakAuthService } from './verifactu-keycloak-auth.service'
               </button>
             }
 
-            <button type="button" class="btn-secondary" (click)="goLocalIdentity()">
-              Acceso local (email/contraseña)
-            </button>
+            @if (showLocalFallback()) {
+              <button type="button" class="btn-secondary" (click)="goLocalIdentity()">
+                Acceso local (email/contraseña)
+              </button>
+            }
           }
         </div>
       </main>
@@ -319,6 +322,8 @@ export class VerifactuLoginComponent implements OnInit {
   readonly handoffPending = signal(false);
   readonly error = signal('');
   readonly showRetry = signal(false);
+  /** Keycloak configurado pero no responde (infra caída). */
+  readonly keycloakUnavailable = signal(false);
   readonly isDev = isDevMode();
   readonly erpHubUrl = environment.erpHubUrl;
   tenantSlug = environment.defaultTenantSlug;
@@ -337,8 +342,12 @@ export class VerifactuLoginComponent implements OnInit {
 
     const queryError = this.route.snapshot.queryParamMap.get('error')?.trim();
     if (queryError) {
-      this.error.set(queryError);
-      this.showRetry.set(true);
+      if (this.isUserCancelledOidc(queryError)) {
+        this.error.set(queryError);
+        this.showRetry.set(true);
+        return;
+      }
+      this.goLocalIdentity();
       return;
     }
 
@@ -354,26 +363,50 @@ export class VerifactuLoginComponent implements OnInit {
     }
 
     if (this.route.snapshot.queryParamMap.get('local') === '1') {
-      void this.router.navigate(['/identity'], {
-        queryParams: { returnUrl: this.returnUrl, tenant: this.tenantSlug },
-      });
+      this.goLocalIdentity();
       return;
     }
 
     if (!this.auth.canUseKeycloak(this.tenantSlug)) {
-      this.error.set('Keycloak no configurado — usa acceso local.');
-      this.showRetry.set(false);
+      this.goLocalIdentity();
       return;
     }
 
     this.handoffPending.set(true);
-    void this.startKeycloak();
+    this.auth.isKeycloakAvailable(this.tenantSlug).subscribe({
+      next: (available) => {
+        if (!available) {
+          this.goLocalIdentity();
+          return;
+        }
+        void this.startKeycloak();
+      },
+      error: () => {
+        this.goLocalIdentity();
+      },
+    });
+  }
+
+  /** Fallback local cuando KC falla, no está configurado o el usuario cancela OIDC. */
+  showLocalFallback(): boolean {
+    return (
+      this.keycloakUnavailable() ||
+      this.showRetry() ||
+      Boolean(this.error()) ||
+      !this.auth.canUseKeycloak(this.tenantSlug)
+    );
   }
 
   goLocalIdentity(): void {
     void this.router.navigate(['/identity'], {
       queryParams: { returnUrl: this.returnUrl, tenant: this.tenantSlug },
     });
+  }
+
+  private isUserCancelledOidc(message: string): boolean {
+    return /access_denied|login_required|consent_required|interaction_required|cancel/i.test(
+      message,
+    );
   }
 
   @HostListener('window:pageshow')
@@ -387,6 +420,7 @@ export class VerifactuLoginComponent implements OnInit {
 
   startKeycloak(): void {
     this.error.set('');
+    this.keycloakUnavailable.set(false);
     this.handoffPending.set(true);
     this.showRetry.set(false);
     void this.auth
@@ -396,7 +430,12 @@ export class VerifactuLoginComponent implements OnInit {
       })
       .catch((e: unknown) => {
         this.handoffPending.set(false);
-        this.error.set(e instanceof Error ? e.message : 'No se pudo iniciar Keycloak.');
+        this.keycloakUnavailable.set(true);
+        this.error.set(
+          e instanceof Error
+            ? e.message
+            : 'No se pudo iniciar Keycloak. Usa acceso local.',
+        );
         this.showRetry.set(true);
         clearVerifactuPkceRedirectPending();
       });
