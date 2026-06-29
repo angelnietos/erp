@@ -298,3 +298,17 @@ h6 { font-size: 0.875rem; }
   scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
 }
 
+/* Glassmorphism en Paneles (Modo Oscuro) */
+.vf-theme-dark .panel {
+  background: rgba(21, 24, 37, 0.75) !important;
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.vf-theme-dark .head {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+

@@ -39,10 +39,7 @@
   border: 1px solid var(--vf-border-strong);
   border-radius: var(--vf-radius-sm);
   box-shadow: var(--vf-shadow-inset);
-  transition:
-    border-color var(--vf-duration) var(--vf-ease),
-    box-shadow var(--vf-duration) var(--vf-ease),
-    background-color var(--vf-duration) var(--vf-ease);
+  transition: all 0.25s var(--vf-spring);
 }
 
 .vf-input::placeholder,
@@ -57,7 +54,31 @@
   border-color: var(--vf-accent-light);
   box-shadow:
     0 0 0 3px var(--vf-accent-soft),
+    0 0 10px var(--vf-accent-glow),
     var(--vf-shadow-inset);
+}
+
+/* Dark mode inputs glassmorphic override */
+.vf-theme-dark .vf-input,
+.vf-theme-dark .vf-select,
+.vf-theme-dark .vf-textarea {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f1f5f9;
+  box-shadow: none;
+}
+
+.vf-theme-dark .vf-input::placeholder,
+.vf-theme-dark .vf-textarea::placeholder {
+  color: #64748b;
+}
+
+.vf-theme-dark .vf-input:focus,
+.vf-theme-dark .vf-select:focus,
+.vf-theme-dark .vf-textarea:focus {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #34f5a8;
+  box-shadow: 0 0 14px rgba(52, 245, 168, 0.3);
 }
 
 .vf-input {

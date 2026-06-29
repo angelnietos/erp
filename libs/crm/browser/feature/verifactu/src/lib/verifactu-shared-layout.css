@@ -61,24 +61,32 @@
 .vf-dl {
   margin: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1.15rem;
-  font-size: 0.875rem;
+  grid-template-columns: clamp(140px, 30%, 200px) 1fr;
+  gap: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  align-items: center;
+}
+
+@media (max-width: 600px) {
+  .vf-dl {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
 }
 
 .vf-dl dt {
   margin: 0;
   color: var(--vf-text-muted);
   font-weight: 700;
-  font-size: 0.78rem;
-  letter-spacing: 0.04em;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .vf-dl dd {
   margin: 0;
   color: var(--vf-text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* Bullets con acento Verifactu */

@@ -44,11 +44,24 @@
 }
 
 .tbl tbody tr {
-  transition: background var(--vf-duration) var(--vf-ease);
+  transition: all var(--vf-duration) var(--vf-ease);
 }
 
 .tbl tbody tr:hover {
-  background: rgba(16, 217, 129, 0.05);
+  background: rgba(16, 217, 129, 0.06);
+}
+
+.vf-theme-dark .tbl tbody tr:hover {
+  background: rgba(52, 245, 168, 0.06);
+}
+
+/* Indicador lateral izquierdo táctil al hacer hover (Nintendo Switch style) */
+.tbl tbody tr:hover td:first-child {
+  box-shadow: inset 4px 0 0 0 var(--vf-accent-light, #10d981);
+}
+
+.vf-theme-dark .tbl tbody tr:hover td:first-child {
+  box-shadow: inset 4px 0 0 0 #34f5a8;
 }
 
 .tbl tbody tr.is-selected {
@@ -63,6 +76,15 @@
 
 .tbl tbody tr:last-child td {
   border-bottom: none;
+}
+
+/* Bordes suaves en modo oscuro */
+.vf-theme-dark .tbl th {
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.vf-theme-dark .tbl td {
+  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 .nowrap {
