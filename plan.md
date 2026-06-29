@@ -254,3 +254,4 @@ Model quota reached
 me quedo a medias el plan revisa y termina todo
 
 ode C:\Users\amuni\.gemini\antigravity\brain\d01463ea-2c6b-4745-80ee-eff86887a9f2\scratch\take_figma_screenshot.js
+puedo hacer el worker de verifactu configurable desde ajustes el tiempo por usuario admin cuando quiere que se ejecute
