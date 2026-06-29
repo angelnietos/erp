@@ -22,6 +22,11 @@ import {
   Users,
   ExternalLink,
   LogOut,
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  Sun,
+  Moon,
   LucideAngularModule,
 } from 'lucide-angular';
 import {
@@ -58,6 +63,11 @@ export const appConfig: ApplicationConfig = {
         Users,
         ExternalLink,
         LogOut,
+        Menu,
+        ChevronLeft,
+        ChevronRight,
+        Sun,
+        Moon,
       }),
     ),
     {

@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import {
   Router,
   RouterLink,
@@ -33,21 +33,20 @@ type Theme = 'light' | 'dark';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, GcrmToastStackComponent],
   template: `
-    <div class="vf-shell" [class.vf-theme-dark]="isDarkTheme()" [class.vf-sidebar-collapsed]="isCollapsed()">
+    <div class="vf-shell" [class.vf-theme-dark]="isDarkTheme" [class.vf-sidebar-collapsed]="collapsed">
       <aside class="vf-sidebar" aria-label="Navegación Verifactu">
         <div class="vf-sidebar__top">
           <button
             type="button"
             class="vf-sidebar-toggle"
             (click)="toggleSidebar()"
-            [attr.aria-label]="isCollapsed() ? 'Expandir menú' : 'Colapsar menú'"
+            [attr.aria-label]="collapsed ? 'Expandir menú' : 'Colapsar menú'"
           >
-            <lucide-icon [name]="isCollapsed() ? 'menu' : 'X'" size="18" aria-hidden="true" />
+            <lucide-icon [name]="collapsed ? 'chevron-right' : 'menu'" size="18" aria-hidden="true" />
           </button>
 
-          <div class="vf-brand" [class.vf-brand--collapsed]="isCollapsed()">
-            <div class="vf-brand__mark" aria-label="Verifactu">VF</div>
-            @if (!isCollapsed()) {
+          <div class="vf-brand" [class.vf-brand--collapsed]="collapsed">
+            @if (!collapsed) {
               <div class="vf-brand__text">
                 <p class="vf-brand__title">Verifactu</p>
                 <p class="vf-brand__sub">Facturación AEAT</p>
@@ -63,12 +62,13 @@ type Theme = 'light' | 'dark';
               [routerLink]="item.route"
               routerLinkActive="is-active"
               [routerLinkActiveOptions]="{ exact: true }"
-              [title]="isCollapsed() ? item.label : ''"
+              [title]="collapsed ? item.label : ''"
             >
+
               <span class="vf-nav__icon">
                 <lucide-icon [name]="item.icon" size="20" aria-hidden="true" />
               </span>
-              @if (!isCollapsed()) {
+              @if (!collapsed) {
                 <span class="vf-nav__label">{{ item.label }}</span>
               }
             </a>
@@ -80,12 +80,12 @@ type Theme = 'light' | 'dark';
             <span class="vf-nav__icon">
               <lucide-icon name="users" size="20" aria-hidden="true" />
             </span>
-            @if (!isCollapsed()) {
+            @if (!collapsed) {
               <span class="vf-nav__label">Clientes</span>
             }
           </a>
 
-          @if (!isCollapsed() && erpHubUrl) {
+          @if (!collapsed && erpHubUrl) {
             <a class="vf-nav__link vf-nav__link--muted" [href]="erpHubUrl" target="_blank" rel="noopener" title="Babooni Hub">
               <span class="vf-nav__icon">
                 <lucide-icon name="external-link" size="20" aria-hidden="true" />
@@ -97,15 +97,15 @@ type Theme = 'light' | 'dark';
           <div class="vf-controls">
             <div class="vf-theme-selector" (click)="toggleThemeMenu()" (keydown.enter)="toggleThemeMenu()" tabindex="0">
               <button type="button" class="vf-theme-btn">
-                <lucide-icon [name]="isDarkTheme() ? 'moon' : 'sun'" size="16" aria-hidden="true" />
+                <lucide-icon [name]="isDarkTheme ? 'moon' : 'sun'" size="16" aria-hidden="true" />
               </button>
-              @if (showThemeMenu()) {
+              @if (showThemeMenu) {
                 <div class="vf-theme-menu">
-                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme() === 'light'" (click)="setTheme('light')">
+                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'light'" (click)="setTheme('light')">
                     <lucide-icon name="sun" size="14" aria-hidden="true" />
                     <span>Claro</span>
                   </button>
-                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme() === 'dark'" (click)="setTheme('dark')">
+                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'dark'" (click)="setTheme('dark')">
                     <lucide-icon name="moon" size="14" aria-hidden="true" />
                     <span>Oscuro</span>
                   </button>
@@ -117,7 +117,7 @@ type Theme = 'light' | 'dark';
               <span class="vf-nav__icon">
                 <lucide-icon name="log-out" size="20" aria-hidden="true" />
               </span>
-              @if (!isCollapsed()) {
+              @if (!collapsed) {
                 <span class="vf-nav__label">Cerrar sesión</span>
               }
             </button>
@@ -129,12 +129,12 @@ type Theme = 'light' | 'dark';
         <header class="vf-topbar">
           <div class="vf-topbar__left">
             <p class="vf-topbar__eyebrow">Tenant activo</p>
-            <p class="vf-topbar__tenant">{{ tenantName() }}</p>
+            <p class="vf-topbar__tenant">{{ tenantName }}</p>
             <p class="vf-topbar__meta">
-              <span class="vf-topbar__slug">{{ tenantSlug() }}</span>
-              @if (userEmail()) {
+              <span class="vf-topbar__slug">{{ tenantSlug }}</span>
+              @if (userEmail) {
                 <span class="vf-topbar__dot" aria-hidden="true"></span>
-                <span class="vf-topbar__email">{{ userEmail() }}</span>
+                <span class="vf-topbar__email">{{ userEmail }}</span>
               }
             </p>
           </div>
@@ -149,18 +149,18 @@ type Theme = 'light' | 'dark';
               type="button"
               class="vf-topbar-theme"
               (click)="toggleThemeMenu()"
-              [attr.aria-label]="isDarkTheme() ? 'Tema oscuro activo' : 'Tema claro activo'"
+              [attr.aria-label]="isDarkTheme ? 'Tema oscuro activo' : 'Tema claro activo'"
             >
-              <lucide-icon [name]="isDarkTheme() ? 'moon' : 'sun'" size="18" aria-hidden="true" />
+              <lucide-icon [name]="isDarkTheme ? 'moon' : 'sun'" size="18" aria-hidden="true" />
             </button>
 
-            @if (showThemeMenu()) {
+            @if (showThemeMenu) {
               <div class="vf-theme-menu vf-theme-menu--topbar">
-                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme() === 'light'" (click)="setTheme('light')">
+                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'light'" (click)="setTheme('light')">
                   <lucide-icon name="sun" size="14" aria-hidden="true" />
                   <span>Claro</span>
                 </button>
-                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme() === 'dark'" (click)="setTheme('dark')">
+                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'dark'" (click)="setTheme('dark')">
                   <lucide-icon name="moon" size="14" aria-hidden="true" />
                   <span>Oscuro</span>
                 </button>
@@ -680,29 +680,32 @@ export class VerifactuPlatformShellComponent implements OnInit {
     { label: 'Integración', route: '/verifactu/integration', icon: 'plug' },
   ];
 
-  readonly erpHubUrl = environment.erpHubUrl;
+readonly erpHubUrl = environment.erpHubUrl;
   private readonly session = inject(SessionTokenStorageService);
   private readonly auth = inject(IdentityAuthService);
   private readonly keycloak = inject(VerifactuKeycloakAuthService);
   private readonly router = inject(Router);
 
-  readonly isCollapsed = signal(false);
-  readonly currentTheme = signal<Theme>('light');
-  readonly showThemeMenu = signal(false);
-  readonly userEmail = signal<string | null>(null);
+  collapsed = false;
+  currentTheme: Theme = 'light';
+  showThemeMenu = false;
+  userEmail: string | null = null;
 
-  readonly tenantSlug = computed(
-    () =>
+  get isDarkTheme(): boolean {
+    return this.currentTheme === 'dark';
+  }
+
+  get tenantSlug(): string {
+    return (
       normalizeTenantSlug(this.session.tenantSlug()) ??
       environment.defaultTenantSlug ??
-      'demo',
-  );
+      'demo'
+    );
+  }
 
-  readonly tenantName = computed(() =>
-    resolveTenantDisplayName(this.tenantSlug(), this.session.tenantName()),
-  );
-
-  readonly isDarkTheme = computed(() => this.currentTheme() === 'dark');
+  get tenantName(): string {
+    return resolveTenantDisplayName(this.tenantSlug, this.session.tenantName());
+  }
 
   ngOnInit(): void {
     this.loadSavedTheme();
@@ -711,7 +714,7 @@ export class VerifactuPlatformShellComponent implements OnInit {
 
   private loadSavedTheme(): void {
     const savedTheme = localStorage.getItem('vf-theme') as Theme | null;
-    this.currentTheme.set(savedTheme ?? 'light');
+    this.currentTheme = savedTheme ?? 'light';
   }
 
   private refreshSessionContext(): void {
@@ -727,7 +730,7 @@ export class VerifactuPlatformShellComponent implements OnInit {
             tenantName: res.tenantName,
           });
         }
-        this.userEmail.set(res.user.email);
+        this.userEmail = res.user.email;
       },
       error: () => {
         /* ignore — topbar uses stored tenant context */
@@ -736,17 +739,17 @@ export class VerifactuPlatformShellComponent implements OnInit {
   }
 
   toggleSidebar(): void {
-    this.isCollapsed.update((v) => !v);
+    this.collapsed = !this.collapsed;
   }
 
   toggleThemeMenu(): void {
-    this.showThemeMenu.update((v) => !v);
+    this.showThemeMenu = !this.showThemeMenu;
   }
 
   setTheme(theme: Theme): void {
-    this.currentTheme.set(theme);
+    this.currentTheme = theme;
     localStorage.setItem('vf-theme', theme);
-    this.showThemeMenu.set(false);
+    this.showThemeMenu = false;
   }
 
   logout(): void {
