@@ -22,6 +22,14 @@ export function resolveJosanzUserDisplayName(
   return 'Usuario';
 }
 
+/** Primer nombre para el título del inicio Figma. */
+export function resolveJosanzUserFirstName(
+  user: JosanzSessionUserLike | null | undefined,
+): string {
+  const display = resolveJosanzUserDisplayName(user);
+  return display.split(/\s+/)[0] ?? display;
+}
+
 /** Saludo del inicio Figma — usa el primer token del nombre. */
 export function resolveJosanzWelcomeTitle(
   user: JosanzSessionUserLike | null | undefined,

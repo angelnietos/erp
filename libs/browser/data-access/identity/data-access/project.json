@@ -8,6 +8,11 @@
     "scope:identity",
     "type:data-access"
   ],
+  "implicitDependencies": [
+    "identity-api",
+    "shared-data-access",
+    "shared-auth-keycloak"
+  ],
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
@@ -17,7 +22,12 @@
       "options": {
         "main": "libs/browser/data-access/identity/data-access/src/index.ts",
         "tsConfig": "libs/browser/data-access/identity/data-access/tsconfig.lib.json",
-        "outputPath": "dist/libs\\browser\\data-access\\identity\\data-access"
+        "outputPath": "dist/libs/browser/data-access/identity/data-access",
+        "external": [
+          "@josanz-erp/shared-data-access",
+          "@josanz-erp/shared-auth-keycloak",
+          "@josanz-erp/identity-api"
+        ]
       }
     },
     "test": {

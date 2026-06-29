@@ -4,6 +4,7 @@
   "sourceRoot": "libs/browser/shared/auth-keycloak/src",
   "projectType": "library",
   "tags": ["scope:shared", "type:auth"],
+  "implicitDependencies": ["shared-data-access", "identity-api"],
   "targets": {
     "build": {
       "executor": "@nx/rollup:rollup",
@@ -11,7 +12,8 @@
       "options": {
         "outputPath": "dist/libs/browser/shared/auth-keycloak",
         "main": "libs/browser/shared/auth-keycloak/src/index.ts",
-        "tsConfig": "libs/browser/shared/auth-keycloak/tsconfig.lib.json"
+        "tsConfig": "libs/browser/shared/auth-keycloak/tsconfig.lib.json",
+        "external": ["@josanz-erp/shared-data-access", "@josanz-erp/identity-api"]
       }
     },
     "test": {

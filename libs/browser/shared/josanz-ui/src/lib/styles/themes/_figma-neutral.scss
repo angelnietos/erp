@@ -40,7 +40,7 @@
   --josanz-sidebar-width: 36px;
   --josanz-sidebar-expanded-width: 103px;
   --josanz-sidebar-bg: #ffffff;
-  --josanz-sidebar-border: transparent;
+  --josanz-sidebar-border: #e7edf1;
   --josanz-sidebar-shadow: 0 10px 24px rgba(189, 189, 189, 0.18);
   --josanz-sidebar-icon: #222222;
   --josanz-sidebar-icon-active: #222222;
@@ -64,6 +64,16 @@
   --josanz-pill-active-bg: #ddecff;
   --josanz-pill-active-text: #080808;
   --josanz-pill-active-border: rgba(8, 8, 8, 0.2);
+  --josanz-interactive: #080808;
+  --josanz-focus-ring: rgba(8, 8, 8, 0.12);
+  --josanz-danger: #ef4444;
+  --josanz-danger-hover: #dc2626;
+  --josanz-on-danger: #ffffff;
+  --josanz-shell-mobile-tab-clearance: 4rem;
+  --josanz-shell-footer-safe: 0px;
+  --josanz-dashboard-kpi-min-h: 9.375rem;
+  --josanz-elev-soft: 0 4px 8px rgba(178, 178, 178, 0.28);
+  --josanz-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 [data-josanz-atmosphere='neutral'] .josanz-sidebar .active-link,

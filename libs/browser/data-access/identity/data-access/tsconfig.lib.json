@@ -2,7 +2,20 @@
   "extends": "../../../../../tsconfig.base.json",
   "compilerOptions": {
     "declaration": true,
-    "module": "preserve"
+    "declarationMap": true,
+    "module": "preserve",
+    "isolatedModules": true,
+    "target": "es2022",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "emitDecoratorMetadata": false,
+    "importHelpers": true,
+    "forceConsistentCasingInFileNames": true,
+    "sourceMap": true
   },
   "include": ["src/**/*.ts"],
   "exclude": [
@@ -12,7 +25,3 @@
     "src/**/*.test.ts"
   ]
 }
-
-
-
-

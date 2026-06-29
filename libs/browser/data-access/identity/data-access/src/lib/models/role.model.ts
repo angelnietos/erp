@@ -1,5 +1,7 @@
 import { PERMISSIONS_CATALOG, type PermissionCatalogEntry } from '@josanz-erp/identity-api';
-import { RoleType } from '@josanz-erp/identity-core';
+
+/** Valores alineados con RoleType en @josanz-erp/identity-core (sin importar domain → shared-model en rollup). */
+export type RoleType = 'SUPERADMIN' | 'ADMIN' | 'RESPONSIBLE' | 'USER';
 
 export interface Role {
   id: string;

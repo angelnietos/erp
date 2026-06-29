@@ -163,9 +163,13 @@ describe('JosanzDashboardInicioComponent', () => {
   describe('template', () => {
     beforeEach(() => fixture.detectChanges());
 
-    it('should render welcome title with session user', () => {
+    it('should render welcome title with session user first name', () => {
+      const greeting = fixture.nativeElement.querySelector(
+        '.josanz-home__greeting',
+      );
       const title = fixture.nativeElement.querySelector('h1');
-      expect(title.textContent).toContain('Bienvenido/a Alexis');
+      expect(greeting?.textContent).toContain('Bienvenido/a');
+      expect(title?.textContent).toContain('Alexis');
     });
 
     it('should render session user in header', () => {

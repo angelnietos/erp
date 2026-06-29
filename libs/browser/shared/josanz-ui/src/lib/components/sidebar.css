@@ -40,6 +40,12 @@
   width: 18px;
   height: 24px;
   object-fit: contain;
+  transition: width 0.22s ease, max-width 0.22s ease;
+}
+
+.josanz-sidebar--open .josanz-sidebar__logo img {
+  width: auto;
+  max-width: 72px;
 }
 
 .josanz-sidebar__toggle,
@@ -176,10 +182,6 @@
 
 :host-context([data-josanz-atmosphere='neutral']) .active-indicator {
   display: none;
-}
-
-:host-context([data-josanz-atmosphere='neutral']) .josanz-sidebar {
-  border-right-width: 0;
 }
 
 :host-context([data-josanz-atmosphere='neutral']) nav {

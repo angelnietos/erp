@@ -1,7 +1,8 @@
 <div class="josanz-home">
   <header class="josanz-home__header">
     <div class="josanz-home__header-main">
-      <h1 class="josanz-home__title">{{ welcomeTitle() }}</h1>
+      <p class="josanz-home__greeting">Bienvenido/a</p>
+      <h1 class="josanz-home__title">{{ userFirstName() }}</h1>
     </div>
     <div class="josanz-home__header-user">
       <span class="josanz-home__header-user-label">{{ userDisplayName() }}</span>
@@ -29,7 +30,7 @@
       (selectionChange)="onViewChange($event)"
     ></josanz-filter-tabs>
 
-    <span class="hidden h-6 w-px sm:inline-block josanz-home__toolbar-divider" aria-hidden="true"></span>
+    <span class="josanz-home__toolbar-divider" aria-hidden="true"></span>
 
     <josanz-filter-tabs
       class="josanz-home__period-tabs"
@@ -67,9 +68,8 @@
     }
   </section>
 
-  <section class="josanz-home__schedule" aria-label="Planificación semanal">
-    <div class="overflow-x-auto">
-      <div class="josanz-home__schedule-grid">
+  <section class="josanz-home__schedule josanz-scroll-quiet" aria-label="Planificación semanal">
+    <div class="josanz-home__schedule-grid">
         <div class="josanz-home__schedule-head josanz-home__schedule-head--corner"></div>
         @for (tech of technicians; track tech.id) {
           <div class="josanz-home__schedule-head">
@@ -111,6 +111,5 @@
           }
         }
       </div>
-    </div>
   </section>
 </div>

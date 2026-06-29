@@ -194,6 +194,15 @@
   opacity: 1 !important;
 }
 
+.josanz-figma-auth__error {
+  margin: 0.5rem 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--josanz-kpi-negative, #ab0707);
+  text-align: center;
+}
+
 @media (min-width: 900px) {
   .josanz-figma-auth {
     flex-direction: row;

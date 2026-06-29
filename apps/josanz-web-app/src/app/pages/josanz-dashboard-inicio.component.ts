@@ -8,6 +8,7 @@ import {
   JOSANZ_FIGMA_SHELL,
   JosanzThemeService,
   resolveJosanzUserDisplayName,
+  resolveJosanzUserFirstName,
   resolveJosanzWelcomeTitle,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
@@ -47,6 +48,9 @@ export class JosanzDashboardInicioComponent {
 
   readonly userDisplayName = computed(() =>
     resolveJosanzUserDisplayName(this.globalAuth.user()),
+  );
+  readonly userFirstName = computed(() =>
+    resolveJosanzUserFirstName(this.globalAuth.user()),
   );
   readonly welcomeTitle = computed(() =>
     resolveJosanzWelcomeTitle(this.globalAuth.user()),
