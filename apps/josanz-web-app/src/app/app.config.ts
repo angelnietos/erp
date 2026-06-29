@@ -29,6 +29,7 @@ import {
   tenantInterceptor,
   sessionExpiryInterceptor,
   provideBffSessionKeepalive,
+  IdentitySessionHydrationService,
   TenantModulesApiService,
   TenantModulesRealtimeService,
   TENANT_MODULES_REALTIME_API_ORIGIN,
@@ -78,6 +79,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: () => {
         const authService = inject(AuthService);
         const globalAuthStore = inject(GlobalAuthStore);
+        const sessionHydration = inject(IdentitySessionHydrationService);
         const tenantModulesApi = inject(TenantModulesApiService);
         const tenantModulesRealtime = inject(TenantModulesRealtimeService);
         const authStore = inject(AuthStore);
@@ -93,6 +95,14 @@ export const appConfig: ApplicationConfig = {
 
         return async () => {
           try {
+            if (
+              authService.isBffMode() &&
+              !sessionHydration.hasBffSessionCookie()
+            ) {
+              pluginStore.loadFromStorage();
+              return;
+            }
+
             const outcome = await firstValueFrom(
               authService.refreshSession().pipe(
                 map((response) => ({ kind: 'ok' as const, response })),
