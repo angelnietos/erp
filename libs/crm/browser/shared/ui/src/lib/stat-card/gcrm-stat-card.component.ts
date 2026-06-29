@@ -125,6 +125,39 @@ export type GcrmStatCardTone = 'default' | 'success' | 'warning' | 'danger' | 'i
         color: #0369a1;
       }
 
+      /* Dark mode overrides */
+      :host-context(.vf-theme-dark) .tone-success {
+        background: linear-gradient(145deg, #111b27 0%, #0d281a 100%);
+        border-color: rgba(52, 245, 168, 0.2);
+      }
+      :host-context(.vf-theme-dark) .tone-success .stat__value {
+        color: #34f5a8;
+      }
+
+      :host-context(.vf-theme-dark) .tone-warning {
+        background: linear-gradient(145deg, #1f1a12 0%, #2e1d0f 100%);
+        border-color: rgba(234, 88, 12, 0.2);
+      }
+      :host-context(.vf-theme-dark) .tone-warning .stat__value {
+        color: #fdba74;
+      }
+
+      :host-context(.vf-theme-dark) .tone-danger {
+        background: linear-gradient(145deg, #24141a 0%, #3b1320 100%);
+        border-color: rgba(225, 29, 72, 0.2);
+      }
+      :host-context(.vf-theme-dark) .tone-danger .stat__value {
+        color: #fda4af;
+      }
+
+      :host-context(.vf-theme-dark) .tone-info {
+        background: linear-gradient(145deg, #121e2d 0%, #0c233c 100%);
+        border-color: rgba(14, 165, 233, 0.2);
+      }
+      :host-context(.vf-theme-dark) .tone-info .stat__value {
+        color: #7dd3fc;
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .stat {
           transition: none;

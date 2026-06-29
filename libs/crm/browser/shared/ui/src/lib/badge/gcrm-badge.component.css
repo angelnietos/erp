@@ -10,31 +10,31 @@
 }
 
 .gcrm-badge--neutral {
-  background: var(--vf-bg-subtle, #eef2f8);
-  color: #475569;
-  border-color: var(--vf-border, #dde4ef);
+  background: var(--vf-badge-neutral-bg, #eef2f8);
+  color: var(--vf-badge-neutral-text, #475569);
+  border-color: var(--vf-badge-neutral-border, #dde4ef);
 }
 
 .gcrm-badge--warning {
-  background: #fff7ed;
-  color: #c2410c;
-  border-color: #fed7aa;
+  background: var(--vf-badge-warn-bg, #fff7ed);
+  color: var(--vf-badge-warn-text, #c2410c);
+  border-color: var(--vf-badge-warn-border, #fed7aa);
 }
 
 .gcrm-badge--info {
-  background: #f0f9ff;
-  color: #0369a1;
-  border-color: #bae6fd;
+  background: var(--vf-badge-info-bg, #f0f9ff);
+  color: var(--vf-badge-info-text, #0369a1);
+  border-color: var(--vf-badge-info-border, #bae6fd);
 }
 
 .gcrm-badge--success {
-  background: #ecfdf5;
-  color: #047857;
-  border-color: #a7f3d0;
+  background: var(--vf-badge-success-bg, #ecfdf5);
+  color: var(--vf-badge-success-text, #047857);
+  border-color: var(--vf-badge-success-border, #a7f3d0);
 }
 
 .gcrm-badge--danger {
-  background: #fff1f2;
-  color: #be123c;
-  border-color: #fecdd3;
+  background: var(--vf-badge-danger-bg, #fff1f2);
+  color: var(--vf-badge-danger-text, #be123c);
+  border-color: var(--vf-badge-danger-border, #fecdd3);
 }

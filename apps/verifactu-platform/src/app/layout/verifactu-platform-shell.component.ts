@@ -95,23 +95,26 @@ type Theme = 'light' | 'dark';
           }
 
           <div class="vf-controls">
-            <div class="vf-theme-selector" (click)="toggleThemeMenu()" (keydown.enter)="toggleThemeMenu()" tabindex="0">
-              <button type="button" class="vf-theme-btn">
-                <lucide-icon [name]="isDarkTheme ? 'moon' : 'sun'" size="16" aria-hidden="true" />
-              </button>
-              @if (showThemeMenu) {
-                <div class="vf-theme-menu">
-                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'light'" (click)="setTheme('light')">
+            @if (!collapsed) {
+              <div class="vf-theme-switch-container">
+                <button
+                  type="button"
+                  class="vf-theme-switch-btn"
+                  (click)="toggleTheme()"
+                  [attr.aria-label]="isDarkTheme ? 'Cambiar a claro' : 'Cambiar a oscuro'"
+                >
+                  <span class="vf-theme-switch-icon" [class.is-active]="!isDarkTheme">
                     <lucide-icon name="sun" size="14" aria-hidden="true" />
-                    <span>Claro</span>
-                  </button>
-                  <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'dark'" (click)="setTheme('dark')">
+                  </span>
+                  <span class="vf-theme-switch-slider">
+                    <span class="vf-theme-switch-handle" [class.is-dark]="isDarkTheme"></span>
+                  </span>
+                  <span class="vf-theme-switch-icon" [class.is-active]="isDarkTheme">
                     <lucide-icon name="moon" size="14" aria-hidden="true" />
-                    <span>Oscuro</span>
-                  </button>
-                </div>
-              }
-            </div>
+                  </span>
+                </button>
+              </div>
+            }
 
             <button type="button" class="vf-nav__link vf-nav__link--danger" (click)="logout()" title="Cerrar sesión">
               <span class="vf-nav__icon">
@@ -145,27 +148,24 @@ type Theme = 'light' | 'dark';
               <span>Cola ERP · Activo</span>
             </div>
 
-            <button
-              type="button"
-              class="vf-topbar-theme"
-              (click)="toggleThemeMenu()"
-              [attr.aria-label]="isDarkTheme ? 'Tema oscuro activo' : 'Tema claro activo'"
-            >
-              <lucide-icon [name]="isDarkTheme ? 'moon' : 'sun'" size="18" aria-hidden="true" />
-            </button>
-
-            @if (showThemeMenu) {
-              <div class="vf-theme-menu vf-theme-menu--topbar">
-                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'light'" (click)="setTheme('light')">
+            <div class="vf-theme-switch-container vf-theme-switch-container--topbar">
+              <button
+                type="button"
+                class="vf-theme-switch-btn"
+                (click)="toggleTheme()"
+                [attr.aria-label]="isDarkTheme ? 'Cambiar a claro' : 'Cambiar a oscuro'"
+              >
+                <span class="vf-theme-switch-icon" [class.is-active]="!isDarkTheme">
                   <lucide-icon name="sun" size="14" aria-hidden="true" />
-                  <span>Claro</span>
-                </button>
-                <button type="button" class="vf-theme-option" [class.is-active]="currentTheme === 'dark'" (click)="setTheme('dark')">
+                </span>
+                <span class="vf-theme-switch-slider">
+                  <span class="vf-theme-switch-handle" [class.is-dark]="isDarkTheme"></span>
+                </span>
+                <span class="vf-theme-switch-icon" [class.is-active]="isDarkTheme">
                   <lucide-icon name="moon" size="14" aria-hidden="true" />
-                  <span>Oscuro</span>
-                </button>
-              </div>
-            }
+                </span>
+              </button>
+            </div>
           </div>
         </header>
 
@@ -302,7 +302,22 @@ type Theme = 'light' | 'dark';
         flex: 1;
         min-height: 0;
         overflow-y: auto;
+        overflow-x: hidden;
         padding: 0.5rem;
+      }
+
+      .vf-nav::-webkit-scrollbar {
+        width: 4px;
+      }
+      .vf-nav::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .vf-nav::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.12);
+        border-radius: 2px;
+      }
+      .vf-nav::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.25);
       }
 
       .vf-nav__link {
@@ -318,7 +333,7 @@ type Theme = 'light' | 'dark';
         border: 1px solid transparent;
         background: transparent;
         width: 100%;
-        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
         position: relative;
         overflow: hidden;
       }
@@ -335,9 +350,10 @@ type Theme = 'light' | 'dark';
       }
 
       .vf-nav__link:hover {
-        background: rgba(255, 255, 255, 0.06);
-        color: #eef2f8;
-        transform: translateX(4px);
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+        transform: scale(1.02) translateX(4px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
       }
 
       .vf-nav__link:hover::before {
@@ -345,20 +361,22 @@ type Theme = 'light' | 'dark';
       }
 
       .vf-nav__link.is-active {
-        background: rgba(16, 217, 129, 0.12);
-        color: #a7f3d0;
-        border-color: rgba(16, 217, 129, 0.3);
+        background: rgba(16, 217, 129, 0.14);
+        color: #34f5a8;
+        border-color: rgba(16, 217, 129, 0.4);
+        box-shadow: 0 0 16px rgba(16, 217, 129, 0.2);
       }
 
       .vf-nav__link.is-active::after {
         content: '';
         position: absolute;
         left: 0;
-        top: 20%;
-        bottom: 20%;
-        width: 3px;
-        background: #10d981;
-        border-radius: 0 2px 2px 0;
+        top: 15%;
+        bottom: 15%;
+        width: 4px;
+        background: #34f5a8;
+        border-radius: 0 4px 4px 0;
+        box-shadow: 0 0 10px rgba(52, 245, 168, 0.8);
       }
 
       .vf-nav__icon {
@@ -404,85 +422,98 @@ type Theme = 'light' | 'dark';
         gap: 0.25rem;
       }
 
-      /* Theme selector in sidebar */
-      .vf-theme-selector {
-        position: relative;
+      /* Theme switch slider */
+      .vf-theme-switch-container {
+        display: flex;
+        justify-content: center;
+        padding: 0.25rem 0.5rem;
         margin-top: 0.25rem;
       }
 
-      .vf-theme-btn {
+      .vf-theme-switch-btn {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.65rem 0.85rem;
-        border-radius: 12px;
-        border: 1px solid transparent;
-        background: rgba(255, 255, 255, 0.05);
-        color: #94a3b8;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        width: 100%;
-        transition: all 0.2s ease;
-      }
-
-      .vf-theme-btn:hover {
+        justify-content: space-between;
         background: rgba(255, 255, 255, 0.08);
-        color: #eef2f8;
-      }
-
-      .vf-theme-menu {
-        position: absolute;
-        bottom: 100%;
-        left: 0;
-        margin-bottom: 0.5rem;
-        background: rgba(17, 24, 39, 0.95);
-        backdrop-filter: blur(12px);
         border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 12px;
-        padding: 0.5rem;
-        min-width: 150px;
-        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        animation: vf-fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        border-radius: 999px;
+        padding: 6px 12px;
+        cursor: pointer;
+        width: 100%;
+        gap: 0.5rem;
+        transition: all 0.25s ease;
       }
 
-      @keyframes vf-fade-in {
-        from { opacity: 0; transform: translateY(4px); }
-        to { opacity: 1; transform: translateY(0); }
+      .vf-theme-switch-btn:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 12px rgba(16, 217, 129, 0.2);
       }
 
-      .vf-theme-menu--topbar {
-        top: 100%;
-        bottom: auto;
-        margin-top: 0.5rem;
-        margin-bottom: 0;
-      }
-
-      .vf-theme-option {
+      .vf-theme-switch-icon {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        width: 100%;
-        padding: 0.6rem 0.85rem;
-        border: none;
-        border-radius: 10px;
-        background: transparent;
-        color: #94a3b8;
-        font-size: 0.9rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.15s ease;
+        color: #64748b;
+        transition: color 0.25s ease;
       }
 
-      .vf-theme-option:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: #eef2f8;
+      .vf-theme-switch-icon.is-active {
+        color: #34f5a8;
       }
 
-      .vf-theme-option.is-active {
-        background: rgba(16, 217, 129, 0.15);
-        color: #10d981;
+      .vf-theme-switch-slider {
+        position: relative;
+        width: 38px;
+        height: 18px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background 0.25s ease;
+      }
+
+      .vf-theme-switch-handle {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        background: linear-gradient(135deg, #34f5a8, #0d9f5f);
+        border-radius: 50%;
+        transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: 0 0 8px rgba(52, 245, 168, 0.6);
+      }
+
+      .vf-theme-switch-handle.is-dark {
+        transform: translateX(20px);
+      }
+
+      /* Topbar adjustments for switch */
+      .vf-theme-switch-container--topbar {
+        padding: 0;
+        margin-top: 0;
+      }
+
+      .vf-theme-switch-container--topbar .vf-theme-switch-btn {
+        background: var(--vf-accent-soft);
+        border-color: rgba(16, 217, 129, 0.25);
+        color: var(--vf-accent);
+      }
+
+      .vf-theme-switch-container--topbar .vf-theme-switch-btn:hover {
+        background: rgba(16, 217, 129, 0.18);
+        border-color: rgba(16, 217, 129, 0.4);
+      }
+
+      .vf-theme-switch-container--topbar .vf-theme-switch-slider {
+        background: rgba(0, 0, 0, 0.08);
+      }
+
+      .vf-shell.vf-theme-dark .vf-theme-switch-container--topbar .vf-theme-switch-slider {
+        background: rgba(0, 0, 0, 0.4);
+      }
+
+      .vf-sidebar-collapsed .vf-theme-switch-container {
+        display: none;
       }
 
       /* Main area */
@@ -744,6 +775,11 @@ readonly erpHubUrl = environment.erpHubUrl;
 
   toggleThemeMenu(): void {
     this.showThemeMenu = !this.showThemeMenu;
+  }
+
+  toggleTheme(): void {
+    const nextTheme = this.currentTheme === 'light' ? 'dark' : 'light';
+    this.setTheme(nextTheme);
   }
 
   setTheme(theme: Theme): void {

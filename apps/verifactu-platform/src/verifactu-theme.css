@@ -43,6 +43,27 @@
   --vf-coral: #f43f5e;
   --vf-coral-soft: rgba(244, 63, 94, 0.1);
 
+  /* Badges states customized variables */
+  --vf-badge-neutral-bg: var(--vf-bg-subtle, #eef2f8);
+  --vf-badge-neutral-text: #475569;
+  --vf-badge-neutral-border: var(--vf-border, #dde4ef);
+
+  --vf-badge-warn-bg: #fff7ed;
+  --vf-badge-warn-text: #c2410c;
+  --vf-badge-warn-border: #fed7aa;
+
+  --vf-badge-info-bg: #f0f9ff;
+  --vf-badge-info-text: #0369a1;
+  --vf-badge-info-border: #bae6fd;
+
+  --vf-badge-success-bg: #ecfdf5;
+  --vf-badge-success-text: #047857;
+  --vf-badge-success-border: #a7f3d0;
+
+  --vf-badge-danger-bg: #fff1f2;
+  --vf-badge-danger-text: #be123c;
+  --vf-badge-danger-border: #fecdd3;
+
   /* Semantic states */
   --vf-danger: #e11d48;
   --vf-warning: #ea580c;
@@ -189,3 +210,91 @@ h6 { font-size: 0.875rem; }
     transform: none;
   }
 }
+
+/* Modo oscuro cinematográfico completo */
+.vf-theme-dark {
+  --vf-bg: #0c0e17;
+  --vf-bg-elevated: #151825;
+  --vf-bg-subtle: #1c2033;
+  --vf-bg-muted: #242a42;
+  
+  --vf-text: #f1f5f9;
+  --vf-text-muted: #94a3b8;
+  
+  --vf-border: #2e354f;
+  --vf-border-strong: #3e476b;
+  --vf-border-subtle: #242a42;
+
+  --vf-accent-soft: rgba(16, 217, 129, 0.08);
+  --vf-accent-glow: rgba(16, 217, 129, 0.2);
+  --vf-glass-bg: rgba(21, 24, 37, 0.7);
+  --vf-glass-border: rgba(255, 255, 255, 0.05);
+
+  /* Override dark badges */
+  --vf-badge-neutral-bg: rgba(255, 255, 255, 0.06);
+  --vf-badge-neutral-text: #94a3b8;
+  --vf-badge-neutral-border: rgba(255, 255, 255, 0.1);
+
+  --vf-badge-warn-bg: rgba(234, 88, 12, 0.15);
+  --vf-badge-warn-text: #fdba74;
+  --vf-badge-warn-border: rgba(234, 88, 12, 0.3);
+
+  --vf-badge-info-bg: rgba(14, 165, 233, 0.15);
+  --vf-badge-info-text: #7dd3fc;
+  --vf-badge-info-border: rgba(14, 165, 233, 0.3);
+
+  --vf-badge-success-bg: rgba(16, 217, 129, 0.12);
+  --vf-badge-success-text: #34f5a8;
+  --vf-badge-success-border: rgba(16, 217, 129, 0.3);
+
+  --vf-badge-danger-bg: rgba(225, 29, 72, 0.15);
+  --vf-badge-danger-text: #fda4af;
+  --vf-badge-danger-border: rgba(225, 29, 72, 0.3);
+}
+
+/* Scrollbar premium estilizado */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Scrollbars en modo oscuro */
+.vf-theme-dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.vf-theme-dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.vf-theme-dark * {
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+

@@ -90,6 +90,29 @@ button.block {
   color: var(--vf-text, #0c1222);
 }
 
+/* Dark mode overrides */
+:host-context(.vf-theme-dark) .secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--vf-text, #f1f5f9);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+:host-context(.vf-theme-dark) .secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+:host-context(.vf-theme-dark) .ghost {
+  color: var(--vf-text-muted, #94a3b8);
+}
+
+:host-context(.vf-theme-dark) .ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
 .danger {
   background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
   color: #fff;
