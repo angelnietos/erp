@@ -1,4 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { NgClass } from '@angular/common';
 import {
   Router,
   RouterLink,
@@ -26,14 +27,21 @@ interface NavItem {
   icon: string;
 }
 
-type Theme = 'light' | 'dark';
+type Theme = 'light' | 'dark' | 'forest' | 'cyberpunk';
+
+interface ThemeDot {
+  key: Theme;
+  label: string;
+  color: string;
+  ring: string;
+}
 
 @Component({
   selector: 'app-verifactu-platform-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, GcrmToastStackComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, GcrmToastStackComponent, NgClass],
   template: `
-    <div class="vf-shell" [class.vf-theme-dark]="isDarkTheme" [class.vf-sidebar-collapsed]="collapsed">
+    <div class="vf-shell" [ngClass]="['vf-theme-' + currentTheme, collapsed ? 'vf-sidebar-collapsed' : '']">
       <aside class="vf-sidebar" aria-label="Navegación Verifactu">
         <div class="vf-sidebar__top">
           <button
@@ -96,23 +104,22 @@ type Theme = 'light' | 'dark';
 
           <div class="vf-controls">
             @if (!collapsed) {
-              <div class="vf-theme-switch-container">
-                <button
-                  type="button"
-                  class="vf-theme-switch-btn"
-                  (click)="toggleTheme()"
-                  [attr.aria-label]="isDarkTheme ? 'Cambiar a claro' : 'Cambiar a oscuro'"
-                >
-                  <span class="vf-theme-switch-icon" [class.is-active]="!isDarkTheme">
-                    <lucide-icon name="sun" size="14" aria-hidden="true" />
-                  </span>
-                  <span class="vf-theme-switch-slider">
-                    <span class="vf-theme-switch-handle" [class.is-dark]="isDarkTheme"></span>
-                  </span>
-                  <span class="vf-theme-switch-icon" [class.is-active]="isDarkTheme">
-                    <lucide-icon name="moon" size="14" aria-hidden="true" />
-                  </span>
-                </button>
+              <div class="vf-theme-picker">
+                <p class="vf-theme-picker__label">Tema</p>
+                <div class="vf-theme-picker__dots">
+                  @for (t of themes; track t.key) {
+                    <button
+                      type="button"
+                      class="vf-theme-dot"
+                      [class.is-active]="currentTheme === t.key"
+                      [style.--dot-color]="t.color"
+                      [style.--dot-ring]="t.ring"
+                      [attr.aria-label]="'Tema ' + t.label"
+                      [title]="t.label"
+                      (click)="setTheme(t.key)"
+                    ></button>
+                  }
+                </div>
               </div>
             }
 
@@ -148,23 +155,19 @@ type Theme = 'light' | 'dark';
               <span>Cola ERP · Activo</span>
             </div>
 
-            <div class="vf-theme-switch-container vf-theme-switch-container--topbar">
-              <button
-                type="button"
-                class="vf-theme-switch-btn"
-                (click)="toggleTheme()"
-                [attr.aria-label]="isDarkTheme ? 'Cambiar a claro' : 'Cambiar a oscuro'"
-              >
-                <span class="vf-theme-switch-icon" [class.is-active]="!isDarkTheme">
-                  <lucide-icon name="sun" size="14" aria-hidden="true" />
-                </span>
-                <span class="vf-theme-switch-slider">
-                  <span class="vf-theme-switch-handle" [class.is-dark]="isDarkTheme"></span>
-                </span>
-                <span class="vf-theme-switch-icon" [class.is-active]="isDarkTheme">
-                  <lucide-icon name="moon" size="14" aria-hidden="true" />
-                </span>
-              </button>
+            <div class="vf-theme-picker vf-theme-picker--topbar">
+              @for (t of themes; track t.key) {
+                <button
+                  type="button"
+                  class="vf-theme-dot"
+                  [class.is-active]="currentTheme === t.key"
+                  [style.--dot-color]="t.color"
+                  [style.--dot-ring]="t.ring"
+                  [attr.aria-label]="'Tema ' + t.label"
+                  [title]="t.label"
+                  (click)="setTheme(t.key)"
+                ></button>
+              }
             </div>
           </div>
         </header>
@@ -214,6 +217,17 @@ type Theme = 'light' | 'dark';
         border-right: 1px solid rgba(255, 255, 255, 0.08);
         color: #eef2f8;
         overflow: hidden;
+      }
+
+      /* Sidebar por tema */
+      .vf-theme-light .vf-sidebar {
+        background: linear-gradient(180deg, #1a2640 0%, #1e3a52 50%, #12281a 100%);
+      }
+      .vf-theme-forest .vf-sidebar {
+        background: linear-gradient(180deg, #040d06 0%, #071209 40%, #0a1a0f 100%);
+      }
+      .vf-theme-cyberpunk .vf-sidebar {
+        background: linear-gradient(180deg, #020203 0%, #06060c 35%, #0a0a18 70%, #12050a 100%);
       }
 
       .vf-sidebar__top {
@@ -422,98 +436,59 @@ type Theme = 'light' | 'dark';
         gap: 0.25rem;
       }
 
-      /* Theme switch slider */
-      .vf-theme-switch-container {
+      /* ===== Theme Dot Picker ===== */
+      .vf-theme-picker {
+        padding: 0.5rem 0.85rem;
         display: flex;
-        justify-content: center;
-        padding: 0.25rem 0.5rem;
-        margin-top: 0.25rem;
+        flex-direction: column;
+        gap: 0.35rem;
       }
 
-      .vf-theme-switch-btn {
+      .vf-theme-picker__label {
+        margin: 0;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.3);
+      }
+
+      .vf-theme-picker__dots {
         display: flex;
+        gap: 0.45rem;
         align-items: center;
-        justify-content: space-between;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 999px;
-        padding: 6px 12px;
-        cursor: pointer;
-        width: 100%;
-        gap: 0.5rem;
-        transition: all 0.25s ease;
       }
 
-      .vf-theme-switch-btn:hover {
-        background: rgba(255, 255, 255, 0.12);
-        border-color: rgba(255, 255, 255, 0.2);
-        box-shadow: 0 0 12px rgba(16, 217, 129, 0.2);
-      }
-
-      .vf-theme-switch-icon {
-        display: flex;
-        align-items: center;
-        color: #64748b;
-        transition: color 0.25s ease;
-      }
-
-      .vf-theme-switch-icon.is-active {
-        color: #34f5a8;
-      }
-
-      .vf-theme-switch-slider {
-        position: relative;
-        width: 38px;
+      .vf-theme-dot {
+        width: 18px;
         height: 18px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        transition: background 0.25s ease;
-      }
-
-      .vf-theme-switch-handle {
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 12px;
-        height: 12px;
-        background: linear-gradient(135deg, #34f5a8, #0d9f5f);
         border-radius: 50%;
-        transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-        box-shadow: 0 0 8px rgba(52, 245, 168, 0.6);
-      }
-
-      .vf-theme-switch-handle.is-dark {
-        transform: translateX(20px);
-      }
-
-      /* Topbar adjustments for switch */
-      .vf-theme-switch-container--topbar {
+        background: var(--dot-color, #fff);
+        border: 2px solid transparent;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         padding: 0;
-        margin-top: 0;
+        flex-shrink: 0;
       }
 
-      .vf-theme-switch-container--topbar .vf-theme-switch-btn {
-        background: var(--vf-accent-soft);
-        border-color: rgba(16, 217, 129, 0.25);
-        color: var(--vf-accent);
+      .vf-theme-dot:hover {
+        transform: scale(1.25);
+        box-shadow: 0 0 12px var(--dot-ring, rgba(255,255,255,0.5));
       }
 
-      .vf-theme-switch-container--topbar .vf-theme-switch-btn:hover {
-        background: rgba(16, 217, 129, 0.18);
-        border-color: rgba(16, 217, 129, 0.4);
+      .vf-theme-dot.is-active {
+        transform: scale(1.2);
+        border-color: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 0 0 3px var(--dot-ring, rgba(255,255,255,0.3)), 0 0 14px var(--dot-ring, rgba(255,255,255,0.4));
       }
 
-      .vf-theme-switch-container--topbar .vf-theme-switch-slider {
-        background: rgba(0, 0, 0, 0.08);
-      }
-
-      .vf-shell.vf-theme-dark .vf-theme-switch-container--topbar .vf-theme-switch-slider {
-        background: rgba(0, 0, 0, 0.4);
-      }
-
-      .vf-sidebar-collapsed .vf-theme-switch-container {
-        display: none;
+      /* Topbar dot picker */
+      .vf-theme-picker--topbar {
+        flex-direction: row;
+        padding: 0;
+        gap: 0.4rem;
+        align-items: center;
       }
 
       /* Main area */
@@ -539,9 +514,21 @@ type Theme = 'light' | 'dark';
         flex-shrink: 0;
       }
 
-      .vf-shell.vf-theme-dark .vf-topbar {
-        background: rgba(17, 24, 39, 0.85);
+      .vf-shell.vf-theme-dark .vf-topbar,
+      .vf-shell.vf-theme-forest .vf-topbar,
+      .vf-shell.vf-theme-cyberpunk .vf-topbar {
+        background: rgba(10, 10, 20, 0.82);
         border-bottom-color: rgba(255, 255, 255, 0.08);
+      }
+
+      .vf-shell.vf-theme-forest .vf-topbar {
+        background: rgba(4, 13, 6, 0.85);
+        border-bottom-color: rgba(102, 187, 106, 0.12);
+      }
+
+      .vf-shell.vf-theme-cyberpunk .vf-topbar {
+        background: rgba(2, 2, 3, 0.88);
+        border-bottom-color: rgba(167, 139, 250, 0.12);
       }
 
       .vf-topbar__left {
@@ -722,8 +709,15 @@ readonly erpHubUrl = environment.erpHubUrl;
   showThemeMenu = false;
   userEmail: string | null = null;
 
+  readonly themes: ThemeDot[] = [
+    { key: 'light',     label: 'Claro',     color: '#e2e8f0', ring: 'rgba(148,163,184,0.6)' },
+    { key: 'dark',      label: 'Oscuro',    color: '#1e293b', ring: 'rgba(52,245,168,0.5)' },
+    { key: 'forest',    label: 'Bosque',    color: '#2e7d32', ring: 'rgba(102,187,106,0.5)' },
+    { key: 'cyberpunk', label: 'Cyberpunk', color: '#6d28d9', ring: 'rgba(250,204,21,0.5)' },
+  ];
+
   get isDarkTheme(): boolean {
-    return this.currentTheme === 'dark';
+    return this.currentTheme === 'dark' || this.currentTheme === 'forest' || this.currentTheme === 'cyberpunk';
   }
 
   get tenantSlug(): string {

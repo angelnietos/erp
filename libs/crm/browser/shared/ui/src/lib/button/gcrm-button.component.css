@@ -135,3 +135,44 @@ button.block {
     transform: none;
   }
 }
+
+/* ===== Forest theme button overrides ===== */
+:host-context(.vf-theme-forest) .secondary {
+  background: rgba(102, 187, 106, 0.05);
+  color: #c8e6c9;
+  border-color: rgba(102, 187, 106, 0.18);
+  box-shadow: none;
+}
+:host-context(.vf-theme-forest) .secondary:hover:not(:disabled) {
+  background: rgba(102, 187, 106, 0.12);
+  border-color: rgba(102, 187, 106, 0.32);
+  color: #e8f5e9;
+}
+:host-context(.vf-theme-forest) .ghost {
+  color: #81c784;
+}
+:host-context(.vf-theme-forest) .ghost:hover:not(:disabled) {
+  background: rgba(102, 187, 106, 0.08);
+  color: #c8e6c9;
+}
+
+/* ===== Cyberpunk theme button overrides ===== */
+:host-context(.vf-theme-cyberpunk) .secondary {
+  background: rgba(167, 139, 250, 0.05);
+  color: #e9d5ff;
+  border-color: rgba(167, 139, 250, 0.18);
+  box-shadow: none;
+}
+:host-context(.vf-theme-cyberpunk) .secondary:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.12);
+  border-color: rgba(250, 204, 21, 0.35);
+  color: #fef9c3;
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.15);
+}
+:host-context(.vf-theme-cyberpunk) .ghost {
+  color: #a78bfa;
+}
+:host-context(.vf-theme-cyberpunk) .ghost:hover:not(:disabled) {
+  background: rgba(250, 204, 21, 0.07);
+  color: #fde68a;
+}

@@ -158,6 +158,60 @@ export type GcrmStatCardTone = 'default' | 'success' | 'warning' | 'danger' | 'i
         color: #7dd3fc;
       }
 
+      /* ===== Forest theme overrides ===== */
+      :host-context(.vf-theme-forest) .stat {
+        background: rgba(15, 35, 24, 0.75);
+        border-color: rgba(102, 187, 106, 0.15);
+        backdrop-filter: blur(12px);
+      }
+      :host-context(.vf-theme-forest) .tone-success {
+        background: linear-gradient(145deg, #0d1f0f 0%, #163520 100%);
+        border-color: rgba(102, 187, 106, 0.3);
+      }
+      :host-context(.vf-theme-forest) .tone-success .stat__value { color: #a5d6a7; }
+      :host-context(.vf-theme-forest) .tone-warning {
+        background: linear-gradient(145deg, #1f1a0d 0%, #2c2010 100%);
+        border-color: rgba(255, 167, 38, 0.25);
+      }
+      :host-context(.vf-theme-forest) .tone-warning .stat__value { color: #ffb74d; }
+      :host-context(.vf-theme-forest) .tone-danger {
+        background: linear-gradient(145deg, #200d0d 0%, #2e1214 100%);
+        border-color: rgba(229, 115, 115, 0.25);
+      }
+      :host-context(.vf-theme-forest) .tone-danger .stat__value { color: #ef9a9a; }
+      :host-context(.vf-theme-forest) .tone-info {
+        background: linear-gradient(145deg, #0d1825 0%, #0e2035 100%);
+        border-color: rgba(100, 181, 246, 0.25);
+      }
+      :host-context(.vf-theme-forest) .tone-info .stat__value { color: #90caf9; }
+
+      /* ===== Cyberpunk theme overrides ===== */
+      :host-context(.vf-theme-cyberpunk) .stat {
+        background: rgba(12, 12, 20, 0.80);
+        border-color: rgba(167, 139, 250, 0.12);
+        backdrop-filter: blur(14px);
+      }
+      :host-context(.vf-theme-cyberpunk) .tone-success {
+        background: linear-gradient(145deg, #0a1710 0%, #0d2016 100%);
+        border-color: rgba(52, 211, 153, 0.25);
+      }
+      :host-context(.vf-theme-cyberpunk) .tone-success .stat__value { color: #6ee7b7; }
+      :host-context(.vf-theme-cyberpunk) .tone-warning {
+        background: linear-gradient(145deg, #1f1900 0%, #2a2100 100%);
+        border-color: rgba(250, 204, 21, 0.3);
+      }
+      :host-context(.vf-theme-cyberpunk) .tone-warning .stat__value { color: #fde68a; }
+      :host-context(.vf-theme-cyberpunk) .tone-danger {
+        background: linear-gradient(145deg, #1f0505 0%, #280808 100%);
+        border-color: rgba(248, 113, 113, 0.25);
+      }
+      :host-context(.vf-theme-cyberpunk) .tone-danger .stat__value { color: #fca5a5; }
+      :host-context(.vf-theme-cyberpunk) .tone-info {
+        background: linear-gradient(145deg, #060f1e 0%, #091730 100%);
+        border-color: rgba(34, 211, 238, 0.25);
+      }
+      :host-context(.vf-theme-cyberpunk) .tone-info .stat__value { color: #67e8f9; }
+
       @media (prefers-reduced-motion: reduce) {
         .stat {
           transition: none;

@@ -21,6 +21,27 @@ body,
     var(--vf-bg) !important;
 }
 
+/* Tema Bosque Mágico — Rayman Forest */
+.vf-shell.vf-theme-forest {
+  background:
+    radial-gradient(900px 550px at 85% -5%, rgba(102, 187, 106, 0.12), transparent 60%),
+    radial-gradient(700px 450px at -8% 105%, rgba(129, 199, 132, 0.08), transparent 55%),
+    radial-gradient(500px 350px at 50% 80%, rgba(139, 195, 74, 0.05), transparent 50%),
+    radial-gradient(400px 300px at 20% 20%, rgba(74, 20, 140, 0.04), transparent 50%),
+    var(--vf-bg) !important;
+}
+
+/* Tema Cyberpunk — Rockstar Neon */
+.vf-shell.vf-theme-cyberpunk {
+  background:
+    radial-gradient(1000px 550px at 90% -10%, rgba(250, 204, 21, 0.07), transparent 60%),
+    radial-gradient(800px 500px at -10% 110%, rgba(167, 139, 250, 0.08), transparent 55%),
+    radial-gradient(600px 400px at 50% 50%, rgba(34, 211, 238, 0.04), transparent 50%),
+    radial-gradient(300px 200px at 80% 90%, rgba(250, 204, 21, 0.04), transparent 50%),
+    var(--vf-bg) !important;
+}
+
+
 input:focus-visible:not(:disabled),
 select:focus-visible:not(:disabled),
 textarea:focus-visible:not(:disabled),

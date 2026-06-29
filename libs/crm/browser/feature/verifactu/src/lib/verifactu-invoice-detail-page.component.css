@@ -201,6 +201,54 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/* ===== Forest timeline ===== */
+:host-context(.vf-theme-forest) .vf-timeline__item[data-tone='ok'] .vf-timeline__dot {
+  background: #0d2212;
+  border-color: #66bb6a;
+  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.18);
+}
+:host-context(.vf-theme-forest) .vf-timeline__item[data-tone='err'] .vf-timeline__dot {
+  background: #2a0d10;
+  border-color: #e57373;
+  box-shadow: 0 0 0 4px rgba(229, 115, 115, 0.14);
+}
+:host-context(.vf-theme-forest) .vf-timeline__item[data-tone='info'] .vf-timeline__dot {
+  background: #0b1c30;
+  border-color: #64b5f6;
+}
+:host-context(.vf-theme-forest) .vf-timeline__item[data-tone='warn'] .vf-timeline__dot {
+  background: #251800;
+  border-color: #ffa726;
+}
+:host-context(.vf-theme-forest) .vf-timeline__item:not(:last-child)::before {
+  background: rgba(102, 187, 106, 0.12);
+}
+
+/* ===== Cyberpunk timeline ===== */
+:host-context(.vf-theme-cyberpunk) .vf-timeline__item[data-tone='ok'] .vf-timeline__dot {
+  background: #081410;
+  border-color: #34d399;
+  box-shadow: 0 0 0 4px rgba(52, 211, 153, 0.18);
+}
+:host-context(.vf-theme-cyberpunk) .vf-timeline__item[data-tone='err'] .vf-timeline__dot {
+  background: #1c0808;
+  border-color: #f87171;
+  box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.14);
+}
+:host-context(.vf-theme-cyberpunk) .vf-timeline__item[data-tone='info'] .vf-timeline__dot {
+  background: #050c18;
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.15);
+}
+:host-context(.vf-theme-cyberpunk) .vf-timeline__item[data-tone='warn'] .vf-timeline__dot {
+  background: #1a1500;
+  border-color: #facc15;
+  box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.18);
+}
+:host-context(.vf-theme-cyberpunk) .vf-timeline__item:not(:last-child)::before {
+  background: rgba(167, 139, 250, 0.12);
+}
+
 .vf-timeline__label {
   margin: 0;
   font-weight: 700;
