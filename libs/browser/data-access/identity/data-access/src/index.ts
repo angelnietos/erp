@@ -38,7 +38,9 @@ export {
 } from './lib/utils/erp-tenant-theme';
 export {
   getTenantUiShell,
+  JOSANZ_FIGMA_TENANT_SLUG,
   usesJosanzFigmaLogin,
+  prefersEmbeddedJosanzFigmaLogin,
   usesDocumentGeneratorLogin,
   isBabooniUiShell,
   isJosanzFigmaUiShell,

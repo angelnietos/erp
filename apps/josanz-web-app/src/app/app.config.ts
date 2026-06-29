@@ -36,6 +36,7 @@ import {
   getStoredTenantId,
   setErpTenantSlug,
   resolveTenantSlugFromId,
+  JOSANZ_FIGMA_TENANT_SLUG,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { JosanzThemeService } from '@josanz-erp/josanz-ui';
@@ -56,7 +57,7 @@ export const appConfig: ApplicationConfig = {
     provideEnterpriseAuth({
       mode: environment.auth?.mode ?? 'bff',
       apiPrefix: '/api',
-      defaultTenantSlug: 'josanz',
+      defaultTenantSlug: JOSANZ_FIGMA_TENANT_SLUG,
     }),
     provideBffSessionKeepalive(),
     { provide: ERP_BFF_AUTH, useExisting: BffAuthClient },
@@ -86,7 +87,7 @@ export const appConfig: ApplicationConfig = {
         const pluginStore = inject(PluginStore);
         const josanzTheme = inject(JosanzThemeService);
 
-        setErpTenantSlug('josanz');
+        setErpTenantSlug(JOSANZ_FIGMA_TENANT_SLUG);
         josanzTheme.setTheme('luxe-rounded');
 
         tenantModulesRealtime.registerIdentityRefresh(() => {
@@ -124,7 +125,7 @@ export const appConfig: ApplicationConfig = {
               if (response.tenantId) {
                 authService.setTenantId(response.tenantId);
               }
-              setErpTenantSlug(response.tenantSlug ?? 'josanz');
+              setErpTenantSlug(response.tenantSlug ?? JOSANZ_FIGMA_TENANT_SLUG);
 
               const u = response.user;
               const displayName =

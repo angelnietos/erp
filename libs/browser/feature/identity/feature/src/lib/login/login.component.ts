@@ -20,6 +20,7 @@ import {
   syncErpTenantHtmlTheme,
   syncErpRoutePhaseFromPath,
   usesJosanzFigmaLogin,
+  prefersEmbeddedJosanzFigmaLogin,
   usesDocumentGeneratorLogin,
   getPrimaryDevLoginHintForTenant,
   getDevLoginHintsForTenant,
@@ -174,6 +175,9 @@ export class LoginComponent implements OnInit {
 
   /** Comprobando KC o redirigiendo (sin formulario intermedio). */
   readonly keycloakHandoffPending = computed(() => {
+    if (prefersEmbeddedJosanzFigmaLogin(this.tenantSlug())) {
+      return false;
+    }
     if (!this.tenantUsesKeycloak() || !this.authService.canUseKeycloakPkce(this.tenantSlug())) {
       return false;
     }
@@ -191,6 +195,9 @@ export class LoginComponent implements OnInit {
 
   /** Formulario email/password: tenant sin KC, KC caído o usuario volvió atrás desde KC. */
   readonly showLocalLoginForm = computed(() => {
+    if (prefersEmbeddedJosanzFigmaLogin(this.tenantSlug())) {
+      return true;
+    }
     if (this.forceLocalLogin()) {
       return true;
     }
@@ -476,6 +483,23 @@ export class LoginComponent implements OnInit {
       this.keycloakReachablePreview.set(null);
       return;
     }
+
+    if (prefersEmbeddedJosanzFigmaLogin(slug)) {
+      this.authService.isKeycloakAvailable(cfg.realm).subscribe({
+        next: (available) => {
+          this.keycloakReachablePreview.set(available);
+          if (!available) {
+            this.prefillDevCredentialsIfLocal();
+          }
+        },
+        error: () => {
+          this.keycloakReachablePreview.set(false);
+          this.prefillDevCredentialsIfLocal();
+        },
+      });
+      return;
+    }
+
     this.authService.isKeycloakAvailable(cfg.realm).subscribe({
       next: (available) => {
         this.keycloakReachablePreview.set(available);

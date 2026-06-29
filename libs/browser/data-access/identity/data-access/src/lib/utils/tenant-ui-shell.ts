@@ -20,7 +20,7 @@ export const TENANT_UI_SHELL_BY_SLUG: Readonly<Record<string, ErpTenantUiShell>>
   babooni: 'babooni',
   /** Generic ERP — shell clásico (shared-ui-shell), distinto de Babooni y Alexis Figma. */
   josanz: 'classic',
-  /** Shell Figma / josanz-ui (solo tenant Alexis). */
+  /** Shell Figma / josanz-ui (hub Alexis + apps/josanz-web-app standalone). */
   alexis: 'josanz-figma',
   /** Generador de documentos integrado (standalone en :4210). */
   docs: 'document-generator',
@@ -35,9 +35,19 @@ export function getTenantUiShell(slug: string | null | undefined): ErpTenantUiSh
   return TENANT_UI_SHELL_BY_SLUG[key] ?? 'classic';
 }
 
+/** Tenant Postgres + Keycloak del shell Figma (hub Alexis y josanz-web-app standalone). */
+export const JOSANZ_FIGMA_TENANT_SLUG = 'alexis' as const;
+
 /** Login Figma de dos columnas (`Login.svg` / josanz-ui). */
 export function usesJosanzFigmaLogin(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'josanz-figma';
+}
+
+/** Login embebido en la SPA: no redirigir al hosted login de Keycloak. */
+export function prefersEmbeddedJosanzFigmaLogin(
+  slug: string | null | undefined,
+): boolean {
+  return usesJosanzFigmaLogin(slug);
 }
 
 /** Login dedicado tenant docs (generador de documentos). */
