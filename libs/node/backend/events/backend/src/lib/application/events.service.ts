@@ -85,7 +85,7 @@ export class EventsService {
       data: {
         tenantId,
         ...payload,
-      },
+      } as Prisma.EventUncheckedCreateInput,
       include: this.defaultInclude(),
     });
     await this.auditLogWriter.record(actorUserId, {
@@ -192,8 +192,8 @@ export class EventsService {
     tenantId: string,
     data: EventWriteBody,
     eventId?: string,
-  ): Promise<Prisma.EventUpdateInput> {
-    const payload: Prisma.EventUpdateInput = {};
+  ): Promise<Prisma.EventUncheckedUpdateInput> {
+    const payload: Prisma.EventUncheckedUpdateInput = {};
 
     if (data.name !== undefined) {
       payload.name = data.name.trim() || 'Nuevo evento';
@@ -217,13 +217,13 @@ export class EventsService {
       payload.summary = data.summary?.trim() || null;
     }
     if (data.venueSchedule !== undefined) {
-      payload.venueSchedule = data.venueSchedule as Prisma.InputJsonValue;
+      payload.venueSchedule = data.venueSchedule as unknown as Prisma.InputJsonValue;
     }
 
     if (data.clientId !== undefined) {
       const clientId = data.clientId?.trim();
       if (!clientId) {
-        payload.client = { disconnect: true };
+        payload.clientId = null;
       } else {
         const client = await this.prisma.client.findFirst({
           where: { id: clientId, tenantId, deletedAt: null },
@@ -231,14 +231,14 @@ export class EventsService {
         if (!client) {
           throw new BadRequestException('Cliente no encontrado');
         }
-        payload.client = { connect: { id: clientId } };
+        payload.clientId = clientId;
       }
     }
 
     if (data.operatorContactId !== undefined) {
       const operatorId = data.operatorContactId?.trim();
       if (!operatorId) {
-        payload.operatorContact = { disconnect: true };
+        payload.operatorContactId = null;
       } else {
         const operator = await this.prisma.clientContact.findFirst({
           where: {
@@ -250,7 +250,7 @@ export class EventsService {
         if (!operator) {
           throw new BadRequestException('Operador no encontrado para el cliente');
         }
-        payload.operatorContact = { connect: { id: operatorId } };
+        payload.operatorContactId = operatorId;
       }
     }
 
