@@ -1,18 +1,18 @@
 <div
   [ngStyle]="getCardStyles()"
   class="josanz-list-card flex flex-col md:flex-row md:items-center w-full group border border-solid transition-all duration-300 gap-3 md:gap-0 relative overflow-hidden"
-  [class.rounded-2xl]="activeShape() === 'rounded'"
-  [class.rounded-none]="activeShape() === 'square'"
-  [class.rounded-[40px]]="activeShape() === 'pill'"
+  [class.josanz-list-card--rounded]="activeShape() === 'rounded'"
+  [class.josanz-list-card--square]="activeShape() === 'square'"
+  [class.josanz-list-card--pill]="activeShape() === 'pill'"
 >
   <!-- Barra de estado (Figma): color del pill, siempre visible -->
   <div
-    class="josanz-list-card__status-rail absolute left-0 top-0 bottom-0 hidden md:block rounded-l-2xl"
+    class="josanz-list-card__status-rail absolute left-0 top-0 bottom-0 hidden md:block"
     [ngStyle]="getStatusRailStyles()"
     aria-hidden="true"
   ></div>
   <div
-    class="josanz-list-card__status-rail josanz-list-card__status-rail--mobile absolute top-0 left-0 right-0 md:hidden rounded-t-2xl"
+    class="josanz-list-card__status-rail josanz-list-card__status-rail--mobile absolute top-0 left-0 right-0 md:hidden"
     [ngStyle]="getStatusRailStyles()"
     aria-hidden="true"
   ></div>

@@ -42,3 +42,22 @@
 .josanz-filter-tabs__segment--idle:hover {
   color: var(--josanz-text, #222222);
 }
+
+/* Underline tabs — Figma Eventos catalog (tabs Todos/Externos/Hoteles/Espacios) */
+:host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs button {
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding-bottom: 0.625rem;
+}
+
+:host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs button[class*="text-[var(--josanz-text)]"] {
+  font-weight: 700;
+}
+
+/* Underline bar — make it thicker to match Figma */
+:host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs span[class*="absolute bottom-0"] {
+  height: 2.5px;
+  background: var(--josanz-text, #222222);
+  border-radius: 2px;
+}

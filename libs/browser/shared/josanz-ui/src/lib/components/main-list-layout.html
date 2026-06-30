@@ -26,7 +26,7 @@
 
     <div class="josanz-main-list__controls flex w-full min-w-0 flex-col gap-3">
       @if (figmaCatalogLayout) {
-      @if (summaryLine || filterOptions.length) {
+      <!-- ── Figma Catalog: fila 1 — logo, título, tabs, summary, avatar ── -->
       <div class="josanz-main-list__figma-meta-row">
         @if (filterOptions.length) {
         <josanz-filter-tabs
@@ -50,10 +50,19 @@
         </p>
         }
       </div>
-      }
+
+      <!-- ── Figma Catalog: fila 2 — Filtros, Buscar, Excel, Añadir ── -->
       <div class="josanz-main-list__figma-toolbar">
         <div class="josanz-main-list__figma-toolbar-row">
-          <div class="josanz-main-list__figma-actions">
+          <!-- Grupo izquierda: Filtros + Buscar -->
+          <div class="josanz-main-list__figma-left-actions">
+            <!-- Botón Filtros (Figma: con icono embudo, borde) -->
+            <button type="button" class="josanz-figma-filter-btn" (click)="onFiltrosClick()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              Filtros
+            </button>
             @if (showSearch) {
             <josanz-list-search-field
               [placeholder]="searchPlaceholder"
@@ -63,6 +72,9 @@
               (valueChange)="onSearchChange($event)"
             ></josanz-list-search-field>
             }
+          </div>
+          <!-- Grupo derecha: Excel + Añadir -->
+          <div class="josanz-main-list__figma-actions">
             @if (showExcel) {
             <josanz-secondary-button
               label="Excel"
@@ -94,6 +106,8 @@
         </div>
         <ng-content select="[extra-filters]"></ng-content>
       </div>
+
+
       } @else {
       <div
         class="flex w-full min-w-0 flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-6"

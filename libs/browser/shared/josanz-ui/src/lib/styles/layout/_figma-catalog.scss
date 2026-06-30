@@ -8,10 +8,10 @@
   }
 
   h1 {
-    font-family: 'Barlow Condensed', 'DM Sans', system-ui, sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 0;
+    font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     line-height: 1;
     color: var(--josanz-text-heading, #222222);
   }
@@ -24,6 +24,7 @@
     gap: 0.75rem 1.5rem;
     width: 100%;
     min-width: 0;
+    min-height: 32px;
   }
 
   .josanz-main-list__figma-summary-pill {
@@ -60,10 +61,18 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     gap: 0.5rem;
     width: 100%;
     min-width: 0;
+  }
+
+  .josanz-main-list__figma-left-actions {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
   }
 
   .josanz-main-list__figma-tabs {
@@ -77,15 +86,11 @@
     align-items: center;
     justify-content: flex-end;
     gap: 0.5rem;
-    width: auto;
-    max-width: 100%;
-    min-width: 0;
-    margin-left: auto;
+    flex-shrink: 0;
 
     @media (max-width: 767px) {
       flex-wrap: wrap;
       width: 100%;
-      margin-left: 0;
     }
   }
 
@@ -152,6 +157,25 @@
 
   .josanz-list-thead {
     margin-bottom: 0.5rem;
+    padding-left: 1.5rem; /* align with card left rail */
+
+    .josanz-list-thead__label {
+      font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--josanz-text-muted, #7c7c7c);
+    }
+
+    .josanz-list-thead__status-label {
+      font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--josanz-text-muted, #7c7c7c);
+    }
   }
 
   .josanz-main-list__stack.josanz-list-view--cards-list,
@@ -164,26 +188,26 @@
   }
 
   .josanz-list-card {
-    border-radius: var(--josanz-radius-card, 12px) !important;
-    box-shadow: var(--josanz-card-shadow) !important;
-    border-color: var(--josanz-border) !important;
+    border-radius: var(--josanz-radius-card, 20px) !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.04) !important;
+    border: 1px solid #ebebeb !important;
+    background: #ffffff !important;
   }
 
   .josanz-list-card__status-rail {
-    width: 8px !important;
+    width: 6px !important;
     opacity: 1 !important;
-    border-radius: 12px 0 0 12px;
   }
 
   .josanz-list-card__status-rail--mobile {
     height: 4px !important;
-    border-radius: 12px 12px 0 0;
   }
 
   .josanz-list-template-row__title h3 {
-    font-size: 1rem;
-    font-weight: 800;
+    font-size: 0.875rem;
+    font-weight: 700;
     letter-spacing: -0.01em;
+    color: #222222;
   }
 
   /* Estado solo en columna derecha — nunca bajo el ID/título */
@@ -192,6 +216,7 @@
   }
 
   .josanz-list-template-row__field {
+    font-size: 13px;
     font-weight: 500;
     color: var(--josanz-text-muted) !important;
   }
@@ -232,3 +257,42 @@
     border-radius: 12px 0 0 12px;
   }
 }
+
+/* ── Figma "Filtros" button ─────────────────────────────── */
+.josanz-figma-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--josanz-border, #e0e0e0);
+  border-radius: 8px;
+  background: var(--josanz-surface, #ffffff);
+  color: var(--josanz-text, #222222);
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover {
+    background: var(--josanz-surface-muted, #f7f7f7);
+    border-color: var(--josanz-text-muted, #aaaaaa);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+}
+

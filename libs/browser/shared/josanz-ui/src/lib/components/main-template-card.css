@@ -6,6 +6,18 @@
     transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow 0.2s ease,
     border-color 0.2s ease;
+  border-radius: var(--josanz-radius-card, 12px);
+}
+
+/* Shape modifier classes — replaces Tailwind hardcoded rounded classes */
+.josanz-list-card--rounded {
+  border-radius: var(--josanz-radius-card, 12px);
+}
+.josanz-list-card--square {
+  border-radius: 0;
+}
+.josanz-list-card--pill {
+  border-radius: 40px;
 }
 
 /*
@@ -14,11 +26,11 @@
  * la segunda añade profundidad y la tercera el accent de color.
  */
 .josanz-list-card:hover {
-  transform: translateY(-3px) scale(1.002);
+  transform: translateY(-2px) scale(1.001);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.04),
-    0 8px 24px rgba(0, 0, 0, 0.08),
-    0 0 0 1.5px color-mix(in srgb, var(--josanz-primary) 20%, transparent);
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    0 12px 28px rgba(0, 0, 0, 0.07),
+    0 0 0 1.5px color-mix(in srgb, var(--josanz-primary) 15%, transparent);
 }
 
 .josanz-list-card:active {
@@ -27,13 +39,22 @@
   transition-duration: 0.08s;
 }
 
+/* Status rail — inherits card border-radius on top-left/bottom-left corners */
 .josanz-list-card__status-rail {
-  width: 8px;
+  width: 6px;
   z-index: 1;
+  border-top-left-radius: inherit;
+  border-bottom-left-radius: inherit;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 .josanz-list-card__status-rail--mobile {
   height: 4px;
   width: auto;
   bottom: auto;
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }

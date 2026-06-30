@@ -39,6 +39,7 @@ export class MainTemplateCardComponent {
   @Input() leadingMark = '';
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
+  @Input() railColor?: string;
   /** `outline` = pastilla con borde (Figma Eventos). */
   @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
 
@@ -140,6 +141,9 @@ export class MainTemplateCardComponent {
 
   /** Barra lateral de estado (Figma listados). */
   getStatusRailStyles() {
+    if (this.railColor) {
+      return { backgroundColor: this.railColor };
+    }
     if (this.customColor) {
       return { backgroundColor: this.customColor };
     }

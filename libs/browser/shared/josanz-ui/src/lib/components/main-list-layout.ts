@@ -74,6 +74,7 @@ export class MainListLayoutComponent implements OnChanges {
   @Output() excelAction = new EventEmitter<void>();
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
+  @Output() filtrosClick = new EventEmitter<void>();
 
   @Input() avatarLink: string | null = '/settings';
   @Input() avatarAriaLabel = 'Cuenta y ajustes';
@@ -152,5 +153,9 @@ export class MainListLayoutComponent implements OnChanges {
 
   onSearchChange(value: string): void {
     this.searchChange.emit(value);
+  }
+
+  onFiltrosClick(): void {
+    this.filtrosClick.emit();
   }
 }
