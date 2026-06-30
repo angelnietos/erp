@@ -1,0 +1,14 @@
+{
+  "smtpServer": {
+    "host": "mailhog",
+    "port": "1025",
+    "from": "noreply@josanz.local",
+    "fromDisplayName": "Josanz Audiovisual",
+    "replyTo": "noreply@josanz.local",
+    "replyToDisplayName": "Josanz Audiovisual",
+    "envelopeFrom": "",
+    "ssl": "false",
+    "starttls": "false",
+    "auth": "false"
+  }
+}
