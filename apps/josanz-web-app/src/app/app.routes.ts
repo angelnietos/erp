@@ -17,6 +17,16 @@ export const appRoutes: Route[] = [
       import('@josanz-erp/identity-feature').then((m) => m.AuthCallbackComponent),
   },
   {
+    path: 'auth/forgot-password',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.ForgotPasswordComponent),
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () =>
+      import('@josanz-erp/identity-feature').then((m) => m.ResetPasswordComponent),
+  },
+  {
     path: '',
     component: JosanzAppShellComponent,
     canActivate: [josanzAuthGuard],

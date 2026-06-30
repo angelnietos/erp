@@ -53,11 +53,14 @@ export interface JosanzCatalogListConfig {
   pageSize?: number;
 }
 
+import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'josanz-catalog-list',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MainListLayoutComponent,
     AdaptiveListRowsComponent,
     FilterTabsComponent,
@@ -75,6 +78,15 @@ export class JosanzCatalogListComponent {
   activeStatusFilter = '';
   activeTypology = 'Todos';
   currentPage = 1;
+
+  // Modal de filtros properties
+  showFiltrosModal = false;
+  selectedIdFilter = '';
+  selectedNombreFilter = '';
+  selectedFechaFilter = '';
+  selectedClienteFilter = '';
+  selectedOperadorFilter = '';
+  selectedEstadoFilter = '';
 
   readonly defaultRowLabels = ['Nombre evento', 'Fecha', 'Cliente', 'Operador'];
 
@@ -167,6 +179,26 @@ export class JosanzCatalogListComponent {
     let rows = this.rows;
     rows = this.applyTypologyFilter(rows);
     rows = this.applyStatusFilter(rows);
+
+    if (this.selectedIdFilter) {
+      rows = rows.filter(r => r.id === this.selectedIdFilter);
+    }
+    if (this.selectedNombreFilter) {
+      rows = rows.filter(r => r.eventName === this.selectedNombreFilter);
+    }
+    if (this.selectedFechaFilter) {
+      rows = rows.filter(r => r.date === this.selectedFechaFilter);
+    }
+    if (this.selectedClienteFilter) {
+      rows = rows.filter(r => r.client === this.selectedClienteFilter);
+    }
+    if (this.selectedOperadorFilter) {
+      rows = rows.filter(r => r.operator === this.selectedOperadorFilter);
+    }
+    if (this.selectedEstadoFilter) {
+      rows = rows.filter(r => r.pillLabel.toLowerCase() === this.selectedEstadoFilter.toLowerCase());
+    }
+
     return this.applySearchFilter(rows);
   }
 
@@ -313,5 +345,74 @@ export class JosanzCatalogListComponent {
         this.rowValues(r).some((value) => value.toLowerCase().includes(q)) ||
         r.pillLabel.toLowerCase().includes(q),
     );
+  }
+
+  // Modal actions and filters helper methods
+  openFiltrosModal(): void {
+    this.showFiltrosModal = true;
+  }
+
+  closeFiltrosModal(): void {
+    this.showFiltrosModal = false;
+  }
+
+  clearAllModalFilters(): void {
+    this.selectedIdFilter = '';
+    this.selectedNombreFilter = '';
+    this.selectedFechaFilter = '';
+    this.selectedClienteFilter = '';
+    this.selectedOperadorFilter = '';
+    this.selectedEstadoFilter = '';
+    this.currentPage = 1;
+  }
+
+  applyModalFilters(): void {
+    this.currentPage = 1;
+    this.closeFiltrosModal();
+  }
+
+  get activeFilterChips(): string[] {
+    const chips: string[] = [];
+    if (this.selectedIdFilter) chips.push(this.selectedIdFilter);
+    if (this.selectedNombreFilter) chips.push(this.selectedNombreFilter);
+    if (this.selectedFechaFilter) chips.push(this.selectedFechaFilter);
+    if (this.selectedClienteFilter) chips.push(this.selectedClienteFilter);
+    if (this.selectedOperadorFilter) chips.push(this.selectedOperadorFilter);
+    if (this.selectedEstadoFilter) chips.push(this.selectedEstadoFilter);
+    return chips;
+  }
+
+  removeFilterChip(chip: string): void {
+    if (this.selectedIdFilter === chip) this.selectedIdFilter = '';
+    else if (this.selectedNombreFilter === chip) this.selectedNombreFilter = '';
+    else if (this.selectedFechaFilter === chip) this.selectedFechaFilter = '';
+    else if (this.selectedClienteFilter === chip) this.selectedClienteFilter = '';
+    else if (this.selectedOperadorFilter === chip) this.selectedOperadorFilter = '';
+    else if (this.selectedEstadoFilter === chip) this.selectedEstadoFilter = '';
+    this.currentPage = 1;
+  }
+
+  getUniqueIdOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.id).filter((id): id is string => !!id)));
+  }
+
+  getUniqueNombreOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.eventName).filter((n): n is string => !!n)));
+  }
+
+  getUniqueFechaOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.date).filter((d): d is string => !!d)));
+  }
+
+  getUniqueClienteOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.client).filter((c): c is string => !!c)));
+  }
+
+  getUniqueOperadorOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.operator).filter((o): o is string => !!o)));
+  }
+
+  getUniqueEstadoOptions(): string[] {
+    return Array.from(new Set(this.rows.map(r => r.pillLabel).filter((s): s is string => !!s)));
   }
 }

@@ -100,10 +100,11 @@ export class GridListCardComponent {
     }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
+      const color = key === 'facturado' ? 'var(--josanz-pill-facturado-bg)' : `var(--josanz-pill-${key}-text)`;
       return {
         'background-color': 'transparent',
-        color: `var(--josanz-pill-${key}-text)`,
-        border: `1px solid var(--josanz-pill-${key}-text)`,
+        color: color,
+        border: `1px solid ${color}`,
       };
     }
     return {
