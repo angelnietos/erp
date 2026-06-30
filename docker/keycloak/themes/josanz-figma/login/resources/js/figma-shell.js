@@ -21,6 +21,52 @@
     return COPY[key] || '';
   }
 
+  function removeLocaleSwitcher() {
+    [
+      '#kc-josanz-locale',
+      '#kc-locale',
+      '#kc-locale-wrapper',
+      '#login-select-locale',
+      '#kc-locale-dropdown',
+    ].forEach(function (selector) {
+      document.querySelectorAll(selector).forEach(function (node) {
+        node.remove();
+      });
+    });
+
+    document.querySelectorAll('.pf-v5-c-login select').forEach(function (select) {
+      var id = (select.id || '').toLowerCase();
+      var name = (select.name || '').toLowerCase();
+      var aria = (select.getAttribute('aria-label') || '').toLowerCase();
+      var isLocaleControl =
+        id.indexOf('locale') !== -1 ||
+        name.indexOf('locale') !== -1 ||
+        aria === 'idioma' ||
+        aria === 'language';
+
+      if (!isLocaleControl) {
+        var labels = [];
+        for (var i = 0; i < select.options.length; i++) {
+          labels.push((select.options[i].textContent || '').trim());
+        }
+        isLocaleControl =
+          labels.indexOf('Español') !== -1 &&
+          (labels.indexOf('English') !== -1 || labels.length === 1);
+      }
+
+      if (!isLocaleControl) {
+        return;
+      }
+
+      var wrapper = select.closest('#kc-locale') || select.closest('[id*="locale"]');
+      if (wrapper) {
+        wrapper.remove();
+      } else {
+        select.remove();
+      }
+    });
+  }
+
   function pathKindFromLocation() {
     var path = window.location.pathname;
     if (path.indexOf('login-actions/required-action') !== -1) {
@@ -392,6 +438,7 @@
   function boot() {
     applyLightShell();
     hideOrgLinkIfNeeded();
+    removeLocaleSwitcher();
     ensureBrandChrome();
     wireResetFormFeedback();
   }

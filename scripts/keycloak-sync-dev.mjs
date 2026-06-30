@@ -211,8 +211,7 @@ async function syncJosanzRealmLoginUx(token) {
   const payload = {
     ...realm,
     loginTheme: 'generic-erp',
-    internationalizationEnabled: true,
-    supportedLocales: ['es'],
+    internationalizationEnabled: false,
     defaultLocale: 'es',
     loginWithEmailAllowed: true,
     rememberMe: true,

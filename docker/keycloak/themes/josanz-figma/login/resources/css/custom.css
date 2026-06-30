@@ -188,11 +188,29 @@ html.login-pf::after {
 }
 
 #kc-locale,
+#kc-locale-wrapper,
+#kc-josanz-locale,
+.kc-josanz-locale,
+#kc-josanz-locale-select,
 .pf-v5-c-login__header #kc-locale-dropdown,
+.pf-v5-c-login__main #kc-locale,
+.pf-v5-c-login__header #kc-locale,
 .pf-v5-c-login__header select,
+.pf-v5-c-login__main > select,
 #login-select-locale,
-#kc-locale-dropdown {
+#kc-locale-dropdown,
+.pf-v5-c-login select[id*='locale'],
+.pf-v5-c-login select[name*='locale'] {
   display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  border: 0 !important;
+  opacity: 0 !important;
 }
 
 .pf-v5-c-login__main-body {
