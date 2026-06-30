@@ -4,7 +4,7 @@ const TENANT_STORAGE_KEY = 'tenant_id';
 const AUTH_TOKEN_KEY = 'auth_token';
 
 const TENANT_UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function isTenantUuid(value: string | null | undefined): boolean {
   return typeof value === 'string' && TENANT_UUID_RE.test(value.trim());

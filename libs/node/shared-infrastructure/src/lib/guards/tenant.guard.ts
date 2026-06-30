@@ -126,6 +126,21 @@ export class TenantGuard implements CanActivate {
       }
     }
     
+    // Cabecera explícita (p. ej. BFF la inyecta tras el middleware CLS).
+    if (!tenantId) {
+      const headerRaw = request.headers['x-tenant-id'];
+      const headerTenant =
+        typeof headerRaw === 'string'
+          ? headerRaw
+          : Array.isArray(headerRaw)
+            ? headerRaw[0]
+            : undefined;
+      if (headerTenant && isTenantUuid(headerTenant)) {
+        tenantId = headerTenant.trim();
+        this.cls.set('tenantId', tenantId);
+      }
+    }
+
     // Finalmente, intentar desde req.user (si ya fue autenticado por JwtAuthGuard)
     if (!tenantId) {
       if (user?.tenantId && isTenantUuid(user.tenantId)) {

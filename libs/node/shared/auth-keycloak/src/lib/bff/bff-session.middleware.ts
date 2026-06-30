@@ -56,7 +56,8 @@ export class BffSessionMiddleware implements NestMiddleware {
   ): Promise<string | null> {
     let accessToken = session.accessToken;
     const expMs = readJwtExpiresAtMs(accessToken);
-    const needsRenew = !expMs || expMs - Date.now() < RENEW_BEFORE_MS;
+    const needsRenew =
+      expMs != null && expMs - Date.now() < RENEW_BEFORE_MS;
 
     let renewal: Awaited<ReturnType<BffSessionRenewerPort['renewAccessToken']>> = null;
     if (needsRenew && this.renewer) {
@@ -66,9 +67,7 @@ export class BffSessionMiddleware implements NestMiddleware {
       }
     }
 
-    const stillExpired =
-      !readJwtExpiresAtMs(accessToken) ||
-      (readJwtExpiresAtMs(accessToken) ?? 0) <= Date.now();
+    const stillExpired = expMs != null && expMs <= Date.now();
     if (stillExpired) {
       this.logger.debug(`BFF session ${sessionId}: token expired after renewal`);
       await this.sessions.delete(sessionId);
@@ -104,8 +103,12 @@ export class BffSessionMiddleware implements NestMiddleware {
 
     if (sessionId) {
       const session = await this.sessions.get(sessionId);
-      if (session) {
-        if (isBffSessionProbe(path)) {
+    if (session) {
+      if (session.tenantId && !req.headers['x-tenant-id']) {
+        req.headers['x-tenant-id'] = session.tenantId;
+      }
+
+      if (isBffSessionProbe(path)) {
           (req as Request & { bffSessionId?: string; bffCsrfToken?: string }).bffSessionId =
             sessionId;
           (req as Request & { bffCsrfToken?: string }).bffCsrfToken = session.csrfToken;
