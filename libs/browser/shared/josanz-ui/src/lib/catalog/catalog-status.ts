@@ -1,4 +1,8 @@
 import type { JosanzStatusPillVariant } from '../components/main-template-card';
+import {
+  JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS,
+  JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
+} from '../theme/josanz-figma-tokens';
 
 export interface JosanzCatalogListRow {
   id: string;
@@ -16,6 +20,8 @@ export interface JosanzCatalogListRow {
   values?: string[];
   pillLabel: string;
   pillVariant: JosanzStatusPillVariant;
+  /** Barra lateral izquierda (tipo de evento / hotel). */
+  railColor?: string;
 }
 
 export function pillVariantForCatalogStatus(
@@ -85,6 +91,32 @@ export function pillVariantForCatalogStatus(
     return 'cliente-nuevo';
   }
   return 'en-proceso';
+}
+
+/** Color de la barra lateral según tipología (no el estado del evento). */
+export function railColorForCatalogRow(
+  row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id'>,
+  hotelIndex = 0,
+): string {
+  if (row.railColor) {
+    return row.railColor;
+  }
+  const typology = row.typology ?? '';
+  if (typology === 'Externos') {
+    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Externos;
+  }
+  if (typology === 'Espacios') {
+    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios;
+  }
+  if (typology === 'Hoteles') {
+    const idx =
+      hotelIndex >= 0
+        ? hotelIndex % JOSANZ_FIGMA_HOTEL_RAIL_COLORS.length
+        : Number.parseInt(row.id.replace(/\D/g, ''), 10) %
+          JOSANZ_FIGMA_HOTEL_RAIL_COLORS.length;
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[idx] ?? JOSANZ_FIGMA_HOTEL_RAIL_COLORS[0];
+  }
+  return '#94A3B8';
 }
 
 export const JOSANZ_CATALOG_EVENT_STATUS_ROWS: JosanzCatalogListRow[] = [

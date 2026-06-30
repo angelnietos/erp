@@ -5,6 +5,11 @@ import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzGridCardDensity } from '../list-view/list-view-preferences';
 import type { JosanzStatusBadgeStyle, JosanzStatusPillVariant } from './main-template-card';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
+import {
+  eventOutlineBadgeStyles,
+  eventOutlineIconRingStyles,
+  getEventOutlinePill,
+} from '../theme/event-status-outline';
 
 @Component({
   selector: 'josanz-grid-list-card',
@@ -100,12 +105,7 @@ export class GridListCardComponent {
     }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
-      const color = key === 'facturado' ? 'var(--josanz-pill-facturado-bg)' : `var(--josanz-pill-${key}-text)`;
-      return {
-        'background-color': 'transparent',
-        color: color,
-        border: `1px solid ${color}`,
-      };
+      return eventOutlineBadgeStyles(key);
     }
     return {
       'background-color': `var(--josanz-pill-${key}-bg)`,
@@ -114,6 +114,9 @@ export class GridListCardComponent {
   }
 
   statusIcon(): string {
+    if (this.statusBadgeStyle === 'outline') {
+      return getEventOutlinePill(this.resolvePillKey()).icon;
+    }
     const key = this.resolvePillKey();
     const icons: Partial<Record<JosanzStatusPillKey, string>> = {
       borrador: '✎',
@@ -128,6 +131,10 @@ export class GridListCardComponent {
       cerrado: '●',
     };
     return icons[key] ?? '';
+  }
+
+  statusIconRingStyles(): Record<string, string> {
+    return eventOutlineIconRingStyles(this.resolvePillKey());
   }
 
   showStatusIcon(): boolean {

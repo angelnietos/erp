@@ -83,8 +83,8 @@ export const POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
 
 /** Rutas apps/josanz-web-app (shell Figma / tenant alexis). */
 export const FIGMA_POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
-  { path: '/dashboard' },
   { path: '/events', permission: 'events.view' },
+  { path: '/dashboard' },
   { path: '/clients', permission: 'clients.view' },
   { path: '/equipment', permission: 'products.view' },
   { path: '/vehicles', permission: 'fleet.view' },
@@ -108,7 +108,7 @@ export function resolveTenantHomePath(tenantSlug?: string | null): string {
     return '/documents/list';
   }
   if (shell === 'josanz-figma') {
-    return '/dashboard';
+    return '/events';
   }
   return '/dashboard';
 }
@@ -134,7 +134,7 @@ export function resolvePostLoginPath(
     }
   }
   if (isJosanzFigmaUiShell(slug)) {
-    return '/dashboard';
+    return '/events';
   }
   return '/settings';
 }

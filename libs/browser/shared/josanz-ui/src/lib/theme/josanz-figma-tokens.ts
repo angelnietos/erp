@@ -91,7 +91,7 @@ export const JOSANZ_FIGMA_SEMANTIC = {
  * Claves = sufijo de `--josanz-pill-{clave}-bg|text`.
  */
 export const JOSANZ_FIGMA_STATUS_PILLS = {
-  borrador: { bg: '#ECEFF1', text: '#37474F' },
+  borrador: { bg: '#ECEFF1', text: '#222222' },
   presupuesto: { bg: '#FFEEE8', text: '#9A3412' },
   'presupuesto-solid': { bg: '#F97316', text: '#7C2D12' },
   confirmado: { bg: '#D1FAE5', text: '#064E3B' },
@@ -121,6 +121,21 @@ export const JOSANZ_FIGMA_STATUS_PILLS = {
 } as const;
 
 export type JosanzStatusPillKey = keyof typeof JOSANZ_FIGMA_STATUS_PILLS;
+
+/** Colores de barra lateral por tipología de evento (Figma «Colores tipo eventos»). */
+export const JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS = {
+  Externos: '#EAB308',
+  Espacios: '#92400E',
+} as const;
+
+/** Variación de color para filas de hoteles (cada hotel en Figma). */
+export const JOSANZ_FIGMA_HOTEL_RAIL_COLORS = [
+  '#2563EB',
+  '#EA580C',
+  '#EC4899',
+  '#9333EA',
+  '#16A34A',
+] as const;
 
 /** Misma semántica en `data-theme="dark"` (fondos más profundos, texto claro legible). */
 export const JOSANZ_FIGMA_STATUS_PILLS_DARK: Record<JosanzStatusPillKey, { bg: string; text: string }> = {

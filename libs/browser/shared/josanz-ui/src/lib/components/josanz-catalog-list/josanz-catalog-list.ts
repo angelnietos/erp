@@ -6,6 +6,7 @@ import {
   JOSANZ_CATALOG_EVENT_STATUS_ROWS,
   JOSANZ_CATALOG_STATUS_FILTERS,
   JOSANZ_CATALOG_WAREHOUSE_TABS,
+  railColorForCatalogRow,
 } from '../../catalog/catalog-status';
 import { AdaptiveListRowsComponent, type JosanzAdaptiveListItem } from '../adaptive-list-rows';
 import { FilterTabsComponent } from '../filter-tabs';
@@ -159,15 +160,20 @@ export class JosanzCatalogListComponent {
   }
 
   get adaptiveItems(): JosanzAdaptiveListItem[] {
-    return this.filteredRows.map((row) => ({
-      id: row.id,
-      title: row.title ?? row.id,
-      leadingMark: row.leadingMark,
-      data: this.rowValues(row),
-      labels: this.rowLabels,
-      status: row.pillLabel,
-      statusVariant: row.pillVariant,
-    }));
+    let hotelIndex = 0;
+    return this.filteredRows.map((row) => {
+      const hotelIdx = row.typology === 'Hoteles' ? hotelIndex++ : 0;
+      return {
+        id: row.id,
+        title: row.title ?? row.id,
+        leadingMark: row.leadingMark,
+        data: this.rowValues(row),
+        labels: this.rowLabels,
+        status: row.pillLabel,
+        statusVariant: row.pillVariant,
+        railColor: railColorForCatalogRow(row, hotelIdx),
+      };
+    });
   }
 
   get paginatedItems(): JosanzAdaptiveListItem[] {

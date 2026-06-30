@@ -5,6 +5,45 @@
   <div
     class="josanz-main-list__header flex w-full min-w-0 shrink-0 flex-col gap-5"
   >
+    @if (figmaCatalogLayout) {
+    <div class="josanz-main-list__figma-title-row">
+      <div class="josanz-main-list__figma-title-group">
+        <h1
+          class="text-[28px] font-extrabold leading-none tracking-tight md:text-[38px]"
+          [style.color]="'var(--josanz-text)'"
+        >
+          {{ title }}
+        </h1>
+        @if (filterOptions.length) {
+        <josanz-filter-tabs
+          class="josanz-main-list__figma-tabs"
+          [options]="filterOptions"
+          [variant]="effectiveTypologyTabsVariant"
+          [shape]="shape"
+          [customColor]="customColor"
+          (selectionChange)="onFilterChange($event)"
+        ></josanz-filter-tabs>
+        }
+      </div>
+      <div class="josanz-main-list__figma-title-end">
+        @if (summaryLine) {
+        <p class="josanz-main-list__figma-summary-pill" role="status">
+          @if (summaryLineParts; as parts) {
+          <span>{{ parts.before }}</span>
+          <strong>{{ parts.emphasis }}</strong>
+          <span>{{ parts.after }}</span>
+          } @else {
+          <span>{{ summaryLine }}</span>
+          }
+        </p>
+        }
+        <josanz-user-avatar
+          [link]="avatarLink"
+          [ariaLabel]="avatarAriaLabel"
+        ></josanz-user-avatar>
+      </div>
+    </div>
+    } @else {
     <div class="flex w-full min-w-0 items-start justify-between gap-4">
       <div class="flex min-w-0 flex-col gap-0">
         <h1
@@ -23,35 +62,11 @@
         [ariaLabel]="avatarAriaLabel"
       ></josanz-user-avatar>
     </div>
+    }
 
     <div class="josanz-main-list__controls flex w-full min-w-0 flex-col gap-3">
       @if (figmaCatalogLayout) {
-      <!-- ── Figma Catalog: fila 1 — logo, título, tabs, summary, avatar ── -->
-      <div class="josanz-main-list__figma-meta-row">
-        @if (filterOptions.length) {
-        <josanz-filter-tabs
-          class="josanz-main-list__figma-tabs"
-          [options]="filterOptions"
-          [variant]="effectiveTypologyTabsVariant"
-          [shape]="shape"
-          [customColor]="customColor"
-          (selectionChange)="onFilterChange($event)"
-        ></josanz-filter-tabs>
-        }
-        @if (summaryLine) {
-        <p class="josanz-main-list__figma-summary-pill" role="status">
-          @if (summaryLineParts; as parts) {
-          <span>{{ parts.before }}</span>
-          <strong>{{ parts.emphasis }}</strong>
-          <span>{{ parts.after }}</span>
-          } @else {
-          <span>{{ summaryLine }}</span>
-          }
-        </p>
-        }
-      </div>
-
-      <!-- ── Figma Catalog: fila 2 — Filtros, Buscar, Excel, Añadir ── -->
+      <!-- ── Figma Catalog: Filtros, Buscar, Excel, Añadir ── -->
       <div class="josanz-main-list__figma-toolbar">
         <div class="josanz-main-list__figma-toolbar-row">
           <!-- Grupo izquierda: Filtros + Buscar -->

@@ -18,6 +18,8 @@ export interface JosanzAdaptiveListItem {
   labels?: string[];
   status?: string;
   statusVariant?: JosanzStatusPillVariant;
+  /** Color de barra lateral (tipo de evento en listado Figma). */
+  railColor?: string;
   /** Iniciales o marca en círculo junto al título (listado Clientes Figma). */
   leadingMark?: string;
 }
@@ -42,6 +44,7 @@ export interface JosanzAdaptiveListItem {
             [labels]="item.labels ?? defaultLabels"
             [status]="item.status ?? ''"
             [statusVariant]="item.statusVariant ?? 'borrador'"
+            [railColor]="item.railColor ?? ''"
             [leadingMark]="item.leadingMark ?? ''"
             [statusBadgeStyle]="statusBadgeStyle"
           ></josanz-main-template-card>

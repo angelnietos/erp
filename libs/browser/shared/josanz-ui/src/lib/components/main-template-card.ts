@@ -3,6 +3,11 @@ import { CommonModule } from '@angular/common';
 import { JosanzThemeService } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
+import {
+  eventOutlineBadgeStyles,
+  eventOutlineIconRingStyles,
+  getEventOutlinePill,
+} from '../theme/event-status-outline';
 import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
@@ -97,16 +102,7 @@ export class MainTemplateCardComponent {
     }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
-      const color = key === 'facturado' ? 'var(--josanz-pill-facturado-bg)' : `var(--josanz-pill-${key}-text)`;
-      return {
-        'background-color': 'transparent',
-        color: color,
-        border: `1px solid ${color}`,
-        'box-shadow': 'none',
-        'text-transform': 'none',
-        'letter-spacing': '0',
-        'font-weight': '700',
-      };
+      return eventOutlineBadgeStyles(key);
     }
     return {
       'background-color': `var(--josanz-pill-${key}-bg)`,
@@ -118,6 +114,9 @@ export class MainTemplateCardComponent {
   }
 
   statusIcon(): string {
+    if (this.statusBadgeStyle === 'outline') {
+      return getEventOutlinePill(this.resolvePillKey()).icon;
+    }
     const key = this.resolvePillKey();
     const icons: Partial<Record<JosanzStatusPillKey, string>> = {
       borrador: '✎',
@@ -134,6 +133,10 @@ export class MainTemplateCardComponent {
       finalizado: '✓',
     };
     return icons[key] ?? '';
+  }
+
+  statusIconRingStyles(): Record<string, string> {
+    return eventOutlineIconRingStyles(this.resolvePillKey());
   }
 
   showStatusIcon(): boolean {

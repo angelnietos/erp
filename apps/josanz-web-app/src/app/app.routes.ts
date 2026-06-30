@@ -33,7 +33,7 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: '',
-        redirectTo: 'dashboard',
+        redirectTo: 'events',
         pathMatch: 'full',
       },
       {
@@ -123,6 +123,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: 'dashboard',
+    redirectTo: 'events',
   },
 ];

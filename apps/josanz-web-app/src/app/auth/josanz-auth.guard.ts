@@ -44,16 +44,16 @@ export const josanzGuestGuard: CanActivateFn = async () => {
   const router = inject(Router);
 
   if (globalAuthStore.isAuthenticated()) {
-    return router.createUrlTree(['/dashboard']);
+    return router.createUrlTree(['/events']);
   }
 
   if (authService.isBffMode()) {
     const restored = await sessionHydration.tryRestoreFromBffCookie();
     if (restored) {
-      return router.createUrlTree(['/dashboard']);
+      return router.createUrlTree(['/events']);
     }
   } else if (authService.readPersistedSession()) {
-    return router.createUrlTree(['/dashboard']);
+    return router.createUrlTree(['/events']);
   }
 
   return true;

@@ -75,6 +75,6 @@ describe('Josanz guest guard', () => {
   it('redirects authenticated users away from login', async () => {
     globalAuthStore.isAuthenticated.mockReturnValue(true);
     const result = await runCanActivateGuard(josanzGuestGuard);
-    expect(serializeGuardResult(result)).toBe('/dashboard');
+    expect(serializeGuardResult(result)).toBe('/events');
   });
 });

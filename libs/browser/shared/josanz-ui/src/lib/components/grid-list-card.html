@@ -32,7 +32,13 @@
         [ngStyle]="badgeStyles()"
       >
         @if (showStatusIcon()) {
-        <span aria-hidden="true">{{ statusIcon() }} </span>
+        <span
+          class="josanz-grid-list-card__status-icon-ring"
+          [ngStyle]="statusIconRingStyles()"
+          aria-hidden="true"
+        >
+          <span class="josanz-grid-list-card__status-icon">{{ statusIcon() }}</span>
+        </span>
         }
         {{ status }}
       </span>
