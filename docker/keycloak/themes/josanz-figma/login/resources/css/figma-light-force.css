@@ -1,6 +1,5 @@
 /**
  * Tema josanz-figma: siempre claro (Figma 61:1312 login, 424:4464 recuperar).
- * Anula reglas oscuras de login-shell.css compartido cuando falta --light en el DOM.
  */
 html.login-pf .pf-v5-c-login__main {
   --pf-v5-c-form-control--Color: #222222;
@@ -13,10 +12,7 @@ html.login-pf .pf-v5-c-login__main {
   box-shadow: none !important;
 }
 
-html.login-pf .pf-v5-c-login__main::before {
-  display: none !important;
-}
-
+html.login-pf .pf-v5-c-login__main::before,
 html.login-pf .pf-v5-c-login__main::after {
   display: none !important;
 }
@@ -48,24 +44,6 @@ html.login-pf .pf-v5-c-login__main input:-webkit-autofill {
 
 html.login-pf .pf-v5-c-login__container {
   background: #fffefe !important;
-}
-
-/* Recuperar contraseña — copy Figma 424:4464 */
-html.login-pf.kc-reset-password-flow #kc-page-title::before,
-html.login-pf[data-kc-page='login-reset-password'] #kc-page-title::before {
-  content: none !important;
-  display: none !important;
-}
-
-html.login-pf.kc-reset-password-flow .pf-v5-c-login__header > div:first-child::after,
-html.login-pf[data-kc-page='login-reset-password'] .pf-v5-c-login__header > div:first-child::after {
-  content: 'Te enviaremos un link para que crees una nueva contraseña.' !important;
-  display: block !important;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.45;
-  color: #7c7c7c;
 }
 
 html.login-pf.kc-reset-password-flow #kc-form-options,

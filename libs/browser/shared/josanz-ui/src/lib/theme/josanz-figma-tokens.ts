@@ -20,6 +20,8 @@ export const JOSANZ_FIGMA_BRAND_PRIMARY = '#080808';
 /** Frame Login Figma node `61:1312` (Ready for dev ✓, hero `61:1313` / image 32). */
 export const JOSANZ_FIGMA_LOGIN_NODE = '61:1312' as const;
 export const JOSANZ_FIGMA_LOGIN_HERO_NODE = '61:1313' as const;
+/** Frame recuperar contraseña Figma node `424:4464`. */
+export const JOSANZ_FIGMA_RESET_PASSWORD_NODE = '424:4464' as const;
 
 /** Frame `Login.svg` (1280×832): login web claro, formulario a la derecha. */
 export const JOSANZ_FIGMA_LOGIN = {

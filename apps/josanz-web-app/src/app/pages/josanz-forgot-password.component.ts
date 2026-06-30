@@ -86,9 +86,7 @@ export class JosanzForgotPasswordComponent implements OnInit {
     try {
       const { email } = this.form.getRawValue();
       const res = await firstValueFrom(this.auth.forgotPassword(email, slug));
-      this.success.set(
-        'Si existe una cuenta con ese email, recibirás un enlace para restablecer la contraseña.',
-      );
+      this.success.set('Contraseña enviada correctamente. Revisa tu bandeja de entrada.');
       if (res.devResetUrl) {
         this.devResetUrl.set(res.devResetUrl);
       }

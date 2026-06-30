@@ -19,6 +19,7 @@ const fs = require('fs');
 const FIGMA_FILE_KEY = 'E4vulhxg6pTMCnzFt5fVnJ';
 const FRAMES = [
   { id: '61-1312', name: 'login' },
+  { id: '424-4464', name: 'reset_password' },
   { id: '0-1', name: 'design-root' },
 ];
 
