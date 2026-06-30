@@ -43,13 +43,6 @@ export function usesJosanzFigmaLogin(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'josanz-figma';
 }
 
-/** Login embebido en la SPA: no redirigir al hosted login de Keycloak. */
-export function prefersEmbeddedJosanzFigmaLogin(
-  slug: string | null | undefined,
-): boolean {
-  return usesJosanzFigmaLogin(slug);
-}
-
 /** Login dedicado tenant docs (generador de documentos). */
 export function usesDocumentGeneratorLogin(slug: string | null | undefined): boolean {
   return getTenantUiShell(slug) === 'document-generator';

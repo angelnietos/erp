@@ -1,5 +1,5 @@
-/* Josanz Figma login — extiende keycloak.v2 (PatternFly v5) */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap');
+/* Josanz Figma login — Figma nodes 61:1312 (login) + 424:4464 (recuperar) */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&display=swap');
 
 :root {
   --josanz-canvas: #fffefe;
@@ -7,10 +7,10 @@
   --josanz-muted: #7c7c7c;
   --josanz-field-stroke: #d7d7d7;
   --josanz-field-radius: 8px;
-  --josanz-cta: #0f1e2f;
+  --josanz-cta: #080808;
   --josanz-on-cta: #ffffff;
-  --josanz-form-width: 27rem;
-  --josanz-font: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+  --josanz-form-width: 342px;
+  --josanz-font: 'Raleway', 'DM Sans', system-ui, sans-serif;
 }
 
 html,
@@ -28,106 +28,31 @@ body {
   background: var(--josanz-canvas) !important;
 }
 
-/* Hero izquierdo — foto Josanz (portada propia del ERP clásico / Figma) */
+/* Hero izquierdo — Figma 61:1313 */
 html.login-pf::before {
   content: '';
   position: fixed;
   top: 0;
   left: 0;
-  width: 52vw;
+  width: 50vw;
   height: 100vh;
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(15, 30, 47, 0.08) 0%, rgba(15, 30, 47, 0.42) 100%),
-    linear-gradient(135deg, rgba(232, 237, 245, 0.25), rgba(245, 247, 251, 0.12)),
-    url('../img/login-hero.png') center / cover no-repeat;
-  animation: josanz-hero-breathe 14s ease-in-out infinite;
+  background: url('../img/login-hero.png') center / cover no-repeat;
 }
 
-@keyframes josanz-hero-breathe {
-  0%,
-  100% {
-    filter: brightness(1) saturate(1);
-  }
-  50% {
-    filter: brightness(1.06) saturate(1.08);
-  }
-}
-
-@keyframes josanz-lumen-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-    opacity: 0.55;
-  }
-  50% {
-    transform: translate3d(0, -14px, 0) scale(1.1);
-    opacity: 0.92;
-  }
-}
-
-body.login-pf::before {
-  content: '';
-  position: fixed;
-  top: 18%;
-  left: 14%;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(250, 204, 21, 0.55) 0%, transparent 72%);
-  filter: blur(6px);
-  pointer-events: none;
-  z-index: 2;
-  animation: josanz-lumen-float 5.5s ease-in-out infinite;
-}
-
+body.login-pf::before,
 body.login-pf::after {
-  content: '';
-  position: fixed;
-  top: 48%;
-  left: 28%;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, transparent 70%);
-  filter: blur(8px);
-  pointer-events: none;
-  z-index: 2;
-  animation: josanz-lumen-float 6.8s ease-in-out infinite 1.6s;
+  display: none !important;
 }
 
 html.login-pf::after {
-  content: 'JOSANZ';
-  position: fixed;
-  left: clamp(1.5rem, 4vw, 2.75rem);
-  bottom: clamp(1.5rem, 4vw, 2.75rem);
-  z-index: 1;
-  pointer-events: none;
-  font-family: var(--josanz-font);
-  font-size: clamp(2.5rem, 5.5vw, 4rem);
-  font-weight: 800;
-  letter-spacing: 0.22em;
-  color: rgba(255, 255, 255, 0.88);
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
-  line-height: 1;
+  display: none !important;
 }
 
 .pf-v5-c-login::after {
-  content: 'Audiovisuales · ERP';
-  position: fixed;
-  left: clamp(1.5rem, 4vw, 2.75rem);
-  top: clamp(1.5rem, 4vw, 2.75rem);
-  z-index: 1;
-  pointer-events: none;
-  font-family: var(--josanz-font);
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.92);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+  display: none !important;
 }
 
 /* Shell dos columnas: hero | formulario */
@@ -155,7 +80,7 @@ html.login-pf::after {
   grid-template-columns: minmax(0, 1fr) !important;
   grid-template-areas: 'main' !important;
   display: flex !important;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   width: 100% !important;
   max-width: none !important;
@@ -163,142 +88,90 @@ html.login-pf::after {
   margin: 0 !important;
   padding: clamp(1rem, 2.5vh, 2rem) clamp(1.25rem, 3vw, 2.5rem);
   box-sizing: border-box;
-  background:
-    radial-gradient(520px 380px at 85% 0%, rgba(250, 204, 21, 0.07), transparent 58%),
-    linear-gradient(180deg, #fffefe 0%, #f6f4f1 100%);
+  background: var(--josanz-canvas) !important;
 }
 
 .pf-v5-c-login__main {
   width: 100%;
   max-width: var(--josanz-form-width);
   margin: 0 auto;
-  padding: clamp(1.25rem, 2.5vw, 1.65rem) !important;
+  padding: 0 !important;
   box-sizing: border-box;
-  border: 1px solid rgba(15, 30, 47, 0.08);
-  border-radius: 18px;
-  background: #ffffff;
-  box-shadow:
-    0 4px 24px rgba(15, 30, 47, 0.06),
-    0 28px 64px rgba(15, 30, 47, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
   position: relative;
 }
 
-.pf-v5-c-login__main::after {
-  content: '';
-  position: absolute;
-  top: -40px;
-  right: -20px;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(250, 204, 21, 0.35) 0%, transparent 70%);
-  pointer-events: none;
-  filter: blur(2px);
-  z-index: -1;
-}
-
+.pf-v5-c-login__main::after,
 .pf-v5-c-login__main::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  border-radius: 14px 14px 0 0;
-  background: linear-gradient(90deg, #0f1e2f 0%, #5c6b7a 55%, #0f1e2f 100%);
+  display: none !important;
 }
 
-/* Cabecera: logo + idioma arriba; título a ancho completo */
 .pf-v5-c-login__header {
-  display: grid !important;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  align-items: start;
-  gap: 0.35rem 1rem;
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
   width: 100%;
-  margin-bottom: 1.15rem;
-  text-align: left;
+  margin-bottom: 1.5rem;
+  text-align: center;
 }
 
 .pf-v5-c-login__header::before {
   content: '';
-  grid-column: 1;
-  grid-row: 1;
   display: block;
-  width: min(132px, 100%);
-  height: 52px;
-  margin: 0 0 0.15rem;
-  background: url('../img/login-logo.png') left center / contain no-repeat;
+  width: 148px;
+  height: 68px;
+  margin: 0 auto 1.25rem;
+  background: url('../img/login-logo.png') center / contain no-repeat;
 }
 
 #kc-locale,
-.pf-v5-c-login__header .pf-v5-c-form-control,
-.pf-v5-c-login__header select,
-.pf-v5-c-login__header > div:last-child:not(:first-child) {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: start;
-  justify-self: end;
+.pf-v5-c-login__header select {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   width: auto !important;
-  min-width: 6.75rem;
-  max-width: 9rem;
-  margin: 0 !important;
-  padding: 0.35rem 0.55rem !important;
+  min-width: 5.5rem;
   font-size: 0.75rem !important;
-  font-family: var(--josanz-font) !important;
   color: var(--josanz-muted) !important;
   background: #ffffff !important;
   border: 1px solid var(--josanz-field-stroke) !important;
   border-radius: 8px !important;
-  box-shadow: none !important;
 }
 
 .pf-v5-c-login__header > div:first-child {
-  grid-column: 1 / -1;
-  grid-row: 2;
   width: 100%;
-  min-width: 0;
 }
 
 .pf-v5-c-title,
 #kc-page-title {
   display: block;
   width: 100%;
-  max-width: 100%;
   color: var(--josanz-heading) !important;
   font-family: var(--josanz-font) !important;
-  font-size: clamp(1.5rem, 3vw, 1.85rem) !important;
-  font-weight: 700 !important;
-  line-height: 1.15 !important;
-  letter-spacing: -0.02em;
-  text-align: left;
-  white-space: normal;
-  word-break: normal;
-  overflow-wrap: normal;
-  hyphens: manual;
+  font-size: 2rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0;
+  text-align: center;
   margin: 0 !important;
 }
 
 #kc-page-title::before {
-  content: 'Acceso';
-  display: block;
-  margin-bottom: 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--josanz-muted);
+  content: none !important;
+  display: none !important;
 }
 
-.pf-v5-c-login__header > div:first-child::after {
-  content: 'Inicia sesión en tu organización Josanz ERP.';
-  display: block;
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--josanz-muted);
+html.login-pf:not(.kc-reset-password-flow) .pf-v5-c-login__header > div:first-child::after {
+  content: none !important;
+  display: none !important;
+}
+
+html.login-pf.kc-reset-password-flow .instruction {
+  display: none !important;
 }
 
 .pf-v5-c-login__main-body {
@@ -320,9 +193,7 @@ html.login-pf::after {
 
 .pf-v5-c-form__label,
 label.pf-v5-c-form__label {
-  color: var(--josanz-muted) !important;
-  font-size: 0.875rem;
-  margin-bottom: 0.375rem;
+  display: none !important;
 }
 
 .pf-v5-c-form-control,
@@ -330,9 +201,12 @@ input.pf-v5-c-form-control {
   border: 1px solid var(--josanz-field-stroke) !important;
   border-radius: var(--josanz-field-radius) !important;
   background: #ffffff !important;
-  min-height: 2.75rem;
+  min-height: 48px;
   width: 100%;
   box-shadow: none !important;
+  font-family: var(--josanz-font) !important;
+  font-size: 1rem !important;
+  font-weight: 300 !important;
 }
 
 .pf-v5-c-form-control:focus {
@@ -372,51 +246,29 @@ input.pf-v5-c-form-control {
   color: var(--josanz-heading) !important;
 }
 
-/* Recordarme + olvidé contraseña */
+/* Recordarme oculto (Figma no lo incluye); olvidé contraseña alineado a la derecha */
+#kc-form-options .checkbox,
+#kc-form-options .pf-v5-c-check {
+  display: none !important;
+}
+
 #kc-form-options,
 .pf-v5-c-login__main-footer-band {
   display: flex !important;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   gap: 0.75rem 1rem;
-  margin: 0.25rem 0 1.5rem;
+  margin: 0 0 1rem;
   width: 100%;
 }
 
-#kc-form-options .checkbox,
-#kc-form-options .pf-v5-c-check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0;
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-#kc-form-options label,
-#kc-form-options .pf-v5-c-check__label {
-  color: var(--josanz-muted) !important;
-  font-size: 0.875rem;
-  font-weight: 400;
-  margin: 0;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-#kc-form-options input[type='checkbox'],
-#kc-form-options .pf-v5-c-check__input {
-  width: 1rem;
-  height: 1rem;
-  accent-color: var(--josanz-cta);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
 #kc-form-options a {
-  color: var(--josanz-muted) !important;
-  font-size: 0.875rem;
-  text-decoration: none;
+  color: var(--josanz-heading) !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   white-space: nowrap;
 }
 
@@ -440,13 +292,15 @@ input.pf-v5-c-form-control {
 
 .pf-v5-c-button.pf-m-primary,
 #kc-login,
-input[name='login'] {
+input[name='login'],
+#kc-form-buttons input[type='submit'] {
   background: var(--josanz-cta) !important;
   border-color: var(--josanz-cta) !important;
   color: var(--josanz-on-cta) !important;
   border-radius: var(--josanz-field-radius) !important;
-  min-height: 2.75rem;
+  min-height: 48px;
   font-weight: 600;
+  font-family: var(--josanz-font) !important;
   width: 100%;
 }
 

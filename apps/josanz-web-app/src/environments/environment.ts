@@ -8,7 +8,7 @@ export const environment = {
   keycloak: {
     url: 'http://localhost:8081',
     realm: 'josanz-web-app-realm',
-    clientId: 'josanz-web-app-spa',
+    clientId: 'josanz-figma-spa',
     enabled: true,
   },
   grafanaDashboardUrl: '' as string,

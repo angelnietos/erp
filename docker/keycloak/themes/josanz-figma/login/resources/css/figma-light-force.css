@@ -1,0 +1,79 @@
+/**
+ * Tema josanz-figma: siempre claro (Figma 61:1312 login, 424:4464 recuperar).
+ * Anula reglas oscuras de login-shell.css compartido cuando falta --light en el DOM.
+ */
+html.login-pf .pf-v5-c-login__main {
+  --pf-v5-c-form-control--Color: #222222;
+  --pf-v5-c-form-control--BackgroundColor: #ffffff;
+  --pf-v5-global--Color--100: #222222;
+  --pf-v5-global--Color--200: #7c7c7c;
+  color: #222222 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.login-pf .pf-v5-c-login__main::before {
+  display: none !important;
+}
+
+html.login-pf .pf-v5-c-login__main::after {
+  display: none !important;
+}
+
+html.login-pf .pf-v5-c-login__main input.pf-v5-c-form-control,
+html.login-pf .pf-v5-c-login__main #username,
+html.login-pf .pf-v5-c-login__main #password,
+html.login-pf .pf-v5-c-login__main input[name='username'],
+html.login-pf .pf-v5-c-login__main input[type='email'],
+html.login-pf .pf-v5-c-login__main input[type='password'] {
+  color: #222222 !important;
+  -webkit-text-fill-color: #222222 !important;
+  caret-color: #0f1e2f !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d7d7d7 !important;
+  opacity: 1 !important;
+}
+
+html.login-pf .pf-v5-c-login__main input::placeholder {
+  color: #7c7c7c !important;
+  -webkit-text-fill-color: #7c7c7c !important;
+}
+
+html.login-pf .pf-v5-c-login__main input:-webkit-autofill {
+  -webkit-text-fill-color: #222222 !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+}
+
+html.login-pf .pf-v5-c-login__container {
+  background: #fffefe !important;
+}
+
+/* Recuperar contraseña — copy Figma 424:4464 */
+html.login-pf.kc-reset-password-flow #kc-page-title::before,
+html.login-pf[data-kc-page='login-reset-password'] #kc-page-title::before {
+  content: none !important;
+  display: none !important;
+}
+
+html.login-pf.kc-reset-password-flow .pf-v5-c-login__header > div:first-child::after,
+html.login-pf[data-kc-page='login-reset-password'] .pf-v5-c-login__header > div:first-child::after {
+  content: 'Te enviaremos un link para que crees una nueva contraseña.' !important;
+  display: block !important;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.45;
+  color: #7c7c7c;
+}
+
+html.login-pf.kc-reset-password-flow #kc-form-options,
+html.login-pf[data-kc-page='login-reset-password'] #kc-form-options {
+  display: none !important;
+}
+
+html.login-pf.kc-reset-password-flow .kc-change-org-link,
+html.login-pf[data-kc-page='login-reset-password'] .kc-change-org-link {
+  display: none !important;
+}

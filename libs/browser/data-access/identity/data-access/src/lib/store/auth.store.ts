@@ -11,7 +11,6 @@ import {
   type IdentityAuthMode,
 } from '../services/auth.service';
 import { syncErpTenantHtmlTheme, setErpTenantSlug, resolveTenantSlugFromId } from '../utils/erp-tenant-theme';
-import { prefersEmbeddedJosanzFigmaLogin } from '../utils/tenant-ui-shell';
 import { resolvePostLoginPath, resolveErpMainShellHandoffUrl } from '../utils/post-login-navigation';
 import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.interceptor';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
@@ -368,8 +367,7 @@ export const AuthStore = signalStore(
           if (
             tenantSlug &&
             tenantUsesKeycloakLogin(tenantSlug) &&
-            authService.canUseKeycloakPkce(tenantSlug) &&
-            !prefersEmbeddedJosanzFigmaLogin(tenantSlug)
+            authService.canUseKeycloakPkce(tenantSlug)
           ) {
             void authService.startKeycloakPkceRedirect(tenantSlug);
             return;
