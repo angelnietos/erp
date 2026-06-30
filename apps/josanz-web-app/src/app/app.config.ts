@@ -3,6 +3,7 @@ import {
   APP_INITIALIZER,
   inject,
   provideBrowserGlobalErrorListeners,
+  provideZoneChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import {
@@ -43,6 +44,7 @@ import { JosanzThemeService } from '@josanz-erp/josanz-ui';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideBrowserGlobalErrorListeners(),
     provideRouter(appRoutes),
     {
