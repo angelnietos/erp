@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
@@ -8,7 +9,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, startWith } from 'rxjs';
 import {
   ClientService,
   type CreateClientPayload,
@@ -44,6 +45,7 @@ export class JosanzClientCreateComponent {
   readonly tariffOptions = ['Especial 01', 'Especial 02', 'Tarifa estándar'];
 
   form: FormGroup;
+  private readonly razonSocialValue: ReturnType<typeof toSignal<string>>;
 
   constructor() {
     this.form = this.fb.group({
@@ -53,18 +55,22 @@ export class JosanzClientCreateComponent {
       tarifa: [this.tariffOptions[0], Validators.required],
       operadores: this.fb.array([this.createOperatorGroup(1)]),
     });
+
+    this.razonSocialValue = toSignal(
+      this.form.get('razonSocial')!.valueChanges.pipe(
+        startWith(this.form.get('razonSocial')!.value as string),
+      ),
+      { initialValue: '' },
+    );
   }
 
-  readonly brandInitials = computed(() => {
-    const name = (this.form.get('razonSocial')?.value as string) ?? '';
-    const parts = name.trim().split(/\s+/).filter(Boolean);
-    if (!parts.length) {
-      return 'NC';
-    }
-    return parts
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase() ?? '')
-      .join('');
+  readonly brandInitials = computed(() =>
+    this.initialsFromName(this.razonSocialValue() ?? ''),
+  );
+
+  readonly brandDisplayName = computed(() => {
+    const name = (this.razonSocialValue() ?? '').trim();
+    return name || 'Cliente';
   });
 
   get operadores(): FormArray {
@@ -122,6 +128,21 @@ export class JosanzClientCreateComponent {
 
   onCancel(): void {
     this.onBack();
+  }
+
+  private initialsFromName(name: string): string {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return 'NC';
+    }
+    const parts = trimmed.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return parts
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase() ?? '')
+        .join('');
+    }
+    return trimmed.slice(0, 2).toUpperCase();
   }
 
   private createOperatorGroup(index: number): FormGroup {

@@ -73,16 +73,13 @@
         ></josanz-input>
 
         <div class="josanz-event-create__grid-2">
-          <div>
-            <josanz-input
-              label="Fecha evento"
-              type="date"
-              placeholder="dd/mm/aaaa"
-              controlName="fecha"
-              [parentForm]="form"
-            ></josanz-input>
-            <p class="josanz-event-create__hint">*Pueden ser varias fechas</p>
-          </div>
+          <josanz-input
+            label="Fecha evento"
+            type="date"
+            placeholder="dd/mm/aaaa"
+            controlName="fecha"
+            [parentForm]="form"
+          ></josanz-input>
           <josanz-input
             label="Hora evento"
             type="time"
@@ -142,7 +139,6 @@
                   controlName="setupTime"
                   [parentForm]="venueGroup(i)"
                 ></josanz-input>
-                <p class="josanz-event-create__hint">*Una hora o rango de horas</p>
               </div>
               <div>
                 <josanz-input
@@ -157,7 +153,6 @@
                   controlName="teardownTime"
                   [parentForm]="venueGroup(i)"
                 ></josanz-input>
-                <p class="josanz-event-create__hint">*Una hora o rango de horas</p>
               </div>
             </div>
           </div>

@@ -37,7 +37,7 @@
       <div class="josanz-client-create__grid">
         <div class="josanz-client-create__brand" aria-hidden="true">
           <span class="josanz-client-create__brand-initials">{{ brandInitials() }}</span>
-          <span class="josanz-client-create__brand-name">{{ form.get('razonSocial')?.value || 'Cliente' }}</span>
+          <span class="josanz-client-create__brand-name">{{ brandDisplayName() }}</span>
         </div>
 
         <form class="josanz-client-create__fields" [formGroup]="form" (ngSubmit)="onSubmit()">
