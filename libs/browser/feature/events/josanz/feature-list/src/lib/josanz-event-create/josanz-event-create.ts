@@ -17,6 +17,7 @@ import {
 import {
   JosanzEventApiService,
   type CreateJosanzEventPayload,
+  type EventDateBlock,
   type EventVenueBlock,
 } from '../services/josanz-event-api.service';
 import {
@@ -60,8 +61,7 @@ export class JosanzEventCreateComponent implements OnInit {
       clientId: ['', Validators.required],
       operatorContactId: [''],
       nombre: ['', josanzNonEmptyTrim],
-      fecha: [new Date().toISOString().substring(0, 10), Validators.required],
-      hora: ['00:00'],
+      eventDates: this.fb.array([this.createEventDateGroup()]),
       localizacion: [''],
       venues: this.fb.array([this.createVenueGroup()]),
     });
@@ -90,10 +90,32 @@ export class JosanzEventCreateComponent implements OnInit {
   );
 
   readonly previewDateTime = computed(() => {
-    const fecha = (this.form.get('fecha')?.value as string) || 'dd/mm/aaaa';
-    const hora = (this.form.get('hora')?.value as string) || '00:00';
-    return `${fecha} ${hora}`;
+    const slots = this.eventDates.controls
+      .map((control) => {
+        const fecha = (control.get('fecha')?.value as string) || '';
+        const hora = (control.get('hora')?.value as string) || '00:00';
+        if (!fecha) {
+          return '';
+        }
+        return `${fecha} ${hora}`;
+      })
+      .filter(Boolean);
+    if (!slots.length) {
+      return 'dd/mm/aaaa 00:00';
+    }
+    if (slots.length === 1) {
+      return slots[0];
+    }
+    return `${slots[0]} (+${slots.length - 1} más)`;
   });
+
+  get eventDates(): FormArray {
+    return this.form.get('eventDates') as FormArray;
+  }
+
+  eventDateGroup(index: number): FormGroup {
+    return this.eventDates.at(index) as FormGroup;
+  }
 
   get venues(): FormArray {
     return this.form.get('venues') as FormArray;
@@ -129,6 +151,17 @@ export class JosanzEventCreateComponent implements OnInit {
 
   addVenue(): void {
     this.venues.push(this.createVenueGroup());
+  }
+
+  addEventDate(): void {
+    this.eventDates.push(this.createEventDateGroup());
+  }
+
+  removeEventDate(index: number): void {
+    if (this.eventDates.length <= 1) {
+      return;
+    }
+    this.eventDates.removeAt(index);
   }
 
   removeVenue(index: number): void {
@@ -175,6 +208,13 @@ export class JosanzEventCreateComponent implements OnInit {
     });
   }
 
+  private createEventDateGroup(): FormGroup {
+    return this.fb.group({
+      fecha: [new Date().toISOString().substring(0, 10), Validators.required],
+      hora: ['00:00'],
+    });
+  }
+
   private createVenueGroup(): FormGroup {
     return this.fb.group({
       salon: [''],
@@ -201,11 +241,22 @@ export class JosanzEventCreateComponent implements OnInit {
       clientId: string;
       operatorContactId: string;
       nombre: string;
-      fecha: string;
-      hora: string;
+      eventDates: Array<{ fecha: string; hora: string }>;
       localizacion: string;
       venues: EventVenueBlock[];
     };
+
+    const eventSchedule: EventDateBlock[] = raw.eventDates
+      .map((slot) => ({
+        date: slot.fecha?.trim() ?? '',
+        time: (slot.hora?.trim() || '00:00').slice(0, 5),
+      }))
+      .filter((slot) => slot.date);
+
+    const primary = eventSchedule[0];
+    if (!primary) {
+      throw new Error('Fecha del evento obligatoria');
+    }
 
     const typology = this.selectedType();
     const venueSchedule = this.showVenuePanels()
@@ -231,8 +282,9 @@ export class JosanzEventCreateComponent implements OnInit {
       clientId: raw.clientId,
       operatorContactId: raw.operatorContactId || undefined,
       typology,
-      startDate: raw.fecha,
-      eventTime: raw.hora,
+      startDate: primary.date,
+      eventTime: primary.time,
+      eventSchedule,
       location: location || undefined,
       venueSchedule: venueSchedule.length ? venueSchedule : undefined,
       status: 'DRAFT',

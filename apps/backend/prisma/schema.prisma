@@ -490,6 +490,7 @@ model Event {
   startDate         DateTime          @map("start_date")
   endDate           DateTime          @map("end_date")
   eventTime         String?           @map("event_time")
+  eventSchedule     Json?             @map("event_schedule")
   summary           String?
   status            String            @default("DRAFT")
   location          String?

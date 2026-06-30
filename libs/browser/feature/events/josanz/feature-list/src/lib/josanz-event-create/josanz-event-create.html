@@ -72,22 +72,47 @@
           [parentForm]="form"
         ></josanz-input>
 
-        <div class="josanz-event-create__grid-2">
-          <josanz-input
-            label="Fecha evento"
-            type="date"
-            placeholder="dd/mm/aaaa"
-            controlName="fecha"
-            [parentForm]="form"
-          ></josanz-input>
-          <josanz-input
-            label="Hora evento"
-            type="time"
-            placeholder="00:00"
-            controlName="hora"
-            [parentForm]="form"
-          ></josanz-input>
+        <div formArrayName="eventDates" class="josanz-event-create__date-rows">
+          @for (group of eventDates.controls; track $index; let i = $index) {
+          <div class="josanz-event-create__date-row" [formGroupName]="i">
+            <div class="josanz-event-create__grid-2 flex-1">
+              <josanz-input
+                label="Fecha evento"
+                type="date"
+                placeholder="dd/mm/aaaa"
+                controlName="fecha"
+                [parentForm]="eventDateGroup(i)"
+              ></josanz-input>
+              <josanz-input
+                label="Hora evento"
+                type="time"
+                placeholder="00:00"
+                controlName="hora"
+                [parentForm]="eventDateGroup(i)"
+              ></josanz-input>
+            </div>
+            @if (eventDates.length > 1) {
+            <button
+              type="button"
+              class="josanz-event-create__venue-delete"
+              aria-label="Eliminar fecha"
+              (click)="removeEventDate(i)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+              </svg>
+            </button>
+            }
+          </div>
+          }
         </div>
+
+        <button type="button" class="josanz-event-create__venue-add" (click)="addEventDate()">
+          Añadir +
+        </button>
 
         @if (showVenuePanels()) {
         <div formArrayName="venues" class="flex flex-col gap-3">

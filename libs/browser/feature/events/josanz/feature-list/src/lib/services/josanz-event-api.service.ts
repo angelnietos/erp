@@ -11,6 +11,11 @@ export interface EventVenueBlock {
   teardownTime?: string;
 }
 
+export interface EventDateBlock {
+  date: string;
+  time?: string;
+}
+
 export interface JosanzEventRecord {
   id: string;
   name: string;
@@ -20,6 +25,7 @@ export interface JosanzEventRecord {
   startDate: string;
   endDate: string;
   eventTime: string | null;
+  eventSchedule: EventDateBlock[];
   status: string;
   location: string | null;
   venueSchedule: EventVenueBlock[];
@@ -43,6 +49,7 @@ export interface CreateJosanzEventPayload {
   startDate: string;
   eventTime?: string;
   endDate?: string;
+  eventSchedule?: EventDateBlock[];
   location?: string;
   venueSchedule?: EventVenueBlock[];
   status?: string;

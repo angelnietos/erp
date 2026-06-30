@@ -15,6 +15,11 @@ export interface EventVenueBlock {
   teardownTime?: string;
 }
 
+export interface EventDateBlock {
+  date: string;
+  time?: string;
+}
+
 export interface EventWriteBody {
   name?: string;
   clientId?: string;
@@ -23,6 +28,7 @@ export interface EventWriteBody {
   startDate?: string;
   endDate?: string;
   eventTime?: string;
+  eventSchedule?: EventDateBlock[];
   location?: string;
   venueSchedule?: EventVenueBlock[];
   status?: string;
@@ -174,6 +180,27 @@ export class EventsService {
     return 'EXTERNAL';
   }
 
+  private normalizeEventSchedule(data: EventWriteBody): EventDateBlock[] {
+    const fromSchedule = (data.eventSchedule ?? [])
+      .map((slot) => ({
+        date: slot.date?.trim() ?? '',
+        time: (slot.time?.trim() || '00:00').slice(0, 5),
+      }))
+      .filter((slot) => slot.date);
+    if (fromSchedule.length) {
+      return fromSchedule;
+    }
+    if (data.startDate?.trim()) {
+      return [
+        {
+          date: data.startDate.trim(),
+          time: (data.eventTime?.trim() || '00:00').slice(0, 5),
+        },
+      ];
+    }
+    return [];
+  }
+
   private parseDateTime(dateStr: string, timeStr?: string): Date {
     const date = dateStr.trim();
     if (!date) {
@@ -219,6 +246,9 @@ export class EventsService {
     if (data.venueSchedule !== undefined) {
       payload.venueSchedule = data.venueSchedule as unknown as Prisma.InputJsonValue;
     }
+    if (data.eventSchedule !== undefined) {
+      payload.eventSchedule = data.eventSchedule as unknown as Prisma.InputJsonValue;
+    }
 
     if (data.clientId !== undefined) {
       const clientId = data.clientId?.trim();
@@ -255,12 +285,24 @@ export class EventsService {
     }
 
     if (data.startDate !== undefined) {
-      const start = this.parseDateTime(data.startDate, data.eventTime);
+      const schedule = this.normalizeEventSchedule(data);
+      const primary = schedule[0];
+      const start = this.parseDateTime(
+        primary?.date ?? data.startDate,
+        primary?.time ?? data.eventTime,
+      );
       payload.startDate = start;
+      const last = schedule[schedule.length - 1];
       if (data.endDate) {
         payload.endDate = this.parseDateTime(data.endDate, data.eventTime);
+      } else if (last && schedule.length > 1) {
+        payload.endDate = this.parseDateTime(last.date, last.time);
       } else if (!eventId) {
         payload.endDate = start;
+      }
+      if (schedule.length) {
+        payload.eventSchedule = schedule as unknown as Prisma.InputJsonValue;
+        payload.eventTime = (primary?.time ?? data.eventTime)?.trim() || null;
       }
     }
 
@@ -276,6 +318,7 @@ export class EventsService {
     startDate: Date;
     endDate: Date;
     eventTime: string | null;
+    eventSchedule?: unknown;
     status: string;
     location: string | null;
     venueSchedule: unknown;
@@ -299,6 +342,7 @@ export class EventsService {
       startDate: event.startDate.toISOString(),
       endDate: event.endDate.toISOString(),
       eventTime: event.eventTime,
+      eventSchedule: (event.eventSchedule as EventDateBlock[] | null) ?? [],
       status: event.status,
       location: event.location,
       venueSchedule: (event.venueSchedule as EventVenueBlock[] | null) ?? [],
