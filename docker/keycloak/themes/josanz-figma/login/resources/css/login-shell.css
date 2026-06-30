@@ -6,7 +6,8 @@ html.login-pf,
 html.login-pf body {
   height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 html.login-pf .pf-v5-c-login {

@@ -31,7 +31,7 @@ export function buildKeycloakResetCredentialsUrl(
   );
   resetUrl.searchParams.set('client_id', tenantCfg.clientId);
   resetUrl.searchParams.set('redirect_uri', `${origin}/auth/login?tenant=${slug}`);
-  resetUrl.searchParams.set('ui_locales', 'es');
+  resetUrl.searchParams.set('ui_locales', 'es en');
   return resetUrl.toString();
 }
 

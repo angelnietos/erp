@@ -230,7 +230,7 @@ export class AuthService {
       redirectUri,
       codeChallenge,
       state,
-      uiLocales: slug === 'alexis' || slug === 'josanz' || slug === 'babooni' ? 'es' : undefined,
+      uiLocales: 'es en',
     });
     markPkceRedirectPending();
     window.location.assign(authorizeUrl);

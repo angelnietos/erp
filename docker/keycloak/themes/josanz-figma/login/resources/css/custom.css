@@ -192,25 +192,41 @@ html.login-pf::after {
 .pf-v5-c-login__header select,
 #login-select-locale,
 #kc-locale-dropdown {
+  display: none !important;
+}
+
+.kc-josanz-locale {
   position: fixed !important;
   top: 1rem !important;
   right: 1rem !important;
   left: auto !important;
-  z-index: 20;
-  width: auto !important;
-  min-width: 6.5rem;
+  z-index: 50;
   margin: 0 !important;
-  font-size: 0.75rem !important;
-  color: var(--josanz-heading) !important;
-  background: #ffffff !important;
-  border: 1px solid var(--josanz-field-stroke) !important;
-  border-radius: 8px !important;
-  padding: 0.35rem 0.5rem !important;
-  cursor: pointer;
 }
 
-#kc-locale option,
-#login-select-locale option {
+#kc-josanz-locale-select {
+  width: auto !important;
+  min-width: 6.75rem;
+  margin: 0 !important;
+  padding: 0.4rem 1.75rem 0.4rem 0.65rem !important;
+  font-size: 0.75rem !important;
+  font-family: var(--josanz-font) !important;
+  color: var(--josanz-heading) !important;
+  background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237c7c7c' d='M2 4l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 0.5rem center !important;
+  border: 1px solid var(--josanz-field-stroke) !important;
+  border-radius: 8px !important;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+#kc-josanz-locale-select:focus {
+  outline: 2px solid rgba(8, 8, 8, 0.12);
+  border-color: var(--josanz-cta) !important;
+}
+
+#kc-josanz-locale-select option {
   color: var(--josanz-heading);
   background: #ffffff;
 }

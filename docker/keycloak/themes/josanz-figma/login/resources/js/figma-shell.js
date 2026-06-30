@@ -31,11 +31,72 @@
   };
 
   function currentLocale() {
+    var params = new URLSearchParams(window.location.search);
+    var kcLocale = params.get('kc_locale');
+    if (kcLocale) {
+      return kcLocale.toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
+    }
     var lang = (document.documentElement.lang || 'es').toLowerCase();
     if (lang.indexOf('en') === 0) {
       return 'en';
     }
     return 'es';
+  }
+
+  function installCustomLocaleSwitcher() {
+    if (document.getElementById('kc-josanz-locale')) {
+      return;
+    }
+
+    var native =
+      document.getElementById('kc-locale') ||
+      document.getElementById('login-select-locale') ||
+      document.querySelector('#kc-locale-dropdown');
+
+    var wrap = document.createElement('div');
+    wrap.id = 'kc-josanz-locale';
+    wrap.className = 'kc-josanz-locale';
+
+    var select = document.createElement('select');
+    select.id = 'kc-josanz-locale-select';
+    select.setAttribute('aria-label', currentLocale() === 'en' ? 'Language' : 'Idioma');
+
+    var options = [
+      { code: 'es', label: 'Español' },
+      { code: 'en', label: 'English' },
+    ];
+    var active = currentLocale();
+
+    options.forEach(function (opt) {
+      var option = document.createElement('option');
+      option.value = opt.code;
+      option.textContent = opt.label;
+      if (opt.code === active) {
+        option.selected = true;
+      }
+      select.appendChild(option);
+    });
+
+    select.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      url.searchParams.set('kc_locale', select.value);
+      url.searchParams.set('ui_locales', 'es en');
+      window.location.assign(url.toString());
+    });
+
+    wrap.appendChild(select);
+    document.body.appendChild(wrap);
+
+    if (native) {
+      var nativeRoot = native.closest ? native.closest('#kc-locale') : null;
+      if (nativeRoot) {
+        nativeRoot.style.display = 'none';
+      } else if (native.id === 'kc-locale') {
+        native.style.display = 'none';
+      } else {
+        native.style.display = 'none';
+      }
+    }
   }
 
   function t(key) {
@@ -414,6 +475,7 @@
   function boot() {
     applyLightShell();
     hideOrgLinkIfNeeded();
+    installCustomLocaleSwitcher();
     ensureBrandChrome();
     wireResetFormFeedback();
   }
