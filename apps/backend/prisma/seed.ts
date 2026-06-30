@@ -170,6 +170,8 @@ async function clearTenantDemoData(tenantId: string) {
   const SEED_PROTECTED_USER_EMAILS = [
     'admin@josanz.com',
     'admin@josanz-erp.local',
+    'admin@alexis.local',
+    'admin@docs.local',
     'root@babooni.com',
     'florina.mahalean@babooni.com',
     'alvaro.ballesteros@babooni.com',
@@ -1749,6 +1751,9 @@ async function main() {
   await clearTenantDemoData(babooniTenant.id);
   await seedBabooniTenantDemo(babooniTenant.id);
 
+  await clearTenantDemoData(alexisTenant.id);
+  await seedAlexisFigmaDemo(alexisTenant.id);
+
   console.log('✅ Database seeded successfully!');
   console.log('\n📋 Cuentas de prueba (contraseña: Admin123!):');
   console.log('  josanz  → admin@josanz.com');
@@ -2421,6 +2426,308 @@ async function seedBabooniTenantDemo(tenantId: string) {
   console.log(
     '- Babooni: clientes, proyectos, productos, presupuestos, albaranes, facturas, flota y alquileres demo',
   );
+}
+
+/** Demo Figma para tenant alexis (josanz-web-app :4300). */
+async function seedAlexisFigmaDemo(tenantId: string) {
+  const clients = await prisma.$transaction([
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Eventos Externos Madrid S.L.',
+        email: 'produccion@externos-madrid.es',
+        phone: '+34 910 111 222',
+        address: 'Calle Alcalá 120, Madrid',
+        sector: 'Externos',
+        tariffLabel: 'Especial 01',
+        description: 'Eventos corporativos y ferias',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Julia López',
+              email: 'julia@externos-madrid.es',
+              phone: '+34 611 100 201',
+              position: 'Operador',
+              isPrimary: true,
+            },
+            {
+              tenantId,
+              name: 'Operador B',
+              email: 'operador.b@externos-madrid.es',
+              phone: '+34 611 100 202',
+              position: 'Operador',
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Hotel Vincci Capitol',
+        email: 'eventos@vinccicapitol.com',
+        phone: '+34 914 555 101',
+        address: 'Gran Vía 41, Madrid',
+        sector: 'Hoteles',
+        tariffLabel: 'Especial 01',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Operador A',
+              email: 'operador.a@vinccicapitol.com',
+              phone: '+34 622 200 301',
+              position: 'Operador',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Hotel Chamartín',
+        email: 'eventos@hotelchamartin.es',
+        phone: '+34 917 555 202',
+        address: 'Pº de la Castellana 261, Madrid',
+        sector: 'Hoteles',
+        tariffLabel: 'Especial 02',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'María Santos',
+              email: 'msantos@hotelchamartin.es',
+              phone: '+34 633 300 401',
+              position: 'Operador',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Espacios IFEMA Madrid',
+        email: 'reservas@ifema.es',
+        phone: '+34 917 223 000',
+        address: 'Av. del Partenón 5, Madrid',
+        sector: 'Espacios',
+        tariffLabel: 'Tarifa estándar',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Carlos Ruiz',
+              email: 'c.ruiz@ifema.es',
+              phone: '+34 644 400 501',
+              position: 'Operador',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'Hotel Vincci Soma',
+        email: 'eventos@vinccisoma.com',
+        phone: '+34 914 555 303',
+        address: 'C/ Goya 79, Madrid',
+        sector: 'Hoteles',
+        tariffLabel: 'Especial 02',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Pedro Vega',
+              email: 'p.vega@vinccisoma.com',
+              phone: '+34 655 500 601',
+              position: 'Operador',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+    prisma.client.create({
+      data: {
+        tenantId,
+        name: 'NovaByte Tech Events',
+        email: 'hola@novabyte.es',
+        phone: '+34 910 999 888',
+        address: 'Paseo de la Castellana 200, Madrid',
+        sector: 'Externos',
+        tariffLabel: 'Especial 01',
+        contacts: {
+          create: [
+            {
+              tenantId,
+              name: 'Ana López',
+              email: 'ana@novabyte.es',
+              phone: '+34 666 700 701',
+              position: 'Operador',
+              isPrimary: true,
+            },
+          ],
+        },
+      },
+      include: { contacts: true },
+    }),
+  ]);
+
+  const venueHotel = [
+    {
+      salon: 'Salón Principal',
+      subsala: 'Subsala A',
+      setupDate: '2026-09-12',
+      setupTime: '08:00',
+      teardownDate: '2026-09-12',
+      teardownTime: '22:00',
+    },
+  ];
+
+  const venueSpace = [
+    {
+      salon: 'Pabellón 8',
+      subsala: 'Stand 12',
+      setupDate: '2026-10-05',
+      setupTime: '07:30',
+      teardownDate: '2026-10-07',
+      teardownTime: '20:00',
+    },
+  ];
+
+  await prisma.$transaction([
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Gala anual NovaByte',
+        clientId: clients[0].id,
+        operatorContactId: clients[0].contacts[0].id,
+        typology: 'EXTERNAL',
+        startDate: new Date('2026-11-20T19:00:00'),
+        endDate: new Date('2026-11-20T23:30:00'),
+        eventTime: '19:00',
+        location: 'Palacio de Congresos, Madrid',
+        status: 'DRAFT',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Convención Vincci Capitol',
+        clientId: clients[1].id,
+        operatorContactId: clients[1].contacts[0].id,
+        typology: 'HOTEL',
+        startDate: new Date('2026-09-15T09:00:00'),
+        endDate: new Date('2026-09-15T18:00:00'),
+        eventTime: '09:00',
+        location: 'Hotel Vincci Capitol',
+        venueSchedule: venueHotel,
+        status: 'BUDGET',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Presentación producto Q4',
+        clientId: clients[5].id,
+        operatorContactId: clients[5].contacts[0].id,
+        typology: 'EXTERNAL',
+        startDate: new Date('2026-12-03T10:00:00'),
+        endDate: new Date('2026-12-03T14:00:00'),
+        eventTime: '10:00',
+        location: 'La Nave, Madrid',
+        status: 'CONFIRMED',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Summit Chamartín',
+        clientId: clients[2].id,
+        operatorContactId: clients[2].contacts[0].id,
+        typology: 'HOTEL',
+        startDate: new Date('2026-10-22T08:30:00'),
+        endDate: new Date('2026-10-22T17:30:00'),
+        eventTime: '08:30',
+        location: 'Hotel Chamartín',
+        venueSchedule: venueHotel,
+        status: 'IN_PRODUCTION',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Feria tecnología IFEMA',
+        clientId: clients[3].id,
+        operatorContactId: clients[3].contacts[0].id,
+        typology: 'SPACE',
+        startDate: new Date('2026-10-06T09:00:00'),
+        endDate: new Date('2026-10-08T19:00:00'),
+        eventTime: '09:00',
+        location: 'IFEMA Madrid',
+        venueSchedule: venueSpace,
+        status: 'IN_EXECUTION',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Boda Vincci Soma',
+        clientId: clients[4].id,
+        operatorContactId: clients[4].contacts[0].id,
+        typology: 'HOTEL',
+        startDate: new Date('2026-08-30T18:00:00'),
+        endDate: new Date('2026-08-31T02:00:00'),
+        eventTime: '18:00',
+        location: 'Hotel Vincci Soma',
+        venueSchedule: venueHotel,
+        status: 'CLOSED',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Roadshow audiovisual 2025',
+        clientId: clients[0].id,
+        operatorContactId: clients[0].contacts[0].id,
+        typology: 'EXTERNAL',
+        startDate: new Date('2025-06-10T11:00:00'),
+        endDate: new Date('2025-06-10T20:00:00'),
+        eventTime: '11:00',
+        location: 'WiZink Center, Madrid',
+        status: 'INVOICED',
+      },
+    }),
+    prisma.event.create({
+      data: {
+        tenantId,
+        name: 'Congreso médico IFEMA',
+        clientId: clients[3].id,
+        operatorContactId: clients[3].contacts[0].id,
+        typology: 'SPACE',
+        startDate: new Date('2026-11-08T08:00:00'),
+        endDate: new Date('2026-11-10T18:00:00'),
+        eventTime: '08:00',
+        location: 'IFEMA — Pabellón 14',
+        venueSchedule: venueSpace,
+        status: 'CANCELLED',
+      },
+    }),
+  ]);
+
+  console.log('- Alexis (Figma): clientes, operadores y eventos demo');
 }
 
 main()

@@ -24,6 +24,7 @@ export * from './lib/components/josanz-catalog-list/catalog-list-features';
 export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-shell';
 export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-shell-config';
 export * from './lib/catalog/catalog-status';
+export * from './lib/catalog/figma-catalog-mappers';
 export * from './lib/detail/detail-tab-route';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';

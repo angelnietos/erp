@@ -49,7 +49,7 @@ import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout
         </div>
 
         <div
-          class="josanz-list-template-row__status hidden md:flex shrink-0 justify-end"
+          class="josanz-list-template-row__status hidden md:flex shrink-0 justify-start"
         >
           <span
             class="josanz-list-thead__status-label px-4 py-1.5 text-[10px] font-black uppercase tracking-widest"

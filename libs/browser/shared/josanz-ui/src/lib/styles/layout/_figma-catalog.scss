@@ -221,6 +221,19 @@
     background: #ffffff !important;
   }
 
+  .josanz-list-template-row__status {
+    justify-content: flex-start !important;
+  }
+
+  .josanz-list-thead .josanz-list-template-row__status {
+    justify-content: flex-start !important;
+  }
+
+  .josanz-list-thead__status-label {
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+
   .josanz-list-card__status-rail {
     width: 6px !important;
     opacity: 1 !important;

@@ -156,8 +156,8 @@ export class JosanzEventCreateComponent implements OnInit {
       .create(payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: (event) => {
-          void this.router.navigate(['/events', event.id]);
+        next: () => {
+          void this.router.navigate(['/events'], { queryParams: { created: '1' } });
         },
         error: () => {
           this.errorMessage.set('No se pudo crear el evento. Revisa los datos e inténtalo de nuevo.');

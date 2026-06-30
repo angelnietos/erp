@@ -232,7 +232,7 @@ export class JosanzCatalogListComponent {
 
   onRowClick(item: JosanzAdaptiveListItem): void {
     const base = this.config.detailRoute ?? '/events';
-    void this.router.navigate([base, item.id.replace(/^0+/, '') || '1']);
+    void this.router.navigate([base, item.id]);
   }
 
   onStatusFilter(option: string): void {
