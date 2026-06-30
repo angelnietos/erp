@@ -230,7 +230,7 @@ export class AuthService {
       redirectUri,
       codeChallenge,
       state,
-      uiLocales: 'es en',
+      uiLocales: 'es',
     });
     markPkceRedirectPending();
     window.location.assign(authorizeUrl);

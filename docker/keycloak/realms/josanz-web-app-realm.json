@@ -4,7 +4,7 @@
   "displayName": "Josanz ERP - Web App",
   "loginTheme": "generic-erp",
   "internationalizationEnabled": true,
-  "supportedLocales": ["es", "en"],
+  "supportedLocales": ["es"],
   "defaultLocale": "es",
   "loginWithEmailAllowed": true,
   "rememberMe": true,

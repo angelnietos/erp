@@ -6,102 +6,19 @@
   var brandMounted = false;
 
   var COPY = {
-    es: {
-      loginTitle: 'Iniciar sesión',
-      resetTitle: 'Nueva contraseña',
-      resetSubtitle: 'Te enviaremos un link para que crees una nueva contraseña.',
-      resetSuccess: 'Contraseña enviada correctamente. Revisa tu bandeja de entrada.',
-      updateSubtitle: 'Introduce y confirma tu nueva contraseña.',
-      submitting: 'Enviando…',
-      submitReset: 'Enviar link de recuperación',
-      backLogin: '← Volver al inicio de sesión',
-      mailhogHint: 'Dev: revisa el email en MailHog (localhost:8025).',
-    },
-    en: {
-      loginTitle: 'Sign in',
-      resetTitle: 'New password',
-      resetSubtitle: 'We will send you a link to create a new password.',
-      resetSuccess: 'Password sent successfully. Check your inbox.',
-      updateSubtitle: 'Enter and confirm your new password.',
-      submitting: 'Sending…',
-      submitReset: 'Send recovery link',
-      backLogin: '← Back to sign in',
-      mailhogHint: 'Dev: check the email in MailHog (localhost:8025).',
-    },
+    loginTitle: 'Iniciar sesión',
+    resetTitle: 'Nueva contraseña',
+    resetSubtitle: 'Te enviaremos un link para que crees una nueva contraseña.',
+    resetSuccess: 'Contraseña enviada correctamente. Revisa tu bandeja de entrada.',
+    updateSubtitle: 'Introduce y confirma tu nueva contraseña.',
+    submitting: 'Enviando…',
+    submitReset: 'Enviar link de recuperación',
+    backLogin: '← Volver al inicio de sesión',
+    mailhogHint: 'Dev: revisa el email en MailHog (localhost:8025).',
   };
 
-  function currentLocale() {
-    var params = new URLSearchParams(window.location.search);
-    var kcLocale = params.get('kc_locale');
-    if (kcLocale) {
-      return kcLocale.toLowerCase().indexOf('en') === 0 ? 'en' : 'es';
-    }
-    var lang = (document.documentElement.lang || 'es').toLowerCase();
-    if (lang.indexOf('en') === 0) {
-      return 'en';
-    }
-    return 'es';
-  }
-
-  function installCustomLocaleSwitcher() {
-    if (document.getElementById('kc-josanz-locale')) {
-      return;
-    }
-
-    var native =
-      document.getElementById('kc-locale') ||
-      document.getElementById('login-select-locale') ||
-      document.querySelector('#kc-locale-dropdown');
-
-    var wrap = document.createElement('div');
-    wrap.id = 'kc-josanz-locale';
-    wrap.className = 'kc-josanz-locale';
-
-    var select = document.createElement('select');
-    select.id = 'kc-josanz-locale-select';
-    select.setAttribute('aria-label', currentLocale() === 'en' ? 'Language' : 'Idioma');
-
-    var options = [
-      { code: 'es', label: 'Español' },
-      { code: 'en', label: 'English' },
-    ];
-    var active = currentLocale();
-
-    options.forEach(function (opt) {
-      var option = document.createElement('option');
-      option.value = opt.code;
-      option.textContent = opt.label;
-      if (opt.code === active) {
-        option.selected = true;
-      }
-      select.appendChild(option);
-    });
-
-    select.addEventListener('change', function () {
-      var url = new URL(window.location.href);
-      url.searchParams.set('kc_locale', select.value);
-      url.searchParams.set('ui_locales', 'es en');
-      window.location.assign(url.toString());
-    });
-
-    wrap.appendChild(select);
-    document.body.appendChild(wrap);
-
-    if (native) {
-      var nativeRoot = native.closest ? native.closest('#kc-locale') : null;
-      if (nativeRoot) {
-        nativeRoot.style.display = 'none';
-      } else if (native.id === 'kc-locale') {
-        native.style.display = 'none';
-      } else {
-        native.style.display = 'none';
-      }
-    }
-  }
-
   function t(key) {
-    var locale = currentLocale();
-    return (COPY[locale] && COPY[locale][key]) || COPY.es[key] || '';
+    return COPY[key] || '';
   }
 
   function pathKindFromLocation() {
@@ -475,7 +392,6 @@
   function boot() {
     applyLightShell();
     hideOrgLinkIfNeeded();
-    installCustomLocaleSwitcher();
     ensureBrandChrome();
     wireResetFormFeedback();
   }

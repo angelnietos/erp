@@ -212,7 +212,7 @@ async function syncJosanzRealmLoginUx(token) {
     ...realm,
     loginTheme: 'generic-erp',
     internationalizationEnabled: true,
-    supportedLocales: ['es', 'en'],
+    supportedLocales: ['es'],
     defaultLocale: 'es',
     loginWithEmailAllowed: true,
     rememberMe: true,
