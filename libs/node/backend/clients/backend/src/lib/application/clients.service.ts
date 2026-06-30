@@ -20,6 +20,14 @@ interface ClientWriteBody {
   description?: string;
   sector?: string;
   type?: string;
+  tariffLabel?: string;
+  contacts?: Array<{
+    name?: string;
+    email?: string;
+    phone?: string;
+    position?: string;
+    isPrimary?: boolean;
+  }>;
 }
 
 /** Prisma row shape used by mapToDto (includes optional relations) */
@@ -36,6 +44,7 @@ interface ClientEntityPayload {
   description?: string | null;
   sector?: string | null;
   type?: string | null;
+  tariffLabel?: string | null;
   contacts?: Array<{
     id?: string;
     name?: string;
@@ -67,8 +76,7 @@ export class ClientsService {
       where: { tenantId, deletedAt: null },
       include: {
         contacts: {
-          where: { isPrimary: true },
-          take: 1,
+          orderBy: [{ isPrimary: 'desc' }, { createdAt: 'asc' }],
         },
       },
       orderBy: { createdAt: 'desc' },
@@ -122,6 +130,7 @@ export class ClientsService {
 
   async create(tenantId: string, data: ClientWriteBody, actorUserId: string) {
     const encrypted = this.encryptClientWrite(data);
+    const contactRows = (data.contacts ?? []).filter((c) => (c.name ?? '').trim());
     const client = await this.prisma.client.create({
       data: {
         tenantId,
@@ -136,6 +145,20 @@ export class ClientsService {
         description: data.description,
         sector: data.sector || data.type || 'corporate',
         type: data.type || 'COMPANY',
+        tariffLabel: data.tariffLabel?.trim() || null,
+        contacts:
+          contactRows.length > 0
+            ? {
+                create: contactRows.map((contact, index) => ({
+                  tenantId,
+                  name: contact.name!.trim(),
+                  email: this.piiCrypto.encryptField(contact.email),
+                  phone: this.piiCrypto.encryptField(contact.phone),
+                  position: contact.position?.trim() || 'Operador',
+                  isPrimary: contact.isPrimary ?? index === 0,
+                })),
+              }
+            : undefined,
       },
       include: {
         contacts: true,
@@ -271,6 +294,7 @@ export class ClientsService {
       description: client.description,
       sector: client.sector,
       type: client.type,
+      tariffLabel: client.tariffLabel,
       contacts: client.contacts || [],
       eventReports: client.eventReports || [],
       budgets: client.budgets || [],

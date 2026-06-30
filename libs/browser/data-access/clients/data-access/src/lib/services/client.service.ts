@@ -79,6 +79,7 @@ export interface Client {
   zipCode?: string;
   country?: string;
   type?: string;
+  tariffLabel?: string;
   contacts?: ClientContact[];
   eventReports?: EventReport[];
   budgets?: Budget[];
@@ -87,6 +88,23 @@ export interface Client {
   createdAt?: string;
   updatedAt?: string;
   avatarUrl?: string;
+}
+
+export interface CreateClientPayload {
+  name: string;
+  email?: string;
+  phone?: string;
+  description?: string;
+  sector?: string;
+  type?: string;
+  tariffLabel?: string;
+  contacts?: Array<{
+    name: string;
+    email?: string;
+    phone?: string;
+    position?: string;
+    isPrimary?: boolean;
+  }>;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -104,7 +122,7 @@ export class ClientService {
       .pipe(catchHttpDetailNotFound<Client>());
   }
 
-  createClient(client: Omit<Client, 'id'>): Observable<Client> {
+  createClient(client: Omit<Client, 'id'> | CreateClientPayload): Observable<Client> {
     return this.http.post<Client>(this.apiUrl, client);
   }
 

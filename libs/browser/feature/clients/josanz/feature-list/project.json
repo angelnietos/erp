@@ -5,6 +5,7 @@
   "prefix": "lib",
   "projectType": "library",
   "tags": [],
+  "implicitDependencies": ["clients-data-access"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",

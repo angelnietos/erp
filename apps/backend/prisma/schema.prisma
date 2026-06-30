@@ -21,6 +21,7 @@ model Client {
   city        String?
   zipCode     String?   @map("zip_code")
   country     String?   @default("ES")
+  tariffLabel String?   @map("tariff_label")
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
   contacts    ClientContact[]
@@ -46,6 +47,7 @@ model ClientContact {
   isPrimary Boolean  @default(false) @map("is_primary")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  operatedEvents Event[] @relation("EventOperator")
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
 
@@ -479,23 +481,28 @@ model Category {
 }
 
 model Event {
-  id          String            @id @default(uuid()) @db.Uuid
-  tenantId    String            @map("tenant_id") @db.Uuid
-  name        String
-  clientId    String?           @map("client_id") @db.Uuid
-  startDate   DateTime          @map("start_date")
-  endDate     DateTime          @map("end_date")
-  summary     String?
-  status      String            @default("PLANNED")
-  location    String?
-  notes       String?
-  budgets     Budget[]
-  projects    ProjectEvent[]
-  technicians EventTechnician[]
-  reports     EventReport[]
-  client      Client?           @relation(fields: [clientId], references: [id])
-  tenant      Tenant            @relation(fields: [tenantId], references: [id])
-  createdAt   DateTime          @default(now()) @map("created_at")
+  id                String            @id @default(uuid()) @db.Uuid
+  tenantId          String            @map("tenant_id") @db.Uuid
+  name              String
+  clientId          String?           @map("client_id") @db.Uuid
+  operatorContactId String?           @map("operator_contact_id") @db.Uuid
+  typology          String            @default("EXTERNAL")
+  startDate         DateTime          @map("start_date")
+  endDate           DateTime          @map("end_date")
+  eventTime         String?           @map("event_time")
+  summary           String?
+  status            String            @default("DRAFT")
+  location          String?
+  venueSchedule     Json?             @map("venue_schedule")
+  notes             String?
+  budgets           Budget[]
+  projects          ProjectEvent[]
+  technicians       EventTechnician[]
+  reports           EventReport[]
+  client            Client?           @relation(fields: [clientId], references: [id])
+  operatorContact   ClientContact?    @relation("EventOperator", fields: [operatorContactId], references: [id])
+  tenant            Tenant            @relation(fields: [tenantId], references: [id])
+  createdAt         DateTime          @default(now()) @map("created_at")
 
   @@map("events")
 }

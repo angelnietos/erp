@@ -7,73 +7,190 @@
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear evento"
-  [saveDisabled]="form.invalid"
+  [saveDisabled]="form.invalid || saving()"
   [showFooterActions]="false"
+  [showHeaderSave]="false"
 >
+  <div figma-create-toolbar class="josanz-event-create__header-bar">
+    <div class="josanz-event-create__type-row" role="group" aria-label="Tipo de evento">
+      @for (type of eventTypes; track type) {
+      <button
+        type="button"
+        class="josanz-event-create__type-pill"
+        [class.josanz-event-create__type-pill--active]="selectedType() === type"
+        (click)="selectType(type)"
+      >
+        {{ type }}
+      </button>
+      }
+    </div>
+
+    <div class="josanz-event-create__header-actions">
+      <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
+        Cancelar
+      </button>
+      <josanz-button
+        label="Añadir Cliente"
+        [showIcon]="false"
+        customColor="#0F1E2F"
+        (btnClick)="onAddClient()"
+      ></josanz-button>
+    </div>
+  </div>
+
   <div class="josanz-event-create">
+    @if (errorMessage()) {
+    <p class="josanz-event-create__hint" role="alert">{{ errorMessage() }}</p>
+    }
+
     <section>
-      <h2 class="josanz-event-create__section-title">Tipo de evento</h2>
-      <div class="josanz-event-create__type-row" role="group" aria-label="Tipo de evento">
-        @for (type of eventTypes; track type) {
-          <button
-            type="button"
-            class="josanz-event-create__type-pill"
-            [class.josanz-event-create__type-pill--active]="selectedType() === type"
-            (click)="selectType(type)"
-          >
-            {{ type }}
-          </button>
-        }
+      <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
+      <div class="josanz-event-create__grid-2" [formGroup]="form">
+        <josanz-select
+          label="Nombre y Apellidos / Razón social"
+          placeholder="Selecciona un cliente"
+          formControlName="clientId"
+          [options]="clientOptions()"
+          [required]="true"
+        ></josanz-select>
+        <josanz-select
+          label="Operador"
+          placeholder="Selecciona un operador"
+          formControlName="operatorContactId"
+          [options]="operatorOptions()"
+        ></josanz-select>
       </div>
     </section>
 
     <section>
       <h2 class="josanz-event-create__section-title">Datos del evento</h2>
-      <div class="josanz-event-create__fields">
+      <div class="josanz-event-create__fields" [formGroup]="form">
         <josanz-input
           label="Nombre evento"
           placeholder="Nombre ejemplo"
           controlName="nombre"
           [parentForm]="form"
         ></josanz-input>
+
+        <div class="josanz-event-create__grid-2">
+          <div>
+            <josanz-input
+              label="Fecha evento"
+              type="date"
+              placeholder="dd/mm/aaaa"
+              controlName="fecha"
+              [parentForm]="form"
+            ></josanz-input>
+            <p class="josanz-event-create__hint">*Pueden ser varias fechas</p>
+          </div>
+          <josanz-input
+            label="Hora evento"
+            type="time"
+            placeholder="00:00"
+            controlName="hora"
+            [parentForm]="form"
+          ></josanz-input>
+        </div>
+
+        @if (showVenuePanels()) {
+        <div formArrayName="venues" class="flex flex-col gap-3">
+          @for (group of venues.controls; track $index; let i = $index) {
+          <div class="josanz-event-create__venue-panel" [formGroupName]="i">
+            <div class="josanz-event-create__venue-panel-header">
+              <div class="josanz-event-create__grid-2 flex-1">
+                <josanz-input
+                  label="Salón"
+                  placeholder="Salón"
+                  controlName="salon"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+                <josanz-input
+                  label="Subsala"
+                  placeholder="Subsala"
+                  controlName="subsala"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+              </div>
+              @if (venues.length > 1) {
+              <button
+                type="button"
+                class="josanz-event-create__venue-delete"
+                aria-label="Eliminar espacio"
+                (click)="removeVenue(i)"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                  <path d="M10 11v6M14 11v6"></path>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                </svg>
+              </button>
+              }
+            </div>
+
+            <div class="josanz-event-create__grid-2">
+              <div>
+                <josanz-input
+                  label="Montaje"
+                  type="date"
+                  controlName="setupDate"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+                <josanz-input
+                  label="Horarios de montaje"
+                  type="time"
+                  controlName="setupTime"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+                <p class="josanz-event-create__hint">*Una hora o rango de horas</p>
+              </div>
+              <div>
+                <josanz-input
+                  label="Desmontaje"
+                  type="date"
+                  controlName="teardownDate"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+                <josanz-input
+                  label="Horarios de desmontaje"
+                  type="time"
+                  controlName="teardownTime"
+                  [parentForm]="venueGroup(i)"
+                ></josanz-input>
+                <p class="josanz-event-create__hint">*Una hora o rango de horas</p>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+        <button type="button" class="josanz-event-create__venue-add" (click)="addVenue()">
+          Añadir +
+        </button>
+        }
+
         <josanz-input
           label="Localización"
-          placeholder="Dirección ejemplo"
+          placeholder="Calle ejemplo, no. 1, Municipio X, Comunidad Autónoma X"
           controlName="localizacion"
-          [parentForm]="form"
-        ></josanz-input>
-        <josanz-input
-          label="Fecha evento"
-          type="date"
-          placeholder="dd/mm/aaaa"
-          controlName="fecha"
-          [parentForm]="form"
-        ></josanz-input>
-        <josanz-input
-          label="Montaje"
-          placeholder="(* a qué se refiere este dato?)"
-          controlName="montaje"
           [parentForm]="form"
         ></josanz-input>
       </div>
     </section>
 
-    <section>
-      <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
-      <div class="josanz-event-create__grid-2">
-        <josanz-input
-          label="nombre y Apellidos / Razón social"
-          placeholder="Cliente A"
-          controlName="cliente"
-          [parentForm]="form"
-        ></josanz-input>
-        <josanz-input
-          label="Operador"
-          placeholder="Operador A"
-          controlName="operador"
-          [parentForm]="form"
-        ></josanz-input>
-      </div>
-    </section>
+    <div class="josanz-event-create__preview">
+      <strong>{{ previewName() }}</strong>
+      <span>{{ previewDateTime() }}</span>
+    </div>
+
+    <div class="josanz-event-create__actions">
+      <josanz-button
+        label="Crear evento"
+        [showIcon]="false"
+        [disabled]="form.invalid || saving()"
+        customColor="#0F1E2F"
+        (btnClick)="onSave()"
+      ></josanz-button>
+    </div>
   </div>
 </josanz-main-detail-layout>

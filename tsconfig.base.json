@@ -75,6 +75,9 @@
       "@josanz-erp/clients-backend": [
         "libs/node/backend/clients/backend/src/index.ts"
       ],
+      "@josanz-erp/events-backend": [
+        "libs/node/backend/events/backend/src/index.ts"
+      ],
       "@josanz-erp/inventory-data-access": [
         "libs/browser/data-access/inventory/data-access/src/index.ts"
       ],

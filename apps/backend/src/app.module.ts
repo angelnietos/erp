@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SharedInfrastructureModule, AuditInterceptor, PiiRedactionInterceptor } from '@josanz-erp/shared-infrastructure';
 import { IdentityModule } from '@josanz-erp/identity-backend';
 import { ClientsModule } from '@josanz-erp/clients-backend';
+import { EventsBackendModule } from '@josanz-erp/events-backend';
 import { BudgetBackendModule } from '@josanz-erp/budget-backend';
 import { InventoryModule } from '@josanz-erp/inventory-backend';
 import { RentalsModule } from '@josanz-erp/rentals-backend';
@@ -46,6 +47,7 @@ import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
     SharedInfrastructureModule,
     IdentityModule.forRoot(),
     ClientsModule.forRoot(),
+    EventsBackendModule.forRoot(),
     BudgetBackendModule.forRoot({ enableApprovalFlow: true }),
     InventoryModule.forRoot(),
     RentalsModule.forRoot(),

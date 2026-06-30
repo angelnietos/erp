@@ -102,6 +102,10 @@
     </div>
   </header>
 
+  <div class="josanz-detail-figma__toolbar-slot max-w-[var(--josanz-content-max)] mx-auto w-full px-6 md:px-12">
+    <ng-content select="[figma-create-toolbar]"></ng-content>
+  </div>
+
   <!-- Tabs row + Save button — with a bottom separator -->
   @if (tabs.length) {
   <div style="border-bottom: 1px solid var(--josanz-border); width: 100%">
