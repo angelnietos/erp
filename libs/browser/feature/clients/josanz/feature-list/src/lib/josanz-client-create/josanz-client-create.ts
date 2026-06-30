@@ -41,6 +41,7 @@ export class JosanzClientCreateComponent {
 
   readonly saving = signal(false);
   readonly errorMessage = signal('');
+  readonly validationBanner = signal('');
 
   readonly tariffOptions = ['Especial 01', 'Especial 02', 'Tarifa estándar'];
 
@@ -97,8 +98,10 @@ export class JosanzClientCreateComponent {
   }
 
   onSubmit(): void {
+    this.validationBanner.set('');
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
+      this.validationBanner.set('Revisa los campos obligatorios marcados en rojo.');
       return;
     }
 
@@ -148,8 +151,8 @@ export class JosanzClientCreateComponent {
   private createOperatorGroup(index: number): FormGroup {
     return this.fb.group({
       nombre: [`Nuevo Operador ${String(index).padStart(2, '0')}`, josanzNonEmptyTrim],
-      email: ['', [Validators.email]],
-      telefono: [''],
+      email: ['', [josanzNonEmptyTrim, Validators.email]],
+      telefono: ['', josanzNonEmptyTrim],
     });
   }
 

@@ -103,6 +103,17 @@
   color: #d10074;
 }
 
+.josanz-event-create__validation-banner {
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--josanz-danger) 35%, transparent);
+  background: color-mix(in srgb, var(--josanz-danger) 8%, white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--josanz-danger);
+}
+
 .josanz-event-create__date-rows {
   display: flex;
   flex-direction: column;

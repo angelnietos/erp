@@ -28,6 +28,9 @@
   </div>
 
   <div class="josanz-event-create">
+    @if (validationBanner()) {
+    <p class="josanz-event-create__validation-banner" role="alert">{{ validationBanner() }}</p>
+    }
     @if (errorMessage()) {
     <p class="josanz-event-create__hint" role="alert">{{ errorMessage() }}</p>
     }
@@ -46,6 +49,7 @@
             placeholder="Nuevo Cliente"
             controlName="razonSocial"
             [parentForm]="form"
+            [required]="true"
           ></josanz-input>
 
           <josanz-input
@@ -54,6 +58,7 @@
             type="email"
             controlName="email"
             [parentForm]="form"
+            [required]="true"
           ></josanz-input>
 
           <josanz-input
@@ -62,10 +67,13 @@
             type="tel"
             controlName="telefono"
             [parentForm]="form"
+            [required]="true"
           ></josanz-input>
 
           <div class="josanz-client-type-select">
-            <label class="josanz-client-type-select__label" for="tarifa-cliente">Tarifa</label>
+            <label class="josanz-client-type-select__label" for="tarifa-cliente">
+              Tarifa <span class="text-[color:var(--josanz-danger)]" aria-hidden="true">*</span>
+            </label>
             <div class="josanz-client-type-select__trigger">
               <span class="josanz-client-type-chip" style="background: #ddecff; color: #080808">
                 {{ form.get('tarifa')?.value }}
@@ -120,6 +128,7 @@
             placeholder="Nuevo Operador"
             controlName="nombre"
             [parentForm]="operatorGroup(i)"
+            [required]="true"
           ></josanz-input>
 
           <div class="josanz-event-create__grid-2">
@@ -129,6 +138,7 @@
               type="email"
               controlName="email"
               [parentForm]="operatorGroup(i)"
+              [required]="true"
             ></josanz-input>
             <josanz-input
               label="Teléfono"
@@ -136,6 +146,7 @@
               type="tel"
               controlName="telefono"
               [parentForm]="operatorGroup(i)"
+              [required]="true"
             ></josanz-input>
           </div>
         </div>

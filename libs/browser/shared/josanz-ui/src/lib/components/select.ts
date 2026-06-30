@@ -1,9 +1,21 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, forwardRef, Input, Output, inject } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  Component,
+  EventEmitter,
+  inject,
+  Input,
+  Optional,
+  Output,
+  Self,
+} from '@angular/core';
+import { NgControl } from '@angular/forms';
 import type { JosanzControlShape } from '../josanz-control-styles';
 import { JosanzValueAccessorBase } from '../forms/josanz-value-accessor.base';
 import { JosanzThemeService } from '../services/theme.service';
+import {
+  josanzControlErrorMessage,
+  josanzControlHasError,
+} from '../validators/josanz-form-validators';
 
 export interface JosanzSelectOption {
   label: string;
@@ -15,37 +27,32 @@ export interface JosanzSelectOption {
   selector: 'josanz-select',
   standalone: true,
   imports: [CommonModule],
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => SelectComponent),
-      multi: true,
-    },
-  ],
   template: `
     <label class="grid w-full gap-2">
       @if (label) {
         <span
           class="ml-1 text-[11px] font-bold uppercase tracking-[0.1em]"
           [style.color]="'var(--josanz-label-muted)'"
-          >{{ label }}</span
         >
+          {{ label }}
+          @if (required) {
+            <span class="text-[color:var(--josanz-danger)]" aria-hidden="true"> *</span>
+          }
+        </span>
       }
       <div class="relative">
         <select
           class="h-11 w-full appearance-none border border-solid px-4 pr-10 text-sm font-bold outline-none transition-all"
           [ngClass]="cornerClass()"
           [style.backgroundColor]="'var(--josanz-field-fill)'"
-          [style.borderColor]="
-            isFocused || customColor
-              ? accentColor
-              : 'var(--josanz-stroke-field)'
-          "
+          [style.borderColor]="fieldBorderColor"
           [style.boxShadow]="isFocused ? focusRing() : 'none'"
           [style.color]="'var(--josanz-text)'"
           [value]="value"
           [disabled]="disabled"
           [attr.aria-label]="ariaLabel || label"
+          [attr.aria-invalid]="showFieldError"
+          [attr.aria-describedby]="showFieldError ? fieldErrorId : null"
           (focus)="isFocused = true"
           (blur)="onBlur()"
           (change)="selectValue($event)"
@@ -66,14 +73,15 @@ export interface JosanzSelectOption {
           >⌄</span
         >
       </div>
-      @if (hint || error) {
+      @if (hint || fieldErrorMessage) {
         <span
-          class="text-xs"
-          [style.color]="
-            error ? 'var(--josanz-danger)' : 'var(--josanz-text-muted)'
-          "
-          >{{ error || hint }}</span
+          class="text-xs font-medium"
+          [id]="fieldErrorId"
+          [style.color]="showFieldError ? 'var(--josanz-danger)' : 'var(--josanz-text-muted)'"
+          [attr.role]="showFieldError ? 'alert' : null"
         >
+          {{ showFieldError ? fieldErrorMessage : hint }}
+        </span>
       }
     </label>
   `,
@@ -96,6 +104,45 @@ export class SelectComponent extends JosanzValueAccessorBase<string> {
   @Output() valueChange = new EventEmitter<string>();
 
   isFocused = false;
+
+  constructor(@Optional() @Self() private readonly ngControl: NgControl | null) {
+    super();
+    if (this.ngControl) {
+      this.ngControl.valueAccessor = this;
+    }
+  }
+
+  get fieldErrorId(): string {
+    return `${this.label || 'select'}-error`;
+  }
+
+  get boundControl() {
+    return this.ngControl?.control ?? null;
+  }
+
+  get showFieldError(): boolean {
+    if (this.error) {
+      return true;
+    }
+    return josanzControlHasError(this.boundControl);
+  }
+
+  get fieldErrorMessage(): string {
+    if (this.error) {
+      return this.error;
+    }
+    return josanzControlErrorMessage(this.boundControl);
+  }
+
+  get fieldBorderColor(): string {
+    if (this.showFieldError) {
+      return 'var(--josanz-danger)';
+    }
+    if (this.isFocused || this.customColor) {
+      return this.accentColor;
+    }
+    return 'var(--josanz-stroke-field)';
+  }
 
   override writeValue(value: string | null): void {
     this.value = value ?? '';
@@ -128,6 +175,7 @@ export class SelectComponent extends JosanzValueAccessorBase<string> {
   }
 
   focusRing(): string {
-    return `0 0 0 2px color-mix(in srgb, ${this.accentColor} 35%, transparent)`;
+    const color = this.showFieldError ? 'var(--josanz-danger)' : this.accentColor;
+    return `0 0 0 2px color-mix(in srgb, ${color} 35%, transparent)`;
   }
 }

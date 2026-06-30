@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
@@ -8,7 +9,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, startWith } from 'rxjs';
 import {
   ClientService,
   type Client,
@@ -53,8 +54,10 @@ export class JosanzEventCreateComponent implements OnInit {
   readonly clients = signal<Client[]>([]);
   readonly saving = signal(false);
   readonly errorMessage = signal('');
+  readonly validationBanner = signal('');
 
   form: FormGroup;
+  private readonly selectedClientId: ReturnType<typeof toSignal<string>>;
 
   constructor() {
     this.form = this.fb.group({
@@ -62,9 +65,18 @@ export class JosanzEventCreateComponent implements OnInit {
       operatorContactId: [''],
       nombre: ['', josanzNonEmptyTrim],
       eventDates: this.fb.array([this.createEventDateGroup()]),
-      localizacion: [''],
+      localizacion: ['', josanzNonEmptyTrim],
       venues: this.fb.array([this.createVenueGroup()]),
     });
+
+    this.selectedClientId = toSignal(
+      this.form.get('clientId')!.valueChanges.pipe(
+        startWith(this.form.get('clientId')!.value as string),
+      ),
+      { initialValue: '' },
+    );
+
+    this.updateLocationValidators();
   }
 
   readonly showVenuePanels = computed(() => {
@@ -77,12 +89,26 @@ export class JosanzEventCreateComponent implements OnInit {
   );
 
   readonly operatorOptions = computed(() => {
-    const clientId = this.form.get('clientId')?.value as string;
+    const clientId = this.selectedClientId();
+    if (!clientId) {
+      return [];
+    }
     const client = this.clients().find((c) => c.id === clientId);
     return (client?.contacts ?? []).map((contact) => ({
       label: contact.name,
       value: contact.id,
     }));
+  });
+
+  readonly operatorSelectHint = computed(() => {
+    const count = this.operatorOptions().length;
+    if (!this.selectedClientId()) {
+      return 'Selecciona primero un cliente';
+    }
+    if (!count) {
+      return 'Este cliente no tiene operadores. Añádelos desde Clientes.';
+    }
+    return '';
   });
 
   readonly previewName = computed(
@@ -133,17 +159,22 @@ export class JosanzEventCreateComponent implements OnInit {
         if (preselected && clients.some((c) => c.id === preselected)) {
           this.form.patchValue({ clientId: preselected });
           this.syncOperatorForClient(preselected, clients);
+          this.updateOperatorValidators(preselected);
         }
+        this.updateLocationValidators();
       },
     });
 
     this.form.get('clientId')?.valueChanges.subscribe((clientId: string) => {
       this.syncOperatorForClient(clientId, this.clients());
+      this.updateOperatorValidators(clientId);
+      this.updateLocationValidators();
     });
   }
 
   selectType(type: (typeof this.eventTypes)[number]): void {
     this.selectedType.set(type);
+    this.updateLocationValidators();
     if (type === 'Evento externo' && !this.form.get('localizacion')?.value) {
       this.form.patchValue({ localizacion: '' });
     }
@@ -176,8 +207,10 @@ export class JosanzEventCreateComponent implements OnInit {
   }
 
   onSave(): void {
+    this.validationBanner.set('');
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
+      this.validationBanner.set('Revisa los campos obligatorios marcados en rojo.');
       return;
     }
 
@@ -234,6 +267,34 @@ export class JosanzEventCreateComponent implements OnInit {
     this.form.patchValue({
       operatorContactId: primary?.id ?? '',
     });
+  }
+
+  private updateOperatorValidators(clientId: string): void {
+    const client = this.clients().find((c) => c.id === clientId);
+    const hasOperators = (client?.contacts?.length ?? 0) > 0;
+    const control = this.form.get('operatorContactId');
+    if (!control) {
+      return;
+    }
+    if (hasOperators) {
+      control.setValidators(Validators.required);
+    } else {
+      control.clearValidators();
+    }
+    control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private updateLocationValidators(): void {
+    const control = this.form.get('localizacion');
+    if (!control) {
+      return;
+    }
+    if (this.selectedType() === 'Evento externo') {
+      control.setValidators(josanzNonEmptyTrim);
+    } else {
+      control.clearValidators();
+    }
+    control.updateValueAndValidity({ emitEvent: false });
   }
 
   private buildPayload(): CreateJosanzEventPayload {
