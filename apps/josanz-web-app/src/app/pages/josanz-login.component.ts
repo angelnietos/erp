@@ -103,7 +103,7 @@ export class JosanzLoginComponent implements OnInit {
       return;
     }
 
-    if (this.isBackForwardNavigation() && consumePkceRedirectAborted()) {
+    if (consumePkceRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
     } else {
       clearPkceRedirectPending();

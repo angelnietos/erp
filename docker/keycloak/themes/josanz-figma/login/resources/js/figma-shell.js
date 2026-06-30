@@ -1,7 +1,11 @@
 /**
  * Shell Figma Keycloak — logo, títulos, flujos login / reset / update-password / éxito.
+ * Sin MutationObserver (provocaba bucle infinito de mutaciones DOM).
  */
 (function () {
+  var lastAppliedKind = '';
+  var brandMounted = false;
+
   function pathKindFromLocation() {
     var path = window.location.pathname;
     if (path.indexOf('login-actions/required-action') !== -1) {
@@ -29,15 +33,16 @@
       document.documentElement.classList.add('kc-reset-password-flow');
       document.documentElement.setAttribute('data-kc-page', 'login-reset-password');
       document.title = 'Nueva contraseña · Josanz Audiovisual';
-      return;
+      return kind;
     }
     if (kind === 'update-password') {
       document.documentElement.classList.add('kc-update-password-flow');
       document.documentElement.setAttribute('data-kc-page', 'login-update-password');
       document.title = 'Nueva contraseña · Josanz Audiovisual';
-      return;
+      return kind;
     }
     document.title = 'Iniciar sesión · Josanz Audiovisual';
+    return kind;
   }
 
   applyEarlyPageMode();
@@ -77,30 +82,40 @@
     if (document.querySelector('.pf-v5-c-alert.pf-m-success')) {
       return true;
     }
-    var form = document.getElementById('kc-reset-password-form') || document.getElementById('kc-form');
-    var username = document.getElementById('username');
-    return !form && !username;
+    return false;
   }
 
   function applyPageMode() {
     var isSuccess = detectResetSuccess();
-    document.documentElement.classList.remove('kc-reset-success-flow');
+    var kind;
 
     if (isSuccess) {
-      document.documentElement.classList.add('kc-reset-success-flow');
-      document.documentElement.setAttribute('data-kc-page', 'login-reset-password-success');
-      document.title = 'Contraseña enviada · Josanz Audiovisual';
-      return;
+      kind = 'reset-success';
+      if (lastAppliedKind !== kind) {
+        document.documentElement.classList.remove(
+          'kc-reset-password-flow',
+          'kc-update-password-flow',
+        );
+        document.documentElement.classList.add('kc-reset-success-flow');
+        document.documentElement.setAttribute('data-kc-page', 'login-reset-password-success');
+        document.title = 'Contraseña enviada · Josanz Audiovisual';
+      }
+      lastAppliedKind = kind;
+      return kind;
     }
 
-    applyEarlyPageMode();
+    document.documentElement.classList.remove('kc-reset-success-flow');
+    kind = applyEarlyPageMode();
+    lastAppliedKind = kind;
+    return kind;
   }
 
   function applyLightShell() {
     var main = document.querySelector('.pf-v5-c-login__main');
-    if (main) {
-      main.classList.add('pf-v5-c-login__main--light', 'kc-theme-light');
+    if (!main || main.classList.contains('pf-v5-c-login__main--light')) {
+      return;
     }
+    main.classList.add('pf-v5-c-login__main--light', 'kc-theme-light');
   }
 
   function hideOrgLinkIfNeeded() {
@@ -108,7 +123,7 @@
       return;
     }
     var org = document.getElementById('kc-change-org-link');
-    if (org) {
+    if (org && org.style.display !== 'none') {
       org.style.display = 'none';
     }
   }
@@ -148,7 +163,9 @@
   function ensureSuccessMessage(copy) {
     var existing = document.getElementById('kc-josanz-success');
     if (existing) {
-      existing.textContent = copy.subtitle;
+      if (existing.textContent !== copy.subtitle) {
+        existing.textContent = copy.subtitle;
+      }
       return;
     }
     var mount =
@@ -172,7 +189,7 @@
       return false;
     }
 
-    var kind = pageKind();
+    var kind = applyPageMode();
     var copy = copyForKind(kind);
 
     var brand = document.getElementById('kc-josanz-brand');
@@ -203,18 +220,21 @@
       } else {
         mount.insertBefore(brand, mount.firstChild);
       }
+      brandMounted = true;
     }
 
     var headingEl = document.getElementById('kc-josanz-heading');
     var subtitleEl = document.getElementById('kc-josanz-subtitle');
-    if (headingEl) {
+    if (headingEl && headingEl.textContent !== copy.title) {
       headingEl.textContent = copy.title;
     }
     if (subtitleEl) {
       if (kind === 'reset-success') {
         subtitleEl.style.display = 'none';
       } else {
-        subtitleEl.textContent = copy.subtitle;
+        if (subtitleEl.textContent !== copy.subtitle) {
+          subtitleEl.textContent = copy.subtitle;
+        }
         subtitleEl.style.display = copy.subtitle ? 'block' : 'none';
       }
     }
@@ -224,28 +244,19 @@
     }
 
     var pageTitle = document.getElementById('kc-page-title');
-    if (pageTitle) {
+    if (pageTitle && pageTitle.style.display !== 'none') {
       pageTitle.setAttribute('aria-hidden', 'true');
       pageTitle.style.display = 'none';
     }
 
-    document.querySelectorAll('.instruction').forEach(function (node) {
-      node.style.display = 'none';
-    });
-
-    var headerMount = document.querySelector('.pf-v5-c-login__header');
-    if (headerMount) {
-      headerMount.classList.add('kc-josanz-header-ready');
-    } else {
-      mount.classList.add('kc-josanz-main-ready');
+    if (!document.body.classList.contains('kc-josanz-ready')) {
+      document.body.classList.add('kc-josanz-ready');
     }
 
-    document.body.classList.add('kc-josanz-ready');
     return true;
   }
 
   function boot() {
-    applyPageMode();
     applyLightShell();
     hideOrgLinkIfNeeded();
     ensureBrandChrome();
@@ -256,25 +267,17 @@
     var attempts = 0;
     var timer = window.setInterval(function () {
       attempts += 1;
-      boot();
-      if (document.getElementById('kc-josanz-brand') || attempts > 40) {
+      if (!brandMounted || attempts < 5) {
+        boot();
+      }
+      if (brandMounted || attempts > 25) {
         window.clearInterval(timer);
       }
-    }, 100);
-
-    if (typeof MutationObserver !== 'undefined') {
-      var observer = new MutationObserver(function () {
-        boot();
-      });
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-      window.setTimeout(function () {
-        observer.disconnect();
-      }, 8000);
-    }
+    }, 200);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', watchDom);
+    document.addEventListener('DOMContentLoaded', watchDom, { once: true });
   } else {
     watchDom();
   }

@@ -396,7 +396,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.pkceRedirectLoading.set(false);
-    if (this.isBackForwardNavigation() && consumePkceRedirectAborted()) {
+    if (consumePkceRedirectAborted()) {
       this.keycloakRedirectAborted.set(true);
     } else {
       clearPkceRedirectPending();

@@ -28,8 +28,9 @@ body {
   background: var(--josanz-canvas) !important;
 }
 
-/* Hero izquierdo — Figma 61:1313 (login) */
-html.login-pf::before {
+/* Hero izquierdo — Figma 61:1313 (login). KC 24 suele poner login-pf en body, no en html. */
+html.login-pf::before,
+body.login-pf::before {
   content: '';
   position: fixed;
   top: 0;
@@ -46,11 +47,14 @@ html.login-pf::before {
 html.login-pf.kc-reset-password-flow::before,
 html.login-pf[data-kc-page='login-reset-password']::before,
 html.login-pf.kc-update-password-flow::before,
-html.login-pf[data-kc-page='login-update-password']::before {
+html.login-pf[data-kc-page='login-update-password']::before,
+body.login-pf.kc-reset-password-flow::before,
+body.login-pf[data-kc-page='login-reset-password']::before,
+body.login-pf.kc-update-password-flow::before,
+body.login-pf[data-kc-page='login-update-password']::before {
   background-image: url('../img/reset-password-hero.png');
 }
 
-body.login-pf::before,
 body.login-pf::after {
   display: none !important;
 }
@@ -408,7 +412,8 @@ html.login-pf.kc-reset-success-flow #kc-form-buttons {
 }
 
 @media (max-width: 900px) {
-  html.login-pf::before {
+  html.login-pf::before,
+  body.login-pf::before {
     position: relative;
     display: block;
     width: 100%;

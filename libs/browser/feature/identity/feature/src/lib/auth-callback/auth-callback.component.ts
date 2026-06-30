@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { clearPkceSession, readPkceSession } from '@josanz-erp/shared-auth-keycloak';
+import { clearPkceSession, markPkceRedirectPending, readPkceSession } from '@josanz-erp/shared-auth-keycloak';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 
 @Component({
@@ -52,6 +52,7 @@ export class AuthCallbackComponent implements OnInit {
       const err = this.store.error();
       if (err && !this.store.loading()) {
         this.error.set(err);
+        markPkceRedirectPending();
       }
     });
   }
@@ -61,6 +62,7 @@ export class AuthCallbackComponent implements OnInit {
     const oidcError = params.get('error');
     if (oidcError) {
       clearPkceSession();
+      markPkceRedirectPending();
       this.error.set(params.get('error_description') ?? oidcError);
       return;
     }
@@ -71,6 +73,7 @@ export class AuthCallbackComponent implements OnInit {
 
     if (!code || !state || !stored || stored.state !== state) {
       clearPkceSession();
+      markPkceRedirectPending();
       this.error.set('Enlace de retorno inválido o caducado. Vuelve a iniciar sesión.');
       return;
     }
