@@ -44,7 +44,7 @@ export interface JosanzAdaptiveListItem {
             [labels]="item.labels ?? defaultLabels"
             [status]="item.status ?? ''"
             [statusVariant]="item.statusVariant ?? 'borrador'"
-            [railColor]="item.railColor ?? ''"
+            [railColor]="statusBadgeStyle === 'outline' ? '' : (item.railColor ?? '')"
             [leadingMark]="item.leadingMark ?? ''"
             [statusBadgeStyle]="statusBadgeStyle"
           ></josanz-main-template-card>

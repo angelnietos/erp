@@ -7,6 +7,7 @@ import {
   JOSANZ_CATALOG_STATUS_FILTERS,
   JOSANZ_CATALOG_WAREHOUSE_TABS,
   railColorForCatalogRow,
+  railColorForStatusVariant,
 } from '../../catalog/catalog-status';
 import { AdaptiveListRowsComponent, type JosanzAdaptiveListItem } from '../adaptive-list-rows';
 import { FilterTabsComponent } from '../filter-tabs';
@@ -160,9 +161,14 @@ export class JosanzCatalogListComponent {
   }
 
   get adaptiveItems(): JosanzAdaptiveListItem[] {
+    const badgeStyle = this.config.statusBadgeStyle ?? 'outline';
     let hotelIndex = 0;
     return this.filteredRows.map((row) => {
       const hotelIdx = row.typology === 'Hoteles' ? hotelIndex++ : 0;
+      const railColor =
+        badgeStyle === 'outline'
+          ? railColorForStatusVariant(row.pillVariant, badgeStyle)
+          : railColorForCatalogRow(row, hotelIdx);
       return {
         id: row.id,
         title: row.title ?? row.id,
@@ -171,7 +177,7 @@ export class JosanzCatalogListComponent {
         labels: this.rowLabels,
         status: row.pillLabel,
         statusVariant: row.pillVariant,
-        railColor: railColorForCatalogRow(row, hotelIdx),
+        railColor,
       };
     });
   }
@@ -270,7 +276,7 @@ export class JosanzCatalogListComponent {
     if (row.typology && row.typology === tab) {
       return true;
     }
-    if (row.warehouse && tab.includes('AlmacÃ©n')) {
+    if (row.warehouse && tab.includes('Almacén')) {
       return row.warehouse === tab;
     }
     if (tab === 'Facturas') {
@@ -312,8 +318,8 @@ export class JosanzCatalogListComponent {
     if (tab === 'Operarios') {
       return this.rowValues(row).some((v) => v.toLowerCase().includes('operario'));
     }
-    if (tab === 'LogÃ­stica') {
-      return this.rowValues(row).some((v) => v.toLowerCase().includes('logÃ­stica') || v.toLowerCase().includes('logistica'));
+    if (tab === 'Logística') {
+      return this.rowValues(row).some((v) => v.toLowerCase().includes('logística') || v.toLowerCase().includes('logistica'));
     }
     return this.matchesTabByLabel(row, tab);
   }

@@ -145,13 +145,16 @@ export class MainTemplateCardComponent {
 
   /** Barra lateral de estado (Figma listados). */
   getStatusRailStyles() {
+    const key = this.resolvePillKey();
+    if (this.statusBadgeStyle === 'outline') {
+      return { backgroundColor: getEventOutlinePill(key).border };
+    }
     if (this.railColor) {
       return { backgroundColor: this.railColor };
     }
     if (this.customColor) {
       return { backgroundColor: this.customColor };
     }
-    const key = this.resolvePillKey();
     return { backgroundColor: `var(--josanz-pill-${key}-text)` };
   }
 

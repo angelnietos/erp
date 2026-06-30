@@ -1,5 +1,9 @@
 import type { JosanzStatusPillVariant } from '../components/main-template-card';
 import {
+  getEventOutlinePill,
+} from '../theme/event-status-outline';
+import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
+import {
   JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS,
   JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
 } from '../theme/josanz-figma-tokens';
@@ -117,6 +121,32 @@ export function railColorForCatalogRow(
     return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[idx] ?? JOSANZ_FIGMA_HOTEL_RAIL_COLORS[0];
   }
   return '#94A3B8';
+}
+
+function resolveStatusPillKey(variant: JosanzStatusPillVariant): JosanzStatusPillKey {
+  if (variant === 'primary') {
+    return 'borrador';
+  }
+  if (variant === 'success') {
+    return 'confirmado';
+  }
+  if (variant === 'warning') {
+    return 'en-proceso';
+  }
+  if (variant === 'error') {
+    return 'cancelado';
+  }
+  return variant;
+}
+
+/** Color de barra lateral alineado con la pastilla de estado (Figma outline). */
+export function railColorForStatusVariant(
+  variant: JosanzStatusPillVariant,
+  badgeStyle: 'filled' | 'outline' = 'outline',
+): string {
+  const key = resolveStatusPillKey(variant);
+  const pill = getEventOutlinePill(key);
+  return badgeStyle === 'outline' ? pill.border : pill.text;
 }
 
 export const JOSANZ_CATALOG_EVENT_STATUS_ROWS: JosanzCatalogListRow[] = [
