@@ -1,4 +1,5 @@
 module.exports = {
+  
   displayName: 'events-backend',
   preset: '../../../../../jest.preset.js',
   testEnvironment: 'node',
