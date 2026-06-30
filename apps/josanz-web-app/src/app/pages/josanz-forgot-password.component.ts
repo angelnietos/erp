@@ -1,57 +1,54 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import {
+  ButtonComponent,
+  InputComponent,
+  JosanzThemeService,
+} from '@josanz-erp/josanz-ui';
 import {
   AuthService,
   AUTH_KEYCLOAK_CONFIG,
-  DEFAULT_LOGIN_TENANT_SLUG,
   ERP_TENANT_SLUG_SESSION_KEY,
+  JOSANZ_FIGMA_TENANT_SLUG,
   redirectToKeycloakResetCredentials,
   resolveForgotPasswordTenantSlug,
 } from '@josanz-erp/identity-data-access';
 import { getTenantKeycloakConfig, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
-import { UiInputComponent, UiButtonComponent, UiAlertComponent } from '@josanz-erp/shared-ui-kit';
-import { LucideAngularModule, Mail, ArrowLeft } from 'lucide-angular';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
-  selector: 'lib-forgot-password',
+  selector: 'app-josanz-forgot-password',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    RouterLink,
-    LucideAngularModule,
-    UiInputComponent,
-    UiButtonComponent,
-    UiAlertComponent,
-  ],
-  templateUrl: './forgot-password.component.html',
-  styleUrl: '../login/login.component.css',
+  imports: [CommonModule, ReactiveFormsModule, InputComponent, ButtonComponent, RouterLink],
+  templateUrl: './josanz-forgot-password.component.html',
+  styleUrl: './josanz-login.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ForgotPasswordComponent implements OnInit {
+export class JosanzForgotPasswordComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly keycloakConfig = inject(AUTH_KEYCLOAK_CONFIG, { optional: true });
+  private readonly theme = inject(JosanzThemeService);
 
-  readonly icons = { Mail, ArrowLeft };
   readonly loading = signal(false);
   readonly keycloakHandoffPending = signal(true);
   readonly useLocalFallback = signal(false);
   readonly error = signal<string | null>(null);
   readonly success = signal<string | null>(null);
   readonly devResetUrl = signal<string | null>(null);
-  readonly tenantSlug = signal<string>(DEFAULT_LOGIN_TENANT_SLUG);
+  readonly tenantSlug = signal<string>(JOSANZ_FIGMA_TENANT_SLUG);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
   });
 
   ngOnInit(): void {
+    this.theme.setTheme('luxe-rounded');
+
     const fromQuery = this.route.snapshot.queryParamMap.get('tenant');
     const fromStore =
       typeof sessionStorage !== 'undefined'
@@ -60,7 +57,7 @@ export class ForgotPasswordComponent implements OnInit {
     const slug = resolveForgotPasswordTenantSlug(
       fromQuery,
       fromStore,
-      DEFAULT_LOGIN_TENANT_SLUG,
+      JOSANZ_FIGMA_TENANT_SLUG,
     );
     this.tenantSlug.set(slug);
 
@@ -75,8 +72,10 @@ export class ForgotPasswordComponent implements OnInit {
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid) {
+      this.form.markAllAsTouched();
       return;
     }
+
     this.loading.set(true);
     this.error.set(null);
     this.success.set(null);
@@ -88,7 +87,7 @@ export class ForgotPasswordComponent implements OnInit {
       const { email } = this.form.getRawValue();
       const res = await firstValueFrom(this.auth.forgotPassword(email, slug));
       this.success.set(
-        'Si existe una cuenta local con ese email, recibirás un enlace para restablecer la contraseña.',
+        'Si existe una cuenta con ese email, recibirás un enlace para restablecer la contraseña.',
       );
       if (res.devResetUrl) {
         this.devResetUrl.set(res.devResetUrl);
@@ -104,9 +103,7 @@ export class ForgotPasswordComponent implements OnInit {
   }
 
   goLogin(): void {
-    void this.router.navigate(['/auth/login'], {
-      queryParams: { tenant: this.tenantSlug() },
-    });
+    void this.router.navigate(['/auth/login']);
   }
 
   private async tryKeycloakForgotPasswordFirst(slug: string): Promise<void> {

@@ -28,6 +28,8 @@ export class JosanzLoginComponent implements OnInit {
   readonly store = inject(AuthStore);
   private readonly theme = inject(JosanzThemeService);
 
+  readonly tenantSlug = JOSANZ_FIGMA_TENANT_SLUG;
+
   readonly loginCta = JOSANZ_FIGMA_LOGIN.primaryCta;
   readonly loginCtaDisabled = JOSANZ_FIGMA_LOGIN.disabledCta;
 

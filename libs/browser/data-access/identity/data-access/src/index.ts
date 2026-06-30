@@ -84,6 +84,11 @@ export { erpAuthGuard } from './lib/guards/erp-auth.guard';
 
 // Utils
 export {
+  resolveForgotPasswordTenantSlug,
+  buildKeycloakResetCredentialsUrl,
+  redirectToKeycloakResetCredentials,
+} from './lib/utils/keycloak-forgot-password';
+export {
   getStoredTenantId,
   setStoredTenantId,
   clearStoredTenantId,

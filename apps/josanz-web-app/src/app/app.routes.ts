@@ -19,7 +19,7 @@ export const appRoutes: Route[] = [
   {
     path: 'auth/forgot-password',
     loadComponent: () =>
-      import('@josanz-erp/identity-feature').then((m) => m.ForgotPasswordComponent),
+      import('./pages/josanz-forgot-password.component').then((m) => m.JosanzForgotPasswordComponent),
   },
   {
     path: 'auth/reset-password',
