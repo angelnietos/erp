@@ -16,6 +16,39 @@ export interface EventDateBlock {
   time?: string;
 }
 
+export interface JosanzEventTechnicianRecord {
+  id: string;
+  name: string;
+  role: string;
+  avatarUrl: string | null;
+}
+
+export interface JosanzEventAttachmentRecord {
+  id: string;
+  category: string;
+  filename: string;
+  storageKey: string | null;
+}
+
+export interface JosanzEventBudgetLineRecord {
+  id: string;
+  units: number;
+  materialName: string;
+  warehouse: string;
+  status: string;
+  price: number;
+  days: number;
+  coef: number;
+  discount: number;
+}
+
+export interface JosanzEventEmailRecord {
+  id: string;
+  date: string;
+  subject: string;
+  body: string;
+}
+
 export interface JosanzEventRecord {
   id: string;
   name: string;
@@ -32,6 +65,9 @@ export interface JosanzEventRecord {
   venueSchedule: EventVenueBlock[];
   notes: string | null;
   summary: string | null;
+  budgetAddress: string | null;
+  budgetContact: string | null;
+  budgetObservations: string | null;
   createdAt: string;
   client: {
     id: string;
@@ -45,6 +81,12 @@ export interface JosanzEventRecord {
     email: string | null;
     phone: string | null;
   } | null;
+  eventNotes?: { id: string; text: string }[];
+  staffNotes?: { id: string; text: string }[];
+  technicians?: JosanzEventTechnicianRecord[];
+  emails?: JosanzEventEmailRecord[];
+  attachments?: JosanzEventAttachmentRecord[];
+  budgetLines?: JosanzEventBudgetLineRecord[];
 }
 
 export type CreateJosanzEventPayload = UpdateJosanzEventPayload & {
@@ -53,6 +95,34 @@ export type CreateJosanzEventPayload = UpdateJosanzEventPayload & {
   typology: string;
   startDate: string;
 };
+
+export interface EventDetailNoteInput {
+  kind: 'EVENT' | 'STAFF';
+  text: string;
+}
+
+export interface EventDetailEmailInput {
+  sentAt?: string;
+  subject: string;
+  body: string;
+}
+
+export interface EventDetailAttachmentInput {
+  category: 'INSPIRATION' | 'DELIVERY' | 'INVOICE' | 'REPORT';
+  filename: string;
+  storageKey?: string;
+}
+
+export interface EventBudgetLineInput {
+  units: number;
+  materialName: string;
+  warehouse: string;
+  status: string;
+  price: number;
+  days: number;
+  coef: number;
+  discount: number;
+}
 
 export interface UpdateJosanzEventPayload {
   name?: string;
@@ -69,6 +139,26 @@ export interface UpdateJosanzEventPayload {
   statusPillColor?: string | null;
   notes?: string;
   summary?: string;
+  budgetAddress?: string;
+  budgetContact?: string;
+  budgetObservations?: string;
+  technicianIds?: string[];
+  detailNotes?: EventDetailNoteInput[];
+  emails?: EventDetailEmailInput[];
+  attachments?: EventDetailAttachmentInput[];
+  budgetLines?: EventBudgetLineInput[];
+}
+
+export interface JosanzTechnicianListItem {
+  id: string;
+  status: string;
+  avatarUrl: string | null;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -95,5 +185,9 @@ export class JosanzEventApiService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  listTechnicians(): Observable<JosanzTechnicianListItem[]> {
+    return this.http.get<JosanzTechnicianListItem[]>('/api/technicians');
   }
 }

@@ -35,6 +35,42 @@ export interface EventWriteBody {
   statusPillColor?: string;
   notes?: string;
   summary?: string;
+  budgetAddress?: string;
+  budgetContact?: string;
+  budgetObservations?: string;
+  technicianIds?: string[];
+  detailNotes?: EventDetailNoteInput[];
+  emails?: EventDetailEmailInput[];
+  attachments?: EventDetailAttachmentInput[];
+  budgetLines?: EventBudgetLineInput[];
+}
+
+export interface EventDetailNoteInput {
+  kind: 'EVENT' | 'STAFF';
+  text: string;
+}
+
+export interface EventDetailEmailInput {
+  sentAt?: string;
+  subject: string;
+  body: string;
+}
+
+export interface EventDetailAttachmentInput {
+  category: 'INSPIRATION' | 'DELIVERY' | 'INVOICE' | 'REPORT';
+  filename: string;
+  storageKey?: string;
+}
+
+export interface EventBudgetLineInput {
+  units: number;
+  materialName: string;
+  warehouse: string;
+  status: string;
+  price: number;
+  days: number;
+  coef: number;
+  discount: number;
 }
 
 const TYPOLOGY_MAP: Record<string, string> = {
@@ -69,7 +105,7 @@ export class EventsService {
   async findOne(tenantId: string, id: string) {
     const event = await this.prisma.event.findFirst({
       where: { id, tenantId },
-      include: this.defaultInclude(),
+      include: this.detailInclude(),
     });
     if (!event) {
       throw new NotFoundException('Evento no encontrado');
@@ -116,11 +152,23 @@ export class EventsService {
   ) {
     await this.ensureExists(tenantId, id);
     const payload = await this.buildWritePayload(tenantId, data, id);
-    const event = await this.prisma.event.update({
-      where: { id },
-      data: payload,
-      include: this.defaultInclude(),
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.event.update({
+        where: { id },
+        data: payload,
+      });
+      await this.syncNestedDetails(tx, tenantId, id, data);
     });
+
+    const event = await this.prisma.event.findFirst({
+      where: { id, tenantId },
+      include: this.detailInclude(),
+    });
+    if (!event) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+
     await this.auditLogWriter.record(actorUserId, {
       action: 'UPDATE',
       targetEntity: `Event:${event.id}`,
@@ -155,6 +203,121 @@ export class EventsService {
       client: { select: { id: true, name: true, sector: true, railColor: true } },
       operatorContact: { select: { id: true, name: true, email: true, phone: true } },
     } as const;
+  }
+
+  private detailInclude() {
+    return {
+      ...this.defaultInclude(),
+      eventNotes: { orderBy: { sortOrder: 'asc' as const } },
+      eventEmails: { orderBy: { createdAt: 'asc' as const } },
+      attachments: { orderBy: { createdAt: 'asc' as const } },
+      budgetLines: { orderBy: { sortOrder: 'asc' as const } },
+      technicians: {
+        include: {
+          technician: {
+            include: {
+              user: {
+                select: { id: true, firstName: true, lastName: true, email: true },
+              },
+            },
+          },
+        },
+      },
+    } as const;
+  }
+
+  private async syncNestedDetails(
+    tx: Prisma.TransactionClient,
+    tenantId: string,
+    eventId: string,
+    data: EventWriteBody,
+  ): Promise<void> {
+    if (data.technicianIds !== undefined) {
+      await tx.eventTechnician.deleteMany({ where: { eventId } });
+      const ids = data.technicianIds.filter(Boolean);
+      if (ids.length) {
+        const valid = await tx.technician.findMany({
+          where: { tenantId, id: { in: ids } },
+          select: { id: true },
+        });
+        const validIds = new Set(valid.map((t) => t.id));
+        const rows = ids.filter((id) => validIds.has(id)).map((technicianId) => ({
+          eventId,
+          technicianId,
+        }));
+        if (rows.length) {
+          await tx.eventTechnician.createMany({ data: rows, skipDuplicates: true });
+        }
+      }
+    }
+
+    if (data.detailNotes !== undefined) {
+      await tx.eventNote.deleteMany({ where: { eventId } });
+      const notes = data.detailNotes
+        .map((note, index) => ({
+          tenantId,
+          eventId,
+          kind: note.kind,
+          text: note.text.trim(),
+          sortOrder: index,
+        }))
+        .filter((note) => note.text);
+      if (notes.length) {
+        await tx.eventNote.createMany({ data: notes });
+      }
+    }
+
+    if (data.emails !== undefined) {
+      await tx.eventEmail.deleteMany({ where: { eventId } });
+      const emails = data.emails
+        .map((email) => ({
+          tenantId,
+          eventId,
+          sentAt: email.sentAt?.trim() || null,
+          subject: email.subject.trim() || 'Sin asunto',
+          body: email.body.trim(),
+        }))
+        .filter((email) => email.body || email.subject);
+      if (emails.length) {
+        await tx.eventEmail.createMany({ data: emails });
+      }
+    }
+
+    if (data.attachments !== undefined) {
+      await tx.eventAttachment.deleteMany({ where: { eventId } });
+      const attachments = data.attachments
+        .map((file) => ({
+          tenantId,
+          eventId,
+          category: file.category,
+          filename: file.filename.trim(),
+          storageKey: file.storageKey?.trim() || null,
+        }))
+        .filter((file) => file.filename);
+      if (attachments.length) {
+        await tx.eventAttachment.createMany({ data: attachments });
+      }
+    }
+
+    if (data.budgetLines !== undefined) {
+      await tx.eventBudgetLine.deleteMany({ where: { eventId } });
+      const lines = data.budgetLines.map((line, index) => ({
+        tenantId,
+        eventId,
+        units: line.units ?? 0,
+        materialName: line.materialName?.trim() ?? '',
+        warehouse: line.warehouse?.trim() ?? '',
+        status: line.status?.trim() ?? '',
+        price: line.price ?? 0,
+        days: line.days ?? 0,
+        coef: line.coef ?? 0,
+        discount: line.discount ?? 0,
+        sortOrder: index,
+      }));
+      if (lines.length) {
+        await tx.eventBudgetLine.createMany({ data: lines });
+      }
+    }
   }
 
   private async ensureExists(tenantId: string, id: string) {
@@ -247,6 +410,15 @@ export class EventsService {
     if (data.summary !== undefined) {
       payload.summary = data.summary?.trim() || null;
     }
+    if (data.budgetAddress !== undefined) {
+      payload.budgetAddress = data.budgetAddress?.trim() || null;
+    }
+    if (data.budgetContact !== undefined) {
+      payload.budgetContact = data.budgetContact?.trim() || null;
+    }
+    if (data.budgetObservations !== undefined) {
+      payload.budgetObservations = data.budgetObservations?.trim() || null;
+    }
     if (data.venueSchedule !== undefined) {
       payload.venueSchedule = data.venueSchedule as unknown as Prisma.InputJsonValue;
     }
@@ -329,6 +501,9 @@ export class EventsService {
     venueSchedule: unknown;
     notes: string | null;
     summary: string | null;
+    budgetAddress?: string | null;
+    budgetContact?: string | null;
+    budgetObservations?: string | null;
     createdAt: Date;
     client?: { id: string; name: string; sector?: string | null; railColor?: string | null } | null;
     operatorContact?: {
@@ -337,7 +512,34 @@ export class EventsService {
       email: string | null;
       phone: string | null;
     } | null;
+    eventNotes?: Array<{ id: string; kind: string; text: string; sortOrder: number }>;
+    eventEmails?: Array<{ id: string; sentAt: string | null; subject: string; body: string }>;
+    attachments?: Array<{ id: string; category: string; filename: string; storageKey: string | null }>;
+    budgetLines?: Array<{
+      id: string;
+      units: number;
+      materialName: string;
+      warehouse: string;
+      status: string;
+      price: number;
+      days: number;
+      coef: number;
+      discount: number;
+      sortOrder: number;
+    }>;
+    technicians?: Array<{
+      technicianId: string;
+      technician: {
+        id: string;
+        avatarUrl: string | null;
+        status: string;
+        user: { id: string; firstName: string; lastName: string; email: string };
+      };
+    }>;
   }) {
+    const technicianName = (user: { firstName: string; lastName: string }) =>
+      `${user.firstName} ${user.lastName}`.trim();
+
     return {
       id: event.id,
       name: event.name,
@@ -354,6 +556,9 @@ export class EventsService {
       venueSchedule: (event.venueSchedule as EventVenueBlock[] | null) ?? [],
       notes: event.notes,
       summary: event.summary,
+      budgetAddress: event.budgetAddress ?? null,
+      budgetContact: event.budgetContact ?? null,
+      budgetObservations: event.budgetObservations ?? null,
       createdAt: event.createdAt.toISOString(),
       client: event.client ?? null,
       operator: event.operatorContact
@@ -364,6 +569,41 @@ export class EventsService {
             phone: event.operatorContact.phone,
           }
         : null,
+      eventNotes: (event.eventNotes ?? [])
+        .filter((n) => n.kind === 'EVENT')
+        .map((n) => ({ id: n.id, text: n.text })),
+      staffNotes: (event.eventNotes ?? [])
+        .filter((n) => n.kind === 'STAFF')
+        .map((n) => ({ id: n.id, text: n.text })),
+      technicians: (event.technicians ?? []).map((row) => ({
+        id: row.technician.id,
+        name: technicianName(row.technician.user),
+        role: row.technician.status === 'ACTIVE' ? 'Técnico' : row.technician.status,
+        avatarUrl: row.technician.avatarUrl,
+      })),
+      emails: (event.eventEmails ?? []).map((email) => ({
+        id: email.id,
+        date: email.sentAt ?? '',
+        subject: email.subject,
+        body: email.body,
+      })),
+      attachments: (event.attachments ?? []).map((file) => ({
+        id: file.id,
+        category: file.category,
+        filename: file.filename,
+        storageKey: file.storageKey,
+      })),
+      budgetLines: (event.budgetLines ?? []).map((line) => ({
+        id: line.id,
+        units: line.units,
+        materialName: line.materialName,
+        warehouse: line.warehouse,
+        status: line.status,
+        price: line.price,
+        days: line.days,
+        coef: line.coef,
+        discount: line.discount,
+      })),
     };
   }
 }

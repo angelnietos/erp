@@ -295,6 +295,10 @@ model Tenant {
   aiInsights                   AiInsight[]
   clientContacts               ClientContact[]
   eventReports                 EventReport[]
+  eventNotes                   EventNote[]
+  eventEmails                  EventEmail[]
+  eventAttachments             EventAttachment[]
+  eventBudgetLines             EventBudgetLine[]
   roles                        Role[]
   timeOffRequests              TimeOffRequest[]
   privacyRequests              PrivacyRequest[]
@@ -501,10 +505,17 @@ model Event {
   location          String?
   venueSchedule     Json?             @map("venue_schedule")
   notes             String?
+  budgetAddress     String?           @map("budget_address")
+  budgetContact     String?           @map("budget_contact")
+  budgetObservations String?          @map("budget_observations") @db.Text
   budgets           Budget[]
   projects          ProjectEvent[]
   technicians       EventTechnician[]
   reports           EventReport[]
+  eventNotes        EventNote[]
+  eventEmails       EventEmail[]
+  attachments       EventAttachment[]
+  budgetLines       EventBudgetLine[]
   client            Client?           @relation(fields: [clientId], references: [id])
   operatorContact   ClientContact?    @relation("EventOperator", fields: [operatorContactId], references: [id])
   tenant            Tenant            @relation(fields: [tenantId], references: [id])
@@ -529,6 +540,71 @@ model EventReport {
   author    User?    @relation(fields: [authorId], references: [id])
 
   @@map("event_reports")
+}
+
+model EventNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  eventId   String   @map("event_id") @db.Uuid
+  kind      String
+  text      String   @db.Text
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([eventId, kind], map: "idx_event_notes_event_kind")
+  @@map("event_notes")
+}
+
+model EventEmail {
+  id        String   @id @default(uuid()) @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  eventId   String   @map("event_id") @db.Uuid
+  sentAt    String?  @map("sent_at")
+  subject   String
+  body      String   @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([eventId], map: "idx_event_emails_event")
+  @@map("event_emails")
+}
+
+model EventAttachment {
+  id         String   @id @default(uuid()) @db.Uuid
+  tenantId   String   @map("tenant_id") @db.Uuid
+  eventId    String   @map("event_id") @db.Uuid
+  category   String
+  filename   String
+  storageKey String?  @map("storage_key")
+  createdAt  DateTime @default(now()) @map("created_at")
+  event      Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([eventId, category], map: "idx_event_attachments_event_category")
+  @@map("event_attachments")
+}
+
+model EventBudgetLine {
+  id           String @id @default(uuid()) @db.Uuid
+  tenantId     String @map("tenant_id") @db.Uuid
+  eventId      String @map("event_id") @db.Uuid
+  units        Int    @default(0)
+  materialName String @default("") @map("material_name")
+  warehouse    String @default("")
+  status       String @default("")
+  price        Float  @default(0)
+  days         Int    @default(0)
+  coef         Float  @default(0)
+  discount     Float  @default(0)
+  sortOrder    Int    @default(0) @map("sort_order")
+  event        Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tenant       Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([eventId], map: "idx_event_budget_lines_event")
+  @@map("event_budget_lines")
 }
 
 model Technician {
