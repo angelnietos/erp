@@ -265,7 +265,7 @@
   .josanz-list-template-row__field {
     font-size: 13px;
     font-weight: 500;
-    color: var(--josanz-list-card-text-muted, #475569) !important;
+    color: var(--josanz-list-card-text-muted, var(--josanz-text-muted)) !important;
 
     span {
       color: inherit !important;

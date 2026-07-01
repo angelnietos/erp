@@ -82,13 +82,13 @@
   font-weight: 700;
 }
 
-/* Texto de filas — tokens con fallback oscuro (atmósferas de color) */
+/* Texto de filas — tokens de la atmósfera activa */
 .josanz-list-card__title {
-  color: var(--josanz-list-card-text, #111827);
-  -webkit-text-fill-color: var(--josanz-list-card-text, #111827);
+  color: var(--josanz-list-card-text, var(--josanz-text));
+  -webkit-text-fill-color: var(--josanz-list-card-text, var(--josanz-text));
 }
 
 .josanz-list-card__field {
-  color: var(--josanz-list-card-text-muted, #475569);
-  -webkit-text-fill-color: var(--josanz-list-card-text-muted, #475569);
+  color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
+  -webkit-text-fill-color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
 }

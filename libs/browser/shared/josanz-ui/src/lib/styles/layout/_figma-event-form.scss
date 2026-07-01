@@ -143,8 +143,8 @@
 
 .josanz-event-create__venue-panel {
   border-radius: 12px;
-  border: 1px solid #ebebeb;
-  background: #f7f7f7;
+  border: 1px solid var(--josanz-form-panel-border, var(--josanz-border));
+  background: var(--josanz-form-panel-bg, var(--josanz-surface-muted));
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -176,8 +176,9 @@
   height: 32px;
   padding: 0 0.75rem;
   border-radius: 6px;
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--josanz-border);
+  background: var(--josanz-surface);
+  color: var(--josanz-text);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -186,12 +187,12 @@
 .josanz-event-create__preview {
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #ebebeb;
+  border-top: 1px solid var(--josanz-border);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   font-size: 14px;
-  color: #222;
+  color: var(--josanz-text);
 }
 
 .josanz-event-create__preview strong {
@@ -206,8 +207,8 @@
 
 .josanz-client-create__operator-card {
   border-radius: 12px;
-  border: 1px solid #ebebeb;
-  background: #f7f7f7;
+  border: 1px solid var(--josanz-form-panel-border, var(--josanz-border));
+  background: var(--josanz-form-panel-bg, var(--josanz-surface-muted));
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -233,8 +234,9 @@
   height: 32px;
   padding: 0 0.75rem;
   border-radius: 6px;
-  border: 1px solid #222;
-  background: #fff;
+  border: 1px solid var(--josanz-border);
+  background: var(--josanz-surface);
+  color: var(--josanz-text);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
@@ -267,10 +269,16 @@
 }
 
 .josanz-event-create josanz-input input {
-  background: var(--josanz-login-field-bg, #fff) !important;
-  border-color: var(--josanz-stroke-field, #d7d7d7) !important;
+  background: var(--josanz-field-fill) !important;
+  color: var(--josanz-field-text, var(--josanz-text)) !important;
+  border-color: var(--josanz-stroke-field, var(--josanz-border)) !important;
   border-radius: 6px !important;
   height: 44px;
+
+  &::placeholder {
+    color: var(--josanz-field-text-muted, var(--josanz-text-muted)) !important;
+    opacity: 1;
+  }
 }
 
 .josanz-event-create josanz-input label {
@@ -278,7 +286,7 @@
   font-weight: 600 !important;
   text-transform: none !important;
   letter-spacing: 0 !important;
-  color: var(--josanz-button-primary-bg, #0f1e2f) !important;
+  color: var(--josanz-label-muted, var(--josanz-text-muted)) !important;
 }
 
 .josanz-user-create__identity {

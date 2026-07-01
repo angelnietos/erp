@@ -35,7 +35,7 @@ import {
           [placeholder]="placeholder"
           [class]="inputClasses"
           [style.backgroundColor]="'var(--josanz-field-fill)'"
-          [style.color]="'var(--josanz-text)'"
+          [style.color]="'var(--josanz-field-text, var(--josanz-text))'"
           [style.borderColor]="borderColor()"
           [style.boxShadow]="focusRing()"
           [attr.aria-invalid]="hasError"

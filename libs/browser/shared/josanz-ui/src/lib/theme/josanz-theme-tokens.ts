@@ -885,10 +885,8 @@ export function applyJosanzThemeCssVariables(params: {
   applyJosanzStructuralCssVariables(root);
   applyJosanzBrandCssVariables(root, primaryColor, effectiveAtmosphere, isDark);
   applyJosanzListCardTokens(root, effectiveAtmosphere, isDark);
+  applyJosanzFormTokens(root, effectiveAtmosphere, isDark);
 
-  if (atmosphere.fieldFill) {
-    root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
-  }
   if (atmosphere.surfaceMuted) {
     root.style.setProperty('--josanz-surface-muted', atmosphere.surfaceMuted);
     root.style.setProperty(
@@ -918,8 +916,7 @@ export function applyJosanzThemeCssVariables(params: {
 }
 
 /**
- * Tokens de filas/tarjetas de listado: siempre legibles sobre el fondo de la tarjeta,
- * independientes del color de texto del lienzo (p. ej. atmósferas oscuras).
+ * Tokens de filas/tarjetas de listado: superficie y texto acordes a la atmósfera.
  */
 export function applyJosanzListCardTokens(
   root: HTMLElement,
@@ -935,17 +932,25 @@ export function applyJosanzListCardTokens(
     return;
   }
 
-  const cardBg = '#FFFFFF';
-  const cardText = '#111827';
-  const cardTextMuted = '#475569';
-  const cardBorder = isDark
-    ? '#E2E8F0'
-    : ensureContrast(
-        `color-mix(in srgb, ${atmosphere.border} 70%, ${cardBg})`,
-        cardBg,
-        '#E2E8F0',
-        1.2,
-      );
+  const cardBg = atmosphere.surface;
+  const cardText = ensureContrast(
+    atmosphere.text,
+    cardBg,
+    isDark ? '#F8FAFC' : '#111827',
+    7,
+  );
+  const cardTextMuted = ensureContrast(
+    atmosphere.textMuted,
+    cardBg,
+    isDark ? '#C5D4E8' : '#475569',
+    4.5,
+  );
+  const cardBorder = ensureContrast(
+    atmosphere.border,
+    cardBg,
+    isDark ? '#4B647D' : '#E2E8F0',
+    1.45,
+  );
 
   root.style.setProperty('--josanz-list-card-bg', cardBg);
   root.style.setProperty('--josanz-list-card-text', cardText);
@@ -953,10 +958,53 @@ export function applyJosanzListCardTokens(
   root.style.setProperty('--josanz-list-card-border', cardBorder);
   root.style.setProperty(
     '--josanz-list-card-shadow',
-    isDark
-      ? '0 4px 22px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1)'
-      : (atmosphere.cardShadow ?? atmosphere.shadow),
+    atmosphere.cardShadow ?? atmosphere.shadow,
   );
+}
+
+/**
+ * Campos de formulario y paneles anidados (operadores, venues, etc.).
+ */
+export function applyJosanzFormTokens(
+  root: HTMLElement,
+  atmosphere: JosanzAtmosphereConfig,
+  isDark: boolean,
+): void {
+  const fieldBg =
+    atmosphere.fieldFill ?? (isDark ? '#0f172a' : JOSANZ_FIGMA_LOGIN.fieldIdleFill);
+  const fieldText = ensureContrast(
+    atmosphere.text,
+    fieldBg,
+    isDark ? '#F8FAFC' : '#111827',
+    7,
+  );
+  const fieldTextMuted = ensureContrast(
+    atmosphere.textMuted,
+    fieldBg,
+    isDark ? '#B8C9DE' : '#64748B',
+    4.5,
+  );
+
+  root.style.setProperty('--josanz-field-fill', fieldBg);
+  root.style.setProperty('--josanz-login-field-bg', fieldBg);
+  root.style.setProperty('--josanz-field-text', fieldText);
+  root.style.setProperty('--josanz-field-text-muted', fieldTextMuted);
+
+  if (atmosphere.name === 'neutral') {
+    root.style.setProperty('--josanz-form-panel-bg', '#F7F7F7');
+    root.style.setProperty('--josanz-form-panel-border', '#EBEBEB');
+    return;
+  }
+
+  const panelBg = atmosphere.surfaceMuted ?? atmosphere.surface;
+  const panelBorder = ensureContrast(
+    atmosphere.border,
+    panelBg,
+    isDark ? '#4B647D' : '#E2E8F0',
+    1.45,
+  );
+  root.style.setProperty('--josanz-form-panel-bg', panelBg);
+  root.style.setProperty('--josanz-form-panel-border', panelBorder);
 }
 
 /** Tokens estructurales fijos del frame Figma (modo neutro). */

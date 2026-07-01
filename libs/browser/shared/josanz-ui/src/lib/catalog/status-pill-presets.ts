@@ -4,6 +4,7 @@ import {
   JOSANZ_FIGMA_STATUS_PILLS,
   type JosanzStatusPillKey,
 } from '../theme/josanz-figma-tokens';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 import { normalizeHexColor } from './client-rail-presets';
 
 function resolveStatusPillKey(variant: JosanzStatusPillVariant): JosanzStatusPillKey {
@@ -124,8 +125,8 @@ export function pillOutlineIconRingStyles(accentColor: string): Record<string, s
 export function pillFilledBadgeStyles(accentColor: string): Record<string, string> {
   const accent = normalizeHexColor(accentColor) ?? accentColor;
   return {
-    'background-color': `color-mix(in srgb, ${accent} 16%, var(--josanz-surface))`,
-    color: accent,
+    'background-color': accent,
+    color: josanzReadableOnSolid(accent),
     'box-shadow': 'var(--josanz-shadow-sm)',
     'text-transform': 'uppercase',
     'letter-spacing': '0.05em',

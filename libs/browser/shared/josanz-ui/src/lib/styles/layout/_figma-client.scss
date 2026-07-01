@@ -193,7 +193,7 @@
     background: var(--josanz-field-fill, #f5f5f5);
     font-size: 14px;
     font-weight: 600;
-    color: var(--josanz-text);
+    color: var(--josanz-field-text, var(--josanz-text));
     font-family: inherit;
     transition:
       border-color 0.15s ease,
