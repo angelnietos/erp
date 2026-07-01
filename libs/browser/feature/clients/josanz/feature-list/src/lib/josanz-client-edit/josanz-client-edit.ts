@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -21,6 +21,7 @@ import {
   ButtonComponent,
   InputComponent,
   JosanzClientRailPickerComponent,
+  JosanzClientStatusTypeFieldComponent,
   JosanzDeleteConfirmHostComponent,
   JosanzDeleteConfirmService,
   MainDetailLayoutComponent,
@@ -44,6 +45,7 @@ const DEFAULT_TARIFF_OPTIONS = ['Especial 01', 'Especial 02', 'Tarifa estándar'
     ReactiveFormsModule,
     InputComponent,
     JosanzClientRailPickerComponent,
+    JosanzClientStatusTypeFieldComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
     JosanzDeleteConfirmHostComponent,
@@ -59,12 +61,13 @@ export class JosanzClientEditComponent implements OnInit {
   private readonly clientsFacade = inject(ClientsFacade);
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
+  @ViewChild(JosanzClientStatusTypeFieldComponent)
+  statusTypeField?: JosanzClientStatusTypeFieldComponent;
+
   readonly saving = signal(false);
   readonly loading = signal(true);
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
-
-  tariffOptions = [...DEFAULT_TARIFF_OPTIONS];
 
   form: FormGroup;
   private readonly razonSocialValue: ReturnType<typeof toSignal<string>>;
@@ -75,13 +78,13 @@ export class JosanzClientEditComponent implements OnInit {
       razonSocial: ['', josanzNonEmptyTrim],
       email: ['', [josanzNonEmptyTrim, Validators.email]],
       telefono: ['', josanzNonEmptyTrim],
-      tarifa: [this.tariffOptions[0], Validators.required],
+      tarifa: [DEFAULT_TARIFF_OPTIONS[0], [Validators.required, josanzNonEmptyTrim]],
       colorRail: [
         defaultClientRailColor(),
         [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
       ],
       colorPill: [
-        defaultClientTariffPillColor(this.tariffOptions[0]),
+        defaultClientTariffPillColor(DEFAULT_TARIFF_OPTIONS[0]),
         [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
       ],
       operadores: this.fb.array([this.createOperatorGroup(1)]),
@@ -247,10 +250,7 @@ export class JosanzClientEditComponent implements OnInit {
   }
 
   private patchForm(client: Client): void {
-    const tarifaValue = client.tariffLabel ?? this.tariffOptions[0];
-    if (tarifaValue && !this.tariffOptions.includes(tarifaValue)) {
-      this.tariffOptions = [...this.tariffOptions, tarifaValue];
-    }
+    const tarifaValue = client.tariffLabel ?? DEFAULT_TARIFF_OPTIONS[0];
 
     const colorRail =
       normalizeHexColor(client.railColor ?? '') ||
@@ -276,12 +276,13 @@ export class JosanzClientEditComponent implements OnInit {
     const contacts = client.contacts ?? [];
     if (contacts.length === 0) {
       this.operadores.push(this.createOperatorGroup(1));
-      return;
+    } else {
+      contacts.forEach((contact, index) => {
+        this.operadores.push(this.createOperatorGroupFromContact(contact, index + 1));
+      });
     }
 
-    contacts.forEach((contact, index) => {
-      this.operadores.push(this.createOperatorGroupFromContact(contact, index + 1));
-    });
+    queueMicrotask(() => this.statusTypeField?.registerExtraTypes([tarifaValue]));
   }
 
   private initialsFromName(name: string): string {

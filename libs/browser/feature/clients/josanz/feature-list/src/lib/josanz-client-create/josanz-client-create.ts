@@ -19,6 +19,7 @@ import {
   ButtonComponent,
   InputComponent,
   JosanzClientRailPickerComponent,
+  JosanzClientStatusTypeFieldComponent,
   MainDetailLayoutComponent,
   defaultClientRailColor,
   defaultClientTariffPillColor,
@@ -36,6 +37,7 @@ import {
     ReactiveFormsModule,
     InputComponent,
     JosanzClientRailPickerComponent,
+    JosanzClientStatusTypeFieldComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
   ],
@@ -52,8 +54,6 @@ export class JosanzClientCreateComponent {
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
 
-  readonly tariffOptions = ['Especial 01', 'Especial 02', 'Tarifa estándar'];
-
   form: FormGroup;
   private readonly razonSocialValue: ReturnType<typeof toSignal<string>>;
 
@@ -62,13 +62,13 @@ export class JosanzClientCreateComponent {
       razonSocial: ['', josanzNonEmptyTrim],
       email: ['', [josanzNonEmptyTrim, Validators.email]],
       telefono: ['', josanzNonEmptyTrim],
-      tarifa: [this.tariffOptions[0], Validators.required],
+      tarifa: ['Especial 01', [Validators.required, josanzNonEmptyTrim]],
       colorRail: [
         defaultClientRailColor(),
         [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
       ],
       colorPill: [
-        defaultClientTariffPillColor(this.tariffOptions[0]),
+        defaultClientTariffPillColor('Especial 01'),
         [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
       ],
       operadores: this.fb.array([this.createOperatorGroup(1)]),

@@ -133,6 +133,113 @@
   flex-shrink: 0;
 }
 
+.josanz-client-status-type {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+
+  &__type-block,
+  &__color-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__type-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 0.75rem;
+  }
+
+  &__label {
+    margin: 0 0 0 0.25rem;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--josanz-label-muted, #7c7c7c);
+  }
+
+  &__preview {
+    text-transform: uppercase;
+  }
+
+  &__trigger {
+    margin-bottom: 0;
+  }
+
+  &__trigger-chip {
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__custom {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  &__custom-input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 2.75rem;
+    padding: 0 0.75rem;
+    border-radius: var(--josanz-radius-control, 8px);
+    border: 1px solid var(--josanz-stroke-field, #d7d7d7);
+    background: var(--josanz-field-fill, #f5f5f5);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--josanz-text);
+    font-family: inherit;
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--josanz-interactive, var(--josanz-primary));
+      box-shadow: 0 0 0 2px var(--josanz-focus-ring);
+    }
+
+    &::placeholder {
+      color: var(--josanz-text-muted);
+      font-weight: 500;
+    }
+  }
+
+  &__hint {
+    margin: 0 0 0 0.25rem;
+    font-size: 11px;
+    color: var(--josanz-text-muted);
+  }
+
+  &__link {
+    align-self: flex-start;
+    margin: 0 0 0 0.25rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--josanz-interactive, var(--josanz-primary));
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+
+    &:hover {
+      color: var(--josanz-text);
+    }
+  }
+
+  josanz-client-rail-picker {
+    margin-bottom: 0;
+  }
+}
+
 .josanz-client-rail-picker {
   display: flex;
   flex-direction: column;

@@ -42,6 +42,7 @@ export * from './lib/components/user-avatar';
 export * from './lib/components/main-tabs';
 export * from './lib/components/input';
 export * from './lib/components/josanz-client-rail-picker';
+export * from './lib/components/josanz-client-status-type-field';
 export * from './lib/components/modal';
 export * from './lib/components/detail-card';
 export * from './lib/components/main-detail-layout';

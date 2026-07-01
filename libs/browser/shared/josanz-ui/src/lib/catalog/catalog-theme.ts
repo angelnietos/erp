@@ -97,3 +97,19 @@ export function tenantClientTariffColor(
   }
   return undefined;
 }
+
+/** Color por defecto de la pastilla para un tipo/tarifa de cliente (tenant + presets). */
+export function resolveClientTypePillColor(
+  typeLabel: string | null | undefined,
+  theme?: TenantCatalogTheme | null,
+): string {
+  const label = typeLabel?.trim();
+  if (!label) {
+    return defaultClientTariffPillColor(TENANT_CLIENT_TARIFF_OPTIONS[0]);
+  }
+  return (
+    tenantClientTariffColor(theme, label) ?? defaultClientTariffPillColor(label)
+  );
+}
+
+export const CLIENT_STATUS_CUSTOM_OPTION = '__custom__';

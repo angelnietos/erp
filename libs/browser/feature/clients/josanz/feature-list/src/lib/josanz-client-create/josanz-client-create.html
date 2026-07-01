@@ -70,43 +70,9 @@
             [required]="true"
           ></josanz-input>
 
-          <div class="josanz-client-type-select">
-            <label class="josanz-client-type-select__label" for="tarifa-cliente">
-              Tarifa <span class="text-[color:var(--josanz-danger)]" aria-hidden="true">*</span>
-            </label>
-            <div class="josanz-client-type-select__trigger">
-              <span class="josanz-client-type-chip" style="background: #ddecff; color: #080808">
-                {{ form.get('tarifa')?.value }}
-              </span>
-              <span class="josanz-client-type-select__spacer" aria-hidden="true"></span>
-              <svg
-                class="josanz-client-type-select__chevron"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                aria-hidden="true"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-              <select id="tarifa-cliente" formControlName="tarifa" aria-label="Tarifa">
-                @for (tarifa of tariffOptions; track tarifa) {
-                <option [value]="tarifa">{{ tarifa }}</option>
-                }
-              </select>
-            </div>
-          </div>
-
           <josanz-client-rail-picker [parentForm]="form"></josanz-client-rail-picker>
 
-          <josanz-client-rail-picker
-            [parentForm]="form"
-            controlName="colorPill"
-            fieldLabel="Color de tipo / estado"
-            fieldHint="Color de la pastilla en el listado de clientes."
-          ></josanz-client-rail-picker>
+          <josanz-client-status-type-field [parentForm]="form"></josanz-client-status-type-field>
         </form>
       </div>
     </section>
