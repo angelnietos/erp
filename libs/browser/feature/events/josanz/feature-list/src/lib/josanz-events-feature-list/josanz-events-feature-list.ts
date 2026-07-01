@@ -15,8 +15,6 @@ import {
 import { JosanzEventsFacade } from '../services/josanz-events.facade';
 import { ClientsFacade } from '@josanz-erp/clients-data-access';
 
-const EVENT_LIST_PAGE_SIZE = 10;
-
 @Component({
   selector: 'josanz-events-feature-list',
   standalone: true,
@@ -72,7 +70,6 @@ export class JosanzEventsFeatureListComponent implements OnInit {
       statusBoard: true,
     },
     paginationVariant: 'numbered',
-    pageSize: EVENT_LIST_PAGE_SIZE,
     statusBadgeStyle: 'outline',
   };
 
@@ -90,7 +87,6 @@ export class JosanzEventsFeatureListComponent implements OnInit {
         emphasis: `${countActiveEvents(events)} activos`,
         after: ' esta semana',
       },
-      paginationTotal: Math.max(1, Math.ceil(total / EVENT_LIST_PAGE_SIZE)),
       loading: this.eventsFacade.loading() && events.length === 0,
     };
   });

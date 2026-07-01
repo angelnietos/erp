@@ -1,6 +1,7 @@
 import {
   defaultGridColumnsForSelection,
   gridDensityForSelection,
+  isValidListPageSize,
   listViewStackClasses,
 } from './list-view-preferences';
 
@@ -10,6 +11,11 @@ describe('list-view-preferences', () => {
     expect(defaultGridColumnsForSelection('tarjetas-grid-compact')).toBe(5);
     expect(defaultGridColumnsForSelection('tarjetas-grid-dense')).toBe(6);
     expect(defaultGridColumnsForSelection('tabla')).toBeNull();
+  });
+
+  it('valida tamaños de página permitidos', () => {
+    expect(isValidListPageSize(10)).toBe(true);
+    expect(isValidListPageSize(7)).toBe(false);
   });
 
   it('asigna densidad y clases de stack de forma determinista', () => {

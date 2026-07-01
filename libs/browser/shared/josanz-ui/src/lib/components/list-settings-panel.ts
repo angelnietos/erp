@@ -6,6 +6,7 @@ import {
 } from '../services/theme.service';
 import {
   JOSANZ_LIST_GRID_COLUMN_OPTIONS,
+  JOSANZ_LIST_PAGE_SIZE_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
 } from '../list-view/list-view-preferences';
 
@@ -21,6 +22,7 @@ export class ListSettingsPanelComponent {
 
   readonly listViewOptions = JOSANZ_LIST_VIEW_MENU_OPTIONS;
   readonly gridColumnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
+  readonly pageSizeOptions = JOSANZ_LIST_PAGE_SIZE_OPTIONS;
 
   readonly paginationOptions: {
     variant: JosanzPaginationVariant;

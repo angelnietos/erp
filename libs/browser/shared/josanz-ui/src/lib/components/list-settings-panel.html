@@ -40,6 +40,25 @@
   </section>
 
   <section class="josanz-theme-section">
+    <h3 class="premium-label">Resultados por página</h3>
+    <p class="premium-desc">Cuántas filas se muestran en cada página del listado.</p>
+    <div class="grid-col-row" role="group" aria-label="Resultados por página">
+      @for (opt of pageSizeOptions; track opt.value) {
+        <button
+          type="button"
+          (click)="themeService.setListPageSize(opt.value)"
+          class="grid-col-selector"
+          [class.active]="themeService.listPageSize() === opt.value"
+          [attr.aria-label]="opt.label"
+          [attr.aria-pressed]="themeService.listPageSize() === opt.value"
+        >
+          {{ opt.value }}
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="josanz-theme-section">
     <h3 class="premium-label">Paginación de listas</h3>
     <p class="premium-desc">Estilo del control de páginas en tablas y listados.</p>
     <div class="pagination-variant-list">

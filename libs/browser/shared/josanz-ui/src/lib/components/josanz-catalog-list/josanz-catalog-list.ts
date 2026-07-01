@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import type { JosanzCatalogListRow } from '../../catalog/catalog-status';
@@ -99,6 +99,15 @@ export class JosanzCatalogListComponent implements OnChanges {
   readonly themeService = inject(JosanzThemeService);
   private readonly catalogTheme = inject(CatalogThemeFacade);
 
+  private trackedPageSize = 0;
+
+  constructor() {
+    effect(() => {
+      this.themeService.listPageSize();
+      this.syncPageSizeAndReset();
+    });
+  }
+
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
   @Output() rowStatusChange = new EventEmitter<{ id: string; status: string; previousStatus: string }>();
@@ -113,7 +122,16 @@ export class JosanzCatalogListComponent implements OnChanges {
     if (changes['config']) {
       this.syncLoadingSkeleton(Boolean(this.config.loading));
       this.ensureValidViewSelection();
+      this.syncPageSizeAndReset();
     }
+  }
+
+  private syncPageSizeAndReset(): void {
+    const size = this.pageSize;
+    if (this.trackedPageSize !== 0 && size !== this.trackedPageSize) {
+      this.currentPage = 1;
+    }
+    this.trackedPageSize = size;
   }
 
   private ensureValidViewSelection(): void {
@@ -230,7 +248,11 @@ export class JosanzCatalogListComponent implements OnChanges {
     if (this.showStatusBoardView()) {
       return 0;
     }
-    return this.features.pagination ? this.paginationTotal : 0;
+    if (!this.features.pagination) {
+      return 0;
+    }
+    const total = this.paginationTotal;
+    return total > 1 ? total : 0;
   }
 
   get filterOptions(): string[] {
@@ -260,14 +282,18 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get pageSize(): number {
-    return this.config.pageSize ?? 10;
+    return this.config.pageSize ?? this.themeService.listPageSize();
   }
 
   get paginationTotal(): number {
     if (this.config.paginationTotal !== undefined) {
       return this.config.paginationTotal;
     }
-    return Math.max(1, Math.ceil(this.filteredRows.length / this.pageSize));
+    const count = this.filteredRows.length;
+    if (count === 0) {
+      return 0;
+    }
+    return Math.max(1, Math.ceil(count / this.pageSize));
   }
 
   get adaptiveItems(): JosanzAdaptiveListItem[] {

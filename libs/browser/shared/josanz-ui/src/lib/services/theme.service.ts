@@ -5,7 +5,9 @@ import {
   isValidListGridColumns,
   migrateLegacyListViewMode,
   type JosanzListGridColumns,
+  type JosanzListPageSize,
   type JosanzListViewSelection,
+  isValidListPageSize,
 } from '../list-view/list-view-preferences';
 
 /** @deprecated Usar `JosanzListViewSelection`. */
@@ -35,6 +37,7 @@ export type {
 export type {
   JosanzListViewSelection,
   JosanzListGridColumns,
+  JosanzListPageSize,
   JosanzGridCardDensity,
 } from '../list-view/list-view-preferences';
 
@@ -52,6 +55,7 @@ interface JosanzStoredPreferences {
   listViewMode?: JosanzListViewMode;
   listViewSelection?: JosanzListViewSelection;
   listGridColumns?: JosanzListGridColumns;
+  listPageSize?: JosanzListPageSize;
   listViewPanelOpen?: boolean;
 }
 
@@ -85,6 +89,9 @@ export class JosanzThemeService {
 
   /** Panel de selector de vista expandido en el footer del listado. */
   listViewPanelOpen = signal(false);
+
+  /** Filas visibles por página en listados de catálogo. */
+  listPageSize = signal<JosanzListPageSize>(10);
 
   constructor() {
     this.restorePreferences();
@@ -146,6 +153,11 @@ export class JosanzThemeService {
 
   toggleListViewPanel(): void {
     this.setListViewPanelOpen(!this.listViewPanelOpen());
+  }
+
+  setListPageSize(size: JosanzListPageSize) {
+    this.listPageSize.set(size);
+    this.persistPreferences();
   }
 
   readableOnPrimary(hex?: string): string {
@@ -303,6 +315,11 @@ export class JosanzThemeService {
     if (cols !== undefined && isValidListGridColumns(cols)) {
       this.listGridColumns.set(cols);
     }
+
+    const pageSize = stored.listPageSize;
+    if (pageSize !== undefined && isValidListPageSize(pageSize)) {
+      this.listPageSize.set(pageSize);
+    }
   }
 
   private persistPreferences(): void {
@@ -317,6 +334,7 @@ export class JosanzThemeService {
       paginationVariant: this.paginationVariant(),
       listViewSelection: this.listViewSelection(),
       listGridColumns: this.listGridColumns(),
+      listPageSize: this.listPageSize(),
       listViewPanelOpen: this.listViewPanelOpen(),
     };
     try {

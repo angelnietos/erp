@@ -9,6 +9,8 @@ export type JosanzListViewSelection =
 
 export type JosanzListGridColumns = 2 | 3 | 4 | 5 | 6;
 
+export type JosanzListPageSize = 5 | 10 | 15 | 20 | 25 | 50;
+
 export type JosanzGridCardDensity = 'comfortable' | 'compact' | 'dense';
 
 export interface JosanzListViewMenuOption {
@@ -55,10 +57,27 @@ export const JOSANZ_LIST_GRID_COLUMN_OPTIONS: readonly {
   { value: 6, label: '6 columnas' },
 ];
 
+export const JOSANZ_LIST_PAGE_SIZE_OPTIONS: readonly {
+  value: JosanzListPageSize;
+  label: string;
+}[] = [
+  { value: 5, label: '5 filas' },
+  { value: 10, label: '10 filas' },
+  { value: 15, label: '15 filas' },
+  { value: 20, label: '20 filas' },
+  { value: 25, label: '25 filas' },
+  { value: 50, label: '50 filas' },
+];
+
 const GRID_COLUMN_SET = new Set<JosanzListGridColumns>([2, 3, 4, 5, 6]);
+const PAGE_SIZE_SET = new Set<JosanzListPageSize>([5, 10, 15, 20, 25, 50]);
 
 export function isValidListGridColumns(n: number): n is JosanzListGridColumns {
   return GRID_COLUMN_SET.has(n as JosanzListGridColumns);
+}
+
+export function isValidListPageSize(n: number): n is JosanzListPageSize {
+  return PAGE_SIZE_SET.has(n as JosanzListPageSize);
 }
 
 /** Compatibilidad con preferencia antigua (`Tabla` | `Tarjetas`). */

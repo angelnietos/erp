@@ -10,8 +10,6 @@ import {
   type JosanzCatalogListConfig,
 } from '@josanz-erp/josanz-ui';
 
-const CLIENT_LIST_PAGE_SIZE = 10;
-
 @Component({
   selector: 'lib-clients-list',
   standalone: true,
@@ -43,7 +41,6 @@ export class JosanzClientsListComponent implements OnInit {
       statusFilters: false,
     },
     paginationVariant: 'numbered',
-    pageSize: CLIENT_LIST_PAGE_SIZE,
     statusBadgeStyle: 'outline',
     loadingPlaceholderCount: 5,
   };
@@ -66,7 +63,6 @@ export class JosanzClientsListComponent implements OnInit {
         emphasis: `${total} activos`,
         after: '',
       },
-      paginationTotal: Math.max(1, Math.ceil(total / CLIENT_LIST_PAGE_SIZE)),
     };
   });
 
