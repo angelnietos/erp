@@ -46,18 +46,22 @@ export function buildEventDetailSavePayload(input: DetailPayloadInput): UpdateJo
       ...input.inspirationFiles.map((f) => ({
         category: 'INSPIRATION' as const,
         filename: f.name,
+        storageKey: f.url,
       })),
       ...input.deliveryNotes.map((f) => ({
         category: 'DELIVERY' as const,
         filename: f.name,
+        storageKey: f.url,
       })),
       ...input.invoices.map((f) => ({
         category: 'INVOICE' as const,
         filename: f.name,
+        storageKey: f.url,
       })),
       ...input.reportFiles.map((f) => ({
         category: 'REPORT' as const,
         filename: f.name,
+        storageKey: f.url,
       })),
     ],
     budgetLines: input.budgetLines.map((line) => ({

@@ -21,6 +21,8 @@ import type { EventUploadTarget } from '../josanz-event-detail.types';
         [showView]="true"
         [showDownload]="true"
         [showDelete]="true"
+        (view)="state.openFile(file)"
+        (download)="state.downloadFile(file)"
         (delete)="state.removeFile(uploadTarget, file.id)"
       ></josanz-document-item>
       }

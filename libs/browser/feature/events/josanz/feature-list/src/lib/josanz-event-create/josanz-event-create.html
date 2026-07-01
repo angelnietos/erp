@@ -7,7 +7,7 @@
   (save)="onSave()"
   (cancel)="onCancel()"
   saveLabel="Crear evento"
-  [saveDisabled]="form.invalid || saving()"
+  [saveDisabled]="saving()"
   [showFooterActions]="false"
   [showHeaderSave]="false"
 >
@@ -208,7 +208,7 @@
       <josanz-button
         label="Crear evento"
         [showIcon]="false"
-        [disabled]="form.invalid || saving()"
+        [disabled]="saving()"
         (btnClick)="onSave()"
       ></josanz-button>
     </div>

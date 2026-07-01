@@ -7,7 +7,7 @@
   [showFooterActions]="false"
   [showHeaderSave]="false"
   [showUserLabel]="false"
-  [saveDisabled]="form.invalid || saving()"
+  [saveDisabled]="saving()"
   (back)="onBack()"
   (save)="onSubmit()"
   (cancel)="onCancel()"
@@ -148,7 +148,7 @@
       <josanz-button
         label="Añadir Cliente"
         [showIcon]="false"
-        [disabled]="form.invalid || saving()"
+        [disabled]="saving()"
         (btnClick)="onSubmit()"
       ></josanz-button>
     </div>

@@ -54,6 +54,7 @@ export class JosanzEventCreateComponent implements OnInit {
   readonly eventTypes = ['Evento externo', 'Hotel', 'Espacio'] as const;
   readonly selectedType = signal<(typeof this.eventTypes)[number]>('Evento externo');
   readonly clients = signal<Client[]>([]);
+  readonly clientsLoading = signal(false);
   readonly saving = signal(false);
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
@@ -86,9 +87,19 @@ export class JosanzEventCreateComponent implements OnInit {
     return type === 'Hotel' || type === 'Espacio';
   });
 
-  readonly clientOptions = computed(() =>
-    this.clients().map((client) => ({ label: client.name, value: client.id })),
-  );
+  readonly clientOptions = computed(() => {
+    const clients = this.clients();
+    if (clients.length) {
+      return clients.map((client) => ({ label: client.name, value: client.id }));
+    }
+    return [
+      {
+        label: this.clientsLoading() ? 'Cargando clientes...' : 'No hay clientes disponibles',
+        value: '__no_clients__',
+        disabled: true,
+      },
+    ];
+  });
 
   readonly operatorOptions = computed(() => {
     const clientId = this.selectedClientId();
@@ -154,14 +165,25 @@ export class JosanzEventCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const cachedClients = this.clientsFacade.clients();
+    if (cachedClients.length) {
+      this.clients.set(cachedClients);
+      this.applyPreselectedClient(cachedClients);
+      this.updateLocationValidators();
+    }
+
+    this.clientsLoading.set(true);
     this.clientsFacade.loadClients();
-    this.clientService.getClients().subscribe({
+    this.clientService.getClients().pipe(finalize(() => this.clientsLoading.set(false))).subscribe({
       next: (apiClients) => {
         const cached = this.clientsFacade.clients();
         const clients = this.mergeClients(apiClients, cached);
         this.clients.set(clients);
         this.applyPreselectedClient(clients);
         this.updateLocationValidators();
+      },
+      error: () => {
+        this.errorMessage.set('No se pudieron cargar los clientes. Reintenta o crea el cliente primero.');
       },
     });
 
@@ -210,7 +232,7 @@ export class JosanzEventCreateComponent implements OnInit {
     this.validationBanner.set('');
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
-      this.validationBanner.set('Revisa los campos obligatorios marcados en rojo.');
+      this.validationBanner.set(this.validationMessage());
       return;
     }
 
@@ -315,6 +337,29 @@ export class JosanzEventCreateComponent implements OnInit {
       control.clearValidators();
     }
     control.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private validationMessage(): string {
+    const missing: string[] = [];
+    if (this.form.get('clientId')?.invalid) {
+      missing.push('cliente');
+    }
+    if (this.form.get('operatorContactId')?.invalid) {
+      missing.push('operador');
+    }
+    if (this.form.get('nombre')?.invalid) {
+      missing.push('nombre del evento');
+    }
+    if (this.eventDates.controls.some((group) => group.get('fecha')?.invalid)) {
+      missing.push('fecha del evento');
+    }
+    if (this.form.get('localizacion')?.invalid) {
+      missing.push('localización');
+    }
+    if (!missing.length) {
+      return 'Revisa los campos marcados en rojo.';
+    }
+    return `Faltan campos obligatorios: ${missing.join(', ')}.`;
   }
 
   private buildPayload(): CreateJosanzEventPayload {

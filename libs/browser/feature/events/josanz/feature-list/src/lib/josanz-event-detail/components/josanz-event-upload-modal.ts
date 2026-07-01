@@ -27,7 +27,7 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
           size="lg"
           [showIcon]="false"
           [fullWidth]="true"
-          [disabled]="!state.uploadFileName()"
+          [disabled]="!state.uploadReady()"
           (btnClick)="state.confirmUpload()"
         ></josanz-button>
         <button type="button" class="josanz-event-note-composer__cancel" (click)="state.closeUploadModal()">

@@ -2613,7 +2613,68 @@ async function seedAlexisFigmaDemo(tenantId: string) {
     },
   ];
 
-  await prisma.$transaction([
+  const alexisStaffPassword = await bcrypt.hash('Admin123!', 10);
+  const staffUsers = await prisma.$transaction([
+    prisma.user.create({
+      data: {
+        tenantId,
+        email: 'tecnico.audio@alexis.local',
+        password: alexisStaffPassword,
+        firstName: 'Dani',
+        lastName: 'Sonido',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        tenantId,
+        email: 'tecnica.iluminacion@alexis.local',
+        password: alexisStaffPassword,
+        firstName: 'Laura',
+        lastName: 'Luces',
+      },
+    }),
+    prisma.user.create({
+      data: {
+        tenantId,
+        email: 'freelance.video@alexis.local',
+        password: alexisStaffPassword,
+        firstName: 'Marta',
+        lastName: 'Video',
+      },
+    }),
+  ]);
+
+  const technicians = await prisma.$transaction([
+    prisma.technician.create({
+      data: {
+        tenantId,
+        userId: staffUsers[0].id,
+        hourlyRate: 42,
+        skills: ['AUDIO', 'RF'],
+        status: 'ACTIVE',
+      },
+    }),
+    prisma.technician.create({
+      data: {
+        tenantId,
+        userId: staffUsers[1].id,
+        hourlyRate: 38,
+        skills: ['ILUMINACION', 'ESCENA'],
+        status: 'ACTIVE',
+      },
+    }),
+    prisma.technician.create({
+      data: {
+        tenantId,
+        userId: staffUsers[2].id,
+        hourlyRate: 45,
+        skills: ['VIDEO', 'STREAMING'],
+        status: 'FREELANCE',
+      },
+    }),
+  ]);
+
+  const events = await prisma.$transaction([
     prisma.event.create({
       data: {
         tenantId,
@@ -2733,7 +2794,15 @@ async function seedAlexisFigmaDemo(tenantId: string) {
     }),
   ]);
 
-  console.log('- Alexis (Figma): clientes, operadores y eventos demo');
+  await prisma.eventTechnician.createMany({
+    data: [
+      { eventId: events[2].id, technicianId: technicians[0].id },
+      { eventId: events[2].id, technicianId: technicians[1].id },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log('- Alexis (Figma): clientes, operadores, staff y eventos demo');
 }
 
 main()

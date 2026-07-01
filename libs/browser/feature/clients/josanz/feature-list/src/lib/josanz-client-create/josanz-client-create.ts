@@ -128,7 +128,7 @@ export class JosanzClientCreateComponent {
     this.validationBanner.set('');
     if (this.form.invalid || this.saving()) {
       this.form.markAllAsTouched();
-      this.validationBanner.set('Revisa los campos obligatorios marcados en rojo.');
+      this.validationBanner.set(this.validationMessage());
       return;
     }
 
@@ -197,6 +197,40 @@ export class JosanzClientCreateComponent {
       email: ['', [josanzNonEmptyTrim, Validators.email]],
       telefono: ['', josanzNonEmptyTrim],
     });
+  }
+
+  private validationMessage(): string {
+    const missing: string[] = [];
+    if (this.form.get('razonSocial')?.invalid) {
+      missing.push('nombre / razón social');
+    }
+    if (this.form.get('email')?.invalid) {
+      missing.push('email del cliente');
+    }
+    if (this.form.get('telefono')?.invalid) {
+      missing.push('teléfono del cliente');
+    }
+    if (this.form.get('tarifa')?.invalid) {
+      missing.push('tarifa');
+    }
+
+    this.operadores.controls.forEach((group, index) => {
+      const n = index + 1;
+      if (group.get('nombre')?.invalid) {
+        missing.push(`nombre del operador ${n}`);
+      }
+      if (group.get('email')?.invalid) {
+        missing.push(`email del operador ${n}`);
+      }
+      if (group.get('telefono')?.invalid) {
+        missing.push(`teléfono del operador ${n}`);
+      }
+    });
+
+    if (!missing.length) {
+      return 'Revisa los campos marcados en rojo.';
+    }
+    return `Faltan campos obligatorios: ${missing.join(', ')}.`;
   }
 
   private buildPayload(): CreateClientPayload {

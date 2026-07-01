@@ -64,6 +64,8 @@ export class JosanzEventDetailState {
   readonly uploadModalOpen = signal(false);
   private uploadTarget: EventUploadTarget | null = null;
   readonly uploadFileName = signal('');
+  readonly uploadReady = signal(false);
+  private uploadFileUrl = '';
 
   readonly staffOptions = computed(() =>
     this.staffCatalog().map((s) => ({ label: `${s.name} · ${s.role}`, value: s.id })),
@@ -177,16 +179,24 @@ export class JosanzEventDetailState {
 
     const attachments = record.attachments ?? [];
     this.inspirationFiles.set(
-      attachments.filter((a) => a.category === 'INSPIRATION').map((a) => ({ id: a.id, name: a.filename })),
+      attachments
+        .filter((a) => a.category === 'INSPIRATION')
+        .map((a) => ({ id: a.id, name: a.filename, url: a.storageKey ?? undefined })),
     );
     this.deliveryNotes.set(
-      attachments.filter((a) => a.category === 'DELIVERY').map((a) => ({ id: a.id, name: a.filename })),
+      attachments
+        .filter((a) => a.category === 'DELIVERY')
+        .map((a) => ({ id: a.id, name: a.filename, url: a.storageKey ?? undefined })),
     );
     this.invoices.set(
-      attachments.filter((a) => a.category === 'INVOICE').map((a) => ({ id: a.id, name: a.filename })),
+      attachments
+        .filter((a) => a.category === 'INVOICE')
+        .map((a) => ({ id: a.id, name: a.filename, url: a.storageKey ?? undefined })),
     );
     this.reportFiles.set(
-      attachments.filter((a) => a.category === 'REPORT').map((a) => ({ id: a.id, name: a.filename })),
+      attachments
+        .filter((a) => a.category === 'REPORT')
+        .map((a) => ({ id: a.id, name: a.filename, url: a.storageKey ?? undefined })),
     );
 
     this.budgetLines.set(
@@ -528,22 +538,37 @@ export class JosanzEventDetailState {
     this.uploadModalOpen.set(false);
     this.uploadTarget = null;
     this.uploadFileName.set('');
+    this.uploadReady.set(false);
+    this.uploadFileUrl = '';
   }
 
   onUploadFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
-    if (file) {
-      this.uploadFileName.set(file.name);
+    if (!file) {
+      return;
     }
+    this.uploadFileName.set(file.name);
+    this.uploadReady.set(false);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.uploadFileUrl = String(reader.result ?? '');
+      this.uploadReady.set(!!this.uploadFileUrl);
+    };
+    reader.onerror = () => {
+      this.uploadFileUrl = '';
+      this.uploadReady.set(false);
+    };
+    reader.readAsDataURL(file);
   }
 
   confirmUpload(): void {
     const name = this.uploadFileName().trim();
-    if (!name || !this.uploadTarget) {
+    if (!name || !this.uploadTarget || !this.uploadReady()) {
       return;
     }
-    const file: JosanzEventFile = { id: this.nextId('file'), name };
+    const file: JosanzEventFile = { id: this.nextId('file'), name, url: this.uploadFileUrl };
     switch (this.uploadTarget) {
       case 'inspiration':
         this.inspirationFiles.update((f) => [...f, file]);
@@ -560,6 +585,25 @@ export class JosanzEventDetailState {
     }
     this.dirty();
     this.closeUploadModal();
+  }
+
+  openFile(file: JosanzEventFile): void {
+    if (!file.url || typeof window === 'undefined') {
+      return;
+    }
+    window.open(file.url, '_blank', 'noopener');
+  }
+
+  downloadFile(file: JosanzEventFile): void {
+    if (!file.url || typeof document === 'undefined') {
+      return;
+    }
+    const link = document.createElement('a');
+    link.href = file.url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
   }
 
   removeFile(target: EventUploadTarget, id: string): void {

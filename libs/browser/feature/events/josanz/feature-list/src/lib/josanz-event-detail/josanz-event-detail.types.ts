@@ -47,6 +47,7 @@ export interface JosanzBudgetCatalogItem {
 export interface JosanzEventFile {
   id: string;
   name: string;
+  url?: string;
 }
 
 export interface JosanzEventEmail {
