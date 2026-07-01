@@ -3,7 +3,8 @@
   height: 32px;
   padding: 4px;
   border-radius: 6px;
-  background: var(--josanz-surface-muted, #f7f7f7);
+  background: var(--josanz-segmented-track-bg, var(--josanz-surface-muted, #f7f7f7));
+  border: 1px solid var(--josanz-brand-border, transparent);
 }
 
 .josanz-filter-tabs__segment {
@@ -27,20 +28,20 @@
 }
 
 .josanz-filter-tabs__segment--active {
-  background: var(--josanz-surface, #ffffff);
-  color: var(--josanz-text, #222222);
+  background: var(--josanz-segmented-active-bg, var(--josanz-surface, #ffffff));
+  color: var(--josanz-segmented-active-text, var(--josanz-interactive, var(--josanz-text)));
   font-weight: 600;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
 }
 
 .josanz-filter-tabs__segment--idle {
   background: transparent;
-  color: var(--josanz-label-muted, #8d8d8d);
+  color: var(--josanz-segmented-idle-text, var(--josanz-label-muted, #8d8d8d));
   font-weight: 500;
 }
 
 .josanz-filter-tabs__segment--idle:hover {
-  color: var(--josanz-text, #222222);
+  color: var(--josanz-segmented-active-text, var(--josanz-interactive, var(--josanz-text)));
 }
 
 /* Underline tabs — Figma Eventos catalog (tabs Todos/Externos/Hoteles/Espacios) */
@@ -58,6 +59,6 @@
 /* Underline bar — make it thicker to match Figma */
 :host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs span[class*="absolute bottom-0"] {
   height: 2.5px;
-  background: var(--josanz-text, #222222);
+  background: var(--josanz-interactive, var(--josanz-primary));
   border-radius: 2px;
 }

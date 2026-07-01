@@ -752,13 +752,13 @@ export function applyJosanzBrandCssVariables(
   );
   root.style.setProperty(
     '--josanz-sidebar-icon-active',
-    isNeutral ? '#222222' : pillText,
+    isNeutral ? '#222222' : primaryColor,
   );
   root.style.setProperty(
     '--josanz-sidebar-hover-bg',
     isNeutral
       ? 'transparent'
-      : `color-mix(in srgb, ${primaryColor} 10%, transparent)`,
+      : `color-mix(in srgb, ${primaryColor} ${isDark ? 16 : 10}%, transparent)`,
   );
   root.style.setProperty(
     '--josanz-focus-ring',
@@ -771,6 +771,68 @@ export function applyJosanzBrandCssVariables(
   root.style.setProperty(
     '--josanz-primary-soft',
     `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 10}%, ${surface})`,
+  );
+  root.style.setProperty('--josanz-brand-soft', softBg);
+  root.style.setProperty(
+    '--josanz-brand-soft-strong',
+    `color-mix(in srgb, ${primaryColor} ${isDark ? 32 : 20}%, ${surface})`,
+  );
+  root.style.setProperty(
+    '--josanz-brand-muted',
+    isNeutral
+      ? '#7C7C7C'
+      : `color-mix(in srgb, ${primaryColor} 68%, ${isDark ? '#C5D4E8' : '#64748B'})`,
+  );
+  root.style.setProperty(
+    '--josanz-brand-border',
+    isNeutral
+      ? atmosphere.border
+      : `color-mix(in srgb, ${primaryColor} 40%, ${atmosphere.border})`,
+  );
+  root.style.setProperty(
+    '--josanz-segmented-track-bg',
+    isNeutral
+      ? '#F7F7F7'
+      : `color-mix(in srgb, ${primaryColor} ${isDark ? 14 : 10}%, ${atmosphere.surfaceMuted ?? surface})`,
+  );
+  root.style.setProperty(
+    '--josanz-segmented-active-bg',
+    isNeutral ? '#FFFFFF' : softBg,
+  );
+  root.style.setProperty(
+    '--josanz-segmented-active-text',
+    isNeutral ? '#222222' : pillText,
+  );
+  root.style.setProperty(
+    '--josanz-segmented-idle-text',
+    isNeutral
+      ? '#8D8D8D'
+      : `color-mix(in srgb, ${primaryColor} 38%, ${atmosphere.textMuted})`,
+  );
+  root.style.setProperty(
+    '--josanz-thead-text',
+    isNeutral
+      ? '#7C7C7C'
+      : `color-mix(in srgb, ${primaryColor} 58%, ${atmosphere.textMuted})`,
+  );
+  root.style.setProperty('--josanz-link', isNeutral ? '#0F1E2F' : primaryColor);
+  root.style.setProperty(
+    '--josanz-sidebar-active-bg',
+    isNeutral
+      ? 'transparent'
+      : `color-mix(in srgb, ${primaryColor} ${isDark ? 20 : 14}%, ${surface})`,
+  );
+  root.style.setProperty(
+    '--josanz-list-card-border-brand',
+    isNeutral
+      ? '#EBEBEB'
+      : `color-mix(in srgb, ${primaryColor} 28%, ${atmosphere.border})`,
+  );
+  root.style.setProperty(
+    '--josanz-section-border-brand',
+    isNeutral
+      ? atmosphere.border
+      : `color-mix(in srgb, ${primaryColor} 22%, ${atmosphere.border})`,
   );
 }
 

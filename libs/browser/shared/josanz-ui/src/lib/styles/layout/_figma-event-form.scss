@@ -92,7 +92,7 @@
   padding: 0.35rem 0.65rem;
   font-size: 14px;
   font-weight: 600;
-  color: var(--josanz-button-primary-bg, #0f1e2f);
+  color: var(--josanz-link, var(--josanz-interactive, var(--josanz-button-primary-bg)));
   cursor: pointer;
 
   &--danger {
@@ -264,7 +264,7 @@
   padding: 0.35rem 0.65rem;
   font-size: 14px;
   font-weight: 500;
-  color: var(--josanz-button-primary-bg, #0f1e2f);
+  color: var(--josanz-link, var(--josanz-interactive, var(--josanz-button-primary-bg)));
   cursor: pointer;
 }
 

@@ -136,7 +136,19 @@
 
 .active-link {
   opacity: 1 !important;
-  background-color: var(--josanz-sidebar-hover-bg, transparent);
+  background-color: var(--josanz-sidebar-active-bg, var(--josanz-sidebar-hover-bg, transparent)) !important;
+}
+
+:host-context(html:not([data-josanz-atmosphere='neutral'])) .josanz-sidebar__item.active-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 14px;
+  border-radius: 0 2px 2px 0;
+  background: var(--josanz-interactive, var(--josanz-primary));
 }
 
 .active-link .nav-icon-container {

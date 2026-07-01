@@ -85,14 +85,20 @@ export class MainTabsComponent implements OnInit, OnChanges {
         };
       }
       const color = on
-        ? 'var(--josanz-list-card-text, #1B2533)'
-        : 'var(--josanz-list-card-text-muted, #64748B)';
+        ? 'var(--josanz-segmented-active-text, var(--josanz-interactive))'
+        : 'var(--josanz-segmented-idle-text, var(--josanz-list-card-text-muted))';
       return {
-        backgroundColor: 'var(--josanz-list-card-bg, #FFFFFF)',
-        borderColor: on ? accent : 'var(--josanz-list-card-border, #E2E8F0)',
+        backgroundColor: on
+          ? 'var(--josanz-brand-soft-strong, var(--josanz-pill-active-bg))'
+          : 'transparent',
+        borderColor: on
+          ? accent
+          : 'var(--josanz-brand-border, var(--josanz-list-card-border))',
         color,
         WebkitTextFillColor: color,
-        boxShadow: 'var(--josanz-list-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08))',
+        boxShadow: on
+          ? 'var(--josanz-list-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08))'
+          : 'none',
       };
     }
     const color = on ? accentText : 'var(--josanz-text-muted)';

@@ -1,0 +1,59 @@
+/* Acentos de marca en atmósferas con color (neutral White intacto). */
+
+html:not([data-josanz-atmosphere='neutral']) {
+  .josanz-main-list--figma-catalog {
+    .josanz-main-list__title-accent {
+      display: block;
+      height: 3px;
+      width: 3.5rem;
+      margin-top: 0.5rem;
+      border-radius: 9999px;
+      background: linear-gradient(
+        90deg,
+        var(--josanz-interactive, var(--josanz-primary)),
+        transparent
+      );
+    }
+
+    .josanz-main-list__figma-summary-pill {
+      border-color: var(--josanz-brand-border, var(--josanz-list-card-border));
+
+      strong {
+        color: var(--josanz-interactive, var(--josanz-primary)) !important;
+        -webkit-text-fill-color: var(--josanz-interactive, var(--josanz-primary)) !important;
+      }
+    }
+
+    .josanz-list-thead__label,
+    .josanz-list-thead__status-label {
+      color: var(--josanz-thead-text, var(--josanz-text-muted));
+    }
+
+    .josanz-list-card:hover {
+      border-color: var(--josanz-list-card-border-brand, var(--josanz-brand-border)) !important;
+      box-shadow:
+        var(--josanz-list-card-shadow),
+        0 0 0 1px color-mix(in srgb, var(--josanz-interactive) 12%, transparent) !important;
+    }
+  }
+
+  .josanz-detail-root--figma {
+    .josanz-event-section {
+      border-color: var(--josanz-section-border-brand, var(--josanz-border));
+    }
+
+    .josanz-event-hero {
+      border-color: var(--josanz-section-border-brand, var(--josanz-border));
+    }
+  }
+
+  .josanz-event-create__type-pill--active {
+    border-color: var(--josanz-interactive, var(--josanz-primary)) !important;
+    background: var(--josanz-brand-soft, var(--josanz-pill-active-bg)) !important;
+    color: var(--josanz-interactive, var(--josanz-primary)) !important;
+  }
+
+  .josanz-event-create__link-btn {
+    color: var(--josanz-link, var(--josanz-interactive)) !important;
+  }
+}

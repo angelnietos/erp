@@ -8,12 +8,18 @@
     @if (figmaCatalogLayout) {
     <div class="josanz-main-list__figma-title-row">
       <div class="josanz-main-list__figma-title-group">
+        <div class="min-w-0">
         <h1
           class="text-[28px] font-extrabold leading-none tracking-tight md:text-[38px]"
-          [style.color]="'var(--josanz-text)'"
+          [style.color]="'var(--josanz-text-heading, var(--josanz-text))'"
         >
           {{ title }}
         </h1>
+        <div
+          class="josanz-main-list__title-accent h-[3px] w-14 rounded-full mt-2"
+          [style.background]="'linear-gradient(90deg, var(--josanz-interactive, var(--josanz-primary)), transparent)'"
+        ></div>
+        </div>
         @if (filterOptions.length) {
         <josanz-filter-tabs
           class="josanz-main-list__figma-tabs"
