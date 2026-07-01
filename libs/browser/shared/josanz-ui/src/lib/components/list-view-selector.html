@@ -1,58 +1,123 @@
-<div class="josanz-view-selector" [attr.aria-label]="label">
-  <span class="josanz-view-selector__caption">{{ label }}</span>
-
-  <div class="josanz-view-selector__cluster">
-    <div class="josanz-view-selector__track" role="listbox" [attr.aria-label]="label">
-      @for (opt of viewOptions; track opt.id) {
+<div class="josanz-view-selector" [class.josanz-view-selector--open]="panelOpen">
+  @if (!panelOpen) {
+  <button
+    type="button"
+    class="josanz-view-selector__trigger"
+    [attr.aria-expanded]="false"
+    aria-controls="josanz-view-selector-panel"
+    (click)="togglePanel()"
+  >
+    <span class="josanz-view-selector__trigger-icon" aria-hidden="true">
+      <ng-container [ngTemplateOutlet]="viewIcon" [ngTemplateOutletContext]="{ id: selected }" />
+    </span>
+    <span class="josanz-view-selector__trigger-copy">
+      <span class="josanz-view-selector__trigger-label">{{ currentViewLabel }}</span>
+      <span class="josanz-view-selector__trigger-hint">Cambiar vista</span>
+    </span>
+    <svg class="josanz-view-selector__trigger-chevron" viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+    </svg>
+  </button>
+  } @else {
+  <section
+    id="josanz-view-selector-panel"
+    class="josanz-view-selector__panel"
+    role="region"
+    [attr.aria-label]="label"
+  >
+    <header class="josanz-view-selector__panel-header">
+      <div>
+        <p class="josanz-view-selector__panel-eyebrow">Presentación</p>
+        <h3 class="josanz-view-selector__panel-title">{{ label }} del listado</h3>
+      </div>
       <button
         type="button"
-        role="option"
-        class="josanz-view-selector__segment"
-        [class.josanz-view-selector__segment--active]="isActive(opt.id)"
-        [attr.aria-selected]="isActive(opt.id)"
-        [attr.title]="opt.label"
-        (click)="pick(opt.id, $event)"
+        class="josanz-view-selector__panel-close"
+        aria-label="Ocultar selector de vista"
+        (click)="closePanel()"
       >
-        @switch (opt.id) {
-        @case ('tabla') {
-        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
-          <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.25" />
-          <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" stroke-width="1.25" />
-          <line x1="1.5" y1="9.5" x2="14.5" y2="9.5" stroke="currentColor" stroke-width="1.25" />
-          <line x1="6" y1="6" x2="6" y2="13.5" stroke="currentColor" stroke-width="1.25" />
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
         </svg>
-        }
-        @case ('tarjetas-lista') {
-        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
-          <rect x="2" y="3" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.85" />
-          <rect x="2" y="7" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.55" />
-          <rect x="2" y="11" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.35" />
-        </svg>
-        }
-        @case ('tablero') {
-        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
-          <rect x="1.5" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.9" />
-          <rect x="6.25" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.65" />
-          <rect x="11" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.45" />
-        </svg>
-        }
-        @default {
-        <svg class="josanz-view-selector__icon" viewBox="0 0 16 16" aria-hidden="true">
-          <rect x="2" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" />
-          <rect x="9.5" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
-          <rect x="2" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
-          <rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.55" />
-        </svg>
-        }
-        }
-        <span class="josanz-view-selector__segment-label">{{ opt.shortLabel }}</span>
       </button>
+    </header>
+
+    <div class="josanz-view-selector__groups">
+      @if (tableOption) {
+      <div class="josanz-view-selector__group">
+        <span class="josanz-view-selector__group-label">Estructura</span>
+        <div class="josanz-view-selector__options">
+          <button
+            type="button"
+            class="josanz-view-selector__option"
+            [class.josanz-view-selector__option--active]="isActive(tableOption.id)"
+            [attr.aria-pressed]="isActive(tableOption.id)"
+            (click)="pick(tableOption.id, $event)"
+          >
+            <span class="josanz-view-selector__option-icon">
+              <ng-container [ngTemplateOutlet]="viewIcon" [ngTemplateOutletContext]="{ id: tableOption.id }" />
+            </span>
+            <span class="josanz-view-selector__option-text">
+              <span class="josanz-view-selector__option-title">{{ tableOption.label }}</span>
+              <span class="josanz-view-selector__option-desc">Filas alineadas con cabecera</span>
+            </span>
+          </button>
+        </div>
+      </div>
+      }
+
+      @if (cardOptions.length) {
+      <div class="josanz-view-selector__group">
+        <span class="josanz-view-selector__group-label">Tarjetas</span>
+        <div class="josanz-view-selector__options josanz-view-selector__options--grid">
+          @for (opt of cardOptions; track opt.id) {
+          <button
+            type="button"
+            class="josanz-view-selector__option"
+            [class.josanz-view-selector__option--active]="isActive(opt.id)"
+            [attr.aria-pressed]="isActive(opt.id)"
+            (click)="pick(opt.id, $event)"
+          >
+            <span class="josanz-view-selector__option-icon">
+              <ng-container [ngTemplateOutlet]="viewIcon" [ngTemplateOutletContext]="{ id: opt.id }" />
+            </span>
+            <span class="josanz-view-selector__option-text">
+              <span class="josanz-view-selector__option-title">{{ opt.shortLabel }}</span>
+              <span class="josanz-view-selector__option-desc">{{ opt.label }}</span>
+            </span>
+          </button>
+          }
+        </div>
+      </div>
+      }
+
+      @if (boardOption) {
+      <div class="josanz-view-selector__group">
+        <span class="josanz-view-selector__group-label">Flujo</span>
+        <div class="josanz-view-selector__options">
+          <button
+            type="button"
+            class="josanz-view-selector__option josanz-view-selector__option--featured"
+            [class.josanz-view-selector__option--active]="isActive(boardOption.id)"
+            [attr.aria-pressed]="isActive(boardOption.id)"
+            (click)="pick(boardOption.id, $event)"
+          >
+            <span class="josanz-view-selector__option-icon">
+              <ng-container [ngTemplateOutlet]="viewIcon" [ngTemplateOutletContext]="{ id: boardOption.id }" />
+            </span>
+            <span class="josanz-view-selector__option-text">
+              <span class="josanz-view-selector__option-title">{{ boardOption.label }}</span>
+              <span class="josanz-view-selector__option-desc">Arrastra eventos entre columnas de estado</span>
+            </span>
+          </button>
+        </div>
+      </div>
       }
     </div>
 
     @if (showGridColumns) {
-    <div class="josanz-view-selector__columns" role="group" aria-label="Columnas de cuadrícula">
-      <span class="josanz-view-selector__columns-caption">Columnas</span>
+    <div class="josanz-view-selector__columns-panel" role="group" aria-label="Columnas de cuadrícula">
+      <span class="josanz-view-selector__columns-label">Columnas en cuadrícula</span>
       <div class="josanz-view-selector__columns-track">
         @for (col of columnOptions; track col.value) {
         <button
@@ -69,5 +134,41 @@
       </div>
     </div>
     }
-  </div>
+  </section>
+  }
 </div>
+
+<ng-template #viewIcon let-id="id">
+  @switch (id) {
+  @case ('tabla') {
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="1.5" y="2.5" width="13" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.25" />
+    <line x1="1.5" y1="6" x2="14.5" y2="6" stroke="currentColor" stroke-width="1.25" />
+    <line x1="1.5" y1="9.5" x2="14.5" y2="9.5" stroke="currentColor" stroke-width="1.25" />
+    <line x1="6" y1="6" x2="6" y2="13.5" stroke="currentColor" stroke-width="1.25" />
+  </svg>
+  }
+  @case ('tarjetas-lista') {
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="2" y="3" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.85" />
+    <rect x="2" y="7" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.55" />
+    <rect x="2" y="11" width="12" height="2.5" rx="1" fill="currentColor" opacity="0.35" />
+  </svg>
+  }
+  @case ('tablero') {
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="1.5" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.9" />
+    <rect x="6.25" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.65" />
+    <rect x="11" y="2.5" width="3.5" height="11" rx="1" fill="currentColor" opacity="0.45" />
+  </svg>
+  }
+  @default {
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <rect x="2" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" />
+    <rect x="9.5" y="2" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
+    <rect x="2" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.75" />
+    <rect x="9.5" y="9.5" width="4.5" height="4.5" rx="1" fill="currentColor" opacity="0.55" />
+  </svg>
+  }
+  }
+</ng-template>

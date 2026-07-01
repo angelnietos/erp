@@ -124,3 +124,11 @@
   background: var(--josanz-border, #e5e7eb);
   flex-shrink: 0;
 }
+
+.josanz-main-list__footer--view-open {
+  align-items: stretch;
+}
+
+.josanz-main-list__footer--view-open .josanz-view-selector {
+  flex: 1 1 100%;
+}

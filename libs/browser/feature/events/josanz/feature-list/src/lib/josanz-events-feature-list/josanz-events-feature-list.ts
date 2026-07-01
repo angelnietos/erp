@@ -138,13 +138,13 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     this.catalogList?.setStatusUpdateBusy(change.id, true);
 
     this.eventsFacade
-      .updateEvent(change.id, { status: change.status, statusPillColor: nextColor })
+      .updateEventStatus(change.id, change.status, nextColor)
       .pipe(finalize(() => this.catalogList?.setStatusUpdateBusy(change.id, false)))
       .subscribe({
-      next: () => {
-        this.successToastMessage.set('Estado del evento actualizado');
-        this.showSuccessToast.set(true);
-      },
+        next: () => {
+          this.successToastMessage.set('Estado guardado en el servidor');
+          this.showSuccessToast.set(true);
+        },
       error: () => {
         this.eventsFacade.patchEventStatus(change.id, change.previousStatus, previousColor);
         this.successToastMessage.set('No se pudo cambiar el estado. Inténtalo de nuevo.');

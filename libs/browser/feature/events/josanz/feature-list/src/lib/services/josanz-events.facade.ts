@@ -74,6 +74,16 @@ export class JosanzEventsFacade {
     return this.api.update(id, payload).pipe(tap((event) => this.upsertEvent(event)));
   }
 
+  updateEventStatus(
+    id: string,
+    status: string,
+    statusPillColor?: string | null,
+  ): Observable<JosanzEventRecord> {
+    return this.api
+      .patchStatus(id, { status, statusPillColor })
+      .pipe(tap((event) => this.upsertEvent(event)));
+  }
+
   patchEventStatus(id: string, status: string, statusPillColor?: string | null): void {
     this._events.update((events) =>
       events.map((row) =>

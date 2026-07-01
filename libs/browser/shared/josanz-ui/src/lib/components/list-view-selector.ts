@@ -1,13 +1,16 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   JOSANZ_LIST_GRID_COLUMN_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD,
   isGridCardsView,
+  listViewSelectionLabel,
   type JosanzListGridColumns,
+  type JosanzListViewMenuOption,
   type JosanzListViewSelection,
 } from '../list-view/list-view-preferences';
+import { JosanzThemeService } from '../services/theme.service';
 
 @Component({
   selector: 'josanz-list-view-selector',
@@ -17,6 +20,8 @@ import {
   styleUrl: './list-view-selector.css',
 })
 export class ListViewSelectorComponent {
+  readonly themeService = inject(JosanzThemeService);
+
   @Input() label = 'Vista';
   @Input() selected: JosanzListViewSelection = 'tarjetas-lista';
   @Input() gridColumns: JosanzListGridColumns = 3;
@@ -25,23 +30,54 @@ export class ListViewSelectorComponent {
   @Output() selectionChange = new EventEmitter<JosanzListViewSelection>();
   @Output() gridColumnsChange = new EventEmitter<JosanzListGridColumns>();
 
-  get viewOptions() {
+  readonly columnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
+
+  get viewOptions(): readonly JosanzListViewMenuOption[] {
     return this.showStatusBoard
       ? JOSANZ_LIST_VIEW_MENU_OPTIONS
       : JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD;
   }
-  readonly columnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
+
+  get cardOptions(): readonly JosanzListViewMenuOption[] {
+    return this.viewOptions.filter((opt) => opt.group === 'tarjetas');
+  }
+
+  get boardOption(): JosanzListViewMenuOption | undefined {
+    return this.viewOptions.find((opt) => opt.id === 'tablero');
+  }
+
+  get tableOption(): JosanzListViewMenuOption | undefined {
+    return this.viewOptions.find((opt) => opt.id === 'tabla');
+  }
+
+  get panelOpen(): boolean {
+    return this.themeService.listViewPanelOpen();
+  }
+
+  get currentViewLabel(): string {
+    return listViewSelectionLabel(this.selected);
+  }
 
   get showGridColumns(): boolean {
     return isGridCardsView(this.selected);
   }
 
+  togglePanel(): void {
+    this.themeService.toggleListViewPanel();
+  }
+
+  closePanel(): void {
+    this.themeService.setListViewPanelOpen(false);
+  }
+
   pick(option: JosanzListViewSelection, event: Event): void {
     event.stopPropagation();
     if (option === this.selected) {
+      this.closePanel();
       return;
     }
     this.selectionChange.emit(option);
+    this.closePanel();
   }
 
   pickColumns(columns: JosanzListGridColumns, event: Event): void {

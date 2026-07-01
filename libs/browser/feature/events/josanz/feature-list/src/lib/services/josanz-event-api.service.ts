@@ -183,6 +183,13 @@ export class JosanzEventApiService {
     return this.http.put<JosanzEventRecord>(`${this.apiUrl}/${id}`, payload);
   }
 
+  patchStatus(
+    id: string,
+    payload: { status: string; statusPillColor?: string | null },
+  ): Observable<JosanzEventRecord> {
+    return this.http.patch<JosanzEventRecord>(`${this.apiUrl}/${id}/status`, payload);
+  }
+
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }

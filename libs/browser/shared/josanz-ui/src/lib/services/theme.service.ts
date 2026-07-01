@@ -52,6 +52,7 @@ interface JosanzStoredPreferences {
   listViewMode?: JosanzListViewMode;
   listViewSelection?: JosanzListViewSelection;
   listGridColumns?: JosanzListGridColumns;
+  listViewPanelOpen?: boolean;
 }
 
 interface JosanzStorybookThemeDetail {
@@ -81,6 +82,9 @@ export class JosanzThemeService {
 
   /** Columnas del grid de tarjetas (2–6). */
   listGridColumns = signal<JosanzListGridColumns>(3);
+
+  /** Panel de selector de vista expandido en el footer del listado. */
+  listViewPanelOpen = signal(false);
 
   constructor() {
     this.restorePreferences();
@@ -133,6 +137,15 @@ export class JosanzThemeService {
   setListGridColumns(columns: JosanzListGridColumns) {
     this.listGridColumns.set(columns);
     this.persistPreferences();
+  }
+
+  setListViewPanelOpen(open: boolean) {
+    this.listViewPanelOpen.set(open);
+    this.persistPreferences();
+  }
+
+  toggleListViewPanel(): void {
+    this.setListViewPanelOpen(!this.listViewPanelOpen());
   }
 
   readableOnPrimary(hex?: string): string {
@@ -274,11 +287,16 @@ export class JosanzThemeService {
       view === 'tarjetas-lista' ||
       view === 'tarjetas-grid' ||
       view === 'tarjetas-grid-compact' ||
-      view === 'tarjetas-grid-dense'
+      view === 'tarjetas-grid-dense' ||
+      view === 'tablero'
     ) {
       this.listViewSelection.set(view);
     } else if (stored.listViewMode) {
       this.listViewSelection.set(migrateLegacyListViewMode(stored.listViewMode));
+    }
+
+    if (typeof stored.listViewPanelOpen === 'boolean') {
+      this.listViewPanelOpen.set(stored.listViewPanelOpen);
     }
 
     const cols = stored.listGridColumns;
@@ -299,6 +317,7 @@ export class JosanzThemeService {
       paginationVariant: this.paginationVariant(),
       listViewSelection: this.listViewSelection(),
       listGridColumns: this.listGridColumns(),
+      listViewPanelOpen: this.listViewPanelOpen(),
     };
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));

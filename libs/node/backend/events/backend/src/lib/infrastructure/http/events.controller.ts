@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -56,6 +57,21 @@ export class EventsController {
     @Body() data: EventWriteBody,
   ) {
     return this.eventsService.update(
+      requireRequestTenantId(req),
+      id,
+      data,
+      requireRequestUserId(req),
+    );
+  }
+
+  @Patch(':id/status')
+  @RequirePermissions('events.manage', '*')
+  async updateStatus(
+    @Req() req: Request,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: { status: string; statusPillColor?: string | null },
+  ) {
+    return this.eventsService.updateStatus(
       requireRequestTenantId(req),
       id,
       data,

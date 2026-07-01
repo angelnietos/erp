@@ -182,6 +182,51 @@ export class EventsService {
     return this.mapToDto(event);
   }
 
+  async updateStatus(
+    tenantId: string,
+    id: string,
+    data: { status: string; statusPillColor?: string | null },
+    actorUserId: string,
+  ) {
+    const existing = await this.ensureExists(tenantId, id);
+    const nextStatus = data.status?.trim() || 'DRAFT';
+    const nextPillColor =
+      data.statusPillColor === undefined
+        ? undefined
+        : data.statusPillColor?.trim() || null;
+
+    await this.prisma.event.update({
+      where: { id },
+      data: {
+        status: nextStatus,
+        ...(nextPillColor !== undefined ? { statusPillColor: nextPillColor } : {}),
+      },
+    });
+
+    const event = await this.prisma.event.findFirst({
+      where: { id, tenantId },
+      include: this.defaultInclude(),
+    });
+    if (!event) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+
+    await this.auditLogWriter.record(actorUserId, {
+      action: 'UPDATE',
+      targetEntity: `Event:${event.id}`,
+      tenantId,
+      changesJson: {
+        entityType: 'EVENT',
+        entityName: event.name,
+        details: `Estado cambiado de ${existing.status} a ${nextStatus}`,
+        statusFrom: existing.status,
+        statusTo: nextStatus,
+      },
+    });
+
+    return this.mapToDto(event);
+  }
+
   async delete(tenantId: string, id: string, actorUserId: string) {
     const row = await this.ensureExists(tenantId, id);
     await this.prisma.event.delete({ where: { id } });
@@ -323,7 +368,7 @@ export class EventsService {
   private async ensureExists(tenantId: string, id: string) {
     const row = await this.prisma.event.findFirst({
       where: { id, tenantId },
-      select: { id: true, name: true },
+      select: { id: true, name: true, status: true },
     });
     if (!row) {
       throw new NotFoundException('Evento no encontrado');
