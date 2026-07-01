@@ -202,5 +202,5 @@ export type JosanzCatalogFiltersPresentation = 'inline' | 'popover';
 export function normalizeCatalogFiltersPresentation(
   value: unknown,
 ): JosanzCatalogFiltersPresentation {
-  return value === 'popover' ? 'popover' : 'inline';
+  return value === 'inline' ? 'inline' : 'popover';
 }

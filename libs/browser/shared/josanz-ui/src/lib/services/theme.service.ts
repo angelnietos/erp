@@ -117,7 +117,7 @@ export class JosanzThemeService {
   boardPeriodAnchor = signal<string>(toBoardPeriodAnchorIso(new Date()));
 
   /** Presentación del panel Filtros en listados catálogo Figma. */
-  catalogFiltersPresentation = signal<JosanzCatalogFiltersPresentation>('inline');
+  catalogFiltersPresentation = signal<JosanzCatalogFiltersPresentation>('popover');
 
   constructor() {
     this.restorePreferences();
