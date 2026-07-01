@@ -2,6 +2,7 @@
 
 ## Documentos
 
+
 | Documento | Contenido |
 |-----------|-----------|
 | [Lo que perdemos sin PaaS](../docs/deploy/lo-que-perdemos-sin-paas.md) | **Rollback, logs, previews, manual vs auto** — gaps del modelo actual |
