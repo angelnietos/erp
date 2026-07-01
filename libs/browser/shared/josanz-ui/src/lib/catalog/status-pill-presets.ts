@@ -76,9 +76,11 @@ export function resolveCatalogPillColor(
   stored: string | null | undefined,
   variant: JosanzStatusPillVariant,
   badgeStyle: 'filled' | 'outline',
+  tenantOverride?: string | null,
 ): string {
   return (
     normalizeHexColor(stored ?? '') ??
+    normalizeHexColor(tenantOverride ?? '') ??
     defaultPillColorForVariant(variant, badgeStyle)
   );
 }

@@ -11,11 +11,12 @@ import {
   JOSANZ_ATMOSPHERE_REGISTRY,
   type JosanzAtmosphereConfig,
 } from '../theme/josanz-theme-tokens';
+import { JosanzCatalogThemePanelComponent } from './josanz-catalog-theme-panel/josanz-catalog-theme-panel';
 
 @Component({
   selector: 'josanz-theme-personalization-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, JosanzCatalogThemePanelComponent],
   templateUrl: './theme-personalization-panel.html',
   styleUrl: './theme-personalization-panel.css',
 })

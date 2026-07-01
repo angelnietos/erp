@@ -1,4 +1,9 @@
-<josanz-figma-detail-shell #shell [config]="shellConfig" (tabChanged)="onShellTabChange($event)">
+<josanz-figma-detail-shell
+  #shell
+  [config]="shellConfig()"
+  (tabChanged)="onShellTabChange($event)"
+  (save)="onSave()"
+>
     @if (shell.activeTab() === 'Resumen') {
     <article class="josanz-event-hero">
       <div class="josanz-event-hero__media">
@@ -6,25 +11,18 @@
       </div>
       <div class="josanz-event-hero__body">
         <div class="josanz-event-hero__title-row">
-          <h2>Evento: Externo</h2>
-          <span class="josanz-event-hero__badge-nuevo">Nuevo</span>
+          <h2>Evento: {{ heroTypologyLabel() }}</h2>
+          <span class="josanz-event-hero__badge-nuevo">{{ shellConfig().statusLabel }}</span>
         </div>
-        <p class="josanz-event-hero__meta">
-          Fecha: dd/mm/aaaa · Operador: Julia López · Lugar: Calle Ejemplo No.
-          X, Espacio A
-        </p>
-        <p class="josanz-event-hero__desc">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris.
-        </p>
+        <p class="josanz-event-hero__meta">{{ heroMetaLine() }}</p>
+        <p class="josanz-event-hero__desc">{{ heroDescription() }}</p>
       </div>
     </article>
 
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Resumen rápido</h3>
       <div class="josanz-catalog-summary" role="group" aria-label="Indicadores del evento">
-        @for (kpi of resumenKpis; track kpi.label) {
+        @for (kpi of resumenKpis(); track kpi.label) {
         <span class="josanz-catalog-summary__item">
           {{ kpi.label }}
           <strong>{{ kpi.value }}</strong>
@@ -35,7 +33,7 @@
 
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Notas al evento</h3>
-      @for (note of eventNotes; track note.id) {
+      @for (note of eventNotes(); track note.id) {
       <div class="josanz-event-note-row">
         <p>{{ note.text }}</p>
         <div class="josanz-event-note-row__actions">
@@ -156,7 +154,7 @@
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Datos del cliente</h3>
       <div class="josanz-event-client-grid">
-        @for (row of clientRows; track row.label) {
+        @for (row of clientRows(); track row.label) {
         <div class="josanz-event-client-grid__row">
           <span class="josanz-event-client-grid__label">{{ row.label }}</span>
           <span class="josanz-event-client-grid__value">{{ row.value }}</span>

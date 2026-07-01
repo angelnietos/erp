@@ -1,6 +1,11 @@
 import type { JosanzCatalogListRow } from './catalog-status';
 import { pillVariantForCatalogStatus, resolveEntityRailColor } from './catalog-status';
 import { resolveCatalogPillColor } from './status-pill-presets';
+import {
+  tenantClientTariffColor,
+  tenantEventStatusColor,
+  type TenantCatalogTheme,
+} from './catalog-theme';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -82,6 +87,7 @@ export function eventStatusLabel(status: string): string {
 export function mapEventToCatalogRow(
   event: FigmaCatalogEventSource,
   index: number,
+  catalogTheme?: TenantCatalogTheme | null,
 ): JosanzCatalogListRow {
   const label = eventStatusLabel(event.status);
   const typology = typologyTabFromApi(event.typology);
@@ -99,7 +105,12 @@ export function mapEventToCatalogRow(
     operator: event.operator?.name ?? '—',
     pillLabel: label,
     pillVariant,
-    pillColor: resolveCatalogPillColor(event.statusPillColor, pillVariant, 'outline'),
+    pillColor: resolveCatalogPillColor(
+      event.statusPillColor,
+      pillVariant,
+      'outline',
+      tenantEventStatusColor(catalogTheme, pillVariant),
+    ),
     railColor: resolveEntityRailColor({
       storedRailColor: event.client?.railColor,
       entityId: event.client?.id ?? event.id,
@@ -153,6 +164,7 @@ function clientTypologyTab(tariff?: string | null): string {
 export function mapClientToCatalogRow(
   client: FigmaCatalogClientSource,
   index: number,
+  catalogTheme?: TenantCatalogTheme | null,
 ): JosanzCatalogListRow {
   void index;
   const operators = (client.contacts ?? []).map((c) => c.name).filter(Boolean);
@@ -172,7 +184,12 @@ export function mapClientToCatalogRow(
     ],
     pillLabel: tariff,
     pillVariant,
-    pillColor: resolveCatalogPillColor(client.pillColor, pillVariant, 'filled'),
+    pillColor: resolveCatalogPillColor(
+      client.pillColor,
+      pillVariant,
+      'filled',
+      tenantClientTariffColor(catalogTheme, tariff),
+    ),
     railColor: resolveEntityRailColor({
       storedRailColor: client.railColor,
       entityId: client.id,

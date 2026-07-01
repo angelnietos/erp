@@ -13,46 +13,71 @@ import { finalize, startWith } from 'rxjs';
 import { ClientService, ClientsFacade, type Client, type ClientContact } from '@josanz-erp/clients-data-access';
 import {
   JosanzEventApiService,
-  type CreateJosanzEventPayload,
   type EventDateBlock,
   type EventVenueBlock,
+  type JosanzEventRecord,
+  type UpdateJosanzEventPayload,
 } from '../services/josanz-event-api.service';
+import {
+  JOSANZ_EVENT_STATUS_OPTIONS,
+  JOSANZ_EVENT_UI_TYPES,
+  typologyLabelFromApi,
+  isoDatePart,
+  type JosanzEventUiType,
+} from '../josanz-event-form.utils';
 import {
   ButtonComponent,
   InputComponent,
   JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
   SelectComponent,
+  CatalogThemeFacade,
+  eventStatusLabel,
+  josanzNonEmptyTrim,
+  normalizeHexColor,
+  pillVariantForCatalogStatus,
+  tenantEventStatusColor,
+  defaultEventStatusPillColor,
   josanzNonEmptyTrim,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
-  selector: 'josanz-event-create',
+  selector: 'josanz-event-edit',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
     SelectComponent,
+    JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
   ],
-  templateUrl: './josanz-event-create.html',
+  templateUrl: './josanz-event-edit.html',
 })
-export class JosanzEventCreateComponent implements OnInit {
+export class JosanzEventEditComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
   private readonly clientsFacade = inject(ClientsFacade);
   private readonly eventService = inject(JosanzEventApiService);
+  private readonly catalogTheme = inject(CatalogThemeFacade);
 
-  readonly eventTypes = ['Evento externo', 'Hotel', 'Espacio'] as const;
-  readonly selectedType = signal<(typeof this.eventTypes)[number]>('Evento externo');
+  readonly eventTypes = JOSANZ_EVENT_UI_TYPES;
+  readonly statusOptions = JOSANZ_EVENT_STATUS_OPTIONS.map((o) => ({
+    label: o.label,
+    value: o.value,
+  }));
+
+  readonly selectedType = signal<JosanzEventUiType>('Evento externo');
   readonly clients = signal<Client[]>([]);
   readonly saving = signal(false);
+  readonly loading = signal(true);
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
+
+  private eventId = '';
 
   form: FormGroup;
   private readonly selectedClientId: ReturnType<typeof toSignal<string>>;
@@ -62,8 +87,13 @@ export class JosanzEventCreateComponent implements OnInit {
       clientId: ['', Validators.required],
       operatorContactId: [''],
       nombre: ['', josanzNonEmptyTrim],
+      status: ['DRAFT', Validators.required],
+      statusPillColor: [
+        defaultEventStatusPillColor('DRAFT', 'outline'),
+        [Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
+      ],
       eventDates: this.fb.array([this.createEventDateGroup()]),
-      localizacion: ['', josanzNonEmptyTrim],
+      localizacion: [''],
       venues: this.fb.array([this.createVenueGroup()]),
     });
 
@@ -73,8 +103,6 @@ export class JosanzEventCreateComponent implements OnInit {
       ),
       { initialValue: '' },
     );
-
-    this.updateLocationValidators();
   }
 
   readonly showVenuePanels = computed(() => {
@@ -99,38 +127,13 @@ export class JosanzEventCreateComponent implements OnInit {
   });
 
   readonly operatorSelectHint = computed(() => {
-    const count = this.operatorOptions().length;
     if (!this.selectedClientId()) {
       return 'Selecciona primero un cliente';
     }
-    if (!count) {
-      return 'Este cliente no tiene operadores. Añádelos desde Clientes.';
+    if (!this.operatorOptions().length) {
+      return 'Este cliente no tiene operadores.';
     }
     return '';
-  });
-
-  readonly previewName = computed(
-    () => (this.form.get('nombre')?.value as string)?.trim() || 'Nombre ejemplo',
-  );
-
-  readonly previewDateTime = computed(() => {
-    const slots = this.eventDates.controls
-      .map((control) => {
-        const fecha = (control.get('fecha')?.value as string) || '';
-        const hora = (control.get('hora')?.value as string) || '00:00';
-        if (!fecha) {
-          return '';
-        }
-        return `${fecha} ${hora}`;
-      })
-      .filter(Boolean);
-    if (!slots.length) {
-      return 'dd/mm/aaaa 00:00';
-    }
-    if (slots.length === 1) {
-      return slots[0];
-    }
-    return `${slots[0]} (+${slots.length - 1} más)`;
   });
 
   get eventDates(): FormArray {
@@ -150,15 +153,22 @@ export class JosanzEventCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      void this.router.navigate(['/events']);
+      return;
+    }
+    this.eventId = id;
+    this.catalogTheme.loadCatalogTheme();
+
     this.clientsFacade.loadClients();
     this.clientService.getClients().subscribe({
       next: (apiClients) => {
-        const cached = this.clientsFacade.clients();
-        const clients = this.mergeClients(apiClients, cached);
+        const clients = this.mergeClients(apiClients, this.clientsFacade.clients());
         this.clients.set(clients);
-        this.applyPreselectedClient(clients);
-        this.updateLocationValidators();
+        this.loadEvent(clients);
       },
+      error: () => this.loadEvent([]),
     });
 
     this.form.get('clientId')?.valueChanges.subscribe((clientId: string) => {
@@ -166,14 +176,15 @@ export class JosanzEventCreateComponent implements OnInit {
       this.updateOperatorValidators(clientId);
       this.updateLocationValidators();
     });
+
+    this.form.get('status')?.valueChanges.subscribe((status: string) => {
+      this.applyDefaultStatusColor(status);
+    });
   }
 
-  selectType(type: (typeof this.eventTypes)[number]): void {
+  selectType(type: JosanzEventUiType): void {
     this.selectedType.set(type);
     this.updateLocationValidators();
-    if (type === 'Evento externo' && !this.form.get('localizacion')?.value) {
-      this.form.patchValue({ localizacion: '' });
-    }
   }
 
   addVenue(): void {
@@ -199,12 +210,12 @@ export class JosanzEventCreateComponent implements OnInit {
   }
 
   onBack(): void {
-    void this.router.navigate(['/events']);
+    void this.router.navigate(['/events', this.eventId]);
   }
 
   onSave(): void {
     this.validationBanner.set('');
-    if (this.form.invalid || this.saving()) {
+    if (this.form.invalid || this.saving() || this.loading()) {
       this.form.markAllAsTouched();
       this.validationBanner.set('Revisa los campos obligatorios marcados en rojo.');
       return;
@@ -215,14 +226,16 @@ export class JosanzEventCreateComponent implements OnInit {
     this.errorMessage.set('');
 
     this.eventService
-      .create(payload)
+      .update(this.eventId, payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {
-          void this.router.navigate(['/events'], { queryParams: { created: '1' } });
+          void this.router.navigate(['/events', this.eventId], {
+            queryParams: { updated: '1' },
+          });
         },
         error: () => {
-          this.errorMessage.set('No se pudo crear el evento. Revisa los datos e inténtalo de nuevo.');
+          this.errorMessage.set('No se pudo guardar el evento. Revisa los datos e inténtalo de nuevo.');
         },
       });
   }
@@ -231,19 +244,75 @@ export class JosanzEventCreateComponent implements OnInit {
     this.onBack();
   }
 
-  onAddClient(): void {
-    void this.router.navigate(['/clients/new'], {
-      queryParams: { returnTo: '/events/new' },
-    });
+  private loadEvent(clients: Client[]): void {
+    this.loading.set(true);
+    this.eventService
+      .getById(this.eventId)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (event) => {
+          this.patchForm(event, clients);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo cargar el evento.');
+        },
+      });
   }
 
-  private applyPreselectedClient(clients: Client[]): void {
-    const preselected = this.route.snapshot.queryParamMap.get('clientId');
-    if (preselected && clients.some((c) => c.id === preselected)) {
-      this.form.patchValue({ clientId: preselected });
-      this.syncOperatorForClient(preselected, clients);
-      this.updateOperatorValidators(preselected);
+  private patchForm(event: JosanzEventRecord, clients: Client[]): void {
+    const uiType = typologyLabelFromApi(event.typology);
+    this.selectedType.set(uiType);
+    this.updateLocationValidators();
+
+    this.eventDates.clear();
+    const schedule =
+      event.eventSchedule?.length > 0
+        ? event.eventSchedule
+        : [{ date: isoDatePart(event.startDate), time: event.eventTime ?? '00:00' }];
+    for (const slot of schedule) {
+      this.eventDates.push(
+        this.fb.group({
+          fecha: [slot.date, Validators.required],
+          hora: [slot.time ?? '00:00'],
+        }),
+      );
     }
+
+    this.venues.clear();
+    const venues = event.venueSchedule?.length ? event.venueSchedule : [{}];
+    for (const venue of venues) {
+      this.venues.push(this.createVenueGroup(venue));
+    }
+
+    const pillVariant = pillVariantForCatalogStatus(eventStatusLabel(event.status));
+    const theme = this.catalogTheme.mergedTheme();
+    const defaultPill =
+      normalizeHexColor(event.statusPillColor ?? '') ??
+      tenantEventStatusColor(theme, pillVariant) ??
+      defaultEventStatusPillColor(event.status, 'outline');
+
+    this.form.patchValue({
+      clientId: event.clientId ?? '',
+      operatorContactId: event.operatorContactId ?? '',
+      nombre: event.name,
+      status: event.status,
+      statusPillColor: defaultPill,
+      localizacion: event.location ?? '',
+    });
+
+    if (event.clientId) {
+      this.syncOperatorForClient(event.clientId, clients);
+      this.updateOperatorValidators(event.clientId);
+    }
+  }
+
+  private applyDefaultStatusColor(status: string): void {
+    const pillVariant = pillVariantForCatalogStatus(eventStatusLabel(status));
+    const theme = this.catalogTheme.mergedTheme();
+    const color =
+      tenantEventStatusColor(theme, pillVariant) ??
+      defaultEventStatusPillColor(status, 'outline');
+    this.form.patchValue({ statusPillColor: color }, { emitEvent: false });
   }
 
   private mergeClients(apiClients: Client[], cachedClients: Client[]): Client[] {
@@ -264,25 +333,27 @@ export class JosanzEventCreateComponent implements OnInit {
     });
   }
 
-  private createVenueGroup(): FormGroup {
+  private createVenueGroup(venue?: EventVenueBlock): FormGroup {
     return this.fb.group({
-      salon: [''],
-      subsala: [''],
-      setupDate: [''],
-      setupTime: ['00:00'],
-      teardownDate: [''],
-      teardownTime: ['00:00'],
+      salon: [venue?.salon ?? ''],
+      subsala: [venue?.subsala ?? ''],
+      setupDate: [venue?.setupDate ?? ''],
+      setupTime: [venue?.setupTime ?? '00:00'],
+      teardownDate: [venue?.teardownDate ?? ''],
+      teardownTime: [venue?.teardownTime ?? '00:00'],
     });
   }
 
   private syncOperatorForClient(clientId: string, clients: Client[]): void {
     const client = clients.find((c) => c.id === clientId);
     const operators = client?.contacts ?? [];
+    const current = this.form.get('operatorContactId')?.value as string;
+    if (current && operators.some((c) => c.id === current)) {
+      return;
+    }
     const primary =
       operators.find((c: ClientContact) => c.isPrimary) ?? operators[0];
-    this.form.patchValue({
-      operatorContactId: primary?.id ?? '',
-    });
+    this.form.patchValue({ operatorContactId: primary?.id ?? '' });
   }
 
   private updateOperatorValidators(clientId: string): void {
@@ -313,11 +384,13 @@ export class JosanzEventCreateComponent implements OnInit {
     control.updateValueAndValidity({ emitEvent: false });
   }
 
-  private buildPayload(): CreateJosanzEventPayload {
+  private buildPayload(): UpdateJosanzEventPayload {
     const raw = this.form.getRawValue() as {
       clientId: string;
       operatorContactId: string;
       nombre: string;
+      status: string;
+      statusPillColor: string;
       eventDates: Array<{ fecha: string; hora: string }>;
       localizacion: string;
       venues: EventVenueBlock[];
@@ -354,6 +427,8 @@ export class JosanzEventCreateComponent implements OnInit {
             .filter(Boolean)
             .join(' / ');
 
+    const pillColor = normalizeHexColor(raw.statusPillColor);
+
     return {
       name: raw.nombre.trim(),
       clientId: raw.clientId,
@@ -364,7 +439,9 @@ export class JosanzEventCreateComponent implements OnInit {
       eventSchedule,
       location: location || undefined,
       venueSchedule: venueSchedule.length ? venueSchedule : undefined,
-      status: 'DRAFT',
+      status: raw.status,
+      statusPillColor: pillColor,
+      notes: undefined,
     };
   }
 }

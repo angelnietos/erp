@@ -1,13 +1,23 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { finalize } from 'rxjs';
 import {
   DocumentItemComponent,
   JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
+  typologyTabFromApi,
   type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
+import { JosanzEventApiService, type JosanzEventRecord } from '../services/josanz-event-api.service';
+import {
+  formatEventMetaLine,
+  statusPillKeyFromApi,
+  typologyLabelFromApi,
+} from '../josanz-event-form.utils';
+import { eventStatusLabel } from '@josanz-erp/josanz-ui';
 
 interface JosanzEventNote {
   id: string;
@@ -60,6 +70,14 @@ interface JosanzEventEmail {
   templateUrl: './josanz-event-detail.html',
 })
 export class JosanzEventDetailComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly eventApi = inject(JosanzEventApiService);
+
+  readonly event = signal<JosanzEventRecord | null>(null);
+  readonly loading = signal(true);
+  readonly errorMessage = signal('');
+
   staffDraft = '';
   budgetSearch = '';
   showBudgetPicker = signal(false);
@@ -68,8 +86,7 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
   emailForm = { date: 'dd/mm/aaaa', subject: 'Asunto ejemplo', body: 'Cuerpo del email…' };
 
-  readonly shellConfig: JosanzFigmaDetailShellConfig = {
-    title: 'Evento X',
+  private readonly baseShell: Omit<JosanzFigmaDetailShellConfig, 'title' | 'statusLabel' | 'statusPillKey'> = {
     listRoute: '/events',
     tabs: [
       'Resumen',
@@ -93,24 +110,62 @@ export class JosanzEventDetailComponent implements OnInit {
       'Informes / reportes': 'informes',
       Emails: 'emails',
     },
-    statusLabel: 'Confirmado',
-    statusPillKey: 'confirmado',
-    saveDisabled: true,
-    features: { footerActions: false },
+    saveLabel: 'Editar evento',
+    saveDisabled: false,
+    features: { footerActions: false, headerSave: true },
   };
+
+  readonly shellConfig = computed<JosanzFigmaDetailShellConfig>(() => {
+    const current = this.event();
+    return {
+      ...this.baseShell,
+      title: current?.name ?? 'Evento',
+      statusLabel: current ? eventStatusLabel(current.status) : '',
+      statusPillKey: statusPillKeyFromApi(current?.status),
+    };
+  });
+
+  readonly heroTypologyLabel = computed(() => {
+    const current = this.event();
+    if (!current) {
+      return 'Evento';
+    }
+    return typologyTabFromApi(current.typology);
+  });
+
+  readonly heroMetaLine = computed(() => {
+    const current = this.event();
+    return current ? formatEventMetaLine(current) : '';
+  });
+
+  readonly heroDescription = computed(() => {
+    const current = this.event();
+    return current?.summary?.trim() || current?.notes?.trim() || 'Sin descripción.';
+  });
+
+  readonly resumenKpis = computed(() => {
+    const current = this.event();
+    const status = current ? eventStatusLabel(current.status) : '—';
+    return [
+      { label: 'Presupuesto', value: '€ 340,00' },
+      { label: 'Staff', value: '4 asignados' },
+      { label: 'Material', value: '12 ítems' },
+      { label: 'Estado', value: status },
+    ];
+  });
+
+  readonly eventNotes = computed<JosanzEventNote[]>(() => {
+    const note = this.event()?.notes?.trim();
+    if (!note) {
+      return [];
+    }
+    return [{ id: '1', text: note }];
+  });
 
   readonly deliveryNotes = ['Albarán 001.pdf', 'Albarán 002.pdf'];
   readonly invoices = ['Factura 001.pdf', 'Factura borrador.pdf'];
   readonly reportFiles = ['Informe post-evento.pdf', 'Checklist técnico.pdf'];
-
   readonly budgetTotal = '€ 340.00';
-
-  readonly resumenKpis = [
-    { label: 'Presupuesto', value: '€ 340,00' },
-    { label: 'Staff', value: '4 asignados' },
-    { label: 'Material', value: '12 ítems' },
-    { label: 'Estado', value: 'Confirmado' },
-  ];
 
   readonly budgetCatalog: JosanzBudgetCatalogItem[] = [
     {
@@ -120,152 +175,61 @@ export class JosanzEventDetailComponent implements OnInit {
       status: 'Mantenimiento',
       pillKey: 'en-proceso',
     },
-    {
-      id: 'mic-02',
-      name: 'Micrófono 02',
-      warehouse: 'Almacén X',
-      status: 'En uso',
-      pillKey: 'en-produccion',
-    },
-    {
-      id: 'mic-03',
-      name: 'Micrófono 03',
-      warehouse: 'Almacén X',
-      status: 'Correcto',
-      pillKey: 'confirmado',
-    },
-    {
-      id: 'mic-04',
-      name: 'Micrófono 04',
-      warehouse: 'Almacén X',
-      status: 'Averiado',
-      pillKey: 'cancelado',
-    },
-    {
-      id: 'mic-05',
-      name: 'Micrófono 05',
-      warehouse: 'Almacén X',
-      status: 'Correcto',
-      pillKey: 'confirmado',
-    },
-    {
-      id: 'mic-06',
-      name: 'Micrófono 06',
-      warehouse: 'Almacén X',
-      status: 'Correcto',
-      pillKey: 'confirmado',
-    },
   ];
 
-  readonly emails: JosanzEventEmail[] = [
-    {
-      id: '1',
-      time: '00:00',
-      subject: 'Asunto ejemplo',
-      preview: 'Nota breve lorem ipsum dolor sit amet, consectetur',
-    },
-  ];
-
+  readonly emails: JosanzEventEmail[] = [];
   readonly heroImage =
     'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=400&h=400';
 
-  readonly eventNotes: JosanzEventNote[] = [
-    {
-      id: '1',
-      text: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.',
-    },
-  ];
-
-  readonly staffNotes: JosanzEventNote[] = [
-    {
-      id: '1',
-      text: 'Explicación breve lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.',
-    },
-    {
-      id: '2',
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
-    },
-  ];
-
+  readonly staffNotes: JosanzEventNote[] = [];
   readonly inspirationFiles = ['1.pdf', '2.pdf'];
 
-  readonly staffMembers: JosanzEventStaffMember[] = [
-    {
-      id: '1',
-      name: 'Nombre Apellidos',
-      role: 'Especialización',
-      tag: 'Técnico',
-      pillKey: 'staff-tecnico',
-      avatarUrl: 'https://i.pravatar.cc/96?img=12',
-    },
-    {
-      id: '2',
-      name: 'Nombre Apellidos',
-      role: 'Especialización',
-      tag: 'En prácticas',
-      pillKey: 'staff-practicas',
-      avatarUrl: 'https://i.pravatar.cc/96?img=32',
-    },
-    {
-      id: '3',
-      name: 'Nombre Apellidos',
-      role: 'Especialización',
-      tag: 'Freelance',
-      pillKey: 'staff-freelance',
-      avatarUrl: 'https://i.pravatar.cc/96?img=45',
-    },
-  ];
+  readonly staffMembers: JosanzEventStaffMember[] = [];
+  readonly equipment: JosanzEventEquipment[] = [];
 
-  readonly equipment: JosanzEventEquipment[] = [
-    {
-      id: '1',
-      name: 'Micrófono 03',
-      warehouse: 'Almacén X',
-      status: 'Correcto',
-      pillKey: 'confirmado',
-      imageUrl: '',
-    },
-    {
-      id: '2',
-      name: 'Micrófono 02',
-      warehouse: 'Almacén X',
-      status: 'En uso',
-      pillKey: 'en-produccion',
-      imageUrl: '',
-    },
-    {
-      id: '3',
-      name: 'Equipo 001',
-      warehouse: 'Almacén X',
-      status: 'Correcto',
-      pillKey: 'confirmado',
-      imageUrl: '',
-    },
-    {
-      id: '4',
-      name: 'Equipo 002',
-      warehouse: 'Almacén Y',
-      status: 'Mantenimiento',
-      pillKey: 'en-proceso',
-      imageUrl: '',
-    },
-  ];
+  readonly clientRows = computed(() => {
+    const current = this.event();
+    if (!current?.client) {
+      return [];
+    }
+    return [
+      { label: 'Cliente', value: current.client.name },
+      { label: 'Contacto', value: current.operator?.name ?? '—' },
+      { label: 'Email', value: current.operator?.email ?? current.client.name },
+      { label: 'Teléfono', value: current.operator?.phone ?? '—' },
+      { label: 'Operador', value: current.operator?.name ?? '—' },
+      { label: 'Tipo', value: typologyLabelFromApi(current.typology) },
+    ];
+  });
 
-  readonly clientRows = [
-    { label: 'Cliente', value: 'Cliente ejemplo S.L.' },
-    { label: 'Contacto', value: 'María López' },
-    { label: 'Email', value: 'maria@cliente-ejemplo.com' },
-    { label: 'Teléfono', value: '+34 600 111 222' },
-    { label: 'Operador', value: 'Julia López' },
-    { label: 'Tipo', value: 'Externo' },
-  ];
+  private eventId = '';
 
   ngOnInit(): void {
-    this.budgetLines = this.budgetCatalog.slice(0, 3);
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      void this.router.navigate(['/events']);
+      return;
+    }
+    this.eventId = id;
+
+    if (this.route.snapshot.queryParamMap.get('updated') === '1') {
+      void this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: {},
+        replaceUrl: true,
+      });
+    }
+
+    this.loadEvent();
+    this.budgetLines = this.budgetCatalog.slice(0, 1);
   }
 
   onShellTabChange(_tab: string): void {
     this.showBudgetPicker.set(false);
+  }
+
+  onSave(): void {
+    void this.router.navigate(['/events', this.eventId, 'edit']);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
@@ -318,5 +282,16 @@ export class JosanzEventDetailComponent implements OnInit {
     }
     this.budgetSearch = '';
     this.showBudgetPicker.set(false);
+  }
+
+  private loadEvent(): void {
+    this.loading.set(true);
+    this.eventApi
+      .getById(this.eventId)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (event) => this.event.set(event),
+        error: () => this.errorMessage.set('No se pudo cargar el evento.'),
+      });
   }
 }

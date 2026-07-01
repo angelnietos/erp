@@ -47,20 +47,28 @@ export interface JosanzEventRecord {
   } | null;
 }
 
-export interface CreateJosanzEventPayload {
+export type CreateJosanzEventPayload = UpdateJosanzEventPayload & {
   name: string;
   clientId: string;
-  operatorContactId?: string;
   typology: string;
   startDate: string;
+};
+
+export interface UpdateJosanzEventPayload {
+  name?: string;
+  clientId?: string;
+  operatorContactId?: string;
+  typology?: string;
+  startDate?: string;
   eventTime?: string;
   endDate?: string;
   eventSchedule?: EventDateBlock[];
   location?: string;
   venueSchedule?: EventVenueBlock[];
   status?: string;
-  statusPillColor?: string;
+  statusPillColor?: string | null;
   notes?: string;
+  summary?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -73,7 +81,15 @@ export class JosanzEventApiService {
     return this.http.get<JosanzEventRecord[]>(`${this.apiUrl}${query}`);
   }
 
+  getById(id: string): Observable<JosanzEventRecord> {
+    return this.http.get<JosanzEventRecord>(`${this.apiUrl}/${id}`);
+  }
+
   create(payload: CreateJosanzEventPayload): Observable<JosanzEventRecord> {
     return this.http.post<JosanzEventRecord>(this.apiUrl, payload);
+  }
+
+  update(id: string, payload: UpdateJosanzEventPayload): Observable<JosanzEventRecord> {
+    return this.http.put<JosanzEventRecord>(`${this.apiUrl}/${id}`, payload);
   }
 }

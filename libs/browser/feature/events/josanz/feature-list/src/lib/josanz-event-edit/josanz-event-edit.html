@@ -1,13 +1,13 @@
 <josanz-main-detail-layout
-  title="Nuevo evento"
+  title="Editar evento"
   layoutVariant="figma-event"
   [tabs]="[]"
   activeTab=""
   (back)="onBack()"
   (save)="onSave()"
   (cancel)="onCancel()"
-  saveLabel="Crear evento"
-  [saveDisabled]="form.invalid || saving()"
+  saveLabel="Guardar cambios"
+  [saveDisabled]="form.invalid || saving() || loading()"
   [showFooterActions]="false"
   [showHeaderSave]="false"
 >
@@ -29,16 +29,13 @@
       <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
         Cancelar
       </button>
-      <josanz-button
-        label="Añadir Cliente"
-        [showIcon]="false"
-        customColor="#0F1E2F"
-        (btnClick)="onAddClient()"
-      ></josanz-button>
     </div>
   </div>
 
   <div class="josanz-event-create">
+    @if (loading()) {
+    <p class="josanz-event-create__hint">Cargando evento…</p>
+    }
     @if (validationBanner()) {
     <p class="josanz-event-create__validation-banner" role="alert">{{ validationBanner() }}</p>
     }
@@ -78,6 +75,22 @@
           [required]="true"
         ></josanz-input>
 
+        <josanz-select
+          label="Estado"
+          placeholder="Selecciona un estado"
+          formControlName="status"
+          [options]="statusOptions"
+          [required]="true"
+        ></josanz-select>
+
+        <josanz-client-rail-picker
+          [parentForm]="form"
+          controlName="statusPillColor"
+          fieldLabel="Color de estado"
+          fieldHint="Sobrescribe el color del tenant para este evento (opcional)."
+          [required]="false"
+        ></josanz-client-rail-picker>
+
         <div formArrayName="eventDates" class="josanz-event-create__date-rows">
           @for (group of eventDates.controls; track $index; let i = $index) {
           <div class="josanz-event-create__date-row" [formGroupName]="i">
@@ -85,7 +98,6 @@
               <josanz-input
                 label="Fecha evento"
                 type="date"
-                placeholder="dd/mm/aaaa"
                 controlName="fecha"
                 [parentForm]="eventDateGroup(i)"
                 [required]="true"
@@ -93,7 +105,6 @@
               <josanz-input
                 label="Hora evento"
                 type="time"
-                placeholder="00:00"
                 controlName="hora"
                 [parentForm]="eventDateGroup(i)"
               ></josanz-input>
@@ -105,12 +116,7 @@
               aria-label="Eliminar fecha"
               (click)="removeEventDate(i)"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                <path d="M10 11v6M14 11v6"></path>
-                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-              </svg>
+              ×
             </button>
             }
           </div>
@@ -127,78 +133,21 @@
           <div class="josanz-event-create__venue-panel" [formGroupName]="i">
             <div class="josanz-event-create__venue-panel-header">
               <div class="josanz-event-create__grid-2 flex-1">
-                <josanz-input
-                  label="Salón"
-                  placeholder="Salón"
-                  controlName="salon"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
-                <josanz-input
-                  label="Subsala"
-                  placeholder="Subsala"
-                  controlName="subsala"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
+                <josanz-input label="Salón" controlName="salon" [parentForm]="venueGroup(i)"></josanz-input>
+                <josanz-input label="Subsala" controlName="subsala" [parentForm]="venueGroup(i)"></josanz-input>
               </div>
               @if (venues.length > 1) {
-              <button
-                type="button"
-                class="josanz-event-create__venue-delete"
-                aria-label="Eliminar espacio"
-                (click)="removeVenue(i)"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                  <path d="M10 11v6M14 11v6"></path>
-                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-                </svg>
-              </button>
+              <button type="button" class="josanz-event-create__venue-delete" (click)="removeVenue(i)">×</button>
               }
-            </div>
-
-            <div class="josanz-event-create__grid-2">
-              <div>
-                <josanz-input
-                  label="Montaje"
-                  type="date"
-                  controlName="setupDate"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
-                <josanz-input
-                  label="Horarios de montaje"
-                  type="time"
-                  controlName="setupTime"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
-              </div>
-              <div>
-                <josanz-input
-                  label="Desmontaje"
-                  type="date"
-                  controlName="teardownDate"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
-                <josanz-input
-                  label="Horarios de desmontaje"
-                  type="time"
-                  controlName="teardownTime"
-                  [parentForm]="venueGroup(i)"
-                ></josanz-input>
-              </div>
             </div>
           </div>
           }
         </div>
-
-        <button type="button" class="josanz-event-create__venue-add" (click)="addVenue()">
-          Añadir +
-        </button>
+        <button type="button" class="josanz-event-create__venue-add" (click)="addVenue()">Añadir +</button>
         }
 
         <josanz-input
           label="Localización"
-          placeholder="Calle ejemplo, no. 1, Municipio X, Comunidad Autónoma X"
           controlName="localizacion"
           [parentForm]="form"
           [required]="selectedType() === 'Evento externo'"
@@ -206,16 +155,11 @@
       </div>
     </section>
 
-    <div class="josanz-event-create__preview">
-      <strong>{{ previewName() }}</strong>
-      <span>{{ previewDateTime() }}</span>
-    </div>
-
     <div class="josanz-event-create__actions">
       <josanz-button
-        label="Crear evento"
+        label="Guardar cambios"
         [showIcon]="false"
-        [disabled]="form.invalid || saving()"
+        [disabled]="form.invalid || saving() || loading()"
         customColor="#0F1E2F"
         (btnClick)="onSave()"
       ></josanz-button>

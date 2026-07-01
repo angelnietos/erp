@@ -6,6 +6,7 @@ import {
   JosanzCatalogListComponent,
   JOSANZ_CATALOG_CLIENT_TABS,
   mapClientToCatalogRow,
+  CatalogThemeFacade,
   type JosanzCatalogListConfig,
 } from '@josanz-erp/josanz-ui';
 
@@ -22,6 +23,7 @@ export class JosanzClientsListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly clientsFacade = inject(ClientsFacade);
+  private readonly catalogTheme = inject(CatalogThemeFacade);
 
   readonly showSuccessToast = signal(false);
   readonly successToastMessage = signal('Cliente creado correctamente');
@@ -49,7 +51,10 @@ export class JosanzClientsListComponent implements OnInit {
   readonly listConfig = computed<JosanzCatalogListConfig>(() => {
     const clients = this.clientsFacade.clients();
     const loading = this.clientsFacade.isLoading();
-    const rows = clients.map((client, index) => mapClientToCatalogRow(client, index));
+    const theme = this.catalogTheme.mergedTheme();
+    const rows = clients.map((client, index) =>
+      mapClientToCatalogRow(client, index, theme),
+    );
     const total = clients.length;
 
     return {
@@ -66,6 +71,8 @@ export class JosanzClientsListComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.catalogTheme.loadCatalogTheme();
+
     const created = this.route.snapshot.queryParamMap.get('created') === '1';
     const updated = this.route.snapshot.queryParamMap.get('updated') === '1';
 

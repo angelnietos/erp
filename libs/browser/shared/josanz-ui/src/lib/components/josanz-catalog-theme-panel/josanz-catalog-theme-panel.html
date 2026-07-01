@@ -1,0 +1,65 @@
+<section class="josanz-catalog-theme">
+  <header class="josanz-catalog-theme__intro">
+    <h3 class="premium-label">Colores de estados</h3>
+    <p class="premium-desc">
+      Define los colores de las pastillas en listados de eventos y clientes. Se guardan para todo el tenant.
+    </p>
+    @if (catalogTheme.saving()) {
+    <p class="josanz-catalog-theme__status" role="status">Guardando…</p>
+    }
+  </header>
+
+  <div class="josanz-catalog-theme__grid">
+    <div class="josanz-catalog-theme__card">
+      <h4 class="josanz-catalog-theme__card-title">Eventos</h4>
+      <ul class="josanz-catalog-theme__list">
+        @for (opt of eventStatusOptions; track opt.key) {
+        <li class="josanz-catalog-theme__row">
+          <span class="josanz-catalog-theme__label">{{ opt.label }}</span>
+          <label class="josanz-catalog-theme__picker">
+            <span
+              class="josanz-catalog-theme__swatch"
+              [style.background-color]="eventColor(opt.key)"
+              aria-hidden="true"
+            ></span>
+            <input
+              type="color"
+              class="josanz-catalog-theme__native"
+              [value]="eventColor(opt.key)"
+              [attr.aria-label]="'Color para ' + opt.label"
+              (input)="onEventColorPick(opt.key, $event)"
+            />
+            <span class="josanz-catalog-theme__hex">{{ eventColor(opt.key) }}</span>
+          </label>
+        </li>
+        }
+      </ul>
+    </div>
+
+    <div class="josanz-catalog-theme__card">
+      <h4 class="josanz-catalog-theme__card-title">Clientes (tipo / tarifa)</h4>
+      <ul class="josanz-catalog-theme__list">
+        @for (tariff of clientTariffOptions; track tariff) {
+        <li class="josanz-catalog-theme__row">
+          <span class="josanz-catalog-theme__label">{{ tariff }}</span>
+          <label class="josanz-catalog-theme__picker">
+            <span
+              class="josanz-catalog-theme__swatch"
+              [style.background-color]="clientTariffColor(tariff)"
+              aria-hidden="true"
+            ></span>
+            <input
+              type="color"
+              class="josanz-catalog-theme__native"
+              [value]="clientTariffColor(tariff)"
+              [attr.aria-label]="'Color para ' + tariff"
+              (input)="onClientTariffColorPick(tariff, $event)"
+            />
+            <span class="josanz-catalog-theme__hex">{{ clientTariffColor(tariff) }}</span>
+          </label>
+        </li>
+        }
+      </ul>
+    </div>
+  </div>
+</section>

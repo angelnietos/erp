@@ -262,6 +262,8 @@ model Tenant {
   isActive                     Boolean                      @default(true) @map("is_active")
   /** Módulos ERP activos para este tenant (alineados con PluginStore: dashboard, clients, …). */
   enabledModuleIds             String[]                     @default([]) @map("enabled_module_ids")
+  /** Colores de pastillas de estado/tipo por tenant (eventos y clientes). */
+  catalogTheme                 Json?                        @map("catalog_theme")
   createdAt                    DateTime                     @default(now()) @map("created_at")
   budgets                      Budget[]
   clients                      Client[]

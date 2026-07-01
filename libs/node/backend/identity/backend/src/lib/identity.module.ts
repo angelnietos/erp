@@ -10,6 +10,7 @@ import { BffAuthController, BffPlatformAuthController } from './presentation/con
 import { UsersController } from './presentation/controllers/users.controller';
 import { RolesController } from './presentation/controllers/roles.controller';
 import { TenantModulesController } from './presentation/controllers/tenant-modules.controller';
+import { TenantCatalogThemeController } from './presentation/controllers/tenant-catalog-theme.controller';
 import { PlatformTenantsController } from './presentation/controllers/platform-tenants.controller';
 import { PlatformTenantIdentityController } from './presentation/controllers/platform-tenant-identity.controller';
 import { PlatformUsersController } from './presentation/controllers/platform-users.controller';
@@ -19,6 +20,7 @@ import { BffAuthService } from './application/services/bff-auth.service';
 import { UsersService } from './application/services/users.service';
 import { RolesService } from './application/services/roles.service';
 import { TenantModulesService } from './application/services/tenant-modules.service';
+import { TenantCatalogThemeService } from './application/services/tenant-catalog-theme.service';
 import { TenantModulesNotifierService } from './application/services/tenant-modules-notifier.service';
 import { TenantRealmSyncService } from './application/services/tenant-realm-sync.service';
 import { KeycloakAdminService } from './application/services/keycloak-admin.service';
@@ -72,6 +74,7 @@ export class IdentityModule {
         UsersController,
         RolesController,
         TenantModulesController,
+        TenantCatalogThemeController,
         PlatformTenantsController,
         PlatformTenantIdentityController,
         PlatformUsersController,
@@ -84,6 +87,7 @@ export class IdentityModule {
         UsersService,
         RolesService,
         TenantModulesService,
+        TenantCatalogThemeService,
         TenantModulesNotifierService,
         TenantRealmSyncService,
         KeycloakAdminService,
