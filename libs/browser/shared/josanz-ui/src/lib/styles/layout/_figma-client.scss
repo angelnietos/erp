@@ -448,3 +448,20 @@
     opacity: 1;
   }
 }
+
+.josanz-client-edit__save-status {
+  display: flex;
+  align-items: center;
+  min-height: 36px;
+  min-width: 0;
+}
+
+.josanz-client-edit__save-status-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--josanz-text-muted, #7c7c7c);
+}
+
+.josanz-client-edit__save-status-text--dirty {
+  color: var(--josanz-interactive, var(--josanz-primary, #0f1e2f));
+}

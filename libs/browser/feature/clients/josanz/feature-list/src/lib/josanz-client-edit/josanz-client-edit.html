@@ -6,13 +6,22 @@
   saveLabel="Guardar"
   [showFooterActions]="false"
   [showHeaderSave]="false"
-  [saveDisabled]="form.invalid || saving() || loading()"
+  [saveDisabled]="!canSave()"
   (back)="onBack()"
   (save)="onSubmit()"
   (cancel)="onCancel()"
 >
   <div figma-create-toolbar class="josanz-event-create__header-bar">
-    <div></div>
+    <div class="josanz-client-edit__save-status" aria-live="polite">
+      @if (!loading() && saveStatusHint()) {
+      <span
+        class="josanz-client-edit__save-status-text"
+        [class.josanz-client-edit__save-status-text--dirty]="hasUnsavedChanges()"
+      >
+        {{ saveStatusHint() }}
+      </span>
+      }
+    </div>
     <div class="josanz-event-create__header-actions">
       @if (!loading()) {
       <button
@@ -30,7 +39,8 @@
       <josanz-button
         label="Guardar"
         [showIcon]="false"
-        [disabled]="form.invalid || saving() || loading()"
+        [disabled]="!canSave()"
+        [attr.title]="saveButtonTitle()"
         (btnClick)="onSubmit()"
       ></josanz-button>
     </div>

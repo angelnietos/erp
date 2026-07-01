@@ -9,7 +9,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize, startWith, catchError, EMPTY, tap } from 'rxjs';
+import { finalize, startWith, catchError, EMPTY, tap, merge } from 'rxjs';
 import {
   ClientService,
   ClientsFacade,
@@ -68,6 +68,9 @@ export class JosanzClientEditComponent implements OnInit {
   readonly loading = signal(true);
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
+  private readonly formRevision = signal(0);
+  private initialFormSnapshot = '';
+  private baselineCaptured = false;
 
   form: FormGroup;
   private readonly razonSocialValue: ReturnType<typeof toSignal<string>>;
@@ -96,7 +99,40 @@ export class JosanzClientEditComponent implements OnInit {
       ),
       { initialValue: '' },
     );
+
+    merge(this.form.valueChanges, this.form.statusChanges)
+      .pipe(startWith(null))
+      .subscribe(() => this.formRevision.update((n) => n + 1));
   }
+
+  readonly hasUnsavedChanges = computed(() => {
+    this.formRevision();
+    if (this.loading() || !this.baselineCaptured) {
+      return false;
+    }
+    return this.serializeFormState() !== this.initialFormSnapshot;
+  });
+
+  readonly canSave = computed(
+    () =>
+      !this.loading() &&
+      !this.saving() &&
+      this.form.valid &&
+      this.hasUnsavedChanges(),
+  );
+
+  readonly saveStatusHint = computed(() => {
+    if (this.loading()) {
+      return '';
+    }
+    if (!this.form.valid) {
+      return 'Completa los campos obligatorios para guardar.';
+    }
+    if (!this.hasUnsavedChanges()) {
+      return 'Sin cambios pendientes.';
+    }
+    return 'Tienes cambios sin guardar.';
+  });
 
   readonly brandInitials = computed(() =>
     this.initialsFromName(this.razonSocialValue() ?? ''),
@@ -181,6 +217,9 @@ export class JosanzClientEditComponent implements OnInit {
   }
 
   onBack(): void {
+    if (!this.confirmLeaveIfDirty()) {
+      return;
+    }
     void this.router.navigate(['/clients']);
   }
 
@@ -220,6 +259,13 @@ export class JosanzClientEditComponent implements OnInit {
     this.onBack();
   }
 
+  saveButtonTitle(): string {
+    if (this.canSave()) {
+      return 'Guardar cambios del cliente';
+    }
+    return this.saveStatusHint();
+  }
+
   onDeleteClick(): void {
     if (!this.clientId || this.loading() || this.saving()) {
       return;
@@ -250,6 +296,7 @@ export class JosanzClientEditComponent implements OnInit {
   }
 
   private patchForm(client: Client): void {
+    const preserveUserEdits = this.baselineCaptured && this.hasUnsavedChanges();
     const tarifaValue = client.tariffLabel ?? DEFAULT_TARIFF_OPTIONS[0];
 
     const colorRail =
@@ -283,6 +330,30 @@ export class JosanzClientEditComponent implements OnInit {
     }
 
     queueMicrotask(() => this.statusTypeField?.registerExtraTypes([tarifaValue]));
+
+    if (!preserveUserEdits) {
+      queueMicrotask(() => this.captureFormBaseline());
+    }
+  }
+
+  private serializeFormState(): string {
+    return JSON.stringify(this.form.getRawValue());
+  }
+
+  private captureFormBaseline(): void {
+    this.initialFormSnapshot = this.serializeFormState();
+    this.form.markAsPristine();
+    this.baselineCaptured = true;
+    this.formRevision.update((n) => n + 1);
+  }
+
+  private confirmLeaveIfDirty(): boolean {
+    if (!this.hasUnsavedChanges()) {
+      return true;
+    }
+    return window.confirm(
+      'Tienes cambios sin guardar. ¿Quieres salir sin guardar?',
+    );
   }
 
   private initialsFromName(name: string): string {
