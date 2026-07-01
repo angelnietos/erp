@@ -2652,6 +2652,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         hourlyRate: 42,
         skills: ['AUDIO', 'RF'],
         status: 'ACTIVE',
+        bio: 'Técnico de sonido FOH y monitores. Disponible para eventos corporativos y festivales.',
       },
     }),
     prisma.technician.create({
@@ -2661,6 +2662,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         hourlyRate: 38,
         skills: ['ILUMINACION', 'ESCENA'],
         status: 'ACTIVE',
+        bio: 'Técnica de iluminación escénica y diseño de luz para convenciones y galas.',
       },
     }),
     prisma.technician.create({
@@ -2670,6 +2672,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         hourlyRate: 45,
         skills: ['VIDEO', 'STREAMING'],
         status: 'FREELANCE',
+        bio: 'Operadora de cámara y streaming para eventos híbridos y producciones en directo.',
       },
     }),
   ]);

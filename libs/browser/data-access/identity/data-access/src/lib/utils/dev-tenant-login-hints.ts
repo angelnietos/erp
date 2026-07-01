@@ -48,6 +48,24 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     primary: true,
   },
   {
+    slug: 'alexis',
+    email: 'tecnico.audio@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Dani Sonido · técnico',
+  },
+  {
+    slug: 'alexis',
+    email: 'tecnica.iluminacion@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Laura Luces · técnico',
+  },
+  {
+    slug: 'alexis',
+    email: 'freelance.video@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Marta Video · freelance',
+  },
+  {
     slug: 'docs',
     email: 'admin@docs.local',
     password: DEV_TENANT_LOGIN_PASSWORD,

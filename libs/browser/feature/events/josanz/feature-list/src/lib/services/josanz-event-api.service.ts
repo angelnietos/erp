@@ -153,6 +153,8 @@ export interface JosanzTechnicianListItem {
   id: string;
   status: string;
   avatarUrl: string | null;
+  bio?: string | null;
+  skills?: string[];
   user: {
     id: string;
     firstName: string;

@@ -25,8 +25,13 @@
       },
       'josanz-figma-spa': {
         slug: 'alexis',
+        displayName: 'Alexis',
         primary: { email: 'admin@alexis.local' },
-        alternates: [],
+        alternates: [
+          { email: 'tecnico.audio@alexis.local', note: 'Dani Sonido · técnico' },
+          { email: 'tecnica.iluminacion@alexis.local', note: 'Laura Luces · técnico' },
+          { email: 'freelance.video@alexis.local', note: 'Marta Video · freelance' },
+        ],
       },
       'verifactu-crm-spa': {
         slug: 'verifactu',

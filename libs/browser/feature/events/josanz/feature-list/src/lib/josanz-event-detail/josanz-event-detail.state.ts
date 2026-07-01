@@ -4,6 +4,7 @@ import type { JosanzStatusPillKey } from '@josanz-erp/josanz-ui';
 import type { JosanzEventRecord } from '../services/josanz-event-api.service';
 import type { JosanzEventUiType } from '../josanz-event-form.utils';
 import { buildEventDetailSavePayload, mapTechnicianRoleToPill } from './josanz-event-detail.payload';
+import { technicianRoleLabel } from '../josanz-staff/josanz-staff.mapper';
 import type {
   EventComposerId,
   EventUploadTarget,
@@ -229,12 +230,12 @@ export class JosanzEventDetailState {
     this.staffCatalog.set(
       technicians.map((t) => {
         const name = `${t.user.firstName} ${t.user.lastName}`.trim();
-        const role = t.status === 'ACTIVE' ? 'Técnico' : t.status;
+        const role = technicianRoleLabel(t.status);
         return {
           id: t.id,
           name,
           role,
-          pillKey: mapTechnicianRoleToPill(role),
+          pillKey: mapTechnicianRoleToPill(t.status),
         };
       }),
     );

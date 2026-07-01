@@ -29,10 +29,10 @@ export class TechniciansService {
     });
   }
 
-  /** Devuelve todos los técnicos del tenant */
+  /** Devuelve técnicos asignables del tenant (activos y freelance). */
   async findAll(tenantId: string) {
     return this.prisma.technician.findMany({
-      where: { tenantId, status: 'ACTIVE' },
+      where: { tenantId, status: { in: ['ACTIVE', 'FREELANCE'] } },
       include: {
         user: {
           select: {
