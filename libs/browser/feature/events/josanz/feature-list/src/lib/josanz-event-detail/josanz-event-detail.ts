@@ -9,14 +9,16 @@ import {
   JosanzDeleteConfirmService,
   JosanzFigmaDetailShellComponent,
   CatalogThemeFacade,
-  eventStatusLabel,
+  eventStatusOptionsFromTheme,
+  resolveEventStatusLabel,
+  resolveEventStatusPillKey,
+  resolveEventStatusPillColor,
   typologyTabFromApi,
   type JosanzFigmaDetailShellConfig,
 } from '@josanz-erp/josanz-ui';
 import { JosanzEventApiService, type JosanzEventRecord } from '../services/josanz-event-api.service';
 import { JosanzEventsFacade } from '../services/josanz-events.facade';
 import {
-  JOSANZ_EVENT_STATUS_OPTIONS,
   statusPillKeyFromApi,
   type JosanzEventUiType,
 } from '../josanz-event-form.utils';
@@ -71,10 +73,12 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
   readonly detailState = inject(JosanzEventDetailState);
 
-  readonly statusOptions = JOSANZ_EVENT_STATUS_OPTIONS.map((o) => ({
-    label: o.label,
-    value: o.value,
-  }));
+  readonly statusOptions = computed(() =>
+    eventStatusOptionsFromTheme(this.catalogTheme.mergedTheme()).map((option) => ({
+      label: option.label,
+      value: option.value,
+    })),
+  );
 
   readonly event = signal<JosanzEventRecord | null>(null);
   readonly clients = signal<Client[]>([]);
@@ -138,8 +142,8 @@ export class JosanzEventDetailComponent implements OnInit {
     return {
       ...this.baseShell,
       title: nombre,
-      statusLabel: eventStatusLabel(status),
-      statusPillKey: statusPillKeyFromApi(status),
+      statusLabel: resolveEventStatusLabel(status, this.catalogTheme.mergedTheme()),
+      statusPillKey: resolveEventStatusPillKey(status, this.catalogTheme.mergedTheme()) as ReturnType<typeof statusPillKeyFromApi>,
       saveDisabled:
         this.form.invalid || this.saving() || this.loading() || (!this.form.dirty && !this.detailDirty()),
     };

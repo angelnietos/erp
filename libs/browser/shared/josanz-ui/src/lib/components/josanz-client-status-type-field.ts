@@ -4,6 +4,7 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -12,7 +13,7 @@ import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import {
   CLIENT_STATUS_CUSTOM_OPTION,
-  TENANT_CLIENT_TARIFF_OPTIONS,
+  listClientTariffLabels,
   resolveClientTypePillColor,
 } from '../catalog/catalog-theme';
 import { normalizeHexColor } from '../catalog/client-rail-presets';
@@ -117,7 +118,12 @@ export class JosanzClientStatusTypeFieldComponent implements OnInit, OnDestroy {
 
   readonly customMode = signal(false);
   readonly colorManual = signal(false);
-  readonly presetOptions = signal<string[]>([...TENANT_CLIENT_TARIFF_OPTIONS]);
+  readonly presetOptions = signal<string[]>([]);
+
+  private readonly presetSync = effect(() => {
+    const labels = listClientTariffLabels(this.catalogTheme.mergedTheme());
+    this.presetOptions.set(labels);
+  });
 
   /** Espejo reactivo del control de tipo (los computed no leen FormControl). */
   private readonly typeValue = signal('');
@@ -223,7 +229,10 @@ export class JosanzClientStatusTypeFieldComponent implements OnInit, OnDestroy {
 
   switchToPresetMode(): void {
     this.customMode.set(false);
-    const fallback = this.presetOptions()[0] ?? TENANT_CLIENT_TARIFF_OPTIONS[0];
+    const fallback = this.presetOptions()[0] ?? listClientTariffLabels(this.catalogTheme.mergedTheme())[0];
+    if (!fallback) {
+      return;
+    }
     this.colorManual.set(false);
     this.parentForm.patchValue({ [this.typeControlName]: fallback });
     this.typeValue.set(fallback);
@@ -248,7 +257,7 @@ export class JosanzClientStatusTypeFieldComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const isPreset = [...TENANT_CLIENT_TARIFF_OPTIONS, ...this.presetOptions()].some(
+    const isPreset = listClientTariffLabels(this.catalogTheme.mergedTheme()).some(
       (option) => option.toLowerCase() === current.toLowerCase(),
     );
     this.customMode.set(!isPreset);

@@ -5,6 +5,7 @@ import type { Prisma } from '@prisma/client';
 export interface TenantCatalogThemeDto {
   eventStatusColors: Record<string, string>;
   clientTariffColors: Record<string, string>;
+  customEventStatuses?: Array<{ value: string; label: string; color: string }>;
 }
 
 const HEX_RE = /^#[0-9A-Fa-f]{6}$/;
@@ -21,6 +22,27 @@ function normalizeHex(value: unknown): string | null {
     return `#${trimmed.toUpperCase()}`;
   }
   return null;
+}
+
+function sanitizeCustomEventStatuses(
+  input: unknown,
+): TenantCatalogThemeDto['customEventStatuses'] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+  const out: NonNullable<TenantCatalogThemeDto['customEventStatuses']> = [];
+  for (const item of input) {
+    if (!item || typeof item !== 'object') {
+      continue;
+    }
+    const value = String((item as { value?: unknown }).value ?? '').trim();
+    const label = String((item as { label?: unknown }).label ?? '').trim();
+    const color = normalizeHex((item as { color?: unknown }).color);
+    if (value && label && color) {
+      out.push({ value, label, color });
+    }
+  }
+  return out;
 }
 
 function sanitizeColorMap(
@@ -58,6 +80,7 @@ export class TenantCatalogThemeService {
     const payload: TenantCatalogThemeDto = {
       eventStatusColors: sanitizeColorMap(body.eventStatusColors),
       clientTariffColors: sanitizeColorMap(body.clientTariffColors),
+      customEventStatuses: sanitizeCustomEventStatuses(body.customEventStatuses),
     };
 
     const updated = await this.prisma.tenant.update({
@@ -80,6 +103,7 @@ export class TenantCatalogThemeService {
       clientTariffColors: sanitizeColorMap(
         value.clientTariffColors as Record<string, unknown> | undefined,
       ),
+      customEventStatuses: sanitizeCustomEventStatuses(value.customEventStatuses),
     };
   }
 }

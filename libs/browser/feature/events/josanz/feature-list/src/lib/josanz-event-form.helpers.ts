@@ -10,7 +10,7 @@ import {
   defaultEventStatusPillColor,
   josanzNonEmptyTrim,
   normalizeHexColor,
-  tenantEventStatusColor,
+  resolveEventStatusPillColor,
 } from '@josanz-erp/josanz-ui';
 import type {
   EventDateBlock,
@@ -20,7 +20,6 @@ import type {
 } from './services/josanz-event-api.service';
 import {
   isoDatePart,
-  statusPillKeyFromApi,
   typologyLabelFromApi,
   type JosanzEventUiType,
 } from './josanz-event-form.utils';
@@ -100,11 +99,10 @@ export function patchJosanzEventForm(
     venues.push(createVenueGroup(fb, venue));
   }
 
-  const pillKey = statusPillKeyFromApi(event.status);
   const theme = catalogTheme.mergedTheme();
   const defaultPill =
     normalizeHexColor(event.statusPillColor ?? '') ??
-    tenantEventStatusColor(theme, pillKey) ??
+    resolveEventStatusPillColor(event.status, theme) ??
     defaultEventStatusPillColor(event.status, 'outline');
 
   form.patchValue({
@@ -131,10 +129,10 @@ export function applyDefaultEventStatusColor(
   status: string,
   catalogTheme: CatalogThemeFacade,
 ): void {
-  const pillKey = statusPillKeyFromApi(status);
   const theme = catalogTheme.mergedTheme();
   const color =
-    tenantEventStatusColor(theme, pillKey) ?? defaultEventStatusPillColor(status, 'outline');
+    resolveEventStatusPillColor(status, theme) ??
+    defaultEventStatusPillColor(status, 'outline');
   form.patchValue({ statusPillColor: color }, { emitEvent: false });
 }
 

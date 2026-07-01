@@ -2,10 +2,14 @@
   <header class="josanz-catalog-theme__intro">
     <h3 class="premium-label">Colores de estados</h3>
     <p class="premium-desc">
-      Define los colores de las pastillas en listados de eventos y clientes. Se guardan para todo el tenant.
+      Define los colores de las pastillas en listados de eventos y clientes. Puedes añadir tipos
+      personalizados además de los predefinidos. Se guardan para todo el tenant.
     </p>
     @if (catalogTheme.saving()) {
     <p class="josanz-catalog-theme__status" role="status">Guardando…</p>
+    }
+    @if (formError()) {
+    <p class="josanz-catalog-theme__error" role="alert">{{ formError() }}</p>
     }
   </header>
 
@@ -13,35 +17,74 @@
     <div class="josanz-catalog-theme__card">
       <h4 class="josanz-catalog-theme__card-title">Eventos</h4>
       <ul class="josanz-catalog-theme__list">
-        @for (opt of eventStatusOptions; track opt.key) {
+        @for (row of eventStatusRows(); track row.key) {
         <li class="josanz-catalog-theme__row">
-          <span class="josanz-catalog-theme__label">{{ opt.label }}</span>
+          <div class="josanz-catalog-theme__label-wrap">
+            <span class="josanz-catalog-theme__label">{{ row.label }}</span>
+            @if (row.removable) {
+            <button
+              type="button"
+              class="josanz-catalog-theme__remove"
+              [attr.aria-label]="'Eliminar estado ' + row.label"
+              (click)="removeEventStatus(row.customValue)"
+            >
+              ×
+            </button>
+            }
+          </div>
           <label class="josanz-catalog-theme__picker">
             <span
               class="josanz-catalog-theme__swatch"
-              [style.background-color]="eventColor(opt.key)"
+              [style.background-color]="row.color"
               aria-hidden="true"
             ></span>
             <input
               type="color"
               class="josanz-catalog-theme__native"
-              [value]="eventColor(opt.key)"
-              [attr.aria-label]="'Color para ' + opt.label"
-              (input)="onEventColorPick(opt.key, $event)"
+              [value]="row.color"
+              [attr.aria-label]="'Color para ' + row.label"
+              (input)="onEventColorPick(row.key, $event)"
             />
-            <span class="josanz-catalog-theme__hex">{{ eventColor(opt.key) }}</span>
+            <span class="josanz-catalog-theme__hex">{{ row.color }}</span>
           </label>
         </li>
         }
       </ul>
+
+      <div class="josanz-catalog-theme__add">
+        <input
+          type="text"
+          class="josanz-catalog-theme__add-input"
+          placeholder="Nuevo estado de evento…"
+          [ngModel]="newEventStatusLabel()"
+          (ngModelChange)="newEventStatusLabel.set($event)"
+          (keydown.enter)="addEventStatus()"
+          maxlength="48"
+        />
+        <button type="button" class="josanz-catalog-theme__add-btn" (click)="addEventStatus()">
+          Añadir +
+        </button>
+      </div>
     </div>
 
     <div class="josanz-catalog-theme__card">
       <h4 class="josanz-catalog-theme__card-title">Clientes (tipo / tarifa)</h4>
       <ul class="josanz-catalog-theme__list">
-        @for (tariff of clientTariffOptions; track tariff) {
+        @for (tariff of clientTariffLabels(); track tariff) {
         <li class="josanz-catalog-theme__row">
-          <span class="josanz-catalog-theme__label">{{ tariff }}</span>
+          <div class="josanz-catalog-theme__label-wrap">
+            <span class="josanz-catalog-theme__label">{{ tariff }}</span>
+            @if (!isDefaultClientTariff(tariff)) {
+            <button
+              type="button"
+              class="josanz-catalog-theme__remove"
+              [attr.aria-label]="'Eliminar tipo ' + tariff"
+              (click)="removeClientType(tariff)"
+            >
+              ×
+            </button>
+            }
+          </div>
           <label class="josanz-catalog-theme__picker">
             <span
               class="josanz-catalog-theme__swatch"
@@ -60,6 +103,21 @@
         </li>
         }
       </ul>
+
+      <div class="josanz-catalog-theme__add">
+        <input
+          type="text"
+          class="josanz-catalog-theme__add-input"
+          placeholder="Nuevo tipo / tarifa…"
+          [ngModel]="newClientTypeLabel()"
+          (ngModelChange)="newClientTypeLabel.set($event)"
+          (keydown.enter)="addClientType()"
+          maxlength="48"
+        />
+        <button type="button" class="josanz-catalog-theme__add-btn" (click)="addClientType()">
+          Añadir +
+        </button>
+      </div>
     </div>
   </div>
 </section>

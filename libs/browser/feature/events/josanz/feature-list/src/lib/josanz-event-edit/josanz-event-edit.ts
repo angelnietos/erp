@@ -19,11 +19,9 @@ import {
   type UpdateJosanzEventPayload,
 } from '../services/josanz-event-api.service';
 import {
-  JOSANZ_EVENT_STATUS_OPTIONS,
   JOSANZ_EVENT_UI_TYPES,
   typologyLabelFromApi,
   isoDatePart,
-  statusPillKeyFromApi,
   type JosanzEventUiType,
 } from '../josanz-event-form.utils';
 import {
@@ -35,9 +33,10 @@ import {
   MainDetailLayoutComponent,
   SelectComponent,
   CatalogThemeFacade,
+  eventStatusOptionsFromTheme,
   josanzNonEmptyTrim,
   normalizeHexColor,
-  tenantEventStatusColor,
+  resolveEventStatusPillColor,
   defaultEventStatusPillColor,
 } from '@josanz-erp/josanz-ui';
 
@@ -67,10 +66,12 @@ export class JosanzEventEditComponent implements OnInit {
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
   readonly eventTypes = JOSANZ_EVENT_UI_TYPES;
-  readonly statusOptions = JOSANZ_EVENT_STATUS_OPTIONS.map((o) => ({
-    label: o.label,
-    value: o.value,
-  }));
+  readonly statusOptions = computed(() =>
+    eventStatusOptionsFromTheme(this.catalogTheme.mergedTheme()).map((option) => ({
+      label: option.label,
+      value: option.value,
+    })),
+  );
 
   readonly selectedType = signal<JosanzEventUiType>('Evento externo');
   readonly clients = signal<Client[]>([]);
@@ -309,11 +310,10 @@ export class JosanzEventEditComponent implements OnInit {
       this.venues.push(this.createVenueGroup(venue));
     }
 
-    const pillKey = statusPillKeyFromApi(event.status);
     const theme = this.catalogTheme.mergedTheme();
     const defaultPill =
       normalizeHexColor(event.statusPillColor ?? '') ??
-      tenantEventStatusColor(theme, pillKey) ??
+      resolveEventStatusPillColor(event.status, theme) ??
       defaultEventStatusPillColor(event.status, 'outline');
 
     this.form.patchValue({
@@ -332,10 +332,9 @@ export class JosanzEventEditComponent implements OnInit {
   }
 
   private applyDefaultStatusColor(status: string): void {
-    const pillKey = statusPillKeyFromApi(status);
     const theme = this.catalogTheme.mergedTheme();
     const color =
-      tenantEventStatusColor(theme, pillKey) ??
+      resolveEventStatusPillColor(status, theme) ??
       defaultEventStatusPillColor(status, 'outline');
     this.form.patchValue({ statusPillColor: color }, { emitEvent: false });
   }

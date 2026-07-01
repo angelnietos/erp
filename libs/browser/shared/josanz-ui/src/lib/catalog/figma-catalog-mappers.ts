@@ -2,6 +2,8 @@ import type { JosanzCatalogListRow } from './catalog-status';
 import { pillVariantForCatalogStatus, resolveEntityRailColor, statusPillKeyFromVariant } from './catalog-status';
 import { resolveCatalogPillColor } from './status-pill-presets';
 import {
+  resolveCustomEventStatusColor,
+  resolveEventStatusLabel,
   tenantClientTariffColor,
   tenantEventStatusColor,
   type TenantCatalogTheme,
@@ -84,16 +86,24 @@ export function eventStatusLabel(status: string): string {
   return EVENT_STATUS_LABELS[status.toUpperCase()] ?? status;
 }
 
+export function eventStatusLabelWithTheme(
+  status: string,
+  catalogTheme?: TenantCatalogTheme | null,
+): string {
+  return resolveEventStatusLabel(status, catalogTheme);
+}
+
 export function mapEventToCatalogRow(
   event: FigmaCatalogEventSource,
   index: number,
   catalogTheme?: TenantCatalogTheme | null,
 ): JosanzCatalogListRow {
-  const label = eventStatusLabel(event.status);
+  const label = resolveEventStatusLabel(event.status, catalogTheme);
   const typology = typologyTabFromApi(event.typology);
   const venue = (event.location ?? event.name ?? '').trim();
   const client = event.client?.name ?? '';
   const pillVariant = pillVariantForCatalogStatus(label);
+  const customThemeColor = resolveCustomEventStatusColor(event.status, catalogTheme);
   return {
     id: event.id,
     title: formatCatalogDisplayId(index),
@@ -106,7 +116,7 @@ export function mapEventToCatalogRow(
     pillLabel: label,
     pillVariant,
     pillColor: resolveCatalogPillColor(
-      event.statusPillColor,
+      event.statusPillColor ?? customThemeColor,
       pillVariant,
       'outline',
       tenantEventStatusColor(catalogTheme, statusPillKeyFromVariant(pillVariant)),
