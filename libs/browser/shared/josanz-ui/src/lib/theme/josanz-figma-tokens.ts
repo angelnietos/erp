@@ -128,13 +128,25 @@ export const JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS = {
   Espacios: '#92400E',
 } as const;
 
-/** Variación de color para filas de hoteles (cada hotel en Figma). */
+/**
+ * Barra lateral por hotel (Figma): cada hotel tiene color fijo.
+ * Orden: Chamartín, Vincci Soma, Vincci Soho, Posada del Patio, Vincci Capitol.
+ */
 export const JOSANZ_FIGMA_HOTEL_RAIL_COLORS = [
   '#2563EB',
   '#EA580C',
   '#EC4899',
   '#9333EA',
   '#16A34A',
+] as const;
+
+/** Etiquetas Figma para la leyenda de colores por hotel. */
+export const JOSANZ_FIGMA_HOTEL_RAIL_LABELS = [
+  'Hotel Chamartín',
+  'Hotel Vincci Soma',
+  'Hotel Vincci Soho',
+  'Hotel Vincci Posada Del Patio',
+  'Hotel Vincci Capitol',
 ] as const;
 
 /** Misma semántica en `data-theme="dark"` (fondos más profundos, texto claro legible). */

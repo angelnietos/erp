@@ -143,14 +143,14 @@ export class MainTemplateCardComponent {
     return this.statusBadgeStyle === 'outline' && !!this.statusIcon();
   }
 
-  /** Barra lateral de estado (Figma listados). */
+  /** Barra lateral izquierda: tipología/venue (`railColor`), no el estado del evento. */
   getStatusRailStyles() {
+    if (this.railColor) {
+      return { backgroundColor: this.railColor };
+    }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
       return { backgroundColor: getEventOutlinePill(key).border };
-    }
-    if (this.railColor) {
-      return { backgroundColor: this.railColor };
     }
     if (this.customColor) {
       return { backgroundColor: this.customColor };

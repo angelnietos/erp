@@ -5,7 +5,7 @@
   [class.josanz-list-card--square]="activeShape() === 'square'"
   [class.josanz-list-card--pill]="activeShape() === 'pill'"
 >
-  <!-- Barra de estado (Figma): color del pill, siempre visible -->
+  <!-- Barra lateral (Figma): color por tipología/venue, no por estado -->
   <div
     class="josanz-list-card__status-rail absolute left-0 top-0 bottom-0 hidden md:block"
     [ngStyle]="getStatusRailStyles()"

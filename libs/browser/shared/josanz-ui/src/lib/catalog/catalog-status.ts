@@ -26,6 +26,8 @@ export interface JosanzCatalogListRow {
   pillVariant: JosanzStatusPillVariant;
   /** Barra lateral izquierda (tipo de evento / hotel). */
   railColor?: string;
+  /** Ubicación o nombre de venue (para color de hotel en eventos). */
+  venue?: string;
 }
 
 export function pillVariantForCatalogStatus(
@@ -97,9 +99,41 @@ export function pillVariantForCatalogStatus(
   return 'en-proceso';
 }
 
+/** Normaliza texto de venue para comparar nombres de hotel. */
+function normalizeVenueKey(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .toLowerCase();
+}
+
+/** Color de hotel según nombre/ubicación (Figma: cada hotel tiene su color). */
+export function railColorForHotelVenue(venue: string): string | undefined {
+  const key = normalizeVenueKey(venue);
+  if (!key) {
+    return undefined;
+  }
+  if (key.includes('chamartin')) {
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[0];
+  }
+  if (key.includes('soma')) {
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[1];
+  }
+  if (key.includes('soho')) {
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[2];
+  }
+  if (key.includes('posada')) {
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[3];
+  }
+  if (key.includes('capitol')) {
+    return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[4];
+  }
+  return undefined;
+}
+
 /** Color de la barra lateral según tipología (no el estado del evento). */
 export function railColorForCatalogRow(
-  row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id'>,
+  row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id' | 'venue'>,
   hotelIndex = 0,
 ): string {
   if (row.railColor) {
@@ -113,6 +147,10 @@ export function railColorForCatalogRow(
     return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios;
   }
   if (typology === 'Hoteles') {
+    const fromVenue = row.venue ? railColorForHotelVenue(row.venue) : undefined;
+    if (fromVenue) {
+      return fromVenue;
+    }
     const idx =
       hotelIndex >= 0
         ? hotelIndex % JOSANZ_FIGMA_HOTEL_RAIL_COLORS.length

@@ -1,5 +1,5 @@
 import type { JosanzCatalogListRow } from './catalog-status';
-import { pillVariantForCatalogStatus } from './catalog-status';
+import { pillVariantForCatalogStatus, railColorForCatalogRow } from './catalog-status';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -22,6 +22,7 @@ export interface FigmaCatalogEventSource {
   typology: string;
   status: string;
   startDate: string;
+  location?: string | null;
   client?: { name: string } | null;
   operator?: { name: string } | null;
 }
@@ -72,16 +73,20 @@ export function mapEventToCatalogRow(
   index: number,
 ): JosanzCatalogListRow {
   const label = eventStatusLabel(event.status);
+  const typology = typologyTabFromApi(event.typology);
+  const venue = (event.location ?? event.name ?? '').trim();
   return {
     id: event.id,
     title: formatCatalogDisplayId(index),
-    typology: typologyTabFromApi(event.typology),
+    typology,
+    venue,
     eventName: event.name,
     date: formatCatalogDate(event.startDate),
     client: event.client?.name ?? '—',
     operator: event.operator?.name ?? '—',
     pillLabel: label,
     pillVariant: pillVariantForCatalogStatus(label),
+    railColor: railColorForCatalogRow({ id: event.id, typology, venue }),
   };
 }
 
