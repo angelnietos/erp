@@ -16,11 +16,22 @@
 <josanz-figma-detail-shell
   #shell
   [config]="shellConfig()"
+  [interceptBack]="true"
+  (back)="onBack()"
   (tabChanged)="onShellTabChange()"
   (save)="onSave()"
 >
-  <div figma-create-toolbar class="josanz-event-create__header-bar">
-    <div></div>
+  <div figma-create-toolbar class="josanz-event-create__header-bar josanz-client-form__toolbar">
+    <div class="josanz-client-form__toolbar-meta" aria-live="polite">
+      @if (!loading() && saveStatusHint()) {
+      <span
+        class="josanz-client-edit__save-status-text"
+        [class.josanz-client-edit__save-status-text--dirty]="hasUnsavedChanges()"
+      >
+        {{ saveStatusHint() }}
+      </span>
+      }
+    </div>
     <div class="josanz-event-create__header-actions">
       @if (!loading()) {
       <button

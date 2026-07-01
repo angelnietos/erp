@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, EMPTY, finalize, startWith, tap } from 'rxjs';
+import { catchError, EMPTY, finalize, merge, startWith, tap } from 'rxjs';
 import { ClientService, ClientsFacade, type Client } from '@josanz-erp/clients-data-access';
 import {
   JosanzDeleteConfirmHostComponent,
@@ -89,7 +89,11 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly validationBanner = signal('');
   readonly deleteErrorMessage = signal('');
   readonly showSaveToast = signal(false);
-  readonly detailDirty = signal(false);
+
+  private readonly formRevision = signal(0);
+  private readonly detailRevision = signal(0);
+  private initialSnapshot = '';
+  private baselineCaptured = false;
 
   form: FormGroup = createJosanzEventForm(this.fb);
 
@@ -105,6 +109,36 @@ export class JosanzEventDetailComponent implements OnInit {
     this.form.get('status')!.valueChanges.pipe(startWith('DRAFT')),
     { initialValue: 'DRAFT' },
   );
+
+  readonly hasUnsavedChanges = computed(() => {
+    this.formRevision();
+    this.detailRevision();
+    if (this.loading() || !this.baselineCaptured) {
+      return false;
+    }
+    return this.serializeState() !== this.initialSnapshot;
+  });
+
+  readonly canSave = computed(
+    () =>
+      !this.loading() &&
+      !this.saving() &&
+      this.form.valid &&
+      this.hasUnsavedChanges(),
+  );
+
+  readonly saveStatusHint = computed(() => {
+    if (this.loading()) {
+      return '';
+    }
+    if (!this.form.valid) {
+      return 'Completa los campos obligatorios para guardar.';
+    }
+    if (!this.hasUnsavedChanges()) {
+      return 'Sin cambios pendientes.';
+    }
+    return 'Tienes cambios sin guardar.';
+  });
 
   private readonly baseShell: Omit<
     JosanzFigmaDetailShellConfig,
@@ -145,8 +179,7 @@ export class JosanzEventDetailComponent implements OnInit {
       statusPillKey: resolveEventStatusPillKey(status, this.catalogTheme.mergedTheme()) as ReturnType<typeof statusPillKeyFromApi>,
       tabAlerts: this.detailState.tabAlerts(),
       tabAlertHints: this.detailState.tabAlertHints(),
-      saveDisabled:
-        this.form.invalid || this.saving() || this.loading() || (!this.form.dirty && !this.detailDirty()),
+      saveDisabled: !this.canSave(),
     };
   });
 
@@ -178,8 +211,12 @@ export class JosanzEventDetailComponent implements OnInit {
       return;
     }
     this.eventId = id;
-    this.detailState.bindForm(() => this.markDetailDirty());
+    this.detailState.bindForm(() => this.detailRevision.update((n) => n + 1));
     this.catalogTheme.loadCatalogTheme();
+
+    merge(this.form.valueChanges, this.form.statusChanges)
+      .pipe(startWith(null))
+      .subscribe(() => this.formRevision.update((n) => n + 1));
 
     if (this.route.snapshot.queryParamMap.get('updated') === '1') {
       this.showSaveToast.set(true);
@@ -219,7 +256,14 @@ export class JosanzEventDetailComponent implements OnInit {
   selectType(type: JosanzEventUiType): void {
     this.selectedType.set(type);
     updateEventLocationValidators(this.form, type);
-    this.form.markAsDirty();
+    this.detailRevision.update((n) => n + 1);
+  }
+
+  onBack(): void {
+    if (!this.confirmLeaveIfDirty()) {
+      return;
+    }
+    void this.router.navigate(['/events']);
   }
 
   onShellTabChange(): void {
@@ -228,6 +272,9 @@ export class JosanzEventDetailComponent implements OnInit {
   }
 
   onSave(): void {
+    if (!this.canSave()) {
+      return;
+    }
     this.validationBanner.set('');
     if (this.form.invalid || this.saving() || this.loading()) {
       this.form.markAllAsTouched();
@@ -262,8 +309,7 @@ export class JosanzEventDetailComponent implements OnInit {
             this.selectedType,
           );
           this.detailState.hydrateFromRecord(updated);
-          this.detailDirty.set(false);
-          this.form.markAsPristine();
+          this.captureBaseline();
           this.showSaveToast.set(true);
         },
         error: () => {
@@ -320,12 +366,37 @@ export class JosanzEventDetailComponent implements OnInit {
             this.selectedType,
           );
           this.detailState.hydrateFromRecord(event);
+          this.maybeCaptureBaselineAfterHydrate();
         },
         error: () => this.errorMessage.set('No se pudo cargar el evento.'),
       });
   }
 
-  private markDetailDirty(): void {
-    this.detailDirty.set(true);
+  private serializeState(): string {
+    return this.detailState.serializePersistedState(this.form, this.selectedType());
+  }
+
+  private captureBaseline(): void {
+    this.initialSnapshot = this.serializeState();
+    this.form.markAsPristine();
+    this.baselineCaptured = true;
+    this.formRevision.update((n) => n + 1);
+    this.detailRevision.update((n) => n + 1);
+  }
+
+  private maybeCaptureBaselineAfterHydrate(): void {
+    const preserveUserEdits = this.baselineCaptured && this.hasUnsavedChanges();
+    if (!preserveUserEdits) {
+      queueMicrotask(() => this.captureBaseline());
+    }
+  }
+
+  private confirmLeaveIfDirty(): boolean {
+    if (!this.hasUnsavedChanges()) {
+      return true;
+    }
+    return window.confirm(
+      'Tienes cambios sin guardar. ¿Quieres salir sin guardar?',
+    );
   }
 }

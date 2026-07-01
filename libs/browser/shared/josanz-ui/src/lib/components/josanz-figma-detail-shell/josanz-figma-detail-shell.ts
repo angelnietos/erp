@@ -85,6 +85,9 @@ export class JosanzFigmaDetailShellComponent implements OnInit {
   @Output() readonly save = new EventEmitter<void>();
   @Output() readonly cancel = new EventEmitter<void>();
   @Output() readonly tabChanged = new EventEmitter<string>();
+  /** Si true, `back` solo emite; el padre decide navegación (p. ej. confirmar cambios). */
+  @Input() interceptBack = false;
+  @Output() readonly back = new EventEmitter<void>();
 
   /** Pestaña activa — usable desde plantilla con `#shell="figmaDetailShell"`. */
   readonly activeTab = signal('');
@@ -114,6 +117,10 @@ export class JosanzFigmaDetailShellComponent implements OnInit {
   }
 
   onBack(): void {
+    if (this.interceptBack) {
+      this.back.emit();
+      return;
+    }
     void this.router.navigate([this.config.listRoute]);
   }
 }

@@ -249,6 +249,26 @@ export class JosanzEventDetailState {
     });
   }
 
+  /** Estado persistible para detectar cambios sin guardar. */
+  serializePersistedState(form: FormGroup, selectedType: JosanzEventUiType): string {
+    return JSON.stringify({
+      form: form.getRawValue(),
+      selectedType,
+      eventNotes: this.eventNotes(),
+      staffNotes: this.staffNotes(),
+      staffMembers: this.staffMembers(),
+      emails: this.emails(),
+      inspirationFiles: this.inspirationFiles(),
+      deliveryNotes: this.deliveryNotes(),
+      invoices: this.invoices(),
+      reportFiles: this.reportFiles(),
+      budgetLines: this.budgetLines(),
+      budgetAddress: this.budgetAddress,
+      budgetContact: this.budgetContact,
+      budgetObservations: this.budgetObservations,
+    });
+  }
+
   // --- Notes (event + staff) ---
   addNote(kind: 'event' | 'staff'): void {
     const text = this.noteDraft.trim();
