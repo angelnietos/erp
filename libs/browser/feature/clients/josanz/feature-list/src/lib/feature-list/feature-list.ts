@@ -35,6 +35,7 @@ export class JosanzClientsListComponent implements OnInit {
     statusColumnLabel: 'Tipo',
     addRoute: '/clients/new',
     detailRoute: '/clients',
+    modalFilterMode: 'clients',
     filterOptions: JOSANZ_CATALOG_CLIENT_TABS,
     withLeadingMark: true,
     features: {

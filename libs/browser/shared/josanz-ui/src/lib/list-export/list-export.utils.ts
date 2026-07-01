@@ -72,12 +72,16 @@ export function buildExportFilterMeta(
   }
 
   const modal = filters.modalFilters;
-  if (modal?.id) meta.push({ label: 'ID', value: modal.id });
-  if (modal?.nombre) meta.push({ label: 'Nombre', value: modal.nombre });
-  if (modal?.fecha) meta.push({ label: 'Fecha', value: modal.fecha });
-  if (modal?.cliente) meta.push({ label: 'Cliente', value: modal.cliente });
-  if (modal?.operador) meta.push({ label: 'Operador', value: modal.operador });
-  if (modal?.estado) meta.push({ label: 'Estado (filtro)', value: modal.estado });
+  if (modal) {
+    for (const [key, value] of Object.entries(modal)) {
+      const trimmed = value?.trim();
+      if (!trimmed) {
+        continue;
+      }
+      const label = filters.modalFilterFieldLabels?.[key] ?? key;
+      meta.push({ label, value: trimmed });
+    }
+  }
 
   return meta;
 }

@@ -146,9 +146,9 @@
     <!-- Active filter chips -->
     @if (activeFilterChips.length > 0) {
     <div class="josanz-figma-modal-chips-row flex flex-wrap gap-2 mb-4">
-      @for (filter of activeFilterChips; track filter) {
+      @for (filter of activeFilterChips; track filter.key) {
         <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-[#0F1E2F] text-white">
-          {{ filter }}
+          {{ filter.label }}: {{ filter.value }}
           <button type="button" class="hover:text-red-200 focus:outline-none text-sm font-bold leading-none" (click)="removeFilterChip(filter)">
             &times;
           </button>
@@ -159,13 +159,14 @@
 
     <!-- Form Grid -->
     <div class="josanz-figma-modal-form-grid grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      @for (field of modalFilterFields; track field.key) {
       <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">ID</label>
+        <label class="text-xs font-bold text-[#222222]">{{ field.label }}</label>
         <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedIdFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
+          <select [(ngModel)]="selectedModalFilters[field.key]" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
             <option value="">-</option>
-            @for (id of getUniqueIdOptions(); track id) {
-              <option [value]="id">{{ id }}</option>
+            @for (option of getModalFilterOptions(field); track option) {
+              <option [value]="option">{{ option }}</option>
             }
           </select>
           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
@@ -173,81 +174,7 @@
           </div>
         </div>
       </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">Nombre evento</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedNombreFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (name of getUniqueNombreOptions(); track name) {
-              <option [value]="name">{{ name }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">Fecha</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedFechaFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (date of getUniqueFechaOptions(); track date) {
-              <option [value]="date">{{ date }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">Cliente</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedClienteFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (client of getUniqueClienteOptions(); track client) {
-              <option [value]="client">{{ client }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">Operador</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedOperadorFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (op of getUniqueOperadorOptions(); track op) {
-              <option [value]="op">{{ op }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">Estado</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedEstadoFilter" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (st of getUniqueEstadoOptions(); track st) {
-              <option [value]="st">{{ st }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
+      }
     </div>
 
     <!-- Actions -->

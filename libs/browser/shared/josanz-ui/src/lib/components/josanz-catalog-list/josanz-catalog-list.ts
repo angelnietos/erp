@@ -39,9 +39,16 @@ import {
   type JosanzStatusKanbanItem,
 } from '../status-kanban-board/status-kanban-board';
 import { BoardPeriodToolbarComponent } from '../board-period-toolbar/board-period-toolbar';
+import {
+  resolveCatalogModalFilterFields,
+  uniqueCatalogModalFilterOptions,
+  type JosanzCatalogModalFilterField,
+  type JosanzCatalogModalFilterMode,
+} from '../../catalog/catalog-modal-filters';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
+export type { JosanzCatalogModalFilterMode };
 
 export interface JosanzCatalogListConfig {
   title: string;
@@ -72,9 +79,11 @@ export interface JosanzCatalogListConfig {
   paginationTotal?: number;
   paginationVariant?: 'figma' | 'numbered';
   pageSize?: number;
-  /** Muestra skeleton de filas mientras la primera carga (sin datos en cachù). */
+  /** Muestra skeleton de filas mientras la primera carga (sin datos en cach?). */
   loading?: boolean;
   loadingPlaceholderCount?: number;
+  /** Campos del modal Filtros: `events` (por defecto) o `clients`. */
+  modalFilterMode?: JosanzCatalogModalFilterMode;
 }
 
 import { FormsModule } from '@angular/forms';
@@ -129,7 +138,7 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   readonly statusUpdateBusyIds = signal<string[]>([]);
 
-  /** Evita parpadeo de skeleton en cargas rùpidas (<200ms). */
+  /** Evita parpadeo de skeleton en cargas r?pidas (<200ms). */
   readonly showLoadingSkeleton = signal(false);
   private loadingDelayTimer?: ReturnType<typeof setTimeout>;
 
@@ -185,12 +194,7 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   // Modal de filtros properties
   showFiltrosModal = false;
-  selectedIdFilter = '';
-  selectedNombreFilter = '';
-  selectedFechaFilter = '';
-  selectedClienteFilter = '';
-  selectedOperadorFilter = '';
-  selectedEstadoFilter = '';
+  selectedModalFilters: Record<string, string> = {};
 
   showExportModal = false;
   exportFormat: JosanzListExportFormat = 'xlsx';
@@ -380,30 +384,15 @@ export class JosanzCatalogListComponent implements OnChanges {
     return this.paginatedItemsSnapshot;
   }
 
+  get modalFilterFields(): JosanzCatalogModalFilterField[] {
+    return resolveCatalogModalFilterFields(this.config.modalFilterMode);
+  }
+
   get filteredRows(): JosanzCatalogListRow[] {
     let rows = this.rows;
     rows = this.applyTypologyFilter(rows);
     rows = this.applyStatusFilter(rows);
-
-    if (this.selectedIdFilter) {
-      rows = rows.filter(r => r.id === this.selectedIdFilter);
-    }
-    if (this.selectedNombreFilter) {
-      rows = rows.filter(r => r.eventName === this.selectedNombreFilter);
-    }
-    if (this.selectedFechaFilter) {
-      rows = rows.filter(r => r.date === this.selectedFechaFilter);
-    }
-    if (this.selectedClienteFilter) {
-      rows = rows.filter(r => r.client === this.selectedClienteFilter);
-    }
-    if (this.selectedOperadorFilter) {
-      rows = rows.filter(r => r.operator === this.selectedOperadorFilter);
-    }
-    if (this.selectedEstadoFilter) {
-      rows = rows.filter(r => r.pillLabel.toLowerCase() === this.selectedEstadoFilter.toLowerCase());
-    }
-
+    rows = this.filterRowsByModalSelection(rows);
     return this.applySearchFilter(rows);
   }
 
@@ -497,14 +486,10 @@ export class JosanzCatalogListComponent implements OnChanges {
         search: this.searchQuery,
         typology: this.activeTypology,
         statusFilter: this.selectedStatusFilter,
-        modalFilters: {
-          id: this.selectedIdFilter,
-          nombre: this.selectedNombreFilter,
-          fecha: this.selectedFechaFilter,
-          cliente: this.selectedClienteFilter,
-          operador: this.selectedOperadorFilter,
-          estado: this.selectedEstadoFilter,
-        },
+        modalFilters: { ...this.selectedModalFilters },
+        modalFilterFieldLabels: Object.fromEntries(
+          this.modalFilterFields.map((field) => [field.key, field.label]),
+        ),
       },
     );
 
@@ -515,7 +500,7 @@ export class JosanzCatalogListComponent implements OnChanges {
       this.showExportModal = false;
     } catch {
       this.exportError =
-        'No se pudo generar la exportaciùn. Comprueba la sesiùn y vuelve a intentarlo.';
+        'No se pudo generar la exportaci?n. Comprueba la sesi?n y vuelve a intentarlo.';
     } finally {
       this.exportBusy = false;
     }
@@ -600,7 +585,7 @@ export class JosanzCatalogListComponent implements OnChanges {
     if (row.typology && row.typology === tab) {
       return true;
     }
-    if (row.warehouse && tab.includes('Almacùn')) {
+    if (row.warehouse && tab.includes('Almac?n')) {
       return row.warehouse === tab;
     }
     if (tab === 'Facturas') {
@@ -642,8 +627,8 @@ export class JosanzCatalogListComponent implements OnChanges {
     if (tab === 'Operarios') {
       return this.rowValues(row).some((v) => v.toLowerCase().includes('operario'));
     }
-    if (tab === 'Logùstica') {
-      return this.rowValues(row).some((v) => v.toLowerCase().includes('logùstica') || v.toLowerCase().includes('logistica'));
+    if (tab === 'Log?stica') {
+      return this.rowValues(row).some((v) => v.toLowerCase().includes('log?stica') || v.toLowerCase().includes('logistica'));
     }
     return this.matchesTabByLabel(row, tab);
   }
@@ -693,12 +678,7 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   clearAllModalFilters(): void {
-    this.selectedIdFilter = '';
-    this.selectedNombreFilter = '';
-    this.selectedFechaFilter = '';
-    this.selectedClienteFilter = '';
-    this.selectedOperadorFilter = '';
-    this.selectedEstadoFilter = '';
+    this.selectedModalFilters = {};
     this.currentPage = 1;
     this.invalidateListSnapshots();
   }
@@ -709,49 +689,35 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.closeFiltrosModal();
   }
 
-  get activeFilterChips(): string[] {
-    const chips: string[] = [];
-    if (this.selectedIdFilter) chips.push(this.selectedIdFilter);
-    if (this.selectedNombreFilter) chips.push(this.selectedNombreFilter);
-    if (this.selectedFechaFilter) chips.push(this.selectedFechaFilter);
-    if (this.selectedClienteFilter) chips.push(this.selectedClienteFilter);
-    if (this.selectedOperadorFilter) chips.push(this.selectedOperadorFilter);
-    if (this.selectedEstadoFilter) chips.push(this.selectedEstadoFilter);
-    return chips;
+  get activeFilterChips(): { key: string; label: string; value: string }[] {
+    return this.modalFilterFields
+      .filter((field) => Boolean(this.selectedModalFilters[field.key]?.trim()))
+      .map((field) => ({
+        key: field.key,
+        label: field.label,
+        value: this.selectedModalFilters[field.key],
+      }));
   }
 
-  removeFilterChip(chip: string): void {
-    if (this.selectedIdFilter === chip) this.selectedIdFilter = '';
-    else if (this.selectedNombreFilter === chip) this.selectedNombreFilter = '';
-    else if (this.selectedFechaFilter === chip) this.selectedFechaFilter = '';
-    else if (this.selectedClienteFilter === chip) this.selectedClienteFilter = '';
-    else if (this.selectedOperadorFilter === chip) this.selectedOperadorFilter = '';
-    else if (this.selectedEstadoFilter === chip) this.selectedEstadoFilter = '';
+  removeFilterChip(chip: { key: string }): void {
+    const next = { ...this.selectedModalFilters };
+    delete next[chip.key];
+    this.selectedModalFilters = next;
     this.currentPage = 1;
     this.invalidateListSnapshots();
   }
 
-  getUniqueIdOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.id).filter((id): id is string => !!id)));
+  getModalFilterOptions(field: JosanzCatalogModalFilterField): string[] {
+    return uniqueCatalogModalFilterOptions(this.rows, field);
   }
 
-  getUniqueNombreOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.eventName).filter((n): n is string => !!n)));
-  }
-
-  getUniqueFechaOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.date).filter((d): d is string => !!d)));
-  }
-
-  getUniqueClienteOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.client).filter((c): c is string => !!c)));
-  }
-
-  getUniqueOperadorOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.operator).filter((o): o is string => !!o)));
-  }
-
-  getUniqueEstadoOptions(): string[] {
-    return Array.from(new Set(this.rows.map(r => r.pillLabel).filter((s): s is string => !!s)));
+  private filterRowsByModalSelection(rows: JosanzCatalogListRow[]): JosanzCatalogListRow[] {
+    return this.modalFilterFields.reduce((filtered, field) => {
+      const selected = this.selectedModalFilters[field.key]?.trim();
+      if (!selected) {
+        return filtered;
+      }
+      return filtered.filter((row) => field.extract(row) === selected);
+    }, rows);
   }
 }

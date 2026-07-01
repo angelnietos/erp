@@ -18,12 +18,6 @@ export interface JosanzCatalogListFilterContext {
   search?: string;
   typology?: string;
   statusFilter?: string;
-  modalFilters?: {
-    id?: string;
-    nombre?: string;
-    fecha?: string;
-    cliente?: string;
-    operador?: string;
-    estado?: string;
-  };
+  modalFilters?: Record<string, string>;
+  modalFilterFieldLabels?: Record<string, string>;
 }
