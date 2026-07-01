@@ -23,6 +23,8 @@ import {
   JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
   SelectComponent,
+  JosanzFormDateFieldComponent,
+  JosanzFormTimeFieldComponent,
   josanzNonEmptyTrim,
 } from '@josanz-erp/josanz-ui';
 
@@ -33,6 +35,8 @@ import {
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
+    JosanzFormDateFieldComponent,
+    JosanzFormTimeFieldComponent,
     SelectComponent,
     MainDetailLayoutComponent,
     ButtonComponent,

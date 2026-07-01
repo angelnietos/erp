@@ -105,19 +105,17 @@
           @for (group of eventDates.controls; track $index; let i = $index) {
           <div class="josanz-event-create__date-row" [formGroupName]="i">
             <div class="josanz-event-create__grid-2 flex-1">
-              <josanz-input
+              <josanz-form-date-field
                 label="Fecha evento"
-                type="date"
                 controlName="fecha"
                 [parentForm]="eventDateGroup(i)"
                 [required]="true"
-              ></josanz-input>
-              <josanz-input
+              ></josanz-form-date-field>
+              <josanz-form-time-field
                 label="Hora evento"
-                type="time"
                 controlName="hora"
                 [parentForm]="eventDateGroup(i)"
-              ></josanz-input>
+              ></josanz-form-time-field>
             </div>
             @if (eventDates.length > 1) {
             <button

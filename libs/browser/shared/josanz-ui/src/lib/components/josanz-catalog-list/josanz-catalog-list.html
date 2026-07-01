@@ -86,7 +86,7 @@
   ></josanz-list-template-header-row>
   }
 
-  @if (!config.loading) {
+  @if (!showLoadingSkeleton()) {
   <josanz-adaptive-list-rows
     [items]="paginatedItems"
     [defaultLabels]="rowLabels"

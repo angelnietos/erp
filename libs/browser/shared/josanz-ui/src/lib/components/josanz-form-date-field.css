@@ -1,0 +1,183 @@
+.josanz-form-date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.josanz-form-date-field__label {
+  margin: 0 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.josanz-form-date-field__required {
+  color: var(--josanz-danger);
+}
+
+.josanz-form-date-field__wrap {
+  position: relative;
+}
+
+.josanz-form-date-field__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--josanz-stroke-field);
+  background: var(--josanz-field-fill);
+  color: var(--josanz-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.josanz-form-date-field__trigger:hover:not(:disabled) {
+  filter: brightness(0.99);
+}
+
+.josanz-form-date-field__trigger--open,
+.josanz-form-date-field__trigger:focus-visible {
+  outline: none;
+  border-color: var(--josanz-interactive, var(--josanz-primary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--josanz-interactive, var(--josanz-primary)) 35%, transparent);
+}
+
+.josanz-form-date-field__trigger--invalid {
+  border-color: var(--josanz-danger);
+}
+
+.josanz-form-date-field__trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.josanz-form-date-field__value--placeholder {
+  color: var(--josanz-text-muted);
+}
+
+.josanz-form-date-field__icon {
+  display: inline-flex;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-form-date-field__panel {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(100%, 300px);
+  padding: 14px;
+  border: 1px solid var(--josanz-stroke-field);
+  border-radius: 12px;
+  background: var(--josanz-surface, #fff);
+  box-shadow: 0 12px 32px rgba(15, 30, 47, 0.14);
+}
+
+.josanz-form-date-field__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.josanz-form-date-field__month {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: capitalize;
+  color: var(--josanz-text);
+}
+
+.josanz-form-date-field__nav {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--josanz-stroke-field);
+  border-radius: 8px;
+  background: var(--josanz-field-fill);
+  color: var(--josanz-text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.josanz-form-date-field__weekdays,
+.josanz-form-date-field__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.josanz-form-date-field__weekdays {
+  margin-bottom: 6px;
+}
+
+.josanz-form-date-field__weekdays span {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-form-date-field__day {
+  aspect-ratio: 1;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--josanz-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.josanz-form-date-field__day--muted {
+  color: var(--josanz-text-muted);
+  opacity: 0.55;
+}
+
+.josanz-form-date-field__day--today {
+  border-color: color-mix(in srgb, var(--josanz-interactive, var(--josanz-primary)) 45%, transparent);
+}
+
+.josanz-form-date-field__day--selected {
+  background: var(--josanz-interactive, var(--josanz-primary));
+  border-color: var(--josanz-interactive, var(--josanz-primary));
+  color: #fff;
+}
+
+.josanz-form-date-field__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--josanz-stroke-field);
+}
+
+.josanz-form-date-field__footer-btn {
+  border: none;
+  background: transparent;
+  color: var(--josanz-text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.josanz-form-date-field__footer-btn--primary {
+  color: var(--josanz-interactive, var(--josanz-primary));
+}
+
+.josanz-form-date-field__error {
+  margin: 0 0 0 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--josanz-danger);
+}

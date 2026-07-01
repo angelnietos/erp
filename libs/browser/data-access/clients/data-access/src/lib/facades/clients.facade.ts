@@ -12,6 +12,7 @@ export class ClientsFacade {
   private readonly _isLoading = signal(false);
   private readonly _error = signal<string | null>(null);
   private readonly _hasCache = signal(false);
+  private inFlight = false;
 
   readonly clients = this._clients.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
@@ -23,18 +24,38 @@ export class ClientsFacade {
     if (this._hasCache()) {
       return;
     }
+    if (this.inFlight) {
+      this._isLoading.set(true);
+      return;
+    }
     this.fetchClients({ background: false });
+  }
+
+  /** Precarga tras login o en rutas frecuentes sin mostrar skeleton en otras pantallas. */
+  prefetchClients(): void {
+    if (this._hasCache() || this.inFlight) {
+      return;
+    }
+    this.fetchClients({ background: true });
   }
 
   /** Revalida en segundo plano manteniendo la lista visible si hay caché. */
   refreshClients(): void {
-    if (this._isLoading()) {
+    if (this.inFlight) {
       return;
     }
     this.fetchClients({ background: this._hasCache() });
   }
 
   private fetchClients(options: { background: boolean }): void {
+    if (this.inFlight) {
+      if (!options.background) {
+        this._isLoading.set(true);
+      }
+      return;
+    }
+
+    this.inFlight = true;
     if (!options.background) {
       this._isLoading.set(true);
     }
@@ -45,10 +66,12 @@ export class ClientsFacade {
         this._clients.set(data);
         this._hasCache.set(true);
         this._isLoading.set(false);
+        this.inFlight = false;
       },
       error: (err: { message?: string }) => {
         this._error.set(err.message || 'No se pudieron cargar los clientes.');
         this._isLoading.set(false);
+        this.inFlight = false;
       },
     });
   }

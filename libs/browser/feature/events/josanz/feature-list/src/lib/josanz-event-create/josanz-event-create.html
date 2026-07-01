@@ -82,21 +82,19 @@
           @for (group of eventDates.controls; track $index; let i = $index) {
           <div class="josanz-event-create__date-row" [formGroupName]="i">
             <div class="josanz-event-create__grid-2 flex-1">
-              <josanz-input
+              <josanz-form-date-field
                 label="Fecha evento"
-                type="date"
                 placeholder="dd/mm/aaaa"
                 controlName="fecha"
                 [parentForm]="eventDateGroup(i)"
                 [required]="true"
-              ></josanz-input>
-              <josanz-input
+              ></josanz-form-date-field>
+              <josanz-form-time-field
                 label="Hora evento"
-                type="time"
                 placeholder="00:00"
                 controlName="hora"
                 [parentForm]="eventDateGroup(i)"
-              ></josanz-input>
+              ></josanz-form-time-field>
             </div>
             @if (eventDates.length > 1) {
             <button
@@ -159,32 +157,28 @@
 
             <div class="josanz-event-create__grid-2">
               <div>
-                <josanz-input
+                <josanz-form-date-field
                   label="Montaje"
-                  type="date"
                   controlName="setupDate"
                   [parentForm]="venueGroup(i)"
-                ></josanz-input>
-                <josanz-input
+                ></josanz-form-date-field>
+                <josanz-form-time-field
                   label="Horarios de montaje"
-                  type="time"
                   controlName="setupTime"
                   [parentForm]="venueGroup(i)"
-                ></josanz-input>
+                ></josanz-form-time-field>
               </div>
               <div>
-                <josanz-input
+                <josanz-form-date-field
                   label="Desmontaje"
-                  type="date"
                   controlName="teardownDate"
                   [parentForm]="venueGroup(i)"
-                ></josanz-input>
-                <josanz-input
+                ></josanz-form-date-field>
+                <josanz-form-time-field
                   label="Horarios de desmontaje"
-                  type="time"
                   controlName="teardownTime"
                   [parentForm]="venueGroup(i)"
-                ></josanz-input>
+                ></josanz-form-time-field>
               </div>
             </div>
           </div>

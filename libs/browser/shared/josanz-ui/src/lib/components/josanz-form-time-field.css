@@ -1,0 +1,125 @@
+.josanz-form-time-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.josanz-form-time-field__label {
+  margin: 0 0 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.josanz-form-time-field__required {
+  color: var(--josanz-danger);
+}
+
+.josanz-form-time-field__wrap {
+  position: relative;
+}
+
+.josanz-form-time-field__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--josanz-stroke-field);
+  background: var(--josanz-field-fill);
+  color: var(--josanz-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.josanz-form-time-field__trigger:hover:not(:disabled) {
+  filter: brightness(0.99);
+}
+
+.josanz-form-time-field__trigger--open,
+.josanz-form-time-field__trigger:focus-visible {
+  outline: none;
+  border-color: var(--josanz-interactive, var(--josanz-primary));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--josanz-interactive, var(--josanz-primary)) 35%, transparent);
+}
+
+.josanz-form-time-field__trigger--invalid {
+  border-color: var(--josanz-danger);
+}
+
+.josanz-form-time-field__trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.josanz-form-time-field__value--placeholder {
+  color: var(--josanz-text-muted);
+}
+
+.josanz-form-time-field__icon {
+  display: inline-flex;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-form-time-field__panel {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 6px);
+  left: 0;
+  width: min(100%, 220px);
+  padding: 10px;
+  border: 1px solid var(--josanz-stroke-field);
+  border-radius: 12px;
+  background: var(--josanz-surface, #fff);
+  box-shadow: 0 12px 32px rgba(15, 30, 47, 0.14);
+}
+
+.josanz-form-time-field__columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.josanz-form-time-field__column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 2px;
+  scrollbar-width: thin;
+}
+
+.josanz-form-time-field__option {
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--josanz-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.josanz-form-time-field__option:hover {
+  background: color-mix(in srgb, var(--josanz-interactive, var(--josanz-primary)) 8%, transparent);
+}
+
+.josanz-form-time-field__option--selected {
+  background: var(--josanz-interactive, var(--josanz-primary));
+  border-color: var(--josanz-interactive, var(--josanz-primary));
+  color: #fff;
+}
+
+.josanz-form-time-field__error {
+  margin: 0 0 0 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--josanz-danger);
+}

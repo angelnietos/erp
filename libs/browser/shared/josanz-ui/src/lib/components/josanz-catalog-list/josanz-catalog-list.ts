@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import type { JosanzCatalogListRow } from '../../catalog/catalog-status';
@@ -75,10 +75,33 @@ import { FormsModule } from '@angular/forms';
   ],
   templateUrl: './josanz-catalog-list.html',
 })
-export class JosanzCatalogListComponent {
+export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
+
+  /** Evita parpadeo de skeleton en cargas rápidas (<200ms). */
+  readonly showLoadingSkeleton = signal(false);
+  private loadingDelayTimer?: ReturnType<typeof setTimeout>;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['config']) {
+      this.syncLoadingSkeleton(Boolean(this.config.loading));
+    }
+  }
+
+  private syncLoadingSkeleton(loading: boolean): void {
+    clearTimeout(this.loadingDelayTimer);
+    if (!loading) {
+      this.showLoadingSkeleton.set(false);
+      return;
+    }
+    this.loadingDelayTimer = setTimeout(() => {
+      if (this.config.loading) {
+        this.showLoadingSkeleton.set(true);
+      }
+    }, 200);
+  }
 
   searchQuery = '';
   activeStatusFilter = '';

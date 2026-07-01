@@ -37,6 +37,8 @@ import {
   josanzNonEmptyTrim,
   normalizeHexColor,
   resolveEventStatusPillColor,
+  JosanzFormDateFieldComponent,
+  JosanzFormTimeFieldComponent,
   defaultEventStatusPillColor,
 } from '@josanz-erp/josanz-ui';
 
@@ -47,6 +49,8 @@ import {
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
+    JosanzFormDateFieldComponent,
+    JosanzFormTimeFieldComponent,
     SelectComponent,
     JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,

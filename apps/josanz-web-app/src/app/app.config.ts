@@ -41,6 +41,7 @@ import {
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { JosanzThemeService } from '@josanz-erp/josanz-ui';
+import { ClientsFacade } from '@josanz-erp/clients-data-access';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -88,6 +89,7 @@ export const appConfig: ApplicationConfig = {
         const authStore = inject(AuthStore);
         const pluginStore = inject(PluginStore);
         const josanzTheme = inject(JosanzThemeService);
+        const clientsFacade = inject(ClientsFacade);
 
         setErpTenantSlug(JOSANZ_FIGMA_TENANT_SLUG);
         josanzTheme.setTheme('luxe-rounded');
@@ -157,6 +159,7 @@ export const appConfig: ApplicationConfig = {
               tenantModulesRealtime.connect(
                 environment.apiOrigin?.replace(/\/$/, '') ?? '',
               );
+              clientsFacade.prefetchClients();
             } else if (outcome.kind === 'auth-failed') {
               globalAuthStore.logout();
               pluginStore.loadFromStorage();

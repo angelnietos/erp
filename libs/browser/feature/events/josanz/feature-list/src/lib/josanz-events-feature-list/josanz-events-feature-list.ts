@@ -8,6 +8,7 @@ import {
   CatalogThemeFacade,
 } from '@josanz-erp/josanz-ui';
 import { JosanzEventsFacade } from '../services/josanz-events.facade';
+import { ClientsFacade } from '@josanz-erp/clients-data-access';
 
 const EVENT_LIST_PAGE_SIZE = 10;
 
@@ -36,6 +37,7 @@ const EVENT_LIST_PAGE_SIZE = 10;
 })
 export class JosanzEventsFeatureListComponent implements OnInit {
   private readonly eventsFacade = inject(JosanzEventsFacade);
+  private readonly clientsFacade = inject(ClientsFacade);
   private readonly catalogTheme = inject(CatalogThemeFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -98,6 +100,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     }
 
     this.catalogTheme.loadCatalogTheme();
+    this.clientsFacade.prefetchClients();
     if (created || deleted) {
       this.eventsFacade.refreshEvents();
     } else {

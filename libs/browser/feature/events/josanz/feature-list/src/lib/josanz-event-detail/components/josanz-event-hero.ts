@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { InputComponent } from '@josanz-erp/josanz-ui';
+import { InputComponent, JosanzFormDateFieldComponent, JosanzFormTimeFieldComponent } from '@josanz-erp/josanz-ui';
 import { eventDateGroupAt } from '../../josanz-event-form.helpers';
 import { JOSANZ_EVENT_UI_TYPES, type JosanzEventUiType } from '../../josanz-event-form.utils';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
@@ -8,7 +8,7 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
 @Component({
   selector: 'josanz-event-hero',
   standalone: true,
-  imports: [ReactiveFormsModule, InputComponent],
+  imports: [ReactiveFormsModule, InputComponent, JosanzFormDateFieldComponent, JosanzFormTimeFieldComponent],
   template: `
     <article class="josanz-event-hero" [formGroup]="form">
       <div class="josanz-event-hero__media josanz-event-hero__media--logo">
@@ -50,8 +50,8 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
             <josanz-input label="Nombre evento" controlName="nombre" [parentForm]="form" [required]="true"></josanz-input>
             <div formArrayName="eventDates">
               <div class="josanz-event-create__grid-2" [formGroupName]="0">
-                <josanz-input label="Fecha evento" type="date" controlName="fecha" [parentForm]="eventDateGroup(0)" [required]="true"></josanz-input>
-                <josanz-input label="Hora evento" type="time" controlName="hora" [parentForm]="eventDateGroup(0)"></josanz-input>
+                <josanz-form-date-field label="Fecha evento" controlName="fecha" [parentForm]="eventDateGroup(0)" [required]="true"></josanz-form-date-field>
+                <josanz-form-time-field label="Hora evento" controlName="hora" [parentForm]="eventDateGroup(0)"></josanz-form-time-field>
               </div>
             </div>
             <josanz-input
