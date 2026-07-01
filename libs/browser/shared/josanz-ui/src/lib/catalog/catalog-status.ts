@@ -391,6 +391,7 @@ export const JOSANZ_CATALOG_VEHICLE_TABS = [
 
 export const JOSANZ_CATALOG_STAFF_TABS = [
   'Todos',
+  'Oficina',
   'Técnicos',
   'Freelance',
   'Prácticas',

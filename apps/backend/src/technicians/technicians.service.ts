@@ -31,10 +31,21 @@ export class TechniciansService {
     });
   }
 
-  /** Devuelve técnicos asignables del tenant (activos y freelance). */
-  async findAll(tenantId: string) {
+  /** Devuelve técnicos del tenant. `catalog` incluye cuentas de oficina; por defecto solo asignables a eventos. */
+  async findAll(tenantId: string, scope: 'assignable' | 'catalog' = 'assignable') {
+    const statusFilter =
+      scope === 'catalog'
+        ? {
+            OR: [
+              { status: { in: ['ACTIVE', 'FREELANCE', 'PRACTICAS'] } },
+              { status: { startsWith: 'OFFICE_' } },
+            ],
+          }
+        : { status: { in: ['ACTIVE', 'FREELANCE'] } };
+
     return this.prisma.technician.findMany({
-      where: { tenantId, status: { in: ['ACTIVE', 'FREELANCE'] } },
+      where: { tenantId, ...statusFilter },
+      orderBy: { user: { email: 'asc' } },
       include: {
         user: {
           select: {

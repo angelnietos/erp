@@ -32,10 +32,14 @@ export class TechniciansController {
     return tenantId;
   }
 
-  /** GET /api/technicians — lista todos los técnicos del tenant */
+  /** GET /api/technicians — lista técnicos del tenant (`?scope=catalog` incluye cuentas de oficina). */
   @Get()
-  async findAll(@Req() req: Request) {
-    return this.techniciansService.findAll(this.getTenantId(req));
+  async findAll(
+    @Req() req: Request,
+    @Query('scope') scope?: string,
+  ) {
+    const resolvedScope = scope === 'catalog' ? 'catalog' : 'assignable';
+    return this.techniciansService.findAll(this.getTenantId(req), resolvedScope);
   }
 
   /** GET /api/technicians/me — técnico vinculado al usuario JWT (requiere Bearer). */

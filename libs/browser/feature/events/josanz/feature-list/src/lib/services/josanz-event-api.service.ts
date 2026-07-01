@@ -207,8 +207,9 @@ export class JosanzEventApiService {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  listTechnicians(): Observable<JosanzTechnicianListItem[]> {
-    return this.http.get<JosanzTechnicianListItem[]>('/api/technicians');
+  listTechnicians(scope: 'assignable' | 'catalog' = 'assignable'): Observable<JosanzTechnicianListItem[]> {
+    const query = scope === 'catalog' ? '?scope=catalog' : '';
+    return this.http.get<JosanzTechnicianListItem[]>(`/api/technicians${query}`);
   }
 
   updateTechnician(

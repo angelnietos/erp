@@ -17,6 +17,18 @@ export function formatStaffDisplayId(index: number): string {
 
 export function technicianRoleLabel(status: string): string {
   const normalized = status.toUpperCase();
+  if (normalized === 'OFFICE_SUPERADMIN') {
+    return 'SuperAdmin';
+  }
+  if (normalized === 'OFFICE_ADMIN') {
+    return 'Administrador';
+  }
+  if (normalized === 'OFFICE_RESPONSABLE') {
+    return 'Responsable';
+  }
+  if (normalized === 'OFFICE_USUARIO') {
+    return 'Usuario';
+  }
   if (normalized.includes('FREE')) {
     return 'Freelance';
   }
@@ -31,6 +43,9 @@ export function technicianRoleLabel(status: string): string {
 
 export function technicianTypologyTab(status: string): string {
   const normalized = status.toUpperCase();
+  if (normalized.startsWith('OFFICE_')) {
+    return 'Oficina';
+  }
   if (normalized.includes('FREE')) {
     return 'Freelance';
   }
@@ -38,6 +53,16 @@ export function technicianTypologyTab(status: string): string {
     return 'Prácticas';
   }
   return 'Técnicos';
+}
+
+export function technicianProfileLabel(
+  tech: Pick<JosanzTechnicianListItem, 'status' | 'skills'>,
+): string {
+  const normalized = tech.status.toUpperCase();
+  if (normalized.startsWith('OFFICE_')) {
+    return `${technicianRoleLabel(tech.status)} · ERP`;
+  }
+  return technicianSkillsLabel(tech.skills);
 }
 
 export function technicianSkillsLabel(skills?: string[]): string {
@@ -73,7 +98,7 @@ export function mapTechnicianToCatalogRow(
     title: formatStaffDisplayId(index),
     values: [
       name,
-      technicianSkillsLabel(tech.skills),
+      technicianProfileLabel(tech),
       '—',
       technicianAvailabilityLabel(),
     ],

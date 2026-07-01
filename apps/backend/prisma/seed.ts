@@ -2893,7 +2893,61 @@ async function seedAlexisFigmaDemo(tenantId: string) {
     skipDuplicates: true,
   });
 
+  await ensureAlexisOfficeStaffCatalog(tenantId);
+
   console.log('- Alexis (Figma): clientes, operadores, staff y eventos demo');
+}
+
+/** Fichas de catálogo Staff para cuentas ERP de oficina (mismas que login Keycloak). */
+async function ensureAlexisOfficeStaffCatalog(tenantId: string) {
+  const officeDefs = [
+    {
+      email: 'admin@alexis.local',
+      status: 'OFFICE_SUPERADMIN',
+      skills: ['ADMINISTRACION', 'ERP'],
+      bio: 'Cuenta SuperAdmin del tenant Alexis (demo Keycloak).',
+    },
+    {
+      email: 'administrador@alexis.local',
+      status: 'OFFICE_ADMIN',
+      skills: ['ADMINISTRACION'],
+      bio: 'Cuenta Administrador (demo Keycloak).',
+    },
+    {
+      email: 'responsable@alexis.local',
+      status: 'OFFICE_RESPONSABLE',
+      skills: ['COORDINACION'],
+      bio: 'Cuenta Responsable (demo Keycloak).',
+    },
+    {
+      email: 'usuario@alexis.local',
+      status: 'OFFICE_USUARIO',
+      skills: ['OPERACIONES'],
+      bio: 'Cuenta Usuario operativo (demo Keycloak).',
+    },
+  ] as const;
+
+  for (const def of officeDefs) {
+    const user = await prisma.user.findFirstOrThrow({
+      where: { tenantId, email: def.email },
+    });
+    await prisma.technician.upsert({
+      where: { userId: user.id },
+      update: {
+        status: def.status,
+        skills: [...def.skills],
+        bio: def.bio,
+      },
+      create: {
+        tenantId,
+        userId: user.id,
+        hourlyRate: 0,
+        skills: [...def.skills],
+        status: def.status,
+        bio: def.bio,
+      },
+    });
+  }
 }
 
 main()

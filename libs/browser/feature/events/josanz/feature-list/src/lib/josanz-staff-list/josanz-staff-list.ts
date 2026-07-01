@@ -62,7 +62,7 @@ export class JosanzStaffListComponent implements OnInit {
   ngOnInit(): void {
     this.loading.set(true);
     this.eventApi
-      .listTechnicians()
+      .listTechnicians('catalog')
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (technicians) => this.technicians.set(technicians),

@@ -106,7 +106,7 @@ export class JosanzStaffDetailComponent implements OnInit {
 
     this.loading.set(true);
     this.eventApi
-      .listTechnicians()
+      .listTechnicians('catalog')
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (technicians) => {
