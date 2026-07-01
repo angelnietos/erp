@@ -2,7 +2,7 @@ import { Component, Input, OnInit, computed, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
-import { UsersService, RolesService } from '@josanz-erp/identity-data-access';
+import { UsersService, RolesService, type Role } from '@josanz-erp/identity-data-access';
 import {
   mergeEffectiveUserPermissions,
   isPermissionAllowedForModules,
@@ -51,7 +51,8 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
   readonly showToast = signal(false);
   readonly user = signal<User | null>(null);
   readonly catalog = signal<Array<{ id: string; label: string; group: string }>>([]);
-  readonly rolePermissions = signal<string[]>([]);
+  readonly tenantRoles = signal<Role[]>([]);
+  readonly draftRoles = signal<string[]>([]);
   readonly draftExtra = signal<string[]>([]);
   readonly pickPermissionId = signal('');
 
@@ -62,6 +63,17 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
   readonly canLoadFromApi = computed(
     () => this.canViewUsers() || this.isOwnProfile(),
   );
+
+  readonly rolePermissions = computed(() => {
+    const roles = this.tenantRoles();
+    const names = this.draftRoles();
+    const rolePerms = new Set<string>();
+    for (const roleName of names) {
+      const role = roles.find((entry) => entry.name === roleName);
+      role?.permissions?.forEach((perm) => rolePerms.add(perm));
+    }
+    return Array.from(rolePerms);
+  });
 
   readonly effectivePermissionIds = computed(() => {
     const u = this.user();
@@ -107,14 +119,20 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     if (!u) {
       return false;
     }
-    const saved = [...(u.extraPermissions ?? [])].sort().join('|');
-    const draft = [...this.draftExtra()].sort().join('|');
-    return saved !== draft;
+    const savedExtra = [...(u.extraPermissions ?? [])].sort().join('|');
+    const draftExtra = [...this.draftExtra()].sort().join('|');
+    const savedRoles = [...(u.roles ?? [])].sort().join('|');
+    const draftRoles = [...this.draftRoles()].sort().join('|');
+    return savedExtra !== draftExtra || savedRoles !== draftRoles;
   });
 
   readonly pendingDraftCount = computed(() => {
-    const saved = new Set(this.user()?.extraPermissions ?? []);
-    return this.draftExtra().filter((perm) => !saved.has(perm)).length;
+    const savedExtra = new Set(this.user()?.extraPermissions ?? []);
+    const savedRoles = new Set(this.user()?.roles ?? []);
+    const extraAdded = this.draftExtra().filter((perm) => !savedExtra.has(perm)).length;
+    const rolesChanged = this.draftRoles().filter((role) => !savedRoles.has(role)).length
+      + [...savedRoles].filter((role) => !this.draftRoles().includes(role)).length;
+    return extraAdded + rolesChanged;
   });
 
   ngOnInit(): void {
@@ -147,7 +165,31 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     this.draftExtra.update((list) => list.filter((item) => item !== id));
   }
 
-  saveExtraPermissions(): void {
+  isRoleSelected(name: string): boolean {
+    return this.draftRoles().includes(name);
+  }
+
+  toggleRole(name: string, checked: boolean): void {
+    this.draftRoles.update((roles) => {
+      const next = new Set(roles);
+      if (checked) {
+        next.add(name);
+      } else {
+        next.delete(name);
+      }
+      return Array.from(next);
+    });
+  }
+
+  rolePermissionSummary(role: Role): string {
+    if (role.permissions.includes('*')) {
+      return 'Acceso total';
+    }
+    const count = role.permissions.length;
+    return `${count} ${count === 1 ? 'permiso' : 'permisos'}`;
+  }
+
+  savePermissions(): void {
     if (!this.canManageUsers() || !this.hasPendingChanges() || this.saving()) {
       return;
     }
@@ -155,16 +197,20 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     this.saving.set(true);
     this.error.set('');
     this.usersService
-      .update(this.userId, { extraPermissions: this.draftExtra() })
+      .update(this.userId, {
+        roles: this.draftRoles(),
+        extraPermissions: this.draftExtra(),
+      })
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
           this.user.set(updated);
+          this.draftRoles.set([...(updated.roles ?? [])]);
           this.draftExtra.set([...(updated.extraPermissions ?? [])]);
           this.showToast.set(true);
         },
         error: () => {
-          this.error.set('No se pudieron guardar los permisos. Inténtalo de nuevo.');
+          this.error.set('No se pudieron guardar los cambios. Inténtalo de nuevo.');
         },
       });
   }
@@ -203,8 +249,8 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
         createdAt: new Date().toISOString(),
       };
       this.user.set(mapped);
+      this.draftRoles.set([...(mapped.roles ?? [])]);
       this.draftExtra.set([...(mapped.extraPermissions ?? [])]);
-      this.rolePermissions.set(mapped.permissions.filter((p) => p !== '*'));
       this.catalog.set([]);
       this.loading.set(false);
       return;
@@ -223,15 +269,10 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
             return;
           }
           this.user.set(user);
+          this.tenantRoles.set(roles);
           this.catalog.set(catalog);
+          this.draftRoles.set([...(user.roles ?? [])]);
           this.draftExtra.set([...(user.extraPermissions ?? [])]);
-
-          const rolePerms = new Set<string>();
-          for (const roleName of user.roles ?? []) {
-            const role = roles.find((r) => r.name === roleName);
-            role?.permissions?.forEach((perm) => rolePerms.add(perm));
-          }
-          this.rolePermissions.set(Array.from(rolePerms));
         },
         error: () => {
           this.error.set('No se pudieron cargar los permisos del usuario.');

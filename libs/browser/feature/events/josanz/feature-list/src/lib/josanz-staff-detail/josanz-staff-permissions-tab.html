@@ -1,6 +1,6 @@
 <josanz-figma-success-toast
   [open]="showToast()"
-  message="Permisos actualizados correctamente"
+  message="Roles y permisos actualizados correctamente"
   (dismissed)="dismissToast()"
 />
 
@@ -37,9 +37,9 @@
         }
       </p>
     </div>
-    @if (u.roles.length) {
+    @if (draftRoles().length) {
     <div class="josanz-staff-perm-roles">
-      @for (role of u.roles; track role) {
+      @for (role of draftRoles(); track role) {
       <span class="josanz-staff-perm-role">{{ role }}</span>
       }
     </div>
@@ -84,10 +84,39 @@
 
 @if (canManageUsers()) {
 <section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
+  <h3 class="josanz-event-section__title">Roles del usuario</h3>
+  <p class="josanz-staff-perm-muted">
+    Asigna uno o varios roles para activar permisos de golpe (p. ej. <strong>Administrador</strong> da acceso total).
+    Los cambios se reflejan en la vista previa de arriba antes de guardar.
+  </p>
+
+  <div class="josanz-staff-perm-role-grid">
+    @for (role of tenantRoles(); track role.id) {
+    <label
+      class="josanz-staff-perm-role-option"
+      [class.josanz-staff-perm-role-option--selected]="isRoleSelected(role.name)"
+    >
+      <input
+        type="checkbox"
+        class="josanz-staff-perm-role-option__input"
+        [checked]="isRoleSelected(role.name)"
+        (change)="toggleRole(role.name, $any($event.target).checked)"
+      />
+      <span class="josanz-staff-perm-role-option__copy">
+        <strong>{{ role.name }}</strong>
+        <small>{{ rolePermissionSummary(role) }}</small>
+      </span>
+      <span class="josanz-staff-perm-role-option__type">{{ role.type }}</span>
+    </label>
+    }
+  </div>
+</section>
+
+<section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
   <h3 class="josanz-event-section__title">Añadir permisos extra</h3>
   <p class="josanz-staff-perm-muted">
     Los permisos extra se suman a los del rol. Al elegir uno en el desplegable se añade a la lista;
-    pulsa <strong>Guardar permisos</strong> para aplicarlos.
+    pulsa <strong>Guardar cambios</strong> para aplicar roles y permisos.
   </p>
 
   @if (draftExtra().length) {
@@ -129,11 +158,11 @@
 
   <div class="josanz-staff-perm-actions">
     <josanz-button
-      label="Guardar permisos"
+      label="Guardar cambios"
       [showIcon]="false"
       size="sm"
       [disabled]="!hasPendingChanges() || saving()"
-      (btnClick)="saveExtraPermissions()"
+      (btnClick)="savePermissions()"
     ></josanz-button>
   </div>
 </section>
