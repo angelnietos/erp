@@ -75,6 +75,7 @@ export function mapEventToCatalogRow(
   const label = eventStatusLabel(event.status);
   const typology = typologyTabFromApi(event.typology);
   const venue = (event.location ?? event.name ?? '').trim();
+  const client = event.client?.name ?? '';
   return {
     id: event.id,
     title: formatCatalogDisplayId(index),
@@ -82,11 +83,11 @@ export function mapEventToCatalogRow(
     venue,
     eventName: event.name,
     date: formatCatalogDate(event.startDate),
-    client: event.client?.name ?? '—',
+    client,
     operator: event.operator?.name ?? '—',
     pillLabel: label,
     pillVariant: pillVariantForCatalogStatus(label),
-    railColor: railColorForCatalogRow({ id: event.id, typology, venue }),
+    railColor: railColorForCatalogRow({ id: event.id, typology, venue, client }),
   };
 }
 

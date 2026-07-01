@@ -149,6 +149,16 @@ export const JOSANZ_FIGMA_HOTEL_RAIL_LABELS = [
   'Hotel Vincci Capitol',
 ] as const;
 
+/** Colores para clientes externos corporativos (no amarillo ni marrón). */
+export const JOSANZ_FIGMA_EXTERNAL_CLIENT_RAIL_COLORS = [
+  '#0EA5E9',
+  '#8B5CF6',
+  '#14B8A6',
+  '#F43F5E',
+  '#6366F1',
+  '#A855F7',
+] as const;
+
 /** Misma semántica en `data-theme="dark"` (fondos más profundos, texto claro legible). */
 export const JOSANZ_FIGMA_STATUS_PILLS_DARK: Record<JosanzStatusPillKey, { bg: string; text: string }> = {
   borrador: { bg: '#334155', text: '#F1F5F9' },

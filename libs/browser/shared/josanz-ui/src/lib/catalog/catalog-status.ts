@@ -6,6 +6,7 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import {
   JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS,
   JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
+  JOSANZ_FIGMA_EXTERNAL_CLIENT_RAIL_COLORS,
 } from '../theme/josanz-figma-tokens';
 
 export interface JosanzCatalogListRow {
@@ -131,23 +132,46 @@ export function railColorForHotelVenue(venue: string): string | undefined {
   return undefined;
 }
 
+function isEventosExternosLabel(text: string): boolean {
+  const key = normalizeVenueKey(text);
+  return key.includes('eventos externos') || key.includes('externos madrid');
+}
+
+function isEspaciosLabel(text: string): boolean {
+  const key = normalizeVenueKey(text);
+  return key.includes('ifema') || key.includes('espacios');
+}
+
+function stablePaletteIndex(seed: string, size: number): number {
+  let hash = 0;
+  for (const char of normalizeVenueKey(seed)) {
+    hash = (hash * 33 + char.charCodeAt(0)) >>> 0;
+  }
+  return hash % size;
+}
+
+/** Color estable para clientes externos que no son la categoría «Eventos externos». */
+export function railColorForExternalClient(seed: string): string {
+  const palette = JOSANZ_FIGMA_EXTERNAL_CLIENT_RAIL_COLORS;
+  return palette[stablePaletteIndex(seed, palette.length)] ?? palette[0];
+}
+
 /** Color de la barra lateral según tipología (no el estado del evento). */
 export function railColorForCatalogRow(
-  row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id' | 'venue'>,
+  row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id' | 'venue' | 'client'>,
   hotelIndex = 0,
 ): string {
   if (row.railColor) {
     return row.railColor;
   }
+
   const typology = row.typology ?? '';
-  if (typology === 'Externos') {
-    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Externos;
-  }
-  if (typology === 'Espacios') {
-    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios;
-  }
+  const venue = row.venue ?? '';
+  const client = row.client ?? '';
+
   if (typology === 'Hoteles') {
-    const fromVenue = row.venue ? railColorForHotelVenue(row.venue) : undefined;
+    const fromVenue =
+      railColorForHotelVenue(venue) ?? railColorForHotelVenue(client);
     if (fromVenue) {
       return fromVenue;
     }
@@ -158,6 +182,29 @@ export function railColorForCatalogRow(
           JOSANZ_FIGMA_HOTEL_RAIL_COLORS.length;
     return JOSANZ_FIGMA_HOTEL_RAIL_COLORS[idx] ?? JOSANZ_FIGMA_HOTEL_RAIL_COLORS[0];
   }
+
+  if (
+    typology === 'Espacios' ||
+    isEspaciosLabel(venue) ||
+    isEspaciosLabel(client)
+  ) {
+    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios;
+  }
+
+  const hotelColor =
+    railColorForHotelVenue(venue) ?? railColorForHotelVenue(client);
+  if (hotelColor) {
+    return hotelColor;
+  }
+
+  if (isEventosExternosLabel(client) || isEventosExternosLabel(venue)) {
+    return JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Externos;
+  }
+
+  if (typology === 'Externos') {
+    return railColorForExternalClient(client || venue || row.id);
+  }
+
   return '#94A3B8';
 }
 
