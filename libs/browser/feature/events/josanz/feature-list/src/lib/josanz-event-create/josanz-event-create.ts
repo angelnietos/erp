@@ -10,11 +10,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { finalize, startWith } from 'rxjs';
-import {
-  ClientService,
-  type Client,
-  type ClientContact,
-} from '@josanz-erp/clients-data-access';
+import { ClientService, ClientsFacade, type Client, type ClientContact } from '@josanz-erp/clients-data-access';
 import {
   JosanzEventApiService,
   type CreateJosanzEventPayload,
@@ -47,6 +43,7 @@ export class JosanzEventCreateComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
+  private readonly clientsFacade = inject(ClientsFacade);
   private readonly eventService = inject(JosanzEventApiService);
 
   readonly eventTypes = ['Evento externo', 'Hotel', 'Espacio'] as const;
@@ -152,15 +149,13 @@ export class JosanzEventCreateComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.clientsFacade.loadClients();
     this.clientService.getClients().subscribe({
-      next: (clients) => {
+      next: (apiClients) => {
+        const cached = this.clientsFacade.clients();
+        const clients = this.mergeClients(apiClients, cached);
         this.clients.set(clients);
-        const preselected = this.route.snapshot.queryParamMap.get('clientId');
-        if (preselected && clients.some((c) => c.id === preselected)) {
-          this.form.patchValue({ clientId: preselected });
-          this.syncOperatorForClient(preselected, clients);
-          this.updateOperatorValidators(preselected);
-        }
+        this.applyPreselectedClient(clients);
         this.updateLocationValidators();
       },
     });
@@ -239,6 +234,26 @@ export class JosanzEventCreateComponent implements OnInit {
     void this.router.navigate(['/clients/new'], {
       queryParams: { returnTo: '/events/new' },
     });
+  }
+
+  private applyPreselectedClient(clients: Client[]): void {
+    const preselected = this.route.snapshot.queryParamMap.get('clientId');
+    if (preselected && clients.some((c) => c.id === preselected)) {
+      this.form.patchValue({ clientId: preselected });
+      this.syncOperatorForClient(preselected, clients);
+      this.updateOperatorValidators(preselected);
+    }
+  }
+
+  private mergeClients(apiClients: Client[], cachedClients: Client[]): Client[] {
+    const byId = new Map<string, Client>();
+    for (const client of apiClients) {
+      byId.set(client.id, client);
+    }
+    for (const client of cachedClients) {
+      byId.set(client.id, client);
+    }
+    return [...byId.values()];
   }
 
   private createEventDateGroup(): FormGroup {

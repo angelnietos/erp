@@ -104,7 +104,7 @@ export class JosanzClientCreateComponent {
   }
 
   onBack(): void {
-    void this.router.navigate(['/clients']);
+    this.leaveCreateFlow();
   }
 
   onSubmit(): void {
@@ -125,16 +125,7 @@ export class JosanzClientCreateComponent {
       .subscribe({
         next: (client) => {
           this.clientsFacade.upsertClient(client);
-          const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
-          if (returnTo) {
-            void this.router.navigate([returnTo], {
-              queryParams: { clientId: client.id },
-            });
-            return;
-          }
-          void this.router.navigate(['/clients'], {
-            queryParams: { created: '1' },
-          });
+          this.leaveCreateFlow(client.id);
         },
         error: () => {
           this.errorMessage.set('No se pudo crear el cliente. Inténtalo de nuevo.');
@@ -144,6 +135,28 @@ export class JosanzClientCreateComponent {
 
   onCancel(): void {
     this.onBack();
+  }
+
+  /** Vuelve al flujo de origen (`returnTo`) o al listado de clientes. */
+  private leaveCreateFlow(clientId?: string): void {
+    const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
+    if (returnTo?.startsWith('/')) {
+      const urlTree = this.router.parseUrl(returnTo);
+      if (clientId) {
+        urlTree.queryParams = { ...urlTree.queryParams, clientId };
+      }
+      void this.router.navigateByUrl(urlTree);
+      return;
+    }
+
+    if (clientId) {
+      void this.router.navigate(['/clients'], {
+        queryParams: { created: '1' },
+      });
+      return;
+    }
+
+    void this.router.navigate(['/clients']);
   }
 
   private initialsFromName(name: string): string {
