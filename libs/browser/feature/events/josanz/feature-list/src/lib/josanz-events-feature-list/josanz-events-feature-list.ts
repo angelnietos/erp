@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import {
   JosanzCatalogListComponent,
+  JosanzFigmaSuccessToastComponent,
   type JosanzCatalogListConfig,
   resolveEventStatusPillColor,
 } from '@josanz-erp/josanz-ui';
@@ -18,22 +19,13 @@ import { ClientsFacade } from '@josanz-erp/clients-data-access';
 @Component({
   selector: 'josanz-events-feature-list',
   standalone: true,
-  imports: [CommonModule, JosanzCatalogListComponent],
+  imports: [CommonModule, JosanzCatalogListComponent, JosanzFigmaSuccessToastComponent],
   template: `
-    @if (showSuccessToast()) {
-    <div class="josanz-client-success-toast" role="status">
-      <span aria-hidden="true">✓</span>
-      {{ successToastMessage() }}
-      <button
-        type="button"
-        class="josanz-client-success-toast__close"
-        aria-label="Cerrar"
-        (click)="dismissToast()"
-      >
-        ×
-      </button>
-    </div>
-    }
+    <josanz-figma-success-toast
+      [open]="showSuccessToast()"
+      [message]="successToastMessage()"
+      (dismissed)="dismissToast()"
+    />
 
     <josanz-catalog-list
       #catalogList

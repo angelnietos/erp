@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ClientsFacade } from '@josanz-erp/clients-data-access';
 import {
   JosanzCatalogListComponent,
+  JosanzFigmaSuccessToastComponent,
   JOSANZ_CATALOG_CLIENT_TABS,
   mapClientToCatalogRow,
   CatalogThemeFacade,
@@ -13,7 +14,7 @@ import {
 @Component({
   selector: 'lib-clients-list',
   standalone: true,
-  imports: [CommonModule, JosanzCatalogListComponent],
+  imports: [CommonModule, JosanzCatalogListComponent, JosanzFigmaSuccessToastComponent],
   templateUrl: './feature-list.html',
   styleUrl: './feature-list.css',
 })

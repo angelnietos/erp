@@ -1,16 +1,7 @@
-@if (showSuccessToast()) {
-<div class="josanz-client-success-toast" role="status">
-  <span aria-hidden="true">✓</span>
-  {{ successToastMessage() }}
-  <button
-    type="button"
-    class="josanz-client-success-toast__close"
-    aria-label="Cerrar"
-    (click)="dismissToast()"
-  >
-    ×
-  </button>
-</div>
-}
+<josanz-figma-success-toast
+  [open]="showSuccessToast()"
+  [message]="successToastMessage()"
+  (dismissed)="dismissToast()"
+/>
 
 <josanz-catalog-list [config]="listConfig()" />

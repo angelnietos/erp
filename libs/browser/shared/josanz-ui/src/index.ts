@@ -131,6 +131,8 @@ export * from './lib/components/slider';
 
 export * from './lib/components/toast';
 
+export * from './lib/components/figma-success-toast/figma-success-toast';
+
 export * from './lib/components/accordion';
 
 export * from './lib/components/timeline';
