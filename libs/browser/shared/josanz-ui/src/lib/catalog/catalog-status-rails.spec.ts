@@ -2,7 +2,7 @@ import {
   JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS,
   JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
 } from '../theme/josanz-figma-tokens';
-import { railColorForCatalogRow, railColorForClientName } from './catalog-status';
+import { railColorForCatalogRow, railColorForClientName, resolveEntityRailColor } from './catalog-status';
 
 describe('event rail colors', () => {
   it('uses yellow only for dedicated eventos externos clients', () => {
@@ -53,6 +53,19 @@ describe('event rail colors', () => {
         client: 'Espacios IFEMA Madrid',
       }),
     ).toBe(JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios);
+  });
+
+  it('prefers client custom rail color on events', () => {
+    expect(
+      resolveEntityRailColor({
+        storedRailColor: '#EC4899',
+        entityId: 'client-1',
+        name: 'NovaByte Tech Events',
+        sector: 'Externos',
+        typology: 'Externos',
+        venue: 'La Nave, Madrid',
+      }),
+    ).toBe('#EC4899');
   });
 });
 

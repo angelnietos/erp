@@ -1,5 +1,5 @@
 import type { JosanzCatalogListRow } from './catalog-status';
-import { pillVariantForCatalogStatus, railColorForCatalogRow, railColorForClientName } from './catalog-status';
+import { pillVariantForCatalogStatus, resolveEntityRailColor } from './catalog-status';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -23,7 +23,12 @@ export interface FigmaCatalogEventSource {
   status: string;
   startDate: string;
   location?: string | null;
-  client?: { name: string } | null;
+  client?: {
+    id?: string;
+    name: string;
+    sector?: string | null;
+    railColor?: string | null;
+  } | null;
   operator?: { name: string } | null;
 }
 
@@ -89,7 +94,14 @@ export function mapEventToCatalogRow(
     operator: event.operator?.name ?? '—',
     pillLabel: label,
     pillVariant: pillVariantForCatalogStatus(label),
-    railColor: railColorForCatalogRow({ id: event.id, typology, venue, client }),
+    railColor: resolveEntityRailColor({
+      storedRailColor: event.client?.railColor,
+      entityId: event.client?.id ?? event.id,
+      name: client,
+      sector: event.client?.sector,
+      typology,
+      venue,
+    }),
   };
 }
 
@@ -153,9 +165,12 @@ export function mapClientToCatalogRow(
     ],
     pillLabel: tariff,
     pillVariant: tariffPillVariant(tariff),
-    railColor:
-      client.railColor?.trim() ||
-      railColorForClientName(client.id, name, client.sector),
+    railColor: resolveEntityRailColor({
+      storedRailColor: client.railColor,
+      entityId: client.id,
+      name,
+      sector: client.sector,
+    }),
   };
 }
 

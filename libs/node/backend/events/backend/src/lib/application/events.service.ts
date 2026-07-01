@@ -151,7 +151,7 @@ export class EventsService {
 
   private defaultInclude() {
     return {
-      client: { select: { id: true, name: true } },
+      client: { select: { id: true, name: true, sector: true, railColor: true } },
       operatorContact: { select: { id: true, name: true, email: true, phone: true } },
     } as const;
   }
@@ -325,7 +325,7 @@ export class EventsService {
     notes: string | null;
     summary: string | null;
     createdAt: Date;
-    client?: { id: string; name: string } | null;
+    client?: { id: string; name: string; sector?: string | null; railColor?: string | null } | null;
     operatorContact?: {
       id: string;
       name: string;

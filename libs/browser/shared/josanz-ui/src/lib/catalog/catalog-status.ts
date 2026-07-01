@@ -8,6 +8,7 @@ import {
   JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
   JOSANZ_FIGMA_EXTERNAL_CLIENT_RAIL_COLORS,
 } from '../theme/josanz-figma-tokens';
+import { normalizeHexColor } from './client-rail-presets';
 
 export interface JosanzCatalogListRow {
   id: string;
@@ -183,6 +184,30 @@ export function railColorForClientName(
     venue: name,
     client: name,
   });
+}
+
+/** Color de barra: custom guardado > inferencia Figma (clientes y eventos). */
+export function resolveEntityRailColor(params: {
+  storedRailColor?: string | null;
+  entityId: string;
+  name: string;
+  sector?: string | null;
+  typology?: string;
+  venue?: string;
+}): string {
+  const custom = normalizeHexColor(params.storedRailColor ?? '');
+  if (custom) {
+    return custom;
+  }
+  if (params.typology) {
+    return railColorForCatalogRow({
+      id: params.entityId,
+      typology: params.typology,
+      venue: params.venue ?? '',
+      client: params.name,
+    });
+  }
+  return railColorForClientName(params.entityId, params.name, params.sector);
 }
 
 /** Color de la barra lateral según tipología (no el estado del evento). */

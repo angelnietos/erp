@@ -32,7 +32,12 @@ export interface JosanzEventRecord {
   notes: string | null;
   summary: string | null;
   createdAt: string;
-  client: { id: string; name: string } | null;
+  client: {
+    id: string;
+    name: string;
+    sector?: string | null;
+    railColor?: string | null;
+  } | null;
   operator: {
     id: string;
     name: string;
