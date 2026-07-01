@@ -7,6 +7,10 @@
 
   var COPY = {
     loginTitle: 'Iniciar sesión',
+    doForgotPassword: 'Olvidé mi contraseña',
+    usernameLabel: 'Usuario',
+    passwordLabel: 'Contraseña',
+    savePassword: 'Guardar contraseña',
     resetTitle: 'Nueva contraseña',
     resetSubtitle: 'Te enviaremos un link para que crees una nueva contraseña.',
     resetSuccess: 'Contraseña enviada correctamente. Revisa tu bandeja de entrada.',
@@ -225,6 +229,72 @@
       });
   }
 
+  function applyLocalizedFormCopy() {
+    document.documentElement.lang = 'es';
+
+    var kind = pageKind();
+
+    document.querySelectorAll('a').forEach(function (link) {
+      var text = (link.textContent || '').trim();
+      if (/forgot your password/i.test(text)) {
+        link.textContent = t('doForgotPassword');
+      }
+      if (/back to sign in/i.test(text)) {
+        link.textContent = t('backLogin');
+      }
+    });
+
+    document.querySelectorAll('label[for="username"]').forEach(function (label) {
+      label.textContent = t('usernameLabel');
+    });
+    document.querySelectorAll('label[for="password"]').forEach(function (label) {
+      label.textContent = t('passwordLabel');
+    });
+
+    document
+      .querySelectorAll('.instruction, .pf-v5-c-helper-text, #kc-info-wrapper p, .pf-v5-c-form__helper-text')
+      .forEach(function (node) {
+        var text = (node.textContent || '').trim();
+        if (/we will send you a link/i.test(text)) {
+          node.textContent = t('resetSubtitle');
+        }
+      });
+
+    if (document.body.classList.contains('kc-josanz-submitting')) {
+      return;
+    }
+
+    document
+      .querySelectorAll(
+        '#kc-form-buttons input[type="submit"], #kc-form-buttons button[type="submit"], input[type="submit"], button[type="submit"]',
+      )
+      .forEach(function (btn) {
+        if (kind === 'reset-request') {
+          if (btn.tagName === 'INPUT') {
+            btn.value = t('submitReset');
+          } else {
+            btn.textContent = t('submitReset');
+          }
+          return;
+        }
+        if (kind === 'update-password') {
+          if (btn.tagName === 'INPUT') {
+            btn.value = t('savePassword');
+          } else {
+            btn.textContent = t('savePassword');
+          }
+          return;
+        }
+        if (kind === 'login') {
+          if (btn.tagName === 'INPUT') {
+            btn.value = t('loginTitle');
+          } else {
+            btn.textContent = t('loginTitle');
+          }
+        }
+      });
+  }
+
   function findMount() {
     return (
       document.querySelector('.pf-v5-c-login__header') ||
@@ -440,6 +510,7 @@
     hideOrgLinkIfNeeded();
     removeLocaleSwitcher();
     ensureBrandChrome();
+    applyLocalizedFormCopy();
     wireResetFormFeedback();
   }
 
