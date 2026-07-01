@@ -1,87 +1,170 @@
-<div class="josanz-status-kanban" role="region" aria-label="Tablero por estado">
-  <p class="josanz-status-kanban__hint">
-    Arrastra un evento a otra columna para cambiar su estado al instante.
-  </p>
+<div
+  class="josanz-status-kanban"
+  [class.josanz-status-kanban--dragging]="isDragging()"
+  role="region"
+  aria-label="Tablero por estado"
+>
+  <div class="josanz-status-kanban__hint">
+    <span class="josanz-status-kanban__hint-icon" aria-hidden="true">
+      <svg viewBox="0 0 16 16">
+        <path
+          d="M3 8h10M9 4l4 4-4 4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </span>
+    <span>
+      Arrastra un evento a otra columna para cambiar su estado. Acerca la tarjeta a los bordes para
+      desplazarte entre columnas.
+    </span>
+  </div>
 
-  <div class="josanz-status-kanban__track">
-    @for (column of columns; track column.value) {
-    <section class="josanz-status-kanban__column" [attr.aria-label]="column.label">
-      <header
-        class="josanz-status-kanban__column-header"
+  <div
+    class="josanz-status-kanban__viewport"
+    [class.josanz-status-kanban__viewport--scroll-left]="canScrollLeft()"
+    [class.josanz-status-kanban__viewport--scroll-right]="canScrollRight()"
+  >
+    @if (canScrollLeft()) {
+    <button
+      type="button"
+      class="josanz-status-kanban__scroll-btn josanz-status-kanban__scroll-btn--left"
+      aria-label="Desplazar columnas a la izquierda"
+      (click)="scrollTrack(-1)"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+      </svg>
+    </button>
+    }
+
+    @if (canScrollRight()) {
+    <button
+      type="button"
+      class="josanz-status-kanban__scroll-btn josanz-status-kanban__scroll-btn--right"
+      aria-label="Desplazar columnas a la derecha"
+      (click)="scrollTrack(1)"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+      </svg>
+    </button>
+    }
+
+    @if (isDragging() && canScrollLeft()) {
+    <div class="josanz-status-kanban__edge josanz-status-kanban__edge--left" [class.josanz-status-kanban__edge--active]="scrollEdgeLeft()"></div>
+    }
+    @if (isDragging() && canScrollRight()) {
+    <div class="josanz-status-kanban__edge josanz-status-kanban__edge--right" [class.josanz-status-kanban__edge--active]="scrollEdgeRight()"></div>
+    }
+
+    <div #track class="josanz-status-kanban__track" cdkScrollable>
+      @for (column of columns; track column.value) {
+      <section
+        class="josanz-status-kanban__column"
+        [attr.aria-label]="column.label"
         [style.--josanz-kanban-accent]="column.color || 'var(--josanz-primary)'"
       >
-        <span class="josanz-status-kanban__column-title">{{ column.label }}</span>
-        <span class="josanz-status-kanban__column-count">{{ buckets[column.value]?.length ?? 0 }}</span>
-      </header>
+        <header class="josanz-status-kanban__column-header">
+          <div class="josanz-status-kanban__column-heading">
+            <span class="josanz-status-kanban__column-dot" aria-hidden="true"></span>
+            <span class="josanz-status-kanban__column-title">{{ column.label }}</span>
+          </div>
+          <span class="josanz-status-kanban__column-count">{{ buckets[column.value]?.length ?? 0 }}</span>
+        </header>
 
-      <div
-        class="josanz-status-kanban__dropzone"
-        cdkDropList
-        [id]="column.value"
-        [cdkDropListData]="buckets[column.value]"
-        [cdkDropListConnectedTo]="columnIds"
-        (cdkDropListDropped)="onDrop($event, column.value)"
-      >
-        @for (item of buckets[column.value]; track item.id) {
-        <article
-          class="josanz-status-kanban__card"
-          [class.josanz-status-kanban__card--busy]="isBusy(item.id)"
-          cdkDrag
-          [cdkDragDisabled]="isBusy(item.id)"
-          (click)="onCardClick(item, $event)"
+        <div
+          class="josanz-status-kanban__dropzone"
+          cdkDropList
+          [id]="column.value"
+          [cdkDropListData]="buckets[column.value]"
+          [cdkDropListConnectedTo]="columnIds"
+          cdkDropListOrientation="vertical"
+          (cdkDropListDropped)="onDrop($event, column.value)"
         >
-          <div class="josanz-status-kanban__card-rail" [style.backgroundColor]="item.railColor || column.color"></div>
+          @for (item of buckets[column.value]; track item.id) {
+          <article
+            class="josanz-status-kanban__card"
+            [class.josanz-status-kanban__card--busy]="isBusy(item.id)"
+            cdkDrag
+            [cdkDragDisabled]="isBusy(item.id)"
+            (cdkDragStarted)="onDragStarted()"
+            (cdkDragEnded)="onDragEnded()"
+            (cdkDragMoved)="onDragMoved($event)"
+            (click)="onCardClick(item, $event)"
+          >
+            <div class="josanz-status-kanban__card-rail" [style.backgroundColor]="item.railColor || column.color"></div>
 
-          <div class="josanz-status-kanban__card-body">
-            <div class="josanz-status-kanban__card-top">
-              <h3 class="josanz-status-kanban__card-title" [attr.title]="item.title">{{ item.title }}</h3>
-              <button
-                type="button"
-                class="josanz-status-kanban__drag-handle"
-                cdkDragHandle
-                [attr.aria-label]="'Mover ' + item.title"
-                (click)="$event.stopPropagation()"
+            <div class="josanz-status-kanban__card-body">
+              <div class="josanz-status-kanban__card-top">
+                <h3 class="josanz-status-kanban__card-title" [attr.title]="item.title">{{ item.title }}</h3>
+                <button
+                  type="button"
+                  class="josanz-status-kanban__drag-handle"
+                  cdkDragHandle
+                  [attr.aria-label]="'Mover ' + item.title"
+                  (click)="$event.stopPropagation()"
+                >
+                  <svg viewBox="0 0 16 16" aria-hidden="true">
+                    <circle cx="5" cy="4" r="1.2" fill="currentColor" />
+                    <circle cx="11" cy="4" r="1.2" fill="currentColor" />
+                    <circle cx="5" cy="8" r="1.2" fill="currentColor" />
+                    <circle cx="11" cy="8" r="1.2" fill="currentColor" />
+                    <circle cx="5" cy="12" r="1.2" fill="currentColor" />
+                    <circle cx="11" cy="12" r="1.2" fill="currentColor" />
+                  </svg>
+                </button>
+              </div>
+
+              @if (item.subtitle) {
+              <p class="josanz-status-kanban__card-subtitle">
+                <span class="josanz-status-kanban__card-subtitle-icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16">
+                    <rect x="2.5" y="3.5" width="11" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.25" />
+                    <path d="M2.5 6.5h11M5.5 2.5v2M10.5 2.5v2" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" />
+                  </svg>
+                </span>
+                {{ item.subtitle }}
+              </p>
+              }
+              @if (item.meta) {
+              <p class="josanz-status-kanban__card-meta">{{ item.meta }}</p>
+              }
+
+              <span
+                class="josanz-status-kanban__card-pill"
+                [ngStyle]="badgeStyles(item.pillColor || column.color)"
               >
-                <svg viewBox="0 0 16 16" aria-hidden="true">
-                  <circle cx="5" cy="4" r="1.2" fill="currentColor" />
-                  <circle cx="11" cy="4" r="1.2" fill="currentColor" />
-                  <circle cx="5" cy="8" r="1.2" fill="currentColor" />
-                  <circle cx="11" cy="8" r="1.2" fill="currentColor" />
-                  <circle cx="5" cy="12" r="1.2" fill="currentColor" />
-                  <circle cx="11" cy="12" r="1.2" fill="currentColor" />
-                </svg>
-              </button>
+                @if (statusBadgeStyle === 'outline' && statusIcon(item.pillLabel)) {
+                <span class="josanz-status-kanban__card-pill-icon" [ngStyle]="statusIconRingStyles(item.pillLabel)">
+                  <span>{{ statusIcon(item.pillLabel) }}</span>
+                </span>
+                }
+                {{ item.pillLabel }}
+              </span>
             </div>
 
-            @if (item.subtitle) {
-            <p class="josanz-status-kanban__card-subtitle">{{ item.subtitle }}</p>
+            @if (isBusy(item.id)) {
+            <span class="josanz-status-kanban__card-busy" aria-live="polite">Guardando…</span>
             }
-            @if (item.meta) {
-            <p class="josanz-status-kanban__card-meta">{{ item.meta }}</p>
-            }
-
-            <span
-              class="josanz-status-kanban__card-pill"
-              [ngStyle]="badgeStyles(item.pillColor || column.color)"
-            >
-              @if (statusBadgeStyle === 'outline' && statusIcon(item.pillLabel)) {
-              <span class="josanz-status-kanban__card-pill-icon" [ngStyle]="statusIconRingStyles(item.pillLabel)">
-                <span>{{ statusIcon(item.pillLabel) }}</span>
-              </span>
-              }
-              {{ item.pillLabel }}
+          </article>
+          } @empty {
+          <div class="josanz-status-kanban__empty">
+            <span class="josanz-status-kanban__empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <rect x="4" y="6" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5" />
+                <path d="M8 10h8M8 14h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+              </svg>
             </span>
+            <p>Sin eventos</p>
           </div>
-
-          @if (isBusy(item.id)) {
-          <span class="josanz-status-kanban__card-busy" aria-live="polite">Guardando…</span>
           }
-        </article>
-        } @empty {
-        <p class="josanz-status-kanban__empty">Sin eventos</p>
-        }
-      </div>
-    </section>
-    }
+        </div>
+      </section>
+      }
+    </div>
   </div>
 </div>

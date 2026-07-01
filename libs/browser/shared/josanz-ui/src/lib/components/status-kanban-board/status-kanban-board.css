@@ -7,32 +7,189 @@
 }
 
 .josanz-status-kanban__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
   margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--josanz-primary, #0f1e2f) 12%, var(--josanz-border, #ebebeb));
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 4%, var(--josanz-surface, #fff));
   font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
+  line-height: 1.45;
   color: var(--josanz-text-muted, #64748b);
+}
+
+.josanz-status-kanban__hint-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.05rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 10%, var(--josanz-surface, #fff));
+  color: var(--josanz-primary, #0f1e2f);
+}
+
+.josanz-status-kanban__hint-icon svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.josanz-status-kanban__viewport {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.josanz-status-kanban__viewport::before,
+.josanz-status-kanban__viewport::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0.35rem;
+  width: 2.5rem;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.josanz-status-kanban__viewport--scroll-left::before {
+  left: 0;
+  opacity: 1;
+  background: linear-gradient(90deg, var(--josanz-surface, #fff) 15%, transparent);
+}
+
+.josanz-status-kanban__viewport--scroll-right::after {
+  right: 0;
+  opacity: 1;
+  background: linear-gradient(270deg, var(--josanz-surface, #fff) 15%, transparent);
+}
+
+.josanz-status-kanban__scroll-btn {
+  position: absolute;
+  top: 50%;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: -1.125rem;
+  border: 1px solid var(--josanz-border, #ebebeb);
+  border-radius: 9999px;
+  background: var(--josanz-surface, #fff);
+  color: var(--josanz-text, #222);
+  box-shadow: 0 4px 14px rgba(15, 30, 47, 0.12);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.josanz-status-kanban__scroll-btn:hover {
+  transform: scale(1.05);
+  border-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 25%, var(--josanz-border, #ebebeb));
+  box-shadow: 0 6px 18px rgba(15, 30, 47, 0.16);
+}
+
+.josanz-status-kanban__scroll-btn svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.josanz-status-kanban__scroll-btn--left {
+  left: 0.35rem;
+}
+
+.josanz-status-kanban__scroll-btn--right {
+  right: 0.35rem;
+}
+
+.josanz-status-kanban__edge {
+  position: absolute;
+  top: 0;
+  bottom: 0.35rem;
+  width: 5.5rem;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+}
+
+.josanz-status-kanban__edge--left {
+  left: 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--josanz-primary, #0f1e2f) 14%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+.josanz-status-kanban__edge--right {
+  right: 0;
+  background: linear-gradient(
+    270deg,
+    color-mix(in srgb, var(--josanz-primary, #0f1e2f) 14%, transparent) 0%,
+    transparent 100%
+  );
+}
+
+.josanz-status-kanban__edge--active {
+  opacity: 1;
+  animation: josanz-kanban-edge-pulse 0.9s ease-in-out infinite alternate;
+}
+
+@keyframes josanz-kanban-edge-pulse {
+  from {
+    opacity: 0.65;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .josanz-status-kanban__track {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.625rem;
   width: 100%;
   min-width: 0;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  overflow-y: hidden;
+  padding: 0.15rem 0.15rem 0.5rem;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
   scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 35%, transparent) transparent;
+}
+
+.josanz-status-kanban__track::-webkit-scrollbar {
+  height: 8px;
+}
+
+.josanz-status-kanban__track::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 28%, #cbd5e1);
 }
 
 .josanz-status-kanban__column {
   display: flex;
   flex-direction: column;
-  flex: 0 0 min(17rem, 78vw);
-  min-width: 14rem;
-  max-height: min(70vh, 42rem);
-  border-radius: 14px;
+  flex: 0 0 13.25rem;
+  width: 13.25rem;
+  min-width: 13.25rem;
+  max-height: min(68vh, 40rem);
+  border-radius: 16px;
   border: 1px solid var(--josanz-border, #ebebeb);
-  background: color-mix(in srgb, var(--josanz-surface-muted, #f7f7f7) 70%, var(--josanz-surface, #fff));
+  background: color-mix(in srgb, var(--josanz-surface-muted, #f7f7f7) 55%, var(--josanz-surface, #fff));
+  box-shadow: 0 1px 2px rgba(15, 30, 47, 0.04);
+  scroll-snap-align: start;
 }
 
 .josanz-status-kanban__column-header {
@@ -40,43 +197,64 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 0.75rem 0.875rem;
+  padding: 0.7rem 0.75rem;
   border-bottom: 1px solid var(--josanz-border, #ebebeb);
-  border-top: 3px solid var(--josanz-kanban-accent, var(--josanz-primary));
-  border-radius: 14px 14px 0 0;
+  border-radius: 16px 16px 0 0;
   background: var(--josanz-surface, #fff);
 }
 
+.josanz-status-kanban__column-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.josanz-status-kanban__column-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: var(--josanz-kanban-accent, var(--josanz-primary));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-kanban-accent, var(--josanz-primary)) 18%, transparent);
+}
+
 .josanz-status-kanban__column-title {
+  min-width: 0;
   font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--josanz-text, #222);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .josanz-status-kanban__column-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 1.5rem;
-  height: 1.5rem;
-  padding: 0 0.4rem;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.35rem;
   border-radius: 9999px;
-  background: var(--josanz-surface-muted, #f7f7f7);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--josanz-text-muted, #64748b);
+  background: color-mix(in srgb, var(--josanz-kanban-accent, var(--josanz-primary)) 12%, var(--josanz-surface, #fff));
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--josanz-kanban-accent, var(--josanz-primary));
 }
 
 .josanz-status-kanban__dropzone {
   display: flex;
   flex-direction: column;
-  gap: 0.625rem;
+  gap: 0.5rem;
   flex: 1;
-  min-height: 6rem;
-  padding: 0.625rem;
+  min-height: 7rem;
+  padding: 0.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .josanz-status-kanban__dropzone.cdk-drop-list-dragging .josanz-status-kanban__card:not(.cdk-drag-placeholder) {
@@ -84,10 +262,10 @@
 }
 
 .josanz-status-kanban__dropzone.cdk-drop-list-receiving {
-  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 4%, transparent);
-  outline: 2px dashed color-mix(in srgb, var(--josanz-primary, #0f1e2f) 25%, transparent);
-  outline-offset: -2px;
-  border-radius: 0 0 12px 12px;
+  background: color-mix(in srgb, var(--josanz-kanban-accent, var(--josanz-primary)) 6%, transparent);
+  outline: 2px dashed color-mix(in srgb, var(--josanz-kanban-accent, var(--josanz-primary)) 35%, transparent);
+  outline-offset: -3px;
+  border-radius: 0 0 14px 14px;
 }
 
 .josanz-status-kanban__card {
@@ -97,15 +275,18 @@
   border-radius: 12px;
   border: 1px solid var(--josanz-list-card-border, #ebebeb);
   background: var(--josanz-list-card-bg, #fff);
-  box-shadow: var(--josanz-list-card-shadow, 0 1px 3px rgba(0, 0, 0, 0.05));
+  box-shadow: 0 1px 2px rgba(15, 30, 47, 0.05);
   cursor: pointer;
   transition:
     box-shadow 0.15s ease,
-    transform 0.15s ease;
+    transform 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .josanz-status-kanban__card:hover {
-  box-shadow: 0 4px 12px rgba(15, 30, 47, 0.08);
+  border-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 18%, var(--josanz-border, #ebebeb));
+  box-shadow: 0 6px 16px rgba(15, 30, 47, 0.1);
+  transform: translateY(-1px);
 }
 
 .josanz-status-kanban__card--busy {
@@ -114,12 +295,17 @@
 }
 
 .josanz-status-kanban__card.cdk-drag-preview {
-  box-shadow: 0 12px 24px rgba(15, 30, 47, 0.16);
-  transform: rotate(1deg);
+  border-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 22%, var(--josanz-border, #ebebeb));
+  box-shadow: 0 16px 32px rgba(15, 30, 47, 0.2);
+  transform: rotate(1.5deg) scale(1.02);
+}
+
+.josanz-status-kanban--dragging .josanz-status-kanban__card:not(.cdk-drag-preview) {
+  cursor: grabbing;
 }
 
 .josanz-status-kanban__card-rail {
-  width: 5px;
+  width: 4px;
   flex-shrink: 0;
   border-radius: 12px 0 0 12px;
 }
@@ -127,25 +313,25 @@
 .josanz-status-kanban__card-body {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.3rem;
   min-width: 0;
   flex: 1;
-  padding: 0.75rem 0.75rem 0.75rem 0.625rem;
+  padding: 0.65rem 0.65rem 0.65rem 0.55rem;
 }
 
 .josanz-status-kanban__card-top {
   display: flex;
   align-items: flex-start;
-  gap: 0.35rem;
+  gap: 0.3rem;
 }
 
 .josanz-status-kanban__card-title {
   margin: 0;
   min-width: 0;
   flex: 1;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.35;
   letter-spacing: -0.01em;
   color: var(--josanz-text, #222);
   display: -webkit-box;
@@ -158,30 +344,34 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.45rem;
+  height: 1.45rem;
   flex-shrink: 0;
   border: 0;
-  border-radius: 6px;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--josanz-surface-muted, #f7f7f7);
   color: var(--josanz-text-muted, #94a3b8);
   cursor: grab;
+  touch-action: none;
 }
 
 .josanz-status-kanban__drag-handle:hover {
-  background: var(--josanz-surface-muted, #f7f7f7);
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 8%, var(--josanz-surface-muted, #f7f7f7));
   color: var(--josanz-text, #222);
 }
 
 .josanz-status-kanban__drag-handle svg {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 .josanz-status-kanban__card-subtitle,
 .josanz-status-kanban__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.35;
   color: var(--josanz-text-muted, #64748b);
   overflow: hidden;
@@ -189,15 +379,28 @@
   white-space: nowrap;
 }
 
+.josanz-status-kanban__card-subtitle-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 0.85rem;
+  height: 0.85rem;
+  color: var(--josanz-text-muted, #94a3b8);
+}
+
+.josanz-status-kanban__card-subtitle-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
 .josanz-status-kanban__card-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.28rem;
   align-self: flex-start;
-  margin-top: 0.15rem;
-  padding: 0.2rem 0.55rem;
+  margin-top: 0.2rem;
+  padding: 0.18rem 0.5rem;
   border-radius: 9999px;
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -206,11 +409,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 0.95rem;
-  height: 0.95rem;
+  width: 0.9rem;
+  height: 0.9rem;
   border-radius: 9999px;
   border: 1px solid currentColor;
-  font-size: 0.5rem;
+  font-size: 0.48rem;
 }
 
 .josanz-status-kanban__card-busy {
@@ -223,17 +426,40 @@
 }
 
 .josanz-status-kanban__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 5.5rem;
+  margin: 0.15rem;
+  padding: 0.75rem 0.5rem;
+  border: 1.5px dashed color-mix(in srgb, var(--josanz-border, #cbd5e1) 85%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--josanz-surface-muted, #f7f7f7) 50%, transparent);
+}
+
+.josanz-status-kanban__empty p {
   margin: 0;
-  padding: 1rem 0.5rem;
-  text-align: center;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--josanz-text-muted, #94a3b8);
 }
 
+.josanz-status-kanban__empty-icon {
+  display: inline-flex;
+  color: var(--josanz-text-muted, #cbd5e1);
+}
+
+.josanz-status-kanban__empty-icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
 .cdk-drag-placeholder {
-  opacity: 0.35;
-  border: 1px dashed var(--josanz-border, #cbd5e1);
-  background: transparent;
-  min-height: 4.5rem;
+  opacity: 0.4;
+  border: 1.5px dashed color-mix(in srgb, var(--josanz-primary, #0f1e2f) 30%, var(--josanz-border, #cbd5e1));
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 4%, transparent);
+  min-height: 4.25rem;
   box-shadow: none;
 }
