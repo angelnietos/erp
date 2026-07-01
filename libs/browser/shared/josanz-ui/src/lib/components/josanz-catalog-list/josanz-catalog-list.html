@@ -239,3 +239,149 @@
 </div>
 }
 
+<!-- ── Export modal ── -->
+@if (showExportModal) {
+<div class="josanz-figma-modal-overlay" (click)="closeExportModal()">
+  <div
+    class="josanz-figma-modal-card josanz-figma-modal-card--export animate-in fade-in zoom-in-95 duration-200"
+    role="dialog"
+    aria-labelledby="kc-export-title"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="josanz-figma-modal-header flex items-center justify-between border-b pb-4 mb-4">
+      <h2 id="kc-export-title" class="text-lg font-bold text-[#222222]">Exportar listado</h2>
+      <button
+        type="button"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Cerrar"
+        [disabled]="exportBusy"
+        (click)="closeExportModal()"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-sm text-[#555] mb-4">
+      Se exportarán <strong>{{ filteredRows.length }}</strong> filas con los filtros y búsqueda actuales.
+      Ideal para Power BI u otras herramientas externas.
+    </p>
+
+    <fieldset class="flex flex-col gap-2 mb-4 border-0 p-0">
+      <legend class="text-xs font-bold text-[#222222] mb-2">Formato</legend>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="xlsx" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        Excel (.xlsx) — recomendado para Power BI
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="csv" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        CSV (.csv) — compatible con Excel y BI
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="sql" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        SQL (.sql) — script con INSERT para bases externas
+      </label>
+    </fieldset>
+
+    @if (exportError) {
+    <p class="text-sm text-red-600 mb-3" role="alert">{{ exportError }}</p>
+    }
+
+    <div class="flex items-center justify-end gap-3 border-t pt-4">
+      <button
+        type="button"
+        class="h-10 px-6 rounded-lg border border-[#0F1E2F] text-[#0F1E2F] font-bold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+        [disabled]="exportBusy"
+        (click)="closeExportModal()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="h-10 px-6 rounded-lg bg-[#0F1E2F] text-white font-bold text-sm hover:bg-[#1a2d42] transition-colors disabled:opacity-50"
+        [disabled]="exportBusy"
+        (click)="runExport()"
+      >
+        {{ exportBusy ? 'Generando…' : 'Descargar' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+
+<!-- ── Export modal ── -->
+@if (showExportModal) {
+<div class="josanz-figma-modal-overlay" (click)="closeExportModal()">
+  <div
+    class="josanz-figma-modal-card josanz-figma-modal-card--export animate-in fade-in zoom-in-95 duration-200"
+    role="dialog"
+    aria-labelledby="kc-export-title"
+    aria-modal="true"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="josanz-figma-modal-header flex items-center justify-between border-b pb-4 mb-4">
+      <h2 id="kc-export-title" class="text-lg font-bold text-[#222222]">Exportar listado</h2>
+      <button
+        type="button"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+        aria-label="Cerrar"
+        [disabled]="exportBusy"
+        (click)="closeExportModal()"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <p class="text-sm text-[#555] mb-4">
+      Se exportarán <strong>{{ filteredRows.length }}</strong> filas con los filtros y búsqueda actuales.
+      Ideal para Power BI u otras herramientas externas.
+    </p>
+
+    <fieldset class="flex flex-col gap-2 mb-4 border-0 p-0">
+      <legend class="text-xs font-bold text-[#222222] mb-2">Formato</legend>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="xlsx" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        Excel (.xlsx) — recomendado para Power BI
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="csv" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        CSV (.csv) — compatible con Excel y BI
+      </label>
+      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+        <input type="radio" name="exportFormat" value="sql" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
+        SQL (.sql) — script con INSERT para bases externas
+      </label>
+    </fieldset>
+
+    @if (exportError) {
+    <p class="text-sm text-red-600 mb-3" role="alert">{{ exportError }}</p>
+    }
+
+    <div class="flex items-center justify-end gap-3 border-t pt-4">
+      <button
+        type="button"
+        class="h-10 px-6 rounded-lg border border-[#0F1E2F] text-[#0F1E2F] font-bold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+        [disabled]="exportBusy"
+        (click)="closeExportModal()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        class="h-10 px-6 rounded-lg bg-[#0F1E2F] text-white font-bold text-sm hover:bg-[#1a2d42] transition-colors disabled:opacity-50"
+        [disabled]="exportBusy"
+        (click)="runExport()"
+      >
+        {{ exportBusy ? 'Generando…' : 'Descargar' }}
+      </button>
+    </div>
+  </div>
+</div>
+}
+

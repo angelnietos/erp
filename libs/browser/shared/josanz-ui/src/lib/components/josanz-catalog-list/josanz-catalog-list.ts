@@ -20,6 +20,11 @@ import {
   type JosanzCatalogListFeatures,
   type ResolvedCatalogListFeatures,
 } from './catalog-list-features';
+import { JosanzListExportService } from '../../list-export/josanz-list-export.service';
+import {
+  buildCatalogListExportPayload,
+} from '../../list-export/list-export.utils';
+import type { JosanzListExportFormat } from '../../list-export/list-export.types';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -77,10 +82,11 @@ import { FormsModule } from '@angular/forms';
 })
 export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
+  private readonly listExport = inject(JosanzListExportService);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
-  /** Evita parpadeo de skeleton en cargas rápidas (<200ms). */
+  /** Evita parpadeo de skeleton en cargas rpidas (<200ms). */
   readonly showLoadingSkeleton = signal(false);
   private loadingDelayTimer?: ReturnType<typeof setTimeout>;
 
@@ -116,6 +122,11 @@ export class JosanzCatalogListComponent implements OnChanges {
   selectedClienteFilter = '';
   selectedOperadorFilter = '';
   selectedEstadoFilter = '';
+
+  showExportModal = false;
+  exportFormat: JosanzListExportFormat = 'xlsx';
+  exportBusy = false;
+  exportError = '';
 
   readonly defaultRowLabels = ['Nombre evento', 'Fecha', 'Cliente', 'Operador'];
 
@@ -278,7 +289,60 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   onExcel(): void {
-    // TODO: exportar cuando exista API
+    this.exportError = '';
+    this.exportFormat = 'xlsx';
+    this.showExportModal = true;
+  }
+
+  closeExportModal(): void {
+    if (this.exportBusy) {
+      return;
+    }
+    this.showExportModal = false;
+    this.exportError = '';
+  }
+
+  async runExport(): Promise<void> {
+    if (this.exportBusy) {
+      return;
+    }
+
+    const rows = this.filteredRows;
+    if (!rows.length) {
+      this.exportError = 'No hay filas para exportar con los filtros actuales.';
+      return;
+    }
+
+    const payload = buildCatalogListExportPayload(
+      this.config,
+      rows,
+      (row) => this.rowValues(row),
+      {
+        search: this.searchQuery,
+        typology: this.activeTypology,
+        statusFilter: this.selectedStatusFilter,
+        modalFilters: {
+          id: this.selectedIdFilter,
+          nombre: this.selectedNombreFilter,
+          fecha: this.selectedFechaFilter,
+          cliente: this.selectedClienteFilter,
+          operador: this.selectedOperadorFilter,
+          estado: this.selectedEstadoFilter,
+        },
+      },
+    );
+
+    this.exportBusy = true;
+    this.exportError = '';
+    try {
+      await this.listExport.export(payload, this.exportFormat);
+      this.showExportModal = false;
+    } catch {
+      this.exportError =
+        'No se pudo generar la exportación. Comprueba la sesión y vuelve a intentarlo.';
+    } finally {
+      this.exportBusy = false;
+    }
   }
 
   onTypologyFilter(option: string): void {

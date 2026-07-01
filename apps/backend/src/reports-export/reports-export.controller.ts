@@ -32,6 +32,33 @@ export class ReportExportXlsxDto {
   @IsArray()
   @ArrayMaxSize(5000)
   rows!: (string | number | null)[][];
+
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(32)
+  @ValidateNested({ each: true })
+  @Type(() => ReportExportMetaRowDto)
+  meta?: ReportExportMetaRowDto[];
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(31)
+  sheetName?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  filename?: string;
+}
+
+export class ReportExportMetaRowDto {
+  @IsString()
+  @MaxLength(80)
+  label!: string;
+
+  @IsString()
+  @MaxLength(500)
+  value!: string;
 }
 
 export class ReportPdfSectionDto {
@@ -113,8 +140,16 @@ export class ReportsExportController {
   })
   async exportXlsx(@Body() dto: ReportExportXlsxDto) {
     const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('Informe');
+    const ws = wb.addWorksheet((dto.sheetName ?? 'Datos').slice(0, 31));
     ws.addRow([dto.title]);
+    ws.addRow([`Exportado: ${new Date().toLocaleString('es-ES')}`]);
+    if (dto.meta?.length) {
+      ws.addRow([]);
+      ws.addRow(['Filtros aplicados']);
+      for (const row of dto.meta) {
+        ws.addRow([row.label, row.value]);
+      }
+    }
     ws.addRow([]);
     ws.addRow(dto.headers);
     for (const row of dto.rows) {
@@ -122,9 +157,12 @@ export class ReportsExportController {
     }
     const buf = await wb.xlsx.writeBuffer();
     const buffer = Buffer.from(buf);
+    const safeName = (dto.filename ?? 'josanz-export')
+      .replace(/[^a-zA-Z0-9._-]+/g, '-')
+      .replace(/^-|-$/g, '');
     return new StreamableFile(buffer, {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      disposition: `attachment; filename="josanz-informe.xlsx"`,
+      disposition: `attachment; filename="${safeName || 'josanz-export'}.xlsx"`,
     });
   }
 

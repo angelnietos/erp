@@ -194,12 +194,9 @@ describe('JosanzClientsListComponent', () => {
     });
   });
 
-  describe('onExcel', () => {
-    it('should log export message', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
-      component.onExcel();
-      expect(consoleSpy).toHaveBeenCalledWith('Exportando clientes a Excel...');
-      consoleSpy.mockRestore();
+  describe('export', () => {
+    it('list config is wired to catalog list component', () => {
+      expect(component.listConfig().title).toBe('Clientes');
     });
   });
 });
