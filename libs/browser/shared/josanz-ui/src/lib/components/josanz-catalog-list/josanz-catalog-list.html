@@ -22,8 +22,20 @@
   (filterChange)="onTypologyFilter($event)"
   (excelAction)="onExcel()"
   (paginationChange)="onPageChange($event)"
-  (filtrosClick)="openFiltrosModal()"
+  (filtrosClick)="openFiltrosPanel()"
+  [filtrosPanelOpen]="showFiltrosPanel"
 >
+  @if (showFiltrosPanel && filtersUseInlinePanel) {
+  <div
+    catalog-filters
+    class="josanz-catalog-filters-panel josanz-catalog-filters-panel--inline"
+    role="region"
+    aria-label="Filtros"
+  >
+    <ng-container *ngTemplateOutlet="catalogFiltersPanel"></ng-container>
+  </div>
+  }
+
   @if (activeFilterChips.length > 0) {
   <div
     active-filter-chips
@@ -159,138 +171,93 @@
   }
 </josanz-main-list-layout>
 
-<!-- ── Figma Filters Modal Overlay ── -->
-@if (showFiltrosModal) {
-<div class="josanz-figma-modal-overlay" (click)="closeFiltrosModal()">
-  <div class="josanz-figma-modal-card animate-in fade-in zoom-in-95 duration-200" (click)="$event.stopPropagation()">
-    <!-- Header -->
-    <div class="josanz-figma-modal-header flex items-center justify-between border-b pb-4 mb-4">
-      <h2 class="text-lg font-bold text-[#222222]">Filtros</h2>
-      <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="Cerrar" (click)="closeFiltrosModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
+<ng-template #catalogFiltersPanel>
+  <div class="josanz-catalog-filters-panel__header">
+    <h2 class="josanz-catalog-filters-panel__title">Filtros</h2>
+    <button
+      type="button"
+      class="josanz-catalog-filters-panel__close"
+      aria-label="Cerrar filtros"
+      (click)="closeFiltrosPanel()"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
 
-    <!-- Active filter chips -->
-    @if (activeFilterChips.length > 0) {
-    <div class="josanz-figma-modal-chips-row flex flex-wrap gap-2 mb-4">
-      @for (filter of activeFilterChips; track filter.key) {
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-[#0F1E2F] text-white">
-          {{ filter.label }}: {{ filter.value }}
-          <button type="button" class="hover:text-red-200 focus:outline-none text-sm font-bold leading-none" (click)="removeFilterChip(filter)">
-            &times;
-          </button>
-        </span>
-      }
+  @if (activeFilterChips.length > 0) {
+  <div class="josanz-catalog-filters-panel__chips">
+    @for (filter of activeFilterChips; track filter.key) {
+      <span class="josanz-catalog-filters-panel__chip">
+        {{ filter.label }}: {{ filter.value }}
+        <button type="button" class="josanz-catalog-filters-panel__chip-remove" (click)="removeFilterChip(filter)">
+          &times;
+        </button>
+      </span>
+    }
+  </div>
+  }
+
+  <div class="josanz-catalog-filters-panel__grid">
+    @for (field of modalFilterFields; track field.key) {
+    <div class="josanz-catalog-filters-panel__field">
+      <label class="josanz-catalog-filters-panel__label">{{ field.label }}</label>
+      <div class="josanz-catalog-filters-panel__select-wrap">
+        <select [(ngModel)]="selectedModalFilters[field.key]" class="josanz-catalog-filters-panel__select">
+          <option value="">-</option>
+          @for (option of getModalFilterOptions(field); track option) {
+            <option [value]="option">{{ option }}</option>
+          }
+        </select>
+      </div>
     </div>
     }
+  </div>
 
-    <!-- Form Grid -->
-    <div class="josanz-figma-modal-form-grid grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      @for (field of modalFilterFields; track field.key) {
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-bold text-[#222222]">{{ field.label }}</label>
-        <div class="josanz-figma-modal-select-wrapper relative">
-          <select [(ngModel)]="selectedModalFilters[field.key]" class="w-full h-10 px-3 border border-[#d7d7d7] rounded-lg bg-white text-sm text-[#222222] focus:outline-none focus:border-[#0F1E2F] appearance-none">
-            <option value="">-</option>
-            @for (option of getModalFilterOptions(field); track option) {
-              <option [value]="option">{{ option }}</option>
-            }
-          </select>
-          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#7c7c7c]">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-          </div>
-        </div>
-      </div>
-      }
+  <div class="josanz-catalog-filters-panel__footer">
+    <div class="josanz-catalog-filters-presentation" role="group" aria-label="Presentación de filtros">
+      <span class="josanz-catalog-filters-presentation__label">Mostrar como</span>
+      <button
+        type="button"
+        class="josanz-catalog-filters-presentation__btn"
+        [class.josanz-catalog-filters-presentation__btn--active]="filtersUseInlinePanel"
+        (click)="setFiltersPresentation('inline')"
+      >
+        Desplegable
+      </button>
+      <button
+        type="button"
+        class="josanz-catalog-filters-presentation__btn"
+        [class.josanz-catalog-filters-presentation__btn--active]="!filtersUseInlinePanel"
+        (click)="setFiltersPresentation('popover')"
+      >
+        Ventana
+      </button>
     </div>
-
-    <!-- Actions -->
-    <div class="flex items-center justify-end gap-3 border-t pt-4">
-      <button type="button" class="h-10 px-6 rounded-lg border border-[#0F1E2F] text-[#0F1E2F] font-bold text-sm bg-white hover:bg-gray-50 transition-colors" (click)="clearAllModalFilters()">
+    <div class="josanz-catalog-filters-panel__actions">
+      <button type="button" class="josanz-catalog-filters-panel__btn josanz-catalog-filters-panel__btn--ghost" (click)="clearAllModalFilters()">
         Borrar filtros
       </button>
-      <button type="button" class="h-10 px-6 rounded-lg bg-[#0F1E2F] text-white font-bold text-sm hover:bg-[#1a2d42] transition-colors" (click)="applyModalFilters()">
+      <button type="button" class="josanz-catalog-filters-panel__btn josanz-catalog-filters-panel__btn--primary" (click)="applyModalFilters()">
         Aplicar filtros
       </button>
     </div>
   </div>
-</div>
-}
+</ng-template>
 
-<!-- ── Export modal ── -->
-@if (showExportModal) {
-<div class="josanz-figma-modal-overlay" (click)="closeExportModal()">
-  <div
-    class="josanz-figma-modal-card josanz-figma-modal-card--export animate-in fade-in zoom-in-95 duration-200"
-    role="dialog"
-    aria-labelledby="kc-export-title"
-    aria-modal="true"
-    (click)="$event.stopPropagation()"
-  >
-    <div class="josanz-figma-modal-header flex items-center justify-between border-b pb-4 mb-4">
-      <h2 id="kc-export-title" class="text-lg font-bold text-[#222222]">Exportar listado</h2>
-      <button
-        type="button"
-        class="text-gray-400 hover:text-gray-600 transition-colors"
-        aria-label="Cerrar"
-        [disabled]="exportBusy"
-        (click)="closeExportModal()"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-
-    <p class="text-sm text-[#555] mb-4">
-      Se exportarán <strong>{{ filteredRows.length }}</strong> filas con los filtros y búsqueda actuales.
-      Ideal para Power BI u otras herramientas externas.
-    </p>
-
-    <fieldset class="flex flex-col gap-2 mb-4 border-0 p-0">
-      <legend class="text-xs font-bold text-[#222222] mb-2">Formato</legend>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
-        <input type="radio" name="exportFormat" value="xlsx" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        Excel (.xlsx) — recomendado para Power BI
-      </label>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
-        <input type="radio" name="exportFormat" value="csv" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        CSV (.csv) — compatible con Excel y BI
-      </label>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
-        <input type="radio" name="exportFormat" value="sql" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        SQL (.sql) — script con INSERT para bases externas
-      </label>
-    </fieldset>
-
-    @if (exportError) {
-    <p class="text-sm text-red-600 mb-3" role="alert">{{ exportError }}</p>
-    }
-
-    <div class="flex items-center justify-end gap-3 border-t pt-4">
-      <button
-        type="button"
-        class="h-10 px-6 rounded-lg border border-[#0F1E2F] text-[#0F1E2F] font-bold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
-        [disabled]="exportBusy"
-        (click)="closeExportModal()"
-      >
-        Cancelar
-      </button>
-      <button
-        type="button"
-        class="h-10 px-6 rounded-lg bg-[#0F1E2F] text-white font-bold text-sm hover:bg-[#1a2d42] transition-colors disabled:opacity-50"
-        [disabled]="exportBusy"
-        (click)="runExport()"
-      >
-        {{ exportBusy ? 'Generando…' : 'Descargar' }}
-      </button>
-    </div>
-  </div>
+@if (showFiltrosPanel && !filtersUseInlinePanel) {
+<div class="josanz-figma-filters-popover-backdrop" (click)="closeFiltrosPanel()"></div>
+<div
+  class="josanz-catalog-filters-panel josanz-catalog-filters-panel--popover"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Filtros"
+  [ngStyle]="popoverStyle"
+  (click)="$event.stopPropagation()"
+>
+  <ng-container *ngTemplateOutlet="catalogFiltersPanel"></ng-container>
 </div>
 }
 

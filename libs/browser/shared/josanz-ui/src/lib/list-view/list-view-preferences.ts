@@ -195,3 +195,12 @@ export function defaultGridColumnsForSelection(
   }
   return null;
 }
+
+/** `inline` = panel bajo la barra; `popover` = ventana flotante anclada al botón Filtros (Figma). */
+export type JosanzCatalogFiltersPresentation = 'inline' | 'popover';
+
+export function normalizeCatalogFiltersPresentation(
+  value: unknown,
+): JosanzCatalogFiltersPresentation {
+  return value === 'popover' ? 'popover' : 'inline';
+}

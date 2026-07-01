@@ -78,7 +78,13 @@
           <!-- Grupo izquierda: Filtros + Buscar -->
           <div class="josanz-main-list__figma-left-actions">
             <!-- Botón Filtros (Figma: con icono embudo, borde) -->
-            <button type="button" class="josanz-figma-filter-btn" (click)="onFiltrosClick()">
+            <button
+              #filtrosBtn
+              type="button"
+              class="josanz-figma-filter-btn"
+              [class.josanz-figma-filter-btn--active]="filtrosPanelOpen"
+              (click)="onFiltrosClick()"
+            >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
               </svg>
@@ -125,6 +131,7 @@
             }
           </div>
         </div>
+        <ng-content select="[catalog-filters]"></ng-content>
         <ng-content select="[active-filter-chips]"></ng-content>
         <ng-content select="[extra-filters]"></ng-content>
       </div>

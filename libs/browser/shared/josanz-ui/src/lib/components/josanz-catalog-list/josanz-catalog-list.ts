@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, effect, inject, signal } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ViewChild, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import type { JosanzCatalogListRow } from '../../catalog/catalog-status';
@@ -45,6 +45,7 @@ import {
   type JosanzCatalogModalFilterField,
   type JosanzCatalogModalFilterMode,
 } from '../../catalog/catalog-modal-filters';
+import type { JosanzCatalogFiltersPresentation } from '../../list-view/list-view-preferences';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -110,6 +111,9 @@ export class JosanzCatalogListComponent implements OnChanges {
   private readonly listExport = inject(JosanzListExportService);
   readonly themeService = inject(JosanzThemeService);
   private readonly catalogTheme = inject(CatalogThemeFacade);
+
+  @ViewChild(MainListLayoutComponent)
+  private listLayout?: MainListLayoutComponent;
 
   private trackedPageSize = 0;
 
@@ -192,9 +196,10 @@ export class JosanzCatalogListComponent implements OnChanges {
   activeTypology = 'Todos';
   currentPage = 1;
 
-  // Modal de filtros properties
-  showFiltrosModal = false;
+  // Panel de filtros (inline o popover Figma)
+  showFiltrosPanel = false;
   selectedModalFilters: Record<string, string> = {};
+  popoverStyle: Record<string, string> = {};
 
   showExportModal = false;
   exportFormat: JosanzListExportFormat = 'xlsx';
@@ -668,13 +673,57 @@ export class JosanzCatalogListComponent implements OnChanges {
     );
   }
 
-  // Modal actions and filters helper methods
-  openFiltrosModal(): void {
-    this.showFiltrosModal = true;
+  get filtersPresentation(): JosanzCatalogFiltersPresentation {
+    return this.themeService.catalogFiltersPresentation();
   }
 
-  closeFiltrosModal(): void {
-    this.showFiltrosModal = false;
+  get filtersUseInlinePanel(): boolean {
+    return this.filtersPresentation === 'inline';
+  }
+
+  // Modal actions and filters helper methods
+  openFiltrosPanel(): void {
+    this.showFiltrosPanel = !this.showFiltrosPanel;
+    if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
+      queueMicrotask(() => this.syncPopoverPosition());
+    }
+  }
+
+  closeFiltrosPanel(): void {
+    this.showFiltrosPanel = false;
+  }
+
+  setFiltersPresentation(presentation: JosanzCatalogFiltersPresentation): void {
+    if (this.themeService.catalogFiltersPresentation() === presentation) {
+      return;
+    }
+    this.themeService.setCatalogFiltersPresentation(presentation);
+    if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
+      queueMicrotask(() => this.syncPopoverPosition());
+    }
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
+      this.syncPopoverPosition();
+    }
+  }
+
+  private syncPopoverPosition(): void {
+    const btn = this.listLayout?.getFiltrosButtonElement();
+    if (!btn) {
+      return;
+    }
+    const rect = btn.getBoundingClientRect();
+    const panelWidth = Math.min(600, window.innerWidth - 24);
+    const maxLeft = Math.max(12, window.innerWidth - panelWidth - 12);
+    const left = Math.min(Math.max(12, rect.left), maxLeft);
+    this.popoverStyle = {
+      top: `${rect.bottom + 8}px`,
+      left: `${left}px`,
+      width: `${panelWidth}px`,
+    };
   }
 
   clearAllModalFilters(): void {
@@ -686,7 +735,9 @@ export class JosanzCatalogListComponent implements OnChanges {
   applyModalFilters(): void {
     this.currentPage = 1;
     this.invalidateListSnapshots();
-    this.closeFiltrosModal();
+    if (!this.filtersUseInlinePanel) {
+      this.closeFiltrosPanel();
+    }
   }
 
   get activeFilterChips(): { key: string; label: string; value: string }[] {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JosanzThemeService, type JosanzPaginationVariant } from '../services/theme.service';
 import type { JosanzControlShape } from '../josanz-control-styles';
@@ -76,6 +76,15 @@ export class MainListLayoutComponent implements OnChanges {
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
   @Output() filtrosClick = new EventEmitter<void>();
+
+  @Input() filtrosPanelOpen = false;
+
+  @ViewChild('filtrosBtn', { read: ElementRef })
+  private filtrosBtn?: ElementRef<HTMLButtonElement>;
+
+  getFiltrosButtonElement(): HTMLButtonElement | null {
+    return this.filtrosBtn?.nativeElement ?? null;
+  }
 
   @Input() avatarLink: string | null = '/settings';
   @Input() avatarAriaLabel = 'Cuenta y ajustes';

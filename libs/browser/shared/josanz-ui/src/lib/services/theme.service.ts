@@ -5,8 +5,10 @@ import {
   isValidListGridColumns,
   isValidListPageSize,
   migrateLegacyListViewMode,
+  normalizeCatalogFiltersPresentation,
   normalizeListGridColumns,
   normalizeListPageSize,
+  type JosanzCatalogFiltersPresentation,
   type JosanzListGridColumns,
   type JosanzListPageSize,
   type JosanzListViewSelection,
@@ -48,6 +50,7 @@ export type {
   JosanzListGridColumns,
   JosanzListPageSize,
   JosanzGridCardDensity,
+  JosanzCatalogFiltersPresentation,
 } from '../list-view/list-view-preferences';
 
 export type { JosanzBoardPeriodKind } from '../list-view/board-period';
@@ -70,6 +73,7 @@ interface JosanzStoredPreferences {
   listViewPanelOpen?: boolean;
   boardPeriodKind?: JosanzBoardPeriodKind;
   boardPeriodAnchor?: string;
+  catalogFiltersPresentation?: JosanzCatalogFiltersPresentation;
 }
 
 interface JosanzStorybookThemeDetail {
@@ -111,6 +115,9 @@ export class JosanzThemeService {
 
   /** Ancla del período (`YYYY-MM-DD`, fecha local). */
   boardPeriodAnchor = signal<string>(toBoardPeriodAnchorIso(new Date()));
+
+  /** Presentación del panel Filtros en listados catálogo Figma. */
+  catalogFiltersPresentation = signal<JosanzCatalogFiltersPresentation>('inline');
 
   constructor() {
     this.restorePreferences();
@@ -162,6 +169,11 @@ export class JosanzThemeService {
 
   setListGridColumns(columns: number) {
     this.listGridColumns.set(normalizeListGridColumns(columns));
+    this.persistPreferences();
+  }
+
+  setCatalogFiltersPresentation(presentation: JosanzCatalogFiltersPresentation) {
+    this.catalogFiltersPresentation.set(normalizeCatalogFiltersPresentation(presentation));
     this.persistPreferences();
   }
 
@@ -375,6 +387,10 @@ export class JosanzThemeService {
     if (stored.boardPeriodAnchor) {
       this.boardPeriodAnchor.set(toBoardPeriodAnchorIso(parseBoardPeriodAnchor(stored.boardPeriodAnchor)));
     }
+
+    this.catalogFiltersPresentation.set(
+      normalizeCatalogFiltersPresentation(stored.catalogFiltersPresentation),
+    );
   }
 
   private persistPreferences(): void {
@@ -393,6 +409,7 @@ export class JosanzThemeService {
       listViewPanelOpen: this.listViewPanelOpen(),
       boardPeriodKind: this.boardPeriodKind(),
       boardPeriodAnchor: this.boardPeriodAnchor(),
+      catalogFiltersPresentation: this.catalogFiltersPresentation(),
     };
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));
