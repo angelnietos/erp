@@ -1,202 +1,106 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ClientsFacade } from '@josanz-erp/clients-data-access';
+import { CatalogThemeFacade } from '@josanz-erp/josanz-ui';
 import { JosanzClientsListComponent } from './feature-list';
+import {
+  createCatalogThemeFacadeMock,
+  createClientsFacadeMock,
+  demoClient,
+  JOSANZ_CATALOG_CLIENT_TABS,
+} from '../../testing/demo-test-helpers';
 
 describe('JosanzClientsListComponent', () => {
-  let component: JosanzClientsListComponent;
   let fixture: ComponentFixture<JosanzClientsListComponent>;
+  let component: JosanzClientsListComponent;
   let router: { navigate: jest.Mock };
-  let mockRoute: { snapshot: { queryParamMap: { get: jest.Mock } } };
+  let clientsFacade: ReturnType<typeof createClientsFacadeMock>;
+  let catalogTheme: ReturnType<typeof createCatalogThemeFacadeMock>;
 
   beforeEach(async () => {
     router = { navigate: jest.fn() };
-    mockRoute = {
-      snapshot: {
-        queryParamMap: { get: jest.fn() },
-      },
-    };
+    clientsFacade = createClientsFacadeMock([demoClient()]);
+    catalogTheme = createCatalogThemeFacadeMock();
 
     await TestBed.configureTestingModule({
       imports: [JosanzClientsListComponent],
       providers: [
         { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: mockRoute },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: { queryParamMap: { get: () => null } },
+          },
+        },
+        { provide: ClientsFacade, useValue: clientsFacade },
+        { provide: CatalogThemeFacade, useValue: catalogTheme },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(JosanzClientsListComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('initialization', () => {
-    it('should have title', () => {
-      expect(component.title).toBe('Clientes');
-    });
+  it('expone la configuración del listado de clientes', () => {
+    const config = component.listConfig();
+    expect(config.title).toBe('Clientes');
+    expect(config.primaryBtnLabel).toBe('Añadir Cliente');
+    expect(config.filterOptions).toEqual(JOSANZ_CATALOG_CLIENT_TABS);
+    expect(config.addRoute).toBe('/clients/new');
+    expect(config.detailRoute).toBe('/clients');
+  });
 
-    it('should have primaryBtnLabel', () => {
-      expect(component.primaryBtnLabel).toBe('Añadir Cliente');
-    });
+  it('mapea clientes del facade a filas del catálogo', () => {
+    const config = component.listConfig();
+    expect(config.rows).toHaveLength(1);
+    expect(config.rows[0]?.title).toBe('Demo Cliente S.L.');
+  });
 
-    it('should have filterOptions', () => {
-      expect(component.filterOptions.length).toBe(5);
-      expect(component.filterOptions).toContain('Todos');
-    });
+  it('carga clientes y tema al iniciar', () => {
+    expect(catalogTheme.loadCatalogTheme).toHaveBeenCalled();
+    expect(clientsFacade.loadClients).toHaveBeenCalled();
+  });
 
-    it('should have clientFieldLabels', () => {
-      expect(component.clientFieldLabels).toEqual([
-        'Teléfono',
-        'Email',
-        'Operador',
-      ]);
-    });
+  it('muestra toast de creación y limpia query params', async () => {
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      imports: [JosanzClientsListComponent],
+      providers: [
+        { provide: Router, useValue: router },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              queryParamMap: { get: (key: string) => (key === 'created' ? '1' : null) },
+            },
+          },
+        },
+        { provide: ClientsFacade, useValue: clientsFacade },
+        { provide: CatalogThemeFacade, useValue: catalogTheme },
+      ],
+    }).compileComponents();
 
-    it('should have all client items', () => {
-      expect(component.clientItems.length).toBe(7);
-    });
+    const createdFixture = TestBed.createComponent(JosanzClientsListComponent);
+    const createdComponent = createdFixture.componentInstance;
+    createdFixture.detectChanges();
 
-    it('should have default pagination', () => {
-      expect(component.currentPage).toBe(1);
-      expect(component.pageSize).toBe(10);
+    expect(createdComponent.showSuccessToast()).toBe(true);
+    expect(createdComponent.successToastMessage()).toBe('Cliente creado correctamente');
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: expect.any(Object),
+      queryParams: {},
+      replaceUrl: true,
     });
   });
 
-  describe('ngOnInit with query params', () => {
-    it('should show success indicators when ?created=1', async () => {
-      mockRoute.snapshot.queryParamMap.get.mockReturnValue('1');
-      TestBed.resetTestingModule();
-      await TestBed.configureTestingModule({
-        imports: [JosanzClientsListComponent],
-        providers: [
-          { provide: Router, useValue: router },
-          { provide: ActivatedRoute, useValue: mockRoute },
-        ],
-      }).compileComponents();
-
-      const newFixture = TestBed.createComponent(JosanzClientsListComponent);
-      const newComponent = newFixture.componentInstance;
-      newFixture.detectChanges();
-      await newFixture.whenStable();
-
-      expect(newComponent.showSuccessToast).toBe(true);
-      expect(router.navigate).toHaveBeenCalledWith([], {
-        relativeTo: mockRoute,
-        queryParams: {},
-        replaceUrl: true,
-      });
-    });
-
-    it('should not show success indicators when ?created is not 1', async () => {
-      mockRoute.snapshot.queryParamMap.get.mockReturnValue(null);
-      TestBed.resetTestingModule();
-      await TestBed.configureTestingModule({
-        imports: [JosanzClientsListComponent],
-        providers: [
-          { provide: Router, useValue: router },
-          { provide: ActivatedRoute, useValue: mockRoute },
-        ],
-      }).compileComponents();
-
-      const newFixture = TestBed.createComponent(JosanzClientsListComponent);
-      const newComponent = newFixture.componentInstance;
-      newFixture.detectChanges();
-      await newFixture.whenStable();
-
-      expect(newComponent.showSuccessToast).toBe(false);
-    });
-  });
-
-  describe('filteredClientItems', () => {
-    it('should return all items when activeTypology is Todos', () => {
-      component.activeTypology = 'Todos';
-      const filtered = component.filteredClientItems;
-      expect(filtered.length).toBe(component.clientItems.length);
-    });
-
-    it('should filter items by typology', () => {
-      component.activeTypology = 'Tipo cliente 1';
-      const filtered = component.filteredClientItems;
-      expect(
-        filtered.every((item) => item.statusVariant === 'cliente-tipo-pink'),
-      ).toBe(true);
-    });
-  });
-
-  describe('typologyPillKey', () => {
-    it('should map tab names to pill keys', () => {
-      expect(component.typologyPillKey('Tipo cliente 1')).toBe(
-        'cliente-tipo-pink',
-      );
-      expect(component.typologyPillKey('Tipo cliente 2')).toBe(
-        'cliente-tipo-green',
-      );
-      expect(component.typologyPillKey('Tipo cliente 3')).toBe(
-        'cliente-tipo-yellow',
-      );
-    });
-
-    it('should return undefined for unknown tab', () => {
-      expect(component.typologyPillKey('Unknown')).toBeUndefined();
-    });
-  });
-
-  describe('pagination', () => {
-    it('should calculate totalPages', () => {
-      const total = component.totalPages;
-      expect(total).toBeGreaterThanOrEqual(1);
-    });
-
-    it('should return paginated items', () => {
-      component.currentPage = 1;
-      const page1 = component.paginatedItems;
-      expect(page1.length).toBeLessThanOrEqual(component.pageSize);
-    });
-
-    it('should change page', () => {
-      component.onPageChange(2);
-      expect(component.currentPage).toBe(2);
-    });
-  });
-
-  describe('onFilter', () => {
-    it('should set activeTypology and reset currentPage', () => {
-      component.currentPage = 3;
-      component.onFilter('Tipo cliente 2');
-      expect(component.activeTypology).toBe('Tipo cliente 2');
-      expect(component.currentPage).toBe(1);
-    });
-  });
-
-  describe('onAdd', () => {
-    it('should navigate to /clients/new', () => {
-      component.onAdd();
-      expect(router.navigate).toHaveBeenCalledWith(['/clients/new']);
-    });
-  });
-
-  describe('openDetail', () => {
-    it('should navigate to client detail', () => {
-      const item = component.clientItems[0];
-      component.openDetail(item);
-      expect(router.navigate).toHaveBeenCalledWith(['/clients', item.id]);
-    });
-  });
-
-  describe('dismissToast', () => {
-    it('should hide success toast', () => {
-      component.showSuccessToast = true;
-      component.dismissToast();
-      expect(component.showSuccessToast).toBe(false);
-    });
-  });
-
-  describe('export', () => {
-    it('list config is wired to catalog list component', () => {
-      expect(component.listConfig().title).toBe('Clientes');
-    });
+  it('oculta el toast al descartarlo', () => {
+    component.showSuccessToast.set(true);
+    component.dismissToast();
+    expect(component.showSuccessToast()).toBe(false);
   });
 });

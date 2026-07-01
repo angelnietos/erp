@@ -4,6 +4,7 @@
     "outDir": "../../../../../../dist/out-tsc",
     "module": "commonjs",
     "target": "es2016",
+    "isolatedModules": true,
     "types": ["jest", "node"],
     "moduleResolution": "node10"
   },
@@ -12,6 +13,7 @@
     "jest.config.ts",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
+    "src/testing/**/*.ts",
     "src/**/*.d.ts"
   ]
 }

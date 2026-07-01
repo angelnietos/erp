@@ -1,15 +1,33 @@
-import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ClientsFacade } from '@josanz-erp/clients-data-access';
+import { CatalogThemeFacade } from '@josanz-erp/josanz-ui';
 import { JosanzClientsListComponent } from './feature-list';
+import {
+  createCatalogThemeFacadeMock,
+  createClientsFacadeMock,
+  demoClient,
+} from '../../testing/demo-test-helpers';
 
-describe('JosanzClientsListComponent integration', () => {
-  let fixture: ComponentFixture<JosanzClientsListComponent>;
-  let component: JosanzClientsListComponent;
+/** Flujo demo: listado tras crear cliente y feedback al usuario. */
+describe('Demo flujo clientes — listado', () => {
   let router: { navigate: jest.Mock };
+  let clientsFacade: ReturnType<typeof createClientsFacadeMock>;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     router = { navigate: jest.fn() };
+    clientsFacade = createClientsFacadeMock([
+      demoClient(),
+      demoClient({
+        id: 'client-demo-2',
+        name: 'Hotel Vincci Demo',
+        sector: 'Tipo cliente 2',
+        tariffLabel: 'Especial 02',
+      }),
+    ]);
+  });
 
+  async function createListWithQuery(query: Record<string, string>) {
     await TestBed.configureTestingModule({
       imports: [JosanzClientsListComponent],
       providers: [
@@ -18,55 +36,42 @@ describe('JosanzClientsListComponent integration', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              queryParamMap: convertToParamMap({ created: '1' }),
+              queryParamMap: {
+                get: (key: string) => query[key] ?? null,
+              },
             },
           },
+        },
+        { provide: ClientsFacade, useValue: clientsFacade },
+        {
+          provide: CatalogThemeFacade,
+          useValue: createCatalogThemeFacadeMock(),
         },
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(JosanzClientsListComponent);
-    component = fixture.componentInstance;
-  });
-
-  it('shows creation feedback and clears query params on init', () => {
-    component.ngOnInit();
-
-    expect(component.showSuccessToast).toBe(true);
-    expect(router.navigate).toHaveBeenCalledWith([], {
-      relativeTo: expect.any(Object),
-      queryParams: {},
-      replaceUrl: true,
-    });
-  });
-
-  it('filters client cards by typology pill', () => {
-    component.onFilter('Tipo cliente 2');
-
-    expect(component.filteredClientItems).toHaveLength(2);
-    expect(
-      component.filteredClientItems.every(
-        (item) => item.statusVariant === 'cliente-tipo-green',
-      ),
-    ).toBe(true);
-  });
-
-  it('paginates client items correctly', () => {
-    component.currentPage = 1;
+    const fixture = TestBed.createComponent(JosanzClientsListComponent);
     fixture.detectChanges();
-    expect(component.paginatedItems).toHaveLength(7); // All 7 items fit in page 1 (pageSize=10)
+    return fixture;
+  }
 
-    // Test with filter
-    component.onFilter('Tipo cliente 2');
-    fixture.detectChanges();
-    expect(component.paginatedItems).toHaveLength(2); // 2 items filtered, fit in page 1
+  it('muestra toast tras crear cliente (?created=1)', async () => {
+    const fixture = await createListWithQuery({ created: '1' });
+    const component = fixture.componentInstance;
+
+    expect(component.showSuccessToast()).toBe(true);
+    expect(component.successToastMessage()).toContain('creado');
+    expect(component.listConfig().rows.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('navigates to create and detail routes from list actions', () => {
-    component.onAdd();
-    component.openDetail(component.clientItems[0]);
+  it('muestra toast tras editar cliente (?updated=1)', async () => {
+    const fixture = await createListWithQuery({ updated: '1' });
+    expect(fixture.componentInstance.successToastMessage()).toContain('actualizado');
+  });
 
-    expect(router.navigate).toHaveBeenNthCalledWith(1, ['/clients/new']);
-    expect(router.navigate).toHaveBeenNthCalledWith(2, ['/clients', '1']);
+  it('el listado incluye clientes con operadores en las filas', async () => {
+    const fixture = await createListWithQuery({});
+    const rows = fixture.componentInstance.listConfig().rows;
+    expect(rows.some((row) => row.values.some((v) => v.includes('Operador')))).toBe(true);
   });
 });

@@ -1,7 +1,7 @@
 import {
   JOSANZ_CATALOG_EVENT_STATUS_ROWS,
   pillVariantForCatalogStatus,
-} from './catalog-status';
+} from '../../../../../../../shared/josanz-ui/src/lib/catalog/catalog-status';
 
 describe('catalog status mapping', () => {
   it.each([
@@ -28,7 +28,7 @@ describe('catalog status mapping', () => {
 
   it('keeps the Figma catalog sample rows stable', () => {
     expect(JOSANZ_CATALOG_EVENT_STATUS_ROWS).toHaveLength(7);
-    expect(JOSANZ_CATALOG_EVENT_STATUS_ROWS.map((row) => row.pillVariant)).toEqual([
+    expect(JOSANZ_CATALOG_EVENT_STATUS_ROWS.map((row: { pillVariant: string }) => row.pillVariant)).toEqual([
       'borrador',
       'presupuesto',
       'confirmado',
