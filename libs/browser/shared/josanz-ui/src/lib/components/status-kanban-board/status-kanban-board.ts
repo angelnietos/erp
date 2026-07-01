@@ -78,6 +78,9 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
 
   columnIds: string[] = [];
 
+  private itemsFingerprint = '';
+  private columnsFingerprint = '';
+
   readonly isDragging = signal(false);
   readonly canScrollLeft = signal(false);
   readonly canScrollRight = signal(false);
@@ -89,8 +92,27 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
   private trackScrollListener?: () => void;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['columns'] || changes['items']) {
-      this.rebuildBuckets();
+    let shouldSyncScroll = false;
+
+    if (changes['columns']) {
+      const fingerprint = this.columnsFingerprintValue(this.columns);
+      if (fingerprint !== this.columnsFingerprint) {
+        this.columnsFingerprint = fingerprint;
+        this.rebuildColumnIds();
+        shouldSyncScroll = true;
+      }
+    }
+
+    if (changes['items']) {
+      const fingerprint = this.itemsFingerprintValue(this.items);
+      if (fingerprint !== this.itemsFingerprint) {
+        this.itemsFingerprint = fingerprint;
+        this.rebuildBuckets();
+        shouldSyncScroll = true;
+      }
+    }
+
+    if (shouldSyncScroll) {
       queueMicrotask(() => this.syncScrollState());
     }
   }
@@ -271,7 +293,18 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
       next[bucketKey].push({ ...item, statusValue: bucketKey });
     }
     this.buckets = next;
+  }
+
+  private rebuildColumnIds(): void {
     this.columnIds = this.columns.map((column) => column.value);
+  }
+
+  private itemsFingerprintValue(items: JosanzStatusKanbanItem[]): string {
+    return items.map((item) => `${item.id}:${item.statusValue}`).join('|');
+  }
+
+  private columnsFingerprintValue(columns: JosanzStatusKanbanColumn[]): string {
+    return columns.map((column) => `${column.value}:${column.label}:${column.color ?? ''}`).join('|');
   }
 
   private resolveBucketKey(

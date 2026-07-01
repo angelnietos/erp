@@ -104,10 +104,22 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   private trackedPageSize = 0;
 
+  private kanbanItemsFingerprint = '';
+  private kanbanItemsSnapshot: JosanzStatusKanbanItem[] = [];
+  private kanbanColumnsFingerprint = '';
+  private kanbanColumnsSnapshot: {
+    value: string;
+    label: string;
+    color?: string;
+  }[] = [];
+  private paginatedItemsFingerprint = '';
+  private paginatedItemsSnapshot: JosanzAdaptiveListItem[] = [];
+
   constructor() {
     effect(() => {
       this.themeService.listPageSize();
       this.syncPageSizeAndReset();
+      this.invalidateListSnapshots();
     });
   }
 
@@ -123,10 +135,17 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['config']) {
+      this.invalidateListSnapshots();
       this.syncLoadingSkeleton(Boolean(this.config.loading));
       this.ensureValidViewSelection();
       this.syncPageSizeAndReset();
     }
+  }
+
+  private invalidateListSnapshots(): void {
+    this.kanbanItemsFingerprint = '';
+    this.kanbanColumnsFingerprint = '';
+    this.paginatedItemsFingerprint = '';
   }
 
   private syncPageSizeAndReset(): void {
@@ -209,16 +228,25 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get kanbanColumns() {
-    const theme = this.catalogTheme.mergedTheme();
-    return eventStatusOptionsFromTheme(theme).map((option) => ({
-      value: option.value,
-      label: option.label,
-      color: resolveEventStatusPillColor(option.value, theme) ?? undefined,
-    }));
+    const columns = this.buildKanbanColumns();
+    const fingerprint = columns
+      .map((column) => `${column.value}:${column.label}:${column.color ?? ''}`)
+      .join('|');
+    if (fingerprint === this.kanbanColumnsFingerprint) {
+      return this.kanbanColumnsSnapshot;
+    }
+    this.kanbanColumnsFingerprint = fingerprint;
+    this.kanbanColumnsSnapshot = columns;
+    return this.kanbanColumnsSnapshot;
   }
 
   get kanbanItems(): JosanzStatusKanbanItem[] {
-    return this.boardPeriodRows.map((row) => ({
+    const fingerprint = this.kanbanItemsFingerprintKey();
+    if (fingerprint === this.kanbanItemsFingerprint) {
+      return this.kanbanItemsSnapshot;
+    }
+    this.kanbanItemsFingerprint = fingerprint;
+    this.kanbanItemsSnapshot = this.boardPeriodRows.map((row) => ({
       id: row.id,
       statusValue: row.statusValue ?? 'DRAFT',
       title: row.eventName ?? row.title ?? row.id,
@@ -228,6 +256,11 @@ export class JosanzCatalogListComponent implements OnChanges {
       pillColor: row.pillColor,
       railColor: row.railColor,
     }));
+    return this.kanbanItemsSnapshot;
+  }
+
+  get filteredRowCount(): number {
+    return this.filteredRows.length;
   }
 
   get boardPeriodRows(): JosanzCatalogListRow[] {
@@ -337,8 +370,14 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get paginatedItems(): JosanzAdaptiveListItem[] {
+    const fingerprint = this.paginatedItemsFingerprintKey();
+    if (fingerprint === this.paginatedItemsFingerprint) {
+      return this.paginatedItemsSnapshot;
+    }
+    this.paginatedItemsFingerprint = fingerprint;
     const start = (this.currentPage - 1) * this.pageSize;
-    return this.adaptiveItems.slice(start, start + this.pageSize);
+    this.paginatedItemsSnapshot = this.adaptiveItems.slice(start, start + this.pageSize);
+    return this.paginatedItemsSnapshot;
   }
 
   get filteredRows(): JosanzCatalogListRow[] {
@@ -416,11 +455,13 @@ export class JosanzCatalogListComponent implements OnChanges {
   onStatusFilter(option: string): void {
     this.activeStatusFilter = option;
     this.currentPage = 1;
+    this.invalidateListSnapshots();
   }
 
   onSearch(value: string): void {
     this.searchQuery = value;
     this.currentPage = 1;
+    this.invalidateListSnapshots();
   }
 
   onExcel(): void {
@@ -483,26 +524,62 @@ export class JosanzCatalogListComponent implements OnChanges {
   onTypologyFilter(option: string): void {
     this.activeTypology = option;
     this.currentPage = 1;
+    this.invalidateListSnapshots();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.invalidateListSnapshots();
   }
 
   onBoardPeriodKindChange(kind: JosanzBoardPeriodKind): void {
     this.themeService.setBoardPeriodKind(kind);
+    this.invalidateListSnapshots();
   }
 
   onBoardPeriodPrevious(): void {
     this.themeService.shiftBoardPeriod(-1);
+    this.invalidateListSnapshots();
   }
 
   onBoardPeriodNext(): void {
     this.themeService.shiftBoardPeriod(1);
+    this.invalidateListSnapshots();
   }
 
   onBoardPeriodGoToCurrent(): void {
     this.themeService.goToCurrentBoardPeriod();
+    this.invalidateListSnapshots();
+  }
+
+  private buildKanbanColumns() {
+    const theme = this.catalogTheme.mergedTheme();
+    return eventStatusOptionsFromTheme(theme).map((option) => ({
+      value: option.value,
+      label: option.label,
+      color: resolveEventStatusPillColor(option.value, theme) ?? undefined,
+    }));
+  }
+
+  private kanbanItemsFingerprintKey(): string {
+    const rows = this.boardPeriodRows;
+    return [
+      this.themeService.boardPeriodKind(),
+      this.themeService.boardPeriodAnchor(),
+      this.themeService.listViewSelection(),
+      rows.map((row) => `${row.id}:${row.statusValue ?? ''}:${row.pillLabel}`).join('|'),
+    ].join('::');
+  }
+
+  private paginatedItemsFingerprintKey(): string {
+    const rows = this.filteredRows;
+    return [
+      this.currentPage,
+      this.pageSize,
+      this.themeService.listViewSelection(),
+      this.themeService.listGridColumns(),
+      rows.map((row) => `${row.id}:${row.pillLabel}`).join('|'),
+    ].join('::');
   }
 
   private applyBoardPeriodFilter(rows: JosanzCatalogListRow[]): JosanzCatalogListRow[] {
@@ -623,10 +700,12 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.selectedOperadorFilter = '';
     this.selectedEstadoFilter = '';
     this.currentPage = 1;
+    this.invalidateListSnapshots();
   }
 
   applyModalFilters(): void {
     this.currentPage = 1;
+    this.invalidateListSnapshots();
     this.closeFiltrosModal();
   }
 
@@ -649,6 +728,7 @@ export class JosanzCatalogListComponent implements OnChanges {
     else if (this.selectedOperadorFilter === chip) this.selectedOperadorFilter = '';
     else if (this.selectedEstadoFilter === chip) this.selectedEstadoFilter = '';
     this.currentPage = 1;
+    this.invalidateListSnapshots();
   }
 
   getUniqueIdOptions(): string[] {

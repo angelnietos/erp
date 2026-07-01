@@ -91,10 +91,10 @@
   <div class="josanz-catalog-board">
     <josanz-board-period-toolbar
       [kind]="themeService.boardPeriodKind()"
-      [anchor]="themeService.boardPeriodAnchorDate()"
+      [anchorIso]="themeService.boardPeriodAnchor()"
       [visibleCount]="boardPeriodVisibleCount"
       [hiddenCount]="boardPeriodHiddenCount"
-      [totalCount]="filteredRows.length"
+      [totalCount]="filteredRowCount"
       (kindChange)="onBoardPeriodKindChange($event)"
       (previous)="onBoardPeriodPrevious()"
       (next)="onBoardPeriodNext()"
