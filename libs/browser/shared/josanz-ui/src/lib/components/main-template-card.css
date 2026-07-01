@@ -81,3 +81,14 @@
   line-height: 1;
   font-weight: 700;
 }
+
+/* Texto de filas — tokens con fallback oscuro (atmósferas de color) */
+.josanz-list-card__title {
+  color: var(--josanz-list-card-text, #111827);
+  -webkit-text-fill-color: var(--josanz-list-card-text, #111827);
+}
+
+.josanz-list-card__field {
+  color: var(--josanz-list-card-text-muted, #475569);
+  -webkit-text-fill-color: var(--josanz-list-card-text-muted, #475569);
+}

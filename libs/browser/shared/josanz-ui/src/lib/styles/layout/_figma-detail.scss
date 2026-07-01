@@ -206,7 +206,7 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
-    color: #222;
+    color: var(--josanz-text-heading, #222);
   }
 }
 
@@ -378,7 +378,7 @@
   margin: 0 0 0.5rem;
   font-size: 1rem;
   font-weight: 600;
-  color: #222;
+  color: var(--josanz-text-heading, #222);
 }
 
 .josanz-event-hero__meta-grid {
@@ -395,12 +395,12 @@
 }
 
 .josanz-event-hero__meta-label {
-  color: #848484;
+  color: var(--josanz-text-muted, #848484);
 }
 
 .josanz-event-hero__meta-value {
   font-weight: 500;
-  color: #222;
+  color: var(--josanz-text, #222);
 }
 
 .josanz-event-hero__details {

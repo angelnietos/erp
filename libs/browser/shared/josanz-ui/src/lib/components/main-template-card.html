@@ -34,8 +34,7 @@
         </span>
         }
         <h3
-          class="min-w-0 truncate text-[15px] font-extrabold leading-tight tracking-tight md:text-[16px]"
-          [style.color]="'var(--josanz-list-card-text, var(--josanz-text))'"
+          class="josanz-list-card__title min-w-0 truncate text-[15px] font-extrabold leading-tight tracking-tight md:text-[16px]"
         >
           {{ title }}
         </h3>
@@ -46,9 +45,8 @@
     <div class="josanz-list-template-row__fields overflow-hidden">
       @for (item of data; track item; let i = $index) {
       <div
-        class="josanz-list-template-row__field text-[12px] md:text-[13px] font-medium md:truncate"
+        class="josanz-list-template-row__field josanz-list-card__field text-[12px] md:text-[13px] font-medium md:truncate"
         [ngClass]="fieldWidthClass(i)"
-        [style.color]="'var(--josanz-list-card-text-muted, var(--josanz-text-muted))'"
       >
         @if (labels[i]) {
         <span

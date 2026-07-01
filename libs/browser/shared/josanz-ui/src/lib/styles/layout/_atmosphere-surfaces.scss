@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════
+   Atmósferas con color — contraste en superficies elevadas
+   (tarjetas blancas sobre lienzo oscuro/degradado)
+   ═══════════════════════════════════════════════════════════ */
+
+html:not([data-josanz-atmosphere='neutral']) {
+  --josanz-list-card-bg: #ffffff;
+  --josanz-list-card-text: #111827;
+  --josanz-list-card-text-muted: #475569;
+  --josanz-list-card-border: #e2e8f0;
+  --josanz-list-card-shadow: 0 4px 18px rgba(15, 23, 42, 0.14);
+}
+
+/* Listados Figma: texto siempre oscuro dentro de tarjetas blancas */
+html:not([data-josanz-atmosphere='neutral']) .josanz-main-list--figma-catalog {
+  .josanz-list-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: var(--josanz-list-card-shadow) !important;
+    color: #111827 !important;
+  }
+
+  .josanz-list-template-row__title h3,
+  .josanz-list-template-row__title h3 * {
+    color: #111827 !important;
+    -webkit-text-fill-color: #111827 !important;
+  }
+
+  .josanz-list-template-row__field,
+  .josanz-list-template-row__field .truncate,
+  .josanz-list-template-row__field span:not([class*='font-black']) {
+    color: #475569 !important;
+    -webkit-text-fill-color: #475569 !important;
+  }
+
+  .josanz-main-list__figma-summary-pill {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #64748b !important;
+
+    span {
+      color: #64748b !important;
+      -webkit-text-fill-color: #64748b !important;
+    }
+
+    strong {
+      color: #111827 !important;
+      -webkit-text-fill-color: #111827 !important;
+    }
+  }
+}
+
+/* Detalle evento: quitar #222 fijo sobre superficies oscuras del tema */
+html:not([data-josanz-atmosphere='neutral']) .josanz-detail-root--figma {
+  .josanz-event-hero__typology,
+  .josanz-event-hero__meta-value {
+    color: var(--josanz-text) !important;
+  }
+
+  .josanz-event-hero__meta-label {
+    color: var(--josanz-text-muted) !important;
+  }
+
+  .josanz-event-section--figma-empty .josanz-event-section__title {
+    color: var(--josanz-text-heading, var(--josanz-text)) !important;
+  }
+}
