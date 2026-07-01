@@ -1,0 +1,69 @@
+<div class="josanz-theme-personalization">
+  <section class="josanz-theme-section josanz-theme-section--brand">
+    <h3 class="premium-label">Color de marca</h3>
+    <p class="premium-desc">Define la identidad visual primaria del ERP.</p>
+    <div class="brand-color-grid">
+      @for (color of brandingColors; track color) {
+        <button
+          type="button"
+          (click)="selectPreset(color)"
+          [style.backgroundColor]="color"
+          class="brand-color-swatch"
+          [class.brand-color-swatch--active]="isActivePreset(color)"
+          [attr.aria-label]="'Color ' + color"
+          [attr.aria-pressed]="isActivePreset(color)"
+        >
+          @if (isActivePreset(color)) {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" aria-hidden="true">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          }
+        </button>
+      }
+    </div>
+
+    <div class="brand-custom-color">
+      <josanz-color-picker
+        label="Color personalizado"
+        [value]="currentPrimaryColor()"
+        [presets]="[]"
+        ariaLabel="Elegir color de marca personalizado"
+        (valueChange)="onCustomColor($event)"
+      />
+    </div>
+  </section>
+
+  <section class="josanz-theme-section">
+    <h3 class="premium-label">Estilo de formas</h3>
+    <p class="premium-desc">Geometría de botones y contenedores.</p>
+    <div class="shape-selector-list">
+      <button
+        type="button"
+        (click)="themeService.setTheme('luxe-rounded')"
+        class="shape-selector shape-selector--rounded"
+        [class.active]="themeService.currentTheme().name === 'luxe-rounded'"
+      >
+        <div class="shape-selector__icon shape-selector__icon--rounded" aria-hidden="true"></div>
+        <span>Modern Rounded</span>
+      </button>
+      <button
+        type="button"
+        (click)="themeService.setTheme('luxe-pill')"
+        class="shape-selector shape-selector--pill"
+        [class.active]="themeService.currentTheme().name === 'luxe-pill'"
+      >
+        <div class="shape-selector__icon shape-selector__icon--pill" aria-hidden="true"></div>
+        <span>Premium Pill</span>
+      </button>
+      <button
+        type="button"
+        (click)="themeService.setTheme('luxe-sharp')"
+        class="shape-selector shape-selector--sharp"
+        [class.active]="themeService.currentTheme().name === 'luxe-sharp'"
+      >
+        <div class="shape-selector__icon shape-selector__icon--sharp" aria-hidden="true"></div>
+        <span>Classic Sharp</span>
+      </button>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,78 @@
+<div class="josanz-theme-personalization">
+  <section class="josanz-theme-section">
+    <h3 class="premium-label">Vista de listados</h3>
+    <p class="premium-desc">Disposición por defecto en tablas y catálogos.</p>
+    <div class="list-view-option-list">
+      @for (opt of listViewOptions; track opt.id) {
+        <button
+          type="button"
+          (click)="themeService.setListViewSelection(opt.id)"
+          class="list-view-option"
+          [class.active]="themeService.listViewSelection() === opt.id"
+          [attr.aria-pressed]="themeService.listViewSelection() === opt.id"
+        >
+          <span class="list-view-option__title">{{ opt.label }}</span>
+          @if (opt.group === 'tarjetas') {
+            <span class="list-view-option__hint">Modo tarjetas</span>
+          }
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="josanz-theme-section">
+    <h3 class="premium-label">Cuadrícula de listas</h3>
+    <p class="premium-desc">Columnas en vistas de cuadrícula en los listados.</p>
+    <div class="grid-col-row" role="group" aria-label="Columnas de cuadrícula">
+      @for (opt of gridColumnOptions; track opt.value) {
+        <button
+          type="button"
+          (click)="themeService.setListGridColumns(opt.value)"
+          class="grid-col-selector"
+          [class.active]="themeService.listGridColumns() === opt.value"
+          [attr.aria-label]="opt.label"
+          [attr.aria-pressed]="themeService.listGridColumns() === opt.value"
+        >
+          {{ opt.value }}×
+        </button>
+      }
+    </div>
+  </section>
+
+  <section class="josanz-theme-section">
+    <h3 class="premium-label">Paginación de listas</h3>
+    <p class="premium-desc">Estilo del control de páginas en tablas y listados.</p>
+    <div class="pagination-variant-list">
+      @for (opt of paginationOptions; track opt.variant) {
+        <button
+          type="button"
+          (click)="themeService.setPaginationVariant(opt.variant)"
+          class="pagination-variant-selector"
+          [class.active]="themeService.paginationVariant() === opt.variant"
+        >
+          <span class="pagination-variant-selector__preview" aria-hidden="true">
+            @if (opt.variant === 'figma') {
+              <span class="pagination-preview pagination-preview--figma">
+                <span class="pagination-preview__chev">‹</span>
+                <span class="pagination-preview__center">3 / 10</span>
+                <span class="pagination-preview__chev">›</span>
+              </span>
+            } @else {
+              <span class="pagination-preview pagination-preview--numbered">
+                <span class="pagination-preview__chev">‹</span>
+                <span class="pagination-preview__page">1</span>
+                <span class="pagination-preview__page pagination-preview__page--active">3</span>
+                <span class="pagination-preview__page">10</span>
+                <span class="pagination-preview__chev">›</span>
+              </span>
+            }
+          </span>
+          <span class="pagination-variant-selector__text">
+            <span class="pagination-variant-selector__title">{{ opt.label }}</span>
+            <span class="pagination-variant-selector__hint">{{ opt.description }}</span>
+          </span>
+        </button>
+      }
+    </div>
+  </section>
+</div>

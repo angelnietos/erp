@@ -7,6 +7,7 @@
   <josanz-main-tabs
     [options]="tabOptions"
     [selection]="activeTab()"
+    [dense]="true"
     (selectionChange)="onTabChange($event)"
   ></josanz-main-tabs>
 
@@ -26,8 +27,16 @@
   </section>
   }
 
-  @if (activeTab() === 'Personalización') {
-  <josanz-theme-personalization-panel />
+  @if (activeTab() === 'Marca') {
+  <josanz-brand-settings-panel />
+  }
+
+  @if (activeTab() === 'Temas') {
+  <josanz-atmosphere-settings-panel />
+  }
+
+  @if (activeTab() === 'Listados') {
+  <josanz-list-settings-panel />
   }
 
   @if (activeTab() === 'Estados') {

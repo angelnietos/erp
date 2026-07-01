@@ -53,11 +53,33 @@ const settingsRender = (tab: string) => ({
 });
 
 export const Personalizacion: Story = {
-  ...settingsRender('personalizacion'),
+  ...settingsRender('marca'),
   parameters: {
     docs: {
       description: {
-        story: 'Pestaña de personalización: color de marca, atmósfera, shape y preferencias de listado.',
+        story: 'Pestaña Marca: color de marca (presets + picker) y estilo de formas.',
+      },
+    },
+  },
+};
+
+export const Temas: Story = {
+  ...settingsRender('temas'),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pestaña Temas: selección de atmósferas visuales.',
+      },
+    },
+  },
+};
+
+export const Listados: Story = {
+  ...settingsRender('listados'),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Pestaña Listados: vista, cuadrícula y paginación por defecto.',
       },
     },
   },
@@ -75,7 +97,7 @@ export const General: Story = {
 };
 
 export const UseCases: Story = {
-  ...settingsRender('personalizacion'),
+  ...settingsRender('marca'),
   parameters: {
     controls: { disable: true },
     docs: {
