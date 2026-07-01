@@ -4,6 +4,7 @@ import {
   demoStamp,
   expectSuccessToast,
   expectCatalogItemVisible,
+  expectEventVisible,
   fillClientCoreFields,
   fillOperatorCard,
   openClientFromList,
@@ -107,11 +108,11 @@ test.describe('Demo Alexis — flujo E2E', () => {
 
     await test.step('Filtros de eventos (búsqueda y tipología)', async () => {
       await page.getByPlaceholder('Buscar').fill(eventName);
-      await expectCatalogItemVisible(page, eventName);
+      await expectEventVisible(page, eventName);
 
       await page.getByRole('button', { name: 'Externos' }).click();
       await page.getByPlaceholder('Buscar').fill(eventName);
-      await expectCatalogItemVisible(page, eventName);
+      await expectEventVisible(page, eventName);
     });
 
     await test.step('Detalle del evento: resumen, nota y guardar', async () => {

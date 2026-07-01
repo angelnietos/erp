@@ -60,9 +60,16 @@ export async function openClientFromList(page: Page, clientName: string): Promis
   });
 }
 
+function eventListRow(page: Page, eventName: string) {
+  return page
+    .locator('josanz-adaptive-list-rows')
+    .getByRole('button')
+    .filter({ hasText: eventName });
+}
+
 export async function openEventFromList(page: Page, eventName: string): Promise<void> {
   await page.getByPlaceholder('Buscar').fill(eventName);
-  await page.getByRole('button', { name: `Abrir ${eventName}` }).click();
+  await eventListRow(page, eventName).first().click();
   await expect(page.getByRole('button', { name: 'Resumen' })).toBeVisible({
     timeout: 20_000,
   });
@@ -70,6 +77,12 @@ export async function openEventFromList(page: Page, eventName: string): Promise<
 
 export async function expectCatalogItemVisible(page: Page, title: string): Promise<void> {
   await expect(page.getByRole('button', { name: `Abrir ${title}` })).toBeVisible({
+    timeout: 25_000,
+  });
+}
+
+export async function expectEventVisible(page: Page, eventName: string): Promise<void> {
+  await expect(eventListRow(page, eventName).first()).toBeVisible({
     timeout: 25_000,
   });
 }
