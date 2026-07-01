@@ -181,6 +181,57 @@
   color: var(--josanz-primary);
 }
 
+.grid-col-custom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--josanz-border);
+}
+
+.grid-col-custom__label {
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--josanz-text-muted);
+  white-space: nowrap;
+}
+
+.grid-col-custom__input {
+  width: 5.5rem;
+  height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1.5px solid var(--josanz-border);
+  border-radius: 10px;
+  background: var(--josanz-surface);
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--josanz-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.grid-col-custom__input:focus {
+  outline: none;
+  border-color: var(--josanz-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-primary) 18%, transparent);
+}
+
+.grid-col-custom__input--active {
+  border-color: var(--josanz-primary);
+  background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface));
+  color: var(--josanz-primary);
+}
+
+.grid-col-custom__hint {
+  font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--josanz-text-muted);
+}
+
 .atmosphere-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));

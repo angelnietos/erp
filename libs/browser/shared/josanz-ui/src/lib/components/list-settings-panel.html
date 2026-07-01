@@ -37,6 +37,23 @@
         </button>
       }
     </div>
+    <div class="grid-col-custom">
+      <label class="grid-col-custom__label" for="josanz-grid-columns-custom">Personalizado</label>
+      <input
+        id="josanz-grid-columns-custom"
+        class="grid-col-custom__input"
+        type="number"
+        [min]="gridColumnsMin"
+        [max]="gridColumnsMax"
+        step="1"
+        inputmode="numeric"
+        [class.grid-col-custom__input--active]="isCustomGridColumns()"
+        [value]="themeService.listGridColumns()"
+        [attr.aria-label]="'Columnas personalizadas entre ' + gridColumnsMin + ' y ' + gridColumnsMax"
+        (change)="onCustomGridColumnsInput($event)"
+      />
+      <span class="grid-col-custom__hint">{{ gridColumnsMin }}–{{ gridColumnsMax }} columnas</span>
+    </div>
   </section>
 
   <section class="josanz-theme-section">
@@ -55,6 +72,23 @@
           {{ opt.value }}
         </button>
       }
+    </div>
+    <div class="grid-col-custom">
+      <label class="grid-col-custom__label" for="josanz-page-size-custom">Personalizado</label>
+      <input
+        id="josanz-page-size-custom"
+        class="grid-col-custom__input"
+        type="number"
+        [min]="pageSizeMin"
+        [max]="pageSizeMax"
+        step="1"
+        inputmode="numeric"
+        [class.grid-col-custom__input--active]="isCustomPageSize()"
+        [value]="themeService.listPageSize()"
+        [attr.aria-label]="'Resultados por página entre ' + pageSizeMin + ' y ' + pageSizeMax"
+        (change)="onCustomPageSizeInput($event)"
+      />
+      <span class="grid-col-custom__hint">{{ pageSizeMin }}–{{ pageSizeMax }} filas</span>
     </div>
   </section>
 

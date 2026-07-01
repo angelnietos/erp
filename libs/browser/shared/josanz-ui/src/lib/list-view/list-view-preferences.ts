@@ -7,9 +7,14 @@ export type JosanzListViewSelection =
   | 'tarjetas-grid-dense'
   | 'tablero';
 
-export type JosanzListGridColumns = 2 | 3 | 4 | 5 | 6;
+export type JosanzListGridColumns = number;
 
-export type JosanzListPageSize = 5 | 10 | 15 | 20 | 25 | 50;
+export type JosanzListPageSize = number;
+
+export const JOSANZ_LIST_GRID_COLUMNS_MIN = 1;
+export const JOSANZ_LIST_GRID_COLUMNS_MAX = 12;
+export const JOSANZ_LIST_PAGE_SIZE_MIN = 1;
+export const JOSANZ_LIST_PAGE_SIZE_MAX = 100;
 
 export type JosanzGridCardDensity = 'comfortable' | 'compact' | 'dense';
 
@@ -47,7 +52,7 @@ export const JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD = JOSANZ_LIST_VIEW_MENU
 );
 
 export const JOSANZ_LIST_GRID_COLUMN_OPTIONS: readonly {
-  value: JosanzListGridColumns;
+  value: number;
   label: string;
 }[] = [
   { value: 2, label: '2 columnas' },
@@ -58,7 +63,7 @@ export const JOSANZ_LIST_GRID_COLUMN_OPTIONS: readonly {
 ];
 
 export const JOSANZ_LIST_PAGE_SIZE_OPTIONS: readonly {
-  value: JosanzListPageSize;
+  value: number;
   label: string;
 }[] = [
   { value: 5, label: '5 filas' },
@@ -69,15 +74,39 @@ export const JOSANZ_LIST_PAGE_SIZE_OPTIONS: readonly {
   { value: 50, label: '50 filas' },
 ];
 
-const GRID_COLUMN_SET = new Set<JosanzListGridColumns>([2, 3, 4, 5, 6]);
-const PAGE_SIZE_SET = new Set<JosanzListPageSize>([5, 10, 15, 20, 25, 50]);
-
-export function isValidListGridColumns(n: number): n is JosanzListGridColumns {
-  return GRID_COLUMN_SET.has(n as JosanzListGridColumns);
+export function normalizeListGridColumns(value: number): number {
+  const rounded = Math.round(Number(value));
+  if (!Number.isFinite(rounded)) {
+    return 3;
+  }
+  return Math.min(
+    JOSANZ_LIST_GRID_COLUMNS_MAX,
+    Math.max(JOSANZ_LIST_GRID_COLUMNS_MIN, rounded),
+  );
 }
 
-export function isValidListPageSize(n: number): n is JosanzListPageSize {
-  return PAGE_SIZE_SET.has(n as JosanzListPageSize);
+export function normalizeListPageSize(value: number): number {
+  const rounded = Math.round(Number(value));
+  if (!Number.isFinite(rounded)) {
+    return 10;
+  }
+  return Math.min(JOSANZ_LIST_PAGE_SIZE_MAX, Math.max(JOSANZ_LIST_PAGE_SIZE_MIN, rounded));
+}
+
+export function isValidListGridColumns(n: number): boolean {
+  return Number.isInteger(n) && n >= JOSANZ_LIST_GRID_COLUMNS_MIN && n <= JOSANZ_LIST_GRID_COLUMNS_MAX;
+}
+
+export function isValidListPageSize(n: number): boolean {
+  return Number.isInteger(n) && n >= JOSANZ_LIST_PAGE_SIZE_MIN && n <= JOSANZ_LIST_PAGE_SIZE_MAX;
+}
+
+export function isPresetListGridColumns(n: number): boolean {
+  return JOSANZ_LIST_GRID_COLUMN_OPTIONS.some((option) => option.value === n);
+}
+
+export function isPresetListPageSize(n: number): boolean {
+  return JOSANZ_LIST_PAGE_SIZE_OPTIONS.some((option) => option.value === n);
 }
 
 /** Compatibilidad con preferencia antigua (`Tabla` | `Tarjetas`). */

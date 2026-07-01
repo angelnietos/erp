@@ -3,11 +3,13 @@ import type { JosanzControlShape } from '../josanz-control-styles';
 import {
   defaultGridColumnsForSelection,
   isValidListGridColumns,
+  isValidListPageSize,
   migrateLegacyListViewMode,
+  normalizeListGridColumns,
+  normalizeListPageSize,
   type JosanzListGridColumns,
   type JosanzListPageSize,
   type JosanzListViewSelection,
-  isValidListPageSize,
 } from '../list-view/list-view-preferences';
 
 /** @deprecated Usar `JosanzListViewSelection`. */
@@ -141,8 +143,8 @@ export class JosanzThemeService {
     this.setListViewSelection(migrateLegacyListViewMode(mode));
   }
 
-  setListGridColumns(columns: JosanzListGridColumns) {
-    this.listGridColumns.set(columns);
+  setListGridColumns(columns: number) {
+    this.listGridColumns.set(normalizeListGridColumns(columns));
     this.persistPreferences();
   }
 
@@ -155,8 +157,8 @@ export class JosanzThemeService {
     this.setListViewPanelOpen(!this.listViewPanelOpen());
   }
 
-  setListPageSize(size: JosanzListPageSize) {
-    this.listPageSize.set(size);
+  setListPageSize(size: number) {
+    this.listPageSize.set(normalizeListPageSize(size));
     this.persistPreferences();
   }
 
@@ -313,12 +315,12 @@ export class JosanzThemeService {
 
     const cols = stored.listGridColumns;
     if (cols !== undefined && isValidListGridColumns(cols)) {
-      this.listGridColumns.set(cols);
+      this.listGridColumns.set(normalizeListGridColumns(cols));
     }
 
     const pageSize = stored.listPageSize;
     if (pageSize !== undefined && isValidListPageSize(pageSize)) {
-      this.listPageSize.set(pageSize);
+      this.listPageSize.set(normalizeListPageSize(pageSize));
     }
   }
 

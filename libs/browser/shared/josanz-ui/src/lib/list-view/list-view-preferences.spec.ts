@@ -2,6 +2,8 @@ import {
   defaultGridColumnsForSelection,
   gridDensityForSelection,
   isValidListPageSize,
+  normalizeListGridColumns,
+  normalizeListPageSize,
   listViewStackClasses,
 } from './list-view-preferences';
 
@@ -13,9 +15,18 @@ describe('list-view-preferences', () => {
     expect(defaultGridColumnsForSelection('tabla')).toBeNull();
   });
 
-  it('valida tamaños de página permitidos', () => {
+  it('acepta tamaños de página personalizados dentro del rango', () => {
     expect(isValidListPageSize(10)).toBe(true);
-    expect(isValidListPageSize(7)).toBe(false);
+    expect(isValidListPageSize(7)).toBe(true);
+    expect(isValidListPageSize(0)).toBe(false);
+    expect(normalizeListPageSize(7)).toBe(7);
+    expect(normalizeListPageSize(250)).toBe(100);
+  });
+
+  it('normaliza columnas de cuadrícula personalizadas', () => {
+    expect(normalizeListGridColumns(8)).toBe(8);
+    expect(normalizeListGridColumns(0)).toBe(1);
+    expect(normalizeListGridColumns(99)).toBe(12);
   });
 
   it('asigna densidad y clases de stack de forma determinista', () => {
