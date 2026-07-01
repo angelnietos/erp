@@ -29,6 +29,7 @@ export class JosanzClientsListComponent implements OnInit {
 
   private readonly baseConfig: Omit<JosanzCatalogListConfig, 'rows' | 'summaryLine' | 'paginationTotal'> = {
     title: 'Clientes',
+    stateKey: 'clients',
     primaryBtnLabel: 'Añadir Cliente',
     titleColumnLabel: 'Nombre cliente',
     rowLabels: ['Teléfono', 'Email', 'Operador'],

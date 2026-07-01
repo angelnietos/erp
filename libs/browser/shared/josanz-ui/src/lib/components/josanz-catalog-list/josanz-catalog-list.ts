@@ -26,6 +26,10 @@ import {
 } from '../../list-export/list-export.utils';
 import type { JosanzListExportFormat } from '../../list-export/list-export.types';
 import { JosanzThemeService } from '../../services/theme.service';
+import {
+  JosanzCatalogListStateService,
+  resolveCatalogListStateKey,
+} from '../../services/catalog-list-state.service';
 import { isStatusBoardView, isTableListView } from '../../list-view/list-view-preferences';
 import { isDateInBoardPeriod, type JosanzBoardPeriodKind } from '../../list-view/board-period';
 import { CatalogThemeFacade } from '../../services/catalog-theme.facade';
@@ -85,6 +89,8 @@ export interface JosanzCatalogListConfig {
   loadingPlaceholderCount?: number;
   /** Campos del modal Filtros: `events` (por defecto) o `clients`. */
   modalFilterMode?: JosanzCatalogModalFilterMode;
+  /** Clave estable para persistir filtros al cambiar de ruta (por defecto: slug del título). */
+  stateKey?: string;
 }
 
 import { FormsModule } from '@angular/forms';
@@ -109,6 +115,7 @@ import { FormsModule } from '@angular/forms';
 export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
   private readonly listExport = inject(JosanzListExportService);
+  private readonly listState = inject(JosanzCatalogListStateService);
   readonly themeService = inject(JosanzThemeService);
   private readonly catalogTheme = inject(CatalogThemeFacade);
 
@@ -146,13 +153,58 @@ export class JosanzCatalogListComponent implements OnChanges {
   readonly showLoadingSkeleton = signal(false);
   private loadingDelayTimer?: ReturnType<typeof setTimeout>;
 
+  private restoredStateKey: string | null = null;
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['config']) {
       this.invalidateListSnapshots();
       this.syncLoadingSkeleton(Boolean(this.config.loading));
       this.ensureValidViewSelection();
       this.syncPageSizeAndReset();
+      this.maybeRestoreFilterState();
     }
+  }
+
+  private catalogStateKey(): string {
+    return resolveCatalogListStateKey({
+      stateKey: this.config?.stateKey,
+      title: this.config?.title ?? 'listado',
+    });
+  }
+
+  private maybeRestoreFilterState(): void {
+    const key = this.catalogStateKey();
+    if (this.restoredStateKey === key) {
+      return;
+    }
+    this.restoreFilterState();
+    this.restoredStateKey = key;
+  }
+
+  private restoreFilterState(): void {
+    const saved = this.listState.get(this.catalogStateKey());
+    if (!saved) {
+      return;
+    }
+    this.searchQuery = saved.searchQuery;
+    this.activeTypology = saved.activeTypology;
+    this.activeStatusFilter = saved.activeStatusFilter;
+    this.selectedModalFilters = { ...saved.modalFilters };
+    this.currentPage = saved.currentPage;
+    this.invalidateListSnapshots();
+  }
+
+  private persistFilterState(): void {
+    if (!this.config) {
+      return;
+    }
+    this.listState.save(this.catalogStateKey(), {
+      searchQuery: this.searchQuery,
+      activeTypology: this.activeTypology,
+      activeStatusFilter: this.activeStatusFilter,
+      modalFilters: this.selectedModalFilters,
+      currentPage: this.currentPage,
+    });
   }
 
   private invalidateListSnapshots(): void {
@@ -450,12 +502,14 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.activeStatusFilter = option;
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   onSearch(value: string): void {
     this.searchQuery = value;
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   onExcel(): void {
@@ -515,11 +569,13 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.activeTypology = option;
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   onBoardPeriodKindChange(kind: JosanzBoardPeriodKind): void {
@@ -730,14 +786,22 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.selectedModalFilters = {};
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   applyModalFilters(): void {
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
     if (!this.filtersUseInlinePanel) {
       this.closeFiltrosPanel();
     }
+  }
+
+  onModalFilterFieldChange(): void {
+    this.currentPage = 1;
+    this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   get activeFilterChips(): { key: string; label: string; value: string }[] {
@@ -756,6 +820,7 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.selectedModalFilters = next;
     this.currentPage = 1;
     this.invalidateListSnapshots();
+    this.persistFilterState();
   }
 
   getModalFilterOptions(field: JosanzCatalogModalFilterField): string[] {

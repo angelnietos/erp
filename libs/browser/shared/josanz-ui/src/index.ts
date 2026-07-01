@@ -64,6 +64,7 @@ export * from './lib/components/document-item';
 export * from './lib/components/document-list';
 export * from './lib/base-list';
 export * from './lib/services/theme.service';
+export * from './lib/services/catalog-list-state.service';
 export * from './lib/utils/resolve-josanz-user-display';
 export * from './lib/utils/resolve-josanz-user-role-badge';
 export * from './lib/components/josanz-user-role-badge/josanz-user-role-badge';

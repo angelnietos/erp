@@ -207,7 +207,11 @@
     <div class="josanz-catalog-filters-panel__field">
       <label class="josanz-catalog-filters-panel__label">{{ field.label }}</label>
       <div class="josanz-catalog-filters-panel__select-wrap">
-        <select [(ngModel)]="selectedModalFilters[field.key]" class="josanz-catalog-filters-panel__select">
+        <select
+          [(ngModel)]="selectedModalFilters[field.key]"
+          (ngModelChange)="onModalFilterFieldChange()"
+          class="josanz-catalog-filters-panel__select"
+        >
           <option value="">-</option>
           @for (option of getModalFilterOptions(field); track option) {
             <option [value]="option">{{ option }}</option>

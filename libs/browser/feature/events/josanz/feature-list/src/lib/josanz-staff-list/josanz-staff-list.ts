@@ -25,6 +25,7 @@ export class JosanzStaffListComponent implements OnInit {
     'rows' | 'summaryLine' | 'paginationTotal' | 'loading'
   > = {
     title: 'Staff',
+    stateKey: 'staff',
     primaryBtnLabel: 'Añadir personal',
     titleColumnLabel: 'Ref.',
     statusColumnLabel: 'Tipo',

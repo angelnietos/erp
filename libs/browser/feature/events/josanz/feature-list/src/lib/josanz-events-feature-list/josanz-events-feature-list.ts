@@ -51,6 +51,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     'rows' | 'summaryLine' | 'paginationTotal'
   > = {
     title: 'Eventos',
+    stateKey: 'events',
     primaryBtnLabel: 'Añadir Evento',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
