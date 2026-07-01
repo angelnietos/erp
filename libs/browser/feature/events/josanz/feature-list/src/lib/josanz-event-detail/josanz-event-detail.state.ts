@@ -341,6 +341,9 @@ export class JosanzEventDetailState {
   }
 
   onStaffPicked(optionId: string): void {
+    if (!optionId.trim()) {
+      return;
+    }
     const option = this.staffCatalog().find((s) => s.id === optionId);
     if (!option) {
       return;

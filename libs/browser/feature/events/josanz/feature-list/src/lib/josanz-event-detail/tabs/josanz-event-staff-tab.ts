@@ -39,6 +39,7 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
             label="Miembro staff"
             placeholder="Selecciona un miembro"
             [options]="state.staffOptions()"
+            [required]="true"
             (valueChange)="state.onStaffPicked($event)"
           ></josanz-select>
           <button type="button" class="josanz-event-note-composer__cancel" (click)="state.closeComposer()">Cancelar</button>
