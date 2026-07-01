@@ -50,6 +50,16 @@ import {
   type JosanzCatalogModalFilterMode,
 } from '../../catalog/catalog-modal-filters';
 import type { JosanzCatalogFiltersPresentation } from '../../list-view/list-view-preferences';
+import {
+  buildCatalogSortColumns,
+  catalogSortColumnLabel,
+  createDefaultCatalogSortState,
+  sortCatalogRows,
+  toggleCatalogSort,
+  type JosanzCatalogSortColumn,
+  type JosanzCatalogSortDirection,
+  type JosanzCatalogSortState,
+} from '../../list-view/catalog-list-sort';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -191,6 +201,9 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.activeStatusFilter = saved.activeStatusFilter;
     this.selectedModalFilters = { ...saved.modalFilters };
     this.currentPage = saved.currentPage;
+    this.sortState = saved.sort
+      ? { ...saved.sort }
+      : createDefaultCatalogSortState();
     this.invalidateListSnapshots();
   }
 
@@ -204,6 +217,7 @@ export class JosanzCatalogListComponent implements OnChanges {
       activeStatusFilter: this.activeStatusFilter,
       modalFilters: this.selectedModalFilters,
       currentPage: this.currentPage,
+      sort: this.sortState,
     });
   }
 
@@ -250,8 +264,11 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   // Panel de filtros (inline o popover Figma)
   showFiltrosPanel = false;
+  showSortPanel = false;
   selectedModalFilters: Record<string, string> = {};
   popoverStyle: Record<string, string> = {};
+  sortPopoverStyle: Record<string, string> = {};
+  sortState: JosanzCatalogSortState = createDefaultCatalogSortState();
 
   showExportModal = false;
   exportFormat: JosanzListExportFormat = 'xlsx';
@@ -450,7 +467,32 @@ export class JosanzCatalogListComponent implements OnChanges {
     rows = this.applyTypologyFilter(rows);
     rows = this.applyStatusFilter(rows);
     rows = this.filterRowsByModalSelection(rows);
-    return this.applySearchFilter(rows);
+    rows = this.applySearchFilter(rows);
+    return sortCatalogRows(rows, this.sortState, (row) => this.rowValues(row));
+  }
+
+  get sortColumns() {
+    return buildCatalogSortColumns(
+      this.config.titleColumnLabel ?? this.config.idColumnLabel ?? 'ID',
+      this.rowLabels,
+      this.config.statusColumnLabel,
+    );
+  }
+
+  get hasActiveSort(): boolean {
+    return this.sortState.column !== null;
+  }
+
+  get activeSortLabel(): string | null {
+    return catalogSortColumnLabel(this.sortColumns, this.sortState);
+  }
+
+  get sortColumn(): JosanzCatalogSortColumn | null {
+    return this.sortState.column;
+  }
+
+  get sortDirection(): JosanzCatalogSortDirection {
+    return this.sortState.direction;
   }
 
   rowValues(row: JosanzCatalogListRow): string[] {
@@ -624,6 +666,8 @@ export class JosanzCatalogListComponent implements OnChanges {
       this.pageSize,
       this.themeService.listViewSelection(),
       this.themeService.listGridColumns(),
+      this.sortState.column ?? '',
+      this.sortState.direction,
       rows.map((row) => `${row.id}:${row.pillLabel}`).join('|'),
     ].join('::');
   }
@@ -739,10 +783,60 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   // Modal actions and filters helper methods
   openFiltrosPanel(): void {
+    this.showSortPanel = false;
     this.showFiltrosPanel = !this.showFiltrosPanel;
     if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
-      queueMicrotask(() => this.syncPopoverPosition());
+      queueMicrotask(() => this.syncPopoverPosition('filtros'));
     }
+  }
+
+  openSortPanel(): void {
+    this.showFiltrosPanel = false;
+    this.showSortPanel = !this.showSortPanel;
+    if (this.showSortPanel) {
+      queueMicrotask(() => this.syncPopoverPosition('sort'));
+    }
+  }
+
+  closeSortPanel(): void {
+    this.showSortPanel = false;
+  }
+
+  onHeaderSortChange(column: JosanzCatalogSortColumn): void {
+    this.setSortColumn(column);
+  }
+
+  onSortOptionClick(column: JosanzCatalogSortColumn | null): void {
+    if (!column) {
+      this.clearSort();
+      this.closeSortPanel();
+      return;
+    }
+    this.setSortColumn(column);
+  }
+
+  setSortColumn(column: JosanzCatalogSortColumn): void {
+    this.sortState = toggleCatalogSort(this.sortState, column);
+    this.currentPage = 1;
+    this.invalidateListSnapshots();
+    this.persistFilterState();
+  }
+
+  clearSort(): void {
+    if (!this.hasActiveSort) {
+      return;
+    }
+    this.sortState = createDefaultCatalogSortState();
+    this.currentPage = 1;
+    this.invalidateListSnapshots();
+    this.persistFilterState();
+  }
+
+  sortArrowFor(column: JosanzCatalogSortColumn): string {
+    if (this.sortState.column !== column) {
+      return '';
+    }
+    return this.sortState.direction === 'asc' ? '↑' : '↓';
   }
 
   closeFiltrosPanel(): void {
@@ -755,31 +849,42 @@ export class JosanzCatalogListComponent implements OnChanges {
     }
     this.themeService.setCatalogFiltersPresentation(presentation);
     if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
-      queueMicrotask(() => this.syncPopoverPosition());
+      queueMicrotask(() => this.syncPopoverPosition('filtros'));
     }
   }
 
   @HostListener('window:resize')
   onWindowResize(): void {
     if (this.showFiltrosPanel && !this.filtersUseInlinePanel) {
-      this.syncPopoverPosition();
+      this.syncPopoverPosition('filtros');
+    }
+    if (this.showSortPanel) {
+      this.syncPopoverPosition('sort');
     }
   }
 
-  private syncPopoverPosition(): void {
-    const btn = this.listLayout?.getFiltrosButtonElement();
+  private syncPopoverPosition(anchor: 'filtros' | 'sort'): void {
+    const btn =
+      anchor === 'filtros'
+        ? this.listLayout?.getFiltrosButtonElement()
+        : this.listLayout?.getSortButtonElement();
     if (!btn) {
       return;
     }
     const rect = btn.getBoundingClientRect();
-    const panelWidth = Math.min(600, window.innerWidth - 24);
+    const panelWidth = Math.min(anchor === 'sort' ? 280 : 600, window.innerWidth - 24);
     const maxLeft = Math.max(12, window.innerWidth - panelWidth - 12);
     const left = Math.min(Math.max(12, rect.left), maxLeft);
-    this.popoverStyle = {
+    const style = {
       top: `${rect.bottom + 8}px`,
       left: `${left}px`,
       width: `${panelWidth}px`,
     };
+    if (anchor === 'filtros') {
+      this.popoverStyle = style;
+    } else {
+      this.sortPopoverStyle = style;
+    }
   }
 
   clearAllModalFilters(): void {

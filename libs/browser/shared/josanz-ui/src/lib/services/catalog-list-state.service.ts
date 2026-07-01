@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import { slugifyExportName } from '../list-export/list-export.utils';
+import {
+  createDefaultCatalogSortState,
+  type JosanzCatalogSortState,
+} from '../list-view/catalog-list-sort';
 
 export interface JosanzCatalogListFilterState {
   searchQuery: string;
@@ -7,6 +11,7 @@ export interface JosanzCatalogListFilterState {
   activeStatusFilter: string;
   modalFilters: Record<string, string>;
   currentPage: number;
+  sort: JosanzCatalogSortState;
 }
 
 const DEFAULT_FILTER_STATE: JosanzCatalogListFilterState = {
@@ -15,6 +20,7 @@ const DEFAULT_FILTER_STATE: JosanzCatalogListFilterState = {
   activeStatusFilter: '',
   modalFilters: {},
   currentPage: 1,
+  sort: createDefaultCatalogSortState(),
 };
 
 export function resolveCatalogListStateKey(input: {
@@ -37,6 +43,7 @@ export class JosanzCatalogListStateService {
     return {
       ...state,
       modalFilters: { ...state.modalFilters },
+      sort: { ...state.sort },
     };
   }
 
@@ -47,6 +54,7 @@ export class JosanzCatalogListStateService {
       activeStatusFilter: state.activeStatusFilter,
       modalFilters: { ...state.modalFilters },
       currentPage: state.currentPage,
+      sort: { ...state.sort },
     });
   }
 
@@ -59,5 +67,6 @@ export function createDefaultCatalogListFilterState(): JosanzCatalogListFilterSt
   return {
     ...DEFAULT_FILTER_STATE,
     modalFilters: {},
+    sort: createDefaultCatalogSortState(),
   };
 }

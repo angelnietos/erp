@@ -24,6 +24,9 @@
   (paginationChange)="onPageChange($event)"
   (filtrosClick)="openFiltrosPanel()"
   [filtrosPanelOpen]="showFiltrosPanel"
+  (sortClick)="openSortPanel()"
+  [sortPanelOpen]="showSortPanel"
+  [sortActive]="hasActiveSort"
 >
   @if (showFiltrosPanel && filtersUseInlinePanel) {
   <div
@@ -36,13 +39,27 @@
   </div>
   }
 
-  @if (activeFilterChips.length > 0) {
+  @if (activeFilterChips.length > 0 || hasActiveSort) {
   <div
     active-filter-chips
     class="josanz-catalog-active-filters"
     role="group"
-    aria-label="Filtros activos"
+    aria-label="Filtros y orden activos"
   >
+    @if (hasActiveSort && activeSortLabel) {
+      <span class="josanz-catalog-active-filters__chip">
+        <span class="josanz-catalog-active-filters__label">Orden:</span>
+        <span class="josanz-catalog-active-filters__value">{{ activeSortLabel }} {{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        <button
+          type="button"
+          class="josanz-catalog-active-filters__remove"
+          aria-label="Quitar ordenación"
+          (click)="clearSort()"
+        >
+          &times;
+        </button>
+      </span>
+    }
     @for (filter of activeFilterChips; track filter.key) {
       <span class="josanz-catalog-active-filters__chip">
         <span class="josanz-catalog-active-filters__label">{{ filter.label }}:</span>
@@ -127,6 +144,10 @@
     [fieldLabels]="rowLabels"
     [statusLabel]="config.statusColumnLabel"
     [withLeadingMark]="config.withLeadingMark ?? false"
+    [sortable]="true"
+    [sortColumn]="sortColumn"
+    [sortDirection]="sortDirection"
+    (sortChange)="onHeaderSortChange($event)"
   ></josanz-list-template-header-row>
   }
 
@@ -252,6 +273,59 @@
     </div>
   </div>
 </ng-template>
+
+@if (showSortPanel) {
+<div class="josanz-figma-filters-popover-backdrop" (click)="closeSortPanel()"></div>
+<div
+  class="josanz-catalog-sort-panel josanz-catalog-filters-panel--popover"
+  role="listbox"
+  aria-label="Ordenar listado"
+  [ngStyle]="sortPopoverStyle"
+  (click)="$event.stopPropagation()"
+>
+  <div class="josanz-catalog-sort-panel__header">
+    <h2 class="josanz-catalog-sort-panel__title">Ordenar por</h2>
+    <button
+      type="button"
+      class="josanz-catalog-filters-panel__close"
+      aria-label="Cerrar ordenación"
+      (click)="closeSortPanel()"
+    >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="josanz-catalog-sort-panel__list">
+    <button
+      type="button"
+      class="josanz-catalog-sort-panel__option"
+      [class.josanz-catalog-sort-panel__option--active]="!hasActiveSort"
+      role="option"
+      [attr.aria-selected]="!hasActiveSort"
+      (click)="onSortOptionClick(null)"
+    >
+      Sin ordenar
+    </button>
+    @for (column of sortColumns; track column.key) {
+      <button
+        type="button"
+        class="josanz-catalog-sort-panel__option"
+        [class.josanz-catalog-sort-panel__option--active]="sortColumn === column.key"
+        role="option"
+        [attr.aria-selected]="sortColumn === column.key"
+        (click)="onSortOptionClick(column.key)"
+      >
+        <span>{{ column.label }}</span>
+        @if (sortColumn === column.key) {
+          <span class="josanz-catalog-sort-panel__arrow" aria-hidden="true">{{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+        }
+      </button>
+    }
+  </div>
+</div>
+}
 
 @if (showFiltrosPanel && !filtersUseInlinePanel) {
 <div class="josanz-figma-filters-popover-backdrop" (click)="closeFiltrosPanel()"></div>

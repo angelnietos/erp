@@ -37,6 +37,7 @@ export * from './lib/delete/josanz-delete-confirm-host';
 export * from './lib/detail/detail-tab-route';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';
+export * from './lib/list-view/catalog-list-sort';
 export * from './lib/list-view/board-period';
 export * from './lib/list-view/filter-list-items';
 export * from './lib/list-export/list-export.types';

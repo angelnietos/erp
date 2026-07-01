@@ -76,14 +76,24 @@ export class MainListLayoutComponent implements OnChanges {
   @Output() filterChange = new EventEmitter<string>();
   @Output() paginationChange = new EventEmitter<number>();
   @Output() filtrosClick = new EventEmitter<void>();
+  @Output() sortClick = new EventEmitter<void>();
 
   @Input() filtrosPanelOpen = false;
+  @Input() sortPanelOpen = false;
+  @Input() sortActive = false;
 
   @ViewChild('filtrosBtn', { read: ElementRef })
   private filtrosBtn?: ElementRef<HTMLButtonElement>;
 
+  @ViewChild('sortBtn', { read: ElementRef })
+  private sortBtn?: ElementRef<HTMLButtonElement>;
+
   getFiltrosButtonElement(): HTMLButtonElement | null {
     return this.filtrosBtn?.nativeElement ?? null;
+  }
+
+  getSortButtonElement(): HTMLButtonElement | null {
+    return this.sortBtn?.nativeElement ?? null;
   }
 
   @Input() avatarLink: string | null = '/settings';
@@ -167,5 +177,9 @@ export class MainListLayoutComponent implements OnChanges {
 
   onFiltrosClick(): void {
     this.filtrosClick.emit();
+  }
+
+  onSortClick(): void {
+    this.sortClick.emit();
   }
 }

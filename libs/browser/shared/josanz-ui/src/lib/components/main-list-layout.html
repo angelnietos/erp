@@ -90,6 +90,20 @@
               </svg>
               Filtros
             </button>
+            <button
+              #sortBtn
+              type="button"
+              class="josanz-figma-filter-btn josanz-figma-sort-btn"
+              [class.josanz-figma-filter-btn--active]="sortPanelOpen || sortActive"
+              aria-haspopup="listbox"
+              [attr.aria-expanded]="sortPanelOpen"
+              (click)="onSortClick()"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18M7 12h10M10 18h4"/>
+              </svg>
+              Ordenar
+            </button>
             @if (showSearch) {
             <josanz-list-search-field
               [placeholder]="searchPlaceholder"

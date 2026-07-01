@@ -381,6 +381,111 @@
   }
 }
 
+/* ── Sort panel (popover junto a Ordenar) ── */
+.josanz-catalog-sort-panel {
+  padding: 0.75rem 0.5rem 0.5rem;
+  z-index: 1200;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 0.5rem 0.5rem;
+    border-bottom: 1px solid var(--josanz-border, #ebebeb);
+    margin-bottom: 0.25rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--josanz-text, #222222);
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    max-height: min(320px, 50vh);
+    overflow-y: auto;
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--josanz-text, #222222);
+    font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: var(--josanz-surface-muted, #f7f7f7);
+    }
+
+    &--active {
+      background: color-mix(in srgb, var(--josanz-interactive, #0f1e2f) 8%, var(--josanz-surface, #fff));
+      color: var(--josanz-interactive, #0f1e2f);
+    }
+  }
+
+  &__arrow {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 800;
+    opacity: 0.85;
+  }
+}
+
+/* ── Sortable column headers ── */
+.josanz-list-thead__sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  max-width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s ease, opacity 0.15s ease;
+
+  &:hover {
+    color: var(--josanz-interactive, #0f1e2f);
+  }
+
+  &--active {
+    color: var(--josanz-interactive, #0f1e2f);
+  }
+
+  &--status {
+    padding: 0;
+  }
+}
+
+.josanz-list-thead__sort-icon {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  opacity: 0.9;
+}
+
 /* ── Active filter chips (list toolbar) ─────────────────── */
 .josanz-catalog-active-filters {
   display: flex;
