@@ -41,7 +41,7 @@ import {
   createVenueGroup,
   eventDateGroupAt,
   eventDatesControl,
-  formatEventMetaFromForm,
+  formatEventMetaParts,
   mergeEventClients,
   operatorOptionsForClient,
   operatorSelectHint,
@@ -132,6 +132,7 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly validationBanner = signal('');
   readonly deleteErrorMessage = signal('');
   readonly showSaveToast = signal(false);
+  readonly heroDetailsOpen = signal(false);
 
   form: FormGroup = createJosanzEventForm(this.fb);
   private readonly selectedClientId = toSignal(
@@ -178,6 +179,7 @@ export class JosanzEventDetailComponent implements OnInit {
       Emails: 'emails',
     },
     saveLabel: 'Guardar cambios',
+    tabAlerts: { Staff: true, Presupuestos: true },
     features: { footerActions: false, headerSave: true },
   };
 
@@ -195,7 +197,11 @@ export class JosanzEventDetailComponent implements OnInit {
 
   readonly heroTypologyLabel = computed(() => typologyTabFromApi(this.selectedType()));
 
-  readonly heroMetaLine = computed(() => formatEventMetaFromForm(this.form, this.clients()));
+  readonly heroMetaParts = computed(() => formatEventMetaParts(this.form, this.clients()));
+
+  readonly heroHasDescription = computed(() =>
+    Boolean((this.form.get('descripcion')?.value ?? '').toString().trim()),
+  );
 
   readonly clientOptions = computed(() =>
     this.clients().map((client) => ({ label: client.name, value: client.id })),
@@ -209,13 +215,7 @@ export class JosanzEventDetailComponent implements OnInit {
     operatorSelectHint(this.clients(), this.selectedClientId() ?? ''),
   );
 
-  readonly eventNotes = computed<JosanzEventNote[]>(() => {
-    const note = this.form.get('descripcion')?.value?.trim();
-    if (!note) {
-      return [];
-    }
-    return [{ id: '1', text: note }];
-  });
+  readonly eventNotes: JosanzEventNote[] = [];
 
   readonly deliveryNotes = ['Albarán 001.pdf', 'Albarán 002.pdf'];
   readonly invoices = ['Factura 001.pdf', 'Factura borrador.pdf'];
@@ -304,6 +304,10 @@ export class JosanzEventDetailComponent implements OnInit {
     this.selectedType.set(type);
     updateEventLocationValidators(this.form, type);
     this.form.markAsDirty();
+  }
+
+  openHeroDetails(): void {
+    this.heroDetailsOpen.set(true);
   }
 
   onShellTabChange(_tab: string): void {

@@ -1,4 +1,4 @@
-<div class="josanz-app-settings mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+<div class="josanz-app-settings mx-auto flex w-full max-w-7xl flex-col gap-6 pb-8">
   <header class="josanz-app-settings__header">
     <h1 class="josanz-app-settings__title">Ajustes</h1>
     <div class="josanz-app-settings__accent" aria-hidden="true"></div>
@@ -27,12 +27,7 @@
   }
 
   @if (activeTab() === 'Personalización') {
-  <section class="josanz-app-settings__panel">
-    <p class="premium-desc josanz-app-settings__panel-lead">
-      Marca, atmósfera y formas se guardan en este dispositivo.
-    </p>
-    <josanz-theme-personalization-panel />
-  </section>
+  <josanz-theme-personalization-panel />
   }
 
   @if (activeTab() === 'Estados') {

@@ -294,6 +294,14 @@ export function formatEventMetaFromForm(
   form: FormGroup,
   clients: Client[],
 ): string {
+  const parts = formatEventMetaParts(form, clients);
+  return `Fecha: ${parts.date} · Operador: ${parts.operator} · Lugar: ${parts.location}`;
+}
+
+export function formatEventMetaParts(
+  form: FormGroup,
+  clients: Client[],
+): { date: string; operator: string; location: string } {
   const raw = form.getRawValue() as {
     clientId: string;
     operatorContactId: string;
@@ -305,10 +313,10 @@ export function formatEventMetaFromForm(
   const dateLabel =
     date && !Number.isNaN(date.getTime())
       ? date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-      : '—';
+      : 'dd/mm/aaaa';
   const client = clients.find((c) => c.id === raw.clientId);
   const operator =
     client?.contacts?.find((c) => c.id === raw.operatorContactId)?.name ?? '—';
   const location = raw.localizacion?.trim() || '—';
-  return `Fecha: ${dateLabel} · Operador: ${operator} · Lugar: ${location}`;
+  return { date: dateLabel, operator, location };
 }

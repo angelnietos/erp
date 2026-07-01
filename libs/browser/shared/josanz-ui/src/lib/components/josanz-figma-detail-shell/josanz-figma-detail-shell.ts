@@ -49,6 +49,7 @@ import { resolveJosanzUserDisplayName } from '../../utils/resolve-josanz-user-di
       [saveLabel]="config.saveLabel ?? 'Guardar cambios'"
       [cancelLabel]="config.cancelLabel ?? 'Cancelar'"
       [saveDisabled]="config.saveDisabled ?? true"
+      [tabAlerts]="config.tabAlerts ?? {}"
       [showFooterActions]="resolvedFeatures.footerActions"
       [showHeaderSave]="resolvedFeatures.headerSave"
       [avatarLink]="resolvedFeatures.avatar ? (config.avatarLink ?? '/settings') : null"

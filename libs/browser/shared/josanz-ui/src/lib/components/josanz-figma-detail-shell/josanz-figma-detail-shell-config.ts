@@ -29,6 +29,8 @@ export interface JosanzFigmaDetailShellConfig {
   saveDisabled?: boolean;
   avatarLink?: string | null;
   avatarAriaLabel?: string;
+  /** Pestañas con icono de alerta rojo. */
+  tabAlerts?: Record<string, boolean>;
   features?: JosanzFigmaDetailShellFeatures;
 }
 

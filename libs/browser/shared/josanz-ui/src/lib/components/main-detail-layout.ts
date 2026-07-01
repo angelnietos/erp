@@ -63,6 +63,8 @@ export class MainDetailLayoutComponent {
   /** Botón guardar en la barra de tabs (solo `figma-event`). */
   @Input() showHeaderSave = true;
   @Input() saveDisabled = true;
+  /** Pestañas con icono de alerta (detalle Figma). */
+  @Input() tabAlerts: Record<string, boolean> = {};
 
   @Output() back = new EventEmitter<void>();
   @Output() tabChange = new EventEmitter<string>();

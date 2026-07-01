@@ -10,7 +10,7 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
   imports: [CommonModule],
   template: `
     <div
-      class="flex gap-3 w-full overflow-x-auto no-scrollbar pb-1"
+      class="flex gap-2 w-full overflow-x-auto no-scrollbar pb-1"
       [class.mb-6]="!dense"
     >
       @for (option of options; track option) {
@@ -20,11 +20,32 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
           [class]="tabClasses(option)"
           [ngStyle]="tabShellStyle(option)"
         >
+          @if (tabAlerts[option]) {
+          <span class="josanz-main-tab__alert" aria-hidden="true">!</span>
+          }
           {{ option }}
         </button>
       }
     </div>
   `,
+  styles: [
+    `
+      .josanz-main-tab__alert {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 14px;
+        height: 14px;
+        border-radius: 9999px;
+        background: #ef4444;
+        color: #fff;
+        font-size: 9px;
+        font-weight: 800;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+    `,
+  ],
 })
 export class MainTabsComponent implements OnInit, OnChanges {
   public themeService = inject(JosanzThemeService);
@@ -37,6 +58,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
   @Input() variant: JosanzMainTabsVariant = 'figma';
   /** Sin margen inferior (p. ej. cabecera detalle Figma). */
   @Input() dense = false;
+  /** Icono de alerta rojo en pestañas con datos pendientes. */
+  @Input() tabAlerts: Record<string, boolean> = {};
 
   active = '';
 
@@ -52,21 +75,13 @@ export class MainTabsComponent implements OnInit, OnChanges {
     const accent = this.customColor ?? 'var(--josanz-interactive)';
     const accentText = this.customColor ?? 'var(--josanz-pill-active-text)';
     if (this.useFigmaTabs()) {
-      const color = on ? accentText : 'var(--josanz-text-muted)';
+      const color = on ? '#222222' : '#a1a1a1';
       return {
-        backgroundColor: on
-          ? this.customColor
-            ? `color-mix(in srgb, ${this.customColor} 14%, var(--josanz-surface))`
-            : 'var(--josanz-pill-active-bg)'
-          : 'var(--josanz-surface)',
-        borderColor: on ? accentText : 'var(--josanz-border)',
+        backgroundColor: 'var(--josanz-surface)',
+        borderColor: on ? '#222222' : '#e7edf1',
         color,
         WebkitTextFillColor: color,
-        boxShadow: on
-          ? this.customColor
-            ? `0 0 0 1px color-mix(in srgb, ${this.customColor} 32%, transparent)`
-            : '0 0 0 1px var(--josanz-pill-active-border)'
-          : 'none',
+        boxShadow: '0 4px 4px rgba(178, 178, 178, 0.3)',
       };
     }
     const color = on ? accent : 'var(--josanz-text-muted)';
@@ -79,13 +94,14 @@ export class MainTabsComponent implements OnInit, OnChanges {
   }
 
   tabClasses(option: string) {
-    const base =
-      'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
-
     const figma = this.useFigmaTabs();
+    const base = figma
+      ? 'inline-flex items-center gap-1.5 h-[25px] px-[10px] text-[12px] font-semibold transition-[color,border-color] whitespace-nowrap border border-solid rounded-[6px]'
+      : 'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
+
     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
     const shapes = figma
-      ? { rounded: 'rounded-lg', pill: 'rounded-full', square: 'rounded-none', inner: 'rounded-lg' }
+      ? { rounded: '', pill: '', square: '', inner: '' }
       : {
           rounded: 'rounded-[10px]',
           pill: 'rounded-full',

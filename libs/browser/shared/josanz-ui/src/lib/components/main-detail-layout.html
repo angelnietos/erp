@@ -65,11 +65,11 @@
         <h1
           style="
             margin: 0;
-            font-size: clamp(20px, 2.5vw, 28px);
-            font-weight: 800;
-            letter-spacing: -0.02em;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
             line-height: 1.1;
-            color: var(--josanz-text);
+            color: #222;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -80,10 +80,17 @@
         @if (statusLabel) {
         <span
           class="josanz-detail-figma__status"
-          [style.backgroundColor]="statusPillBg()"
-          [style.color]="statusPillText()"
+          [class.josanz-detail-figma__status--figma]="layoutVariant === 'figma-event'"
+          [style.backgroundColor]="layoutVariant === 'figma-event' ? '#f4f4f4' : statusPillBg()"
+          [style.color]="layoutVariant === 'figma-event' ? '#222222' : statusPillText()"
+          [style.border]="layoutVariant === 'figma-event' ? '1px solid #222222' : 'none'"
           style="white-space: nowrap; flex-shrink: 0"
         >
+          @if (layoutVariant === 'figma-event') {
+          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+          </svg>
+          }
           {{ statusLabel }}
         </span>
         }
@@ -118,6 +125,7 @@
         [selection]="activeTab"
         variant="figma"
         [dense]="true"
+        [tabAlerts]="tabAlerts"
         (selectionChange)="tabChange.emit($event)"
       ></josanz-main-tabs>
       @if (showHeaderSave) {
@@ -127,7 +135,7 @@
           [showIcon]="false"
           [fullWidth]="true"
           [disabled]="saveDisabled"
-          [customColor]="saveDisabled ? undefined : '#0F1E2F'"
+          [customColor]="saveDisabled ? '#dadfe6' : '#0F1E2F'"
           (btnClick)="save.emit()"
         ></josanz-button>
       </div>
