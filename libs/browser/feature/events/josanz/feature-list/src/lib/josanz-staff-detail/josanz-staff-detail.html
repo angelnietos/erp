@@ -9,7 +9,7 @@
         <h2>{{ shellConfig().title }}</h2>
         <span
           class="josanz-event-staff-card__tag"
-          [ngStyle]="pillStyle(shellConfig().statusPillKey)"
+          [ngStyle]="pillStyle(shellConfig().statusPillKey ?? 'staff-tecnico')"
           >{{ shellConfig().statusLabel }}</span
         >
       </div>
