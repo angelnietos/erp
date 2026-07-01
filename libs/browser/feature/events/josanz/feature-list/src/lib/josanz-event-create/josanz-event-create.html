@@ -78,6 +78,13 @@
           [required]="true"
         ></josanz-input>
 
+        <josanz-client-rail-picker
+          [parentForm]="form"
+          controlName="statusPillColor"
+          fieldLabel="Color de estado"
+          fieldHint="Color de la pastilla de estado en el listado de eventos."
+        ></josanz-client-rail-picker>
+
         <div formArrayName="eventDates" class="josanz-event-create__date-rows">
           @for (group of eventDates.controls; track $index; let i = $index) {
           <div class="josanz-event-create__date-row" [formGroupName]="i">

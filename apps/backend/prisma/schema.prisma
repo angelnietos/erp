@@ -23,6 +23,7 @@ model Client {
   country     String?   @default("ES")
   tariffLabel String?   @map("tariff_label")
   railColor   String?   @map("rail_color")
+  pillColor   String?   @map("pill_color")
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
   contacts    ClientContact[]
@@ -494,6 +495,7 @@ model Event {
   eventSchedule     Json?             @map("event_schedule")
   summary           String?
   status            String            @default("DRAFT")
+  statusPillColor   String?           @map("status_pill_color")
   location          String?
   venueSchedule     Json?             @map("venue_schedule")
   notes             String?

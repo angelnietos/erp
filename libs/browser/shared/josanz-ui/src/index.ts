@@ -26,6 +26,7 @@ export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-sh
 export * from './lib/catalog/catalog-status';
 export * from './lib/catalog/figma-catalog-mappers';
 export * from './lib/catalog/client-rail-presets';
+export * from './lib/catalog/status-pill-presets';
 export * from './lib/detail/detail-tab-route';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';

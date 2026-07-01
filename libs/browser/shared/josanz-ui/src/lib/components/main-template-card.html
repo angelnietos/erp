@@ -27,9 +27,7 @@
         @if (leadingMark) {
         <span
           class="josanz-list-card__leading flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-solid text-[10px] font-extrabold"
-          [style.borderColor]="'var(--josanz-border)'"
-          [style.backgroundColor]="'var(--josanz-surface-muted)'"
-          [style.color]="'var(--josanz-text)'"
+          [ngStyle]="getLeadingMarkStyles()"
           aria-hidden="true"
         >
           {{ leadingMark }}

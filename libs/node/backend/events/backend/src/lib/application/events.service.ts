@@ -32,6 +32,7 @@ export interface EventWriteBody {
   location?: string;
   venueSchedule?: EventVenueBlock[];
   status?: string;
+  statusPillColor?: string;
   notes?: string;
   summary?: string;
 }
@@ -237,6 +238,9 @@ export class EventsService {
     if (data.status !== undefined) {
       payload.status = data.status?.trim() || 'DRAFT';
     }
+    if (data.statusPillColor !== undefined) {
+      payload.statusPillColor = data.statusPillColor?.trim() || null;
+    }
     if (data.notes !== undefined) {
       payload.notes = data.notes?.trim() || null;
     }
@@ -320,6 +324,7 @@ export class EventsService {
     eventTime: string | null;
     eventSchedule?: unknown;
     status: string;
+    statusPillColor?: string | null;
     location: string | null;
     venueSchedule: unknown;
     notes: string | null;
@@ -344,6 +349,7 @@ export class EventsService {
       eventTime: event.eventTime,
       eventSchedule: (event.eventSchedule as EventDateBlock[] | null) ?? [],
       status: event.status,
+      statusPillColor: event.statusPillColor ?? null,
       location: event.location,
       venueSchedule: (event.venueSchedule as EventVenueBlock[] | null) ?? [],
       notes: event.notes,

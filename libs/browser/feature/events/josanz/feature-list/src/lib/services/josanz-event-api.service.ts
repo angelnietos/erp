@@ -27,6 +27,7 @@ export interface JosanzEventRecord {
   eventTime: string | null;
   eventSchedule: EventDateBlock[];
   status: string;
+  statusPillColor?: string | null;
   location: string | null;
   venueSchedule: EventVenueBlock[];
   notes: string | null;
@@ -58,6 +59,7 @@ export interface CreateJosanzEventPayload {
   location?: string;
   venueSchedule?: EventVenueBlock[];
   status?: string;
+  statusPillColor?: string;
   notes?: string;
 }
 

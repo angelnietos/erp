@@ -38,8 +38,8 @@
     <section>
       <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
       <div class="josanz-client-create__grid">
-        <div class="josanz-client-create__brand" aria-hidden="true">
-          <span class="josanz-client-create__brand-initials">{{ brandInitials() }}</span>
+        <div class="josanz-client-create__brand" [ngStyle]="brandPreviewStyles()" aria-hidden="true">
+          <span class="josanz-client-create__brand-initials" style="color: #fff">{{ brandInitials() }}</span>
           <span class="josanz-client-create__brand-name">{{ brandDisplayName() }}</span>
         </div>
 
@@ -100,6 +100,13 @@
           </div>
 
           <josanz-client-rail-picker [parentForm]="form"></josanz-client-rail-picker>
+
+          <josanz-client-rail-picker
+            [parentForm]="form"
+            controlName="colorPill"
+            fieldLabel="Color de tipo / estado"
+            fieldHint="Color de la pastilla en el listado de clientes."
+          ></josanz-client-rail-picker>
         </form>
       </div>
     </section>

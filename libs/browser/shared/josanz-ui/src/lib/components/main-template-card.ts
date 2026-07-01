@@ -8,6 +8,12 @@ import {
   eventOutlineIconRingStyles,
   getEventOutlinePill,
 } from '../theme/event-status-outline';
+import {
+  leadingMarkGradientStyle,
+  pillFilledBadgeStyles,
+  pillOutlineBadgeStyles,
+  pillOutlineIconRingStyles,
+} from '../catalog/status-pill-presets';
 import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
@@ -45,6 +51,10 @@ export class MainTemplateCardComponent {
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
   @Input() railColor?: string;
+  /** Color personalizado de la pastilla de estado/tipo. */
+  @Input() pillColor?: string;
+  /** Gradiente rail→estado en avatar de iniciales (listado Clientes). */
+  @Input() avatarGradient = false;
   /** `outline` = pastilla con borde (Figma Eventos). */
   @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
 
@@ -78,27 +88,12 @@ export class MainTemplateCardComponent {
   }
 
   getBadgeStyles() {
-    if (this.customColor) {
-      const base = {
-        color: this.customColor,
-        'text-transform': 'uppercase' as const,
-        'letter-spacing': '0.05em',
-      };
+    const accent = this.pillColor || this.customColor;
+    if (accent) {
       if (this.statusBadgeStyle === 'outline') {
-        return {
-          ...base,
-          'background-color': 'transparent',
-          'border': `1px solid ${this.customColor}`,
-          'box-shadow': 'none',
-          'text-transform': 'none' as const,
-          'letter-spacing': '0',
-        };
+        return pillOutlineBadgeStyles(accent);
       }
-      return {
-        ...base,
-        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
-        'box-shadow': 'var(--josanz-shadow-sm)',
-      };
+      return pillFilledBadgeStyles(accent);
     }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
@@ -136,6 +131,10 @@ export class MainTemplateCardComponent {
   }
 
   statusIconRingStyles(): Record<string, string> {
+    const accent = this.pillColor || this.customColor;
+    if (accent && this.statusBadgeStyle === 'outline') {
+      return pillOutlineIconRingStyles(accent);
+    }
     return eventOutlineIconRingStyles(this.resolvePillKey());
   }
 
@@ -160,5 +159,19 @@ export class MainTemplateCardComponent {
 
   fieldWidthClass(index: number): string {
     return josanzListFieldWidthClass(index, this.data.length);
+  }
+
+  getLeadingMarkStyles(): Record<string, string> {
+    if (this.avatarGradient && this.leadingMark && this.railColor) {
+      const pillAccent = this.pillColor || this.customColor;
+      if (pillAccent) {
+        return leadingMarkGradientStyle(this.railColor, pillAccent);
+      }
+    }
+    return {
+      borderColor: 'var(--josanz-border)',
+      backgroundColor: 'var(--josanz-surface-muted)',
+      color: 'var(--josanz-text)',
+    };
   }
 }

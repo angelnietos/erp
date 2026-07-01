@@ -21,8 +21,11 @@ import {
   JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
   defaultClientRailColor,
+  defaultClientTariffPillColor,
   clientCategoryTypology,
   josanzNonEmptyTrim,
+  leadingMarkGradientStyle,
+  normalizeHexColor,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -64,6 +67,10 @@ export class JosanzClientCreateComponent {
         defaultClientRailColor(),
         [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
       ],
+      colorPill: [
+        defaultClientTariffPillColor(this.tariffOptions[0]),
+        [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
+      ],
       operadores: this.fb.array([this.createOperatorGroup(1)]),
     });
 
@@ -83,6 +90,16 @@ export class JosanzClientCreateComponent {
     const name = (this.razonSocialValue() ?? '').trim();
     return name || 'Cliente';
   });
+
+  brandPreviewStyles(): Record<string, string> {
+    const rail =
+      normalizeHexColor((this.form.get('colorRail')?.value as string) ?? '') ??
+      defaultClientRailColor();
+    const pill =
+      normalizeHexColor((this.form.get('colorPill')?.value as string) ?? '') ??
+      defaultClientTariffPillColor(this.form.get('tarifa')?.value as string);
+    return leadingMarkGradientStyle(rail, pill);
+  }
 
   get operadores(): FormArray {
     return this.form.get('operadores') as FormArray;
@@ -189,6 +206,7 @@ export class JosanzClientCreateComponent {
       telefono: string;
       tarifa: string;
       colorRail: string;
+      colorPill: string;
       operadores: Array<{ nombre: string; email: string; telefono: string }>;
     };
 
@@ -201,6 +219,7 @@ export class JosanzClientCreateComponent {
       type: 'COMPANY',
       tariffLabel: value.tarifa,
       railColor: value.colorRail.trim().toUpperCase(),
+      pillColor: value.colorPill.trim().toUpperCase(),
       contacts: value.operadores
         .filter((op) => op.nombre?.trim())
         .map((op, index) => ({

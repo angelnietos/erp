@@ -1,5 +1,6 @@
 import type { JosanzCatalogListRow } from './catalog-status';
 import { pillVariantForCatalogStatus, resolveEntityRailColor } from './catalog-status';
+import { resolveCatalogPillColor } from './status-pill-presets';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -21,6 +22,7 @@ export interface FigmaCatalogEventSource {
   name: string;
   typology: string;
   status: string;
+  statusPillColor?: string | null;
   startDate: string;
   location?: string | null;
   client?: {
@@ -28,6 +30,7 @@ export interface FigmaCatalogEventSource {
     name: string;
     sector?: string | null;
     railColor?: string | null;
+    pillColor?: string | null;
   } | null;
   operator?: { name: string } | null;
 }
@@ -40,6 +43,7 @@ export interface FigmaCatalogClientSource {
   sector?: string | null;
   tariffLabel?: string | null;
   railColor?: string | null;
+  pillColor?: string | null;
   contacts?: Array<{ name: string }>;
 }
 
@@ -83,6 +87,7 @@ export function mapEventToCatalogRow(
   const typology = typologyTabFromApi(event.typology);
   const venue = (event.location ?? event.name ?? '').trim();
   const client = event.client?.name ?? '';
+  const pillVariant = pillVariantForCatalogStatus(label);
   return {
     id: event.id,
     title: formatCatalogDisplayId(index),
@@ -93,7 +98,8 @@ export function mapEventToCatalogRow(
     client,
     operator: event.operator?.name ?? '—',
     pillLabel: label,
-    pillVariant: pillVariantForCatalogStatus(label),
+    pillVariant,
+    pillColor: resolveCatalogPillColor(event.statusPillColor, pillVariant, 'outline'),
     railColor: resolveEntityRailColor({
       storedRailColor: event.client?.railColor,
       entityId: event.client?.id ?? event.id,
@@ -152,6 +158,7 @@ export function mapClientToCatalogRow(
   const operators = (client.contacts ?? []).map((c) => c.name).filter(Boolean);
   const tariff = client.tariffLabel ?? 'Especial 01';
   const name = client.name;
+  const pillVariant = tariffPillVariant(tariff);
   return {
     id: client.id,
     title: name,
@@ -164,7 +171,8 @@ export function mapClientToCatalogRow(
       operators.length ? operators.join(', ') : '—',
     ],
     pillLabel: tariff,
-    pillVariant: tariffPillVariant(tariff),
+    pillVariant,
+    pillColor: resolveCatalogPillColor(client.pillColor, pillVariant, 'filled'),
     railColor: resolveEntityRailColor({
       storedRailColor: client.railColor,
       entityId: client.id,

@@ -20,8 +20,10 @@ import {
 import {
   ButtonComponent,
   InputComponent,
+  JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
   SelectComponent,
+  defaultEventStatusPillColor,
   josanzNonEmptyTrim,
 } from '@josanz-erp/josanz-ui';
 
@@ -33,6 +35,7 @@ import {
     ReactiveFormsModule,
     InputComponent,
     SelectComponent,
+    JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
   ],
@@ -63,6 +66,10 @@ export class JosanzEventCreateComponent implements OnInit {
       nombre: ['', josanzNonEmptyTrim],
       eventDates: this.fb.array([this.createEventDateGroup()]),
       localizacion: ['', josanzNonEmptyTrim],
+      statusPillColor: [
+        defaultEventStatusPillColor('DRAFT', 'outline'),
+        [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
+      ],
       venues: this.fb.array([this.createVenueGroup()]),
     });
 
@@ -319,6 +326,7 @@ export class JosanzEventCreateComponent implements OnInit {
       nombre: string;
       eventDates: Array<{ fecha: string; hora: string }>;
       localizacion: string;
+      statusPillColor: string;
       venues: EventVenueBlock[];
     };
 
@@ -364,6 +372,7 @@ export class JosanzEventCreateComponent implements OnInit {
       location: location || undefined,
       venueSchedule: venueSchedule.length ? venueSchedule : undefined,
       status: 'DRAFT',
+      statusPillColor: raw.statusPillColor.trim().toUpperCase(),
     };
   }
 }

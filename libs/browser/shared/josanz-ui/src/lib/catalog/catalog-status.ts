@@ -26,6 +26,8 @@ export interface JosanzCatalogListRow {
   values?: string[];
   pillLabel: string;
   pillVariant: JosanzStatusPillVariant;
+  /** Color personalizado de la pastilla de estado/tipo. */
+  pillColor?: string;
   /** Barra lateral izquierda (tipo de evento / hotel). */
   railColor?: string;
   /** Ubicación o nombre de venue (para color de hotel en eventos). */

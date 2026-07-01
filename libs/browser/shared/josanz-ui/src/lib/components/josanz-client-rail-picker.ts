@@ -15,7 +15,7 @@ import {
   template: `
     <div class="josanz-client-rail-picker" [formGroup]="parentForm">
       <label class="josanz-client-rail-picker__label" [attr.for]="hexInputId">
-        Color en listado
+        {{ fieldLabel }}
         @if (showRequiredMarker) {
         <span class="text-[color:var(--josanz-danger)]" aria-hidden="true"> *</span>
         }
@@ -53,7 +53,7 @@ import {
         />
       </div>
 
-      <p class="josanz-client-rail-picker__hint">Elige cualquier color para la barra lateral del listado.</p>
+      <p class="josanz-client-rail-picker__hint">{{ fieldHint }}</p>
 
       @if (errorText) {
       <p class="josanz-client-rail-picker__error" role="alert">{{ errorText }}</p>
@@ -65,6 +65,8 @@ export class JosanzClientRailPickerComponent {
   @Input({ required: true }) parentForm!: FormGroup;
   @Input() controlName = 'colorRail';
   @Input() required = true;
+  @Input() fieldLabel = 'Color en listado';
+  @Input() fieldHint = 'Elige cualquier color para la barra lateral del listado.';
 
   readonly hexInputId = `josanz-client-rail-${Math.random().toString(36).slice(2, 9)}`;
 

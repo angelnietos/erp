@@ -22,6 +22,7 @@ interface ClientWriteBody {
   type?: string;
   tariffLabel?: string;
   railColor?: string;
+  pillColor?: string;
   contacts?: Array<{
     name?: string;
     email?: string;
@@ -47,6 +48,7 @@ interface ClientEntityPayload {
   type?: string | null;
   tariffLabel?: string | null;
   railColor?: string | null;
+  pillColor?: string | null;
   contacts?: Array<{
     id?: string;
     name?: string;
@@ -149,6 +151,7 @@ export class ClientsService {
         type: data.type || 'COMPANY',
         tariffLabel: data.tariffLabel?.trim() || null,
         railColor: data.railColor?.trim() || null,
+        pillColor: data.pillColor?.trim() || null,
         contacts:
           contactRows.length > 0
             ? {
@@ -215,6 +218,9 @@ export class ClientsService {
             : {}),
           ...(data.railColor !== undefined
             ? { railColor: data.railColor?.trim() || null }
+            : {}),
+          ...(data.pillColor !== undefined
+            ? { pillColor: data.pillColor?.trim() || null }
             : {}),
           ...(data.contacts !== undefined && contactRows.length > 0
             ? {
@@ -329,6 +335,7 @@ export class ClientsService {
       type: client.type,
       tariffLabel: client.tariffLabel,
       railColor: client.railColor,
+      pillColor: client.pillColor,
       contacts: client.contacts || [],
       eventReports: client.eventReports || [],
       budgets: client.budgets || [],

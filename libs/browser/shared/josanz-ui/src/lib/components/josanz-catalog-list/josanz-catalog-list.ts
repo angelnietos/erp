@@ -179,6 +179,8 @@ export class JosanzCatalogListComponent {
         status: row.pillLabel,
         statusVariant: row.pillVariant,
         railColor,
+        pillColor: row.pillColor,
+        avatarGradient: !!row.leadingMark,
       };
     });
   }

@@ -81,6 +81,7 @@ export interface Client {
   type?: string;
   tariffLabel?: string;
   railColor?: string;
+  pillColor?: string;
   contacts?: ClientContact[];
   eventReports?: EventReport[];
   budgets?: Budget[];
@@ -100,6 +101,7 @@ export interface CreateClientPayload {
   type?: string;
   tariffLabel?: string;
   railColor?: string;
+  pillColor?: string;
   contacts?: Array<{
     name: string;
     email?: string;
