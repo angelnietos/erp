@@ -95,7 +95,7 @@ export const appConfig: ApplicationConfig = {
         josanzTheme.setTheme('luxe-rounded');
 
         tenantModulesRealtime.registerIdentityRefresh(() => {
-          authStore.refreshSession();
+          authStore.refreshSession({ identityEvent: true });
         });
 
         return async () => {
@@ -140,6 +140,7 @@ export const appConfig: ApplicationConfig = {
                 name: displayName,
                 tenantId: response.tenantId || getStoredTenantId() || '',
                 permissions: u.permissions,
+                roles: u.roles ?? [],
               });
 
               const tenantId = response.tenantId || getStoredTenantId();

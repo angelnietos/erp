@@ -8,11 +8,12 @@ import {
 } from '@josanz-erp/josanz-ui';
 import { AuthStore } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore, resolveJosanzFigmaFallbackPath } from '@josanz-erp/shared-data-access';
+import { ToastStackComponent } from '@josanz-erp/shared-ui-shell';
 
 @Component({
   selector: 'app-josanz-shell',
   standalone: true,
-  imports: [RouterModule, SidebarComponent, MobileTabBarComponent],
+  imports: [RouterModule, SidebarComponent, MobileTabBarComponent, ToastStackComponent],
   templateUrl: './josanz-app-shell.component.html',
   styleUrl: './josanz-app-shell.component.css',
 })

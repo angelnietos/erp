@@ -15,9 +15,69 @@ import { resolvePostLoginPath, resolveErpMainShellHandoffUrl } from '../utils/po
 import { resetSessionInvalidationGuard } from '../interceptors/session-expiry.interceptor';
 import { TenantModulesApiService } from '../services/tenant-modules-api.service';
 import { TenantModulesRealtimeService } from '../services/tenant-modules-realtime.service';
-import { GlobalAuthStore, PluginStore, ThemeService } from '@josanz-erp/shared-data-access';
+import {
+  GlobalAuthStore,
+  PluginStore,
+  ThemeService,
+  ToastService,
+} from '@josanz-erp/shared-data-access';
 import { AuthResponse, UserPayload, tenantUsesKeycloakLogin } from '@josanz-erp/identity-api';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
+
+export interface RefreshSessionOptions {
+  /** Tras `tenant.identity.updated`: avisar si cambian roles o permisos. */
+  identityEvent?: boolean;
+}
+
+function syncGlobalAuthUser(
+  globalAuthStore: InstanceType<typeof GlobalAuthStore>,
+  user: UserPayload,
+  tenantId: string,
+): void {
+  const displayName =
+    [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email;
+  globalAuthStore.setUser({
+    id: user.id,
+    email: user.email,
+    name: displayName,
+    tenantId,
+    permissions: user.permissions,
+    roles: user.roles ?? [],
+  });
+}
+
+function stringSetsEqual(a: readonly string[], b: readonly string[]): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  const left = [...a].sort();
+  const right = [...b].sort();
+  return left.every((value, index) => value === right[index]);
+}
+
+function buildIdentityUpdateToast(
+  beforeRoles: readonly string[],
+  beforePermissions: readonly string[],
+  afterUser: UserPayload,
+): string | null {
+  const afterRoles = afterUser.roles ?? [];
+  const afterPermissions = afterUser.permissions ?? [];
+  if (
+    stringSetsEqual(beforeRoles, afterRoles) &&
+    stringSetsEqual(beforePermissions, afterPermissions)
+  ) {
+    return null;
+  }
+  const gainedAdmin =
+    !beforeRoles.some((role) => /^(superadmin|administrador)$/i.test(role.trim())) &&
+    afterRoles.some((role) => /^(superadmin|administrador)$/i.test(role.trim()));
+  if (gainedAdmin) {
+    return afterRoles.some((role) => /^superadmin$/i.test(role.trim()))
+      ? 'Ahora tienes rol de Super Admin.'
+      : 'Ahora tienes rol de administrador.';
+  }
+  return 'Tus permisos o roles han sido actualizados.';
+}
 
 function resolveEnabledModules$(
   response: AuthResponse,
@@ -94,6 +154,7 @@ export const AuthStore = signalStore(
     const tenantModulesRealtime = inject(TenantModulesRealtimeService);
     const pluginStore = inject(PluginStore);
     const themeService = inject(ThemeService);
+    const toastService = inject(ToastService);
 
     return {
       loadUserFromToken() {
@@ -102,13 +163,7 @@ export const AuthStore = signalStore(
         const authMeta = authService.getPersistedAuthMeta();
         
         patchState(store, { user: session.user, ...authMeta });
-        globalAuthStore.setUser({
-          id: session.user.id,
-          email: session.user.email,
-          name: session.user.email,
-          tenantId: session.tenantId,
-          permissions: session.user.permissions,
-        });
+        syncGlobalAuthUser(globalAuthStore, session.user, session.tenantId);
       },
 
       login: rxMethod<{ email: string; password: string; tenantSlug?: string }>(
@@ -149,18 +204,7 @@ export const AuthStore = signalStore(
                   ...authMeta,
                 });
 
-                const displayName =
-                  [response.user.firstName, response.user.lastName]
-                    .filter(Boolean)
-                    .join(' ')
-                    .trim() || response.user.email;
-                globalAuthStore.setUser({
-                  id: response.user.id,
-                  email: response.user.email,
-                  name: displayName,
-                  tenantId: tenantId ?? '',
-                  permissions: response.user.permissions,
-                });
+                syncGlobalAuthUser(globalAuthStore, response.user, tenantId ?? '');
 
                 if (response.tenantSlug) {
                   setErpTenantSlug(response.tenantSlug);
@@ -264,18 +308,7 @@ export const AuthStore = signalStore(
                   ...authMeta,
                 });
 
-                const displayName =
-                  [response.user.firstName, response.user.lastName]
-                    .filter(Boolean)
-                    .join(' ')
-                    .trim() || response.user.email;
-                globalAuthStore.setUser({
-                  id: response.user.id,
-                  email: response.user.email,
-                  name: displayName,
-                  tenantId: tenantId ?? '',
-                  permissions: response.user.permissions,
-                });
+                syncGlobalAuthUser(globalAuthStore, response.user, tenantId ?? '');
 
                 const slug =
                   response.tenantSlug ??
@@ -379,14 +412,23 @@ export const AuthStore = signalStore(
         });
       },
 
-      refreshSession: rxMethod<void>(
+      refreshSession: rxMethod<RefreshSessionOptions | void>(
         pipe(
           debounceTime(300),
           switchMap(
-            (): Observable<RefreshSessionOutcome> =>
-              authService.refreshSession().pipe(
-                map((response): RefreshSessionOutcome => ({ kind: 'ok', response })),
-                catchError((err): Observable<RefreshSessionOutcome> => {
+            (options): Observable<RefreshSessionOutcome & { identityEvent?: boolean }> => {
+              const identityEvent = Boolean(
+                options && typeof options === 'object' && options.identityEvent,
+              );
+              return authService.refreshSession().pipe(
+                map(
+                  (response): RefreshSessionOutcome & { identityEvent?: boolean } => ({
+                    kind: 'ok',
+                    response,
+                    identityEvent,
+                  }),
+                ),
+                catchError((err): Observable<RefreshSessionOutcome & { identityEvent?: boolean }> => {
                   const kind = classifyRefreshError(err);
                   if (isDevMode()) {
                     console.warn(
@@ -397,37 +439,40 @@ export const AuthStore = signalStore(
                     );
                   }
                   if (kind === 'auth-failed') {
-                    return of({ kind: 'auth-failed' });
+                    return of({ kind: 'auth-failed', identityEvent });
                   }
-                  return of({ kind: 'transient' });
+                  return of({ kind: 'transient', identityEvent });
                 }),
-              ),
+              );
+            },
           ),
           switchMap((outcome) => {
             if (outcome.kind !== 'auth-failed') {
               return of(outcome);
             }
+            const identityEvent = outcome.identityEvent;
             return timer(2_000).pipe(
               switchMap(() =>
                 authService.refreshSession().pipe(
                   map(
-                    (response): RefreshSessionOutcome => ({
+                    (response): RefreshSessionOutcome & { identityEvent?: boolean } => ({
                       kind: 'ok',
                       response,
+                      identityEvent,
                     }),
                   ),
-                  catchError((err): Observable<RefreshSessionOutcome> => {
+                  catchError((err): Observable<RefreshSessionOutcome & { identityEvent?: boolean }> => {
                     const kind = classifyRefreshError(err);
                     if (kind === 'auth-failed') {
-                      return of({ kind: 'auth-failed' as const });
+                      return of({ kind: 'auth-failed' as const, identityEvent });
                     }
-                    return of({ kind: 'transient' as const });
+                    return of({ kind: 'transient' as const, identityEvent });
                   }),
                 ),
               ),
             );
           }),
-          tap((outcome: RefreshSessionOutcome) => {
+          tap((outcome: RefreshSessionOutcome & { identityEvent?: boolean }) => {
             if (outcome.kind === 'transient') {
               return;
             }
@@ -456,6 +501,12 @@ export const AuthStore = signalStore(
             }
 
             const response = outcome.response;
+            const beforeRoles = outcome.identityEvent
+              ? [...(globalAuthStore.user()?.roles ?? [])]
+              : [];
+            const beforePermissions = outcome.identityEvent
+              ? [...globalAuthStore.permissions()]
+              : [];
 
             if (isDevMode()) {
               console.log(
@@ -465,6 +516,10 @@ export const AuthStore = signalStore(
               console.log(
                 '[AuthStore] refreshSession response permissions:',
                 response.user.permissions,
+              );
+              console.log(
+                '[AuthStore] refreshSession response roles:',
+                response.user.roles,
               );
             }
 
@@ -489,14 +544,22 @@ export const AuthStore = signalStore(
               }
             }
 
-            const displayName = [response.user.firstName, response.user.lastName].filter(Boolean).join(' ').trim() || response.user.email;
-            globalAuthStore.setUser({
-              id: response.user.id,
-              email: response.user.email,
-              name: displayName,
-              tenantId: response.tenantId || getStoredTenantId() || '',
-              permissions: response.user.permissions,
-            });
+            syncGlobalAuthUser(
+              globalAuthStore,
+              response.user,
+              response.tenantId || getStoredTenantId() || '',
+            );
+
+            if (outcome.identityEvent) {
+              const toastMessage = buildIdentityUpdateToast(
+                beforeRoles,
+                beforePermissions,
+                response.user,
+              );
+              if (toastMessage) {
+                toastService.show(toastMessage, 'info');
+              }
+            }
 
             if (response.enabledModuleIds?.length) {
               pluginStore.setPlugins(response.enabledModuleIds);
@@ -519,16 +582,7 @@ export const AuthStore = signalStore(
             authService.updateMyProfile(data).pipe(
               tap(({ user }) => {
                 patchState(store, { user });
-                const displayName =
-                  [user.firstName, user.lastName].filter(Boolean).join(' ').trim() ||
-                  user.email;
-                globalAuthStore.setUser({
-                  id: user.id,
-                  email: user.email,
-                  name: displayName,
-                  tenantId: getStoredTenantId() || '',
-                  permissions: user.permissions,
-                });
+                syncGlobalAuthUser(globalAuthStore, user, getStoredTenantId() || '');
               }),
               catchError(() => of(null)),
             ),

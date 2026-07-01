@@ -53,6 +53,8 @@ export const GlobalAuthStore = signalStore(
           user?.email,
           'with permissions:',
           user?.permissions,
+          'with roles:',
+          user?.roles,
         );
       }
       patchState(store, { user });
