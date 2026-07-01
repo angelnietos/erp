@@ -22,6 +22,7 @@ model Client {
   zipCode     String?   @map("zip_code")
   country     String?   @default("ES")
   tariffLabel String?   @map("tariff_label")
+  railColor   String?   @map("rail_color")
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
   contacts    ClientContact[]

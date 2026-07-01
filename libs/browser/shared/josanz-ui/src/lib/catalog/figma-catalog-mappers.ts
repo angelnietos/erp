@@ -1,5 +1,5 @@
 import type { JosanzCatalogListRow } from './catalog-status';
-import { pillVariantForCatalogStatus, railColorForCatalogRow } from './catalog-status';
+import { pillVariantForCatalogStatus, railColorForCatalogRow, railColorForClientName } from './catalog-status';
 import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 
 const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -32,6 +32,7 @@ export interface FigmaCatalogClientSource {
   name: string;
   email?: string;
   phone?: string;
+  sector?: string | null;
   tariffLabel?: string | null;
   contacts?: Array<{ name: string }>;
 }
@@ -137,11 +138,13 @@ export function mapClientToCatalogRow(
   void index;
   const operators = (client.contacts ?? []).map((c) => c.name).filter(Boolean);
   const tariff = client.tariffLabel ?? 'Especial 01';
+  const name = client.name;
   return {
     id: client.id,
-    title: client.name,
-    leadingMark: clientInitials(client.name),
+    title: name,
+    leadingMark: clientInitials(name),
     typology: clientTypologyTab(tariff),
+    client: name,
     values: [
       client.phone || '—',
       client.email || '—',
@@ -149,6 +152,7 @@ export function mapClientToCatalogRow(
     ],
     pillLabel: tariff,
     pillVariant: tariffPillVariant(tariff),
+    railColor: railColorForClientName(client.id, name, client.sector),
   };
 }
 

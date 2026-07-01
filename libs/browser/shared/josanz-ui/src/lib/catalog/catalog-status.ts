@@ -156,6 +156,35 @@ export function railColorForExternalClient(seed: string): string {
   return palette[stablePaletteIndex(seed, palette.length)] ?? palette[0];
 }
 
+/** Tipología Figma (hotel / espacio / externo) a partir del cliente. */
+export function clientCategoryTypology(
+  name: string,
+  sector?: string | null,
+): 'Hoteles' | 'Espacios' | 'Externos' {
+  const sectorKey = normalizeVenueKey(sector ?? '');
+  if (sectorKey.includes('hoteles') || railColorForHotelVenue(name)) {
+    return 'Hoteles';
+  }
+  if (sectorKey.includes('espacios') || isEspaciosLabel(name)) {
+    return 'Espacios';
+  }
+  return 'Externos';
+}
+
+export function railColorForClientName(
+  id: string,
+  name: string,
+  sector?: string | null,
+): string {
+  const typology = clientCategoryTypology(name, sector);
+  return railColorForCatalogRow({
+    id,
+    typology,
+    venue: name,
+    client: name,
+  });
+}
+
 /** Color de la barra lateral según tipología (no el estado del evento). */
 export function railColorForCatalogRow(
   row: Pick<JosanzCatalogListRow, 'typology' | 'railColor' | 'id' | 'venue' | 'client'>,

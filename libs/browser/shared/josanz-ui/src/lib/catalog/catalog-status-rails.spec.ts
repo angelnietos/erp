@@ -2,7 +2,7 @@ import {
   JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS,
   JOSANZ_FIGMA_HOTEL_RAIL_COLORS,
 } from '../theme/josanz-figma-tokens';
-import { railColorForCatalogRow } from './catalog-status';
+import { railColorForCatalogRow, railColorForClientName } from './catalog-status';
 
 describe('event rail colors', () => {
   it('uses yellow only for dedicated eventos externos clients', () => {
@@ -53,5 +53,24 @@ describe('event rail colors', () => {
         client: 'Espacios IFEMA Madrid',
       }),
     ).toBe(JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios);
+  });
+});
+
+describe('client rail colors', () => {
+  it('maps client records to Figma hotel / externos / espacios rails', () => {
+    expect(
+      railColorForClientName('1', 'Hotel Vincci Soma', 'Hoteles'),
+    ).toBe(JOSANZ_FIGMA_HOTEL_RAIL_COLORS[1]);
+
+    expect(
+      railColorForClientName('2', 'Espacios IFEMA Madrid', 'Espacios'),
+    ).toBe(JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Espacios);
+
+    expect(
+      railColorForClientName('3', 'Eventos Externos Madrid S.L.', 'Externos'),
+    ).toBe(JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Externos);
+
+    const novabyte = railColorForClientName('4', 'NovaByte Tech Events', 'Externos');
+    expect(novabyte).not.toBe(JOSANZ_FIGMA_EVENT_TYPOLOGY_RAILS.Externos);
   });
 });
