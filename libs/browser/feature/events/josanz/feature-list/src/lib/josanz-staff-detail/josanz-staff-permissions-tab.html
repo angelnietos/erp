@@ -12,7 +12,13 @@
 <section class="josanz-event-section josanz-staff-perm-panel" role="alert">
   <p class="josanz-staff-perm-error">{{ error() }}</p>
   @if (canLoadFromApi()) {
-  <josanz-secondary-button label="Reintentar" (btnClick)="reload()"></josanz-secondary-button>
+  <josanz-button
+    label="Reintentar"
+    variant="secondary"
+    size="sm"
+    [showIcon]="false"
+    (btnClick)="reload()"
+  ></josanz-button>
   }
 </section>
 } @else if (user(); as u) {
@@ -112,11 +118,14 @@
         }
       </select>
     </label>
-    <josanz-secondary-button
+    <josanz-button
       label="Añadir"
+      variant="secondary"
+      size="sm"
+      [showIcon]="false"
       [disabled]="!pickPermissionId()"
       (btnClick)="addPickedPermission()"
-    ></josanz-secondary-button>
+    ></josanz-button>
   </div>
 
   <div class="josanz-staff-perm-actions">

@@ -9,10 +9,10 @@ import {
   type User,
 } from '@josanz-erp/identity-api';
 import { GlobalAuthStore, PluginStore, rbacAllows } from '@josanz-erp/shared-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import {
   ButtonComponent,
   JosanzFigmaSuccessToastComponent,
-  SecondaryButtonComponent,
 } from '@josanz-erp/josanz-ui';
 import { groupPermissions, permissionLabel } from '../utils/permission-labels';
 
@@ -23,7 +23,6 @@ import { groupPermissions, permissionLabel } from '../utils/permission-labels';
     CommonModule,
     FormsModule,
     ButtonComponent,
-    SecondaryButtonComponent,
     JosanzFigmaSuccessToastComponent,
   ],
   templateUrl: './josanz-staff-permissions-tab.html',
@@ -37,6 +36,7 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
   private readonly usersService = inject(UsersService);
   private readonly rolesService = inject(RolesService);
   private readonly authStore = inject(GlobalAuthStore);
+  private readonly identityAuth = inject(AuthStore);
   private readonly pluginStore = inject(PluginStore);
 
   readonly canManageUsers = rbacAllows(this.authStore, 'users.manage');
@@ -160,7 +160,7 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     this.error.set('');
 
     if (this.isOwnProfile() && !this.canViewUsers()) {
-      const sessionUser = this.authStore.user();
+      const sessionUser = this.identityAuth.user();
       if (!sessionUser) {
         this.loading.set(false);
         this.error.set('No se pudo cargar tu sesión.');
