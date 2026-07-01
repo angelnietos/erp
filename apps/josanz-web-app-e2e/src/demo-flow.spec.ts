@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { loginAsAlexisDemo } from './support/auth';
 import {
+  addEventNote,
   demoStamp,
   expectSuccessToast,
   expectCatalogItemVisible,
@@ -127,14 +128,16 @@ test.describe('Demo Alexis — flujo E2E', () => {
         'Descripción añadida en demo E2E',
       );
 
-      await page.getByRole('button', { name: 'Añadir +' }).first().click();
-      await page.getByPlaceholder('Escribe una nota…').fill('Nota de producción E2E');
-      await page.getByRole('button', { name: 'Añadir +', exact: true }).click();
+      await addEventNote(page, 'Nota de producción E2E');
 
       await page.getByRole('button', { name: 'Cliente' }).click();
       await expect(page.getByRole('button', { name: /^Operador$/i })).toBeVisible();
 
-      await page.locator('.josanz-event-detail-body').getByRole('button', { name: 'Guardar cambios' }).click();
+      const saveBtn = page
+        .locator('.josanz-event-detail-body')
+        .getByRole('button', { name: 'Guardar cambios' });
+      await expect(saveBtn).toBeEnabled({ timeout: 15_000 });
+      await saveBtn.click();
       await expect(
         page.getByRole('status').filter({ hasText: /guardados correctamente/i }),
       ).toBeVisible({ timeout: 20_000 });

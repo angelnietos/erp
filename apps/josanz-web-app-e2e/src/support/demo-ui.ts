@@ -86,3 +86,13 @@ export async function expectEventVisible(page: Page, eventName: string): Promise
     timeout: 25_000,
   });
 }
+
+export async function addEventNote(page: Page, noteText: string): Promise<void> {
+  const eventNotes = page.locator('josanz-event-notes-section[kind="event"]');
+  await eventNotes.getByRole('button', { name: 'Añadir +', exact: true }).click();
+  await eventNotes.locator('.josanz-event-note-composer__input').fill(noteText);
+  await eventNotes
+    .locator('.josanz-event-note-composer__footer')
+    .getByRole('button', { name: 'Añadir +', exact: true })
+    .click();
+}
