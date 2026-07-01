@@ -43,6 +43,37 @@
   padding: 24px;
 }
 
+.josanz-app-settings__panel--estados {
+  padding: 28px 24px;
+}
+
+.josanz-app-settings__panel-title {
+  margin: 0 0 0.5rem;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--josanz-text);
+}
+
+.josanz-app-settings__panel-lead {
+  margin: 0 0 1.5rem;
+  max-width: 42rem;
+  line-height: 1.55;
+}
+
+.josanz-app-settings__link {
+  display: inline-flex;
+  border-radius: 12px;
+  padding: 0.35rem 0.65rem;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.josanz-app-settings__link:hover {
+  text-decoration: underline;
+}
+
 @media (min-width: 768px) {
   .josanz-app-settings__panel {
     padding: 32px;

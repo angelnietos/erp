@@ -1,7 +1,7 @@
 .josanz-catalog-theme {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--josanz-border);
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
 }
 
 .josanz-catalog-theme__intro {

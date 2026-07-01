@@ -1,8 +1,8 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   Detalle de evento / Figma Neutral White â€” UI/UX Polished
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════════
+   Detalle de evento / Figma Neutral White — UI/UX Polished
+   ═══════════════════════════════════════════════════════════ */
 
-/* â”€â”€ Root shell â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Root shell ──────────────────────────────────────────── */
 .josanz-detail-root--figma {
   display: flex;
   flex-direction: column;
@@ -11,18 +11,18 @@
   gap: 0; /* Controlled by children */
 }
 
-/* â”€â”€ Scrollable content area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Scrollable content area ─────────────────────────────── */
 .josanz-detail-root__content.josanz-detail-figma__content {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   padding-bottom: 3rem;
   color: var(--josanz-text);
-  /* Subtle warm tint on the background â€” makes "cards" pop */
+  /* Subtle warm tint on the background — makes "cards" pop */
   background: var(--josanz-bg);
 }
 
-/* â”€â”€ Top header bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Top header bar ──────────────────────────────────────── */
 .josanz-detail-figma__top {
   display: flex;
   align-items: center;
@@ -39,7 +39,7 @@
   flex: 1;
 }
 
-/* Back button â€” now styled inline via host, but keep SCSS for cascade */
+/* Back button — now styled inline via host, but keep SCSS for cascade */
 .josanz-detail-figma__back {
   display: flex;
   align-items: center;
@@ -112,7 +112,7 @@
   color: var(--josanz-text-muted);
 }
 
-/* â”€â”€ Tabs row â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Tabs row ────────────────────────────────────────────── */
 .josanz-detail-figma__tabs-row {
   display: flex;
   flex-direction: column;
@@ -145,7 +145,7 @@
   }
 }
 
-/* â”€â”€ Content body wrapper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Content body wrapper ────────────────────────────────── */
 .josanz-event-detail-body {
   padding: 1.5rem 0;
   display: flex;
@@ -153,9 +153,9 @@
   gap: 0; /* sections manage their own mb */
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   Sections â€” card-on-bg pattern
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+/* ═══════════════════════════════════════════════════════════
+   Sections — card-on-bg pattern
+   ═══════════════════════════════════════════════════════════ */
 
 .josanz-event-section {
   border-radius: 16px;
@@ -213,7 +213,7 @@
   color: var(--josanz-text-muted);
 }
 
-/* â”€â”€ Note rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Note rows ───────────────────────────────────────────── */
 .josanz-event-note-row {
   display: flex;
   align-items: flex-start;
@@ -326,14 +326,86 @@
   line-height: 1.6;
 }
 
-.josanz-event-hero__desc {
-  margin: 0;
+.josanz-event-hero__desc-input {
+  width: 100%;
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--josanz-border);
+  border-radius: 10px;
+  background: var(--josanz-bg);
   font-size: 14px;
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--josanz-text-muted);
+  resize: vertical;
+  min-height: 5.5rem;
+  font-family: inherit;
+
+  &:focus {
+    outline: none;
+    border-color: color-mix(in srgb, var(--josanz-primary) 45%, var(--josanz-border));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--josanz-primary) 12%, transparent);
+  }
 }
 
-/* â”€â”€ Staff grid + cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+.josanz-event-hero__media--logo {
+  border-color: #facc15;
+}
+
+.josanz-event-hero__status-select {
+  flex-shrink: 0;
+  min-width: 9rem;
+}
+
+.josanz-event-detail__type-row {
+  margin-bottom: 1rem;
+}
+
+.josanz-event-detail__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.josanz-event-detail__danger {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--josanz-border);
+}
+
+.josanz-event-save-toast {
+  position: fixed;
+  top: calc(var(--bb-topbar-height, 64px) + 12px);
+  right: 1.25rem;
+  z-index: 1200;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, #22c55e 35%, transparent);
+  background: color-mix(in srgb, #22c55e 12%, white);
+  color: #166534;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.josanz-event-save-toast__close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.josanz-event-save-toast__close:hover {
+  opacity: 1;
+}
+
+
+/* ── Staff grid + cards ──────────────────────────────────── */
 .josanz-event-staff-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -440,7 +512,7 @@
   letter-spacing: 0.03em;
 }
 
-/* â”€â”€ Equipment rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Equipment rows ──────────────────────────────────────── */
 .josanz-event-equipment-row {
   display: flex;
   align-items: center;
@@ -496,7 +568,7 @@
   }
 }
 
-/* â”€â”€ Note composer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Note composer ───────────────────────────────────────── */
 .josanz-event-new-note {
   margin-top: 0.875rem;
   padding: 0.75rem;
@@ -530,7 +602,7 @@
   margin-top: 0.625rem;
 }
 
-/* â”€â”€ Section header (Presupuesto top) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Section header (Presupuesto top) ────────────────────── */
 .josanz-event-section-header {
   display: flex;
   align-items: center;
@@ -547,7 +619,7 @@
   }
 }
 
-/* â”€â”€ Budget panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Budget panel ────────────────────────────────────────── */
 .josanz-event-budget-panel {
   border-radius: 16px;
   border: 1.5px solid var(--josanz-text, #080808);
@@ -689,7 +761,7 @@
   color: var(--josanz-text);
 }
 
-/* â”€â”€ Hero media extras (icon / avatar) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Hero media extras (icon / avatar) ───────────────────── */
 .josanz-event-hero__media svg {
   width: 2.5rem;
   height: 2.5rem;
@@ -702,7 +774,7 @@
   border-radius: 9999px;
 }
 
-/* â”€â”€ Cliente tab grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Cliente tab grid ────────────────────────────────────── */
 .josanz-event-client-grid {
   display: grid;
   gap: 0;
@@ -762,7 +834,7 @@
   color: var(--josanz-text-muted);
 }
 
-/* â”€â”€ Email rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Email rows ──────────────────────────────────────────── */
 .josanz-event-email-row {
   display: flex;
   align-items: flex-start;
@@ -810,7 +882,7 @@
   }
 }
 
-/* â”€â”€ Email compose form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Email compose form ──────────────────────────────────── */
 .josanz-event-email-form {
   margin-top: 1.125rem;
   padding: 1.25rem;
@@ -819,7 +891,7 @@
   border: 1.5px solid var(--josanz-border);
 }
 
-/* â”€â”€ Form field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ── Form field ──────────────────────────────────────────── */
 .josanz-event-field {
   display: flex;
   flex-direction: column;

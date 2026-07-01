@@ -15,8 +15,7 @@ export const josanzEventsRoutes: Route[] = [
   },
   {
     path: ':id/edit',
-    loadComponent: () =>
-      import('./josanz-event-edit/josanz-event-edit').then((m) => m.JosanzEventEditComponent),
+    redirectTo: ':id',
   },
   {
     path: ':id',

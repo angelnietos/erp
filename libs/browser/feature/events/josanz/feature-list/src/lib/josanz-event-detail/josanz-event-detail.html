@@ -1,3 +1,18 @@
+@if (showSaveToast()) {
+<div class="josanz-event-save-toast" role="status">
+  <span aria-hidden="true">✓</span>
+  Cambios guardados correctamente
+  <button type="button" class="josanz-event-save-toast__close" aria-label="Cerrar" (click)="dismissSaveToast()">×</button>
+</div>
+}
+
+@if (validationBanner()) {
+<p class="josanz-event-create__validation-banner" role="alert">{{ validationBanner() }}</p>
+}
+@if (errorMessage()) {
+<p class="josanz-event-create__hint" role="alert">{{ errorMessage() }}</p>
+}
+
 <josanz-figma-detail-shell
   #shell
   [config]="shellConfig()"
@@ -5,29 +20,74 @@
   (save)="onSave()"
 >
     @if (shell.activeTab() === 'Resumen') {
-    <article class="josanz-event-hero">
-      <div class="josanz-event-hero__media">
+    <article class="josanz-event-hero" [formGroup]="form">
+      <div class="josanz-event-hero__media josanz-event-hero__media--logo">
         <img [src]="heroImage" alt="" />
       </div>
       <div class="josanz-event-hero__body">
         <div class="josanz-event-hero__title-row">
           <h2>Evento: {{ heroTypologyLabel() }}</h2>
-          <span class="josanz-event-hero__badge-nuevo">{{ shellConfig().statusLabel }}</span>
+          <josanz-select
+            class="josanz-event-hero__status-select"
+            placeholder="Estado"
+            formControlName="status"
+            [options]="statusOptions"
+          ></josanz-select>
         </div>
         <p class="josanz-event-hero__meta">{{ heroMetaLine() }}</p>
-        <p class="josanz-event-hero__desc">{{ heroDescription() }}</p>
+        <textarea
+          class="josanz-event-hero__desc-input"
+          formControlName="descripcion"
+          rows="4"
+          placeholder="Descripción del evento…"
+        ></textarea>
       </div>
     </article>
 
-    <section class="josanz-event-section">
-      <h3 class="josanz-event-section__title">Resumen rápido</h3>
-      <div class="josanz-catalog-summary" role="group" aria-label="Indicadores del evento">
-        @for (kpi of resumenKpis(); track kpi.label) {
-        <span class="josanz-catalog-summary__item">
-          {{ kpi.label }}
-          <strong>{{ kpi.value }}</strong>
-        </span>
+    <section class="josanz-event-section" [formGroup]="form">
+      <h3 class="josanz-event-section__title">Datos del evento</h3>
+      <div class="josanz-event-create__type-row josanz-event-detail__type-row" role="group" aria-label="Tipo de evento">
+        @for (type of eventTypes; track type) {
+        <button
+          type="button"
+          class="josanz-event-create__type-pill"
+          [class.josanz-event-create__type-pill--active]="selectedType() === type"
+          (click)="selectType(type)"
+        >
+          {{ type }}
+        </button>
         }
+      </div>
+      <div class="josanz-event-detail__fields">
+        <josanz-input
+          label="Nombre evento"
+          controlName="nombre"
+          [parentForm]="form"
+          [required]="true"
+        ></josanz-input>
+        <div formArrayName="eventDates">
+          <div class="josanz-event-create__grid-2" [formGroupName]="0">
+            <josanz-input
+              label="Fecha evento"
+              type="date"
+              controlName="fecha"
+              [parentForm]="eventDateGroup(0)"
+              [required]="true"
+            ></josanz-input>
+            <josanz-input
+              label="Hora evento"
+              type="time"
+              controlName="hora"
+              [parentForm]="eventDateGroup(0)"
+            ></josanz-input>
+          </div>
+        </div>
+        <josanz-input
+          label="Localización"
+          controlName="localizacion"
+          [parentForm]="form"
+          [required]="selectedType() === 'Evento externo'"
+        ></josanz-input>
       </div>
     </section>
 
@@ -150,34 +210,38 @@
         <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
       </div>
     </section>
-
-    <section class="josanz-event-section josanz-event-danger-zone">
-      <h3 class="josanz-event-section__title">Zona de peligro</h3>
-      <p class="josanz-event-danger-zone__hint">
-        Eliminar el evento lo quitará del listado de forma permanente.
-      </p>
-      @if (deleteErrorMessage()) {
-      <p class="josanz-event-create__hint" role="alert">{{ deleteErrorMessage() }}</p>
-      }
-      <button
-        type="button"
-        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
-        [disabled]="loading() || deleteConfirm.busy()"
-        (click)="onDeleteClick()"
-      >
-        Eliminar evento
-      </button>
-    </section>
     } @if (shell.activeTab() === 'Cliente') {
-    <section class="josanz-event-section">
+    <section class="josanz-event-section" [formGroup]="form">
       <h3 class="josanz-event-section__title">Datos del cliente</h3>
-      <div class="josanz-event-client-grid">
-        @for (row of clientRows(); track row.label) {
-        <div class="josanz-event-client-grid__row">
-          <span class="josanz-event-client-grid__label">{{ row.label }}</span>
-          <span class="josanz-event-client-grid__value">{{ row.value }}</span>
-        </div>
+      <div class="josanz-event-detail__fields">
+        <josanz-select
+          label="Cliente"
+          placeholder="Selecciona un cliente"
+          formControlName="clientId"
+          [options]="clientOptions()"
+          [required]="true"
+        ></josanz-select>
+        <josanz-select
+          label="Operador"
+          placeholder="Selecciona un operador"
+          formControlName="operatorContactId"
+          [options]="operatorOptions()"
+          [hint]="operatorHint()"
+          [required]="operatorOptions().length > 0"
+        ></josanz-select>
+      </div>
+      <div class="josanz-event-detail__danger">
+        @if (deleteErrorMessage()) {
+        <p class="josanz-event-create__hint" role="alert">{{ deleteErrorMessage() }}</p>
         }
+        <button
+          type="button"
+          class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
+          [disabled]="loading() || deleteConfirm.busy()"
+          (click)="onDeleteClick()"
+        >
+          Eliminar evento
+        </button>
       </div>
     </section>
     } @if (shell.activeTab() === 'Staff') {
@@ -214,62 +278,7 @@
         }
       </div>
     </section>
-    } @if (shell.activeTab() === 'Equipo') {
-    <section class="josanz-event-section">
-      <div class="josanz-event-section-header">
-        <h3 class="josanz-event-section__title m-0">Material del evento</h3>
-        <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-      </div>
-      @for (item of equipment; track item.id) {
-      <article class="josanz-event-equipment-row">
-        <button
-          type="button"
-          class="josanz-event-staff-card__remove"
-          aria-label="Quitar"
-        >
-          ×
-        </button>
-        <div class="josanz-event-equipment-row__thumb" aria-hidden="true">
-          @if (item.imageUrl && !equipmentImageFailed().has(item.id)) {
-          <img
-            [src]="item.imageUrl"
-            [alt]=""
-            (error)="onEquipmentImageError(item.id)"
-          />
-          } @else {
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            aria-hidden="true"
-          >
-            <rect x="4" y="7" width="16" height="12" rx="2" />
-            <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            <circle cx="12" cy="13" r="2.5" />
-          </svg>
-          }
-        </div>
-        <div class="flex-1 min-w-0">
-          <strong
-            class="block text-[14px] font-extrabold"
-            style="color: var(--josanz-text)"
-            >{{ item.name }}</strong
-          >
-          <span class="text-[13px]" style="color: var(--josanz-text-muted)"
-            >{{ item.warehouse }}</span
-          >
-          <span
-            class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold"
-            [ngStyle]="pillStyle(item.pillKey)"
-          >
-            {{ item.status }}
-          </span>
-        </div>
-      </article>
-      }
-    </section>
-    } @if (shell.activeTab() === 'Presupuesto') {
+    } @if (shell.activeTab() === 'Presupuestos') {
     <div class="josanz-event-section-header">
       <h3>Presupuesto (aceptado va a Albaranes)</h3>
       <josanz-secondary-button label="Añadir +"></josanz-secondary-button>

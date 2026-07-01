@@ -1,25 +1,57 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, catchError, EMPTY, tap } from 'rxjs';
+import { finalize, catchError, EMPTY, tap, startWith } from 'rxjs';
+import { ClientService, ClientsFacade, type Client } from '@josanz-erp/clients-data-access';
 import {
   DocumentItemComponent,
+  InputComponent,
   JosanzDeleteConfirmHostComponent,
   JosanzDeleteConfirmService,
   JosanzFigmaDetailShellComponent,
+  SelectComponent,
   SecondaryButtonComponent,
+  CatalogThemeFacade,
+  eventStatusLabel,
   typologyTabFromApi,
   type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
 import { JosanzEventApiService, type JosanzEventRecord } from '../services/josanz-event-api.service';
 import {
-  formatEventMetaLine,
+  JOSANZ_EVENT_STATUS_OPTIONS,
+  JOSANZ_EVENT_UI_TYPES,
   statusPillKeyFromApi,
   typologyLabelFromApi,
+  type JosanzEventUiType,
 } from '../josanz-event-form.utils';
-import { eventStatusLabel } from '@josanz-erp/josanz-ui';
+import {
+  applyDefaultEventStatusColor,
+  buildJosanzEventPayload,
+  createEventDateGroup,
+  createJosanzEventForm,
+  createVenueGroup,
+  eventDateGroupAt,
+  eventDatesControl,
+  formatEventMetaFromForm,
+  mergeEventClients,
+  operatorOptionsForClient,
+  operatorSelectHint,
+  patchJosanzEventForm,
+  syncOperatorForClient,
+  updateEventLocationValidators,
+  updateOperatorValidators,
+  venueGroupAt,
+  venuesControl,
+} from '../josanz-event-form.helpers';
 
 interface JosanzEventNote {
   id: string;
@@ -65,23 +97,55 @@ interface JosanzEventEmail {
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
     JosanzDeleteConfirmHostComponent,
+    InputComponent,
+    SelectComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
 export class JosanzEventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly fb = inject(FormBuilder);
   private readonly eventApi = inject(JosanzEventApiService);
+  private readonly clientService = inject(ClientService);
+  private readonly clientsFacade = inject(ClientsFacade);
+  private readonly catalogTheme = inject(CatalogThemeFacade);
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
+  readonly eventTypes = JOSANZ_EVENT_UI_TYPES;
+  readonly statusOptions = JOSANZ_EVENT_STATUS_OPTIONS.map((o) => ({
+    label: o.label,
+    value: o.value,
+  }));
+
   readonly event = signal<JosanzEventRecord | null>(null);
+  readonly clients = signal<Client[]>([]);
+  readonly selectedType = signal<JosanzEventUiType>('Evento externo');
   readonly loading = signal(true);
+  readonly saving = signal(false);
   readonly errorMessage = signal('');
+  readonly validationBanner = signal('');
   readonly deleteErrorMessage = signal('');
+  readonly showSaveToast = signal(false);
+
+  form: FormGroup = createJosanzEventForm(this.fb);
+  private readonly selectedClientId = toSignal(
+    this.form.get('clientId')!.valueChanges.pipe(startWith('')),
+    { initialValue: '' },
+  );
+  private readonly nombreValue = toSignal(
+    this.form.get('nombre')!.valueChanges.pipe(startWith('')),
+    { initialValue: '' },
+  );
+  private readonly statusValue = toSignal(
+    this.form.get('status')!.valueChanges.pipe(startWith('DRAFT')),
+    { initialValue: 'DRAFT' },
+  );
 
   staffDraft = '';
   budgetSearch = '';
@@ -91,14 +155,13 @@ export class JosanzEventDetailComponent implements OnInit {
   readonly equipmentImageFailed = signal<ReadonlySet<string>>(new Set());
   emailForm = { date: 'dd/mm/aaaa', subject: 'Asunto ejemplo', body: 'Cuerpo del email…' };
 
-  private readonly baseShell: Omit<JosanzFigmaDetailShellConfig, 'title' | 'statusLabel' | 'statusPillKey'> = {
+  private readonly baseShell: Omit<JosanzFigmaDetailShellConfig, 'title' | 'statusLabel' | 'statusPillKey' | 'saveDisabled'> = {
     listRoute: '/events',
     tabs: [
       'Resumen',
       'Cliente',
       'Staff',
-      'Presupuesto',
-      'Equipo',
+      'Presupuestos',
       'Albaranes',
       'Facturas',
       'Informes / reportes',
@@ -108,59 +171,46 @@ export class JosanzEventDetailComponent implements OnInit {
       Resumen: 'resumen',
       Cliente: 'cliente',
       Staff: 'staff',
-      Presupuesto: 'presupuesto',
-      Equipo: 'equipo',
+      Presupuestos: 'presupuestos',
       Albaranes: 'albaranes',
       Facturas: 'facturas',
       'Informes / reportes': 'informes',
       Emails: 'emails',
     },
-    saveLabel: 'Editar evento',
-    saveDisabled: false,
+    saveLabel: 'Guardar cambios',
     features: { footerActions: false, headerSave: true },
   };
 
   readonly shellConfig = computed<JosanzFigmaDetailShellConfig>(() => {
-    const current = this.event();
+    const nombre = (this.nombreValue() ?? '').trim() || this.event()?.name || 'Evento';
+    const status = (this.statusValue() as string) || this.event()?.status || 'DRAFT';
     return {
       ...this.baseShell,
-      title: current?.name ?? 'Evento',
-      statusLabel: current ? eventStatusLabel(current.status) : '',
-      statusPillKey: statusPillKeyFromApi(current?.status),
+      title: nombre,
+      statusLabel: eventStatusLabel(status),
+      statusPillKey: statusPillKeyFromApi(status),
+      saveDisabled: this.form.invalid || this.saving() || this.loading() || !this.form.dirty,
     };
   });
 
-  readonly heroTypologyLabel = computed(() => {
-    const current = this.event();
-    if (!current) {
-      return 'Evento';
-    }
-    return typologyTabFromApi(current.typology);
-  });
+  readonly heroTypologyLabel = computed(() => typologyTabFromApi(this.selectedType()));
 
-  readonly heroMetaLine = computed(() => {
-    const current = this.event();
-    return current ? formatEventMetaLine(current) : '';
-  });
+  readonly heroMetaLine = computed(() => formatEventMetaFromForm(this.form, this.clients()));
 
-  readonly heroDescription = computed(() => {
-    const current = this.event();
-    return current?.summary?.trim() || current?.notes?.trim() || 'Sin descripción.';
-  });
+  readonly clientOptions = computed(() =>
+    this.clients().map((client) => ({ label: client.name, value: client.id })),
+  );
 
-  readonly resumenKpis = computed(() => {
-    const current = this.event();
-    const status = current ? eventStatusLabel(current.status) : '—';
-    return [
-      { label: 'Presupuesto', value: '€ 340,00' },
-      { label: 'Staff', value: '4 asignados' },
-      { label: 'Material', value: '12 ítems' },
-      { label: 'Estado', value: status },
-    ];
-  });
+  readonly operatorOptions = computed(() =>
+    operatorOptionsForClient(this.clients(), this.selectedClientId() ?? ''),
+  );
+
+  readonly operatorHint = computed(() =>
+    operatorSelectHint(this.clients(), this.selectedClientId() ?? ''),
+  );
 
   readonly eventNotes = computed<JosanzEventNote[]>(() => {
-    const note = this.event()?.notes?.trim();
+    const note = this.form.get('descripcion')?.value?.trim();
     if (!note) {
       return [];
     }
@@ -188,24 +238,8 @@ export class JosanzEventDetailComponent implements OnInit {
 
   readonly staffNotes: JosanzEventNote[] = [];
   readonly inspirationFiles = ['1.pdf', '2.pdf'];
-
   readonly staffMembers: JosanzEventStaffMember[] = [];
   readonly equipment: JosanzEventEquipment[] = [];
-
-  readonly clientRows = computed(() => {
-    const current = this.event();
-    if (!current?.client) {
-      return [];
-    }
-    return [
-      { label: 'Cliente', value: current.client.name },
-      { label: 'Contacto', value: current.operator?.name ?? '—' },
-      { label: 'Email', value: current.operator?.email ?? current.client.name },
-      { label: 'Teléfono', value: current.operator?.phone ?? '—' },
-      { label: 'Operador', value: current.operator?.name ?? '—' },
-      { label: 'Tipo', value: typologyLabelFromApi(current.typology) },
-    ];
-  });
 
   private eventId = '';
 
@@ -216,8 +250,10 @@ export class JosanzEventDetailComponent implements OnInit {
       return;
     }
     this.eventId = id;
+    this.catalogTheme.loadCatalogTheme();
 
     if (this.route.snapshot.queryParamMap.get('updated') === '1') {
+      this.showSaveToast.set(true);
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {},
@@ -225,8 +261,49 @@ export class JosanzEventDetailComponent implements OnInit {
       });
     }
 
-    this.loadEvent();
+    this.clientsFacade.loadClients();
+    this.clientService.getClients().subscribe({
+      next: (apiClients) => {
+        const clients = mergeEventClients(apiClients, this.clientsFacade.clients());
+        this.clients.set(clients);
+        this.loadEvent(clients);
+      },
+      error: () => this.loadEvent([]),
+    });
+
+    this.form.get('clientId')?.valueChanges.subscribe((clientId: string) => {
+      syncOperatorForClient(this.form, clientId, this.clients());
+      updateOperatorValidators(this.form, this.clients(), clientId);
+      updateEventLocationValidators(this.form, this.selectedType());
+    });
+
+    this.form.get('status')?.valueChanges.subscribe((status: string) => {
+      applyDefaultEventStatusColor(this.form, status, this.catalogTheme);
+    });
+
     this.budgetLines = this.budgetCatalog.slice(0, 1);
+  }
+
+  get eventDates(): FormArray {
+    return eventDatesControl(this.form);
+  }
+
+  eventDateGroup(index: number): FormGroup {
+    return eventDateGroupAt(this.form, index);
+  }
+
+  get venues(): FormArray {
+    return venuesControl(this.form);
+  }
+
+  venueGroup(index: number): FormGroup {
+    return venueGroupAt(this.form, index);
+  }
+
+  selectType(type: JosanzEventUiType): void {
+    this.selectedType.set(type);
+    updateEventLocationValidators(this.form, type);
+    this.form.markAsDirty();
   }
 
   onShellTabChange(_tab: string): void {
@@ -234,7 +311,42 @@ export class JosanzEventDetailComponent implements OnInit {
   }
 
   onSave(): void {
-    void this.router.navigate(['/events', this.eventId, 'edit']);
+    this.validationBanner.set('');
+    if (this.form.invalid || this.saving() || this.loading()) {
+      this.form.markAllAsTouched();
+      this.validationBanner.set('Revisa los campos obligatorios antes de guardar.');
+      return;
+    }
+
+    this.saving.set(true);
+    this.errorMessage.set('');
+
+    let payload;
+    try {
+      payload = buildJosanzEventPayload(this.form, this.selectedType());
+    } catch {
+      this.validationBanner.set('Revisa los campos obligatorios antes de guardar.');
+      this.saving.set(false);
+      return;
+    }
+
+    this.eventApi
+      .update(this.eventId, payload)
+      .pipe(finalize(() => this.saving.set(false)))
+      .subscribe({
+        next: (updated) => {
+          this.event.set(updated);
+          patchJosanzEventForm(this.fb, this.form, updated, this.clients(), this.catalogTheme, this.selectedType);
+          this.showSaveToast.set(true);
+        },
+        error: () => {
+          this.errorMessage.set('No se pudo guardar el evento. Revisa los datos e inténtalo de nuevo.');
+        },
+      });
+  }
+
+  dismissSaveToast(): void {
+    this.showSaveToast.set(false);
   }
 
   onDeleteClick(): void {
@@ -312,13 +424,16 @@ export class JosanzEventDetailComponent implements OnInit {
     this.showBudgetPicker.set(false);
   }
 
-  private loadEvent(): void {
+  private loadEvent(clients: Client[]): void {
     this.loading.set(true);
     this.eventApi
       .getById(this.eventId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: (event) => this.event.set(event),
+        next: (event) => {
+          this.event.set(event);
+          patchJosanzEventForm(this.fb, this.form, event, clients, this.catalogTheme, this.selectedType);
+        },
         error: () => this.errorMessage.set('No se pudo cargar el evento.'),
       });
   }
