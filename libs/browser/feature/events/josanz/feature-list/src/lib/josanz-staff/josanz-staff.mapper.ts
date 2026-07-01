@@ -44,7 +44,11 @@ export function technicianSkillsLabel(skills?: string[]): string {
   if (!skills?.length) {
     return '—';
   }
-  return skills.map((skill) => SKILL_LABELS[skill.toUpperCase()] ?? skill).join(' · ');
+  return skills.map((skill) => technicianSkillChipLabel(skill)).join(' · ');
+}
+
+export function technicianSkillChipLabel(skill: string): string {
+  return SKILL_LABELS[skill.toUpperCase()] ?? skill;
 }
 
 export function technicianAvailabilityLabel(): string {

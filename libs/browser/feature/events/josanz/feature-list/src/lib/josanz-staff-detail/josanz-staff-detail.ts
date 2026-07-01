@@ -9,6 +9,7 @@ import {
   type JosanzFigmaDetailShellConfig,
   type JosanzStatusPillKey,
 } from '@josanz-erp/josanz-ui';
+import { GlobalAuthStore, rbacAllows } from '@josanz-erp/shared-data-access';
 import { JosanzEventApiService, type JosanzTechnicianListItem } from '../services/josanz-event-api.service';
 import { mapTechnicianRoleToPill } from '../josanz-event-detail/josanz-event-detail.payload';
 import {
@@ -18,6 +19,8 @@ import {
   technicianSkillsLabel,
   technicianAvailabilityLabel,
 } from '../josanz-staff/josanz-staff.mapper';
+import { JosanzStaffPermissionsTabComponent } from './josanz-staff-permissions-tab';
+import { technicianSkillChipLabel } from '../josanz-staff/josanz-staff.mapper';
 
 @Component({
   selector: 'josanz-staff-detail',
@@ -27,24 +30,41 @@ import {
     JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
+    JosanzStaffPermissionsTabComponent,
   ],
   templateUrl: './josanz-staff-detail.html',
+  styleUrl: './josanz-staff-detail.scss',
 })
 export class JosanzStaffDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly eventApi = inject(JosanzEventApiService);
+  private readonly authStore = inject(GlobalAuthStore);
+
+  readonly canViewUsers = rbacAllows(this.authStore, 'users.view', 'users.manage');
 
   readonly technician = signal<JosanzTechnicianListItem | null>(null);
   readonly displayIndex = signal(0);
   readonly loading = signal(true);
 
+  readonly isOwnProfile = computed(() => {
+    const tech = this.technician();
+    const sessionId = this.authStore.user()?.id;
+    return Boolean(tech && sessionId && tech.user.id === sessionId);
+  });
+
+  readonly canAccessPermissions = computed(
+    () => this.canViewUsers() || this.isOwnProfile(),
+  );
+
   readonly shellConfig = computed<JosanzFigmaDetailShellConfig>(() => {
     const tech = this.technician();
+    const tabs = ['Resumen', 'Permisos', 'Contratos', 'Nóminas', 'Ausencias'];
+
     if (!tech) {
       return {
         title: 'Staff',
         listRoute: '/staff',
-        tabs: ['Resumen', 'Contratos', 'Nóminas', 'Ausencias'],
+        tabs,
         statusLabel: '—',
         statusPillKey: 'staff-tecnico',
         saveDisabled: true,
@@ -56,7 +76,7 @@ export class JosanzStaffDetailComponent implements OnInit {
     return {
       title: technicianDisplayName(tech.user),
       listRoute: '/staff',
-      tabs: ['Resumen', 'Contratos', 'Nóminas', 'Ausencias'],
+      tabs,
       statusLabel: role,
       statusPillKey: mapTechnicianRoleToPill(tech.status),
       saveDisabled: true,
@@ -72,15 +92,22 @@ export class JosanzStaffDetailComponent implements OnInit {
     return tech.avatarUrl ?? `https://i.pravatar.cc/96?u=${encodeURIComponent(tech.id)}`;
   });
 
+  readonly skillChips = computed(() => {
+    const skills = this.technician()?.skills ?? [];
+    if (!skills.length) {
+      return [];
+    }
+    return skills.map((skill) => technicianSkillChipLabel(skill));
+  });
+
   readonly heroMeta = computed(() => {
     const tech = this.technician();
     if (!tech) {
       return '';
     }
-    const skills = technicianSkillsLabel(tech.skills);
     const contract =
       tech.status.toUpperCase().includes('FREE') ? 'Freelance' : 'Contrato indefinido';
-    return `Especialidad: ${skills} · ${contract}`;
+    return contract;
   });
 
   readonly heroDescription = computed(() => this.technician()?.bio?.trim() ?? '');
@@ -97,7 +124,7 @@ export class JosanzStaffDetailComponent implements OnInit {
       { label: 'Nombre', value: technicianDisplayName(tech.user) },
       { label: 'Perfil', value: technicianSkillsLabel(tech.skills) },
       { label: 'Teléfono', value: '—' },
-      { label: 'Email', value: tech.user.email },
+      { label: 'Email', value: tech.user.email, kind: 'email' as const },
       { label: 'Tipo', value: role },
       { label: 'Disponibilidad', value: technicianAvailabilityLabel() },
     ];

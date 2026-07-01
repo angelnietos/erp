@@ -1,0 +1,110 @@
+.josanz-staff-hero {
+  position: relative;
+  overflow: hidden;
+}
+
+.josanz-staff-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--josanz-brand, #111) 5%, transparent),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+
+.josanz-staff-hero__media {
+  border-color: color-mix(in srgb, var(--josanz-brand, #111) 18%, #ffd387);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--josanz-brand, #111) 12%, transparent);
+}
+
+.josanz-staff-hero__body {
+  position: relative;
+  z-index: 1;
+}
+
+.josanz-staff-hero__skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+}
+
+.josanz-staff-skill-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.7rem;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--josanz-brand, #111) 7%, var(--josanz-surface));
+  border: 1px solid color-mix(in srgb, var(--josanz-brand, #111) 12%, var(--josanz-border));
+}
+
+.josanz-staff-hero__contract {
+  margin: 0.35rem 0 0;
+  font-size: 13px;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-staff-data-grid {
+  display: grid;
+  gap: 0;
+}
+
+.josanz-staff-data-grid__row {
+  display: grid;
+  grid-template-columns: minmax(7rem, 11rem) 1fr;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--josanz-row-line);
+  align-items: center;
+}
+
+.josanz-staff-data-grid__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.josanz-staff-data-grid__row:first-child {
+  padding-top: 0;
+}
+
+.josanz-staff-data-grid__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--josanz-text-muted);
+}
+
+.josanz-staff-data-grid__value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--josanz-text);
+}
+
+.josanz-staff-data-grid__value--email a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.josanz-staff-data-grid__value--email a:hover {
+  text-decoration: underline;
+}
+
+.josanz-staff-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.josanz-staff-availability__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px color-mix(in srgb, #22c55e 18%, transparent);
+}

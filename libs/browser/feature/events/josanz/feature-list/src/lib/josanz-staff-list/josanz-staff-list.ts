@@ -26,6 +26,7 @@ export class JosanzStaffListComponent implements OnInit {
   > = {
     title: 'Staff',
     primaryBtnLabel: 'Añadir personal',
+    titleColumnLabel: 'Ref.',
     statusColumnLabel: 'Tipo',
     rowLabels: ['Nombre', 'Perfil', 'Teléfono', 'Disponibilidad'],
     addRoute: '/staff/new',

@@ -1,0 +1,133 @@
+<josanz-figma-success-toast
+  [open]="showToast()"
+  message="Permisos actualizados correctamente"
+  (dismissed)="dismissToast()"
+/>
+
+@if (loading()) {
+<section class="josanz-event-section josanz-staff-perm-panel">
+  <p class="josanz-staff-perm-muted">Cargando permisos…</p>
+</section>
+} @else if (error()) {
+<section class="josanz-event-section josanz-staff-perm-panel" role="alert">
+  <p class="josanz-staff-perm-error">{{ error() }}</p>
+  @if (canLoadFromApi()) {
+  <josanz-secondary-button label="Reintentar" (btnClick)="reload()"></josanz-secondary-button>
+  }
+</section>
+} @else if (user(); as u) {
+<section class="josanz-event-section josanz-staff-perm-panel">
+  <div class="josanz-staff-perm-summary">
+    <div>
+      <h3 class="josanz-event-section__title m-0">Permisos activos</h3>
+      <p class="josanz-staff-perm-muted">
+        @if (hasWildcard()) {
+        Acceso total al tenant
+        } @else {
+        {{ effectivePermissionIds().length }} permisos efectivos
+        }
+      </p>
+    </div>
+    @if (u.roles.length) {
+    <div class="josanz-staff-perm-roles">
+      @for (role of u.roles; track role) {
+      <span class="josanz-staff-perm-role">{{ role }}</span>
+      }
+    </div>
+    }
+  </div>
+
+  @if (hasWildcard()) {
+  <div class="josanz-staff-perm-wildcard">
+    <span class="josanz-staff-perm-chip josanz-staff-perm-chip--wildcard">Acceso total (*)</span>
+  </div>
+  } @else {
+  <div class="josanz-staff-perm-groups">
+    @for (group of permissionGroups(); track group.category) {
+    <div class="josanz-staff-perm-group">
+      <h4 class="josanz-staff-perm-group__title">{{ group.category }}</h4>
+      <div class="josanz-staff-perm-chips">
+        @for (item of group.items; track item.id) {
+        <span
+          class="josanz-staff-perm-chip"
+          [class.josanz-staff-perm-chip--extra]="item.source === 'extra'"
+        >
+          {{ item.label }}
+        </span>
+        }
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  @if ((u.deniedPermissions?.length ?? 0) > 0) {
+  <div class="josanz-staff-perm-denied">
+    <h4 class="josanz-staff-perm-group__title">Bloqueados</h4>
+    <div class="josanz-staff-perm-chips">
+      @for (perm of u.deniedPermissions; track perm) {
+      <span class="josanz-staff-perm-chip josanz-staff-perm-chip--denied">− {{ perm }}</span>
+      }
+    </div>
+  </div>
+  }
+</section>
+
+@if (canManageUsers()) {
+<section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
+  <h3 class="josanz-event-section__title">Añadir permisos extra</h3>
+  <p class="josanz-staff-perm-muted">
+    Los permisos extra se suman a los del rol. Solo un administrador puede modificarlos.
+  </p>
+
+  @if (draftExtra().length) {
+  <div class="josanz-staff-perm-chips josanz-staff-perm-chips--draft">
+    @for (perm of draftExtra(); track perm) {
+    <span class="josanz-staff-perm-chip josanz-staff-perm-chip--extra">
+      {{ permissionLabel(perm) }}
+      <button
+        type="button"
+        class="josanz-staff-perm-chip__remove"
+        aria-label="Quitar permiso extra"
+        (click)="removeExtraPermission(perm)"
+      >
+        ×
+      </button>
+    </span>
+    }
+  </div>
+  }
+
+  <div class="josanz-staff-perm-add-row">
+    <label class="josanz-staff-perm-add-row__field">
+      <span class="josanz-staff-perm-add-row__label">Permiso</span>
+      <select
+        class="josanz-staff-perm-select"
+        [ngModel]="pickPermissionId()"
+        (ngModelChange)="pickPermissionId.set($event)"
+      >
+        <option value="">Selecciona un permiso…</option>
+        @for (opt of addableOptions(); track opt.id) {
+        <option [value]="opt.id">{{ opt.label }}</option>
+        }
+      </select>
+    </label>
+    <josanz-secondary-button
+      label="Añadir"
+      [disabled]="!pickPermissionId()"
+      (btnClick)="addPickedPermission()"
+    ></josanz-secondary-button>
+  </div>
+
+  <div class="josanz-staff-perm-actions">
+    <josanz-button
+      label="Guardar permisos"
+      [showIcon]="false"
+      size="sm"
+      [disabled]="!hasPendingChanges() || saving()"
+      (btnClick)="saveExtraPermissions()"
+    ></josanz-button>
+  </div>
+</section>
+}
+}
