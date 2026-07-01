@@ -32,18 +32,6 @@
       </span>
       }
     </div>
-    <div class="josanz-event-create__header-actions">
-      @if (!loading()) {
-      <button
-        type="button"
-        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
-        [disabled]="saving() || deleteConfirm.busy()"
-        (click)="onDeleteClick()"
-      >
-        Eliminar evento
-      </button>
-      }
-    </div>
   </div>
 
   @if (deleteErrorMessage()) {
@@ -95,6 +83,26 @@
 
   @if (shell.activeTab() === 'Emails') {
   <josanz-event-emails-tab />
+  }
+
+  @if (canDeleteEvent()) {
+  <section
+    class="josanz-event-section josanz-event-danger-zone"
+    aria-labelledby="event-delete-title"
+  >
+    <h3 id="event-delete-title" class="josanz-event-section__title">Zona de peligro</h3>
+    <p class="josanz-event-danger-zone__hint">
+      Elimina este evento de forma permanente. Esta acción no se puede deshacer.
+    </p>
+    <josanz-button
+      label="Eliminar evento"
+      variant="danger"
+      size="sm"
+      [showIcon]="false"
+      [disabled]="saving() || deleteConfirm.busy()"
+      (btnClick)="onDeleteClick()"
+    ></josanz-button>
+  </section>
   }
 </josanz-figma-detail-shell>
 

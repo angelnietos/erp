@@ -69,6 +69,7 @@ export interface JosanzEventRecord {
   budgetContact: string | null;
   budgetObservations: string | null;
   createdAt: string;
+  createdByUserId?: string | null;
   client: {
     id: string;
     name: string;

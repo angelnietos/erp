@@ -1,10 +1,12 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { AuditLogWriterService, PrismaService } from '@josanz-erp/shared-infrastructure';
 import type { Prisma } from '@prisma/client';
+import { canUserDeleteEvent } from './event-delete.policy';
 
 export interface EventVenueBlock {
   salon?: string;
@@ -127,6 +129,7 @@ export class EventsService {
     const event = await this.prisma.event.create({
       data: {
         tenantId,
+        createdByUserId: actorUserId,
         ...payload,
       } as Prisma.EventUncheckedCreateInput,
       include: this.defaultInclude(),
@@ -227,8 +230,32 @@ export class EventsService {
     return this.mapToDto(event);
   }
 
-  async delete(tenantId: string, id: string, actorUserId: string) {
-    const row = await this.ensureExists(tenantId, id);
+  async delete(
+    tenantId: string,
+    id: string,
+    actorUserId: string,
+    actorRoles: string[],
+    actorPermissions: string[],
+  ) {
+    const row = await this.prisma.event.findFirst({
+      where: { id, tenantId },
+      select: { id: true, name: true, status: true, createdByUserId: true },
+    });
+    if (!row) {
+      throw new NotFoundException('Evento no encontrado');
+    }
+    if (
+      !canUserDeleteEvent(
+        row.createdByUserId,
+        actorUserId,
+        actorRoles,
+        actorPermissions,
+      )
+    ) {
+      throw new ForbiddenException(
+        'No tienes permiso para eliminar este evento',
+      );
+    }
     await this.prisma.event.delete({ where: { id } });
     await this.auditLogWriter.record(actorUserId, {
       action: 'DELETE',
@@ -550,6 +577,7 @@ export class EventsService {
     budgetContact?: string | null;
     budgetObservations?: string | null;
     createdAt: Date;
+    createdByUserId?: string | null;
     client?: { id: string; name: string; sector?: string | null; railColor?: string | null } | null;
     operatorContact?: {
       id: string;
@@ -605,6 +633,7 @@ export class EventsService {
       budgetContact: event.budgetContact ?? null,
       budgetObservations: event.budgetObservations ?? null,
       createdAt: event.createdAt.toISOString(),
+      createdByUserId: event.createdByUserId ?? null,
       client: event.client ?? null,
       operator: event.operatorContact
         ? {

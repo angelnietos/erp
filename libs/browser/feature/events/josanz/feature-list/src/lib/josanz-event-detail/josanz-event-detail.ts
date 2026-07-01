@@ -3,8 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, EMPTY, finalize, merge, startWith, tap } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ClientService, ClientsFacade, type Client } from '@josanz-erp/clients-data-access';
+import { AuthStore } from '@josanz-erp/identity-data-access';
 import {
+  ButtonComponent,
   JosanzDeleteConfirmHostComponent,
   JosanzDeleteConfirmService,
   JosanzFigmaDetailShellComponent,
@@ -42,12 +45,14 @@ import { JosanzEventEmailsTabComponent } from './tabs/josanz-event-emails-tab';
 import { JosanzEventPresupuestosTabComponent } from './tabs/josanz-event-presupuestos-tab';
 import { JosanzEventResumenTabComponent } from './tabs/josanz-event-resumen-tab';
 import { JosanzEventStaffTabComponent } from './tabs/josanz-event-staff-tab';
+import { canUserDeleteEvent } from '../utils/event-delete-access';
 
 @Component({
   selector: 'josanz-event-detail',
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    ButtonComponent,
     JosanzFigmaDetailShellComponent,
     JosanzDeleteConfirmHostComponent,
     JosanzEventUploadModalComponent,
@@ -70,6 +75,7 @@ export class JosanzEventDetailComponent implements OnInit {
   private readonly clientService = inject(ClientService);
   private readonly clientsFacade = inject(ClientsFacade);
   private readonly catalogTheme = inject(CatalogThemeFacade);
+  private readonly authStore = inject(AuthStore);
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
   readonly detailState = inject(JosanzEventDetailState);
 
@@ -202,6 +208,14 @@ export class JosanzEventDetailComponent implements OnInit {
     return operator === '—' ? 'Cliente' : operator;
   });
 
+  readonly canDeleteEvent = computed(() => {
+    const current = this.event();
+    if (!current || this.loading()) {
+      return false;
+    }
+    return canUserDeleteEvent(current, this.authStore.user());
+  });
+
   private eventId = '';
 
   ngOnInit(): void {
@@ -324,7 +338,7 @@ export class JosanzEventDetailComponent implements OnInit {
 
   onDeleteClick(): void {
     const current = this.event();
-    if (!current || this.loading() || this.deleteConfirm.busy()) {
+    if (!current || this.loading() || this.deleteConfirm.busy() || !this.canDeleteEvent()) {
       return;
     }
 
@@ -337,8 +351,14 @@ export class JosanzEventDetailComponent implements OnInit {
           tap(() => {
             void this.router.navigate(['/events'], { queryParams: { deleted: '1' } });
           }),
-          catchError(() => {
-            this.deleteErrorMessage.set('No se pudo eliminar el evento. Inténtalo de nuevo.');
+          catchError((error: unknown) => {
+            const status =
+              error instanceof HttpErrorResponse ? error.status : null;
+            this.deleteErrorMessage.set(
+              status === 403
+                ? 'No tienes permiso para eliminar este evento.'
+                : 'No se pudo eliminar el evento. Inténtalo de nuevo.',
+            );
             return EMPTY;
           }),
         ),

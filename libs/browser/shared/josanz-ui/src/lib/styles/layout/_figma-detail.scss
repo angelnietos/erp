@@ -287,6 +287,7 @@
 }
 
 .josanz-event-danger-zone {
+  margin-top: 1.25rem;
   border-color: color-mix(in srgb, var(--josanz-danger) 25%, var(--josanz-border));
   background: color-mix(in srgb, var(--josanz-danger) 4%, var(--josanz-surface));
 }

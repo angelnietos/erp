@@ -508,6 +508,7 @@ model Event {
   budgetAddress     String?           @map("budget_address")
   budgetContact     String?           @map("budget_contact")
   budgetObservations String?          @map("budget_observations") @db.Text
+  createdByUserId   String?           @map("created_by_user_id") @db.Uuid
   budgets           Budget[]
   projects          ProjectEvent[]
   technicians       EventTechnician[]
@@ -518,6 +519,7 @@ model Event {
   budgetLines       EventBudgetLine[]
   client            Client?           @relation(fields: [clientId], references: [id])
   operatorContact   ClientContact?    @relation("EventOperator", fields: [operatorContactId], references: [id])
+  createdBy         User?             @relation("EventCreatedBy", fields: [createdByUserId], references: [id], onDelete: SetNull)
   tenant            Tenant            @relation(fields: [tenantId], references: [id])
   createdAt         DateTime          @default(now()) @map("created_at")
 
@@ -763,6 +765,7 @@ model User {
   timeOffRequestsRequested TimeOffRequest[] @relation("TimeOffRequester")
   timeOffRequestsDecided   TimeOffRequest[] @relation("TimeOffDecider")
   passwordResetTokens      PasswordResetToken[]
+  createdEvents            Event[]              @relation("EventCreatedBy")
 
   @@unique([tenantId, email])
   @@map("users")

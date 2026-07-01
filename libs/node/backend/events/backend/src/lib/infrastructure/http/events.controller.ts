@@ -82,10 +82,15 @@ export class EventsController {
   @Delete(':id')
   @RequirePermissions('events.manage', '*')
   async delete(@Req() req: Request, @Param('id', ParseUUIDPipe) id: string) {
+    const user = req.user as
+      | { roles?: string[]; permissions?: string[] }
+      | undefined;
     return this.eventsService.delete(
       requireRequestTenantId(req),
       id,
       requireRequestUserId(req),
+      Array.isArray(user?.roles) ? user.roles : [],
+      Array.isArray(user?.permissions) ? user.permissions : [],
     );
   }
 }
