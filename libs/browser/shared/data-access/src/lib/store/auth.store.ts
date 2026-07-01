@@ -9,6 +9,7 @@ export interface AuthState {
     name: string;
     tenantId: string;
     permissions: string[];
+    roles?: string[];
   } | null;
   loading: boolean;
   error: string | null;

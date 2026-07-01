@@ -5,13 +5,11 @@
       <h1 class="josanz-home__title">{{ userFirstName() }}</h1>
     </div>
     <div class="josanz-home__header-user">
-      <span class="josanz-home__header-user-label">{{ userDisplayName() }}</span>
-      <span class="josanz-home__header-avatar" aria-hidden="true">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-          <circle cx="12" cy="8" r="4" />
-          <path d="M5 20a7 7 0 0 1 14 0" />
-        </svg>
-      </span>
+      <div class="josanz-home__header-user-meta">
+        <span class="josanz-home__header-user-label">{{ userDisplayName() }}</span>
+        <josanz-user-role-badge [roles]="sessionRoles()"></josanz-user-role-badge>
+      </div>
+      <josanz-user-avatar size="sm" link="/settings" ariaLabel="Cuenta y ajustes"></josanz-user-avatar>
     </div>
   </header>
 

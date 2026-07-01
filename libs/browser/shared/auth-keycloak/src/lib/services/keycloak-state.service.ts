@@ -32,6 +32,7 @@ export class KeycloakStateService {
         name: displayName,
         tenantId: keycloakUser.tenantId ?? '',
         permissions: keycloakUser.permissions,
+        roles: keycloakUser.roles ?? [],
       });
     }
   }

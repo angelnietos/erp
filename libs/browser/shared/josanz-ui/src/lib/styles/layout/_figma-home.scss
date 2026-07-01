@@ -39,16 +39,16 @@
   color: var(--josanz-text-muted);
 }
 
-.josanz-home__header-avatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 9999px;
-  border: 1px solid var(--josanz-border);
-  background: var(--josanz-avatar-wash, #deedff);
-  color: var(--josanz-text);
+.josanz-home__header-user-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.josanz-home__header-user-label {
+  white-space: nowrap;
 }
 
 .josanz-home__filters-btn {

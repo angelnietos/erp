@@ -40,7 +40,11 @@
     @if (draftRoles().length) {
     <div class="josanz-staff-perm-roles">
       @for (role of draftRoles(); track role) {
-      <span class="josanz-staff-perm-role">{{ role }}</span>
+        @if (isElevatedRole(role)) {
+        <josanz-user-role-badge [roles]="[role]"></josanz-user-role-badge>
+        } @else {
+        <span class="josanz-staff-perm-role">{{ role }}</span>
+        }
       }
     </div>
     }
@@ -96,6 +100,11 @@
       class="josanz-staff-perm-role-option"
       [class.josanz-staff-perm-role-option--selected]="isRoleSelected(role.name)"
     >
+      <josanz-user-avatar
+        class="josanz-staff-perm-role-option__avatar"
+        size="sm"
+        [roles]="[role.name]"
+      ></josanz-user-avatar>
       <input
         type="checkbox"
         class="josanz-staff-perm-role-option__input"

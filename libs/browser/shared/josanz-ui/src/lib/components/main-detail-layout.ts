@@ -7,13 +7,14 @@ import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
 import { MainTabsComponent } from './main-tabs';
 import { ButtonComponent } from './button';
 import { UserAvatarComponent } from './user-avatar';
+import { JosanzUserRoleBadgeComponent } from './josanz-user-role-badge/josanz-user-role-badge';
 
 export type JosanzDetailLayoutVariant = 'default' | 'figma-event';
 
 @Component({
   selector: 'josanz-main-detail-layout',
   standalone: true,
-  imports: [CommonModule, MainTabsComponent, ButtonComponent, UserAvatarComponent],
+  imports: [CommonModule, MainTabsComponent, ButtonComponent, UserAvatarComponent, JosanzUserRoleBadgeComponent],
   templateUrl: './main-detail-layout.html',
   styles: [
     `
@@ -60,6 +61,8 @@ export class MainDetailLayoutComponent {
     }
     return resolveJosanzUserDisplayName(this.globalAuth.user());
   });
+
+  readonly sessionRoles = computed(() => this.globalAuth.user()?.roles ?? []);
 
   @Input() showFooterActions = true;
   /** Botón guardar en la barra de tabs (solo `figma-event`). */

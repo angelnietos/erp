@@ -14,9 +14,12 @@ import {
   ButtonComponent,
   JosanzFigmaSuccessToastComponent,
   SelectComponent,
+  UserAvatarComponent,
+  JosanzUserRoleBadgeComponent,
   type JosanzSelectOption,
 } from '@josanz-erp/josanz-ui';
 import { groupPermissions, permissionLabel, permissionCategory } from '../utils/permission-labels';
+import { resolveJosanzUserRoleBadge } from '@josanz-erp/josanz-ui';
 
 @Component({
   selector: 'josanz-staff-permissions-tab',
@@ -27,6 +30,8 @@ import { groupPermissions, permissionLabel, permissionCategory } from '../utils/
     ButtonComponent,
     JosanzFigmaSuccessToastComponent,
     SelectComponent,
+    UserAvatarComponent,
+    JosanzUserRoleBadgeComponent,
   ],
   templateUrl: './josanz-staff-permissions-tab.html',
   styleUrl: './josanz-staff-permissions-tab.scss',
@@ -187,6 +192,10 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     }
     const count = role.permissions.length;
     return `${count} ${count === 1 ? 'permiso' : 'permisos'}`;
+  }
+
+  isElevatedRole(roleName: string): boolean {
+    return resolveJosanzUserRoleBadge([roleName]) != null;
   }
 
   savePermissions(): void {

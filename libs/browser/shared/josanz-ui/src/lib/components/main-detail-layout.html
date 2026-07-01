@@ -100,9 +100,10 @@
     <!-- User area -->
     <div class="josanz-detail-figma__user">
       @if (showUserLabel) {
-      <span style="font-size: 13px; color: var(--josanz-text-muted)"
-        >{{ resolvedUserLabel() }}</span
-      >
+      <div class="josanz-detail-figma__user-meta">
+        <span class="josanz-detail-figma__user-name">{{ resolvedUserLabel() }}</span>
+        <josanz-user-role-badge [roles]="sessionRoles()"></josanz-user-role-badge>
+      </div>
       }
       <josanz-user-avatar
         [link]="avatarLink"

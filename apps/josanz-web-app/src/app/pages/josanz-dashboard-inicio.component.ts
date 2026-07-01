@@ -7,6 +7,8 @@ import {
   JOSANZ_FIGMA_DASHBOARD,
   JOSANZ_FIGMA_SHELL,
   JosanzThemeService,
+  JosanzUserRoleBadgeComponent,
+  UserAvatarComponent,
   resolveJosanzUserDisplayName,
   resolveJosanzUserFirstName,
   resolveJosanzWelcomeTitle,
@@ -37,7 +39,7 @@ interface JosanzHomeScheduleCell {
  */
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterLink, FilterTabsComponent],
+  imports: [CommonModule, RouterLink, FilterTabsComponent, UserAvatarComponent, JosanzUserRoleBadgeComponent],
   templateUrl: './josanz-dashboard-inicio.component.html',
 })
 export class JosanzDashboardInicioComponent {
@@ -49,6 +51,7 @@ export class JosanzDashboardInicioComponent {
   readonly userDisplayName = computed(() =>
     resolveJosanzUserDisplayName(this.globalAuth.user()),
   );
+  readonly sessionRoles = computed(() => this.globalAuth.user()?.roles ?? []);
   readonly userFirstName = computed(() =>
     resolveJosanzUserFirstName(this.globalAuth.user()),
   );

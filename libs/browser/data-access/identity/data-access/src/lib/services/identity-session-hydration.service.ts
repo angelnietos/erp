@@ -100,6 +100,7 @@ export class IdentitySessionHydrationService {
       name: displayName,
       tenantId: response.tenantId || getStoredTenantId() || '',
       permissions: u.permissions,
+      roles: u.roles ?? [],
     });
 
     const tenantId = response.tenantId || getStoredTenantId();
