@@ -27,7 +27,6 @@ describe('appRoutes', () => {
         'users',
         'stock',
         'budgets',
-        'delivery-notes',
         'events',
         'equipment',
         'vehicles',
