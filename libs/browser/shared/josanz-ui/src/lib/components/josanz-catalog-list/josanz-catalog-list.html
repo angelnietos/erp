@@ -77,7 +77,7 @@
   </div>
   }
 
-  @if (features.columnHeader) {
+  @if (showColumnHeader) {
   <josanz-list-template-header-row
     [titleLabel]="config.titleColumnLabel ?? config.idColumnLabel ?? 'ID'"
     [fieldLabels]="rowLabels"

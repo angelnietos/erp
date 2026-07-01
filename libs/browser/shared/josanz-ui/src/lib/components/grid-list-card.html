@@ -12,12 +12,17 @@
         <span
           class="josanz-grid-list-card__leading"
           [ngClass]="'josanz-grid-list-card__leading--' + density"
+          [ngStyle]="leadingMarkStyles()"
           aria-hidden="true"
         >
           {{ leadingMark }}
         </span>
         }
-        <h3 class="josanz-grid-list-card__title truncate" [ngClass]="'josanz-grid-list-card__title--' + density">
+        <h3
+          class="josanz-grid-list-card__title"
+          [ngClass]="'josanz-grid-list-card__title--' + density"
+          [attr.title]="title"
+        >
           {{ title }}
         </h3>
       </div>

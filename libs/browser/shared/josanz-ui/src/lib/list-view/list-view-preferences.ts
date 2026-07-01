@@ -118,8 +118,10 @@ export function listViewStackClasses(id: JosanzListViewSelection): string[] {
   return classes;
 }
 
-/** Columnas sugeridas al activar cada modo de cuadrícula. */
-export function defaultGridColumnsForSelection(id: JosanzListViewSelection): JosanzListGridColumns | null {
+/** Columnas sugeridas al activar cada modo de cuadrícula (siempre se aplican al cambiar de vista). */
+export function defaultGridColumnsForSelection(
+  id: JosanzListViewSelection,
+): JosanzListGridColumns | null {
   if (id === 'tarjetas-grid-dense') {
     return 6;
   }
@@ -127,7 +129,7 @@ export function defaultGridColumnsForSelection(id: JosanzListViewSelection): Jos
     return 5;
   }
   if (id === 'tarjetas-grid') {
-    return null;
+    return 4;
   }
   return null;
 }

@@ -12,6 +12,14 @@
   }
 }
 
+.josanz-main-list__stack.josanz-list-view--cards-grid-comfortable {
+  gap: 1rem;
+
+  .josanz-list-grid {
+    gap: 1rem;
+  }
+}
+
 .josanz-main-list__stack.josanz-list-view--cards-grid-compact {
   gap: 0.625rem;
 

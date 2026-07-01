@@ -212,9 +212,28 @@
     }
   }
 
-  .josanz-main-list__stack.josanz-list-view--cards-list,
-  .josanz-main-list__stack:not(.josanz-list-view--table) {
+  .josanz-main-list__stack.josanz-list-view--cards-list {
     gap: 0.625rem;
+  }
+
+  .josanz-main-list__stack.josanz-list-view--cards-grid {
+    gap: 1rem;
+  }
+
+  .josanz-main-list__stack.josanz-list-view--cards-grid-comfortable .josanz-list-grid {
+    gap: 1rem;
+  }
+
+  .josanz-grid-list-card {
+    border-radius: var(--josanz-radius-card, 20px) !important;
+    box-shadow: var(--josanz-list-card-shadow, 0 1px 3px rgba(0, 0, 0, 0.04)) !important;
+    border: 1px solid var(--josanz-list-card-border, #ebebeb) !important;
+    background: var(--josanz-list-card-bg, #ffffff) !important;
+  }
+
+  .josanz-grid-list-card__rail {
+    width: 6px !important;
+    opacity: 1 !important;
   }
 
   .josanz-list-rows--table-target {

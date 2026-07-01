@@ -25,6 +25,8 @@ import {
   buildCatalogListExportPayload,
 } from '../../list-export/list-export.utils';
 import type { JosanzListExportFormat } from '../../list-export/list-export.types';
+import { JosanzThemeService } from '../../services/theme.service';
+import { isTableListView } from '../../list-view/list-view-preferences';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -83,6 +85,7 @@ import { FormsModule } from '@angular/forms';
 export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
   private readonly listExport = inject(JosanzListExportService);
+  readonly themeService = inject(JosanzThemeService);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
 
@@ -138,6 +141,14 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   get features(): ResolvedCatalogListFeatures {
     return resolveCatalogListFeatures(this.config);
+  }
+
+  get showColumnHeader(): boolean {
+    const selection = this.themeService.listViewSelection();
+    return (
+      this.features.columnHeader &&
+      (isTableListView(selection) || selection === 'tarjetas-lista')
+    );
   }
 
   get showExtraFilters(): boolean {
@@ -339,7 +350,7 @@ export class JosanzCatalogListComponent implements OnChanges {
       this.showExportModal = false;
     } catch {
       this.exportError =
-        'No se pudo generar la exportaciÛn. Comprueba la sesiÛn y vuelve a intentarlo.';
+        'No se pudo generar la exportaciùn. Comprueba la sesiùn y vuelve a intentarlo.';
     } finally {
       this.exportBusy = false;
     }

@@ -10,6 +10,11 @@ import {
   eventOutlineIconRingStyles,
   getEventOutlinePill,
 } from '../theme/event-status-outline';
+import {
+  leadingMarkGradientStyle,
+  pillFilledBadgeStyles,
+  pillOutlineBadgeStyles,
+} from '../catalog/status-pill-presets';
 
 @Component({
   selector: 'josanz-grid-list-card',
@@ -32,6 +37,9 @@ export class GridListCardComponent {
   @Input() previewLines: string[] = [];
   @Input() fieldLabels: string[] = [];
   @Input() leadingMark = '';
+  @Input() railColor = '';
+  @Input() pillColor = '';
+  @Input() avatarGradient = false;
   @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
   @Input() shape?: JosanzControlShape;
   @Input() customColor?: string;
@@ -59,12 +67,26 @@ export class GridListCardComponent {
 
   cardStyles(): Record<string, string> {
     return {
-      'background-color': 'var(--josanz-surface)',
-      'border-color': 'var(--josanz-border)',
+      'background-color': 'var(--josanz-list-card-bg, var(--josanz-surface))',
+      'border-color': 'var(--josanz-list-card-border, var(--josanz-border))',
+      'box-shadow': 'var(--josanz-list-card-shadow, var(--josanz-card-shadow))',
     };
   }
 
+  leadingMarkStyles(): Record<string, string> {
+    if (this.avatarGradient && this.leadingMark && this.railColor) {
+      const pillAccent = this.pillColor || this.customColor;
+      if (pillAccent) {
+        return leadingMarkGradientStyle(this.railColor, pillAccent);
+      }
+    }
+    return {};
+  }
+
   statusRailStyles(): Record<string, string> {
+    if (this.railColor) {
+      return { backgroundColor: this.railColor };
+    }
     if (this.customColor) {
       return { backgroundColor: this.customColor };
     }
@@ -90,18 +112,12 @@ export class GridListCardComponent {
   }
 
   badgeStyles(): Record<string, string> {
-    if (this.customColor) {
+    const accent = this.pillColor || this.customColor;
+    if (accent) {
       if (this.statusBadgeStyle === 'outline') {
-        return {
-          'background-color': 'transparent',
-          color: this.customColor,
-          border: `1px solid ${this.customColor}`,
-        };
+        return pillOutlineBadgeStyles(accent);
       }
-      return {
-        'background-color': `color-mix(in srgb, ${this.customColor} 16%, var(--josanz-surface))`,
-        color: this.customColor,
-      };
+      return pillFilledBadgeStyles(accent);
     }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {

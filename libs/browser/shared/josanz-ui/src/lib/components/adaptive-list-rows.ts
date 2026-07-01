@@ -33,7 +33,7 @@ export interface JosanzAdaptiveListItem {
   standalone: true,
   imports: [CommonModule, MainTemplateCardComponent, GridListCardComponent],
   template: `
-    @if (isListCards() || isTable()) {
+    @if (isTable() || isListCards()) {
       <div class="josanz-list-rows--table-target flex flex-col gap-4">
         @for (item of items; track item.id) {
           <josanz-main-template-card
@@ -56,11 +56,12 @@ export interface JosanzAdaptiveListItem {
           ></josanz-main-template-card>
         }
       </div>
-    }
-
-    @if (isGrid()) {
+    } @else if (isGrid()) {
       <div
         class="josanz-list-grid"
+        [class.josanz-list-grid--comfortable]="gridDensity() === 'comfortable'"
+        [class.josanz-list-grid--compact]="gridDensity() === 'compact'"
+        [class.josanz-list-grid--dense]="gridDensity() === 'dense'"
         [style.--josanz-list-grid-cols]="gridColumns()"
       >
         @for (item of items; track item.id) {
@@ -78,6 +79,9 @@ export interface JosanzAdaptiveListItem {
               [status]="item.status ?? ''"
               [statusVariant]="item.statusVariant ?? 'borrador'"
               [leadingMark]="item.leadingMark ?? ''"
+              [railColor]="item.railColor ?? ''"
+              [pillColor]="item.pillColor ?? ''"
+              [avatarGradient]="item.avatarGradient ?? false"
               [statusBadgeStyle]="statusBadgeStyle"
             ></josanz-grid-list-card>
           </button>
