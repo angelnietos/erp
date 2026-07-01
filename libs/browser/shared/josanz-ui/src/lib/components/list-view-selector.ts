@@ -2,10 +2,14 @@ import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   JOSANZ_LIST_GRID_COLUMN_OPTIONS,
+  JOSANZ_LIST_GRID_COLUMNS_MAX,
+  JOSANZ_LIST_GRID_COLUMNS_MIN,
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD,
   isGridCardsView,
+  isPresetListGridColumns,
   listViewSelectionLabel,
+  normalizeListGridColumns,
   type JosanzListGridColumns,
   type JosanzListViewMenuOption,
   type JosanzListViewSelection,
@@ -31,6 +35,12 @@ export class ListViewSelectorComponent {
   @Output() gridColumnsChange = new EventEmitter<JosanzListGridColumns>();
 
   readonly columnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
+  readonly gridColumnsMin = JOSANZ_LIST_GRID_COLUMNS_MIN;
+  readonly gridColumnsMax = JOSANZ_LIST_GRID_COLUMNS_MAX;
+
+  isCustomGridColumns(): boolean {
+    return !isPresetListGridColumns(this.gridColumns);
+  }
 
   get viewOptions(): readonly JosanzListViewMenuOption[] {
     return this.showStatusBoard
@@ -86,6 +96,22 @@ export class ListViewSelectorComponent {
       return;
     }
     this.gridColumnsChange.emit(columns);
+  }
+
+  onCustomColumnsInput(event: Event): void {
+    event.stopPropagation();
+    const input = event.target as HTMLInputElement;
+    const parsed = Number.parseInt(input.value, 10);
+    if (!Number.isFinite(parsed)) {
+      input.value = String(this.gridColumns);
+      return;
+    }
+    const normalized = normalizeListGridColumns(parsed);
+    input.value = String(normalized);
+    if (normalized === this.gridColumns) {
+      return;
+    }
+    this.gridColumnsChange.emit(normalized);
   }
 
   isActive(option: JosanzListViewSelection): boolean {

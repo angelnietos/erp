@@ -131,6 +131,19 @@
           {{ col.value }}
         </button>
         }
+        <input
+          type="number"
+          class="josanz-view-selector__column-input"
+          [min]="gridColumnsMin"
+          [max]="gridColumnsMax"
+          step="1"
+          inputmode="numeric"
+          [class.josanz-view-selector__column-input--active]="isCustomGridColumns()"
+          [value]="gridColumns"
+          [attr.aria-label]="'Columnas personalizadas entre ' + gridColumnsMin + ' y ' + gridColumnsMax"
+          (change)="onCustomColumnsInput($event)"
+          (click)="$event.stopPropagation()"
+        />
       </div>
     </div>
     }
