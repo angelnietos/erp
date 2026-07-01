@@ -117,12 +117,20 @@ test.describe('Demo Alexis — flujo E2E', () => {
 
     await test.step('Detalle del evento: resumen, cliente y guardar', async () => {
       await openEventFromList(page, eventName);
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText(eventName, {
+        timeout: 20_000,
+      });
+      await expect(page.getByText('Sin cambios pendientes.')).toBeVisible({
+        timeout: 20_000,
+      });
 
-      const desc = page.getByPlaceholder('Descripción del evento…');
-      if (!(await desc.isVisible().catch(() => false))) {
-        await page.getByRole('button', { name: 'Añadir información +' }).click();
-      }
-      await desc.fill('Descripción añadida en demo E2E');
+      await page.getByRole('button', { name: 'Añadir información +' }).click();
+      await page.getByPlaceholder('Descripción del evento…').fill(
+        'Descripción añadida en demo E2E',
+      );
+      await expect(page.getByText('Tienes cambios sin guardar.')).toBeVisible({
+        timeout: 10_000,
+      });
 
       await page.getByRole('button', { name: 'Cliente' }).click();
       await expect(page.getByRole('button', { name: /^Operador$/i })).toBeVisible();
