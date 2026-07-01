@@ -74,6 +74,34 @@ export class JosanzEventsFacade {
     return this.api.update(id, payload).pipe(tap((event) => this.upsertEvent(event)));
   }
 
+  patchEventStatus(id: string, status: string, statusPillColor?: string | null): void {
+    this._events.update((events) =>
+      events.map((row) =>
+        row.id === id
+          ? {
+              ...row,
+              status,
+              ...(statusPillColor !== undefined ? { statusPillColor } : {}),
+            }
+          : row,
+      ),
+    );
+    this._eventDetailsById.update((byId) => {
+      const current = byId[id];
+      if (!current) {
+        return byId;
+      }
+      return {
+        ...byId,
+        [id]: {
+          ...current,
+          status,
+          ...(statusPillColor !== undefined ? { statusPillColor } : {}),
+        },
+      };
+    });
+  }
+
   deleteEvent$(id: string): Observable<void> {
     return this.api.delete(id).pipe(tap(() => this.removeEventFromCache(id)));
   }

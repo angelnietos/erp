@@ -241,6 +241,7 @@
       [label]="viewSelectorLabel"
       [selected]="themeService.listViewSelection()"
       [gridColumns]="themeService.listGridColumns()"
+      [showStatusBoard]="showStatusBoardView"
       (selectionChange)="onViewChange($event)"
       (gridColumnsChange)="onGridColumnsChange($event)"
     ></josanz-list-view-selector>

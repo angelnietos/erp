@@ -18,6 +18,7 @@ describe('list-view-preferences', () => {
       'josanz-list-view--cards-grid',
       'josanz-list-view--cards-grid-comfortable',
     ]);
+    expect(listViewStackClasses('tablero')).toEqual(['josanz-list-view--status-board']);
     expect(listViewStackClasses('tarjetas-grid-dense')).toContain(
       'josanz-list-view--cards-grid-dense',
     );

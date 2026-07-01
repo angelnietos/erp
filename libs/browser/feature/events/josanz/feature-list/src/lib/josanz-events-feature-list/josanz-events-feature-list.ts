@@ -1,7 +1,12 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JosanzCatalogListComponent, type JosanzCatalogListConfig } from '@josanz-erp/josanz-ui';
+import { finalize } from 'rxjs';
+import {
+  JosanzCatalogListComponent,
+  type JosanzCatalogListConfig,
+  resolveEventStatusPillColor,
+} from '@josanz-erp/josanz-ui';
 import {
   countActiveEvents,
   mapEventToCatalogRow,
@@ -32,10 +37,16 @@ const EVENT_LIST_PAGE_SIZE = 10;
     </div>
     }
 
-    <josanz-catalog-list [config]="listConfig()" />
+    <josanz-catalog-list
+      #catalogList
+      [config]="listConfig()"
+      (rowStatusChange)="onRowStatusChange($event)"
+    />
   `,
 })
 export class JosanzEventsFeatureListComponent implements OnInit {
+  @ViewChild('catalogList') catalogList?: JosanzCatalogListComponent;
+
   private readonly eventsFacade = inject(JosanzEventsFacade);
   private readonly clientsFacade = inject(ClientsFacade);
   private readonly catalogTheme = inject(CatalogThemeFacade);
@@ -58,6 +69,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     features: {
       advancedFilters: false,
       statusFilters: false,
+      statusBoard: true,
     },
     paginationVariant: 'numbered',
     pageSize: EVENT_LIST_PAGE_SIZE,
@@ -110,5 +122,34 @@ export class JosanzEventsFeatureListComponent implements OnInit {
 
   dismissToast(): void {
     this.showSuccessToast.set(false);
+  }
+
+  onRowStatusChange(change: { id: string; status: string; previousStatus: string }): void {
+    const event = this.eventsFacade.events().find((row) => row.id === change.id);
+    if (!event || event.status === change.status) {
+      return;
+    }
+
+    const theme = this.catalogTheme.mergedTheme();
+    const previousColor = event.statusPillColor ?? null;
+    const nextColor = resolveEventStatusPillColor(change.status, theme) ?? null;
+
+    this.eventsFacade.patchEventStatus(change.id, change.status, nextColor);
+    this.catalogList?.setStatusUpdateBusy(change.id, true);
+
+    this.eventsFacade
+      .updateEvent(change.id, { status: change.status, statusPillColor: nextColor })
+      .pipe(finalize(() => this.catalogList?.setStatusUpdateBusy(change.id, false)))
+      .subscribe({
+      next: () => {
+        this.successToastMessage.set('Estado del evento actualizado');
+        this.showSuccessToast.set(true);
+      },
+      error: () => {
+        this.eventsFacade.patchEventStatus(change.id, change.previousStatus, previousColor);
+        this.successToastMessage.set('No se pudo cambiar el estado. Inténtalo de nuevo.');
+        this.showSuccessToast.set(true);
+      },
+    });
   }
 }

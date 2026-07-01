@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import {
   JOSANZ_LIST_GRID_COLUMN_OPTIONS,
   JOSANZ_LIST_VIEW_MENU_OPTIONS,
+  JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD,
   isGridCardsView,
   type JosanzListGridColumns,
   type JosanzListViewSelection,
@@ -19,11 +20,16 @@ export class ListViewSelectorComponent {
   @Input() label = 'Vista';
   @Input() selected: JosanzListViewSelection = 'tarjetas-lista';
   @Input() gridColumns: JosanzListGridColumns = 3;
+  @Input() showStatusBoard = false;
 
   @Output() selectionChange = new EventEmitter<JosanzListViewSelection>();
   @Output() gridColumnsChange = new EventEmitter<JosanzListGridColumns>();
 
-  readonly viewOptions = JOSANZ_LIST_VIEW_MENU_OPTIONS;
+  get viewOptions() {
+    return this.showStatusBoard
+      ? JOSANZ_LIST_VIEW_MENU_OPTIONS
+      : JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD;
+  }
   readonly columnOptions = JOSANZ_LIST_GRID_COLUMN_OPTIONS;
 
   get showGridColumns(): boolean {

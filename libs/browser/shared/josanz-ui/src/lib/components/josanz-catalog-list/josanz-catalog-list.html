@@ -15,6 +15,7 @@
   [showExcel]="features.excel"
   [showPrimaryAction]="features.primaryAction"
   [showViewSelector]="features.viewSelector"
+  [showStatusBoardView]="features.statusBoard"
   (searchChange)="onSearch($event)"
   (primaryAction)="onAdd()"
   (secondaryAction)="onSecondary()"
@@ -86,7 +87,16 @@
   ></josanz-list-template-header-row>
   }
 
-  @if (!showLoadingSkeleton()) {
+  @if (showStatusBoardView()) {
+  <josanz-status-kanban-board
+    [columns]="kanbanColumns"
+    [items]="kanbanItems"
+    [statusBadgeStyle]="config.statusBadgeStyle ?? 'outline'"
+    [busyIds]="statusUpdateBusyIds()"
+    (itemClick)="onKanbanItemClick($event)"
+    (statusChange)="onKanbanStatusChange($event)"
+  ></josanz-status-kanban-board>
+  } @else if (!showLoadingSkeleton()) {
   <josanz-adaptive-list-rows
     [items]="paginatedItems"
     [defaultLabels]="rowLabels"

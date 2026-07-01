@@ -20,6 +20,8 @@ export interface JosanzCatalogListFeatures {
   pagination?: boolean;
   /** Selector Tabla / Lista / Cuadrícula. Por defecto: true. */
   viewSelector?: boolean;
+  /** Vista tablero kanban con drag & drop de estado (eventos). */
+  statusBoard?: boolean;
   /** Resumen por estado (Total, Borrador…). Por defecto: hay `summaryStats` sin `summaryLine`. */
   statusSummary?: boolean;
   /** Filtros avanzados (De X a X, Proveedores…). */
@@ -61,6 +63,7 @@ export function resolveCatalogListFeatures(
         ? config.paginationTotal > 0
         : true),
     viewSelector: f?.viewSelector ?? true,
+    statusBoard: f?.statusBoard ?? false,
     statusSummary:
       f?.statusSummary ?? (!hasSummaryLine && hasSummaryStats),
     advancedFilters,

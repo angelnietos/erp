@@ -114,6 +114,7 @@ export function mapEventToCatalogRow(
     client,
     operator: event.operator?.name ?? '—',
     pillLabel: label,
+    statusValue: event.status,
     pillVariant,
     pillColor: resolveCatalogPillColor(
       event.statusPillColor ?? customThemeColor,

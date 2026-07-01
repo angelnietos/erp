@@ -25,6 +25,8 @@ export interface JosanzCatalogListRow {
   operator?: string;
   values?: string[];
   pillLabel: string;
+  /** Valor API del estado (p. ej. DRAFT) para tablero kanban. */
+  statusValue?: string;
   pillVariant: JosanzStatusPillVariant;
   /** Color personalizado de la pastilla de estado/tipo. */
   pillColor?: string;

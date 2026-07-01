@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import type { JosanzCatalogListRow } from '../../catalog/catalog-status';
@@ -26,7 +26,17 @@ import {
 } from '../../list-export/list-export.utils';
 import type { JosanzListExportFormat } from '../../list-export/list-export.types';
 import { JosanzThemeService } from '../../services/theme.service';
-import { isTableListView } from '../../list-view/list-view-preferences';
+import { isStatusBoardView, isTableListView } from '../../list-view/list-view-preferences';
+import { CatalogThemeFacade } from '../../services/catalog-theme.facade';
+import {
+  eventStatusOptionsFromTheme,
+  resolveEventStatusPillColor,
+} from '../../catalog/catalog-theme';
+import {
+  StatusKanbanBoardComponent,
+  type JosanzStatusKanbanChange,
+  type JosanzStatusKanbanItem,
+} from '../status-kanban-board/status-kanban-board';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -79,6 +89,7 @@ import { FormsModule } from '@angular/forms';
     ListTemplateHeaderRowComponent,
     SecondaryButtonComponent,
     SkeletonComponent,
+    StatusKanbanBoardComponent,
   ],
   templateUrl: './josanz-catalog-list.html',
 })
@@ -86,8 +97,13 @@ export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
   private readonly listExport = inject(JosanzListExportService);
   readonly themeService = inject(JosanzThemeService);
+  private readonly catalogTheme = inject(CatalogThemeFacade);
 
   @Input({ required: true }) config!: JosanzCatalogListConfig;
+
+  @Output() rowStatusChange = new EventEmitter<{ id: string; status: string; previousStatus: string }>();
+
+  readonly statusUpdateBusyIds = signal<string[]>([]);
 
   /** Evita parpadeo de skeleton en cargas rùpidas (<200ms). */
   readonly showLoadingSkeleton = signal(false);
@@ -96,6 +112,16 @@ export class JosanzCatalogListComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['config']) {
       this.syncLoadingSkeleton(Boolean(this.config.loading));
+      this.ensureValidViewSelection();
+    }
+  }
+
+  private ensureValidViewSelection(): void {
+    if (
+      !this.features.statusBoard &&
+      isStatusBoardView(this.themeService.listViewSelection())
+    ) {
+      this.themeService.setListViewSelection('tarjetas-lista');
     }
   }
 
@@ -144,11 +170,43 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get showColumnHeader(): boolean {
+    if (this.showStatusBoardView()) {
+      return false;
+    }
     const selection = this.themeService.listViewSelection();
     return (
       this.features.columnHeader &&
       (isTableListView(selection) || selection === 'tarjetas-lista')
     );
+  }
+
+  showStatusBoardView(): boolean {
+    return (
+      this.features.statusBoard &&
+      isStatusBoardView(this.themeService.listViewSelection())
+    );
+  }
+
+  get kanbanColumns() {
+    const theme = this.catalogTheme.mergedTheme();
+    return eventStatusOptionsFromTheme(theme).map((option) => ({
+      value: option.value,
+      label: option.label,
+      color: resolveEventStatusPillColor(option.value, theme) ?? undefined,
+    }));
+  }
+
+  get kanbanItems(): JosanzStatusKanbanItem[] {
+    return this.filteredRows.map((row) => ({
+      id: row.id,
+      statusValue: row.statusValue ?? 'DRAFT',
+      title: row.eventName ?? row.title ?? row.id,
+      subtitle: row.date,
+      meta: row.client,
+      pillLabel: row.pillLabel,
+      pillColor: row.pillColor,
+      railColor: row.railColor,
+    }));
   }
 
   get showExtraFilters(): boolean {
@@ -169,6 +227,9 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get effectivePaginationTotal(): number {
+    if (this.showStatusBoardView()) {
+      return 0;
+    }
     return this.features.pagination ? this.paginationTotal : 0;
   }
 
@@ -287,6 +348,24 @@ export class JosanzCatalogListComponent implements OnChanges {
   onRowClick(item: JosanzAdaptiveListItem): void {
     const base = this.config.detailRoute ?? '/events';
     void this.router.navigate([base, item.id]);
+  }
+
+  onKanbanItemClick(item: JosanzStatusKanbanItem): void {
+    const base = this.config.detailRoute ?? '/events';
+    void this.router.navigate([base, item.id]);
+  }
+
+  onKanbanStatusChange(change: JosanzStatusKanbanChange): void {
+    this.rowStatusChange.emit(change);
+  }
+
+  setStatusUpdateBusy(id: string, busy: boolean): void {
+    this.statusUpdateBusyIds.update((ids) => {
+      if (busy) {
+        return ids.includes(id) ? ids : [...ids, id];
+      }
+      return ids.filter((value) => value !== id);
+    });
   }
 
   onStatusFilter(option: string): void {

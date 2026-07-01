@@ -4,7 +4,8 @@ export type JosanzListViewSelection =
   | 'tarjetas-lista'
   | 'tarjetas-grid'
   | 'tarjetas-grid-compact'
-  | 'tarjetas-grid-dense';
+  | 'tarjetas-grid-dense'
+  | 'tablero';
 
 export type JosanzListGridColumns = 2 | 3 | 4 | 5 | 6;
 
@@ -35,7 +36,13 @@ export const JOSANZ_LIST_VIEW_MENU_OPTIONS: readonly JosanzListViewMenuOption[] 
     shortLabel: 'Densa',
     group: 'tarjetas',
   },
+  { id: 'tablero', label: 'Tablero', shortLabel: 'Tablero' },
 ] as const;
+
+/** Opciones de vista visibles cuando el tablero kanban no está habilitado. */
+export const JOSANZ_LIST_VIEW_MENU_OPTIONS_WITHOUT_BOARD = JOSANZ_LIST_VIEW_MENU_OPTIONS.filter(
+  (opt) => opt.id !== 'tablero',
+);
 
 export const JOSANZ_LIST_GRID_COLUMN_OPTIONS: readonly {
   value: JosanzListGridColumns;
@@ -89,6 +96,10 @@ export function isGridCardsView(id: JosanzListViewSelection): boolean {
   );
 }
 
+export function isStatusBoardView(id: JosanzListViewSelection): boolean {
+  return id === 'tablero';
+}
+
 export function gridDensityForSelection(id: JosanzListViewSelection): JosanzGridCardDensity {
   if (id === 'tarjetas-grid-dense') {
     return 'dense';
@@ -102,6 +113,9 @@ export function gridDensityForSelection(id: JosanzListViewSelection): JosanzGrid
 export function listViewStackClasses(id: JosanzListViewSelection): string[] {
   if (isTableListView(id)) {
     return ['josanz-list-view--table'];
+  }
+  if (isStatusBoardView(id)) {
+    return ['josanz-list-view--status-board'];
   }
   if (isListCardsView(id)) {
     return ['josanz-list-view--cards-list'];

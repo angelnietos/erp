@@ -19,6 +19,7 @@ export * from './lib/components/main-list-layout';
 export * from './lib/components/list-search-field';
 export * from './lib/components/list-view-selector';
 export * from './lib/components/adaptive-list-rows';
+export * from './lib/components/status-kanban-board/status-kanban-board';
 export * from './lib/components/josanz-catalog-list/josanz-catalog-list';
 export * from './lib/components/josanz-catalog-list/catalog-list-features';
 export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-shell';

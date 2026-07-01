@@ -49,6 +49,7 @@ export class MainListLayoutComponent implements OnChanges {
   @Input() summaryLine?: JosanzFigmaSummaryLine | string;
   /** Visible en todos los listados salvo que se pase `false` explícitamente. */
   @Input() showViewSelector?: boolean;
+  @Input() showStatusBoardView = false;
   @Input() viewSelectorLabel = 'Vista';
   @Input() showSearch = true;
   @Input() showExcel = true;
