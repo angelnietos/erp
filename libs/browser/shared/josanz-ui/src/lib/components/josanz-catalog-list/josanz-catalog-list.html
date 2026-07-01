@@ -32,7 +32,7 @@
     role="region"
     aria-label="Filtros"
   >
-    <ng-container *ngTemplateOutlet="catalogFiltersPanel"></ng-container>
+    <ng-container *ngTemplateOutlet="catalogFiltersPanel; context: { compact: true }"></ng-container>
   </div>
   }
 
@@ -171,7 +171,8 @@
   }
 </josanz-main-list-layout>
 
-<ng-template #catalogFiltersPanel>
+<ng-template #catalogFiltersPanel let-compact="compact">
+  @if (!compact) {
   <div class="josanz-catalog-filters-panel__header">
     <h2 class="josanz-catalog-filters-panel__title">Filtros</h2>
     <button
@@ -198,6 +199,7 @@
       </span>
     }
   </div>
+  }
   }
 
   <div class="josanz-catalog-filters-panel__grid">
@@ -257,7 +259,7 @@
   [ngStyle]="popoverStyle"
   (click)="$event.stopPropagation()"
 >
-  <ng-container *ngTemplateOutlet="catalogFiltersPanel"></ng-container>
+  <ng-container *ngTemplateOutlet="catalogFiltersPanel; context: { compact: false }"></ng-container>
 </div>
 }
 
