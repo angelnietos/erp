@@ -18,15 +18,17 @@
       </svg>
     </span>
     <span>
-      Arrastra un evento a otra columna para cambiar su estado. Acerca la tarjeta a los bordes para
-      desplazarte entre columnas.
+      Arrastra una tarjeta hacia otra columna para cambiar su estado. Mantén el cursor en los bordes
+      izquierdo o derecho del tablero para desplazar las columnas ocultas.
     </span>
   </div>
 
   <div
+    #viewport
     class="josanz-status-kanban__viewport"
     [class.josanz-status-kanban__viewport--scroll-left]="canScrollLeft()"
     [class.josanz-status-kanban__viewport--scroll-right]="canScrollRight()"
+    [class.josanz-status-kanban__viewport--dragging]="isDragging()"
   >
     @if (canScrollLeft()) {
     <button
@@ -34,6 +36,8 @@
       class="josanz-status-kanban__scroll-btn josanz-status-kanban__scroll-btn--left"
       aria-label="Desplazar columnas a la izquierda"
       (click)="scrollTrack(-1)"
+      (pointerenter)="isDragging() && onEdgeScroll(-1)"
+      (pointerleave)="isDragging() && onEdgeScrollEnd()"
     >
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -47,6 +51,8 @@
       class="josanz-status-kanban__scroll-btn josanz-status-kanban__scroll-btn--right"
       aria-label="Desplazar columnas a la derecha"
       (click)="scrollTrack(1)"
+      (pointerenter)="isDragging() && onEdgeScroll(1)"
+      (pointerleave)="isDragging() && onEdgeScrollEnd()"
     >
       <svg viewBox="0 0 16 16" aria-hidden="true">
         <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
@@ -55,10 +61,22 @@
     }
 
     @if (isDragging() && canScrollLeft()) {
-    <div class="josanz-status-kanban__edge josanz-status-kanban__edge--left" [class.josanz-status-kanban__edge--active]="scrollEdgeLeft()"></div>
+    <div
+      class="josanz-status-kanban__edge josanz-status-kanban__edge--left"
+      [class.josanz-status-kanban__edge--active]="scrollEdgeLeft()"
+      (pointerenter)="onEdgeScroll(-1)"
+      (pointermove)="onEdgeScroll(-1)"
+      (pointerleave)="onEdgeScrollEnd()"
+    ></div>
     }
     @if (isDragging() && canScrollRight()) {
-    <div class="josanz-status-kanban__edge josanz-status-kanban__edge--right" [class.josanz-status-kanban__edge--active]="scrollEdgeRight()"></div>
+    <div
+      class="josanz-status-kanban__edge josanz-status-kanban__edge--right"
+      [class.josanz-status-kanban__edge--active]="scrollEdgeRight()"
+      (pointerenter)="onEdgeScroll(1)"
+      (pointermove)="onEdgeScroll(1)"
+      (pointerleave)="onEdgeScrollEnd()"
+    ></div>
     }
 
     <div #track class="josanz-status-kanban__track" cdkScrollable>
@@ -90,10 +108,11 @@
             class="josanz-status-kanban__card"
             [class.josanz-status-kanban__card--busy]="isBusy(item.id)"
             cdkDrag
+            cdkDragPreviewClass="josanz-status-kanban__card-preview"
             [cdkDragDisabled]="isBusy(item.id)"
             (cdkDragStarted)="onDragStarted()"
             (cdkDragEnded)="onDragEnded()"
-            (cdkDragMoved)="onDragMoved($event)"
+            (cdkDragMoved)="onDragMoved()"
             (click)="onCardClick(item, $event)"
           >
             <div class="josanz-status-kanban__card-rail" [style.backgroundColor]="item.railColor || column.color"></div>
@@ -104,7 +123,6 @@
                 <button
                   type="button"
                   class="josanz-status-kanban__drag-handle"
-                  cdkDragHandle
                   [attr.aria-label]="'Mover ' + item.title"
                   (click)="$event.stopPropagation()"
                 >

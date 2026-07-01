@@ -14,7 +14,6 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   CdkDragDrop,
-  CdkDragMove,
   DragDropModule,
   moveItemInArray,
   transferArrayItem,
@@ -51,8 +50,9 @@ export interface JosanzStatusKanbanChange {
   previousStatus: string;
 }
 
-const AUTO_SCROLL_EDGE_PX = 88;
-const AUTO_SCROLL_MAX_SPEED = 16;
+/** Zona sensible en los bordes del tablero (px). */
+const AUTO_SCROLL_EDGE_PX = 112;
+const AUTO_SCROLL_MAX_SPEED = 30;
 
 @Component({
   selector: 'josanz-status-kanban-board',
@@ -62,6 +62,9 @@ const AUTO_SCROLL_MAX_SPEED = 16;
   styleUrl: './status-kanban-board.css',
 })
 export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnDestroy {
+  @ViewChild('viewport', { read: ElementRef })
+  private viewportRef?: ElementRef<HTMLElement>;
+
   @ViewChild('track', { read: ElementRef })
   private trackRef?: ElementRef<HTMLElement>;
 
@@ -80,16 +83,18 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
 
   private itemsFingerprint = '';
   private columnsFingerprint = '';
+  private dragDidMove = false;
+  private scrollVelocity = 0;
+  private autoScrollFrame = 0;
+  private lastPointerX = 0;
+  private trackScrollListener?: () => void;
+  private boundPointerMove?: (event: PointerEvent) => void;
 
   readonly isDragging = signal(false);
   readonly canScrollLeft = signal(false);
   readonly canScrollRight = signal(false);
   readonly scrollEdgeLeft = signal(false);
   readonly scrollEdgeRight = signal(false);
-
-  private scrollVelocity = 0;
-  private autoScrollFrame = 0;
-  private trackScrollListener?: () => void;
 
   ngOnChanges(changes: SimpleChanges): void {
     let shouldSyncScroll = false;
@@ -122,12 +127,16 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
     if (!track) {
       return;
     }
-    this.trackScrollListener = () => this.syncScrollState();
+    this.trackScrollListener = () => {
+      this.syncScrollState();
+      this.notifyCdkOfScroll();
+    };
     track.addEventListener('scroll', this.trackScrollListener, { passive: true });
     this.syncScrollState();
   }
 
   ngOnDestroy(): void {
+    this.detachPointerTracking();
     this.stopAutoScroll();
     const track = this.trackRef?.nativeElement;
     if (track && this.trackScrollListener) {
@@ -140,6 +149,9 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
   }
 
   onCardClick(item: JosanzStatusKanbanItem, event: MouseEvent): void {
+    if (this.dragDidMove) {
+      return;
+    }
     if ((event.target as HTMLElement).closest('.josanz-status-kanban__drag-handle')) {
       return;
     }
@@ -147,8 +159,14 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
   }
 
   onDragStarted(): void {
+    this.dragDidMove = false;
     this.isDragging.set(true);
+    this.attachPointerTracking();
     this.startAutoScrollLoop();
+  }
+
+  onDragMoved(): void {
+    this.dragDidMove = true;
   }
 
   onDragEnded(): void {
@@ -156,40 +174,28 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
     this.scrollVelocity = 0;
     this.scrollEdgeLeft.set(false);
     this.scrollEdgeRight.set(false);
+    this.detachPointerTracking();
     this.stopAutoScroll();
-    this.syncScrollState();
+    queueMicrotask(() => {
+      this.dragDidMove = false;
+      this.syncScrollState();
+    });
   }
 
-  onDragMoved(event: CdkDragMove): void {
-    const track = this.trackRef?.nativeElement;
-    if (!track) {
+  onEdgeScroll(direction: -1 | 1): void {
+    if (!this.isDragging()) {
       return;
     }
+    this.scrollVelocity = AUTO_SCROLL_MAX_SPEED * direction;
+    this.scrollEdgeLeft.set(direction < 0);
+    this.scrollEdgeRight.set(direction > 0);
+  }
 
-    const rect = track.getBoundingClientRect();
-    const x = event.pointerPosition.x;
-    const leftDist = x - rect.left;
-    const rightDist = rect.right - x;
-
-    if (leftDist < AUTO_SCROLL_EDGE_PX && this.canScrollLeft()) {
-      const intensity = 1 - Math.max(0, leftDist) / AUTO_SCROLL_EDGE_PX;
-      this.scrollVelocity = -AUTO_SCROLL_MAX_SPEED * intensity;
-      this.scrollEdgeLeft.set(true);
-      this.scrollEdgeRight.set(false);
+  onEdgeScrollEnd(): void {
+    if (!this.isDragging()) {
       return;
     }
-
-    if (rightDist < AUTO_SCROLL_EDGE_PX && this.canScrollRight()) {
-      const intensity = 1 - Math.max(0, rightDist) / AUTO_SCROLL_EDGE_PX;
-      this.scrollVelocity = AUTO_SCROLL_MAX_SPEED * intensity;
-      this.scrollEdgeRight.set(true);
-      this.scrollEdgeLeft.set(false);
-      return;
-    }
-
-    this.scrollVelocity = 0;
-    this.scrollEdgeLeft.set(false);
-    this.scrollEdgeRight.set(false);
+    this.updateScrollFromPointer(this.lastPointerX);
   }
 
   scrollTrack(direction: -1 | 1): void {
@@ -197,7 +203,7 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
     if (!track) {
       return;
     }
-    const step = Math.max(240, Math.round(track.clientWidth * 0.62));
+    const step = Math.max(260, Math.round(track.clientWidth * 0.68));
     track.scrollBy({ left: direction * step, behavior: 'smooth' });
   }
 
@@ -248,13 +254,70 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
     return eventOutlineIconRingStyles(this.pillKeyFromLabel(label));
   }
 
+  private attachPointerTracking(): void {
+    this.detachPointerTracking();
+    this.boundPointerMove = (event: PointerEvent) => {
+      this.lastPointerX = event.clientX;
+      this.updateScrollFromPointer(event.clientX);
+    };
+    document.addEventListener('pointermove', this.boundPointerMove, { passive: true });
+  }
+
+  private detachPointerTracking(): void {
+    if (this.boundPointerMove) {
+      document.removeEventListener('pointermove', this.boundPointerMove);
+      this.boundPointerMove = undefined;
+    }
+  }
+
+  private updateScrollFromPointer(clientX: number): void {
+    const viewport = this.viewportRef?.nativeElement;
+    const track = this.trackRef?.nativeElement;
+    if (!viewport || !track) {
+      return;
+    }
+
+    const rect = viewport.getBoundingClientRect();
+    const leftDist = clientX - rect.left;
+    const rightDist = rect.right - clientX;
+    const canLeft = track.scrollLeft > 4;
+    const canRight = track.scrollLeft < track.scrollWidth - track.clientWidth - 4;
+
+    if (leftDist < AUTO_SCROLL_EDGE_PX && canLeft) {
+      const intensity = 1 - Math.max(0, leftDist) / AUTO_SCROLL_EDGE_PX;
+      this.scrollVelocity = -AUTO_SCROLL_MAX_SPEED * Math.max(0.35, intensity);
+      this.scrollEdgeLeft.set(true);
+      this.scrollEdgeRight.set(false);
+      return;
+    }
+
+    if (rightDist < AUTO_SCROLL_EDGE_PX && canRight) {
+      const intensity = 1 - Math.max(0, rightDist) / AUTO_SCROLL_EDGE_PX;
+      this.scrollVelocity = AUTO_SCROLL_MAX_SPEED * Math.max(0.35, intensity);
+      this.scrollEdgeRight.set(true);
+      this.scrollEdgeLeft.set(false);
+      return;
+    }
+
+    this.scrollVelocity = 0;
+    this.scrollEdgeLeft.set(false);
+    this.scrollEdgeRight.set(false);
+  }
+
   private startAutoScrollLoop(): void {
     this.stopAutoScroll();
     const tick = (): void => {
       const track = this.trackRef?.nativeElement;
       if (track && this.scrollVelocity !== 0) {
+        const prev = track.scrollLeft;
         track.scrollLeft += this.scrollVelocity;
+        if (track.scrollLeft !== prev) {
+          this.notifyCdkOfScroll();
+        }
         this.syncScrollState();
+        if (this.isDragging()) {
+          this.updateScrollFromPointer(this.lastPointerX);
+        }
       }
       if (this.isDragging()) {
         this.autoScrollFrame = requestAnimationFrame(tick);
@@ -268,6 +331,14 @@ export class StatusKanbanBoardComponent implements OnChanges, AfterViewInit, OnD
       cancelAnimationFrame(this.autoScrollFrame);
       this.autoScrollFrame = 0;
     }
+  }
+
+  private notifyCdkOfScroll(): void {
+    const track = this.trackRef?.nativeElement;
+    if (!track) {
+      return;
+    }
+    track.dispatchEvent(new Event('scroll'));
   }
 
   private syncScrollState(): void {

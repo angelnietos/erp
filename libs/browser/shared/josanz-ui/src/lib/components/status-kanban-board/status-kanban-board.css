@@ -112,14 +112,22 @@
   right: 0.35rem;
 }
 
+.josanz-status-kanban__viewport--dragging .josanz-status-kanban__scroll-btn {
+  pointer-events: auto;
+}
+
+.josanz-status-kanban__viewport--dragging .josanz-status-kanban__edge {
+  pointer-events: auto;
+}
+
 .josanz-status-kanban__edge {
   position: absolute;
   top: 0;
   bottom: 0.35rem;
-  width: 5.5rem;
-  z-index: 3;
+  width: 7rem;
+  z-index: 5;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.45;
   transition: opacity 0.15s ease;
 }
 
@@ -276,7 +284,7 @@
   border: 1px solid var(--josanz-list-card-border, #ebebeb);
   background: var(--josanz-list-card-bg, #fff);
   box-shadow: 0 1px 2px rgba(15, 30, 47, 0.05);
-  cursor: pointer;
+  cursor: grab;
   transition:
     box-shadow 0.15s ease,
     transform 0.15s ease,
@@ -294,10 +302,12 @@
   pointer-events: none;
 }
 
-.josanz-status-kanban__card.cdk-drag-preview {
+.josanz-status-kanban__card.cdk-drag-preview,
+.josanz-status-kanban__card-preview {
   border-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 22%, var(--josanz-border, #ebebeb));
   box-shadow: 0 16px 32px rgba(15, 30, 47, 0.2);
   transform: rotate(1.5deg) scale(1.02);
+  cursor: grabbing;
 }
 
 .josanz-status-kanban--dragging .josanz-status-kanban__card:not(.cdk-drag-preview) {
