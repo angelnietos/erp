@@ -17,7 +17,7 @@ const shellTemplate = `
     <div class="flex-1 p-8">
       <h3 class="m-0 text-lg font-black" style="color: var(--josanz-text);">Área de contenido</h3>
       <p class="mt-2 text-sm" style="color: var(--josanz-text-muted);">
-        Cambia <strong>isOpen</strong> para validar anchos 36px / 103px y contraste de iconos con Atmósfera + Marca.
+        Cambia <strong>isOpen</strong> para validar anchos 36px / 132px y contraste de iconos con Atmósfera + Marca.
       </p>
     </div>
   </div>
@@ -111,7 +111,7 @@ export const UseCases: Story = {
         <div class="flex h-[520px] overflow-hidden rounded-3xl border border-solid" style="border-color: var(--josanz-border);">
           <josanz-sidebar userName="Lucía Martín" userRole="Operaciones" [isOpen]="true"></josanz-sidebar>
           <div class="flex-1 p-6">
-            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Expandida · 103px</p>
+            <p class="m-0 text-[10px] font-black uppercase tracking-[0.18em]" style="color: var(--josanz-text-muted);">Expandida · 132px</p>
             <h3 class="m-0 mt-2 text-xl font-black" style="color: var(--josanz-text);">Inicio</h3>
             <p class="mt-2 text-sm" style="color: var(--josanz-text-muted);">Navegación con etiquetas visibles.</p>
           </div>

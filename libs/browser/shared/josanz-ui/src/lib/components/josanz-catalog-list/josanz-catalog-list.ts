@@ -894,6 +894,14 @@ export class JosanzCatalogListComponent implements OnChanges {
     this.persistFilterState();
   }
 
+  clearAllActiveChips(): void {
+    this.selectedModalFilters = {};
+    this.sortState = createDefaultCatalogSortState();
+    this.currentPage = 1;
+    this.invalidateListSnapshots();
+    this.persistFilterState();
+  }
+
   applyModalFilters(): void {
     this.currentPage = 1;
     this.invalidateListSnapshots();

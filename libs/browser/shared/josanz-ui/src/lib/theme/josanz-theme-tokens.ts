@@ -737,7 +737,7 @@ export function applyJosanzBrandCssVariables(
     isNeutral ? '#FFFFFF' : (atmosphere.glass ?? atmosphere.surface),
   );
   root.style.setProperty('--josanz-sidebar-width', '36px');
-  root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
+  root.style.setProperty('--josanz-sidebar-expanded-width', '132px');
   root.style.setProperty(
     '--josanz-sidebar-border',
     isNeutral ? 'transparent' : atmosphere.border,
@@ -1234,7 +1234,7 @@ export function applyJosanzStructuralCssVariables(
   root.style.setProperty('--josanz-field-accent', 'var(--josanz-primary)');
   root.style.setProperty('--josanz-content-max', '1440px');
   root.style.setProperty('--josanz-sidebar-width', '36px');
-  root.style.setProperty('--josanz-sidebar-expanded-width', '103px');
+  root.style.setProperty('--josanz-sidebar-expanded-width', '132px');
   root.style.setProperty('--josanz-shell-pad-x', '1.5rem');
   root.style.setProperty(
     '--josanz-shell-pad-x-md',
