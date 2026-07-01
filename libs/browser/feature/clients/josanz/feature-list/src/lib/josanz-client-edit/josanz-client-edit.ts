@@ -30,7 +30,7 @@ import {
   defaultClientTariffPillColor,
   clientCategoryTypology,
   josanzNonEmptyTrim,
-  leadingMarkGradientStyle,
+  leadingMarkAvatarStyle,
   normalizeHexColor,
   railColorForClientName,
 } from '@josanz-erp/josanz-ui';
@@ -149,10 +149,7 @@ export class JosanzClientEditComponent implements OnInit {
     const rail =
       normalizeHexColor((this.form.get('colorRail')?.value as string) ?? '') ??
       defaultClientRailColor();
-    const pill =
-      normalizeHexColor((this.form.get('colorPill')?.value as string) ?? '') ??
-      defaultClientTariffPillColor(this.form.get('tarifa')?.value as string);
-    return leadingMarkGradientStyle(rail, pill);
+    return leadingMarkAvatarStyle(rail);
   }
 
   ngOnInit(): void {

@@ -11,7 +11,7 @@ import {
   getEventOutlinePill,
 } from '../theme/event-status-outline';
 import {
-  leadingMarkGradientStyle,
+  leadingMarkAvatarStyle,
   pillFilledBadgeStyles,
   pillOutlineBadgeStyles,
 } from '../catalog/status-pill-presets';
@@ -74,13 +74,14 @@ export class GridListCardComponent {
   }
 
   leadingMarkStyles(): Record<string, string> {
-    if (this.avatarGradient && this.leadingMark && this.railColor) {
-      const pillAccent = this.pillColor || this.customColor;
-      if (pillAccent) {
-        return leadingMarkGradientStyle(this.railColor, pillAccent);
-      }
+    if (this.leadingMark && this.railColor) {
+      return leadingMarkAvatarStyle(this.railColor);
     }
     return {};
+  }
+
+  showSideRail(): boolean {
+    return !(this.leadingMark && this.railColor);
   }
 
   statusRailStyles(): Record<string, string> {

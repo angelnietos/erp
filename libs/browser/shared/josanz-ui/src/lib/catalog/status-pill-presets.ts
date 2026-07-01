@@ -86,18 +86,22 @@ export function resolveCatalogPillColor(
   );
 }
 
-/** Gradiente rail → estado para avatar con iniciales en listado Clientes. */
-export function leadingMarkGradientStyle(
-  railColor: string,
-  pillColor: string,
-): Record<string, string> {
+/** Color sólido del rail en avatar con iniciales (listado Clientes). */
+export function leadingMarkAvatarStyle(railColor: string): Record<string, string> {
   const rail = normalizeHexColor(railColor) ?? railColor;
-  const pill = normalizeHexColor(pillColor) ?? pillColor;
   return {
-    background: `linear-gradient(135deg, ${rail} 0%, ${pill} 100%)`,
-    color: '#FFFFFF',
+    backgroundColor: rail,
+    color: josanzReadableOnSolid(rail),
     borderColor: 'transparent',
   };
+}
+
+/** @deprecated Usar `leadingMarkAvatarStyle` (solo color rail, sin gradiente). */
+export function leadingMarkGradientStyle(
+  railColor: string,
+  _pillColor?: string,
+): Record<string, string> {
+  return leadingMarkAvatarStyle(railColor);
 }
 
 export function pillOutlineBadgeStyles(accentColor: string): Record<string, string> {

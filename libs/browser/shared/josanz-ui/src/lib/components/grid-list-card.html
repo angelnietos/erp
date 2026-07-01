@@ -1,9 +1,11 @@
 <article
   class="josanz-grid-list-card border border-solid transition-all duration-200 hover:brightness-[0.98] active:scale-[0.99]"
-  [ngClass]="['josanz-grid-list-card--' + density, cornerClass()]"
+  [ngClass]="['josanz-grid-list-card--' + density, cornerClass(), !showSideRail() ? 'josanz-grid-list-card--no-side-rail' : '']"
   [ngStyle]="cardStyles()"
 >
+  @if (showSideRail()) {
   <div class="josanz-grid-list-card__rail" [ngStyle]="statusRailStyles()" aria-hidden="true"></div>
+  }
 
   <div class="josanz-grid-list-card__inner">
     <header class="josanz-grid-list-card__header" [ngClass]="'josanz-grid-list-card__header--' + density">

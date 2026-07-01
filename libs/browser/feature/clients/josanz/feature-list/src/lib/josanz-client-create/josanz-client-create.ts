@@ -25,7 +25,7 @@ import {
   defaultClientTariffPillColor,
   clientCategoryTypology,
   josanzNonEmptyTrim,
-  leadingMarkGradientStyle,
+  leadingMarkAvatarStyle,
   normalizeHexColor,
 } from '@josanz-erp/josanz-ui';
 
@@ -95,10 +95,7 @@ export class JosanzClientCreateComponent {
     const rail =
       normalizeHexColor((this.form.get('colorRail')?.value as string) ?? '') ??
       defaultClientRailColor();
-    const pill =
-      normalizeHexColor((this.form.get('colorPill')?.value as string) ?? '') ??
-      defaultClientTariffPillColor(this.form.get('tarifa')?.value as string);
-    return leadingMarkGradientStyle(rail, pill);
+    return leadingMarkAvatarStyle(rail);
   }
 
   get operadores(): FormArray {

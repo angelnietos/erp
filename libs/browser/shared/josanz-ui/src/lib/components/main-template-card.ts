@@ -9,7 +9,7 @@ import {
   getEventOutlinePill,
 } from '../theme/event-status-outline';
 import {
-  leadingMarkGradientStyle,
+  leadingMarkAvatarStyle,
   pillFilledBadgeStyles,
   pillOutlineBadgeStyles,
   pillOutlineIconRingStyles,
@@ -53,7 +53,7 @@ export class MainTemplateCardComponent {
   @Input() railColor?: string;
   /** Color personalizado de la pastilla de estado/tipo. */
   @Input() pillColor?: string;
-  /** Gradiente rail→estado en avatar de iniciales (listado Clientes). */
+  /** @deprecated El avatar usa `railColor` sólido cuando hay `leadingMark`. */
   @Input() avatarGradient = false;
   /** `outline` = pastilla con borde (Figma Eventos). */
   @Input() statusBadgeStyle: JosanzStatusBadgeStyle = 'filled';
@@ -161,12 +161,13 @@ export class MainTemplateCardComponent {
     return josanzListFieldWidthClass(index, this.data.length);
   }
 
+  showStatusRail(): boolean {
+    return !(this.leadingMark && this.railColor);
+  }
+
   getLeadingMarkStyles(): Record<string, string> {
-    if (this.avatarGradient && this.leadingMark && this.railColor) {
-      const pillAccent = this.pillColor || this.customColor;
-      if (pillAccent) {
-        return leadingMarkGradientStyle(this.railColor, pillAccent);
-      }
+    if (this.leadingMark && this.railColor) {
+      return leadingMarkAvatarStyle(this.railColor);
     }
     return {
       borderColor: 'var(--josanz-border)',

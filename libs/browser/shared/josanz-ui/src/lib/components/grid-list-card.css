@@ -32,6 +32,10 @@
   padding-left: 6px;
 }
 
+.josanz-grid-list-card--no-side-rail .josanz-grid-list-card__inner {
+  padding-left: 0;
+}
+
 .josanz-grid-list-card__header {
   display: flex;
   min-width: 0;
