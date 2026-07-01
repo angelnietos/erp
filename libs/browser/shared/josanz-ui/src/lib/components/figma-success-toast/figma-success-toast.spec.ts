@@ -18,8 +18,9 @@ describe('JosanzFigmaSuccessToastComponent', () => {
   it('se cierra solo tras el tiempo configurado', fakeAsync(() => {
     const dismissSpy = jest.fn();
     component.dismissed.subscribe(dismissSpy);
-    component.open = true;
-    component.durationMs = 2000;
+    fixture.componentRef.setInput('message', 'Guardado');
+    fixture.componentRef.setInput('durationMs', 2000);
+    fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('.josanz-client-success-toast')).toBeTruthy();
@@ -34,7 +35,8 @@ describe('JosanzFigmaSuccessToastComponent', () => {
   it('se cierra al pulsar el botón', () => {
     const dismissSpy = jest.fn();
     component.dismissed.subscribe(dismissSpy);
-    component.open = true;
+    fixture.componentRef.setInput('message', 'Guardado');
+    fixture.componentRef.setInput('open', true);
     fixture.detectChanges();
 
     const closeBtn: HTMLButtonElement | null =
