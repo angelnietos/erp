@@ -4,7 +4,7 @@ import {
   josanzUserRoleBadgeLabel,
   resolveJosanzUserRoleBadge,
   type JosanzUserRoleBadge,
-} from '../utils/resolve-josanz-user-role-badge';
+} from '../../utils/resolve-josanz-user-role-badge';
 
 @Component({
   selector: 'josanz-user-role-badge',

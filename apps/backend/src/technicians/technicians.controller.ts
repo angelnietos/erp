@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   Body,
   Param,
   Query,
@@ -17,6 +18,7 @@ import { TechniciansService } from './technicians.service';
 import {
   SetAvailabilityBodyDto,
   BulkAvailabilityBodyDto,
+  UpdateTechnicianBodyDto,
 } from './technicians.dto';
 import type { Request } from 'express';
 
@@ -113,6 +115,24 @@ export class TechniciansController {
       id,
       body.year,
       body.month,
+    );
+  }
+
+  /** PATCH /api/technicians/:id — actualiza ficha y datos de usuario vinculado */
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async update(
+    @Req() req: Request,
+    @Param('id') id: string,
+    @Body() dto: UpdateTechnicianBodyDto,
+  ) {
+    const user = req['user'] as { sub?: string; permissions?: string[] } | undefined;
+    return this.techniciansService.update(
+      this.getTenantId(req),
+      id,
+      dto,
+      user?.sub,
+      user?.permissions ?? [],
     );
   }
 }

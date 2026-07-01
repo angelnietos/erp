@@ -1,0 +1,114 @@
+<josanz-figma-success-toast
+  [open]="showToast()"
+  message="Datos guardados correctamente"
+  (dismissed)="dismissToast()"
+/>
+
+<article class="josanz-event-hero josanz-staff-hero">
+  <div class="josanz-event-hero__media josanz-event-hero__media--avatar josanz-staff-hero__media">
+    <img [src]="avatarUrl" [alt]="displayName" />
+  </div>
+  <div class="josanz-event-hero__body josanz-staff-hero__body">
+    <div class="josanz-event-hero__title-row">
+      <h2>{{ displayName }}</h2>
+      <span
+        class="josanz-event-staff-card__tag"
+        [ngStyle]="pillStyle(statusPillKey)"
+        >{{ roleLabel }}</span
+      >
+    </div>
+    @if (skillChips.length) {
+    <div class="josanz-staff-hero__skills" aria-label="Especialidades">
+      @for (skill of skillChips; track skill) {
+      <span class="josanz-staff-skill-chip">{{ skill }}</span>
+      }
+    </div>
+    }
+    <p class="josanz-staff-hero__contract">{{ heroMeta }}</p>
+    @if (form.controls.bio.value.trim()) {
+    <p class="josanz-event-hero__desc">{{ form.controls.bio.value }}</p>
+    }
+  </div>
+</article>
+
+<section class="josanz-event-section josanz-staff-summary-form">
+  <div class="josanz-staff-summary-form__header">
+    <h3 class="josanz-event-section__title m-0">Datos personales</h3>
+    @if (canEdit()) {
+    <josanz-button
+      label="Guardar datos"
+      size="sm"
+      [showIcon]="false"
+      [disabled]="saving() || form.pristine"
+      (btnClick)="save()"
+    ></josanz-button>
+    }
+  </div>
+
+  @if (error()) {
+  <p class="josanz-staff-summary-form__error" role="alert">{{ error() }}</p>
+  }
+
+  <div class="josanz-staff-summary-form__grid" [formGroup]="form">
+    <div class="josanz-staff-summary-form__readonly">
+      <span class="josanz-staff-data-grid__label">Referencia</span>
+      <span class="josanz-staff-data-grid__value">{{ referenceLabel }}</span>
+    </div>
+
+    <josanz-input
+      label="Nombre"
+      controlName="firstName"
+      [parentForm]="form"
+    ></josanz-input>
+    <josanz-input
+      label="Apellidos"
+      controlName="lastName"
+      [parentForm]="form"
+    ></josanz-input>
+    <josanz-input
+      label="Email"
+      type="email"
+      controlName="email"
+      [parentForm]="form"
+    ></josanz-input>
+
+    <josanz-select
+      class="josanz-staff-summary-form__full"
+      label="Tipo"
+      [options]="statusOptions"
+      formControlName="status"
+    ></josanz-select>
+
+    <josanz-chip-input
+      class="josanz-staff-summary-form__full"
+      label="Especialidades"
+      placeholder="Añadir especialidad (Sonido, RF, Iluminación…)"
+      formControlName="skills"
+    ></josanz-chip-input>
+
+    <label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
+      <span class="josanz-staff-data-grid__label">Bio</span>
+      <textarea
+        rows="4"
+        formControlName="bio"
+        class="josanz-staff-summary-form__textarea"
+        placeholder="Descripción breve del perfil técnico"
+      ></textarea>
+    </label>
+
+    <div class="josanz-staff-summary-form__readonly josanz-staff-summary-form__full">
+      <span class="josanz-staff-data-grid__label">Perfil</span>
+      <span class="josanz-staff-data-grid__value">{{ skillsSummary }}</span>
+    </div>
+
+    <div class="josanz-staff-summary-form__readonly">
+      <span class="josanz-staff-data-grid__label">Disponibilidad</span>
+      <span class="josanz-staff-data-grid__value">
+        <span class="josanz-staff-availability">
+          <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
+          Disponible
+        </span>
+      </span>
+    </div>
+  </div>
+</section>

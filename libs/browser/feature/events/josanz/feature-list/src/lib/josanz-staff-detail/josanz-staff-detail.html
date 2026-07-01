@@ -1,58 +1,16 @@
 <josanz-figma-detail-shell #shell [config]="shellConfig()">
   @if (shell.activeTab() === 'Resumen') {
-  <article class="josanz-event-hero josanz-staff-hero">
-    <div class="josanz-event-hero__media josanz-event-hero__media--avatar josanz-staff-hero__media">
-      <img [src]="avatarUrl()" [alt]="shellConfig().title" />
-    </div>
-    <div class="josanz-event-hero__body josanz-staff-hero__body">
-      <div class="josanz-event-hero__title-row">
-        <h2>{{ shellConfig().title }}</h2>
-        <span
-          class="josanz-event-staff-card__tag"
-          [ngStyle]="pillStyle(shellConfig().statusPillKey ?? 'staff-tecnico')"
-          >{{ shellConfig().statusLabel }}</span
-        >
-      </div>
-      @if (skillChips().length) {
-      <div class="josanz-staff-hero__skills" aria-label="Especialidades">
-        @for (skill of skillChips(); track skill) {
-        <span class="josanz-staff-skill-chip">{{ skill }}</span>
-        }
-      </div>
-      }
-      @if (heroMeta()) {
-      <p class="josanz-staff-hero__contract">{{ heroMeta() }}</p>
-      }
-      @if (heroDescription()) {
-      <p class="josanz-event-hero__desc">{{ heroDescription() }}</p>
-      }
-    </div>
-  </article>
-
+  @if (technician(); as tech) {
+  <josanz-staff-summary-tab
+    [technician]="tech"
+    [displayIndex]="displayIndex()"
+    (saved)="onStaffSaved($event)"
+  />
+  } @else if (!loading()) {
   <section class="josanz-event-section">
-    <h3 class="josanz-event-section__title">Datos personales</h3>
-    <div class="josanz-staff-data-grid">
-      @for (row of personalRows(); track row.label) {
-      <div class="josanz-staff-data-grid__row">
-        <span class="josanz-staff-data-grid__label">{{ row.label }}</span>
-        @if (row.kind === 'email') {
-        <span class="josanz-staff-data-grid__value josanz-staff-data-grid__value--email">
-          <a [href]="'mailto:' + row.value">{{ row.value }}</a>
-        </span>
-        } @else if (row.label === 'Disponibilidad') {
-        <span class="josanz-staff-data-grid__value">
-          <span class="josanz-staff-availability">
-            <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
-            {{ row.value }}
-          </span>
-        </span>
-        } @else {
-        <span class="josanz-staff-data-grid__value">{{ row.value }}</span>
-        }
-      </div>
-      }
-    </div>
+    <p class="josanz-staff-perm-muted">No se pudo cargar la ficha del técnico.</p>
   </section>
+  }
   } @if (shell.activeTab() === 'Permisos') {
   @if (technician(); as tech) {
   <josanz-staff-permissions-tab [userId]="tech.user.id" />

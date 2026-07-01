@@ -34,3 +34,32 @@ export class BulkAvailabilityBodyDto {
   @Type(() => BulkSlotDto)
   slots!: BulkSlotDto[];
 }
+
+export class UpdateTechnicianBodyDto {
+  @IsOptional()
+  @IsString()
+  bio?: string;
+
+  @IsOptional()
+  @IsString()
+  avatarUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  skills?: string[];
+
+  @IsOptional()
+  @IsString()
+  status?: string;
+
+  @IsOptional()
+  firstName?: string;
+
+  @IsOptional()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+}

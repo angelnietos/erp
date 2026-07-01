@@ -164,6 +164,16 @@ export interface JosanzTechnicianListItem {
   };
 }
 
+export interface UpdateJosanzTechnicianPayload {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  bio?: string;
+  skills?: string[];
+  status?: string;
+  avatarUrl?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class JosanzEventApiService {
   private readonly http = inject(HttpClient);
@@ -199,5 +209,12 @@ export class JosanzEventApiService {
 
   listTechnicians(): Observable<JosanzTechnicianListItem[]> {
     return this.http.get<JosanzTechnicianListItem[]>('/api/technicians');
+  }
+
+  updateTechnician(
+    id: string,
+    payload: UpdateJosanzTechnicianPayload,
+  ): Observable<JosanzTechnicianListItem> {
+    return this.http.patch<JosanzTechnicianListItem>(`/api/technicians/${id}`, payload);
   }
 }

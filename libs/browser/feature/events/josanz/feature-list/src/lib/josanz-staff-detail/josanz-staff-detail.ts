@@ -13,14 +13,11 @@ import { GlobalAuthStore, rbacAllows } from '@josanz-erp/shared-data-access';
 import { JosanzEventApiService, type JosanzTechnicianListItem } from '../services/josanz-event-api.service';
 import { mapTechnicianRoleToPill } from '../josanz-event-detail/josanz-event-detail.payload';
 import {
-  formatStaffDisplayId,
   technicianDisplayName,
   technicianRoleLabel,
-  technicianSkillsLabel,
-  technicianAvailabilityLabel,
 } from '../josanz-staff/josanz-staff.mapper';
 import { JosanzStaffPermissionsTabComponent } from './josanz-staff-permissions-tab';
-import { technicianSkillChipLabel } from '../josanz-staff/josanz-staff.mapper';
+import { JosanzStaffSummaryTabComponent } from './josanz-staff-summary-tab';
 
 @Component({
   selector: 'josanz-staff-detail',
@@ -31,6 +28,7 @@ import { technicianSkillChipLabel } from '../josanz-staff/josanz-staff.mapper';
     SecondaryButtonComponent,
     DocumentItemComponent,
     JosanzStaffPermissionsTabComponent,
+    JosanzStaffSummaryTabComponent,
   ],
   templateUrl: './josanz-staff-detail.html',
   styleUrl: './josanz-staff-detail.scss',
@@ -67,8 +65,7 @@ export class JosanzStaffDetailComponent implements OnInit {
         tabs,
         statusLabel: '—',
         statusPillKey: 'staff-tecnico',
-        saveDisabled: true,
-        features: { footerActions: false },
+        features: { footerActions: false, headerSave: false },
       };
     }
 
@@ -79,55 +76,8 @@ export class JosanzStaffDetailComponent implements OnInit {
       tabs,
       statusLabel: role,
       statusPillKey: mapTechnicianRoleToPill(tech.status),
-      saveDisabled: true,
-      features: { footerActions: false },
+      features: { footerActions: false, headerSave: false },
     };
-  });
-
-  readonly avatarUrl = computed(() => {
-    const tech = this.technician();
-    if (!tech) {
-      return 'https://i.pravatar.cc/96?img=12';
-    }
-    return tech.avatarUrl ?? `https://i.pravatar.cc/96?u=${encodeURIComponent(tech.id)}`;
-  });
-
-  readonly skillChips = computed(() => {
-    const skills = this.technician()?.skills ?? [];
-    if (!skills.length) {
-      return [];
-    }
-    return skills.map((skill) => technicianSkillChipLabel(skill));
-  });
-
-  readonly heroMeta = computed(() => {
-    const tech = this.technician();
-    if (!tech) {
-      return '';
-    }
-    const contract =
-      tech.status.toUpperCase().includes('FREE') ? 'Freelance' : 'Contrato indefinido';
-    return contract;
-  });
-
-  readonly heroDescription = computed(() => this.technician()?.bio?.trim() ?? '');
-
-  readonly personalRows = computed(() => {
-    const tech = this.technician();
-    if (!tech) {
-      return [];
-    }
-
-    const role = technicianRoleLabel(tech.status);
-    return [
-      { label: 'Referencia', value: formatStaffDisplayId(this.displayIndex()) },
-      { label: 'Nombre', value: technicianDisplayName(tech.user) },
-      { label: 'Perfil', value: technicianSkillsLabel(tech.skills) },
-      { label: 'Teléfono', value: '—' },
-      { label: 'Email', value: tech.user.email, kind: 'email' as const },
-      { label: 'Tipo', value: role },
-      { label: 'Disponibilidad', value: technicianAvailabilityLabel() },
-    ];
   });
 
   readonly contractFiles = ['Contrato indefinido.pdf', 'Anexo horario.pdf'];
@@ -166,6 +116,10 @@ export class JosanzStaffDetailComponent implements OnInit {
         },
         error: () => this.technician.set(null),
       });
+  }
+
+  onStaffSaved(updated: JosanzTechnicianListItem): void {
+    this.technician.set(updated);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {

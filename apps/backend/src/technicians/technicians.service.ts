@@ -1,12 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '@josanz-erp/shared-infrastructure';
 import type {
   SetAvailabilityBodyDto,
   BulkAvailabilityBodyDto,
+  UpdateTechnicianBodyDto,
 } from './technicians.dto';
 
 export type SetAvailabilityDto = SetAvailabilityBodyDto;
 export type BulkAvailabilityDto = BulkAvailabilityBodyDto;
+export type UpdateTechnicianDto = UpdateTechnicianBodyDto;
 
 @Injectable()
 export class TechniciansService {
@@ -167,5 +169,93 @@ export class TechniciansService {
     }
 
     return this.setBulkAvailability(tenantId, technicianId, { slots });
+  }
+
+  async update(
+    tenantId: string,
+    technicianId: string,
+    dto: UpdateTechnicianDto,
+    actorUserId?: string,
+    actorPermissions: string[] = [],
+  ) {
+    const tech = await this.prisma.technician.findFirst({
+      where: { id: technicianId, tenantId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+    if (!tech) {
+      throw new NotFoundException('Técnico no encontrado');
+    }
+
+    const canManageUsers =
+      actorPermissions.includes('*') || actorPermissions.includes('users.manage');
+    const isSelf = actorUserId != null && tech.userId === actorUserId;
+    if (!canManageUsers && !isSelf) {
+      throw new ForbiddenException('No tienes permiso para editar este técnico');
+    }
+
+    const userPatch: {
+      firstName?: string;
+      lastName?: string;
+      email?: string;
+    } = {};
+    if (dto.firstName !== undefined) {
+      userPatch.firstName = dto.firstName.trim();
+    }
+    if (dto.lastName !== undefined) {
+      userPatch.lastName = dto.lastName.trim();
+    }
+    if (dto.email !== undefined && canManageUsers) {
+      userPatch.email = dto.email.trim();
+    }
+
+    if (Object.keys(userPatch).length > 0) {
+      await this.prisma.user.update({
+        where: { id: tech.userId },
+        data: userPatch,
+      });
+    }
+
+    const techPatch: {
+      bio?: string | null;
+      avatarUrl?: string | null;
+      skills?: string[];
+      status?: string;
+    } = {};
+    if (dto.bio !== undefined) {
+      techPatch.bio = dto.bio.trim() || null;
+    }
+    if (dto.avatarUrl !== undefined) {
+      techPatch.avatarUrl = dto.avatarUrl.trim() || null;
+    }
+    if (dto.skills !== undefined) {
+      techPatch.skills = dto.skills.map((skill) => skill.trim().toUpperCase()).filter(Boolean);
+    }
+    if (dto.status !== undefined) {
+      techPatch.status = dto.status.trim().toUpperCase();
+    }
+
+    return this.prisma.technician.update({
+      where: { id: technicianId },
+      data: techPatch,
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
   }
 }
