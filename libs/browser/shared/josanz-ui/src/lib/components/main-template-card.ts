@@ -64,9 +64,9 @@ export class MainTemplateCardComponent {
 
   getCardStyles() {
     return {
-      'background-color': 'var(--josanz-surface)',
-      'border-color': 'var(--josanz-border)',
-      'box-shadow': 'var(--josanz-card-shadow)',
+      'background-color': 'var(--josanz-list-card-bg, var(--josanz-surface))',
+      'border-color': 'var(--josanz-list-card-border, var(--josanz-border))',
+      'box-shadow': 'var(--josanz-list-card-shadow, var(--josanz-card-shadow))',
     };
   }
 

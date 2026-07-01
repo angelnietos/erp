@@ -213,7 +213,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
       'radial-gradient(circle at 15% 10%, #FFFFFF 0%, transparent 28%), linear-gradient(145deg, #F8F3FF 0%, #E9DDFF 46%, #D9C7FF 100%)',
     surface: '#FFFCFF',
     text: '#2E1065',
-    textMuted: '#6D28D9',
+    textMuted: '#5B4B8A',
     border: '#D8B4FE',
     shadow: '0 18px 42px rgba(109, 40, 217, 0.16)',
     cardShadow: '0 18px 44px rgba(124, 58, 237, 0.2)',
@@ -230,7 +230,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
       'radial-gradient(circle at 82% 12%, #FFFFFF 0%, transparent 30%), linear-gradient(160deg, #FFF8FA 0%, #FFE7EF 52%, #FFD3E2 100%)',
     surface: '#FFFBFD',
     text: '#4A102A',
-    textMuted: '#9D174D',
+    textMuted: '#8F4A63',
     border: '#F9A8D4',
     shadow: '0 18px 40px rgba(190, 24, 93, 0.13)',
     cardShadow: '0 18px 44px rgba(236, 72, 153, 0.16)',
@@ -264,7 +264,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
       'radial-gradient(circle at 88% 8%, #FFF7ED 0%, transparent 30%), linear-gradient(145deg, #FFF4E8 0%, #FFDCC4 48%, #F7B78D 100%)',
     surface: '#FFFDF9',
     text: '#431407',
-    textMuted: '#9A3412',
+    textMuted: '#8A4B2E',
     border: '#FDBA74',
     shadow: '0 18px 40px rgba(194, 65, 12, 0.14)',
     cardShadow: '0 18px 42px rgba(234, 88, 12, 0.18)',
@@ -281,7 +281,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
       'radial-gradient(circle at 18% 0%, #FFFFFF 0%, transparent 28%), linear-gradient(160deg, #FFF8F1 0%, #FFE3E3 48%, #FFB4B4 100%)',
     surface: '#FFFFFF',
     text: '#4A0B0B',
-    textMuted: '#B91C1C',
+    textMuted: '#9B4040',
     border: '#FCA5A5',
     shadow: '0 18px 42px rgba(185, 28, 28, 0.16)',
     cardShadow: '0 18px 42px rgba(239, 68, 68, 0.22)',
@@ -298,7 +298,7 @@ export const JOSANZ_ATMOSPHERE_REGISTRY: Record<
       'radial-gradient(circle at 85% 12%, #ECFDF5 0%, transparent 28%), linear-gradient(150deg, #DDFBEA 0%, #9EEEC8 45%, #5FD6A2 100%)',
     surface: '#FBFFFD',
     text: '#052E24',
-    textMuted: '#047857',
+    textMuted: '#166B53',
     border: '#6EE7B7',
     shadow: '0 18px 42px rgba(5, 150, 105, 0.16)',
     cardShadow: '0 18px 44px rgba(16, 185, 129, 0.22)',
@@ -884,6 +884,7 @@ export function applyJosanzThemeCssVariables(params: {
 
   applyJosanzStructuralCssVariables(root);
   applyJosanzBrandCssVariables(root, primaryColor, effectiveAtmosphere, isDark);
+  applyJosanzListCardTokens(root, effectiveAtmosphere, isDark);
 
   if (atmosphere.fieldFill) {
     root.style.setProperty('--josanz-field-fill', atmosphere.fieldFill);
@@ -905,7 +906,61 @@ export function applyJosanzThemeCssVariables(params: {
     root.style.setProperty('--josanz-row-line', effectiveBorder);
   } else if (atmosphere.name === 'neutral') {
     applyJosanzFigmaNeutralStructuralOverrides(root);
+  } else {
+    root.style.setProperty('--josanz-text-heading', effectiveText);
+    root.style.setProperty('--josanz-label-muted', effectiveTextMuted);
+    root.style.setProperty('--josanz-row-line', effectiveBorder);
+    root.style.setProperty(
+      '--josanz-header-filter-bg',
+      atmosphere.surfaceMuted ?? `color-mix(in srgb, ${atmosphere.surface} 88%, ${effectiveText} 4%)`,
+    );
   }
+}
+
+/**
+ * Tokens de filas/tarjetas de listado: siempre legibles sobre el fondo de la tarjeta,
+ * independientes del color de texto del lienzo (p. ej. atmósferas oscuras).
+ */
+export function applyJosanzListCardTokens(
+  root: HTMLElement,
+  atmosphere: JosanzAtmosphereConfig,
+  isDark: boolean,
+): void {
+  if (atmosphere.name === 'neutral') {
+    root.style.setProperty('--josanz-list-card-bg', '#FFFFFF');
+    root.style.setProperty('--josanz-list-card-text', '#222222');
+    root.style.setProperty('--josanz-list-card-text-muted', '#7C7C7C');
+    root.style.setProperty('--josanz-list-card-border', '#EBEBEB');
+    root.style.setProperty('--josanz-list-card-shadow', JOSANZ_FIGMA_SHELL.cardShadow);
+    return;
+  }
+
+  const cardBg = '#FFFFFF';
+  const cardText = isDark
+    ? '#1B2533'
+    : ensureContrast(atmosphere.text, cardBg, '#1B2533', 7);
+  const cardTextMuted = isDark
+    ? '#5B6573'
+    : ensureContrast(atmosphere.textMuted, cardBg, '#64748B', 4.5);
+  const cardBorder = isDark
+    ? '#E2E8F0'
+    : ensureContrast(
+        `color-mix(in srgb, ${atmosphere.border} 70%, ${cardBg})`,
+        cardBg,
+        '#E2E8F0',
+        1.2,
+      );
+
+  root.style.setProperty('--josanz-list-card-bg', cardBg);
+  root.style.setProperty('--josanz-list-card-text', cardText);
+  root.style.setProperty('--josanz-list-card-text-muted', cardTextMuted);
+  root.style.setProperty('--josanz-list-card-border', cardBorder);
+  root.style.setProperty(
+    '--josanz-list-card-shadow',
+    isDark
+      ? '0 4px 22px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1)'
+      : (atmosphere.cardShadow ?? atmosphere.shadow),
+  );
 }
 
 /** Tokens estructurales fijos del frame Figma (modo neutro). */

@@ -64,27 +64,38 @@ export class MainTabsComponent implements OnInit, OnChanges {
   active = '';
 
   private useFigmaTabs(): boolean {
-    return (
-      this.variant === 'figma' ||
-      this.themeService.currentTheme().atmosphere.name === 'neutral'
-    );
+    return this.variant === 'figma';
   }
 
   tabShellStyle(option: string): Record<string, string> {
     const on = this.active === option;
     const accent = this.customColor ?? 'var(--josanz-interactive)';
     const accentText = this.customColor ?? 'var(--josanz-pill-active-text)';
-    if (this.useFigmaTabs()) {
-      const color = on ? '#222222' : '#a1a1a1';
+    if (this.variant === 'figma') {
+      const isNeutral =
+        this.themeService.currentTheme().atmosphere.name === 'neutral';
+      if (isNeutral) {
+        const color = on ? '#222222' : '#a1a1a1';
+        return {
+          backgroundColor: 'var(--josanz-surface)',
+          borderColor: on ? '#222222' : '#e7edf1',
+          color,
+          WebkitTextFillColor: color,
+          boxShadow: '0 4px 4px rgba(178, 178, 178, 0.3)',
+        };
+      }
+      const color = on
+        ? 'var(--josanz-list-card-text, #1B2533)'
+        : 'var(--josanz-list-card-text-muted, #64748B)';
       return {
-        backgroundColor: 'var(--josanz-surface)',
-        borderColor: on ? '#222222' : '#e7edf1',
+        backgroundColor: 'var(--josanz-list-card-bg, #FFFFFF)',
+        borderColor: on ? accent : 'var(--josanz-list-card-border, #E2E8F0)',
         color,
         WebkitTextFillColor: color,
-        boxShadow: '0 4px 4px rgba(178, 178, 178, 0.3)',
+        boxShadow: 'var(--josanz-list-card-shadow, 0 2px 8px rgba(0, 0, 0, 0.08))',
       };
     }
-    const color = on ? accent : 'var(--josanz-text-muted)';
+    const color = on ? accentText : 'var(--josanz-text-muted)';
     return {
       backgroundColor: on ? 'var(--josanz-pill-active-bg)' : 'var(--josanz-surface)',
       borderColor: on ? accent : 'var(--josanz-border)',

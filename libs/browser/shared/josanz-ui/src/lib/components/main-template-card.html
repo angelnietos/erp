@@ -35,7 +35,7 @@
         }
         <h3
           class="min-w-0 truncate text-[15px] font-extrabold leading-tight tracking-tight md:text-[16px]"
-          [style.color]="'var(--josanz-text)'"
+          [style.color]="'var(--josanz-list-card-text, var(--josanz-text))'"
         >
           {{ title }}
         </h3>
@@ -48,7 +48,7 @@
       <div
         class="josanz-list-template-row__field text-[12px] md:text-[13px] font-medium md:truncate"
         [ngClass]="fieldWidthClass(i)"
-        [style.color]="'var(--josanz-text-muted)'"
+        [style.color]="'var(--josanz-list-card-text-muted, var(--josanz-text-muted))'"
       >
         @if (labels[i]) {
         <span
