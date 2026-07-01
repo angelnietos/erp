@@ -24,7 +24,7 @@ interface JwtPayload {
  * Namespace `/realtime` — los clientes ERP se unen a la sala `tenant:<uuid>` tras autenticar.
  * Soporta tokens de Keycloak (RS256) y tokens ERP estándar (HS256).
  * Eventos: `tenant.modules.updated` { tenantId, enabledModuleIds };
- * `tenant.identity.updated` { tenantId } (roles / usuarios / permisos).
+ * `tenant.identity.updated` { tenantId, userId? } (roles / usuarios / permisos).
  */
 @WebSocketGateway({
   namespace: '/realtime',
@@ -56,10 +56,10 @@ export class TenantModulesRealtimeGateway
         ?.to(`tenant:${tenantId}`)
         .emit('tenant.modules.updated', { tenantId, enabledModuleIds });
     });
-    this.identityNotifier.setBroadcaster((tenantId) => {
+    this.identityNotifier.setBroadcaster((tenantId, userId) => {
       this.server
         ?.to(`tenant:${tenantId}`)
-        .emit('tenant.identity.updated', { tenantId });
+        .emit('tenant.identity.updated', { tenantId, userId });
     });
   }
 
@@ -100,6 +100,9 @@ export class TenantModulesRealtimeGateway
         return { ok: false, error: 'invalid_token' };
       }
       await client.join(`tenant:${tenantId}`);
+      if (payload.sub) {
+        await client.join(`user:${payload.sub}`);
+      }
       return { ok: true };
     } catch {
       return { ok: false, error: 'invalid_token' };

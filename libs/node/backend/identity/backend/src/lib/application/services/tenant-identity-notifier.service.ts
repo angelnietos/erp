@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-export type TenantIdentityBroadcastFn = (tenantId: string) => void;
+export type TenantIdentityBroadcastFn = (tenantId: string, userId?: string) => void;
 
 /**
  * Emite por Socket.IO (namespace `/realtime`, sala `tenant:<uuid>`) el evento
@@ -14,7 +14,7 @@ export class TenantIdentityNotifierService {
     this.broadcast = fn;
   }
 
-  notifyIdentityUpdated(tenantId: string): void {
-    this.broadcast?.(tenantId);
+  notifyIdentityUpdated(tenantId: string, userId?: string): void {
+    this.broadcast?.(tenantId, userId);
   }
 }

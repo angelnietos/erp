@@ -115,6 +115,8 @@ export * from './lib/components/switch';
 
 export * from './lib/components/select';
 
+export * from './lib/navigation/josanz-figma-nav';
+
 export * from './lib/components/progress-bar';
 
 export * from './lib/components/spinner';

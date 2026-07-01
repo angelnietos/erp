@@ -224,7 +224,7 @@ export class UsersService {
     });
 
     await this.userRepository.save(user);
-    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    this.identityNotifier.notifyIdentityUpdated(tenantId, user.id.value);
     void this.kcSync
       .pushTenantUserToKeycloak(tenantId, user.id.value)
       .catch(() => undefined);
@@ -294,7 +294,7 @@ export class UsersService {
     }
 
     await this.userRepository.save(user);
-    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    this.identityNotifier.notifyIdentityUpdated(tenantId, id);
     void this.kcSync.pushTenantUserToKeycloak(tenantId, id).catch(() => undefined);
 
     return this.findById(id);
@@ -329,6 +329,6 @@ export class UsersService {
     }
 
     await this.userRepository.delete(id);
-    this.identityNotifier.notifyIdentityUpdated(tenantId);
+    this.identityNotifier.notifyIdentityUpdated(tenantId, id);
   }
 }

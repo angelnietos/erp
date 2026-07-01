@@ -1,8 +1,13 @@
 import { inject, Injectable, InjectionToken } from '@angular/core';
 import { io, type Socket } from 'socket.io-client';
-import { PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { AuthService } from './auth.service';
 import { getStoredTenantId } from '../interceptors/tenant.interceptor';
+
+export interface TenantIdentityUpdatedPayload {
+  tenantId?: string;
+  userId?: string;
+}
 
 /**
  * Origen del API (p. ej. `http://localhost:3000`) para reconectar tras refresh de token.
@@ -16,16 +21,19 @@ export const TENANT_MODULES_REALTIME_API_ORIGIN = new InjectionToken<string>(
 @Injectable({ providedIn: 'root' })
 export class TenantModulesRealtimeService {
   private readonly auth = inject(AuthService);
+  private readonly globalAuth = inject(GlobalAuthStore);
   private readonly plugins = inject(PluginStore);
   private readonly defaultApiOrigin = inject(TENANT_MODULES_REALTIME_API_ORIGIN);
   private socket: Socket | null = null;
   /** Último origen usado en `connect()` (tiene prioridad sobre el token inyectado). */
   private lastConnectOrigin = '';
   /** Registrado desde `APP_INITIALIZER` para evitar dependencia circular con `AuthStore`. */
-  private identityRefresh: (() => void) | null = null;
+  private identityRefresh: ((payload: TenantIdentityUpdatedPayload) => void) | null = null;
 
   /** Tras login, los clientes ERP deben refrescar JWT cuando cambian roles/permisos en el tenant. */
-  registerIdentityRefresh(handler: () => void): void {
+  registerIdentityRefresh(
+    handler: (payload: TenantIdentityUpdatedPayload) => void,
+  ): void {
     this.identityRefresh = handler;
   }
 
@@ -70,10 +78,14 @@ export class TenantModulesRealtimeService {
       },
     );
 
-    socket.on('tenant.identity.updated', (payload: { tenantId?: string }) => {
+    socket.on('tenant.identity.updated', (payload: TenantIdentityUpdatedPayload) => {
       const tid = this.resolveCurrentTenantId();
       if (payload?.tenantId && tid && payload.tenantId === tid) {
-        this.identityRefresh?.();
+        const currentUserId = this.globalAuth.user()?.id;
+        if (payload.userId && currentUserId && payload.userId !== currentUserId) {
+          return;
+        }
+        this.identityRefresh?.(payload);
       }
     });
   }
