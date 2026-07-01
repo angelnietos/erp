@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SelectComponent, SecondaryButtonComponent } from '@josanz-erp/josanz-ui';
+import { SelectComponent } from '@josanz-erp/josanz-ui';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
 
 @Component({
   selector: 'josanz-event-staff-tab',
   standalone: true,
-  imports: [CommonModule, SelectComponent, SecondaryButtonComponent],
+  imports: [CommonModule, SelectComponent],
   template: `
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Staff</h3>
@@ -45,7 +45,9 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
         </article>
         } @else {
         <article class="josanz-event-staff-card josanz-event-staff-card--add">
-          <josanz-secondary-button label="Añadir +" (btnClick)="state.toggleComposer('staff-picker')"></josanz-secondary-button>
+          <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer('staff-picker')">
+            Añadir +
+          </button>
         </article>
         }
       </div>

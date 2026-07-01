@@ -68,12 +68,14 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
         </button>
         }
 
+        @if (hasDescription || state.isComposerOpen('hero-details')) {
         <textarea
           class="josanz-event-hero__desc-input"
           formControlName="descripcion"
-          rows="4"
+          rows="3"
           placeholder="Descripción del evento…"
         ></textarea>
+        }
       </div>
     </article>
   `,

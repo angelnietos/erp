@@ -1,14 +1,18 @@
 import { Component, Input, inject } from '@angular/core';
-import { DocumentItemComponent, SecondaryButtonComponent } from '@josanz-erp/josanz-ui';
+import { DocumentItemComponent } from '@josanz-erp/josanz-ui';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
 import type { EventUploadTarget } from '../josanz-event-detail.types';
 
 @Component({
   selector: 'josanz-event-documents-section',
   standalone: true,
-  imports: [DocumentItemComponent, SecondaryButtonComponent],
+  imports: [DocumentItemComponent],
   template: `
-    <section class="josanz-event-section">
+    <section
+      class="josanz-event-section"
+      [class.josanz-event-section--figma-empty]="files().length === 0"
+      [class.josanz-event-section--inspiration]="uploadTarget === 'inspiration'"
+    >
       <h3 class="josanz-event-section__title">{{ title }}</h3>
 
       @for (file of files(); track file.id) {
@@ -21,9 +25,19 @@ import type { EventUploadTarget } from '../josanz-event-detail.types';
       ></josanz-document-item>
       }
 
-      <div class="josanz-event-section__add" [class.josanz-event-section__add--center]="files().length === 0">
-        <josanz-secondary-button label="Añadir +" (btnClick)="state.openUploadModal(uploadTarget)"></josanz-secondary-button>
+      @if (files().length > 0) {
+      <div class="josanz-event-section__add">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.openUploadModal(uploadTarget)">
+          Añadir +
+        </button>
       </div>
+      } @else {
+      <div class="josanz-event-section__empty-action">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.openUploadModal(uploadTarget)">
+          Añadir +
+        </button>
+      </div>
+      }
     </section>
   `,
 })

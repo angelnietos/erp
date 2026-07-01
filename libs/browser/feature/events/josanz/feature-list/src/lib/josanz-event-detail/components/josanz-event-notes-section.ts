@@ -1,14 +1,17 @@
 import { Component, Input, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonComponent, SecondaryButtonComponent } from '@josanz-erp/josanz-ui';
+import { ButtonComponent } from '@josanz-erp/josanz-ui';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
 
 @Component({
   selector: 'josanz-event-notes-section',
   standalone: true,
-  imports: [FormsModule, SecondaryButtonComponent, ButtonComponent],
+  imports: [FormsModule, ButtonComponent],
   template: `
-    <section class="josanz-event-section">
+    <section
+      class="josanz-event-section"
+      [class.josanz-event-section--figma-empty]="state.notesFor(kind).length === 0 && !state.isComposerOpen(composerId)"
+    >
       <h3 class="josanz-event-section__title">{{ title }}</h3>
 
       @for (note of state.notesFor(kind); track note.id) {
@@ -62,12 +65,17 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
           <josanz-button label="Añadir +" size="sm" [showIcon]="false" (btnClick)="state.addNote(kind)"></josanz-button>
         </div>
       </div>
+      } @else if (state.notesFor(kind).length > 0) {
+      <div class="josanz-event-section__add">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer(composerId)">
+          Añadir +
+        </button>
+      </div>
       } @else {
-      <div
-        class="josanz-event-section__add"
-        [class.josanz-event-section__add--center]="state.notesFor(kind).length === 0"
-      >
-        <josanz-secondary-button label="Añadir +" (btnClick)="state.toggleComposer(composerId)"></josanz-secondary-button>
+      <div class="josanz-event-section__empty-action">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer(composerId)">
+          Añadir +
+        </button>
       </div>
       }
     </section>

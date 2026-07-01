@@ -19,6 +19,28 @@
   (tabChanged)="onShellTabChange()"
   (save)="onSave()"
 >
+  <div figma-create-toolbar class="josanz-event-create__header-bar">
+    <div></div>
+    <div class="josanz-event-create__header-actions">
+      @if (!loading()) {
+      <button
+        type="button"
+        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
+        [disabled]="saving() || deleteConfirm.busy()"
+        (click)="onDeleteClick()"
+      >
+        Eliminar evento
+      </button>
+      }
+    </div>
+  </div>
+
+  @if (deleteErrorMessage()) {
+  <p class="josanz-event-create__hint max-w-[var(--josanz-content-max)] mx-auto w-full px-6 md:px-12" role="alert">
+    {{ deleteErrorMessage() }}
+  </p>
+  }
+
   @if (shell.activeTab() === 'Resumen') {
   <josanz-event-resumen-tab
     [form]="form"
@@ -37,9 +59,6 @@
     [operatorOptions]="operatorOptions()"
     [operatorHint]="operatorHint()"
     [statusOptions]="statusOptions"
-    [loading]="loading()"
-    [deleteErrorMessage]="deleteErrorMessage()"
-    (deleteClicked)="onDeleteClick()"
   />
   }
 

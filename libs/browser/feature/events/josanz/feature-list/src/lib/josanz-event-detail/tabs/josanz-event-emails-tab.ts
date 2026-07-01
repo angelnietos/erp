@@ -1,14 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ButtonComponent, SecondaryButtonComponent } from '@josanz-erp/josanz-ui';
+import { ButtonComponent } from '@josanz-erp/josanz-ui';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
 
 @Component({
   selector: 'josanz-event-emails-tab',
   standalone: true,
-  imports: [FormsModule, SecondaryButtonComponent, ButtonComponent],
+  imports: [FormsModule, ButtonComponent],
   template: `
-    <section class="josanz-event-section">
+    <section
+      class="josanz-event-section"
+      [class.josanz-event-section--figma-empty]="state.emails().length === 0 && !state.isComposerOpen('email')"
+    >
       <h3 class="josanz-event-section__title">Emails</h3>
 
       @for (email of state.emails(); track email.id) {
@@ -57,9 +60,17 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
           <josanz-button [label]="state.editingEmailId() ? 'Guardar' : 'Añadir +'" size="sm" [showIcon]="false" (btnClick)="state.saveEmail()"></josanz-button>
         </div>
       </div>
+      } @else if (state.emails().length > 0) {
+      <div class="josanz-event-section__add">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer('email')">
+          Añadir +
+        </button>
+      </div>
       } @else {
-      <div class="josanz-event-section__add" [class.josanz-event-section__add--center]="state.emails().length === 0">
-        <josanz-secondary-button label="Añadir +" (btnClick)="state.toggleComposer('email')"></josanz-secondary-button>
+      <div class="josanz-event-section__empty-action">
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer('email')">
+          Añadir +
+        </button>
       </div>
       }
     </section>

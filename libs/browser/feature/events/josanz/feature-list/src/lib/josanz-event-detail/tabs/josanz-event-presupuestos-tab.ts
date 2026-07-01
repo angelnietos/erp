@@ -1,14 +1,12 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FormGroup } from '@angular/forms';
-import { SecondaryButtonComponent } from '@josanz-erp/josanz-ui';
+import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { JosanzEventDetailState } from '../josanz-event-detail.state';
 
 @Component({
   selector: 'josanz-event-presupuestos-tab',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, SecondaryButtonComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   template: `
     <section class="josanz-event-budget" [formGroup]="form">
       <h3 class="josanz-event-section__title">Presupuestos</h3>
@@ -71,7 +69,9 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
       </div>
 
       <div class="josanz-event-budget__add">
-        <josanz-secondary-button label="Añadir +" (btnClick)="state.addBudgetLine()"></josanz-secondary-button>
+        <button type="button" class="josanz-event-figma-add-btn" (click)="state.addBudgetLine()">
+          Añadir +
+        </button>
       </div>
 
       <div class="josanz-event-budget__totals">

@@ -59,6 +59,7 @@ import { resolveJosanzUserDisplayName } from '../../utils/resolve-josanz-user-di
       (save)="save.emit()"
       (cancel)="cancel.emit()"
     >
+      <ng-content select="[figma-create-toolbar]" ngProjectAs="[figma-create-toolbar]"></ng-content>
       <div class="josanz-event-detail-body">
         <ng-content></ng-content>
       </div>
