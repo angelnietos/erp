@@ -3,16 +3,17 @@
   layoutVariant="figma-event"
   [tabs]="[]"
   activeTab=""
-  saveLabel="Guardar"
+  saveLabel="Guardar cambios"
   [showFooterActions]="false"
   [showHeaderSave]="false"
+  [showUserLabel]="false"
   [saveDisabled]="!canSave()"
   (back)="onBack()"
   (save)="onSubmit()"
   (cancel)="onCancel()"
 >
-  <div figma-create-toolbar class="josanz-event-create__header-bar">
-    <div class="josanz-client-edit__save-status" aria-live="polite">
+  <div figma-create-toolbar class="josanz-event-create__header-bar josanz-client-form__toolbar">
+    <div class="josanz-client-form__toolbar-meta" aria-live="polite">
       @if (!loading() && saveStatusHint()) {
       <span
         class="josanz-client-edit__save-status-text"
@@ -23,21 +24,11 @@
       }
     </div>
     <div class="josanz-event-create__header-actions">
-      @if (!loading()) {
-      <button
-        type="button"
-        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
-        [disabled]="saving() || deleteConfirm.busy()"
-        (click)="onDeleteClick()"
-      >
-        Eliminar
-      </button>
-      }
       <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
         Cancelar
       </button>
       <josanz-button
-        label="Guardar"
+        label="Guardar cambios"
         [showIcon]="false"
         [disabled]="!canSave()"
         [attr.title]="saveButtonTitle()"
@@ -46,21 +37,15 @@
     </div>
   </div>
 
-  <div class="josanz-event-create">
+  <div class="josanz-event-create josanz-client-form">
     @if (loading()) {
     <div class="josanz-client-edit-skeleton" aria-busy="true" aria-label="Cargando cliente">
       <section>
         <div class="josanz-client-edit-skeleton__title">
           <josanz-skeleton variant="text" [lines]="1"></josanz-skeleton>
         </div>
-        <div class="josanz-client-create__grid">
-          <div class="josanz-client-edit-skeleton__brand">
-            <josanz-skeleton variant="avatar" shape="pill"></josanz-skeleton>
-          </div>
-          <div class="josanz-client-edit-skeleton__fields">
-            <josanz-skeleton variant="text" [lines]="5"></josanz-skeleton>
-            <josanz-skeleton variant="text" [lines]="2"></josanz-skeleton>
-          </div>
+        <div class="josanz-client-edit-skeleton__fields">
+          <josanz-skeleton variant="text" [lines]="5"></josanz-skeleton>
         </div>
       </section>
       <section class="josanz-client-edit-skeleton__operators">
@@ -80,45 +65,62 @@
 
     <section>
       <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
-      <div class="josanz-client-create__grid">
-        <div class="josanz-client-create__brand" [ngStyle]="brandPreviewStyles()" aria-hidden="true">
-          <span class="josanz-client-create__brand-initials" style="color: #fff">{{ brandInitials() }}</span>
-          <span class="josanz-client-create__brand-name">{{ brandDisplayName() }}</span>
-        </div>
+      <form class="josanz-client-form__stack" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <josanz-input
+          label="Nombre y Apellidos / Razón social"
+          placeholder="Nuevo Cliente"
+          controlName="razonSocial"
+          [parentForm]="form"
+          [required]="true"
+        ></josanz-input>
 
-        <form class="josanz-client-create__fields" [formGroup]="form" (ngSubmit)="onSubmit()">
-          <josanz-input
-            label="Nombre y Apellidos / Razón social"
-            placeholder="Nuevo Cliente"
-            controlName="razonSocial"
-            [parentForm]="form"
-            [required]="true"
-          ></josanz-input>
+        <josanz-input
+          label="Email"
+          placeholder="email@ejemplo.com"
+          type="email"
+          controlName="email"
+          [parentForm]="form"
+          [required]="true"
+        ></josanz-input>
 
-          <josanz-input
-            label="Email"
-            placeholder="email@ejemplo.com"
-            type="email"
-            controlName="email"
-            [parentForm]="form"
-            [required]="true"
-          ></josanz-input>
+        <josanz-input
+          label="Teléfono"
+          placeholder="988654321"
+          type="tel"
+          controlName="telefono"
+          [parentForm]="form"
+          [required]="true"
+        ></josanz-input>
 
-          <josanz-input
-            label="Teléfono"
-            placeholder="988654321"
-            type="tel"
-            controlName="telefono"
-            [parentForm]="form"
-            [required]="true"
-          ></josanz-input>
-
-          <josanz-client-rail-picker [parentForm]="form"></josanz-client-rail-picker>
-
-          <josanz-client-status-type-field [parentForm]="form"></josanz-client-status-type-field>
-        </form>
-      </div>
+        <josanz-client-status-type-field
+          [parentForm]="form"
+          section="tarifa"
+          [figmaLabels]="true"
+        ></josanz-client-status-type-field>
+      </form>
     </section>
+
+    <details class="josanz-client-form__advanced">
+      <summary class="josanz-client-form__advanced-summary">
+        Personalización del listado
+        <span class="josanz-client-form__advanced-hint">Colores y vista previa</span>
+      </summary>
+      <div class="josanz-client-form__advanced-body" [formGroup]="form">
+        <div
+          class="josanz-client-form__preview"
+          [ngStyle]="brandPreviewStyles()"
+          aria-hidden="true"
+        >
+          <span class="josanz-client-form__preview-initials">{{ brandInitials() }}</span>
+          <span class="josanz-client-form__preview-name">{{ brandDisplayName() }}</span>
+        </div>
+        <josanz-client-rail-picker [parentForm]="form"></josanz-client-rail-picker>
+        <josanz-client-status-type-field
+          [parentForm]="form"
+          section="colors"
+        ></josanz-client-status-type-field>
+      </div>
+    </details>
 
     <section [formGroup]="form">
       <h2 class="josanz-event-create__section-title">Operadores</h2>
@@ -175,6 +177,17 @@
         Añadir +
       </button>
     </section>
+
+    <div class="josanz-client-form__danger-zone">
+      <button
+        type="button"
+        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
+        [disabled]="saving() || deleteConfirm.busy()"
+        (click)="onDeleteClick()"
+      >
+        Eliminar cliente
+      </button>
+    </div>
     }
   </div>
 </josanz-main-detail-layout>

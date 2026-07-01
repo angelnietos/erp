@@ -99,9 +99,11 @@
 
     <!-- User area -->
     <div class="josanz-detail-figma__user">
+      @if (showUserLabel) {
       <span style="font-size: 13px; color: var(--josanz-text-muted)"
         >{{ resolvedUserLabel() }}</span
       >
+      }
       <josanz-user-avatar
         [link]="avatarLink"
         [ariaLabel]="avatarAriaLabel"

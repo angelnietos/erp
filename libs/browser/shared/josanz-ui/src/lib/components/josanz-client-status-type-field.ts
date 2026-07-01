@@ -26,19 +26,17 @@ import { JosanzClientRailPickerComponent } from './josanz-client-rail-picker';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, JosanzClientRailPickerComponent],
   template: `
-    <div class="josanz-client-status-type" [formGroup]="parentForm">
+    <div
+      class="josanz-client-status-type"
+      [class.josanz-client-status-type--figma]="figmaLabels"
+      [formGroup]="parentForm"
+    >
+      @if (showTarifaSection) {
       <div class="josanz-client-status-type__type-block">
-        <div class="josanz-client-status-type__type-head">
-          <label class="josanz-client-status-type__label" [attr.for]="selectId">
-            Tipo de estado / tarifa
-            <span class="text-[color:var(--josanz-danger)]" aria-hidden="true"> *</span>
-          </label>
-          @if (typeLabel()) {
-          <span class="josanz-client-type-chip josanz-client-status-type__preview" [ngStyle]="pillPreviewStyles()">
-            {{ typeLabel() }}
-          </span>
-          }
-        </div>
+        <label class="josanz-client-status-type__label" [attr.for]="selectId">
+          {{ tarifaLabel }}
+          <span class="text-[color:var(--josanz-danger)]" aria-hidden="true"> *</span>
+        </label>
 
         @if (customMode()) {
         <div class="josanz-client-status-type__custom">
@@ -75,7 +73,7 @@ import { JosanzClientRailPickerComponent } from './josanz-client-rail-picker';
           <select
             [id]="selectId"
             [value]="typeLabel()"
-            aria-label="Tipo de estado / tarifa"
+            [attr.aria-label]="tarifaLabel"
             (change)="onPresetSelect($event)"
           >
             @for (option of presetOptions(); track option) {
@@ -86,11 +84,15 @@ import { JosanzClientRailPickerComponent } from './josanz-client-rail-picker';
         </div>
         }
 
+        @if (!figmaLabels) {
         <p class="josanz-client-status-type__hint">
           Etiqueta que verás en la pastilla del listado de clientes.
         </p>
+        }
       </div>
+      }
 
+      @if (showColorsSection) {
       <div class="josanz-client-status-type__color-block">
         <josanz-client-rail-picker
           [parentForm]="parentForm"
@@ -105,6 +107,7 @@ import { JosanzClientRailPickerComponent } from './josanz-client-rail-picker';
         </button>
         }
       </div>
+      }
     </div>
   `,
 })
@@ -133,6 +136,22 @@ export class JosanzClientStatusTypeFieldComponent implements OnInit, OnDestroy {
   @Input({ required: true }) parentForm!: FormGroup;
   @Input() typeControlName = 'tarifa';
   @Input() colorControlName = 'colorPill';
+  /** `tarifa`: solo selector. `colors`: solo color pill. `all`: ambos. */
+  @Input() section: 'all' | 'tarifa' | 'colors' = 'all';
+  /** Etiquetas estilo Figma (sentence case, sin hints largos). */
+  @Input() figmaLabels = false;
+
+  get tarifaLabel(): string {
+    return this.figmaLabels ? 'Tarifa' : 'Tipo de estado / tarifa';
+  }
+
+  get showTarifaSection(): boolean {
+    return this.section === 'all' || this.section === 'tarifa';
+  }
+
+  get showColorsSection(): boolean {
+    return this.section === 'all' || this.section === 'colors';
+  }
 
   readonly typeLabel = computed(() => this.typeValue().trim());
 

@@ -50,6 +50,8 @@ export class MainDetailLayoutComponent {
   @Input() userLabel = '';
   @Input() avatarLink: string | null = '/settings';
   @Input() avatarAriaLabel = 'Cuenta y ajustes';
+  /** En formularios Figma compactos solo se muestra el avatar (sin nombre). */
+  @Input() showUserLabel = true;
 
   readonly resolvedUserLabel = computed(() => {
     const explicit = this.userLabel.trim();

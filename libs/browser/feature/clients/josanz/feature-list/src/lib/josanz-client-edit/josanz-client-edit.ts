@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, ViewChildren, QueryList, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -61,8 +61,8 @@ export class JosanzClientEditComponent implements OnInit {
   private readonly clientsFacade = inject(ClientsFacade);
   readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
-  @ViewChild(JosanzClientStatusTypeFieldComponent)
-  statusTypeField?: JosanzClientStatusTypeFieldComponent;
+  @ViewChildren(JosanzClientStatusTypeFieldComponent)
+  statusTypeFields?: QueryList<JosanzClientStatusTypeFieldComponent>;
 
   readonly saving = signal(false);
   readonly loading = signal(true);
@@ -143,12 +143,7 @@ export class JosanzClientEditComponent implements OnInit {
     return name || 'Cliente';
   });
 
-  readonly pageTitle = computed(() => {
-    if (this.loading()) {
-      return 'Editar Cliente';
-    }
-    return this.brandDisplayName();
-  });
+  readonly pageTitle = computed(() => 'Editar Cliente');
 
   brandPreviewStyles(): Record<string, string> {
     const rail =
@@ -329,7 +324,9 @@ export class JosanzClientEditComponent implements OnInit {
       });
     }
 
-    queueMicrotask(() => this.statusTypeField?.registerExtraTypes([tarifaValue]));
+    queueMicrotask(() => {
+      this.statusTypeFields?.forEach((field) => field.registerExtraTypes([tarifaValue]));
+    });
 
     if (!preserveUserEdits) {
       queueMicrotask(() => this.captureFormBaseline());
