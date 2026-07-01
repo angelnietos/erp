@@ -254,6 +254,10 @@
   padding-top: 0.5rem;
 }
 
+.josanz-event-create__actions.josanz-client-form__footer-actions {
+  align-items: flex-start;
+}
+
 .josanz-event-create__actions josanz-button {
   display: inline-block;
 }

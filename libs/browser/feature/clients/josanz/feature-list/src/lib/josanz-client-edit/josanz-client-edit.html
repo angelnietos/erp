@@ -13,27 +13,11 @@
   (cancel)="onCancel()"
 >
   <div figma-create-toolbar class="josanz-event-create__header-bar josanz-client-form__toolbar">
-    <div class="josanz-client-form__toolbar-meta" aria-live="polite">
-      @if (!loading() && saveStatusHint()) {
-      <span
-        class="josanz-client-edit__save-status-text"
-        [class.josanz-client-edit__save-status-text--dirty]="hasUnsavedChanges()"
-      >
-        {{ saveStatusHint() }}
-      </span>
-      }
-    </div>
+    <div class="josanz-client-form__toolbar-spacer" aria-hidden="true"></div>
     <div class="josanz-event-create__header-actions">
       <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
         Cancelar
       </button>
-      <josanz-button
-        label="Guardar cambios"
-        [showIcon]="false"
-        [disabled]="!canSave()"
-        [attr.title]="saveButtonTitle()"
-        (btnClick)="onSubmit()"
-      ></josanz-button>
     </div>
   </div>
 
@@ -177,6 +161,24 @@
         Añadir +
       </button>
     </section>
+
+    <div class="josanz-event-create__actions josanz-client-form__footer-actions" aria-live="polite">
+      @if (saveStatusHint()) {
+      <p
+        class="josanz-client-form__footer-hint"
+        [class.josanz-client-edit__save-status-text--dirty]="hasUnsavedChanges()"
+      >
+        {{ saveStatusHint() }}
+      </p>
+      }
+      <josanz-button
+        label="Guardar cambios"
+        [showIcon]="false"
+        [disabled]="!canSave()"
+        [attr.title]="saveButtonTitle()"
+        (btnClick)="onSubmit()"
+      ></josanz-button>
+    </div>
 
     <div class="josanz-client-form__danger-zone">
       <button

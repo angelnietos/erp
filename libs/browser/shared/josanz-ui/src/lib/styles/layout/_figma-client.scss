@@ -600,3 +600,18 @@
   margin-top: 0.25rem;
   border-top: 1px solid var(--josanz-border, #e7edf1);
 }
+
+.josanz-client-form__footer-actions {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.josanz-client-form__footer-hint {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--josanz-text-muted, #7c7c7c);
+}

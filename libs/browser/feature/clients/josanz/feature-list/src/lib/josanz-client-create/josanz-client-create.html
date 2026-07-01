@@ -18,12 +18,6 @@
       <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
         Cancelar
       </button>
-      <josanz-button
-        label="Añadir Cliente"
-        [showIcon]="false"
-        [disabled]="form.invalid || saving()"
-        (btnClick)="onSubmit()"
-      ></josanz-button>
     </div>
   </div>
 
@@ -149,5 +143,14 @@
         Añadir +
       </button>
     </section>
+
+    <div class="josanz-event-create__actions josanz-client-form__footer-actions">
+      <josanz-button
+        label="Añadir Cliente"
+        [showIcon]="false"
+        [disabled]="form.invalid || saving()"
+        (btnClick)="onSubmit()"
+      ></josanz-button>
+    </div>
   </div>
 </josanz-main-detail-layout>
