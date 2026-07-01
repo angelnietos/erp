@@ -14,6 +14,7 @@ import {
   type JosanzFigmaDetailShellConfig,
 } from '@josanz-erp/josanz-ui';
 import { JosanzEventApiService, type JosanzEventRecord } from '../services/josanz-event-api.service';
+import { JosanzEventsFacade } from '../services/josanz-events.facade';
 import {
   JOSANZ_EVENT_STATUS_OPTIONS,
   statusPillKeyFromApi,
@@ -63,6 +64,7 @@ export class JosanzEventDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly eventApi = inject(JosanzEventApiService);
+  private readonly eventsFacade = inject(JosanzEventsFacade);
   private readonly clientService = inject(ClientService);
   private readonly clientsFacade = inject(ClientsFacade);
   private readonly catalogTheme = inject(CatalogThemeFacade);
@@ -240,8 +242,8 @@ export class JosanzEventDetailComponent implements OnInit {
       return;
     }
 
-    this.eventApi
-      .update(this.eventId, payload)
+    this.eventsFacade
+      .updateEvent(this.eventId, payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (updated) => {
@@ -280,7 +282,7 @@ export class JosanzEventDetailComponent implements OnInit {
       feature: 'events',
       itemName: current.name,
       onConfirm: () =>
-        this.eventApi.delete(this.eventId).pipe(
+        this.eventsFacade.deleteEvent$(this.eventId).pipe(
           tap(() => {
             void this.router.navigate(['/events'], { queryParams: { deleted: '1' } });
           }),
@@ -294,11 +296,15 @@ export class JosanzEventDetailComponent implements OnInit {
 
   private loadEvent(clients: Client[]): void {
     this.loading.set(true);
-    this.eventApi
-      .getById(this.eventId)
+    this.eventsFacade
+      .ensureEvent(this.eventId)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (event) => {
+          if (!event) {
+            this.errorMessage.set('No se pudo cargar el evento.');
+            return;
+          }
           this.event.set(event);
           patchJosanzEventForm(
             this.fb,

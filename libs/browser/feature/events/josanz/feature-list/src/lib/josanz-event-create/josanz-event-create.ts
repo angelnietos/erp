@@ -12,11 +12,11 @@ import {
 import { finalize, startWith } from 'rxjs';
 import { ClientService, ClientsFacade, type Client, type ClientContact } from '@josanz-erp/clients-data-access';
 import {
-  JosanzEventApiService,
   type CreateJosanzEventPayload,
   type EventDateBlock,
   type EventVenueBlock,
 } from '../services/josanz-event-api.service';
+import { JosanzEventsFacade } from '../services/josanz-events.facade';
 import {
   ButtonComponent,
   InputComponent,
@@ -45,7 +45,7 @@ export class JosanzEventCreateComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
   private readonly clientsFacade = inject(ClientsFacade);
-  private readonly eventService = inject(JosanzEventApiService);
+  private readonly eventsFacade = inject(JosanzEventsFacade);
 
   readonly eventTypes = ['Evento externo', 'Hotel', 'Espacio'] as const;
   readonly selectedType = signal<(typeof this.eventTypes)[number]>('Evento externo');
@@ -214,8 +214,8 @@ export class JosanzEventCreateComponent implements OnInit {
     this.saving.set(true);
     this.errorMessage.set('');
 
-    this.eventService
-      .create(payload)
+    this.eventsFacade
+      .createEvent(payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: () => {

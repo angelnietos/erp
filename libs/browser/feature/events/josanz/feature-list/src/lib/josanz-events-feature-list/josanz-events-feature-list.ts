@@ -7,7 +7,7 @@ import {
   mapEventToCatalogRow,
   CatalogThemeFacade,
 } from '@josanz-erp/josanz-ui';
-import { JosanzEventApiService, type JosanzEventRecord } from '../services/josanz-event-api.service';
+import { JosanzEventsFacade } from '../services/josanz-events.facade';
 
 const EVENT_LIST_PAGE_SIZE = 10;
 
@@ -35,15 +35,13 @@ const EVENT_LIST_PAGE_SIZE = 10;
   `,
 })
 export class JosanzEventsFeatureListComponent implements OnInit {
-  private readonly eventApi = inject(JosanzEventApiService);
+  private readonly eventsFacade = inject(JosanzEventsFacade);
   private readonly catalogTheme = inject(CatalogThemeFacade);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   readonly showSuccessToast = signal(false);
   readonly successToastMessage = signal('');
-
-  private readonly events = signal<JosanzEventRecord[]>([]);
 
   private readonly baseConfig: Omit<
     JosanzCatalogListConfig,
@@ -65,7 +63,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
   };
 
   readonly listConfig = computed<JosanzCatalogListConfig>(() => {
-    const events = this.events();
+    const events = this.eventsFacade.events();
     const theme = this.catalogTheme.mergedTheme();
     const rows = events.map((event, index) => mapEventToCatalogRow(event, index, theme));
     const total = events.length;
@@ -79,6 +77,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
         after: ' esta semana',
       },
       paginationTotal: Math.max(1, Math.ceil(total / EVENT_LIST_PAGE_SIZE)),
+      loading: this.eventsFacade.loading() && events.length === 0,
     };
   });
 
@@ -99,9 +98,11 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     }
 
     this.catalogTheme.loadCatalogTheme();
-    this.eventApi.list().subscribe({
-      next: (events) => this.events.set(events),
-    });
+    if (created || deleted) {
+      this.eventsFacade.refreshEvents();
+    } else {
+      this.eventsFacade.loadEvents();
+    }
   }
 
   dismissToast(): void {
