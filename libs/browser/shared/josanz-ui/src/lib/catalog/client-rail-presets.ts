@@ -32,6 +32,17 @@ export const JOSANZ_CLIENT_RAIL_PRESETS: readonly JosanzClientRailPreset[] = [
 export const JOSANZ_CLIENT_RAIL_DEFAULT_COLOR =
   JOSANZ_FIGMA_EXTERNAL_CLIENT_RAIL_COLORS[0];
 
+export function normalizeHexColor(value: string): string | null {
+  const trimmed = value.trim();
+  if (/^#[0-9A-Fa-f]{6}$/.test(trimmed)) {
+    return trimmed.toUpperCase();
+  }
+  if (/^[0-9A-Fa-f]{6}$/.test(trimmed)) {
+    return `#${trimmed.toUpperCase()}`;
+  }
+  return null;
+}
+
 export function sectorForClientRailColor(color: string): string {
   const normalized = color.trim().toLowerCase();
   const preset = JOSANZ_CLIENT_RAIL_PRESETS.find(

@@ -20,8 +20,8 @@ import {
   JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
   defaultClientRailColor,
+  clientCategoryTypology,
   josanzNonEmptyTrim,
-  sectorForClientRailColor,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -58,8 +58,10 @@ export class JosanzClientCreateComponent {
       email: ['', [josanzNonEmptyTrim, Validators.email]],
       telefono: ['', josanzNonEmptyTrim],
       tarifa: [this.tariffOptions[0], Validators.required],
-      colorRail: [defaultClientRailColor(), Validators.required],
-      sector: ['Externos'],
+      colorRail: [
+        defaultClientRailColor(),
+        [Validators.required, Validators.pattern(/^#[0-9A-Fa-f]{6}$/)],
+      ],
       operadores: this.fb.array([this.createOperatorGroup(1)]),
     });
 
@@ -171,7 +173,6 @@ export class JosanzClientCreateComponent {
       telefono: string;
       tarifa: string;
       colorRail: string;
-      sector: string;
       operadores: Array<{ nombre: string; email: string; telefono: string }>;
     };
 
@@ -180,10 +181,10 @@ export class JosanzClientCreateComponent {
       email: value.email.trim(),
       phone: value.telefono.trim(),
       description: '',
-      sector: value.sector || sectorForClientRailColor(value.colorRail),
+      sector: clientCategoryTypology(value.razonSocial.trim()),
       type: 'COMPANY',
       tariffLabel: value.tarifa,
-      railColor: value.colorRail,
+      railColor: value.colorRail.trim().toUpperCase(),
       contacts: value.operadores
         .filter((op) => op.nombre?.trim())
         .map((op, index) => ({
