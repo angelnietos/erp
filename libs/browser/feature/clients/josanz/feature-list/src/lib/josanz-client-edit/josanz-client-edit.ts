@@ -9,7 +9,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize, startWith } from 'rxjs';
+import { finalize, startWith, catchError, EMPTY, tap } from 'rxjs';
 import {
   ClientService,
   ClientsFacade,
@@ -21,6 +21,8 @@ import {
   ButtonComponent,
   InputComponent,
   JosanzClientRailPickerComponent,
+  JosanzDeleteConfirmHostComponent,
+  JosanzDeleteConfirmService,
   MainDetailLayoutComponent,
   defaultClientRailColor,
   defaultClientTariffPillColor,
@@ -43,6 +45,7 @@ const DEFAULT_TARIFF_OPTIONS = ['Especial 01', 'Especial 02', 'Tarifa estándar'
     JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
+    JosanzDeleteConfirmHostComponent,
   ],
   templateUrl: './josanz-client-edit.html',
 })
@@ -52,6 +55,7 @@ export class JosanzClientEditComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
   private readonly clientsFacade = inject(ClientsFacade);
+  readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
   readonly saving = signal(false);
   readonly loading = signal(true);
@@ -190,6 +194,35 @@ export class JosanzClientEditComponent implements OnInit {
 
   onCancel(): void {
     this.onBack();
+  }
+
+  onDeleteClick(): void {
+    if (!this.clientId || this.loading() || this.saving()) {
+      return;
+    }
+
+    const name =
+      ((this.form.get('razonSocial')?.value as string) ?? '').trim() ||
+      this.brandDisplayName();
+
+    this.deleteConfirm.ask({
+      feature: 'clients',
+      itemName: name,
+      onConfirm: () =>
+        this.clientService.deleteClient(this.clientId).pipe(
+          tap((success) => {
+            if (!success) {
+              throw new Error('delete failed');
+            }
+            this.clientsFacade.removeClientFromCache(this.clientId);
+            void this.router.navigate(['/clients'], { queryParams: { deleted: '1' } });
+          }),
+          catchError(() => {
+            this.errorMessage.set('No se pudo eliminar el cliente. Inténtalo de nuevo.');
+            return EMPTY;
+          }),
+        ),
+    });
   }
 
   private patchForm(client: Client): void {

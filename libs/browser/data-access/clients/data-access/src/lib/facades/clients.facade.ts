@@ -1,4 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { Client, ClientService } from '../services/client.service';
 
 @Injectable({ providedIn: 'root' })
@@ -106,14 +107,15 @@ export class ClientsFacade {
     this._hasCache.set(true);
   }
 
+  removeClientFromCache(id: string): void {
+    this._clients.update((clients) => clients.filter((c) => c.id !== id));
+    this._hasCache.set(true);
+  }
+
   deleteClient(id: string): void {
     this._isLoading.set(true);
-    this.clientService.deleteClient(id).subscribe({
-      next: (success) => {
-        if (success) {
-          this._clients.update((clients) => clients.filter((c) => c.id !== id));
-        }
-        this._hasCache.set(true);
+    this.deleteClient$(id).subscribe({
+      next: () => {
         this._isLoading.set(false);
       },
       error: (err: { message?: string }) => {
@@ -121,5 +123,16 @@ export class ClientsFacade {
         this._isLoading.set(false);
       },
     });
+  }
+
+  deleteClient$(id: string): Observable<boolean> {
+    return this.clientService.deleteClient(id).pipe(
+      tap((success) => {
+        if (success) {
+          this._clients.update((clients) => clients.filter((c) => c.id !== id));
+          this._hasCache.set(true);
+        }
+      }),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { pillVariantForCatalogStatus, eventStatusLabel } from '@josanz-erp/josanz-ui';
 import type { JosanzStatusPillKey } from '@josanz-erp/josanz-ui';
+import type { JosanzEventRecord } from './services/josanz-event-api.service';
 
 export const JOSANZ_EVENT_UI_TYPES = ['Evento externo', 'Hotel', 'Espacio'] as const;
 export type JosanzEventUiType = (typeof JOSANZ_EVENT_UI_TYPES)[number];

@@ -264,7 +264,7 @@ export function railColorForCatalogRow(
   return '#94A3B8';
 }
 
-function resolveStatusPillKey(variant: JosanzStatusPillVariant): JosanzStatusPillKey {
+export function statusPillKeyFromVariant(variant: JosanzStatusPillVariant): JosanzStatusPillKey {
   if (variant === 'primary') {
     return 'borrador';
   }
@@ -285,7 +285,7 @@ export function railColorForStatusVariant(
   variant: JosanzStatusPillVariant,
   badgeStyle: 'filled' | 'outline' = 'outline',
 ): string {
-  const key = resolveStatusPillKey(variant);
+  const key = statusPillKeyFromVariant(variant);
   const pill = getEventOutlinePill(key);
   return badgeStyle === 'outline' ? pill.border : pill.text;
 }

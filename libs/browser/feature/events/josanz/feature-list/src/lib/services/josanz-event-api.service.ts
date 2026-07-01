@@ -92,4 +92,8 @@ export class JosanzEventApiService {
   update(id: string, payload: UpdateJosanzEventPayload): Observable<JosanzEventRecord> {
     return this.http.put<JosanzEventRecord>(`${this.apiUrl}/${id}`, payload);
   }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

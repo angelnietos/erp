@@ -2,9 +2,11 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { finalize, catchError, EMPTY, tap } from 'rxjs';
 import {
   DocumentItemComponent,
+  JosanzDeleteConfirmHostComponent,
+  JosanzDeleteConfirmService,
   JosanzFigmaDetailShellComponent,
   SecondaryButtonComponent,
   typologyTabFromApi,
@@ -66,6 +68,7 @@ interface JosanzEventEmail {
     JosanzFigmaDetailShellComponent,
     SecondaryButtonComponent,
     DocumentItemComponent,
+    JosanzDeleteConfirmHostComponent,
   ],
   templateUrl: './josanz-event-detail.html',
 })
@@ -73,10 +76,12 @@ export class JosanzEventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly eventApi = inject(JosanzEventApiService);
+  readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
   readonly event = signal<JosanzEventRecord | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal('');
+  readonly deleteErrorMessage = signal('');
 
   staffDraft = '';
   budgetSearch = '';
@@ -230,6 +235,29 @@ export class JosanzEventDetailComponent implements OnInit {
 
   onSave(): void {
     void this.router.navigate(['/events', this.eventId, 'edit']);
+  }
+
+  onDeleteClick(): void {
+    const current = this.event();
+    if (!current || this.loading() || this.deleteConfirm.busy()) {
+      return;
+    }
+
+    this.deleteErrorMessage.set('');
+    this.deleteConfirm.ask({
+      feature: 'events',
+      itemName: current.name,
+      onConfirm: () =>
+        this.eventApi.delete(this.eventId).pipe(
+          tap(() => {
+            void this.router.navigate(['/events'], { queryParams: { deleted: '1' } });
+          }),
+          catchError(() => {
+            this.deleteErrorMessage.set('No se pudo eliminar el evento. Inténtalo de nuevo.');
+            return EMPTY;
+          }),
+        ),
+    });
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {

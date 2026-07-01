@@ -75,10 +75,15 @@ export class JosanzClientsListComponent implements OnInit {
 
     const created = this.route.snapshot.queryParamMap.get('created') === '1';
     const updated = this.route.snapshot.queryParamMap.get('updated') === '1';
+    const deleted = this.route.snapshot.queryParamMap.get('deleted') === '1';
 
-    if (created || updated) {
+    if (created || updated || deleted) {
       this.successToastMessage.set(
-        created ? 'Cliente creado correctamente' : 'Cliente actualizado correctamente',
+        created
+          ? 'Cliente creado correctamente'
+          : updated
+            ? 'Cliente actualizado correctamente'
+            : 'Cliente eliminado correctamente',
       );
       this.showSuccessToast.set(true);
       void this.router.navigate([], {

@@ -14,6 +14,16 @@
   <div figma-create-toolbar class="josanz-event-create__header-bar">
     <div></div>
     <div class="josanz-event-create__header-actions">
+      @if (!loading()) {
+      <button
+        type="button"
+        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
+        [disabled]="saving() || deleteConfirm.busy()"
+        (click)="onDeleteClick()"
+      >
+        Eliminar
+      </button>
+      }
       <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
         Cancelar
       </button>
@@ -172,3 +182,5 @@
     }
   </div>
 </josanz-main-detail-layout>
+
+<josanz-delete-confirm-host />

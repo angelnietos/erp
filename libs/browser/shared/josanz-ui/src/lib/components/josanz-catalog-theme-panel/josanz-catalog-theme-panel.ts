@@ -1,12 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CatalogThemeFacade } from '../services/catalog-theme.facade';
+import { CatalogThemeFacade } from '../../services/catalog-theme.facade';
 import {
   TENANT_CLIENT_TARIFF_OPTIONS,
   TENANT_EVENT_STATUS_OPTIONS,
-} from '../catalog/catalog-theme';
-import type { JosanzStatusPillKey } from '../theme/josanz-figma-tokens';
-import { normalizeHexColor } from '../catalog/client-rail-presets';
+} from '../../catalog/catalog-theme';
+import type { JosanzStatusPillKey } from '../../theme/josanz-figma-tokens';
+import { normalizeHexColor } from '../../catalog/client-rail-presets';
 
 @Component({
   selector: 'josanz-catalog-theme-panel',

@@ -9,7 +9,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { finalize, startWith } from 'rxjs';
+import { finalize, startWith, catchError, EMPTY, tap } from 'rxjs';
 import { ClientService, ClientsFacade, type Client, type ClientContact } from '@josanz-erp/clients-data-access';
 import {
   JosanzEventApiService,
@@ -23,22 +23,22 @@ import {
   JOSANZ_EVENT_UI_TYPES,
   typologyLabelFromApi,
   isoDatePart,
+  statusPillKeyFromApi,
   type JosanzEventUiType,
 } from '../josanz-event-form.utils';
 import {
   ButtonComponent,
   InputComponent,
   JosanzClientRailPickerComponent,
+  JosanzDeleteConfirmHostComponent,
+  JosanzDeleteConfirmService,
   MainDetailLayoutComponent,
   SelectComponent,
   CatalogThemeFacade,
-  eventStatusLabel,
   josanzNonEmptyTrim,
   normalizeHexColor,
-  pillVariantForCatalogStatus,
   tenantEventStatusColor,
   defaultEventStatusPillColor,
-  josanzNonEmptyTrim,
 } from '@josanz-erp/josanz-ui';
 
 @Component({
@@ -52,6 +52,7 @@ import {
     JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
+    JosanzDeleteConfirmHostComponent,
   ],
   templateUrl: './josanz-event-edit.html',
 })
@@ -63,6 +64,7 @@ export class JosanzEventEditComponent implements OnInit {
   private readonly clientsFacade = inject(ClientsFacade);
   private readonly eventService = inject(JosanzEventApiService);
   private readonly catalogTheme = inject(CatalogThemeFacade);
+  readonly deleteConfirm = inject(JosanzDeleteConfirmService);
 
   readonly eventTypes = JOSANZ_EVENT_UI_TYPES;
   readonly statusOptions = JOSANZ_EVENT_STATUS_OPTIONS.map((o) => ({
@@ -244,6 +246,29 @@ export class JosanzEventEditComponent implements OnInit {
     this.onBack();
   }
 
+  onDeleteClick(): void {
+    if (!this.eventId || this.loading() || this.saving()) {
+      return;
+    }
+
+    const name = ((this.form.get('nombre')?.value as string) ?? '').trim() || 'este evento';
+
+    this.deleteConfirm.ask({
+      feature: 'events',
+      itemName: name,
+      onConfirm: () =>
+        this.eventService.delete(this.eventId).pipe(
+          tap(() => {
+            void this.router.navigate(['/events'], { queryParams: { deleted: '1' } });
+          }),
+          catchError(() => {
+            this.errorMessage.set('No se pudo eliminar el evento. Inténtalo de nuevo.');
+            return EMPTY;
+          }),
+        ),
+    });
+  }
+
   private loadEvent(clients: Client[]): void {
     this.loading.set(true);
     this.eventService
@@ -284,11 +309,11 @@ export class JosanzEventEditComponent implements OnInit {
       this.venues.push(this.createVenueGroup(venue));
     }
 
-    const pillVariant = pillVariantForCatalogStatus(eventStatusLabel(event.status));
+    const pillKey = statusPillKeyFromApi(event.status);
     const theme = this.catalogTheme.mergedTheme();
     const defaultPill =
       normalizeHexColor(event.statusPillColor ?? '') ??
-      tenantEventStatusColor(theme, pillVariant) ??
+      tenantEventStatusColor(theme, pillKey) ??
       defaultEventStatusPillColor(event.status, 'outline');
 
     this.form.patchValue({
@@ -307,10 +332,10 @@ export class JosanzEventEditComponent implements OnInit {
   }
 
   private applyDefaultStatusColor(status: string): void {
-    const pillVariant = pillVariantForCatalogStatus(eventStatusLabel(status));
+    const pillKey = statusPillKeyFromApi(status);
     const theme = this.catalogTheme.mergedTheme();
     const color =
-      tenantEventStatusColor(theme, pillVariant) ??
+      tenantEventStatusColor(theme, pillKey) ??
       defaultEventStatusPillColor(status, 'outline');
     this.form.patchValue({ statusPillColor: color }, { emitEvent: false });
   }

@@ -94,6 +94,20 @@
   font-weight: 600;
   color: var(--josanz-button-primary-bg, #0f1e2f);
   cursor: pointer;
+
+  &--danger {
+    color: var(--josanz-danger, #ef4444);
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+  }
 }
 
 .josanz-event-create__hint {

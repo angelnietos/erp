@@ -1,5 +1,5 @@
 import type { JosanzCatalogListRow } from './catalog-status';
-import { pillVariantForCatalogStatus, resolveEntityRailColor } from './catalog-status';
+import { pillVariantForCatalogStatus, resolveEntityRailColor, statusPillKeyFromVariant } from './catalog-status';
 import { resolveCatalogPillColor } from './status-pill-presets';
 import {
   tenantClientTariffColor,
@@ -109,7 +109,7 @@ export function mapEventToCatalogRow(
       event.statusPillColor,
       pillVariant,
       'outline',
-      tenantEventStatusColor(catalogTheme, pillVariant),
+      tenantEventStatusColor(catalogTheme, statusPillKeyFromVariant(pillVariant)),
     ),
     railColor: resolveEntityRailColor({
       storedRailColor: event.client?.railColor,

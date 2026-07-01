@@ -201,6 +201,18 @@
   border-top: 1px solid var(--josanz-border);
 }
 
+.josanz-event-danger-zone {
+  border-color: color-mix(in srgb, var(--josanz-danger) 25%, var(--josanz-border));
+  background: color-mix(in srgb, var(--josanz-danger) 4%, var(--josanz-surface));
+}
+
+.josanz-event-danger-zone__hint {
+  margin: 0 0 0.75rem;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--josanz-text-muted);
+}
+
 /* â”€â”€ Note rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .josanz-event-note-row {
   display: flex;

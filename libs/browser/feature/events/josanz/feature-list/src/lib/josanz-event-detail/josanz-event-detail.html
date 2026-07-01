@@ -150,6 +150,24 @@
         <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
       </div>
     </section>
+
+    <section class="josanz-event-section josanz-event-danger-zone">
+      <h3 class="josanz-event-section__title">Zona de peligro</h3>
+      <p class="josanz-event-danger-zone__hint">
+        Eliminar el evento lo quitará del listado de forma permanente.
+      </p>
+      @if (deleteErrorMessage()) {
+      <p class="josanz-event-create__hint" role="alert">{{ deleteErrorMessage() }}</p>
+      }
+      <button
+        type="button"
+        class="josanz-event-create__link-btn josanz-event-create__link-btn--danger"
+        [disabled]="loading() || deleteConfirm.busy()"
+        (click)="onDeleteClick()"
+      >
+        Eliminar evento
+      </button>
+    </section>
     } @if (shell.activeTab() === 'Cliente') {
     <section class="josanz-event-section">
       <h3 class="josanz-event-section__title">Datos del cliente</h3>
@@ -463,3 +481,5 @@
     </section>
     }
 </josanz-figma-detail-shell>
+
+<josanz-delete-confirm-host />
