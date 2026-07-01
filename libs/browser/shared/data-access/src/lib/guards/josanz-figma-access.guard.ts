@@ -2,14 +2,18 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { GlobalAuthStore } from '../store/auth.store';
 import { PluginStore } from '../store/plugin.store';
+import {
+  canAccessJosanzFigmaAdminDashboard,
+  resolveJosanzFigmaFallbackPath,
+} from '../utils/josanz-figma-rbac';
 
-function redirectWhenDenied(router: Router, authStore: InstanceType<typeof GlobalAuthStore>): void {
+function redirectWhenDenied(
+  router: Router,
+  authStore: InstanceType<typeof GlobalAuthStore>,
+): void {
   if (authStore.isAuthenticated()) {
-    const url = router.url.split('?')[0];
-    if (url === '/dashboard' || url.startsWith('/dashboard/')) {
-      return;
-    }
-    void router.navigate(['/dashboard'], {
+    const target = resolveJosanzFigmaFallbackPath(authStore.permissions());
+    void router.navigate([target], {
       queryParams: { access: 'denied' },
       replaceUrl: true,
     });
@@ -40,6 +44,25 @@ export const josanzFigmaAccessGuard = (
 
     return true;
   };
+};
+
+/** Panel de inicio Figma (KPIs / cuadrante): solo administradores. */
+export const josanzDashboardAccessGuard: CanActivateFn = () => {
+  const pluginStore = inject(PluginStore);
+  const authStore = inject(GlobalAuthStore);
+  const router = inject(Router);
+  const permissions = authStore.permissions();
+
+  const allowed =
+    pluginStore.enabledPlugins().includes('dashboard') &&
+    canAccessJosanzFigmaAdminDashboard(permissions);
+
+  if (allowed) {
+    return true;
+  }
+
+  redirectWhenDenied(router, authStore);
+  return false;
 };
 
 export const josanzSettingsAccessGuard: CanActivateFn = () => {

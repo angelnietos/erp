@@ -1,5 +1,5 @@
 import { Route } from '@angular/router';
-import { josanzFigmaAccessGuard, josanzSettingsAccessGuard } from '@josanz-erp/shared-data-access';
+import { josanzDashboardAccessGuard, josanzFigmaAccessGuard, josanzSettingsAccessGuard } from '@josanz-erp/shared-data-access';
 import { josanzAuthGuard, josanzGuestGuard } from './auth/josanz-auth.guard';
 import { JosanzAppShellComponent } from './josanz-app-shell.component';
 
@@ -39,7 +39,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'dashboard',
-        canActivate: [josanzFigmaAccessGuard('dashboard')],
+        canActivate: [josanzDashboardAccessGuard],
         loadComponent: () =>
           import('./pages/josanz-dashboard-inicio.component').then(
             (m) => m.JosanzDashboardInicioComponent,

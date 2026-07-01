@@ -84,7 +84,7 @@ export const POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
 /** Rutas apps/josanz-web-app (shell Figma / tenant alexis). */
 export const FIGMA_POST_LOGIN_ROUTE_CANDIDATES: readonly PostLoginRouteCandidate[] = [
   { path: '/events', permission: 'events.view' },
-  { path: '/dashboard' },
+  { path: '/dashboard', permission: 'users.manage' },
   { path: '/clients', permission: 'clients.view' },
   { path: '/equipment', permission: 'products.view' },
   { path: '/vehicles', permission: 'fleet.view' },

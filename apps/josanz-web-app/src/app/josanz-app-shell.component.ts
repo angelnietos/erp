@@ -7,7 +7,7 @@ import {
   JosanzThemeService,
 } from '@josanz-erp/josanz-ui';
 import { AuthStore } from '@josanz-erp/identity-data-access';
-import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, PluginStore, resolveJosanzFigmaFallbackPath } from '@josanz-erp/shared-data-access';
 
 @Component({
   selector: 'app-josanz-shell',
@@ -37,7 +37,8 @@ export class JosanzAppShellComponent implements OnInit {
       }
 
       queueMicrotask(() => {
-        void this.router.navigate(['/dashboard'], {
+        const target = resolveJosanzFigmaFallbackPath(permissions);
+        void this.router.navigate([target], {
           queryParams: { access: 'denied' },
           replaceUrl: true,
         });

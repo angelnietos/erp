@@ -1,4 +1,5 @@
 import type { JosanzSidebarIconKey } from '../components/sidebar';
+import { canAccessJosanzFigmaAdminDashboard } from '@josanz-erp/shared-data-access';
 
 export interface JosanzFigmaNavItem {
   path: string;
@@ -8,6 +9,8 @@ export interface JosanzFigmaNavItem {
   moduleId?: string;
   /** Permiso RBAC requerido (omitir = visible si el módulo está activo). */
   permission?: string;
+  /** Solo administradores (`users.manage`, `roles.manage`, `*`…). */
+  adminOnly?: boolean;
   exact?: boolean;
 }
 
@@ -16,12 +19,20 @@ interface JosanzFigmaRouteAccessRule {
   moduleId?: string;
   permission?: string;
   settingsOnly?: boolean;
+  adminOnly?: boolean;
   exact?: boolean;
 }
 
 /** Navegación principal del shell Figma (`josanz-web-app`). */
 export const JOSANZ_FIGMA_NAV_ITEMS: readonly JosanzFigmaNavItem[] = [
-  { path: '/dashboard', label: 'Inicio', icon: 'inicio', moduleId: 'dashboard', exact: true },
+  {
+    path: '/dashboard',
+    label: 'Inicio',
+    icon: 'inicio',
+    moduleId: 'dashboard',
+    adminOnly: true,
+    exact: true,
+  },
   {
     path: '/events',
     label: 'Eventos',
@@ -121,6 +132,9 @@ export function filterJosanzFigmaNavItems(
   const wildcard = permissions.includes('*');
 
   return items.filter((item) => {
+    if (item.adminOnly && !canAccessJosanzFigmaAdminDashboard(permissions)) {
+      return false;
+    }
     if (item.moduleId && !enabledModules.includes(item.moduleId)) {
       return false;
     }
@@ -150,6 +164,10 @@ export function canAccessJosanzFigmaPath(
 
   if (rule.settingsOnly) {
     return canAccessJosanzSettings(permissions);
+  }
+
+  if (rule.adminOnly && !canAccessJosanzFigmaAdminDashboard(permissions)) {
+    return false;
   }
 
   if (rule.moduleId && !enabledModules.includes(rule.moduleId)) {

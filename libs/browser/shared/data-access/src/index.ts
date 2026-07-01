@@ -5,6 +5,10 @@ export {
 export { GlobalAuthStore } from './lib/store/auth.store';
 export { rbacAllows } from './lib/utils/rbac';
 export {
+  canAccessJosanzFigmaAdminDashboard,
+  resolveJosanzFigmaFallbackPath,
+} from './lib/utils/josanz-figma-rbac';
+export {
   accessibleMutedColor,
   FALLBACK_BRAND_HEX,
   hexToRgbTripletString,

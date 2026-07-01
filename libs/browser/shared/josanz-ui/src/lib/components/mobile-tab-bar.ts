@@ -4,7 +4,7 @@ import { JosanzThemeService } from '../services/theme.service';
 import { JOSANZ_FIGMA_APP } from '../theme/josanz-figma-tokens';
 import { JosanzSidebarIconComponent } from './sidebar-icon.component';
 import type { JosanzSidebarIconKey } from './sidebar';
-import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
+import { GlobalAuthStore, PluginStore, canAccessJosanzFigmaAdminDashboard } from '@josanz-erp/shared-data-access';
 import {
   canAccessJosanzSettings,
 } from '../navigation/josanz-figma-nav';
@@ -24,6 +24,7 @@ export interface JosanzMobileTabItem {
   icon?: JosanzMobileTabIconKey;
   moduleId?: string;
   permission?: string;
+  adminOnly?: boolean;
   settingsOnly?: boolean;
 }
 
@@ -41,7 +42,14 @@ export class MobileTabBarComponent {
   private readonly pluginStore = inject(PluginStore);
 
   private readonly allTabs: JosanzMobileTabItem[] = [
-    { path: '/dashboard', label: 'Inicio', exact: true, icon: 'inicio', moduleId: 'dashboard' },
+    {
+      path: '/dashboard',
+      label: 'Inicio',
+      exact: true,
+      icon: 'inicio',
+      moduleId: 'dashboard',
+      adminOnly: true,
+    },
     {
       path: '/events',
       label: 'Eventos',
@@ -92,6 +100,9 @@ export class MobileTabBarComponent {
     return this.allTabs.filter((tab) => {
       if (tab.settingsOnly) {
         return canAccessJosanzSettings(permissions);
+      }
+      if (tab.adminOnly && !canAccessJosanzFigmaAdminDashboard(permissions)) {
+        return false;
       }
       if (tab.moduleId && !modules.includes(tab.moduleId)) {
         return false;
