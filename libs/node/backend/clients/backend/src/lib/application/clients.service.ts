@@ -184,24 +184,51 @@ export class ClientsService {
     actorUserId: string,
   ) {
     const encrypted = this.encryptClientWrite(data);
-    const client = await this.prisma.client.update({
-      where: { id },
-      data: {
-        name: data.name || data.company,
-        taxId: encrypted.taxId,
-        email: encrypted.email,
-        phone: encrypted.phone,
-        address: encrypted.address,
-        city: data.city,
-        zipCode: data.zipCode,
-        country: data.country,
-        description: data.description,
-        sector: data.sector || data.type,
-        type: data.type,
-      },
-      include: {
-        contacts: true,
-      },
+    const contactRows = (data.contacts ?? []).filter((c) => (c.name ?? '').trim());
+
+    const client = await this.prisma.$transaction(async (tx) => {
+      if (data.contacts !== undefined) {
+        await tx.clientContact.deleteMany({
+          where: { clientId: id, tenantId },
+        });
+      }
+
+      return tx.client.update({
+        where: { id },
+        data: {
+          name: data.name || data.company,
+          taxId: encrypted.taxId,
+          email: encrypted.email,
+          phone: encrypted.phone,
+          address: encrypted.address,
+          city: data.city,
+          zipCode: data.zipCode,
+          country: data.country,
+          description: data.description,
+          sector: data.sector || data.type,
+          type: data.type,
+          ...(data.tariffLabel !== undefined
+            ? { tariffLabel: data.tariffLabel?.trim() || null }
+            : {}),
+          ...(data.contacts !== undefined && contactRows.length > 0
+            ? {
+                contacts: {
+                  create: contactRows.map((contact, index) => ({
+                    tenantId,
+                    name: contact.name!.trim(),
+                    email: this.piiCrypto.encryptField(contact.email),
+                    phone: this.piiCrypto.encryptField(contact.phone),
+                    position: contact.position?.trim() || 'Operador',
+                    isPrimary: contact.isPrimary ?? index === 0,
+                  })),
+                },
+              }
+            : {}),
+        },
+        include: {
+          contacts: true,
+        },
+      });
     });
     await this.auditLogWriter.record(actorUserId, {
       action: 'UPDATE',

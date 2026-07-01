@@ -126,7 +126,10 @@ export class ClientService {
     return this.http.post<Client>(this.apiUrl, client);
   }
 
-  updateClient(id: string, client: Partial<Client>): Observable<Client> {
+  updateClient(
+    id: string,
+    client: Partial<Client> | CreateClientPayload,
+  ): Observable<Client> {
     return this.http.put<Client>(`${this.apiUrl}/${id}`, client);
   }
 

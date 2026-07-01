@@ -22,6 +22,7 @@ export class JosanzClientsListComponent implements OnInit {
   private readonly clientService = inject(ClientService);
 
   showSuccessToast = false;
+  successToastMessage = 'Cliente creado correctamente';
 
   config: JosanzCatalogListConfig = {
     title: 'Clientes',
@@ -50,7 +51,12 @@ export class JosanzClientsListComponent implements OnInit {
   };
 
   ngOnInit(): void {
-    if (this.route.snapshot.queryParamMap.get('created') === '1') {
+    const created = this.route.snapshot.queryParamMap.get('created') === '1';
+    const updated = this.route.snapshot.queryParamMap.get('updated') === '1';
+    if (created || updated) {
+      this.successToastMessage = created
+        ? 'Cliente creado correctamente'
+        : 'Cliente actualizado correctamente';
       this.showSuccessToast = true;
       void this.router.navigate([], {
         relativeTo: this.route,

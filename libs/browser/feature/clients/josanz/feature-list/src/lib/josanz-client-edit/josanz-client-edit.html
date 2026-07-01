@@ -1,0 +1,165 @@
+<josanz-main-detail-layout
+  title="Editar Cliente"
+  layoutVariant="figma-event"
+  [tabs]="[]"
+  activeTab=""
+  saveLabel="Guardar"
+  [showFooterActions]="false"
+  [showHeaderSave]="false"
+  [saveDisabled]="form.invalid || saving() || loading()"
+  (back)="onBack()"
+  (save)="onSubmit()"
+  (cancel)="onCancel()"
+>
+  <div figma-create-toolbar class="josanz-event-create__header-bar">
+    <div></div>
+    <div class="josanz-event-create__header-actions">
+      <button type="button" class="josanz-event-create__link-btn" (click)="onCancel()">
+        Cancelar
+      </button>
+      <josanz-button
+        label="Guardar"
+        [showIcon]="false"
+        [disabled]="form.invalid || saving() || loading()"
+        customColor="#0F1E2F"
+        (btnClick)="onSubmit()"
+      ></josanz-button>
+    </div>
+  </div>
+
+  <div class="josanz-event-create">
+    @if (loading()) {
+    <p class="josanz-event-create__hint">Cargando cliente…</p>
+    } @else {
+    @if (validationBanner()) {
+    <p class="josanz-event-create__validation-banner" role="alert">{{ validationBanner() }}</p>
+    }
+    @if (errorMessage()) {
+    <p class="josanz-event-create__hint" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <section>
+      <h2 class="josanz-event-create__section-title">Datos del cliente</h2>
+      <div class="josanz-client-create__grid">
+        <div class="josanz-client-create__brand" aria-hidden="true">
+          <span class="josanz-client-create__brand-initials">{{ brandInitials() }}</span>
+          <span class="josanz-client-create__brand-name">{{ brandDisplayName() }}</span>
+        </div>
+
+        <form class="josanz-client-create__fields" [formGroup]="form" (ngSubmit)="onSubmit()">
+          <josanz-input
+            label="Nombre y Apellidos / Razón social"
+            placeholder="Nuevo Cliente"
+            controlName="razonSocial"
+            [parentForm]="form"
+            [required]="true"
+          ></josanz-input>
+
+          <josanz-input
+            label="Email"
+            placeholder="email@ejemplo.com"
+            type="email"
+            controlName="email"
+            [parentForm]="form"
+            [required]="true"
+          ></josanz-input>
+
+          <josanz-input
+            label="Teléfono"
+            placeholder="988654321"
+            type="tel"
+            controlName="telefono"
+            [parentForm]="form"
+            [required]="true"
+          ></josanz-input>
+
+          <div class="josanz-client-type-select">
+            <label class="josanz-client-type-select__label" for="tarifa-cliente-edit">
+              Tarifa <span class="text-[color:var(--josanz-danger)]" aria-hidden="true">*</span>
+            </label>
+            <div class="josanz-client-type-select__trigger">
+              <span class="josanz-client-type-chip" style="background: #ddecff; color: #080808">
+                {{ form.get('tarifa')?.value }}
+              </span>
+              <span class="josanz-client-type-select__spacer" aria-hidden="true"></span>
+              <svg
+                class="josanz-client-type-select__chevron"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                aria-hidden="true"
+              >
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <select id="tarifa-cliente-edit" formControlName="tarifa" aria-label="Tarifa">
+                @for (tarifa of tariffOptions; track tarifa) {
+                <option [value]="tarifa">{{ tarifa }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section [formGroup]="form">
+      <h2 class="josanz-event-create__section-title">Operadores</h2>
+      <div class="josanz-client-create__operators" formArrayName="operadores">
+        @for (group of operadores.controls; track $index; let i = $index) {
+        <div class="josanz-client-create__operator-card" [formGroupName]="i">
+          @if (operadores.length > 1) {
+          <button
+            type="button"
+            class="josanz-client-create__operator-delete"
+            aria-label="Eliminar operador"
+            (click)="removeOperator(i)"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6M14 11v6"></path>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            </svg>
+          </button>
+          }
+
+          <josanz-input
+            label="Nombre y Apellidos"
+            placeholder="Nuevo Operador"
+            controlName="nombre"
+            [parentForm]="operatorGroup(i)"
+            [required]="true"
+          ></josanz-input>
+
+          <div class="josanz-event-create__grid-2">
+            <josanz-input
+              label="Email"
+              placeholder="emailoperador@email.com"
+              type="email"
+              controlName="email"
+              [parentForm]="operatorGroup(i)"
+              [required]="true"
+            ></josanz-input>
+            <josanz-input
+              label="Teléfono"
+              placeholder="677896512"
+              type="tel"
+              controlName="telefono"
+              [parentForm]="operatorGroup(i)"
+              [required]="true"
+            ></josanz-input>
+          </div>
+        </div>
+        }
+      </div>
+
+      <button type="button" class="josanz-client-create__add-operator" (click)="addOperator()">
+        Añadir +
+      </button>
+    </section>
+    }
+  </div>
+</josanz-main-detail-layout>
