@@ -10,7 +10,7 @@
     class="flex flex-1 items-center justify-between gap-0.5 px-2 py-2 md:px-3"
     [style.paddingBottom]="'max(16px, env(safe-area-inset-bottom, 0px))'"
   >
-    @for (tab of tabs; track tab.path) {
+    @for (tab of tabs(); track tab.path) {
       @if (tab.prominent) {
         <a
           [routerLink]="tab.path"

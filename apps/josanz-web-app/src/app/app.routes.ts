@@ -1,4 +1,5 @@
 import { Route } from '@angular/router';
+import { josanzFigmaAccessGuard, josanzSettingsAccessGuard } from '@josanz-erp/shared-data-access';
 import { josanzAuthGuard, josanzGuestGuard } from './auth/josanz-auth.guard';
 import { JosanzAppShellComponent } from './josanz-app-shell.component';
 
@@ -38,6 +39,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'dashboard',
+        canActivate: [josanzFigmaAccessGuard('dashboard')],
         loadComponent: () =>
           import('./pages/josanz-dashboard-inicio.component').then(
             (m) => m.JosanzDashboardInicioComponent,
@@ -45,6 +47,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'settings',
+        canActivate: [josanzSettingsAccessGuard],
         loadComponent: () =>
           import('./pages/josanz-settings-placeholder.component').then(
             (m) => m.JosanzSettingsPlaceholderComponent,
@@ -52,6 +55,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'export',
+        canActivate: [josanzFigmaAccessGuard('reports', 'reports.view')],
         loadComponent: () =>
           import('./pages/josanz-export-center.component').then(
             (m) => m.JosanzExportCenterComponent,
@@ -59,6 +63,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'reports/new',
+        canActivate: [josanzFigmaAccessGuard('reports', 'reports.view')],
         loadComponent: () =>
           import('./pages/josanz-report-new.component').then(
             (m) => m.JosanzReportNewComponent,
@@ -66,11 +71,13 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'clients',
+        canActivate: [josanzFigmaAccessGuard('clients', 'clients.view')],
         loadChildren: () =>
           import('@josanz-erp/shell').then((m) => m.josanzClientsRoutes),
       },
       {
         path: 'users',
+        canActivate: [josanzFigmaAccessGuard('identity', 'users.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-users-shell').then(
             (m) => m.josanzUsersRoutes,
@@ -78,6 +85,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'stock',
+        canActivate: [josanzFigmaAccessGuard('inventory', 'products.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-stock-shell').then(
             (m) => m.josanzStockRoutes,
@@ -85,6 +93,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'budgets',
+        canActivate: [josanzFigmaAccessGuard('budgets', 'budgets.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-budgets-shell').then((m) => m.josanzBudgetsRoutes),
       },
@@ -96,26 +105,31 @@ export const appRoutes: Route[] = [
       // },
       {
         path: 'events',
+        canActivate: [josanzFigmaAccessGuard('events', 'events.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-events-shell').then((m) => m.josanzEventsRoutes),
       },
       {
         path: 'equipment',
+        canActivate: [josanzFigmaAccessGuard('inventory', 'products.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-events-shell').then((m) => m.josanzEquipmentRoutes),
       },
       {
         path: 'vehicles',
+        canActivate: [josanzFigmaAccessGuard('fleet', 'fleet.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-events-shell').then((m) => m.josanzVehiclesRoutes),
       },
       {
         path: 'staff',
+        canActivate: [josanzFigmaAccessGuard('identity', 'users.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-events-shell').then((m) => m.josanzStaffRoutes),
       },
       {
         path: 'billing',
+        canActivate: [josanzFigmaAccessGuard('billing', 'billing.view')],
         loadChildren: () =>
           import('@josanz-erp/josanz-events-shell').then((m) => m.josanzBillingRoutes),
       },

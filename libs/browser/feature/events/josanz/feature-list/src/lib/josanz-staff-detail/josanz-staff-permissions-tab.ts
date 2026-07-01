@@ -13,8 +13,10 @@ import { AuthStore } from '@josanz-erp/identity-data-access';
 import {
   ButtonComponent,
   JosanzFigmaSuccessToastComponent,
+  SelectComponent,
+  type JosanzSelectOption,
 } from '@josanz-erp/josanz-ui';
-import { groupPermissions, permissionLabel } from '../utils/permission-labels';
+import { groupPermissions, permissionLabel, permissionCategory } from '../utils/permission-labels';
 
 @Component({
   selector: 'josanz-staff-permissions-tab',
@@ -24,6 +26,7 @@ import { groupPermissions, permissionLabel } from '../utils/permission-labels';
     FormsModule,
     ButtonComponent,
     JosanzFigmaSuccessToastComponent,
+    SelectComponent,
   ],
   templateUrl: './josanz-staff-permissions-tab.html',
   styleUrl: './josanz-staff-permissions-tab.scss',
@@ -91,6 +94,13 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
       )
       .sort((a, b) => a.label.localeCompare(b.label, 'es'));
   });
+
+  readonly permissionSelectOptions = computed((): JosanzSelectOption[] =>
+    this.addableOptions().map((opt) => ({
+      value: opt.id,
+      label: `${permissionCategory(opt.id)} · ${opt.label}`,
+    })),
+  );
 
   readonly hasPendingChanges = computed(() => {
     const u = this.user();

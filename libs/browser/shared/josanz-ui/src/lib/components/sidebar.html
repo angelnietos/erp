@@ -41,12 +41,14 @@
   </nav>
 
   <div class="josanz-sidebar__bottom">
+    @if (canAccessSettings()) {
     <a routerLink="/settings" routerLinkActive="active-link" title="Ajustes" class="josanz-sidebar__item group">
       <span class="nav-icon-container" aria-hidden="true">
         <josanz-sidebar-icon icon="ajustes" />
       </span>
       <span class="josanz-sidebar__label">Ajustes</span>
     </a>
+    }
 
     <button
       type="button"

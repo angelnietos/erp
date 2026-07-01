@@ -105,19 +105,14 @@
   }
 
   <div class="josanz-staff-perm-add-row">
-    <label class="josanz-staff-perm-add-row__field">
-      <span class="josanz-staff-perm-add-row__label">Permiso</span>
-      <select
-        class="josanz-staff-perm-select"
-        [ngModel]="pickPermissionId()"
-        (ngModelChange)="pickPermissionId.set($event)"
-      >
-        <option value="">Selecciona un permiso…</option>
-        @for (opt of addableOptions(); track opt.id) {
-        <option [value]="opt.id">{{ opt.label }}</option>
-        }
-      </select>
-    </label>
+    <josanz-select
+      class="josanz-staff-perm-add-row__select"
+      label="Permiso"
+      placeholder="Selecciona un permiso…"
+      [options]="permissionSelectOptions()"
+      [ngModel]="pickPermissionId()"
+      (valueChange)="pickPermissionId.set($event)"
+    />
     <josanz-button
       label="Añadir"
       variant="secondary"

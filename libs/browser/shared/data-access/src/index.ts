@@ -32,6 +32,7 @@ export * from './lib/utils/privacy-export.util';
 export * from './lib/services/services-catalog-api.service';
 export * from './lib/store/plugin.store';
 export * from './lib/guards/plugin.guard';
+export * from './lib/guards/josanz-figma-access.guard';
 export * from './lib/services/dashboard-analytics.service';
 
 export { AIBotStore } from './lib/store/ai-bot.store';
