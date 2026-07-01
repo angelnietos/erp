@@ -24,6 +24,7 @@ import {
   JosanzDeleteConfirmHostComponent,
   JosanzDeleteConfirmService,
   MainDetailLayoutComponent,
+  SkeletonComponent,
   defaultClientRailColor,
   defaultClientTariffPillColor,
   clientCategoryTypology,
@@ -46,6 +47,7 @@ const DEFAULT_TARIFF_OPTIONS = ['Especial 01', 'Especial 02', 'Tarifa estándar'
     MainDetailLayoutComponent,
     ButtonComponent,
     JosanzDeleteConfirmHostComponent,
+    SkeletonComponent,
   ],
   templateUrl: './josanz-client-edit.html',
 })
@@ -102,6 +104,13 @@ export class JosanzClientEditComponent implements OnInit {
     return name || 'Cliente';
   });
 
+  readonly pageTitle = computed(() => {
+    if (this.loading()) {
+      return 'Editar Cliente';
+    }
+    return this.brandDisplayName();
+  });
+
   brandPreviewStyles(): Record<string, string> {
     const rail =
       normalizeHexColor((this.form.get('colorRail')?.value as string) ?? '') ??
@@ -120,19 +129,31 @@ export class JosanzClientEditComponent implements OnInit {
     }
 
     this.clientId = id;
-    this.clientService
-      .getClient(id)
+    this.clientsFacade.loadClients();
+
+    const cached = this.clientsFacade.getClientFromCache(id);
+    if (cached) {
+      this.patchForm(cached);
+      this.loading.set(false);
+    }
+
+    this.clientsFacade
+      .ensureClient(id)
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (client) => {
           if (!client) {
-            this.errorMessage.set('Cliente no encontrado.');
+            if (!cached) {
+              this.errorMessage.set('Cliente no encontrado.');
+            }
             return;
           }
           this.patchForm(client);
         },
         error: () => {
-          this.errorMessage.set('No se pudo cargar el cliente.');
+          if (!cached) {
+            this.errorMessage.set('No se pudo cargar el cliente.');
+          }
         },
       });
   }

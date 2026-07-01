@@ -295,3 +295,49 @@
   color: var(--josanz-text-muted);
   margin: 0;
 }
+
+.josanz-client-edit-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 0.25rem;
+  animation: josanzClientSkeletonIn 0.2s ease;
+}
+
+.josanz-client-edit-skeleton__brand {
+  display: flex;
+  justify-content: center;
+
+  @media (min-width: 640px) {
+    justify-content: flex-start;
+  }
+
+  josanz-skeleton {
+    width: 5.5rem;
+  }
+}
+
+.josanz-client-edit-skeleton__title {
+  max-width: 12rem;
+  margin-bottom: 1.25rem;
+}
+
+.josanz-client-edit-skeleton__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.josanz-client-edit-skeleton__operators {
+  padding-top: 0.5rem;
+}
+
+@keyframes josanzClientSkeletonIn {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}

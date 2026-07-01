@@ -1,5 +1,5 @@
 <josanz-main-detail-layout
-  title="Editar Cliente"
+  [title]="pageTitle()"
   layoutVariant="figma-event"
   [tabs]="[]"
   activeTab=""
@@ -39,7 +39,28 @@
 
   <div class="josanz-event-create">
     @if (loading()) {
-    <p class="josanz-event-create__hint">Cargando cliente…</p>
+    <div class="josanz-client-edit-skeleton" aria-busy="true" aria-label="Cargando cliente">
+      <section>
+        <div class="josanz-client-edit-skeleton__title">
+          <josanz-skeleton variant="text" [lines]="1"></josanz-skeleton>
+        </div>
+        <div class="josanz-client-create__grid">
+          <div class="josanz-client-edit-skeleton__brand">
+            <josanz-skeleton variant="avatar" shape="pill"></josanz-skeleton>
+          </div>
+          <div class="josanz-client-edit-skeleton__fields">
+            <josanz-skeleton variant="text" [lines]="5"></josanz-skeleton>
+            <josanz-skeleton variant="text" [lines]="2"></josanz-skeleton>
+          </div>
+        </div>
+      </section>
+      <section class="josanz-client-edit-skeleton__operators">
+        <div class="josanz-client-edit-skeleton__title">
+          <josanz-skeleton variant="text" [lines]="1"></josanz-skeleton>
+        </div>
+        <josanz-skeleton variant="card" shape="rounded"></josanz-skeleton>
+      </section>
+    </div>
     } @else {
     @if (validationBanner()) {
     <p class="josanz-event-create__validation-banner" role="alert">{{ validationBanner() }}</p>
