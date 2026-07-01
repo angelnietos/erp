@@ -80,6 +80,7 @@ export interface Client {
   country?: string;
   type?: string;
   tariffLabel?: string;
+  railColor?: string;
   contacts?: ClientContact[];
   eventReports?: EventReport[];
   budgets?: Budget[];
@@ -98,6 +99,7 @@ export interface CreateClientPayload {
   sector?: string;
   type?: string;
   tariffLabel?: string;
+  railColor?: string;
   contacts?: Array<{
     name: string;
     email?: string;

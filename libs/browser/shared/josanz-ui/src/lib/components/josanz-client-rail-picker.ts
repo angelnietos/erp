@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -59,7 +59,11 @@ export class JosanzClientRailPickerComponent {
   @Input() sectorControlName = 'sector';
   @Input() required = true;
 
-  options: JosanzClientRailPreset[] = [...clientRailPresetOptions()];
+  @Input() set initialColor(value: string | null | undefined) {
+    this.options = clientRailPresetOptions(value);
+  }
+
+  options: JosanzClientRailPreset[] = clientRailPresetOptions();
 
   get selectedColor(): string {
     return (this.parentForm.get(this.controlName)?.value as string) ?? '';

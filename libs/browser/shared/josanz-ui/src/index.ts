@@ -25,6 +25,7 @@ export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-sh
 export * from './lib/components/josanz-figma-detail-shell/josanz-figma-detail-shell-config';
 export * from './lib/catalog/catalog-status';
 export * from './lib/catalog/figma-catalog-mappers';
+export * from './lib/catalog/client-rail-presets';
 export * from './lib/detail/detail-tab-route';
 export * from './lib/components/grid-list-card';
 export * from './lib/list-view/list-view-preferences';
@@ -34,6 +35,7 @@ export * from './lib/components/pagination';
 export * from './lib/components/user-avatar';
 export * from './lib/components/main-tabs';
 export * from './lib/components/input';
+export * from './lib/components/josanz-client-rail-picker';
 export * from './lib/components/modal';
 export * from './lib/components/detail-card';
 export * from './lib/components/main-detail-layout';

@@ -2440,6 +2440,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'Calle Alcalá 120, Madrid',
         sector: 'Externos',
         tariffLabel: 'Especial 01',
+        railColor: '#EAB308',
         description: 'Eventos corporativos y ferias',
         contacts: {
           create: [
@@ -2472,6 +2473,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'Gran Vía 41, Madrid',
         sector: 'Hoteles',
         tariffLabel: 'Especial 01',
+        railColor: '#16A34A',
         contacts: {
           create: [
             {
@@ -2496,6 +2498,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'Pº de la Castellana 261, Madrid',
         sector: 'Hoteles',
         tariffLabel: 'Especial 02',
+        railColor: '#2563EB',
         contacts: {
           create: [
             {
@@ -2520,6 +2523,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'Av. del Partenón 5, Madrid',
         sector: 'Espacios',
         tariffLabel: 'Tarifa estándar',
+        railColor: '#92400E',
         contacts: {
           create: [
             {
@@ -2544,6 +2548,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'C/ Goya 79, Madrid',
         sector: 'Hoteles',
         tariffLabel: 'Especial 02',
+        railColor: '#EA580C',
         contacts: {
           create: [
             {
@@ -2568,6 +2573,7 @@ async function seedAlexisFigmaDemo(tenantId: string) {
         address: 'Paseo de la Castellana 200, Madrid',
         sector: 'Externos',
         tariffLabel: 'Especial 01',
+        railColor: '#0EA5E9',
         contacts: {
           create: [
             {

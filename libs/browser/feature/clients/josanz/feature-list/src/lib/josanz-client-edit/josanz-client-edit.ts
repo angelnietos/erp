@@ -19,8 +19,12 @@ import {
 import {
   ButtonComponent,
   InputComponent,
+  JosanzClientRailPickerComponent,
   MainDetailLayoutComponent,
+  defaultClientRailColor,
   josanzNonEmptyTrim,
+  railColorForClientName,
+  sectorForClientRailColor,
 } from '@josanz-erp/josanz-ui';
 
 const DEFAULT_TARIFF_OPTIONS = ['Especial 01', 'Especial 02', 'Tarifa estándar'];
@@ -32,6 +36,7 @@ const DEFAULT_TARIFF_OPTIONS = ['Especial 01', 'Especial 02', 'Tarifa estándar'
     CommonModule,
     ReactiveFormsModule,
     InputComponent,
+    JosanzClientRailPickerComponent,
     MainDetailLayoutComponent,
     ButtonComponent,
   ],
@@ -47,6 +52,7 @@ export class JosanzClientEditComponent implements OnInit {
   readonly loading = signal(true);
   readonly errorMessage = signal('');
   readonly validationBanner = signal('');
+  readonly initialRailColor = signal<string | null>(null);
 
   tariffOptions = [...DEFAULT_TARIFF_OPTIONS];
 
@@ -60,6 +66,8 @@ export class JosanzClientEditComponent implements OnInit {
       email: ['', [josanzNonEmptyTrim, Validators.email]],
       telefono: ['', josanzNonEmptyTrim],
       tarifa: [this.tariffOptions[0], Validators.required],
+      colorRail: [defaultClientRailColor(), Validators.required],
+      sector: ['Externos'],
       operadores: this.fb.array([this.createOperatorGroup(1)]),
     });
 
@@ -169,11 +177,20 @@ export class JosanzClientEditComponent implements OnInit {
       this.tariffOptions = [...this.tariffOptions, tarifaValue];
     }
 
+    const colorRail =
+      client.railColor?.trim() ||
+      railColorForClientName(client.id, client.name ?? '', client.sector);
+    const sector =
+      client.sector?.trim() || sectorForClientRailColor(colorRail);
+    this.initialRailColor.set(colorRail);
+
     this.form.patchValue({
       razonSocial: client.name ?? '',
       email: client.email ?? '',
       telefono: client.phone ?? '',
       tarifa: tarifaValue,
+      colorRail,
+      sector,
     });
 
     this.operadores.clear();
@@ -225,6 +242,8 @@ export class JosanzClientEditComponent implements OnInit {
       email: string;
       telefono: string;
       tarifa: string;
+      colorRail: string;
+      sector: string;
       operadores: Array<{ nombre: string; email: string; telefono: string }>;
     };
 
@@ -233,9 +252,10 @@ export class JosanzClientEditComponent implements OnInit {
       email: value.email.trim(),
       phone: value.telefono.trim(),
       description: '',
-      sector: 'corporate',
+      sector: value.sector || sectorForClientRailColor(value.colorRail),
       type: 'COMPANY',
       tariffLabel: value.tarifa,
+      railColor: value.colorRail,
       contacts: value.operadores
         .filter((op) => op.nombre?.trim())
         .map((op, index) => ({

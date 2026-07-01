@@ -34,6 +34,7 @@ export interface FigmaCatalogClientSource {
   phone?: string;
   sector?: string | null;
   tariffLabel?: string | null;
+  railColor?: string | null;
   contacts?: Array<{ name: string }>;
 }
 
@@ -152,7 +153,9 @@ export function mapClientToCatalogRow(
     ],
     pillLabel: tariff,
     pillVariant: tariffPillVariant(tariff),
-    railColor: railColorForClientName(client.id, name, client.sector),
+    railColor:
+      client.railColor?.trim() ||
+      railColorForClientName(client.id, name, client.sector),
   };
 }
 
