@@ -132,7 +132,6 @@ export class JosanzEventDetailComponent implements OnInit {
       Emails: 'emails',
     },
     saveLabel: 'Guardar cambios',
-    tabAlerts: { Staff: true, Presupuestos: true },
     features: { footerActions: false, headerSave: true },
   };
 
@@ -144,6 +143,8 @@ export class JosanzEventDetailComponent implements OnInit {
       title: nombre,
       statusLabel: resolveEventStatusLabel(status, this.catalogTheme.mergedTheme()),
       statusPillKey: resolveEventStatusPillKey(status, this.catalogTheme.mergedTheme()) as ReturnType<typeof statusPillKeyFromApi>,
+      tabAlerts: this.detailState.tabAlerts(),
+      tabAlertHints: this.detailState.tabAlertHints(),
       saveDisabled:
         this.form.invalid || this.saving() || this.loading() || (!this.form.dirty && !this.detailDirty()),
     };

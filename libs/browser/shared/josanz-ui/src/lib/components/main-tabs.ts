@@ -21,7 +21,12 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
           [ngStyle]="tabShellStyle(option)"
         >
           @if (tabAlerts[option]) {
-          <span class="josanz-main-tab__alert" aria-hidden="true">!</span>
+          <span
+            class="josanz-main-tab__alert"
+            [attr.title]="tabAlertHint(option)"
+            role="img"
+            [attr.aria-label]="tabAlertHint(option)"
+          >!</span>
           }
           {{ option }}
         </button>
@@ -43,6 +48,7 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
         font-weight: 800;
         line-height: 1;
         flex-shrink: 0;
+        cursor: help;
       }
     `,
   ],
@@ -60,6 +66,8 @@ export class MainTabsComponent implements OnInit, OnChanges {
   @Input() dense = false;
   /** Icono de alerta rojo en pestañas con datos pendientes. */
   @Input() tabAlerts: Record<string, boolean> = {};
+  /** Motivo del icono de alerta (tooltip). */
+  @Input() tabAlertHints: Record<string, string> = {};
 
   active = '';
 
@@ -161,5 +169,12 @@ export class MainTabsComponent implements OnInit, OnChanges {
     }
     this.active = option;
     this.selectionChange.emit(option);
+  }
+
+  tabAlertHint(option: string): string {
+    return (
+      this.tabAlertHints[option]?.trim() ||
+      'Información pendiente en esta pestaña'
+    );
   }
 }

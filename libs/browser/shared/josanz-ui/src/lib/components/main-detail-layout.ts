@@ -65,6 +65,8 @@ export class MainDetailLayoutComponent {
   @Input() saveDisabled = true;
   /** Pestañas con icono de alerta (detalle Figma). */
   @Input() tabAlerts: Record<string, boolean> = {};
+  /** Tooltip del icono de alerta por pestaña. */
+  @Input() tabAlertHints: Record<string, string> = {};
 
   @Output() back = new EventEmitter<void>();
   @Output() tabChange = new EventEmitter<string>();

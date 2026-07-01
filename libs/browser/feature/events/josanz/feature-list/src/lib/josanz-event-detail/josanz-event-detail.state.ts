@@ -77,6 +77,41 @@ export class JosanzEventDetailState {
     Math.round((this.budgetSubtotal() + this.budgetTax()) * 100) / 100,
   );
 
+  /** Pestañas con datos obligatorios pendientes (icono ! en cabecera). */
+  readonly tabAlerts = computed(() => {
+    const alerts: Record<string, boolean> = {};
+    if (this.staffMembers().length === 0) {
+      alerts['Staff'] = true;
+    }
+    if (this.presupuestosNeedsAttention()) {
+      alerts['Presupuestos'] = true;
+    }
+    return alerts;
+  });
+
+  readonly tabAlertHints = computed(() => {
+    const hints: Record<string, string> = {};
+    if (this.staffMembers().length === 0) {
+      hints['Staff'] = 'Falta asignar al menos un miembro del staff.';
+    }
+    if (this.presupuestosNeedsAttention()) {
+      const lines = this.budgetLines();
+      hints['Presupuestos'] =
+        lines.length === 0
+          ? 'Añade al menos una línea al presupuesto.'
+          : 'Completa el material de todas las líneas del presupuesto.';
+    }
+    return hints;
+  });
+
+  private presupuestosNeedsAttention(): boolean {
+    const lines = this.budgetLines();
+    if (lines.length === 0) {
+      return true;
+    }
+    return lines.some((line) => !line.name.trim());
+  }
+
   private markDirty: (() => void) | null = null;
 
   bindForm(markDirty: () => void): void {

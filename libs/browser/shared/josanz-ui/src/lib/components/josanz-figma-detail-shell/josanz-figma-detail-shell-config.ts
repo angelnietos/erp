@@ -31,6 +31,8 @@ export interface JosanzFigmaDetailShellConfig {
   avatarAriaLabel?: string;
   /** Pestañas con icono de alerta rojo. */
   tabAlerts?: Record<string, boolean>;
+  /** Texto del tooltip al pasar sobre el icono de alerta. */
+  tabAlertHints?: Record<string, string>;
   features?: JosanzFigmaDetailShellFeatures;
 }
 
