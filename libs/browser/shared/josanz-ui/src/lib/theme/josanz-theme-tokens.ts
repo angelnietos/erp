@@ -740,11 +740,13 @@ export function applyJosanzBrandCssVariables(
   root.style.setProperty('--josanz-sidebar-expanded-width', '132px');
   root.style.setProperty(
     '--josanz-sidebar-border',
-    isNeutral ? 'transparent' : atmosphere.border,
+    isNeutral ? '#e7edf1' : atmosphere.border,
   );
   root.style.setProperty(
     '--josanz-sidebar-shadow',
-    isNeutral ? '0 10px 24px rgba(189, 189, 189, 0.18)' : atmosphere.shadow,
+    isNeutral
+      ? '4px 0 16px rgba(189, 189, 189, 0.28)'
+      : `4px 0 18px color-mix(in srgb, ${primaryColor} 12%, rgba(0, 0, 0, 0.28))`,
   );
   root.style.setProperty(
     '--josanz-sidebar-icon',
