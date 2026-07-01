@@ -68,11 +68,18 @@
     font-family: 'Raleway', 'DM Sans', system-ui, sans-serif;
     font-size: 14px;
     font-weight: 400;
-    color: var(--josanz-list-card-text, #222222);
+    color: var(--josanz-list-card-text-muted, #64748b);
     white-space: nowrap;
+
+    span {
+      color: inherit !important;
+      -webkit-text-fill-color: inherit !important;
+    }
 
     strong {
       font-weight: 700;
+      color: var(--josanz-list-card-text, #111827) !important;
+      -webkit-text-fill-color: var(--josanz-list-card-text, #111827) !important;
     }
   }
 
@@ -258,7 +265,12 @@
   .josanz-list-template-row__field {
     font-size: 13px;
     font-weight: 500;
-    color: var(--josanz-list-card-text-muted, var(--josanz-text-muted)) !important;
+    color: var(--josanz-list-card-text-muted, #475569) !important;
+
+    span {
+      color: inherit !important;
+      -webkit-text-fill-color: inherit !important;
+    }
   }
 
   .josanz-list-card .josanz-list-template-row__status span,

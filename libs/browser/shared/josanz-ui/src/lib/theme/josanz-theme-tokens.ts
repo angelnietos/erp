@@ -936,8 +936,8 @@ export function applyJosanzListCardTokens(
   }
 
   const cardBg = '#FFFFFF';
-  const cardText = isDark ? '#111827' : ensureContrast(atmosphere.text, cardBg, '#111827', 7);
-  const cardTextMuted = isDark ? '#475569' : ensureContrast(atmosphere.textMuted, cardBg, '#475569', 4.5);
+  const cardText = '#111827';
+  const cardTextMuted = '#475569';
   const cardBorder = isDark
     ? '#E2E8F0'
     : ensureContrast(
