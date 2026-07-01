@@ -7,6 +7,9 @@
 
   const APP_CLIENT_IDS = new Set(['verifactu-crm-spa', 'babooni-saas-platform']);
 
+  /** SPAs de un solo tenant: no mostrar «Cambiar organización». */
+  const DEDICATED_TENANT_CLIENT_IDS = new Set(['josanz-figma-spa', 'verifactu-crm-spa']);
+
   const SLUG_LABELS = {
     josanz: 'Generic ERP',
     babooni: 'Babooni',
@@ -22,6 +25,10 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function isLogoutPage() {
+    return window.location.pathname.indexOf('/protocol/openid-connect/logout') !== -1;
   }
 
   function resolveHubUrl() {
@@ -86,6 +93,36 @@
     };
   }
 
+  function shouldShowChangeOrgLink() {
+    if (isLogoutPage()) {
+      return false;
+    }
+    if (document.documentElement.classList.contains('kc-logout-flow')) {
+      return false;
+    }
+    const clientId = resolveClientId();
+    if (DEDICATED_TENANT_CLIENT_IDS.has(clientId)) {
+      return false;
+    }
+    const redirectUri = new URLSearchParams(window.location.search).get('redirect_uri') || '';
+    try {
+      const port = new URL(redirectUri).port;
+      if (port === '4300' || port === '4230' || port === '4210') {
+        return false;
+      }
+    } catch (_err) {
+      /* ignore */
+    }
+    return true;
+  }
+
+  function removeChangeOrgLink() {
+    const existing = document.getElementById('kc-change-org-link');
+    if (existing) {
+      existing.remove();
+    }
+  }
+
   function findAnchor() {
     return (
       document.getElementById('kc-form-login') ||
@@ -99,6 +136,11 @@
   }
 
   function injectChangeOrgLink() {
+    if (!shouldShowChangeOrgLink()) {
+      removeChangeOrgLink();
+      return true;
+    }
+
     if (document.getElementById('kc-change-org-link')) {
       return true;
     }
@@ -162,29 +204,37 @@
   }
 
   function boot() {
-    markLightLoginCardIfNeeded();
-    if (injectChangeOrgLink()) {
-      return;
+    if (isLogoutPage()) {
+      document.documentElement.classList.add('kc-logout-flow');
     }
-    setTimeout(injectChangeOrgLink, 60);
-    setTimeout(injectChangeOrgLink, 200);
-    setTimeout(injectChangeOrgLink, 500);
+    markLightLoginCardIfNeeded();
+    injectChangeOrgLink();
+  }
+
+  function watchDom() {
+    boot();
+    var attempts = 0;
+    var timer = window.setInterval(function () {
+      attempts += 1;
+      boot();
+      if (attempts > 20) {
+        window.clearInterval(timer);
+      }
+    }, 200);
     if (typeof MutationObserver !== 'undefined') {
       const observer = new MutationObserver(function () {
-        if (injectChangeOrgLink()) {
-          observer.disconnect();
-        }
+        boot();
       });
       observer.observe(document.documentElement, { childList: true, subtree: true });
       setTimeout(function () {
         observer.disconnect();
-      }, 3000);
+      }, 4000);
     }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+    document.addEventListener('DOMContentLoaded', watchDom);
   } else {
-    boot();
+    watchDom();
   }
 })();

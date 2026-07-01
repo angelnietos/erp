@@ -206,13 +206,70 @@
     main.classList.add('pf-v5-c-login__main--light', 'kc-theme-light');
   }
 
-  function hideOrgLinkIfNeeded() {
-    if (!isResetCredentialsPage() && !isUpdatePasswordPage() && !isStandaloneApp()) {
+  function isLogoutPage() {
+    return window.location.pathname.indexOf('/protocol/openid-connect/logout') !== -1;
+  }
+
+  function resolvePostLogoutAppLoginUrl() {
+    const clientId = new URLSearchParams(window.location.search).get('client_id') || '';
+    if (clientId === 'josanz-figma-spa') {
+      return (
+        window.location.protocol +
+        '//' +
+        window.location.hostname +
+        ':4300/auth/login?reason=logout&tenant=alexis'
+      );
+    }
+    return '';
+  }
+
+  function hideDevLoginPanel() {
+    var panel = document.getElementById('kc-dev-login-hint');
+    if (panel) {
+      panel.remove();
+    }
+  }
+
+  function handleLogoutPage() {
+    if (!isLogoutPage()) {
       return;
     }
+    document.documentElement.classList.add('kc-logout-flow');
+    hideOrgLinkIfNeeded();
+    hideDevLoginPanel();
+    var target = resolvePostLogoutAppLoginUrl();
+    if (target && !window.sessionStorage.getItem('kc-josanz-logout-redirect')) {
+      window.sessionStorage.setItem('kc-josanz-logout-redirect', '1');
+      window.setTimeout(function () {
+        window.sessionStorage.removeItem('kc-josanz-logout-redirect');
+        window.location.replace(target);
+      }, 400);
+    }
+  }
+
+  function hideOrgLinkIfNeeded() {
+    var shouldHide =
+      isLogoutPage() ||
+      document.documentElement.classList.contains('kc-logout-flow') ||
+      isResetCredentialsPage() ||
+      isUpdatePasswordPage() ||
+      isStandaloneApp();
+
+    if (!shouldHide) {
+      return;
+    }
+
     var org = document.getElementById('kc-change-org-link');
-    if (org && org.style.display !== 'none') {
-      org.style.display = 'none';
+    if (org) {
+      if (isLogoutPage() || document.documentElement.classList.contains('kc-logout-flow')) {
+        org.remove();
+      } else if (org.style.display !== 'none') {
+        org.style.display = 'none';
+      }
+    }
+
+    if (isLogoutPage() || document.documentElement.classList.contains('kc-logout-flow')) {
+      hideDevLoginPanel();
     }
   }
 
@@ -506,6 +563,7 @@
   }
 
   function boot() {
+    handleLogoutPage();
     applyLightShell();
     hideOrgLinkIfNeeded();
     removeLocaleSwitcher();

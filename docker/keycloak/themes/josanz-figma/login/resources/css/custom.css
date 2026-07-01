@@ -384,6 +384,12 @@ input[name='login'],
   filter: brightness(1.08);
 }
 
+/* Tras logout en Keycloak: sin cambio de org ni panel demo */
+html.login-pf.kc-logout-flow #kc-change-org-link,
+html.login-pf.kc-logout-flow .kc-dev-login-hint {
+  display: none !important;
+}
+
 /* Pantalla éxito tras enviar email de recuperación */
 html.login-pf.kc-reset-success-flow #kc-form,
 html.login-pf.kc-reset-success-flow #kc-reset-password-form,

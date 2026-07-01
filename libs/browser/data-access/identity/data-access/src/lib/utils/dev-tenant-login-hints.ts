@@ -46,6 +46,25 @@ export const DEV_TENANT_LOGIN_HINTS: readonly DevTenantLoginHint[] = [
     email: 'admin@alexis.local',
     password: DEV_TENANT_LOGIN_PASSWORD,
     primary: true,
+    note: 'SuperAdmin',
+  },
+  {
+    slug: 'alexis',
+    email: 'administrador@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Administrador',
+  },
+  {
+    slug: 'alexis',
+    email: 'responsable@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Responsable',
+  },
+  {
+    slug: 'alexis',
+    email: 'usuario@alexis.local',
+    password: DEV_TENANT_LOGIN_PASSWORD,
+    note: 'Usuario',
   },
   {
     slug: 'alexis',

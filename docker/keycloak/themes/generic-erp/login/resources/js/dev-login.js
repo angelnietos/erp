@@ -10,14 +10,24 @@
     return;
   }
 
+  const ALEXIS_ROLE_ACCOUNTS = [
+    { email: 'admin@alexis.local', note: 'SuperAdmin', primary: true },
+    { email: 'administrador@alexis.local', note: 'Administrador' },
+    { email: 'responsable@alexis.local', note: 'Responsable' },
+    { email: 'usuario@alexis.local', note: 'Usuario' },
+    { email: 'tecnico.audio@alexis.local', note: 'Dani Sonido · técnico' },
+    { email: 'tecnica.iluminacion@alexis.local', note: 'Laura Luces · técnico' },
+    { email: 'freelance.video@alexis.local', note: 'Marta Video · freelance' },
+  ];
+
   /** realm → clientId (opcional) → cuentas */
   const CONFIG = {
     'josanz-web-app-realm': {
       'josanz-web-app-spa': {
         slug: 'josanz',
         displayName: 'Generic ERP',
-        primary: { email: 'admin@josanz.com' },
-        alternates: [
+        accounts: [
+          { email: 'admin@josanz.com', primary: true },
           { email: 'dani@josanz.com' },
           { email: 'alex@josanz.com' },
           { email: 'admin@josanz-erp.local', note: 'solo login local ERP' },
@@ -26,30 +36,29 @@
       'josanz-figma-spa': {
         slug: 'alexis',
         displayName: 'Alexis',
-        primary: { email: 'admin@alexis.local' },
-        alternates: [
-          { email: 'tecnico.audio@alexis.local', note: 'Dani Sonido · técnico' },
-          { email: 'tecnica.iluminacion@alexis.local', note: 'Laura Luces · técnico' },
-          { email: 'freelance.video@alexis.local', note: 'Marta Video · freelance' },
-        ],
+        accounts: ALEXIS_ROLE_ACCOUNTS,
       },
       'verifactu-crm-spa': {
         slug: 'verifactu',
+        displayName: 'Verifactu',
         password: 'Demo12345!',
-        primary: { email: 'admin@demo.local' },
-        alternates: [],
+        accounts: [{ email: 'admin@demo.local', primary: true }],
       },
       default: {
         slug: 'josanz',
-        primary: { email: 'admin@josanz.com' },
-        alternates: [{ email: 'admin@alexis.local', note: 'tenant alexis' }],
+        displayName: 'Generic ERP',
+        accounts: [
+          { email: 'admin@josanz.com', primary: true },
+          { email: 'admin@alexis.local', note: 'tenant alexis' },
+        ],
       },
     },
     'babooni-tenant': {
       default: {
         slug: 'babooni',
-        primary: { email: 'root@babooni.com' },
-        alternates: [
+        displayName: 'Babooni',
+        accounts: [
+          { email: 'root@babooni.com', primary: true },
           { email: 'alvaro.ballesteros@babooni.com' },
           { email: 'florina.mahalean@babooni.com' },
           { email: 'alejandro.ballesteros@babooni.com' },
@@ -60,8 +69,8 @@
     'babooni-platform': {
       default: {
         slug: 'platform',
-        primary: { email: 'platform@babooni.com' },
-        alternates: [],
+        displayName: 'Panel SaaS',
+        accounts: [{ email: 'platform@babooni.com', primary: true }],
       },
     },
   };
@@ -75,13 +84,52 @@
     return new URLSearchParams(window.location.search).get('client_id') || '';
   }
 
+  function normalizeConfig(raw) {
+    if (!raw) {
+      return null;
+    }
+    if (raw.accounts && raw.accounts.length) {
+      const primary = raw.accounts.find(function (a) {
+        return a.primary;
+      }) || raw.accounts[0];
+      return {
+        slug: raw.slug,
+        displayName: raw.displayName || raw.slug,
+        password: raw.password,
+        primary: primary,
+        alternates: raw.accounts.filter(function (a) {
+          return a.email !== primary.email;
+        }),
+      };
+    }
+    return raw;
+  }
+
   function resolveAccountConfig() {
     const realmCfg = CONFIG[getRealm()];
     if (!realmCfg) {
       return null;
     }
     const clientId = getClientId();
-    return realmCfg[clientId] || realmCfg.default || null;
+    return normalizeConfig(realmCfg[clientId] || realmCfg.default || null);
+  }
+
+  function isLogoutPage() {
+    return window.location.pathname.indexOf('/protocol/openid-connect/logout') !== -1;
+  }
+
+  function isLoginFormPage() {
+    if (isLogoutPage()) {
+      return false;
+    }
+    if (document.documentElement.classList.contains('kc-logout-flow')) {
+      return false;
+    }
+    return Boolean(
+      document.getElementById('kc-form-login') ||
+        document.getElementById('username') ||
+        document.querySelector('input[name="username"]'),
+    );
   }
 
   function findUsernameInput() {
@@ -125,26 +173,7 @@
       .replace(/"/g, '&quot;');
   }
 
-  function injectDevPanel(cfg) {
-    if (document.getElementById('kc-dev-login-hint')) {
-      return;
-    }
-
-    const anchor =
-      document.querySelector('.pf-v5-c-login__main') ||
-      document.getElementById('kc-form-buttons') ||
-      document.getElementById('kc-form-login') ||
-      document.querySelector('.pf-v5-c-login__main-body');
-
-    if (!anchor) {
-      return;
-    }
-
-    const panel = document.createElement('details');
-    panel.id = 'kc-dev-login-hint';
-    panel.className = 'kc-dev-login-hint';
-    panel.open = false;
-
+  function buildPanelHtml(cfg) {
     const altItems = (cfg.alternates || [])
       .map(function (alt) {
         const note = alt.note
@@ -162,8 +191,12 @@
       })
       .join('');
 
+    const primaryNote = cfg.primary.note
+      ? ' <span class="kc-dev-login-hint__note">' + escapeHtml(cfg.primary.note) + '</span>'
+      : '';
     const displayPassword = cfg.password || DEV_PASSWORD;
-    panel.innerHTML =
+
+    return (
       '<summary>Cuentas demo (dev · ' +
       escapeHtml(cfg.displayName || cfg.slug) +
       ')</summary>' +
@@ -173,10 +206,52 @@
       '">Rellenar</button> ' +
       '<code>' +
       escapeHtml(cfg.primary.email) +
-      '</code> · contraseña <code>' +
+      '</code>' +
+      primaryNote +
+      ' · contraseña <code>' +
       escapeHtml(displayPassword) +
       '</code></p>' +
-      (altItems ? '<ul class="kc-dev-login-hint__list">' + altItems + '</ul>' : '');
+      (altItems ? '<ul class="kc-dev-login-hint__list">' + altItems + '</ul>' : '')
+    );
+  }
+
+  function wirePanel(panel) {
+    panel.querySelectorAll('[data-email]').forEach(function (btn) {
+      if (btn.dataset.josanzWired === '1') {
+        return;
+      }
+      btn.dataset.josanzWired = '1';
+      btn.addEventListener('click', function () {
+        fillAccount(btn.getAttribute('data-email'));
+      });
+    });
+  }
+
+  function injectDevPanel(cfg) {
+    const existing = document.getElementById('kc-dev-login-hint');
+    if (existing) {
+      if (!existing.querySelector('.kc-dev-login-hint__row')) {
+        existing.innerHTML = buildPanelHtml(cfg);
+        wirePanel(existing);
+      }
+      return;
+    }
+
+    const anchor =
+      document.querySelector('.pf-v5-c-login__main') ||
+      document.getElementById('kc-form-buttons') ||
+      document.getElementById('kc-form-login') ||
+      document.querySelector('.pf-v5-c-login__main-body');
+
+    if (!anchor) {
+      return;
+    }
+
+    const panel = document.createElement('details');
+    panel.id = 'kc-dev-login-hint';
+    panel.className = 'kc-dev-login-hint';
+    panel.open = true;
+    panel.innerHTML = buildPanelHtml(cfg);
 
     if (anchor.classList && anchor.classList.contains('pf-v5-c-login__main')) {
       anchor.appendChild(panel);
@@ -186,14 +261,22 @@
       anchor.appendChild(panel);
     }
 
-    panel.querySelectorAll('[data-email]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        fillAccount(btn.getAttribute('data-email'));
-      });
-    });
+    wirePanel(panel);
+  }
+
+  function removeDevPanel() {
+    const panel = document.getElementById('kc-dev-login-hint');
+    if (panel) {
+      panel.remove();
+    }
   }
 
   function init() {
+    if (!isLoginFormPage()) {
+      removeDevPanel();
+      return;
+    }
+
     const cfg = resolveAccountConfig();
     if (!cfg) {
       return;
@@ -202,9 +285,21 @@
     injectDevPanel(cfg);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
+  function watchDom() {
     init();
+    var attempts = 0;
+    var timer = window.setInterval(function () {
+      attempts += 1;
+      init();
+      if (attempts > 25) {
+        window.clearInterval(timer);
+      }
+    }, 200);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', watchDom);
+  } else {
+    watchDom();
   }
 })();

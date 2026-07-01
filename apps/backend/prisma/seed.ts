@@ -171,6 +171,12 @@ async function clearTenantDemoData(tenantId: string) {
     'admin@josanz.com',
     'admin@josanz-erp.local',
     'admin@alexis.local',
+    'administrador@alexis.local',
+    'responsable@alexis.local',
+    'usuario@alexis.local',
+    'tecnico.audio@alexis.local',
+    'tecnica.iluminacion@alexis.local',
+    'freelance.video@alexis.local',
     'admin@docs.local',
     'root@babooni.com',
     'florina.mahalean@babooni.com',
@@ -362,6 +368,71 @@ async function ensureDefaultRoles(tenantId: string, tenantSlug: string) {
   return adminRole;
 }
 
+/** Cuentas demo por rol ERP en tenant alexis (login Keycloak + permisos). */
+async function ensureAlexisRoleDemoUsers(
+  tenantId: string,
+  hashedPassword: string,
+) {
+  const superAdminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId, name: 'SuperAdmin' },
+  });
+  const adminRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId, name: 'Administrador' },
+  });
+  const responsableRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId, name: 'Responsable' },
+  });
+  const usuarioRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId, name: 'Usuario' },
+  });
+
+  const defs = [
+    {
+      email: 'administrador@alexis.local',
+      firstName: 'Ana',
+      lastName: 'Administradora',
+      roleId: adminRole.id,
+    },
+    {
+      email: 'responsable@alexis.local',
+      firstName: 'Rubén',
+      lastName: 'Responsable',
+      roleId: responsableRole.id,
+    },
+    {
+      email: 'usuario@alexis.local',
+      firstName: 'Elena',
+      lastName: 'Usuario',
+      roleId: usuarioRole.id,
+    },
+  ] as const;
+
+  for (const def of defs) {
+    const user = await prisma.user.upsert({
+      where: {
+        tenantId_email: { tenantId, email: def.email },
+      },
+      update: { password: hashedPassword },
+      create: {
+        tenantId,
+        email: def.email,
+        password: hashedPassword,
+        firstName: def.firstName,
+        lastName: def.lastName,
+      },
+    });
+    await prisma.userRole.upsert({
+      where: {
+        userId_roleId: { userId: user.id, roleId: def.roleId },
+      },
+      update: {},
+      create: { userId: user.id, roleId: def.roleId },
+    });
+  }
+
+  return { superAdminRole, adminRole, responsableRole, usuarioRole };
+}
+
 const BABOONI_TENANT_ID = 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d';
 
 async function main() {
@@ -549,7 +620,8 @@ async function main() {
     update: {},
     create: { userId: alexisAdmin.id, roleId: alexisSuperAdminRole.id },
   });
-  console.log('- Tenant alexis + admin@alexis.local (shell josanz-figma)');
+  await ensureAlexisRoleDemoUsers(alexisTenant.id, hashedPassword);
+  console.log('- Tenant alexis + cuentas demo por rol (josanz-figma)');
 
   const DOCS_TENANT_ID = 'e7f8a9b0-c1d2-4e3f-4a5b-6c7d8e9f0a1b';
   const docsTenant = await prisma.tenant.upsert({
@@ -1759,7 +1831,8 @@ async function main() {
   console.log('  josanz  → admin@josanz.com');
   console.log('           admin@josanz-erp.local (solo login local)');
   console.log('  babooni → root@babooni.com');
-  console.log('  alexis  → admin@alexis.local');
+  console.log('  alexis  → admin@alexis.local (SuperAdmin)');
+  console.log('           administrador@alexis.local · responsable@alexis.local · usuario@alexis.local');
   console.log('  docs    → admin@docs.local (generador documentos)');
   console.log('  platform → platform@babooni.com (panel SaaS)\n');
 }
@@ -2430,6 +2503,10 @@ async function seedBabooniTenantDemo(tenantId: string) {
 
 /** Demo Figma para tenant alexis (josanz-web-app :4300). */
 async function seedAlexisFigmaDemo(tenantId: string) {
+  const usuarioRole = await prisma.role.findFirstOrThrow({
+    where: { tenantId, name: 'Usuario' },
+  });
+
   const clients = await prisma.$transaction([
     prisma.client.create({
       data: {
@@ -2614,68 +2691,79 @@ async function seedAlexisFigmaDemo(tenantId: string) {
   ];
 
   const alexisStaffPassword = await bcrypt.hash('Admin123!', 10);
-  const staffUsers = await prisma.$transaction([
-    prisma.user.create({
-      data: {
-        tenantId,
-        email: 'tecnico.audio@alexis.local',
-        password: alexisStaffPassword,
-        firstName: 'Dani',
-        lastName: 'Sonido',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        tenantId,
-        email: 'tecnica.iluminacion@alexis.local',
-        password: alexisStaffPassword,
-        firstName: 'Laura',
-        lastName: 'Luces',
-      },
-    }),
-    prisma.user.create({
-      data: {
-        tenantId,
-        email: 'freelance.video@alexis.local',
-        password: alexisStaffPassword,
-        firstName: 'Marta',
-        lastName: 'Video',
-      },
-    }),
-  ]);
+  const staffDefs = [
+    {
+      email: 'tecnico.audio@alexis.local',
+      firstName: 'Dani',
+      lastName: 'Sonido',
+      hourlyRate: 42,
+      skills: ['AUDIO', 'RF'],
+      status: 'ACTIVE',
+      bio: 'Técnico de sonido FOH y monitores. Disponible para eventos corporativos y festivales.',
+    },
+    {
+      email: 'tecnica.iluminacion@alexis.local',
+      firstName: 'Laura',
+      lastName: 'Luces',
+      hourlyRate: 38,
+      skills: ['ILUMINACION', 'ESCENA'],
+      status: 'ACTIVE',
+      bio: 'Técnica de iluminación escénica y diseño de luz para convenciones y galas.',
+    },
+    {
+      email: 'freelance.video@alexis.local',
+      firstName: 'Marta',
+      lastName: 'Video',
+      hourlyRate: 45,
+      skills: ['VIDEO', 'STREAMING'],
+      status: 'FREELANCE',
+      bio: 'Operadora de cámara y streaming para eventos híbridos y producciones en directo.',
+    },
+  ] as const;
 
-  const technicians = await prisma.$transaction([
-    prisma.technician.create({
-      data: {
-        tenantId,
-        userId: staffUsers[0].id,
-        hourlyRate: 42,
-        skills: ['AUDIO', 'RF'],
-        status: 'ACTIVE',
-        bio: 'Técnico de sonido FOH y monitores. Disponible para eventos corporativos y festivales.',
+  const staffUsers = [];
+  const technicians = [];
+  for (const def of staffDefs) {
+    const user = await prisma.user.upsert({
+      where: {
+        tenantId_email: { tenantId, email: def.email },
       },
-    }),
-    prisma.technician.create({
-      data: {
+      update: { password: alexisStaffPassword },
+      create: {
         tenantId,
-        userId: staffUsers[1].id,
-        hourlyRate: 38,
-        skills: ['ILUMINACION', 'ESCENA'],
-        status: 'ACTIVE',
-        bio: 'Técnica de iluminación escénica y diseño de luz para convenciones y galas.',
+        email: def.email,
+        password: alexisStaffPassword,
+        firstName: def.firstName,
+        lastName: def.lastName,
       },
-    }),
-    prisma.technician.create({
-      data: {
+    });
+    staffUsers.push(user);
+    await prisma.userRole.upsert({
+      where: {
+        userId_roleId: { userId: user.id, roleId: usuarioRole.id },
+      },
+      update: {},
+      create: { userId: user.id, roleId: usuarioRole.id },
+    });
+    const technician = await prisma.technician.upsert({
+      where: { userId: user.id },
+      update: {
+        hourlyRate: def.hourlyRate,
+        skills: [...def.skills],
+        status: def.status,
+        bio: def.bio,
+      },
+      create: {
         tenantId,
-        userId: staffUsers[2].id,
-        hourlyRate: 45,
-        skills: ['VIDEO', 'STREAMING'],
-        status: 'FREELANCE',
-        bio: 'Operadora de cámara y streaming para eventos híbridos y producciones en directo.',
+        userId: user.id,
+        hourlyRate: def.hourlyRate,
+        skills: [...def.skills],
+        status: def.status,
+        bio: def.bio,
       },
-    }),
-  ]);
+    });
+    technicians.push(technician);
+  }
 
   const events = await prisma.$transaction([
     prisma.event.create({
