@@ -27,6 +27,7 @@ import {
 import type { JosanzListExportFormat } from '../../list-export/list-export.types';
 import { JosanzThemeService } from '../../services/theme.service';
 import { isStatusBoardView, isTableListView } from '../../list-view/list-view-preferences';
+import { isDateInBoardPeriod, type JosanzBoardPeriodKind } from '../../list-view/board-period';
 import { CatalogThemeFacade } from '../../services/catalog-theme.facade';
 import {
   eventStatusOptionsFromTheme,
@@ -37,6 +38,7 @@ import {
   type JosanzStatusKanbanChange,
   type JosanzStatusKanbanItem,
 } from '../status-kanban-board/status-kanban-board';
+import { BoardPeriodToolbarComponent } from '../board-period-toolbar/board-period-toolbar';
 
 export type { JosanzCatalogListFeatures, ResolvedCatalogListFeatures };
 export { resolveCatalogListFeatures };
@@ -90,6 +92,7 @@ import { FormsModule } from '@angular/forms';
     SecondaryButtonComponent,
     SkeletonComponent,
     StatusKanbanBoardComponent,
+    BoardPeriodToolbarComponent,
   ],
   templateUrl: './josanz-catalog-list.html',
 })
@@ -215,7 +218,7 @@ export class JosanzCatalogListComponent implements OnChanges {
   }
 
   get kanbanItems(): JosanzStatusKanbanItem[] {
-    return this.filteredRows.map((row) => ({
+    return this.boardPeriodRows.map((row) => ({
       id: row.id,
       statusValue: row.statusValue ?? 'DRAFT',
       title: row.eventName ?? row.title ?? row.id,
@@ -225,6 +228,22 @@ export class JosanzCatalogListComponent implements OnChanges {
       pillColor: row.pillColor,
       railColor: row.railColor,
     }));
+  }
+
+  get boardPeriodRows(): JosanzCatalogListRow[] {
+    const rows = this.filteredRows;
+    if (!this.showStatusBoardView()) {
+      return rows;
+    }
+    return this.applyBoardPeriodFilter(rows);
+  }
+
+  get boardPeriodVisibleCount(): number {
+    return this.boardPeriodRows.length;
+  }
+
+  get boardPeriodHiddenCount(): number {
+    return Math.max(0, this.filteredRows.length - this.boardPeriodRows.length);
   }
 
   get showExtraFilters(): boolean {
@@ -468,6 +487,28 @@ export class JosanzCatalogListComponent implements OnChanges {
 
   onPageChange(page: number): void {
     this.currentPage = page;
+  }
+
+  onBoardPeriodKindChange(kind: JosanzBoardPeriodKind): void {
+    this.themeService.setBoardPeriodKind(kind);
+  }
+
+  onBoardPeriodPrevious(): void {
+    this.themeService.shiftBoardPeriod(-1);
+  }
+
+  onBoardPeriodNext(): void {
+    this.themeService.shiftBoardPeriod(1);
+  }
+
+  onBoardPeriodGoToCurrent(): void {
+    this.themeService.goToCurrentBoardPeriod();
+  }
+
+  private applyBoardPeriodFilter(rows: JosanzCatalogListRow[]): JosanzCatalogListRow[] {
+    const kind = this.themeService.boardPeriodKind();
+    const anchor = this.themeService.boardPeriodAnchorDate();
+    return rows.filter((row) => isDateInBoardPeriod(row.eventDateIso ?? row.date, kind, anchor));
   }
 
   private applyTypologyFilter(rows: JosanzCatalogListRow[]): JosanzCatalogListRow[] {

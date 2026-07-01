@@ -1,0 +1,67 @@
+<div class="josanz-board-period" role="region" aria-label="Período del tablero">
+  <div class="josanz-board-period__kinds" role="group" aria-label="Tipo de período">
+    @for (option of options; track option.id) {
+    <button
+      type="button"
+      class="josanz-board-period__kind"
+      [class.josanz-board-period__kind--active]="kind === option.id"
+      [attr.aria-pressed]="kind === option.id"
+      (click)="onKindSelect(option.id)"
+    >
+      {{ option.label }}
+    </button>
+    }
+  </div>
+
+  @if (showNavigation) {
+  <div class="josanz-board-period__nav">
+    <button
+      type="button"
+      class="josanz-board-period__nav-btn"
+      aria-label="Período anterior"
+      (click)="previous.emit()"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <div class="josanz-board-period__label-wrap">
+      <span class="josanz-board-period__label">{{ periodLabel }}</span>
+      @if (!isCurrentPeriod) {
+      <button type="button" class="josanz-board-period__today" (click)="goToCurrent.emit()">
+        Ir a hoy
+      </button>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="josanz-board-period__nav-btn"
+      aria-label="Período siguiente"
+      (click)="next.emit()"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+  }
+
+  <p class="josanz-board-period__meta">
+    <strong>{{ visibleCount }}</strong>
+    @if (kind === 'all') {
+    eventos en el tablero
+    } @else {
+    eventos en este período
+    }
+    @if (hiddenCount > 0) {
+    <span class="josanz-board-period__meta-muted">
+      · {{ hiddenCount }} fuera del período
+      @if (totalCount > 0) {
+      ({{ totalCount }} en total con filtros)
+      }
+    </span>
+    }
+  </p>
+</div>

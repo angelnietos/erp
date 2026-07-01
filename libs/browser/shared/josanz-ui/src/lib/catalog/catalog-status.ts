@@ -21,6 +21,8 @@ export interface JosanzCatalogListRow {
   warehouse?: string;
   eventName?: string;
   date?: string;
+  /** Fecha ISO del evento para filtros temporales (tablero kanban). */
+  eventDateIso?: string;
   client?: string;
   operator?: string;
   values?: string[];

@@ -39,6 +39,14 @@
 .josanz-main-list__stack.josanz-list-view--status-board {
   gap: 0;
   min-height: 12rem;
+
+  .josanz-catalog-board {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 .josanz-main-list__stack.josanz-list-view--table {

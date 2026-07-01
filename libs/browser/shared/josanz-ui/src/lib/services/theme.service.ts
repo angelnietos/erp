@@ -11,6 +11,13 @@ import {
   type JosanzListPageSize,
   type JosanzListViewSelection,
 } from '../list-view/list-view-preferences';
+import {
+  isValidBoardPeriodKind,
+  parseBoardPeriodAnchor,
+  shiftBoardPeriodAnchor,
+  toBoardPeriodAnchorIso,
+  type JosanzBoardPeriodKind,
+} from '../list-view/board-period';
 
 /** @deprecated Usar `JosanzListViewSelection`. */
 export type JosanzListViewMode = 'Tabla' | 'Tarjetas';
@@ -43,6 +50,8 @@ export type {
   JosanzGridCardDensity,
 } from '../list-view/list-view-preferences';
 
+export type { JosanzBoardPeriodKind } from '../list-view/board-period';
+
 const PREFS_STORAGE_KEY = 'josanz-ui-preferences';
 const STORYBOOK_THEME_EVENT = 'josanz-ui-storybook-theme-change';
 const STORYBOOK_SERVICE_THEME_EVENT = 'josanz-ui-theme-service-change';
@@ -59,6 +68,8 @@ interface JosanzStoredPreferences {
   listGridColumns?: JosanzListGridColumns;
   listPageSize?: JosanzListPageSize;
   listViewPanelOpen?: boolean;
+  boardPeriodKind?: JosanzBoardPeriodKind;
+  boardPeriodAnchor?: string;
 }
 
 interface JosanzStorybookThemeDetail {
@@ -94,6 +105,12 @@ export class JosanzThemeService {
 
   /** Filas visibles por página en listados de catálogo. */
   listPageSize = signal<JosanzListPageSize>(10);
+
+  /** Ventana temporal del tablero kanban. */
+  boardPeriodKind = signal<JosanzBoardPeriodKind>('month');
+
+  /** Ancla del período (`YYYY-MM-DD`, fecha local). */
+  boardPeriodAnchor = signal<string>(toBoardPeriodAnchorIso(new Date()));
 
   constructor() {
     this.restorePreferences();
@@ -160,6 +177,34 @@ export class JosanzThemeService {
   setListPageSize(size: number) {
     this.listPageSize.set(normalizeListPageSize(size));
     this.persistPreferences();
+  }
+
+  setBoardPeriodKind(kind: JosanzBoardPeriodKind) {
+    this.boardPeriodKind.set(kind);
+    if (kind !== 'all') {
+      this.boardPeriodAnchor.set(toBoardPeriodAnchorIso(new Date()));
+    }
+    this.persistPreferences();
+  }
+
+  shiftBoardPeriod(delta: number) {
+    const kind = this.boardPeriodKind();
+    if (kind === 'all' || delta === 0) {
+      return;
+    }
+    const anchor = parseBoardPeriodAnchor(this.boardPeriodAnchor());
+    const next = shiftBoardPeriodAnchor(anchor, kind, delta);
+    this.boardPeriodAnchor.set(toBoardPeriodAnchorIso(next));
+    this.persistPreferences();
+  }
+
+  goToCurrentBoardPeriod() {
+    this.boardPeriodAnchor.set(toBoardPeriodAnchorIso(new Date()));
+    this.persistPreferences();
+  }
+
+  boardPeriodAnchorDate(): Date {
+    return parseBoardPeriodAnchor(this.boardPeriodAnchor());
   }
 
   readableOnPrimary(hex?: string): string {
@@ -322,6 +367,14 @@ export class JosanzThemeService {
     if (pageSize !== undefined && isValidListPageSize(pageSize)) {
       this.listPageSize.set(normalizeListPageSize(pageSize));
     }
+
+    if (isValidBoardPeriodKind(stored.boardPeriodKind)) {
+      this.boardPeriodKind.set(stored.boardPeriodKind);
+    }
+
+    if (stored.boardPeriodAnchor) {
+      this.boardPeriodAnchor.set(toBoardPeriodAnchorIso(parseBoardPeriodAnchor(stored.boardPeriodAnchor)));
+    }
   }
 
   private persistPreferences(): void {
@@ -338,6 +391,8 @@ export class JosanzThemeService {
       listGridColumns: this.listGridColumns(),
       listPageSize: this.listPageSize(),
       listViewPanelOpen: this.listViewPanelOpen(),
+      boardPeriodKind: this.boardPeriodKind(),
+      boardPeriodAnchor: this.boardPeriodAnchor(),
     };
     try {
       localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(payload));

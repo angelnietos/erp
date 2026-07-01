@@ -111,6 +111,7 @@ export function mapEventToCatalogRow(
     venue,
     eventName: event.name,
     date: formatCatalogDate(event.startDate),
+    eventDateIso: event.startDate,
     client,
     operator: event.operator?.name ?? '—',
     pillLabel: label,
