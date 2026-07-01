@@ -252,8 +252,7 @@ async function upsertRealmUser(token, realm, userDef) {
   const users = listRes.ok ? await listRes.json() : [];
   let userId = users[0]?.id;
 
-  const userBody = {
-    username: userDef.username,
+  const profileBody = {
     email,
     firstName: userDef.firstName,
     lastName: userDef.lastName,
@@ -265,9 +264,10 @@ async function upsertRealmUser(token, realm, userDef) {
   };
 
   if (userId) {
+    // Keycloak marca `username` como solo lectura en usuarios ya creados.
     const putRes = await kc(token, realm, `/users/${userId}`, {
       method: 'PUT',
-      body: JSON.stringify(userBody),
+      body: JSON.stringify(profileBody),
     });
     if (!putRes.ok) {
       throw new Error(`Update user ${email} failed: ${await putRes.text()}`);
@@ -276,7 +276,10 @@ async function upsertRealmUser(token, realm, userDef) {
   } else {
     const createRes = await kc(token, realm, '/users', {
       method: 'POST',
-      body: JSON.stringify(userBody),
+      body: JSON.stringify({
+        ...profileBody,
+        username: userDef.username ?? email,
+      }),
     });
     if (createRes.status !== 201) {
       throw new Error(`Create user ${email} failed (${createRes.status}): ${await createRes.text()}`);

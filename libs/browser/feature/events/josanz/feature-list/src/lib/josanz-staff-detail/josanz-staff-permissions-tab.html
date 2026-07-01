@@ -31,6 +31,9 @@
         Acceso total al tenant
         } @else {
         {{ effectivePermissionIds().length }} permisos efectivos
+        @if (hasPendingChanges()) {
+        <span class="josanz-staff-perm-muted"> · {{ pendingDraftCount() }} pendiente(s) de guardar</span>
+        }
         }
       </p>
     </div>
@@ -83,7 +86,8 @@
 <section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
   <h3 class="josanz-event-section__title">Añadir permisos extra</h3>
   <p class="josanz-staff-perm-muted">
-    Los permisos extra se suman a los del rol. Solo un administrador puede modificarlos.
+    Los permisos extra se suman a los del rol. Al elegir uno en el desplegable se añade a la lista;
+    pulsa <strong>Guardar permisos</strong> para aplicarlos.
   </p>
 
   @if (draftExtra().length) {
@@ -111,7 +115,7 @@
       placeholder="Selecciona un permiso…"
       [options]="permissionSelectOptions()"
       [ngModel]="pickPermissionId()"
-      (valueChange)="pickPermissionId.set($event)"
+      (valueChange)="onPermissionPicked($event)"
     />
     <josanz-button
       label="Añadir"

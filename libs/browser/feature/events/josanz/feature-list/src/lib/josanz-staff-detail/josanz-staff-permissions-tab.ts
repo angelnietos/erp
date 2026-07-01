@@ -112,6 +112,11 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     return saved !== draft;
   });
 
+  readonly pendingDraftCount = computed(() => {
+    const saved = new Set(this.user()?.extraPermissions ?? []);
+    return this.draftExtra().filter((perm) => !saved.has(perm)).length;
+  });
+
   ngOnInit(): void {
     this.load();
   }
@@ -120,8 +125,17 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
     this.load();
   }
 
-  addPickedPermission(): void {
-    const id = this.pickPermissionId().trim();
+  onPermissionPicked(id: string): void {
+    const permissionId = id.trim();
+    this.pickPermissionId.set(permissionId);
+    if (!permissionId) {
+      return;
+    }
+    this.addPickedPermission(permissionId);
+  }
+
+  addPickedPermission(permissionId = this.pickPermissionId().trim()): void {
+    const id = permissionId.trim();
     if (!id || this.draftExtra().includes(id)) {
       return;
     }
