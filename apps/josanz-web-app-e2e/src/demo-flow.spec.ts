@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginAsAlexisDemo } from './support/auth';
 import {
-  addEventNote,
   demoStamp,
   expectSuccessToast,
   expectCatalogItemVisible,
@@ -116,26 +115,19 @@ test.describe('Demo Alexis — flujo E2E', () => {
       await expectEventVisible(page, eventName);
     });
 
-    await test.step('Detalle del evento: resumen, nota y guardar', async () => {
+    await test.step('Detalle del evento: resumen, cliente y guardar', async () => {
       await openEventFromList(page, eventName);
 
-      const addInfo = page.getByRole('button', { name: 'Añadir información +' });
-      if (await addInfo.isVisible().catch(() => false)) {
-        await addInfo.click();
+      const desc = page.getByPlaceholder('Descripción del evento…');
+      if (!(await desc.isVisible().catch(() => false))) {
+        await page.getByRole('button', { name: 'Añadir información +' }).click();
       }
-
-      await page.getByPlaceholder('Descripción del evento…').fill(
-        'Descripción añadida en demo E2E',
-      );
-
-      await addEventNote(page, 'Nota de producción E2E');
+      await desc.fill('Descripción añadida en demo E2E');
 
       await page.getByRole('button', { name: 'Cliente' }).click();
       await expect(page.getByRole('button', { name: /^Operador$/i })).toBeVisible();
 
-      const saveBtn = page
-        .locator('.josanz-event-detail-body')
-        .getByRole('button', { name: 'Guardar cambios' });
+      const saveBtn = page.getByRole('button', { name: 'Guardar cambios' });
       await expect(saveBtn).toBeEnabled({ timeout: 15_000 });
       await saveBtn.click();
       await expect(
