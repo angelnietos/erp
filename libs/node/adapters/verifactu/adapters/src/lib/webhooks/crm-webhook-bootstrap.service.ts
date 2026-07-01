@@ -20,6 +20,7 @@ export class CrmWebhookBootstrapService implements OnModuleInit {
     const secret =
       process.env['CRM_ERP_WEBHOOK_SECRET']?.trim() ||
       process.env['CRM_ERP_SYNC_API_KEY']?.trim();
+    const crmDatabaseUrl = process.env['VERIFACTU_DATABASE_URL']?.trim();
 
     if (!crmApiBase || !secret) {
       this.logger.debug(
@@ -28,33 +29,49 @@ export class CrmWebhookBootstrapService implements OnModuleInit {
       return;
     }
 
-    const webhookUrl = `${crmApiBase.replace(/\/$/, '')}${CRM_WEBHOOK_PATH}`;
-    const tenants = await this.prisma.tenant.findMany({
-      select: { id: true, slug: true },
-    });
-
-    if (tenants.length === 0) {
+    if (!crmDatabaseUrl) {
+      this.logger.debug(
+        'CRM webhook auto-register skipped (VERIFACTU_DATABASE_URL missing; usa apps/verifactu-crm-api/.env o desactiva con VERIFACTU_CRM_WEBHOOK_AUTO_REGISTER=false)',
+      );
       return;
     }
 
-    let registered = 0;
-    for (const tenant of tenants) {
-      for (const eventType of EVENT_TYPES) {
-        const created = await this.ensureEndpoint(
-          tenant.id,
-          eventType,
-          webhookUrl,
-          secret,
-        );
-        if (created) {
-          registered += 1;
+    try {
+      const webhookUrl = `${crmApiBase.replace(/\/$/, '')}${CRM_WEBHOOK_PATH}`;
+      const tenants = await this.prisma.tenant.findMany({
+        select: { id: true, slug: true },
+      });
+
+      if (tenants.length === 0) {
+        return;
+      }
+
+      let registered = 0;
+      for (const tenant of tenants) {
+        for (const eventType of EVENT_TYPES) {
+          const created = await this.ensureEndpoint(
+            tenant.id,
+            eventType,
+            webhookUrl,
+            secret,
+          );
+          if (created) {
+            registered += 1;
+          }
         }
       }
-    }
 
-    this.logger.log(
-      `CRM Verifactu webhooks ready (${registered} new) → ${webhookUrl}`,
-    );
+      this.logger.log(
+        `CRM Verifactu webhooks ready (${registered} new) → ${webhookUrl}`,
+      );
+    } catch (error) {
+      const hint =
+        'Arranca Postgres CRM (`docker compose -f docker-compose.crm.yml up -d`) o define VERIFACTU_CRM_WEBHOOK_AUTO_REGISTER=false en apps/backend/.env.';
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(
+        `CRM webhook auto-register skipped: ${message}. ${hint}`,
+      );
+    }
   }
 
   private async ensureEndpoint(
