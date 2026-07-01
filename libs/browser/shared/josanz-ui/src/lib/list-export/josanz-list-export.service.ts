@@ -4,6 +4,27 @@ import { firstValueFrom } from 'rxjs';
 import type { JosanzListExportFormat, JosanzListExportPayload } from './list-export.types';
 import { buildCsvContent, buildSqlScript, triggerBlobDownload } from './list-export.utils';
 
+async function assertXlsxBlob(blob: Blob): Promise<void> {
+  const head = new Uint8Array(await blob.slice(0, 4).arrayBuffer());
+  if (head[0] === 0x50 && head[1] === 0x4b) {
+    return;
+  }
+
+  let message = 'La API no devolvió un Excel válido.';
+  const text = (await blob.text()).trim();
+  if (text.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(text) as { message?: string };
+      if (parsed.message) {
+        message = parsed.message;
+      }
+    } catch {
+      // keep default message
+    }
+  }
+  throw new Error(message);
+}
+
 @Injectable({ providedIn: 'root' })
 export class JosanzListExportService {
   private readonly http = inject(HttpClient);
@@ -39,6 +60,7 @@ export class JosanzListExportService {
         { responseType: 'blob' },
       ),
     );
+    await assertXlsxBlob(blob);
     triggerBlobDownload(blob, `${payload.filename}.xlsx`);
   }
 

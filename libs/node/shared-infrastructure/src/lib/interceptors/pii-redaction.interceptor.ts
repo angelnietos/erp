@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Injectable,
   NestInterceptor,
+  StreamableFile,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -13,8 +14,17 @@ import {
 } from '@josanz-erp/shared-utils';
 import { JwtRequestUser } from '../utils/request-tenant';
 
-/** Rutas que devuelven datos completos (export RGPD, auth profile). */
-const SKIP_PREFIXES = ['/api/privacy/export', '/api/auth/me', '/api/docs'];
+/** Rutas que devuelven datos completos (export RGPD, auth profile, binarios). */
+const SKIP_PREFIXES = [
+  '/api/privacy/export',
+  '/api/auth/me',
+  '/api/docs',
+  '/api/reports/export',
+];
+
+function isNonJsonResponseBody(data: unknown): boolean {
+  return data instanceof StreamableFile || Buffer.isBuffer(data);
+}
 
 @Injectable()
 export class PiiRedactionInterceptor implements NestInterceptor {
@@ -34,6 +44,8 @@ export class PiiRedactionInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    return next.handle().pipe(map((data) => redactPiiDeep(data)));
+    return next.handle().pipe(
+      map((data) => (isNonJsonResponseBody(data) ? data : redactPiiDeep(data))),
+    );
   }
 }
