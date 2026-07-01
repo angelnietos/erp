@@ -24,6 +24,37 @@
   (paginationChange)="onPageChange($event)"
   (filtrosClick)="openFiltrosModal()"
 >
+  @if (activeFilterChips.length > 0) {
+  <div
+    active-filter-chips
+    class="josanz-catalog-active-filters"
+    role="group"
+    aria-label="Filtros activos"
+  >
+    @for (filter of activeFilterChips; track filter.key) {
+      <span class="josanz-catalog-active-filters__chip">
+        <span class="josanz-catalog-active-filters__label">{{ filter.label }}:</span>
+        <span class="josanz-catalog-active-filters__value">{{ filter.value }}</span>
+        <button
+          type="button"
+          class="josanz-catalog-active-filters__remove"
+          [attr.aria-label]="'Quitar filtro ' + filter.label"
+          (click)="removeFilterChip(filter)"
+        >
+          &times;
+        </button>
+      </span>
+    }
+    <button
+      type="button"
+      class="josanz-catalog-active-filters__clear"
+      (click)="clearAllModalFilters()"
+    >
+      Borrar todos
+    </button>
+  </div>
+  }
+
   @if (showExtraFilters) {
   <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
     @if (features.statusSummary) {
