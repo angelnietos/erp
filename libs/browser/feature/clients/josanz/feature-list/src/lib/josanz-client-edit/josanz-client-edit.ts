@@ -12,6 +12,7 @@ import {
 import { finalize, startWith } from 'rxjs';
 import {
   ClientService,
+  ClientsFacade,
   type Client,
   type ClientContact,
   type CreateClientPayload,
@@ -48,6 +49,7 @@ export class JosanzClientEditComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
+  private readonly clientsFacade = inject(ClientsFacade);
 
   readonly saving = signal(false);
   readonly loading = signal(true);
@@ -158,7 +160,8 @@ export class JosanzClientEditComponent implements OnInit {
       .updateClient(this.clientId, payload)
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
-        next: () => {
+        next: (client) => {
+          this.clientsFacade.upsertClient(client);
           void this.router.navigate(['/clients'], {
             queryParams: { updated: '1' },
           });

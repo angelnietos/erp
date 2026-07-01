@@ -12,6 +12,7 @@ import {
 import { finalize, startWith } from 'rxjs';
 import {
   ClientService,
+  ClientsFacade,
   type CreateClientPayload,
 } from '@josanz-erp/clients-data-access';
 import {
@@ -42,6 +43,7 @@ export class JosanzClientCreateComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
   private readonly clientService = inject(ClientService);
+  private readonly clientsFacade = inject(ClientsFacade);
 
   readonly saving = signal(false);
   readonly errorMessage = signal('');
@@ -122,6 +124,7 @@ export class JosanzClientCreateComponent {
       .pipe(finalize(() => this.saving.set(false)))
       .subscribe({
         next: (client) => {
+          this.clientsFacade.upsertClient(client);
           const returnTo = this.route.snapshot.queryParamMap.get('returnTo');
           if (returnTo) {
             void this.router.navigate([returnTo], {

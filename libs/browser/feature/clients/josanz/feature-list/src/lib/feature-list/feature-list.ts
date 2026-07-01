@@ -1,13 +1,15 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ClientService } from '@josanz-erp/clients-data-access';
+import { ClientsFacade } from '@josanz-erp/clients-data-access';
 import {
   JosanzCatalogListComponent,
   JOSANZ_CATALOG_CLIENT_TABS,
   mapClientToCatalogRow,
   type JosanzCatalogListConfig,
 } from '@josanz-erp/josanz-ui';
+
+const CLIENT_LIST_PAGE_SIZE = 10;
 
 @Component({
   selector: 'lib-clients-list',
@@ -19,75 +21,72 @@ import {
 export class JosanzClientsListComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly clientService = inject(ClientService);
+  private readonly clientsFacade = inject(ClientsFacade);
 
-  showSuccessToast = false;
-  successToastMessage = 'Cliente creado correctamente';
+  readonly showSuccessToast = signal(false);
+  readonly successToastMessage = signal('Cliente creado correctamente');
 
-  config: JosanzCatalogListConfig = {
+  private readonly baseConfig: Omit<JosanzCatalogListConfig, 'rows' | 'summaryLine' | 'paginationTotal'> = {
     title: 'Clientes',
     primaryBtnLabel: 'Añadir Cliente',
     titleColumnLabel: 'Nombre cliente',
     rowLabels: ['Teléfono', 'Email', 'Operador'],
     statusColumnLabel: 'Tipo',
-    rows: [],
     addRoute: '/clients/new',
     detailRoute: '/clients',
     filterOptions: JOSANZ_CATALOG_CLIENT_TABS,
     withLeadingMark: true,
-    summaryLine: {
-      before: '0 clientes · ',
-      emphasis: '0 activos',
-      after: '',
-    },
     features: {
       advancedFilters: false,
       statusFilters: false,
     },
-    paginationTotal: 1,
     paginationVariant: 'numbered',
-    pageSize: 10,
+    pageSize: CLIENT_LIST_PAGE_SIZE,
     statusBadgeStyle: 'outline',
+    loadingPlaceholderCount: 5,
   };
+
+  readonly listConfig = computed<JosanzCatalogListConfig>(() => {
+    const clients = this.clientsFacade.clients();
+    const loading = this.clientsFacade.isLoading();
+    const rows = clients.map((client, index) => mapClientToCatalogRow(client, index));
+    const total = clients.length;
+
+    return {
+      ...this.baseConfig,
+      rows,
+      loading: loading && rows.length === 0,
+      summaryLine: {
+        before: `${total} clientes · `,
+        emphasis: `${total} activos`,
+        after: '',
+      },
+      paginationTotal: Math.max(1, Math.ceil(total / CLIENT_LIST_PAGE_SIZE)),
+    };
+  });
 
   ngOnInit(): void {
     const created = this.route.snapshot.queryParamMap.get('created') === '1';
     const updated = this.route.snapshot.queryParamMap.get('updated') === '1';
+
     if (created || updated) {
-      this.successToastMessage = created
-        ? 'Cliente creado correctamente'
-        : 'Cliente actualizado correctamente';
-      this.showSuccessToast = true;
+      this.successToastMessage.set(
+        created ? 'Cliente creado correctamente' : 'Cliente actualizado correctamente',
+      );
+      this.showSuccessToast.set(true);
       void this.router.navigate([], {
         relativeTo: this.route,
         queryParams: {},
         replaceUrl: true,
       });
+      this.clientsFacade.loadClients();
+      return;
     }
-    this.loadClients();
+
+    this.clientsFacade.loadClients();
   }
 
   dismissToast(): void {
-    this.showSuccessToast = false;
-  }
-
-  private loadClients(): void {
-    this.clientService.getClients().subscribe({
-      next: (clients) => {
-        const rows = clients.map((client, index) => mapClientToCatalogRow(client, index));
-        const total = clients.length;
-        const pageSize = this.config.pageSize ?? 10;
-        this.config = {
-          ...this.config,
-          rows,
-          summaryLine: {
-            before: `${total} clientes · `,
-            emphasis: `${total} activos`,
-            after: '',
-          },
-          paginationTotal: Math.max(1, Math.ceil(total / pageSize)),
-        };
-      },
-    });
+    this.showSuccessToast.set(false);
   }
 }

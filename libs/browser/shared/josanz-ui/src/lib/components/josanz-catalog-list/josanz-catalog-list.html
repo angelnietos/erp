@@ -86,12 +86,22 @@
   ></josanz-list-template-header-row>
   }
 
+  @if (!config.loading) {
   <josanz-adaptive-list-rows
     [items]="paginatedItems"
     [defaultLabels]="rowLabels"
     [statusBadgeStyle]="config.statusBadgeStyle ?? 'outline'"
     (itemClick)="onRowClick($event)"
   ></josanz-adaptive-list-rows>
+  } @else {
+  <div class="josanz-catalog-list__loading" aria-busy="true" aria-live="polite">
+    <josanz-skeleton
+      variant="list"
+      [lines]="config.loadingPlaceholderCount ?? config.pageSize ?? 5"
+      ariaLabel="Cargando listado"
+    ></josanz-skeleton>
+  </div>
+  }
 </josanz-main-list-layout>
 
 <!-- ── Figma Filters Modal Overlay ── -->

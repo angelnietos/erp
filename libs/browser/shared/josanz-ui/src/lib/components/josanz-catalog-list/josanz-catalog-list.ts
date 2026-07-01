@@ -13,6 +13,7 @@ import { FilterTabsComponent } from '../filter-tabs';
 import { ListTemplateHeaderRowComponent } from '../list-template-header-row';
 import { MainListLayoutComponent } from '../main-list-layout';
 import { SecondaryButtonComponent } from '../secondary-button';
+import { SkeletonComponent } from '../skeleton';
 import type { JosanzStatusPillVariant } from '../main-template-card';
 import {
   resolveCatalogListFeatures,
@@ -52,6 +53,9 @@ export interface JosanzCatalogListConfig {
   paginationTotal?: number;
   paginationVariant?: 'figma' | 'numbered';
   pageSize?: number;
+  /** Muestra skeleton de filas mientras la primera carga (sin datos en cachù). */
+  loading?: boolean;
+  loadingPlaceholderCount?: number;
 }
 
 import { FormsModule } from '@angular/forms';
@@ -67,6 +71,7 @@ import { FormsModule } from '@angular/forms';
     FilterTabsComponent,
     ListTemplateHeaderRowComponent,
     SecondaryButtonComponent,
+    SkeletonComponent,
   ],
   templateUrl: './josanz-catalog-list.html',
 })

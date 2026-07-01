@@ -1,7 +1,7 @@
-@if (showSuccessToast) {
+@if (showSuccessToast()) {
 <div class="josanz-client-success-toast" role="status">
   <span aria-hidden="true">✓</span>
-  {{ successToastMessage }}
+  {{ successToastMessage() }}
   <button
     type="button"
     class="josanz-client-success-toast__close"
@@ -13,4 +13,4 @@
 </div>
 }
 
-<josanz-catalog-list [config]="config" />
+<josanz-catalog-list [config]="listConfig()" />
