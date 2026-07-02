@@ -23,6 +23,7 @@
 | 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 | 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
+| 7 | 03/07/2026 | Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo |
 
 ---
 
@@ -281,13 +282,13 @@ La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La
 | Dominio + puertos | `libs/isomorphic/cae/core` | DDD + hexagonal (ports) — agnóstico de framework |
 | Contratos API | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos |
 | Backend por capacidad | `libs/node/cae/*-backend` | NestJS modules exportables (`forRoot()`) |
-| UI React (default) | `libs/react/cae/*` | Componentes y features para host CAE v2 (React) |
-| UI Angular (opcional) | `libs/angular/cae/*` | Misma superficie funcional; implementación alternativa |
+| UI React (decisión cliente) | `libs/react/cae/*` | MFE integrado en host CAE v2 legacy |
+| UI Angular (recom. técnica) | `libs/angular/cae/*` | Stack preferido greenfield; POC migración |
 | UI reusable (tontos) | `libs/react/cae/ui`, `libs/angular/cae/ui` | Presentational + Storybook |
 | Storybook | `apps/cae-ui-storybook` | Catálogo visual de componentes React y Angular |
 | Host backend IA | `apps/cae-ia-backend` | Monolito modular NestJS |
-| MFE React (default) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
-| MFE Angular (opcional) | `apps/cae-assistant-mfe-angular` | Remote alternativo (Module Federation) |
+| MFE React (decisión cliente) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 — alcance acordado |
+| MFE Angular (recom. técnica) | `apps/cae-assistant-mfe-angular` | Remote alternativo; stack preferido a medio plazo |
 
 #### 3.3.2 Estructura objetivo — libs IA CAE
 
@@ -333,7 +334,7 @@ Cada lib `*-backend` sigue **domain / application / infrastructure**, exportando
 
 #### 3.3.3 Correspondencia bounded context → lib Nx
 
-| Bounded context | Lib dominio | Lib backend | Lib UI React (default) | Lib UI Angular (opc.) |
+| Bounded context | Lib dominio | Lib backend | Lib UI React (cliente) | Lib UI Angular (recom.) |
 |-----------------|-------------|-------------|------------------------|----------------------|
 | Validación CAE | `isomorphic/cae/core` | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
 | Extracción | `isomorphic/cae/core` | `extraction-backend` | — | — |
@@ -393,8 +394,8 @@ flowchart TB
 | App Nx | Tipo | Rol |
 |--------|------|-----|
 | `apps/cae-ia-backend` | NestJS host | Componer todos los `node/cae/*-backend`; API única IA |
-| `apps/cae-assistant-mfe` | **React remote (default)** | MFE embebido en shell CAE v2 (stack nativo React) |
-| `apps/cae-assistant-mfe-angular` | Angular remote (opcional) | MFE alternativo si el equipo prefiere Angular + Module Federation |
+| `apps/cae-assistant-mfe` | **React remote (decisión cliente)** | MFE embebido en shell CAE v2 legacy |
+| `apps/cae-assistant-mfe-angular` | **Angular remote (recom. técnica)** | Stack preferido; POC y escenario migración CAE |
 
 Wrappers microservicio (Modo C), generados solo bajo demanda:
 
@@ -406,17 +407,30 @@ apps/cae-mlops-service/
 
 ### 3.4 Integración con Plataforma CAE v2.0 — Microfrontends
 
-CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React**; la capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
+CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React** — stack **elegido por el cliente** para continuidad con la plataforma existente. La capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
 
-#### 3.4.1 Stack UI: React (default) vs Angular (opcional)
+> **Contexto técnico:** el frontend React de CAE v2 acumula **deuda técnica** (acoplamiento, gestión de estado inconsistente, dificultad de testeo E2E). **Angular es la recomendación del equipo** para desarrollo greenfield: arquitectura opinionada, DI nativa, testing integrado y mejor escalabilidad en equipos enterprise. El monorepo **mantiene ambos stacks** para no bloquear una futura migración: CAE legacy en React con mejoras incrementales, **capa nueva (y eventualmente CAE modernizado) en Angular**.
 
-| Aspecto | **React — default** | **Angular — opcional sugerida** |
-|---------|---------------------|----------------------------------|
-| Alineación con CAE v2 | Nativa (mismo stack) | Requiere puente MF cross-framework |
+#### 3.4.0 Decisión cliente vs recomendación técnica
+
+| Dimensión | React | Angular |
+|-----------|-------|---------|
+| **Quién lo impulsa** | Cliente / IDEAUTO (integración CAE v2) | Equipo de arquitectura y desarrollo |
+| **Rol en el proyecto** | MFE de producción fases 1–2 | Stack preferido; POC y argumentario de migración |
+| **Ventaja principal** | Cero fricción con host legacy | Calidad estructural, mantenibilidad, testing |
+| **Riesgo** | Hereda limitaciones del host React | Integración MF cross-framework |
+| **Horizonte** | Corto plazo (entrega acordada) | Medio plazo (modernización CAE) |
+
+#### 3.4.1 Stack UI: React (decisión cliente) vs Angular (recomendación técnica)
+
+| Aspecto | **React — decisión cliente** | **Angular — recomendación técnica** |
+|---------|------------------------------|-------------------------------------|
+| Motivación | Continuidad con CAE v2 legacy | Framework superior para apps enterprise CAE |
+| Alineación host | Nativa (mismo stack legacy) | Module Federation cross-framework |
 | App remote | `apps/cae-assistant-mfe` | `apps/cae-assistant-mfe-angular` |
 | Libs UI | `libs/react/cae/*` | `libs/angular/cae/*` |
 | Federación | Vite / Webpack Module Federation (React) | `@nx/module-federation` (Angular) |
-| Recomendación | **Implementación principal** | Equipos con experiencia Angular o pilotos aislados |
+| Prioridad entrega | **Alcance contractual actual** | Desarrollo paralelo; escenario evolutivo |
 
 ```mermaid
 flowchart TB
@@ -429,14 +443,14 @@ flowchart TB
         SHELL --> SLOT1 & SLOT2
     end
 
-    subgraph MFE_REACT["DEFAULT — apps/cae-assistant-mfe React"]
+    subgraph MFE_REACT["VINCULANTE — cae-assistant-mfe React (cliente)"]
         R_FA["react/cae/feature-assistant"]
         R_FO["react/cae/feature-operations"]
         R_DA["react/cae/data-access"]
         R_FA & R_FO --> R_DA
     end
 
-    subgraph MFE_NG["OPCIONAL — apps/cae-assistant-mfe-angular"]
+    subgraph MFE_NG["RECOMENDADO — cae-assistant-mfe-angular"]
         N_FA["angular/cae/feature-assistant"]
         N_FO["angular/cae/feature-operations"]
         N_DA["angular/cae/data-access"]
@@ -473,9 +487,9 @@ flowchart TB
 **Ventajas del MFE frente a iframe o copia de UI:**
 
 - Despliegue **independiente** del remote sin redeploy completo de CAE v2.
-- **React default:** mismo ecosistema, tipos y design tokens compartibles con CAE.
-- **Angular opcional:** misma API de integración (props/eventos); distinta implementación.
-- Contrato estable: remote entry + versión semver.
+- **React (cliente):** integración inmediata con el host legacy; tipos y tokens compartibles donde existan.
+- **Angular (recomendado):** capa UI limpia sin arrastrar deuda del React CAE; ideal para convencer al cliente de modernizar.
+- Contrato estable: remote entry + versión semver (válido para ambos stacks).
 
 **Contrato de integración host React ↔ remote (ambos stacks):**
 
@@ -500,8 +514,9 @@ flowchart TB
 | Fase | Entregable | Despliegue |
 |------|------------|------------|
 | **1 — Libs** | `isomorphic/cae/core` + `validation-backend` + `react/cae/feature-assistant` | Monolito `cae-ia-backend`; CAE consume API REST |
-| **2 — MFE React piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE React carga remote en slot |
-| **2b — MFE Angular (opc.)** | `cae-assistant-mfe-angular` | Mismo slot; solo si se elige stack alternativo |
+| **2 — MFE React piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE React carga remote en slot (**entrega cliente**) |
+| **2b — MFE Angular (paralelo)** | `cae-assistant-mfe-angular` | POC técnico; comparativa calidad/mantenibilidad; base argumentario migración |
+| **2c — Escenario evolutivo** | Nuevas pantallas CAE o reescritura módulos | Angular greenfield; React legacy estable hasta retirada progresiva |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
@@ -511,7 +526,7 @@ La capa UI del MFE sigue el patrón **Smart / Dumb** (también *container / pres
 
 #### 3.5.1 Componentes tontos (presentational / dumb)
 
-Ubicación: `libs/react/cae/ui` (default) y `libs/angular/cae/ui` (opcional).
+Ubicación: `libs/react/cae/ui` (decisión cliente) y `libs/angular/cae/ui` (recomendación técnica).
 
 | Característica | Descripción |
 |----------------|-------------|
@@ -519,7 +534,7 @@ Ubicación: `libs/react/cae/ui` (default) y `libs/angular/cae/ui` (opcional).
 | Sin efectos secundarios | No llamadas HTTP, no acceso a stores globales, no reglas de negocio |
 | Testabilidad | Tests unitarios con Testing Library; snapshots solo como complemento |
 | Reutilización | Compartibles entre features, MFE y Storybook |
-| Design system | Tokens y estilos alineados con CAE v2 (React default) |
+| Design system | Tokens alineados con CAE v2 legacy (React); Angular con design system propio limpio |
 
 **Ejemplos de componentes tontos:**
 
@@ -1977,7 +1992,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI default es **React** (`apps/cae-assistant-mfe`), alineada con CAE v2; **Angular** queda como MFE opcional. Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI de entrega inmediata es **React** (`apps/cae-assistant-mfe`) por **decisión del cliente**, integrada en el CAE v2 legacy; **Angular** queda como **recomendación técnica** y vía de modernización futura (`cae-assistant-mfe-angular`). Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
 
 La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 

@@ -157,12 +157,12 @@
 <td>Monolito modular (<code>apps/cae-ia-backend</code>) → microservicios según demanda</td>
 </tr>
 <tr>
-<td><strong>UI React (default)</strong></td>
-<td>CAE v2 es React; MFE principal en <code>apps/cae-assistant-mfe</code></td>
+<td><strong>UI React (decisión cliente)</strong></td>
+<td>CAE v2 legacy es React; MFE vinculante en <code>apps/cae-assistant-mfe</code></td>
 </tr>
 <tr>
-<td><strong>UI Angular (opcional)</strong></td>
-<td>MFE alternativo <code>apps/cae-assistant-mfe-angular</code></td>
+<td><strong>UI Angular (recom. técnica)</strong></td>
+<td>Stack preferido greenfield; MFE <code>apps/cae-assistant-mfe-angular</code> + escenario migración CAE</td>
 </tr>
 <tr>
 <td><strong>Componentes tontos + Storybook</strong></td>
@@ -194,13 +194,13 @@
 </tr>
 <tr>
 <td>Frontend host</td>
-<td><strong>React</strong></td>
-<td>Sin sustituir shell; MFE embebido</td>
+<td><strong>React</strong> (legacy, deuda técnica)</td>
+<td>Sin sustituir shell de inmediato; MFE React (cliente)</td>
 </tr>
 <tr>
 <td>UI IA</td>
 <td>—</td>
-<td><strong>React default</strong> + Angular opcional</td>
+<td><strong>React entrega acordada</strong> + <strong>Angular recomendado</strong> en paralelo</td>
 </tr>
 <tr>
 <td>Despliegue</td>
@@ -213,8 +213,8 @@ flowchart TB
     subgraph WORKSPACE["Monorepo Nx — CAE IA"]
         subgraph APPS["apps/"]
             A2["cae-ia-backend"]
-            A3["cae-assistant-mfe React DEFAULT"]
-            A4["cae-assistant-mfe-angular OPCIONAL"]
+            A3["cae-assistant-mfe React CLIENTE"]
+            A4["cae-assistant-mfe-angular RECOMENDADO"]
         end
         subgraph LIBS["libs/"]
             ISO["isomorphic/cae"]
@@ -776,7 +776,7 @@ flowchart LR
 </tr>
 <tr>
 <td><strong>Implementación</strong></td>
-<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> opc.), <code>apps/cae-ia-backend</code>, MFE React default</td>
+<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> recom.), <code>apps/cae-ia-backend</code>, MFE React (decisión cliente)</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -805,14 +805,14 @@ flowchart LR
 <td>NestJS modules hexagonales</td>
 </tr>
 <tr>
-<td>UI React (default)</td>
+<td>UI React (decisión cliente)</td>
 <td><code>libs/react/cae/feature-*</code></td>
-<td>Paneles para host CAE v2 (React)</td>
+<td>MFE integrado en host CAE v2 legacy</td>
 </tr>
 <tr>
-<td>UI Angular (opc.)</td>
+<td>UI Angular (recom. técnica)</td>
 <td><code>libs/angular/cae/feature-*</code></td>
-<td>Misma funcionalidad; stack alternativo</td>
+<td>Stack preferido; POC migración CAE</td>
 </tr>
 <tr>
 <td>Host backend</td>
@@ -820,14 +820,14 @@ flowchart LR
 <td>Monolito modular IA (Modo A)</td>
 </tr>
 <tr>
-<td>MFE React (default)</td>
+<td>MFE React (decisión cliente)</td>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Remote → shell CAE v2</td>
+<td>Remote → shell CAE v2 (alcance acordado)</td>
 </tr>
 <tr>
-<td>MFE Angular (opc.)</td>
+<td>MFE Angular (recom. técnica)</td>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td>Remote alternativo</td>
+<td>Remote alternativo; modernización futura</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -854,32 +854,58 @@ flowchart LR
 <td>Alta escala</td>
 </tr>
 </tbody></table></div>
-<h3 id="71-integracion-ui-react-vs-angular" class="subsection-title">7.1 Integración UI: React vs Angular</h3>
+<h3 id="71-integracion-ui-react-cliente-vs-angular-recomendado" class="subsection-title">7.1 Integración UI: React (cliente) vs Angular (recomendado)</h3>
+<blockquote class="callout"><p>CAE v2 legacy está en <strong>React</strong> (decisión histórica del producto/cliente). <strong>Angular</strong> es la <strong>recomendación técnica</strong> para capa nueva y eventual modernización del frontend CAE.</p></blockquote>
 <div class="mermaid">
 flowchart LR
-    subgraph HOST["CAE v2 Host React"]
+    subgraph HOST["CAE v2 Host React legacy"]
         SLOT["Slots UI"]
     end
 
-    subgraph DEF["DEFAULT React MFE"]
+    subgraph REACT_MFE["VINCULANTE — React MFE (cliente)"]
         R["libs/react/cae"]
         APP_R["cae-assistant-mfe"]
         R --> APP_R
     end
 
-    subgraph ALT["OPCIONAL Angular MFE"]
+    subgraph NG_MFE["RECOMENDADO — Angular MFE"]
         A["libs/angular/cae"]
         APP_A["cae-assistant-mfe-angular"]
         A --> APP_A
     end
 
     SLOT -->|Module Federation| APP_R
-    SLOT -.-> APP_A
+    SLOT -.->|POC / futuro| APP_A
     APP_R & APP_A --> API["cae-ia-backend"]
 
-    style DEF fill:#e3f2fd,stroke:#1565c0
-    style ALT fill:#f3e5f5,stroke:#7b1fa2
+    style REACT_MFE fill:#e3f2fd,stroke:#1565c0
+    style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 </div>
+<h3 id="72-escenario-evolutivo-propuesto" class="subsection-title">7.2 Escenario evolutivo propuesto</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>CAE legacy (React)</th>
+<th>Capa IA / CAE nuevo (Angular)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Actual</strong></td>
+<td>Host estable; mejoras incrementales</td>
+<td>Backend IA + MFE React en slots</td>
+</tr>
+<tr>
+<td><strong>Intermedia</strong></td>
+<td>Zonas estables sin reescritura</td>
+<td>MFE Angular en paralelo; comparativa técnica</td>
+</tr>
+<tr>
+<td><strong>Objetivo</strong></td>
+<td>Retirada progresiva de módulos legacy</td>
+<td>Pantallas CAE nuevas en Angular greenfield</td>
+</tr>
+</tbody></table></div>
 <hr>
 <h2 id="8-calidad-piramide-de-testing-y-frontend-reusable" class="section-title">8. Calidad: pirámide de testing y frontend reusable</h2>
 <h3 id="81-piramide-de-testing" class="subsection-title">8.1 Pirámide de testing</h3>

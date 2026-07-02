@@ -41,8 +41,8 @@ La capa de asistencia inteligente se implementará con:
 | **DDD** | Bounded contexts en `libs/isomorphic/cae/core` |
 | **Monorepo Nx** | `libs/` reutilizables + `apps/` compositores |
 | **Deploy elástico** | Monolito modular (`apps/cae-ia-backend`) → microservicios según demanda |
-| **UI React (default)** | CAE v2 es React; MFE principal en `apps/cae-assistant-mfe` |
-| **UI Angular (opcional)** | MFE alternativo `apps/cae-assistant-mfe-angular` |
+| **UI React (decisión cliente)** | CAE v2 legacy es React; MFE vinculante en `apps/cae-assistant-mfe` |
+| **UI Angular (recom. técnica)** | Stack preferido greenfield; MFE `apps/cae-assistant-mfe-angular` + escenario migración CAE |
 | **Componentes tontos + Storybook** | `libs/*/cae/ui` + `apps/cae-ui-storybook` |
 | **Pirámide de testing** | Unit → integración → Storybook → E2E → carga/estrés + golden set |
 
@@ -52,8 +52,8 @@ La capa de asistencia inteligente se implementará con:
 |---|---------------------------|------------------------|
 | Estructura | Monolito / acoplado | `libs/` Nx independientes |
 | Backend | Core CAE propietario | `libs/node/cae/*-backend` + ACL |
-| Frontend host | **React** | Sin sustituir shell; MFE embebido |
-| UI IA | — | **React default** + Angular opcional |
+| Frontend host | **React** (legacy, deuda técnica) | Sin sustituir shell de inmediato; MFE React (cliente) |
+| UI IA | — | **React entrega acordada** + **Angular recomendado** en paralelo |
 | Despliegue | Single app | Monolito IA → microservicios opcional |
 
 ```mermaid
@@ -61,8 +61,8 @@ flowchart TB
     subgraph WORKSPACE["Monorepo Nx — CAE IA"]
         subgraph APPS["apps/"]
             A2["cae-ia-backend"]
-            A3["cae-assistant-mfe React DEFAULT"]
-            A4["cae-assistant-mfe-angular OPCIONAL"]
+            A3["cae-assistant-mfe React CLIENTE"]
+            A4["cae-assistant-mfe-angular RECOMENDADO"]
         end
         subgraph LIBS["libs/"]
             ISO["isomorphic/cae"]
@@ -504,7 +504,7 @@ flowchart LR
 | ⑧ Operaciones | Cola revisión, resumen IA, UI supervisor |
 | ⑨ MLOps + Fitness | Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry |
 | ⑩ Observabilidad | OpenTelemetry, Audit Log, dashboards |
-| **Implementación** | Monorepo Nx: `libs/isomorphic/cae`, `libs/node/cae`, `libs/react/cae` (+ `libs/angular/cae` opc.), `apps/cae-ia-backend`, MFE React default |
+| **Implementación** | Monorepo Nx: `libs/isomorphic/cae`, `libs/node/cae`, `libs/react/cae` (+ `libs/angular/cae` recom.), `apps/cae-ia-backend`, MFE React (decisión cliente) |
 
 ---
 
@@ -515,11 +515,11 @@ flowchart LR
 | Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas RF, eventos |
 | Contratos | `libs/isomorphic/cae/api` | OpenAPI, DTOs |
 | Backend IA | `libs/node/cae/*-backend` | NestJS modules hexagonales |
-| UI React (default) | `libs/react/cae/feature-*` | Paneles para host CAE v2 (React) |
-| UI Angular (opc.) | `libs/angular/cae/feature-*` | Misma funcionalidad; stack alternativo |
+| UI React (decisión cliente) | `libs/react/cae/feature-*` | MFE integrado en host CAE v2 legacy |
+| UI Angular (recom. técnica) | `libs/angular/cae/feature-*` | Stack preferido; POC migración CAE |
 | Host backend | `apps/cae-ia-backend` | Monolito modular IA (Modo A) |
-| MFE React (default) | `apps/cae-assistant-mfe` | Remote → shell CAE v2 |
-| MFE Angular (opc.) | `apps/cae-assistant-mfe-angular` | Remote alternativo |
+| MFE React (decisión cliente) | `apps/cae-assistant-mfe` | Remote → shell CAE v2 (alcance acordado) |
+| MFE Angular (recom. técnica) | `apps/cae-assistant-mfe-angular` | Remote alternativo; modernización futura |
 
 | Modo despliegue | Composición | Cuándo |
 |-----------------|-------------|--------|
@@ -527,33 +527,43 @@ flowchart LR
 | B — Híbrido | Monolito + 1–2 servicios | Picos aislados (p. ej. MLOps) |
 | C — Microservicios | Un `apps/cae-*-service` por lib backend | Alta escala |
 
-### 7.1 Integración UI: React vs Angular
+### 7.1 Integración UI: React (cliente) vs Angular (recomendado)
+
+> CAE v2 legacy está en **React** (decisión histórica del producto/cliente). **Angular** es la **recomendación técnica** para capa nueva y eventual modernización del frontend CAE.
 
 ```mermaid
 flowchart LR
-    subgraph HOST["CAE v2 Host React"]
+    subgraph HOST["CAE v2 Host React legacy"]
         SLOT["Slots UI"]
     end
 
-    subgraph DEF["DEFAULT React MFE"]
+    subgraph REACT_MFE["VINCULANTE — React MFE (cliente)"]
         R["libs/react/cae"]
         APP_R["cae-assistant-mfe"]
         R --> APP_R
     end
 
-    subgraph ALT["OPCIONAL Angular MFE"]
+    subgraph NG_MFE["RECOMENDADO — Angular MFE"]
         A["libs/angular/cae"]
         APP_A["cae-assistant-mfe-angular"]
         A --> APP_A
     end
 
     SLOT -->|Module Federation| APP_R
-    SLOT -.-> APP_A
+    SLOT -.->|POC / futuro| APP_A
     APP_R & APP_A --> API["cae-ia-backend"]
 
-    style DEF fill:#e3f2fd,stroke:#1565c0
-    style ALT fill:#f3e5f5,stroke:#7b1fa2
+    style REACT_MFE fill:#e3f2fd,stroke:#1565c0
+    style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
+
+### 7.2 Escenario evolutivo propuesto
+
+| Fase | CAE legacy (React) | Capa IA / CAE nuevo (Angular) |
+|------|-------------------|-------------------------------|
+| **Actual** | Host estable; mejoras incrementales | Backend IA + MFE React en slots |
+| **Intermedia** | Zonas estables sin reescritura | MFE Angular en paralelo; comparativa técnica |
+| **Objetivo** | Retirada progresiva de módulos legacy | Pantallas CAE nuevas en Angular greenfield |
 
 ---
 

@@ -146,6 +146,11 @@
 <td>03/07/2026</td>
 <td>Pirámide de testing, Storybook, componentes listos/tontos en frontend</td>
 </tr>
+<tr>
+<td>7</td>
+<td>03/07/2026</td>
+<td>Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -586,14 +591,14 @@ flowchart TB
 <td>NestJS modules exportables (<code>forRoot()</code>)</td>
 </tr>
 <tr>
-<td>UI React (default)</td>
+<td>UI React (decisión cliente)</td>
 <td><code>libs/react/cae/*</code></td>
-<td>Componentes y features para host CAE v2 (React)</td>
+<td>MFE integrado en host CAE v2 legacy</td>
 </tr>
 <tr>
-<td>UI Angular (opcional)</td>
+<td>UI Angular (recom. técnica)</td>
 <td><code>libs/angular/cae/*</code></td>
-<td>Misma superficie funcional; implementación alternativa</td>
+<td>Stack preferido greenfield; POC migración</td>
 </tr>
 <tr>
 <td>UI reusable (tontos)</td>
@@ -611,14 +616,14 @@ flowchart TB
 <td>Monolito modular NestJS</td>
 </tr>
 <tr>
-<td>MFE React (default)</td>
+<td>MFE React (decisión cliente)</td>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Remote embebido en shell CAE v2</td>
+<td>Remote embebido en shell CAE v2 — alcance acordado</td>
 </tr>
 <tr>
-<td>MFE Angular (opcional)</td>
+<td>MFE Angular (recom. técnica)</td>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td>Remote alternativo (Module Federation)</td>
+<td>Remote alternativo; stack preferido a medio plazo</td>
 </tr>
 </tbody></table></div>
 <h4>3.3.2 Estructura objetivo — libs IA CAE</h4>
@@ -665,8 +670,8 @@ flowchart TB
 <th>Bounded context</th>
 <th>Lib dominio</th>
 <th>Lib backend</th>
-<th>Lib UI React (default)</th>
-<th>Lib UI Angular (opc.)</th>
+<th>Lib UI React (cliente)</th>
+<th>Lib UI Angular (recom.)</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -798,13 +803,13 @@ flowchart TB
 </tr>
 <tr>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td><strong>React remote (default)</strong></td>
-<td>MFE embebido en shell CAE v2 (stack nativo React)</td>
+<td><strong>React remote (decisión cliente)</strong></td>
+<td>MFE embebido en shell CAE v2 legacy</td>
 </tr>
 <tr>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td>Angular remote (opcional)</td>
-<td>MFE alternativo si el equipo prefiere Angular + Module Federation</td>
+<td><strong>Angular remote (recom. técnica)</strong></td>
+<td>Stack preferido; POC y escenario migración CAE</td>
 </tr>
 </tbody></table></div>
 <p>Wrappers microservicio (Modo C), generados solo bajo demanda:</p>
@@ -812,20 +817,61 @@ flowchart TB
 apps/cae-extraction-service/
 apps/cae-mlops-service/</code></pre>
 <h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
-<p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong>; la capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
-<h4>3.4.1 Stack UI: React (default) vs Angular (opcional)</h4>
+<p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong> — stack <strong>elegido por el cliente</strong> para continuidad con la plataforma existente. La capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
+<blockquote class="callout"><p><strong>Contexto técnico:</strong> el frontend React de CAE v2 acumula <strong>deuda técnica</strong> (acoplamiento, gestión de estado inconsistente, dificultad de testeo E2E). <strong>Angular es la recomendación del equipo</strong> para desarrollo greenfield: arquitectura opinionada, DI nativa, testing integrado y mejor escalabilidad en equipos enterprise. El monorepo <strong>mantiene ambos stacks</strong> para no bloquear una futura migración: CAE legacy en React con mejoras incrementales, <strong>capa nueva (y eventualmente CAE modernizado) en Angular</strong>.</p></blockquote>
+<h4>3.4.0 Decisión cliente vs recomendación técnica</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>React</th>
+<th>Angular</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Quién lo impulsa</strong></td>
+<td>Cliente / IDEAUTO (integración CAE v2)</td>
+<td>Equipo de arquitectura y desarrollo</td>
+</tr>
+<tr>
+<td><strong>Rol en el proyecto</strong></td>
+<td>MFE de producción fases 1–2</td>
+<td>Stack preferido; POC y argumentario de migración</td>
+</tr>
+<tr>
+<td><strong>Ventaja principal</strong></td>
+<td>Cero fricción con host legacy</td>
+<td>Calidad estructural, mantenibilidad, testing</td>
+</tr>
+<tr>
+<td><strong>Riesgo</strong></td>
+<td>Hereda limitaciones del host React</td>
+<td>Integración MF cross-framework</td>
+</tr>
+<tr>
+<td><strong>Horizonte</strong></td>
+<td>Corto plazo (entrega acordada)</td>
+<td>Medio plazo (modernización CAE)</td>
+</tr>
+</tbody></table></div>
+<h4>3.4.1 Stack UI: React (decisión cliente) vs Angular (recomendación técnica)</h4>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Aspecto</th>
-<th><strong>React — default</strong></th>
-<th><strong>Angular — opcional sugerida</strong></th>
+<th><strong>React — decisión cliente</strong></th>
+<th><strong>Angular — recomendación técnica</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td>Alineación con CAE v2</td>
-<td>Nativa (mismo stack)</td>
-<td>Requiere puente MF cross-framework</td>
+<td>Motivación</td>
+<td>Continuidad con CAE v2 legacy</td>
+<td>Framework superior para apps enterprise CAE</td>
+</tr>
+<tr>
+<td>Alineación host</td>
+<td>Nativa (mismo stack legacy)</td>
+<td>Module Federation cross-framework</td>
 </tr>
 <tr>
 <td>App remote</td>
@@ -843,9 +889,9 @@ apps/cae-mlops-service/</code></pre>
 <td><code>@nx/module-federation</code> (Angular)</td>
 </tr>
 <tr>
-<td>Recomendación</td>
-<td><strong>Implementación principal</strong></td>
-<td>Equipos con experiencia Angular o pilotos aislados</td>
+<td>Prioridad entrega</td>
+<td><strong>Alcance contractual actual</strong></td>
+<td>Desarrollo paralelo; escenario evolutivo</td>
 </tr>
 </tbody></table></div>
 <div class="mermaid">
@@ -859,14 +905,14 @@ flowchart TB
         SHELL --> SLOT1 & SLOT2
     end
 
-    subgraph MFE_REACT["DEFAULT — apps/cae-assistant-mfe React"]
+    subgraph MFE_REACT["VINCULANTE — cae-assistant-mfe React (cliente)"]
         R_FA["react/cae/feature-assistant"]
         R_FO["react/cae/feature-operations"]
         R_DA["react/cae/data-access"]
         R_FA & R_FO --> R_DA
     end
 
-    subgraph MFE_NG["OPCIONAL — apps/cae-assistant-mfe-angular"]
+    subgraph MFE_NG["RECOMENDADO — cae-assistant-mfe-angular"]
         N_FA["angular/cae/feature-assistant"]
         N_FO["angular/cae/feature-operations"]
         N_DA["angular/cae/data-access"]
@@ -923,9 +969,9 @@ flowchart TB
 <p><strong>Ventajas del MFE frente a iframe o copia de UI:</strong></p>
 <ul>
 <li>Despliegue <strong>independiente</strong> del remote sin redeploy completo de CAE v2.</li>
-<li><strong>React default:</strong> mismo ecosistema, tipos y design tokens compartibles con CAE.</li>
-<li><strong>Angular opcional:</strong> misma API de integración (props/eventos); distinta implementación.</li>
-<li>Contrato estable: remote entry + versión semver.</li>
+<li><strong>React (cliente):</strong> integración inmediata con el host legacy; tipos y tokens compartibles donde existan.</li>
+<li><strong>Angular (recomendado):</strong> capa UI limpia sin arrastrar deuda del React CAE; ideal para convencer al cliente de modernizar.</li>
+<li>Contrato estable: remote entry + versión semver (válido para ambos stacks).</li>
 </ul>
 <p><strong>Contrato de integración host React ↔ remote (ambos stacks):</strong></p>
 <div class="table-wrap"><table>
@@ -980,12 +1026,17 @@ flowchart TB
 <tr>
 <td><strong>2 — MFE React piloto</strong></td>
 <td><code>cae-assistant-mfe</code> con panel incidencias</td>
-<td>Host CAE React carga remote en slot</td>
+<td>Host CAE React carga remote en slot (<strong>entrega cliente</strong>)</td>
 </tr>
 <tr>
-<td><strong>2b — MFE Angular (opc.)</strong></td>
+<td><strong>2b — MFE Angular (paralelo)</strong></td>
 <td><code>cae-assistant-mfe-angular</code></td>
-<td>Mismo slot; solo si se elige stack alternativo</td>
+<td>POC técnico; comparativa calidad/mantenibilidad; base argumentario migración</td>
+</tr>
+<tr>
+<td><strong>2c — Escenario evolutivo</strong></td>
+<td>Nuevas pantallas CAE o reescritura módulos</td>
+<td>Angular greenfield; React legacy estable hasta retirada progresiva</td>
 </tr>
 <tr>
 <td><strong>3 — Pipeline completo</strong></td>
@@ -1001,7 +1052,7 @@ flowchart TB
 <h3 id="35-arquitectura-frontend-componentes-listos-y-tontos" class="subsection-title">3.5 Arquitectura frontend: componentes listos y tontos</h3>
 <p>La capa UI del MFE sigue el patrón <strong>Smart / Dumb</strong> (también <em>container / presentational</em>). El dominio y las reglas CAE <strong>nunca</strong> viven en componentes de presentación.</p>
 <h4>3.5.1 Componentes tontos (presentational / dumb)</h4>
-<p>Ubicación: <code>libs/react/cae/ui</code> (default) y <code>libs/angular/cae/ui</code> (opcional).</p>
+<p>Ubicación: <code>libs/react/cae/ui</code> (decisión cliente) y <code>libs/angular/cae/ui</code> (recomendación técnica).</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1027,7 +1078,7 @@ flowchart TB
 </tr>
 <tr>
 <td>Design system</td>
-<td>Tokens y estilos alineados con CAE v2 (React default)</td>
+<td>Tokens alineados con CAE v2 legacy (React); Angular con design system propio limpio</td>
 </tr>
 </tbody></table></div>
 <p><strong>Ejemplos de componentes tontos:</strong></p>
@@ -3910,7 +3961,7 @@ regresión en CI"]
 <hr>
 <h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI default es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>), alineada con CAE v2; <strong>Angular</strong> queda como MFE opcional. Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI de entrega inmediata es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>) por <strong>decisión del cliente</strong>, integrada en el CAE v2 legacy; <strong>Angular</strong> queda como <strong>recomendación técnica</strong> y vía de modernización futura (<code>cae-assistant-mfe-angular</code>). Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
