@@ -1,0 +1,2144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DISEÑO TÉCNICO DE REFERENCIA — CAE IA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="switch-theme.css" />
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#e0f7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#0ab9e5',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+  </script>
+</head>
+<body class="accent-blue">
+  <div class="joycon joycon-left" aria-hidden="true"></div>
+  <div class="joycon joycon-right" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="40" height="24" rx="6" fill="currentColor" opacity=".15"/><rect x="8" y="16" width="32" height="16" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="24" r="3" fill="currentColor"/></svg>
+          </span>
+          <div>
+            <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
+            <h1 class="brand-title">DISEÑO TÉCNICO DE REFERENCIA</h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">Técnico</span>
+          <span class="badge badge-neutral">v3.1</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Diseño Técnico de Referencia — Plataforma CAE</p>
+      <nav class="doc-nav">
+        <a href="index.html" class="nav-pill">Inicio</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill active">Diseño técnico</a>
+        <a href="../ARQUITECTURA-CAE-IA.png" class="nav-pill" target="_blank" rel="noopener">Diagrama PNG</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+          <p class="sidebar-label">Índice</p>
+          <ul class="toc"><li><a href="#sistema-de-asistencia-inteligente-para-plataforma-cae-v30" class="toc-link" data-section="sistema-de-asistencia-inteligente-para-plataforma-cae-v30">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE v3.0</a></li>
+<li><a href="#historico-de-revisiones" class="toc-link" data-section="historico-de-revisiones">Histórico de revisiones</a></li>
+<li><a href="#1-objetivo-tecnico" class="toc-link" data-section="1-objetivo-tecnico">1. Objetivo técnico</a></li>
+<li><a href="#2-principios-de-arquitectura" class="toc-link" data-section="2-principios-de-arquitectura">2. Principios de arquitectura</a></li>
+<li><a href="#3-arquitectura-general" class="toc-link" data-section="3-arquitectura-general">3. Arquitectura general</a></li>
+<li><a href="#4-arquitectura-por-fases-end-to-end" class="toc-link" data-section="4-arquitectura-por-fases-end-to-end">4. Arquitectura por fases (end-to-end)</a></li>
+<li><a href="#5-componentes-principales" class="toc-link" data-section="5-componentes-principales">5. Componentes principales</a></li>
+<li><a href="#6-pipeline-documental" class="toc-link" data-section="6-pipeline-documental">6. Pipeline documental</a></li>
+<li><a href="#7-validation-engine" class="toc-link" data-section="7-validation-engine">7. Validation Engine</a></li>
+<li><a href="#8-azure-ai-foundry-y-knowledge-base" class="toc-link" data-section="8-azure-ai-foundry-y-knowledge-base">8. Azure AI Foundry y Knowledge Base</a></li>
+<li><a href="#9-flujos-tecnicos" class="toc-link" data-section="9-flujos-tecnicos">9. Flujos técnicos</a></li>
+<li><a href="#10-modelo-de-ia" class="toc-link" data-section="10-modelo-de-ia">10. Modelo de IA</a></li>
+<li><a href="#11-modelo-de-datos" class="toc-link" data-section="11-modelo-de-datos">11. Modelo de datos</a></li>
+<li><a href="#12-modelo-de-eventos" class="toc-link" data-section="12-modelo-de-eventos">12. Modelo de eventos</a></li>
+<li><a href="#13-apis" class="toc-link" data-section="13-apis">13. APIs</a></li>
+<li><a href="#14-colas-y-orquestacion" class="toc-link" data-section="14-colas-y-orquestacion">14. Colas y orquestación</a></li>
+<li><a href="#15-seguridad" class="toc-link" data-section="15-seguridad">15. Seguridad</a></li>
+<li><a href="#16-observabilidad" class="toc-link" data-section="16-observabilidad">16. Observabilidad</a></li>
+<li><a href="#17-mlops-y-feedback-engine" class="toc-link" data-section="17-mlops-y-feedback-engine">17. MLOps y Feedback Engine</a></li>
+<li><a href="#18-despliegue-azure" class="toc-link" data-section="18-despliegue-azure">18. Despliegue Azure</a></li>
+<li><a href="#19-kpis-tecnicos" class="toc-link" data-section="19-kpis-tecnicos">19. KPIs técnicos</a></li>
+<li><a href="#20-vision-final" class="toc-link" data-section="20-vision-final">20. Visión final</a></li></ul>
+        </div>
+        <div class="sidebar-card sidebar-tip">
+          <p class="sidebar-label">Referencia</p>
+          <p>Documento alineado con el diagrama maestro <strong>ARQUITECTURA-CAE-IA</strong> y validación progresiva CAE.</p>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <article class="prose"><h1 id="diseno-tecnico-de-referencia" class="doc-main-title">DISEÑO TÉCNICO DE REFERENCIA</h1>
+<h2 id="sistema-de-asistencia-inteligente-para-plataforma-cae-v30" class="section-title">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE v3.0</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Versión</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>Borrador para revisión</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>03/07/2026</td>
+</tr>
+<tr>
+<td><strong>Proyecto</strong></td>
+<td>Plataforma CAE v2.0 — Desarrollo IA</td>
+</tr>
+<tr>
+<td><strong>Clasificación</strong></td>
+<td>Confidencial — IDEAUTO / Babooni</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="historico-de-revisiones" class="section-title">Histórico de revisiones</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Rev.</th>
+<th>Fecha</th>
+<th>Naturaleza del cambio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>27/06/2026</td>
+<td>Primera versión del documento (Borrador)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>03/07/2026</td>
+<td><strong>v3.0</strong> — Arquitectura por fases end-to-end, nuevos componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), 8 flujos técnicos, modelo de datos, eventos, APIs, seguridad ampliada, observabilidad y MLOps</td>
+</tr>
+<tr>
+<td>2</td>
+<td>03/07/2026</td>
+<td><strong>v3.1</strong> — Alineación con diagrama maestro (<code>ARQUITECTURA-CAE-IA.md</code>): flujo E2E completo, Motor Validación Progresiva CAE, extractores especializados, capa observabilidad transversal, bucle CDN/thumbnails</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Diagrama de referencia:</strong> <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> — Visión funcional + arquitectura técnica E2E detallada.</p></blockquote>
+<hr>
+<h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
+<ol>
+<li><a href="#1-objetivo-t%C3%A9cnico">Objetivo técnico</a></li>
+<li><a href="#2-principios-de-arquitectura">Principios de arquitectura</a></li>
+<li><a href="#3-arquitectura-general">Arquitectura general</a></li>
+<li><a href="#4-arquitectura-por-fases-end-to-end">Arquitectura por fases (end-to-end)</a></li>
+<li><a href="#5-componentes-principales">Componentes principales</a></li>
+<li><a href="#6-pipeline-documental">Pipeline documental</a></li>
+<li><a href="#7-validation-engine">Validation Engine</a></li>
+<li><a href="#8-azure-ai-foundry-y-knowledge-base">Azure AI Foundry y Knowledge Base</a></li>
+<li><a href="#9-flujos-t%C3%A9cnicos">Flujos técnicos</a></li>
+<li><a href="#10-modelo-de-ia">Modelo de IA</a></li>
+<li><a href="#11-modelo-de-datos">Modelo de datos</a></li>
+<li><a href="#12-modelo-de-eventos">Modelo de eventos</a></li>
+<li><a href="#13-apis">APIs</a></li>
+<li><a href="#14-colas-y-orquestaci%C3%B3n">Colas y orquestación</a></li>
+<li><a href="#15-seguridad">Seguridad</a></li>
+<li><a href="#16-observabilidad">Observabilidad</a></li>
+<li><a href="#17-mlops-y-feedback-engine">MLOps y Feedback Engine</a></li>
+<li><a href="#18-despliegue-azure">Despliegue Azure</a></li>
+<li><a href="#19-kpis-t%C3%A9cnicos">KPIs técnicos</a></li>
+<li><a href="#20-visi%C3%B3n-final">Visión final</a></li>
+</ol>
+<hr>
+<h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
+<p>Definir la arquitectura tecnológica de referencia para la incorporación de capacidades de <strong>Inteligencia Artificial de asistencia continua</strong> dentro de la plataforma CAE v2.0.</p>
+<p>La arquitectura deberá:</p>
+<ul>
+<li>Ser <strong>escalable</strong> horizontalmente (workers, colas, inferencia stateless).</li>
+<li><strong>Desacoplar</strong> completamente las capacidades IA del núcleo CAE.</li>
+<li>Mantener <strong>trazabilidad completa</strong> del expediente (audit log end-to-end).</li>
+<li>Permitir la <strong>evolución independiente</strong> de modelos, reglas y prompts.</li>
+<li>Garantizar <strong>explicabilidad</strong> y supervisión humana (Human in the Loop).</li>
+<li>Implementar <strong>validación progresiva</strong> como pipeline reactivo a eventos.</li>
+<li>Minimizar vendor lock-in mediante abstracciones API-first.</li>
+<li>Soportar <strong>observabilidad</strong> de costes, latencia y calidad IA.</li>
+</ul>
+<hr>
+<h2 id="2-principios-de-arquitectura" class="section-title">2. Principios de arquitectura</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Principio</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PA-01</td>
+<td><strong>API First</strong></td>
+<td>Toda funcionalidad IA consumible vía REST/OpenAPI. Sin acceso directo a BD desde componentes IA.</td>
+</tr>
+<tr>
+<td>PA-02</td>
+<td><strong>Desacoplamiento</strong></td>
+<td>CAE es propietario del expediente; servicios IA son auxiliares stateless.</td>
+</tr>
+<tr>
+<td>PA-03</td>
+<td><strong>Stateless</strong></td>
+<td>Workers de inferencia sin estado; persistencia en Blob, Redis, PostgreSQL/Cosmos.</td>
+</tr>
+<tr>
+<td>PA-04</td>
+<td><strong>Human in the Loop</strong></td>
+<td>Decision Engine recomienda; nunca aprueba automáticamente.</td>
+</tr>
+<tr>
+<td>PA-05</td>
+<td><strong>Observabilidad</strong></td>
+<td>OpenTelemetry, audit log, métricas por componente y coste IA.</td>
+</tr>
+<tr>
+<td>PA-06</td>
+<td><strong>Idempotencia</strong></td>
+<td>Reintentos seguros en ingesta y procesamiento documental.</td>
+</tr>
+<tr>
+<td>PA-07</td>
+<td><strong>Separación de capas</strong></td>
+<td>Extracción ≠ Validación determinista ≠ Razonamiento generativo.</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="3-arquitectura-general" class="section-title">3. Arquitectura general</h2>
+<h3 id="31-vista-logica-de-alto-nivel" class="subsection-title">3.1 Vista lógica de alto nivel</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph CAE["Plataforma CAE v2.0"]
+        FE["Frontend Asistido"]
+        CORE["Core Expedientes"]
+    end<pre><code>subgraph EDGE[&quot;Edge Layer&quot;]
+    GW[&quot;API Gateway / Edge Gateway&quot;]
+end
+
+subgraph ORCH[&quot;Orquestación&quot;]
+    AO[&quot;AI Orchestrator&quot;]
+    WE[&quot;Workflow Engine / FSM&quot;]
+end
+
+subgraph INGEST[&quot;Ingesta y Extracción&quot;]
+    BLOB[&quot;Blob Storage RAW&quot;]
+    PRE[&quot;Preprocessing Engine&quot;]
+    DI[&quot;Azure Document Intelligence&quot;]
+    VLM[&quot;GPT-4o Vision Fallback&quot;]
+    CLS[&quot;Document Classifier&quot;]
+    EXT[&quot;Extraction Engine + Workers&quot;]
+end
+
+subgraph VALID[&quot;Validación&quot;]
+    VE[&quot;Validation Engine&quot;]
+    DE[&quot;Decision Engine&quot;]
+end
+
+subgraph AI[&quot;Razonamiento IA&quot;]
+    FDR[&quot;Azure AI Foundry&quot;]
+    KB[&quot;Knowledge Base RAG&quot;]
+end
+
+subgraph OPS[&quot;Operaciones y Feedback&quot;]
+    FB[&quot;Feedback Engine&quot;]
+    DS[&quot;Dataset + MLOps&quot;]
+end
+
+subgraph OBS[&quot;Observabilidad&quot;]
+    OT[&quot;OpenTelemetry / Audit&quot;]
+end
+
+FE --&gt; GW
+GW --&gt; AO
+AO --&gt; BLOB
+BLOB --&gt; PRE
+PRE --&gt; DI
+PRE --&gt; VLM
+DI --&gt; CLS
+VLM --&gt; CLS
+CLS --&gt; EXT
+EXT --&gt; VE
+VE --&gt; AO
+AO --&gt; FDR
+FDR --&gt; KB
+AO --&gt; DE
+DE --&gt; CORE
+CORE --&gt; FB
+FB --&gt; DS
+OBS -.-&gt; GW &amp; AO &amp; VE &amp; FDR &amp; FB
+</code></pre>
+</div><h3 id="32-evolucion-respecto-a-v20" class="subsection-title">3.2 Evolución respecto a v2.0</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>v2.0 (anterior)</th>
+<th>v3.0 (actual)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CAE → Orchestrator → DI → Foundry → Validation → Feedback</td>
+<td>Arquitectura por 13 fases con Edge, Blob RAW, Preprocessing, Classifier, Workers, Decision Engine</td>
+</tr>
+<tr>
+<td>4 flujos técnicos</td>
+<td>8 flujos técnicos</td>
+</tr>
+<tr>
+<td>Validación al final</td>
+<td>Validación progresiva reactiva a eventos</td>
+</tr>
+<tr>
+<td>Observabilidad mencionada</td>
+<td>Observabilidad como componente de primer nivel</td>
+</tr>
+<tr>
+<td>Componentes genéricos</td>
+<td>12+ componentes con responsabilidades definidas</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
+<p>Alineada con el <strong>diagrama maestro aprobado</strong> — ver <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> para diagramas completos exportables.</p>
+<h3 id="40-flujo-tecnico-e2e-resumen" class="subsection-title">4.0 Flujo técnico E2E (resumen)</h3>
+<div class="mermaid">
+flowchart TD
+    START(["Documento CAE"]) --> GW{"Gateway + Auth"}
+    GW -->|Inválido| REJ1["Rechazo UX"]
+    GW --> BLOB["Blob RAW"] --> Q["Redis / Service Bus"]
+    Q --> ORCH["Orchestrator + Workflow"]
+    ORCH --> NORM["Normalización HEIC/PDF/PNG"]
+    NORM --> OCR["Document Intelligence"]
+    OCR --> CONF{"Confidence"}
+    CONF -->|Baja| VLM["GPT-4o Vision"]
+    CONF -->|Alta| CLASS["Clasificador"]
+    VLM --> CLASS
+    CLASS --> EXT["Extractores especializados"]
+    EXT --> JSON["JSON + confidence"]
+    JSON --> MOTOR["⚙ MOTOR VALIDACIÓN PROGRESIVA CAE"]
+    MOTOR --> LOOP{"¿Completo?"}
+    LOOP -->|No| UI["Feedback UI → esperar docs"]
+    UI --> JSON
+    LOOP -->|Sí| FDR["Foundry + RAG"]
+    FDR --> DEC{"OK / Review / Reject"}
+    DEC --> SUP["Supervisor + Asistente IA"]
+    SUP --> FB["Feedback Engine → MLOps"]
+    DEC --> AUDIT["Audit + Tracing"]
+    AUDIT --> CDN["AVIF/WebP + CDN → Thumbnails UI"]
+</div><h3 id="41-motor-validacion-progresiva-cae-componente-central" class="subsection-title">4.1 Motor Validación Progresiva CAE (componente central)</h3>
+<p>El <strong>Motor Validación Progresiva CAE</strong> es el núcleo técnico del sistema. Se ejecuta tras cada extracción o modificación de datos.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Submódulo</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reglas deterministas</td>
+<td>Bloques A–G (RF-001 a RF-030), versionadas en Git</td>
+</tr>
+<tr>
+<td>Cruce semántico</td>
+<td>Join multi-documento: titular, VIN, matrícula, fechas, empresa</td>
+</tr>
+<tr>
+<td>Validación fechas/vigencias</td>
+<td>RF-019, antigüedad VO (API IDEAUTO)</td>
+</tr>
+<tr>
+<td>Validación vehículo-documentación</td>
+<td>Coherencia VO/VN, combustible, homologación</td>
+</tr>
+<tr>
+<td>Documentación obligatoria</td>
+<td>Checklist por tipología expediente</td>
+</tr>
+<tr>
+<td>Global Scoring + Risk</td>
+<td>Completitud, confianza, riesgo, FTR</td>
+</tr>
+<tr>
+<td>Clasificador incidencias</td>
+<td>Crítica / Mayor / Menor / Informativa</td>
+</tr>
+</tbody></table></div>
+<p><strong>Entrada:</strong> Unified Expedition JSON (datos extraídos + formulario CAE).
+<strong>Salida:</strong> Incidencias[], scoring{}, estadoExpediente, bloqueaEnvio: boolean.</p>
+<p><strong>Latencia objetivo:</strong> &lt; 3 s (reglas deterministas); &lt; 10 s (con Foundry opcional).</p>
+<h3 id="42-pipeline-de-ingesta-y-extraccion" class="subsection-title">4.2 Pipeline de ingesta y extracción</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Tecnología</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gateway</td>
+<td>API Management / Edge Gateway</td>
+<td>JWT Entra ID, idempotency Redis</td>
+</tr>
+<tr>
+<td>Blob RAW</td>
+<td>Azure Blob Storage</td>
+<td>Inmutable, SHA-256, versionado</td>
+</tr>
+<tr>
+<td>Colas</td>
+<td>Redis (fast) + Service Bus (reliable)</td>
+<td>DLQ, retry exponencial</td>
+</tr>
+<tr>
+<td>Normalización</td>
+<td>Preprocessing Engine</td>
+<td>HEIC/JPG/PNG/PDF → PNG normalizado</td>
+</tr>
+<tr>
+<td>OCR primario</td>
+<td>Azure Document Intelligence</td>
+<td>Layout + custom models</td>
+</tr>
+<tr>
+<td>OCR fallback</td>
+<td>GPT-4o Vision (Foundry)</td>
+<td>Si confidence &lt; 0.85</td>
+</tr>
+<tr>
+<td>Clasificación</td>
+<td>DI classifier + reglas</td>
+<td>Routing a extractor</td>
+</tr>
+<tr>
+<td>Extracción</td>
+<td>Workers especializados</td>
+<td>Ver tabla 4.3</td>
+</tr>
+</tbody></table></div>
+<h3 id="43-extractores-especializados-cae" class="subsection-title">4.3 Extractores especializados CAE</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Extractor</th>
+<th>Tipos documentales</th>
+<th>Campos clave</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Identidad</td>
+<td>DNI, NIE</td>
+<td>Nombre, NIF, dirección, firma</td>
+</tr>
+<tr>
+<td>Factura</td>
+<td>Factura VN</td>
+<td>Titular, VIN, matrícula, marca, modelo</td>
+</tr>
+<tr>
+<td>Ficha Técnica</td>
+<td>Ficha VN/VO</td>
+<td>VIN, energía, categoría, masa</td>
+</tr>
+<tr>
+<td>Permiso</td>
+<td>Permiso circulación, IVTM</td>
+<td>Titular, matrícula, ejercicio</td>
+</tr>
+<tr>
+<td>Vehículo VO/VN</td>
+<td>Sustitución, baja, contrato</td>
+<td>Fechas, titular, identificación</td>
+</tr>
+<tr>
+<td>Convenio CAE</td>
+<td>Convenio, anexo, autorización</td>
+<td>Firma, contraprestación €/kWh</td>
+</tr>
+<tr>
+<td>Firma</td>
+<td>Todos los firmables</td>
+<td>Detección, comparación DNI</td>
+</tr>
+<tr>
+<td>Genérico</td>
+<td>No clasificado</td>
+<td>Extracción best-effort</td>
+</tr>
+</tbody></table></div>
+<h3 id="44-decision-final-y-revision-humana" class="subsection-title">4.4 Decisión final y revisión humana</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Resultado</th>
+<th>Condición técnica</th>
+<th>Destino</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OK</strong></td>
+<td>Sin incidencias críticas/mayores; completitud 100%</td>
+<td>Permite envío a Operaciones</td>
+</tr>
+<tr>
+<td><strong>Review</strong></td>
+<td>Incidencias menores o baja confidence global</td>
+<td>Cola revisión + resumen IA</td>
+</tr>
+<tr>
+<td><strong>Reject</strong></td>
+<td>Incidencias críticas/mayores abiertas</td>
+<td>Bloqueo + detalle al cliente</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Importante:</strong> OK no es aprobación automática. La validación humana en Operaciones (Fase 8) es obligatoria para aprobación definitiva.</p></blockquote>
+<h3 id="45-capa-observabilidad-y-entrega-ui" class="subsection-title">4.5 Capa observabilidad y entrega UI</h3>
+<p>Flujo transversal post-procesamiento:</p>
+<pre><code>Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
+         → Optimización AVIF/WebP → CDN → Frontend Thumbnails + Auto-fill UI
+</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Audit Log</td>
+<td>Append-only: prompts, respuestas, decisiones, correcciones</td>
+</tr>
+<tr>
+<td>OpenTelemetry</td>
+<td>Tracing E2E con correlation-id</td>
+</tr>
+<tr>
+<td>PNG procesado</td>
+<td>Versión normalizada para revisión</td>
+</tr>
+<tr>
+<td>AVIF/WebP</td>
+<td>Optimización para CDN</td>
+</tr>
+<tr>
+<td>Thumbnails</td>
+<td>Preview documentos en UI cliente</td>
+</tr>
+<tr>
+<td>Auto-fill UI</td>
+<td>Campos rellenados desde JSON extracción</td>
+</tr>
+</tbody></table></div>
+<h3 id="46-mapa-fase-funcional-tecnica" class="subsection-title">4.6 Mapa fase funcional ↔ técnica</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase funcional</th>
+<th>Componentes técnicos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① Frontend</td>
+<td>UI CAE, SSE/WebSocket, panel incidencias</td>
+</tr>
+<tr>
+<td>②–④ Ingesta + Extracción</td>
+<td>Gateway, Blob, OCR, Vision, Classifier, Workers</td>
+</tr>
+<tr>
+<td>⑤ Validación progresiva</td>
+<td><strong>Motor Validación Progresiva CAE</strong></td>
+</tr>
+<tr>
+<td>⑥ Razonamiento IA</td>
+<td>Orchestrator, Foundry, AI Search RAG</td>
+</tr>
+<tr>
+<td>⑦ Decisión</td>
+<td>Decision Engine</td>
+</tr>
+<tr>
+<td>⑧ Operaciones</td>
+<td>Cola revisión, UI supervisor, asistente IA</td>
+</tr>
+<tr>
+<td>⑨ MLOps</td>
+<td>Feedback Engine, dataset, evaluación</td>
+</tr>
+<tr>
+<td>⑩ Observabilidad</td>
+<td>OpenTelemetry, Audit, dashboards</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="5-componentes-principales" class="section-title">5. Componentes principales</h2>
+<h3 id="51-edge-gateway" class="subsection-title">5.1 Edge Gateway</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Punto de entrada único para servicios IA</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Autenticación JWT (Entra ID), rate limiting, idempotency key, validación schema, trazabilidad request-id</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>HTTP/REST + multipart upload</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Request enrutado a Orchestrator o respuesta cached</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Redis (idempotency), Key Vault (secrets)</td>
+</tr>
+<tr>
+<td><strong>Escalabilidad</strong></td>
+<td>Horizontal, stateless</td>
+</tr>
+<tr>
+<td><strong>Errores</strong></td>
+<td>401/403 auth, 429 rate limit, 409 duplicate</td>
+</tr>
+</tbody></table></div>
+<h3 id="52-blob-storage-raw" class="subsection-title">5.2 Blob Storage RAW</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Almacenamiento inmutable del documento original</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Versionado, WORM lógico, hash SHA-256, metadata expediente</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Archivo binario post-validación gateway</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>URI + hash + metadata</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Azure Blob Storage</td>
+</tr>
+<tr>
+<td><strong>Auditoría</strong></td>
+<td>Toda versión documental trazable</td>
+</tr>
+</tbody></table></div>
+<h3 id="53-preprocessing-engine" class="subsection-title">5.3 Preprocessing Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Normalización de formatos e imagen</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>HEIC/JPG/PNG → PNG, PDF split, mejora contraste, deskew, denoise</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Blob URI</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Páginas normalizadas listas para OCR</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Blob, ImageMagick/libvips o equivalente</td>
+</tr>
+</tbody></table></div>
+<h3 id="54-document-classifier" class="subsection-title">5.4 Document Classifier</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Detectar tipo documental y asignar extractor</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Texto OCR + metadata imagen</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ tipo: &quot;factura_vn&quot;, confidence: 0.96, extractor: &quot;extractor-factura&quot; }</code></td>
+</tr>
+<tr>
+<td><strong>Modelos</strong></td>
+<td>Document Intelligence custom classifier + reglas fallback</td>
+</tr>
+</tbody></table></div>
+<h3 id="55-extraction-engine-workers-ia" class="subsection-title">5.5 Extraction Engine + Workers IA</h3>
+<p>Workers especializados alineados con el clasificador documental del flujo E2E (ver <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> §4.3):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Worker</th>
+<th>Documentos</th>
+<th>Routing clasificador</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extractor Identidad</td>
+<td>DNI, NIE</td>
+<td><code>CLASS → Identidad</code></td>
+</tr>
+<tr>
+<td>Extractor Factura</td>
+<td>Factura VN</td>
+<td><code>CLASS → Factura VN</code></td>
+</tr>
+<tr>
+<td>Extractor Ficha Técnica</td>
+<td>Ficha técnica VN/VO</td>
+<td><code>CLASS → Ficha Técnica</code></td>
+</tr>
+<tr>
+<td>Extractor Permiso</td>
+<td>Permiso circulación, IVTM</td>
+<td><code>CLASS → Permiso/IVTM</code></td>
+</tr>
+<tr>
+<td>Extractor Vehículo</td>
+<td>Sustitución VO, baja, contrato</td>
+<td><code>CLASS → VO/VN</code></td>
+</tr>
+<tr>
+<td>Extractor Convenio CAE</td>
+<td>Convenio, anexo, autorización datos</td>
+<td><code>CLASS → Convenio</code></td>
+</tr>
+<tr>
+<td>Extractor Firma</td>
+<td>Detección y comparación firmas</td>
+<td><code>CLASS → Firma</code></td>
+</tr>
+<tr>
+<td>Extractor Genérico</td>
+<td>No clasificado / fallback</td>
+<td><code>CLASS → Otros</code></td>
+</tr>
+</tbody></table></div>
+<p><strong>Salida estándar:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  &quot;documentoId&quot;: &quot;doc-abc123&quot;,
+  &quot;tipo&quot;: &quot;factura_vn&quot;,
+  &quot;campos&quot;: {
+    &quot;vin&quot;: { &quot;valor&quot;: &quot;VF1ABC12345678901&quot;, &quot;confidence&quot;: 0.97, &quot;bbox&quot;: [120, 340, 400, 360] },
+    &quot;titular&quot;: { &quot;valor&quot;: &quot;GARCIA LOPEZ, JUAN&quot;, &quot;confidence&quot;: 0.95, &quot;bbox&quot;: null },
+    &quot;matricula&quot;: { &quot;valor&quot;: &quot;1234ABC&quot;, &quot;confidence&quot;: 0.98, &quot;bbox&quot;: [80, 200, 180, 220] }
+  },
+  &quot;provenance&quot;: &quot;document-intelligence:v3.1&quot;,
+  &quot;timestamp&quot;: &quot;2026-07-03T10:15:00Z&quot;
+}
+</code></pre>
+<h3 id="56-motor-validacion-progresiva-cae-validation-engine" class="subsection-title">5.6 Motor Validación Progresiva CAE (Validation Engine)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td><strong>Núcleo técnico</strong> — motor determinista de reglas CAE + cruces + scoring</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Reglas RF-001 a RF-030, cruces semánticos, completitud, scoring, severidades, validación progresiva reactiva</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Unified Expedition JSON</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Incidencias[] + scoring{} + estadoExpediente + bloqueaEnvio</td>
+</tr>
+<tr>
+<td><strong>Disparadores</strong></td>
+<td>DocumentExtracted, FieldModified, DocumentReplaced</td>
+</tr>
+<tr>
+<td><strong>Versionado</strong></td>
+<td>Reglas versionadas en repositorio Git + despliegue controlado</td>
+</tr>
+<tr>
+<td><strong>Parametrización</strong></td>
+<td>Rangos, marcas, tipologías configurables sin redeploy</td>
+</tr>
+</tbody></table></div>
+<p>Ver <a href="#41-motor-validaci%C3%B3n-progresiva-cae-componente-central">sección 4.1</a> y <a href="#7-validation-engine">sección 7</a>.</p>
+<h3 id="57-ai-orchestrator" class="subsection-title">5.7 AI Orchestrator</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Coordinación de todos los servicios IA</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Planificación, fan-out/fan-in, agregación, gestión prompts, normalización respuestas, resumen ejecutivo, coordinación agentes</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Eventos de expediente/documento</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Respuestas unificadas para CAE</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>FSM en Redis (live state)</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Todos los subsistemas IA</td>
+</tr>
+</tbody></table></div>
+<p><strong>Contrato entrada/salida:</strong></p>
+<pre class="code-block"><code class="language-json">// Entrada
+{
+  &quot;expedienteId&quot;: &quot;exp-123&quot;,
+  &quot;evento&quot;: &quot;DOCUMENTO_PROCESADO&quot;,
+  &quot;documentos&quot;: [{ &quot;id&quot;: &quot;doc-1&quot;, &quot;tipo&quot;: &quot;dni&quot;, &quot;extraccion&quot;: {} }]
+}
+
+// Salida
+{
+  &quot;expedienteId&quot;: &quot;exp-123&quot;,
+  &quot;estado&quot;: &quot;CON_INCIDENCIAS&quot;,
+  &quot;scoring&quot;: { &quot;completitud&quot;: 85, &quot;confianza&quot;: 78, &quot;riesgo&quot;: &quot;MEDIO&quot; },
+  &quot;incidencias&quot;: [],
+  &quot;recomendaciones&quot;: [],
+  &quot;resumenEjecutivo&quot;: null
+}
+</code></pre>
+<h3 id="58-decision-engine" class="subsection-title">5.8 Decision Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Decisión pre-envío: OK / Review / Reject</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Resultado Validation Engine + análisis Foundry</td>
+</tr>
+<tr>
+<td><strong>Lógica</strong></td>
+<td>Críticas abiertas → Reject; Mayores → Reject; Solo menores → Review; Limpio → OK</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ decision: &quot;REVIEW&quot;, motivo: &quot;...&quot;, incidenciasBloqueantes: [] }</code></td>
+</tr>
+</tbody></table></div>
+<h3 id="59-knowledge-base-cae-rag" class="subsection-title">5.9 Knowledge Base CAE (RAG)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Conocimiento específico negocio CAE para Foundry</td>
+</tr>
+<tr>
+<td><strong>Fuentes</strong></td>
+<td>Procedimientos IDEAUTO, normativa, checklists, casuísticas, FAQ Operaciones</td>
+</tr>
+<tr>
+<td><strong>Tecnología</strong></td>
+<td>Embeddings + Vector DB (Azure AI Search)</td>
+</tr>
+<tr>
+<td><strong>Versionado</strong></td>
+<td>Índices versionados, rollback posible</td>
+</tr>
+<tr>
+<td><strong>Chunking</strong></td>
+<td>Por sección normativa, caso de uso, checklist</td>
+</tr>
+</tbody></table></div>
+<h3 id="510-feedback-engine" class="subsection-title">5.10 Feedback Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Captura correcciones humanas y alimenta mejora</td>
+</tr>
+<tr>
+<td><strong>Registra</strong></td>
+<td>Dato corregido, motivo, usuario, fecha, regla/incidencia asociada</td>
+</tr>
+<tr>
+<td><strong>Genera</strong></td>
+<td>Datasets etiquetados, métricas precisión, evaluaciones Foundry</td>
+</tr>
+<tr>
+<td><strong>Salidas</strong></td>
+<td>Mejora prompts, reglas, extractores</td>
+</tr>
+</tbody></table></div>
+<h3 id="511-observability-stack" class="subsection-title">5.11 Observability Stack</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Audit Log</td>
+<td>Prompts, respuestas, decisiones, correcciones</td>
+</tr>
+<tr>
+<td>OpenTelemetry</td>
+<td>Tracing distribuido end-to-end</td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td>Latencia OCR, Foundry, reglas, coste por llamada</td>
+</tr>
+<tr>
+<td>Dashboards</td>
+<td>KPIs técnicos y funcionales</td>
+</tr>
+<tr>
+<td>Alerting</td>
+<td>DLQ, latencia P99, error rate, coste anómalo</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-pipeline-documental" class="section-title">6. Pipeline documental</h2>
+<h3 id="61-secuencia-por-documento" class="subsection-title">6.1 Secuencia por documento</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant FE as Frontend
+    participant GW as Edge Gateway
+    participant BL as Blob RAW
+    participant Q as Redis/SB
+    participant OR as Orchestrator
+    participant PR as Preprocessing
+    participant DI as Doc Intelligence
+    participant CL as Classifier
+    participant EX as Extractor Worker
+    participant VE as Validation Engine
+    participant FD as AI Foundry<pre><code>FE-&gt;&gt;GW: POST /documentos (multipart)
+GW-&gt;&gt;GW: Auth + Idempotency
+GW-&gt;&gt;BL: Store RAW
+GW-&gt;&gt;Q: Event DocumentUploaded
+Q-&gt;&gt;OR: Consume event
+OR-&gt;&gt;PR: Normalize
+PR-&gt;&gt;DI: OCR
+alt Confidence baja
+    DI-&gt;&gt;OR: Low confidence
+    OR-&gt;&gt;FD: GPT-4o Vision fallback
+end
+DI-&gt;&gt;CL: Classify
+CL-&gt;&gt;EX: Route to extractor
+EX-&gt;&gt;OR: Structured JSON
+OR-&gt;&gt;VE: Progressive validation
+VE-&gt;&gt;OR: Incidencias + score
+OR-&gt;&gt;FD: Optional reasoning
+OR-&gt;&gt;FE: WebSocket / poll result
+</code></pre>
+</div><h3 id="62-formatos-soportados" class="subsection-title">6.2 Formatos soportados</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Tratamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PDF texto embebido</td>
+<td>PDF Parser directo</td>
+</tr>
+<tr>
+<td>PDF escaneado</td>
+<td>PDF → PNG → OCR</td>
+</tr>
+<tr>
+<td>JPG/PNG/HEIC</td>
+<td>Normalización → OCR</td>
+</tr>
+<tr>
+<td>Multi-página</td>
+<td>Split + procesamiento paralelo (fan-out)</td>
+</tr>
+</tbody></table></div>
+<h3 id="63-umbrales-de-confidence" class="subsection-title">6.3 Umbrales de confidence</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Rango</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alta</td>
+<td>≥ 0.85</td>
+<td>Extracción aceptada</td>
+</tr>
+<tr>
+<td>Media</td>
+<td>0.65 – 0.84</td>
+<td>Extracción + advertencia menor</td>
+</tr>
+<tr>
+<td>Baja</td>
+<td>&lt; 0.65</td>
+<td>Fallback GPT-4o Vision</td>
+</tr>
+<tr>
+<td>Muy baja</td>
+<td>&lt; 0.50</td>
+<td>Incidencia mayor + revisión manual</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="7-validation-engine" class="section-title">7. Validation Engine</h2>
+<h3 id="71-arquitectura-interna" class="subsection-title">7.1 Arquitectura interna</h3>
+<div class="mermaid">
+flowchart LR
+    IN["Unified Expedition JSON"] --> DOC["Reglas documentales A/G"]
+    DOC --> COH["Cruces semánticos C"]
+    COH --> CAE["Reglas CAE D"]
+    CAE --> FORM["Reglas formulario E"]
+    FORM --> ANX["Anexos F"]
+    ANX --> COMP["Completitud"]
+    COMP --> SEV["Clasificación severidad"]
+    SEV --> SCORE["Scoring Engine"]
+    SCORE --> OUT["Incidencias + Estado"]
+</div><h3 id="72-tipos-de-regla" class="subsection-title">7.2 Tipos de regla</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Implementación</th>
+<th>Ejemplo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Regex / Checksum</td>
+<td>Código determinista</td>
+<td>DNI, VIN (17 chars, sin I/O/Q)</td>
+</tr>
+<tr>
+<td>Comparación cross-doc</td>
+<td>Join por campo</td>
+<td>RF-012 VIN</td>
+</tr>
+<tr>
+<td>API externa</td>
+<td>HTTP client</td>
+<td>RF-015 antigüedad VO → API IDEAUTO</td>
+</tr>
+<tr>
+<td>Rango numérico</td>
+<td>Config parametrizable</td>
+<td>RF-027 contraprestación 0.10–0.20</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>Date diff</td>
+<td>RF-019 fechas actuación</td>
+</tr>
+<tr>
+<td>Completitud</td>
+<td>Checklist obligatorios</td>
+<td>Documentos requeridos por tipología</td>
+</tr>
+</tbody></table></div>
+<h3 id="73-versionado-de-reglas" class="subsection-title">7.3 Versionado de reglas</h3>
+<pre class="code-block"><code class="language-yaml"># rules/rf-012-vin.yaml
+id: RF-012
+version: &quot;2.1.0&quot;
+nombre: Coherencia VIN
+severidad: CRITICA
+documentos:
+  - factura_vn
+  - ficha_tecnica_vn
+  - permiso_circulacion_vo
+campo: vin
+tipo: cross_document_match
+tolerancia: exact
+api_validacion: ideauto/vehiculos/{vin}
+</code></pre>
+<h3 id="74-validacion-progresiva-implementacion" class="subsection-title">7.4 Validación progresiva (implementación)</h3>
+<ul>
+<li><strong>Trigger:</strong> Eventos <code>DocumentExtracted</code>, <code>FieldModified</code>, <code>DocumentReplaced</code>.</li>
+<li><strong>Scope:</strong> Re-evaluar reglas afectadas (matriz documento → reglas).</li>
+<li><strong>Cache:</strong> Resultados parciales en Redis con TTL.</li>
+<li><strong>Latencia objetivo:</strong> &lt; 3 s reglas deterministas; &lt; 10 s incluyendo Foundry opcional.</li>
+</ul>
+<hr>
+<h2 id="8-azure-ai-foundry-y-knowledge-base" class="section-title">8. Azure AI Foundry y Knowledge Base</h2>
+<h3 id="81-azure-document-intelligence" class="subsection-title">8.1 Azure Document Intelligence</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OCR</td>
+<td>Extracción texto general</td>
+</tr>
+<tr>
+<td>Custom models</td>
+<td>DNI, facturas, fichas técnicas</td>
+</tr>
+<tr>
+<td>Layout analysis</td>
+<td>Bounding boxes, tablas</td>
+</tr>
+<tr>
+<td>Classification</td>
+<td>Tipo documental</td>
+</tr>
+</tbody></table></div>
+<h3 id="82-azure-ai-foundry" class="subsection-title">8.2 Azure AI Foundry</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GPT-4o</td>
+<td>Razonamiento, explicaciones, resumen</td>
+</tr>
+<tr>
+<td>GPT-4o Vision</td>
+<td>Fallback OCR baja confidence</td>
+</tr>
+<tr>
+<td>Prompt management</td>
+<td>Versionado prompts</td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>Regression testing prompts</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>Orquestación multi-paso</td>
+</tr>
+</tbody></table></div>
+<h3 id="83-rag-knowledge-base-cae" class="subsection-title">8.3 RAG — Knowledge Base CAE</h3>
+<div class="mermaid">
+flowchart LR
+    Q["Consulta contextual"] --> E["Embedding query"]
+    E --> V["Vector Search Azure AI Search"]
+    V --> C["Top-K chunks"]
+    C --> P["Prompt enriquecido"]
+    P --> LLM["GPT-4o Foundry"]
+    LLM --> R["Respuesta con citas"]
+</div><p><strong>Fuentes indexadas:</strong></p>
+<ul>
+<li>Procedimientos operativos IDEAUTO</li>
+<li>Normativa CAE y guías de gestión</li>
+<li>Checklists de revisión</li>
+<li>Casuísticas e incidencias frecuentes</li>
+<li>FAQ generadas por Operaciones</li>
+<li>Resoluciones históricas anonimizadas</li>
+</ul>
+<h3 id="84-guardrails-ia" class="subsection-title">8.4 Guardrails IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Guardrail</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hallucination guard</td>
+<td>Respuestas ancladas a chunks RAG + JSON expediente</td>
+</tr>
+<tr>
+<td>PII masking</td>
+<td>En logs y datasets</td>
+</tr>
+<tr>
+<td>Prompt injection</td>
+<td>Sanitización input usuario</td>
+</tr>
+<tr>
+<td>Confidence threshold</td>
+<td>No afirmar datos no presentes en extracción</td>
+</tr>
+<tr>
+<td>Human review</td>
+<td>Decisiones críticas siempre con revisión humana</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-flujos-tecnicos" class="section-title">9. Flujos técnicos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Flujo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FT-01</td>
+<td>Creación expediente</td>
+<td>CAE crea expediente; IA en standby</td>
+</tr>
+<tr>
+<td>FT-02</td>
+<td>Subida documento</td>
+<td>Gateway → Blob → Queue → Pipeline</td>
+</tr>
+<tr>
+<td>FT-03</td>
+<td>Extracción IA</td>
+<td>OCR → Classify → Extract → JSON</td>
+</tr>
+<tr>
+<td>FT-04</td>
+<td>Validación progresiva</td>
+<td>Rules → Cross → Score → UI feedback</td>
+</tr>
+<tr>
+<td>FT-05</td>
+<td>Construcción expediente</td>
+<td>Auto-fill + incidencias continuas</td>
+</tr>
+<tr>
+<td>FT-06</td>
+<td>Validación final</td>
+<td>Decision Engine pre-envío</td>
+</tr>
+<tr>
+<td>FT-07</td>
+<td>Revisión Operaciones</td>
+<td>Resumen IA + cola + validación humana</td>
+</tr>
+<tr>
+<td>FT-08</td>
+<td>Feedback continuo</td>
+<td>Correcciones → Dataset → MLOps</td>
+</tr>
+</tbody></table></div>
+<h3 id="91-ft-02-subida-documento-detalle" class="subsection-title">9.1 FT-02 Subida documento (detalle)</h3>
+<pre><code>Cliente → POST /api/v1/expedientes/{id}/documentos
+       → Edge Gateway (auth, idempotency, validation)
+       → Blob RAW (immutable)
+       → Event DocumentUploaded → Redis/SB
+       → Orchestrator → Fan-out worker
+       → Response 202 Accepted { jobId, status: &quot;PROCESANDO&quot; }
+       → Webhook/SSE → Frontend actualizado
+</code></pre>
+<h3 id="92-ft-06-validacion-final" class="subsection-title">9.2 FT-06 Validación final</h3>
+<pre><code>Cliente → POST /api/v1/expedientes/{id}/enviar
+       → Orchestrator → Validation Engine (full)
+       → Foundry → Análisis global + resumen
+       → Decision Engine → OK | REVIEW | REJECT
+       → Si REJECT: 422 + incidencias bloqueantes
+       → Si OK/REVIEW: Cola Operaciones
+</code></pre>
+<h3 id="93-ft-08-feedback-continuo" class="subsection-title">9.3 FT-08 Feedback continuo</h3>
+<pre><code>Operaciones corrige dato → POST /api/v1/feedback
+                        → Feedback Engine persiste
+                        → Dataset Builder (batch nocturno)
+                        → Evaluation pipeline
+                        → Actualización reglas/prompts (CI/CD)
+</code></pre>
+<hr>
+<h2 id="10-modelo-de-ia" class="section-title">10. Modelo de IA</h2>
+<h3 id="101-capas-de-ia" class="subsection-title">10.1 Capas de IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>IA Extractiva</strong></td>
+<td>Document Intelligence, OCR, Classifier</td>
+<td>Campos estructurados, confidence</td>
+</tr>
+<tr>
+<td><strong>IA Generativa</strong></td>
+<td>Azure AI Foundry, GPT-4o, RAG</td>
+<td>Resumen, explicación, asistencia</td>
+</tr>
+<tr>
+<td><strong>IA Especializada</strong></td>
+<td>Workers custom</td>
+<td>Firmas, VO, VN, convenios</td>
+</tr>
+</tbody></table></div>
+<h3 id="102-fase-inicial-mvp" class="subsection-title">10.2 Fase inicial (MVP)</h3>
+<ul>
+<li>Azure AI Foundry + GPT-4o</li>
+<li>Document Intelligence prebuilt + custom models</li>
+<li>Prompt Engineering + RAG</li>
+<li>Sin fine-tuning propio</li>
+</ul>
+<h3 id="103-fase-avanzada-opcional" class="subsection-title">10.3 Fase avanzada (opcional)</h3>
+<ul>
+<li>Fine-tuning extractores</li>
+<li>Modelos especializados por marca/documento</li>
+<li>Evaluación continua con datasets etiquetados</li>
+<li>Model Registry (Azure ML)</li>
+</ul>
+<hr>
+<h2 id="11-modelo-de-datos" class="section-title">11. Modelo de datos</h2>
+<h3 id="111-entidades-principales" class="subsection-title">11.1 Entidades principales</h3>
+<div class="mermaid">
+erDiagram
+    EXPEDIENTE ||--o{ DOCUMENTO : contiene
+    DOCUMENTO ||--o| EXTRACCION : genera
+    EXPEDIENTE ||--o{ INCIDENCIA : tiene
+    EXPEDIENTE ||--o{ EVENTO : registra
+    INCIDENCIA }o--|| REGLA : referencia
+    EXPEDIENTE ||--o{ FEEDBACK : recibe
+    DOCUMENTO ||--o{ VERSION : versiona<pre><code>EXPEDIENTE {
+    uuid id PK
+    string estado
+    int completitud_pct
+    int confianza_pct
+    string riesgo
+    timestamp creado
+    timestamp actualizado
+}
+
+DOCUMENTO {
+    uuid id PK
+    uuid expediente_id FK
+    string tipo
+    string estado
+    string blob_uri
+    string hash_sha256
+    timestamp subido
+}
+
+EXTRACCION {
+    uuid id PK
+    uuid documento_id FK
+    jsonb campos
+    float confidence_media
+    string provenance
+    timestamp extraido
+}
+
+INCIDENCIA {
+    uuid id PK
+    uuid expediente_id FK
+    string regla_id
+    string severidad
+    string mensaje
+    boolean bloquea_envio
+    boolean resuelta
+    timestamp detectada
+}
+
+FEEDBACK {
+    uuid id PK
+    uuid expediente_id FK
+    string campo
+    string valor_anterior
+    string valor_nuevo
+    string motivo
+    string usuario
+    timestamp fecha
+}
+
+EVENTO {
+    uuid id PK
+    uuid expediente_id FK
+    string tipo
+    jsonb payload
+    timestamp ocurrido
+}
+</code></pre>
+</div><h3 id="112-almacenamiento" class="subsection-title">11.2 Almacenamiento</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dato</th>
+<th>Tecnología</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Metadatos expediente/incidencias</td>
+<td>PostgreSQL o Cosmos DB</td>
+</tr>
+<tr>
+<td>Documentos RAW</td>
+<td>Azure Blob (Hot)</td>
+</tr>
+<tr>
+<td>Documentos optimizados (AVIF/WebP)</td>
+<td>Blob + CDN</td>
+</tr>
+<tr>
+<td>Estado FSM / cache</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Vectores RAG</td>
+<td>Azure AI Search</td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td>Blob append-only + Log Analytics</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="12-modelo-de-eventos" class="section-title">12. Modelo de eventos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Productor</th>
+<th>Consumidores</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DocumentUploaded</code></td>
+<td>Edge Gateway</td>
+<td>Orchestrator</td>
+</tr>
+<tr>
+<td><code>DocumentExtracted</code></td>
+<td>Extraction Worker</td>
+<td>Validation Engine</td>
+</tr>
+<tr>
+<td><code>ValidationCompleted</code></td>
+<td>Validation Engine</td>
+<td>Orchestrator, Frontend</td>
+</tr>
+<tr>
+<td><code>IncidentDetected</code></td>
+<td>Validation Engine</td>
+<td>Frontend, Audit</td>
+</tr>
+<tr>
+<td><code>ReviewRequested</code></td>
+<td>Decision Engine</td>
+<td>Cola Operaciones</td>
+</tr>
+<tr>
+<td><code>FeedbackStored</code></td>
+<td>Feedback Engine</td>
+<td>MLOps Pipeline</td>
+</tr>
+<tr>
+<td><code>ExpedienteStateChanged</code></td>
+<td>Orchestrator</td>
+<td>CAE Core, Audit</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplo payload:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  &quot;eventId&quot;: &quot;evt-789&quot;,
+  &quot;type&quot;: &quot;DocumentExtracted&quot;,
+  &quot;timestamp&quot;: &quot;2026-07-03T10:15:00Z&quot;,
+  &quot;expedienteId&quot;: &quot;exp-123&quot;,
+  &quot;payload&quot;: {
+    &quot;documentoId&quot;: &quot;doc-456&quot;,
+    &quot;tipo&quot;: &quot;factura_vn&quot;,
+    &quot;confidence&quot;: 0.97
+  },
+  &quot;correlationId&quot;: &quot;corr-abc&quot;,
+  &quot;traceId&quot;: &quot;00-4bf92f3577b34da6a3ce929d0e0e4736-00&quot;
+}
+</code></pre>
+<hr>
+<h2 id="13-apis" class="section-title">13. APIs</h2>
+<h3 id="131-principios" class="subsection-title">13.1 Principios</h3>
+<ul>
+<li>REST JSON sobre HTTPS</li>
+<li>OpenAPI 3.1 spec versionada</li>
+<li>Autenticación JWT Bearer (Entra ID)</li>
+<li>Idempotency-Key header en operaciones de escritura</li>
+<li>Correlation-Id / X-Request-Id para tracing</li>
+</ul>
+<h3 id="132-endpoints-principales" class="subsection-title">13.2 Endpoints principales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Ruta</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/documentos</code></td>
+<td>Subir documento</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/estado</code></td>
+<td>Estado, scoring, incidencias</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/incidencias</code></td>
+<td>Listado incidencias</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/validar</code></td>
+<td>Forzar re-validación</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/enviar</code></td>
+<td>Solicitar envío a revisión</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/resumen</code></td>
+<td>Resumen ejecutivo IA</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/asistente</code></td>
+<td>Consulta asistente inteligente</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/feedback</code></td>
+<td>Registrar corrección</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/jobs/{jobId}</code></td>
+<td>Estado procesamiento async</td>
+</tr>
+</tbody></table></div>
+<h3 id="133-ejemplo-subir-documento" class="subsection-title">13.3 Ejemplo — Subir documento</h3>
+<p><strong>Request:</strong></p>
+<pre class="code-block"><code class="language-http">POST /api/v1/expedientes/exp-123/documentos
+Authorization: Bearer {jwt}
+Idempotency-Key: upload-doc-001
+Content-Type: multipart/form-data
+
+file: [binary]
+tipoEsperado: factura_vn  (opcional)
+</code></pre>
+<p><strong>Response 202:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  &quot;jobId&quot;: &quot;job-xyz789&quot;,
+  &quot;documentoId&quot;: &quot;doc-new-001&quot;,
+  &quot;estado&quot;: &quot;PROCESANDO&quot;,
+  &quot;links&quot;: {
+    &quot;status&quot;: &quot;/api/v1/jobs/job-xyz789&quot;
+  }
+}
+</code></pre>
+<h3 id="134-ejemplo-estado-expediente" class="subsection-title">13.4 Ejemplo — Estado expediente</h3>
+<p><strong>Response 200:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  &quot;expedienteId&quot;: &quot;exp-123&quot;,
+  &quot;estado&quot;: &quot;CON_INCIDENCIAS&quot;,
+  &quot;scoring&quot;: {
+    &quot;completitud&quot;: 85,
+    &quot;confianza&quot;: 78,
+    &quot;riesgo&quot;: &quot;MEDIO&quot;
+  },
+  &quot;incidenciasAbiertas&quot;: {
+    &quot;criticas&quot;: 0,
+    &quot;mayores&quot;: 2,
+    &quot;menores&quot;: 1
+  },
+  &quot;documentosPendientes&quot;: [&quot;ultimo_ivtm&quot;, &quot;convenio_cae&quot;],
+  &quot;decisionPreEnvio&quot;: null
+}
+</code></pre>
+<h3 id="135-codigos-de-error" class="subsection-title">13.5 Códigos de error</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>400</td>
+<td>Payload inválido</td>
+</tr>
+<tr>
+<td>401</td>
+<td>No autenticado</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Sin permisos</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Duplicado (idempotency)</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Validación fallida / incidencias bloqueantes</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Rate limit excedido</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Error interno</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Servicio IA temporalmente no disponible</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="14-colas-y-orquestacion" class="section-title">14. Colas y orquestación</h2>
+<h3 id="141-estrategia-dual-de-colas" class="subsection-title">14.1 Estrategia dual de colas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Cola</th>
+<th>Uso</th>
+<th>Garantías</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Redis Queue</strong></td>
+<td>Fast path, feedback UI tiempo real</td>
+<td>At-least-once, baja latencia</td>
+</tr>
+<tr>
+<td><strong>Azure Service Bus</strong></td>
+<td>Reliable path, batch, reintentos</td>
+<td>At-least-once, DLQ, sessions</td>
+</tr>
+</tbody></table></div>
+<h3 id="142-resiliencia" class="subsection-title">14.2 Resiliencia</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Patrón</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Retry</td>
+<td>Exponential backoff (max 3)</td>
+</tr>
+<tr>
+<td>Dead Letter Queue</td>
+<td>Mensajes fallidos tras N reintentos</td>
+</tr>
+<tr>
+<td>Poison message</td>
+<td>Alerta + manual review</td>
+</tr>
+<tr>
+<td>Circuit Breaker</td>
+<td>API IDEAUTO, Foundry, DI</td>
+</tr>
+<tr>
+<td>Idempotency</td>
+<td>Redis key TTL 24h</td>
+</tr>
+</tbody></table></div>
+<h3 id="143-fan-out-fan-in" class="subsection-title">14.3 Fan-out / Fan-in</h3>
+<ul>
+<li><strong>Fan-out:</strong> Orchestrator despacha N workers paralelos (uno por documento/página).</li>
+<li><strong>Fan-in:</strong> Aggregator consolida JSON parciales en Unified Expedition JSON.</li>
+<li><strong>FSM:</strong> Estados en Redis con TTL y persistencia checkpoint.</li>
+</ul>
+<hr>
+<h2 id="15-seguridad" class="section-title">15. Seguridad</h2>
+<h3 id="151-identidad-y-acceso" class="subsection-title">15.1 Identidad y acceso</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Autenticación</td>
+<td>Microsoft Entra ID + JWT</td>
+</tr>
+<tr>
+<td>Autorización</td>
+<td>RBAC por rol (cliente, operaciones, admin)</td>
+</tr>
+<tr>
+<td>Service-to-service</td>
+<td>Managed Identity</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>Azure Key Vault</td>
+</tr>
+</tbody></table></div>
+<h3 id="152-datos" class="subsection-title">15.2 Datos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requisito</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cifrado tránsito</td>
+<td>TLS 1.2+</td>
+</tr>
+<tr>
+<td>Cifrado reposo</td>
+<td>Azure Storage SSE</td>
+</tr>
+<tr>
+<td>PII</td>
+<td>Minimización, masking en logs</td>
+</tr>
+<tr>
+<td>GDPR</td>
+<td>Retención configurable, derecho supresión</td>
+</tr>
+<tr>
+<td>Blob RAW</td>
+<td>Acceso restringido, SAS temporales</td>
+</tr>
+</tbody></table></div>
+<h3 id="153-seguridad-ia" class="subsection-title">15.3 Seguridad IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt injection</td>
+<td>Sanitización + system prompts reforzados</td>
+</tr>
+<tr>
+<td>Data leakage</td>
+<td>Tenant isolation, no cross-expediente en prompts</td>
+</tr>
+<tr>
+<td>Model abuse</td>
+<td>Rate limiting por tenant/usuario</td>
+</tr>
+<tr>
+<td>Audit</td>
+<td>Log completo prompts/respuestas (retención policy)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="16-observabilidad" class="section-title">16. Observabilidad</h2>
+<h3 id="161-metricas-tecnicas" class="subsection-title">16.1 Métricas técnicas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Disponibilidad</td>
+<td>&gt; 99,5%</td>
+</tr>
+<tr>
+<td>Latencia OCR (P95)</td>
+<td>&lt; 5 s</td>
+</tr>
+<tr>
+<td>Latencia Foundry (P95)</td>
+<td>&lt; 8 s</td>
+</tr>
+<tr>
+<td>Latencia reglas (P95)</td>
+<td>&lt; 1 s</td>
+</tr>
+<tr>
+<td>Latencia total documento (P95)</td>
+<td>&lt; 10 s</td>
+</tr>
+<tr>
+<td>Latencia total expediente</td>
+<td>&lt; 30 s</td>
+</tr>
+<tr>
+<td>Coste por documento</td>
+<td>Monitorizado</td>
+</tr>
+<tr>
+<td>Coste por expediente</td>
+<td>Monitorizado</td>
+</tr>
+<tr>
+<td>Error rate</td>
+<td>&lt; 0,5%</td>
+</tr>
+</tbody></table></div>
+<h3 id="162-metricas-funcionales" class="subsection-title">16.2 Métricas funcionales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Precisión clasificación</td>
+<td>% tipo documental correcto</td>
+</tr>
+<tr>
+<td>Precisión extracción</td>
+<td>% campos clave correctos</td>
+</tr>
+<tr>
+<td>Recall incidencias</td>
+<td>% incidencias reales detectadas</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>Expedientes sin devolución</td>
+</tr>
+<tr>
+<td>Incidencias pre-envío</td>
+<td>% detectadas antes de Operaciones</td>
+</tr>
+<tr>
+<td>Tiempo hasta primera incidencia</td>
+<td>Minutos desde primer upload</td>
+</tr>
+</tbody></table></div>
+<h3 id="163-tracing" class="subsection-title">16.3 Tracing</h3>
+<ul>
+<li>OpenTelemetry end-to-end: Gateway → Orchestrator → DI → VE → Foundry</li>
+<li>Correlation-Id propagado en todos los headers</li>
+<li>Prompt tracing en Foundry (version + tokens + cost)</li>
+</ul>
+<h3 id="164-dashboards" class="subsection-title">16.4 Dashboards</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dashboard</th>
+<th>Audiencia</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pipeline health</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>Costes IA</td>
+<td>Dirección / FinOps</td>
+</tr>
+<tr>
+<td>Calidad extracción</td>
+<td>MLOps</td>
+</tr>
+<tr>
+<td>KPIs funcionales</td>
+<td>Operaciones / Producto</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>Compliance</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="17-mlops-y-feedback-engine" class="section-title">17. MLOps y Feedback Engine</h2>
+<h3 id="171-pipeline-mlops" class="subsection-title">17.1 Pipeline MLOps</h3>
+<div class="mermaid">
+flowchart LR
+    FB["Feedback humano"] --> LB["Labeling"]
+    LB --> DS["Dataset versionado"]
+    DS --> EV["Evaluation"]
+    EV --> PT["Prompt tuning"]
+    EV --> FT["Fine-tuning opcional"]
+    PT --> RG["Regression tests"]
+    FT --> MR["Model Registry"]
+    RG --> DEP["Deploy"]
+    MR --> DEP
+</div><h3 id="172-artefactos-versionados" class="subsection-title">17.2 Artefactos versionados</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Artefacto</th>
+<th>Repositorio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reglas CAE</td>
+<td>Git (YAML)</td>
+</tr>
+<tr>
+<td>Prompts</td>
+<td>Foundry Prompt Registry</td>
+</tr>
+<tr>
+<td>Custom models DI</td>
+<td>Azure ML / DI Studio</td>
+</tr>
+<tr>
+<td>Datasets</td>
+<td>Blob + metadata DB</td>
+</tr>
+<tr>
+<td>Evaluaciones</td>
+<td>MLflow / Foundry Eval</td>
+</tr>
+</tbody></table></div>
+<h3 id="173-regression-testing" class="subsection-title">17.3 Regression testing</h3>
+<ul>
+<li>Suite de expedientes golden (anonimizados)</li>
+<li>Umbral mínimo precisión extracción: 95%</li>
+<li>Umbral mínimo recall incidencias críticas: 98%</li>
+<li>Bloqueo de deploy si regresión &gt; 2%</li>
+</ul>
+<hr>
+<h2 id="18-despliegue-azure" class="section-title">18. Despliegue Azure</h2>
+<h3 id="181-vista-fisica-referencia" class="subsection-title">18.1 Vista física (referencia)</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph Azure["Azure Cloud"]
+        subgraph Compute["Compute"]
+            AKS["AKS — Orchestrator, Workers, Validation"]
+            FA["Azure Functions — Webhooks, batch"]
+        end
+        subgraph AI["AI Services"]
+            DI["Document Intelligence"]
+            FDR["AI Foundry"]
+            AIS["AI Search — Vector DB"]
+        end
+        subgraph Data["Data"]
+            BLOB["Blob Storage"]
+            REDIS["Azure Cache Redis"]
+            SB["Service Bus"]
+            PG["PostgreSQL Flexible"]
+        end
+        subgraph Security["Security"]
+            EID["Entra ID"]
+            KV["Key Vault"]
+        end
+        subgraph Monitor["Monitoring"]
+            LA["Log Analytics"]
+            AM["Application Insights"]
+            OTEL["OpenTelemetry Collector"]
+        end
+        CDN["Azure CDN"]
+        APIM["API Management"]
+    end<pre><code>Users[&quot;Usuarios CAE&quot;] --&gt; APIM
+APIM --&gt; AKS
+AKS --&gt; DI &amp; FDR &amp; AIS
+AKS --&gt; BLOB &amp; REDIS &amp; SB &amp; PG
+AKS --&gt; EID &amp; KV
+AKS --&gt; LA &amp; AM
+BLOB --&gt; CDN
+</code></pre>
+</div><h3 id="182-entornos" class="subsection-title">18.2 Entornos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Entorno</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEV</td>
+<td>Desarrollo, mocks API IDEAUTO</td>
+</tr>
+<tr>
+<td>STAGING</td>
+<td>Integración, regression tests</td>
+</tr>
+<tr>
+<td>PRO</td>
+<td>Producción con SLA</td>
+</tr>
+</tbody></table></div>
+<h3 id="183-cicd" class="subsection-title">18.3 CI/CD</h3>
+<ul>
+<li>GitHub Actions / Azure DevOps</li>
+<li>Deploy independiente: reglas, prompts, workers, infra</li>
+<li>Feature flags para activación gradual de reglas</li>
+</ul>
+<hr>
+<h2 id="19-kpis-tecnicos" class="section-title">19. KPIs técnicos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Disponibilidad</td>
+<td>&gt; 99,5%</td>
+</tr>
+<tr>
+<td>Tiempo análisis documento</td>
+<td>&lt; 10 s (P95)</td>
+</tr>
+<tr>
+<td>Tiempo análisis expediente</td>
+<td>&lt; 30 s (P95)</td>
+</tr>
+<tr>
+<td>Precisión OCR</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Precisión clasificación</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Precisión extracción campos clave</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Recall incidencias críticas</td>
+<td>&gt; 98%</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Expedientes auditables</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>&gt; 60%</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="20-vision-final" class="section-title">20. Visión final</h2>
+<p>La arquitectura v3.0 utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
+<p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
+<p>El <strong>Feedback Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua, convirtiendo correcciones humanas en datasets, evaluaciones y refinamiento de reglas, prompts y extractores.</p>
+<blockquote class="callout"><p><em>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</em></p></blockquote>
+<hr>
+<p><em>Documento generado como Diseño Técnico de Referencia v3.0 — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
+</article>
+        <footer class="doc-footer">
+          <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script>
+    const fab = document.getElementById('fabTop');
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+      fab.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = [...tocLinks]
+      .map((a) => document.getElementById(a.dataset.section))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((l) =>
+              l.classList.toggle('active', l.dataset.section === entry.target.id)
+            );
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+  </script>
+</body>
+</html>

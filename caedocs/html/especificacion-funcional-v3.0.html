@@ -1,0 +1,1928 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESPECIFICACIÓN FUNCIONAL — CAE IA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="switch-theme.css" />
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        primaryColor: '#ffe5e8',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#e60012',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+  </script>
+</head>
+<body class="accent-red">
+  <div class="joycon joycon-left" aria-hidden="true"></div>
+  <div class="joycon joycon-right" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="40" height="24" rx="6" fill="currentColor" opacity=".15"/><rect x="8" y="16" width="32" height="16" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="24" r="3" fill="currentColor"/></svg>
+          </span>
+          <div>
+            <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
+            <h1 class="brand-title">ESPECIFICACIÓN FUNCIONAL</h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-red">Funcional</span>
+          <span class="badge badge-neutral">v3.1</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Sistema de Asistencia Inteligente — Plataforma CAE</p>
+      <nav class="doc-nav">
+        <a href="index.html" class="nav-pill">Inicio</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill active">Especificación funcional</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill">Diseño técnico</a>
+        <a href="../ARQUITECTURA-CAE-IA.png" class="nav-pill" target="_blank" rel="noopener">Diagrama PNG</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+          <p class="sidebar-label">Índice</p>
+          <ul class="toc"><li><a href="#sistema-de-asistencia-inteligente-para-la-plataforma-cae-v30" class="toc-link" data-section="sistema-de-asistencia-inteligente-para-la-plataforma-cae-v30">SISTEMA DE ASISTENCIA INTELIGENTE PARA LA PLATAFORMA CAE v3.0</a></li>
+<li><a href="#historico-de-revisiones" class="toc-link" data-section="historico-de-revisiones">Histórico de revisiones</a></li>
+<li><a href="#1-introduccion" class="toc-link" data-section="1-introduccion">1. Introducción</a></li>
+<li><a href="#2-objetivos-de-negocio" class="toc-link" data-section="2-objetivos-de-negocio">2. Objetivos de negocio</a></li>
+<li><a href="#3-alcance" class="toc-link" data-section="3-alcance">3. Alcance</a></li>
+<li><a href="#4-principios-funcionales" class="toc-link" data-section="4-principios-funcionales">4. Principios funcionales</a></li>
+<li><a href="#5-actores-y-casos-de-uso" class="toc-link" data-section="5-actores-y-casos-de-uso">5. Actores y casos de uso</a></li>
+<li><a href="#6-arquitectura-funcional" class="toc-link" data-section="6-arquitectura-funcional">6. Arquitectura funcional</a></li>
+<li><a href="#7-flujo-funcional-detallado" class="toc-link" data-section="7-flujo-funcional-detallado">7. Flujo funcional detallado</a></li>
+<li><a href="#8-estados-del-expediente-y-del-documento" class="toc-link" data-section="8-estados-del-expediente-y-del-documento">8. Estados del expediente y del documento</a></li>
+<li><a href="#9-capacidades-funcionales" class="toc-link" data-section="9-capacidades-funcionales">9. Capacidades funcionales</a></li>
+<li><a href="#10-validacion-progresiva-nucleo-del-sistema" class="toc-link" data-section="10-validacion-progresiva-nucleo-del-sistema">10. Validación progresiva (núcleo del sistema)</a></li>
+<li><a href="#11-sistema-de-incidencias-y-severidades" class="toc-link" data-section="11-sistema-de-incidencias-y-severidades">11. Sistema de incidencias y severidades</a></li>
+<li><a href="#12-sistema-de-scoring" class="toc-link" data-section="12-sistema-de-scoring">12. Sistema de scoring</a></li>
+<li><a href="#13-catalogo-de-reglas-funcionales-bloques-ag" class="toc-link" data-section="13-catalogo-de-reglas-funcionales-bloques-ag">13. Catálogo de reglas funcionales (Bloques A–G)</a></li>
+<li><a href="#14-matrices-documentales" class="toc-link" data-section="14-matrices-documentales">14. Matrices documentales</a></li>
+<li><a href="#15-experiencia-de-usuario" class="toc-link" data-section="15-experiencia-de-usuario">15. Experiencia de usuario</a></li>
+<li><a href="#16-revision-operaciones" class="toc-link" data-section="16-revision-operaciones">16. Revisión Operaciones</a></li>
+<li><a href="#17-feedback-y-mejora-continua" class="toc-link" data-section="17-feedback-y-mejora-continua">17. Feedback y mejora continua</a></li>
+<li><a href="#18-historico-y-analitica" class="toc-link" data-section="18-historico-y-analitica">18. Histórico y analítica</a></li>
+<li><a href="#19-indicadores-de-exito-kpis" class="toc-link" data-section="19-indicadores-de-exito-kpis">19. Indicadores de éxito (KPIs)</a></li>
+<li><a href="#20-roadmap-funcional" class="toc-link" data-section="20-roadmap-funcional">20. Roadmap funcional</a></li>
+<li><a href="#21-vision-final" class="toc-link" data-section="21-vision-final">21. Visión final</a></li></ul>
+        </div>
+        <div class="sidebar-card sidebar-tip">
+          <p class="sidebar-label">Referencia</p>
+          <p>Documento alineado con el diagrama maestro <strong>ARQUITECTURA-CAE-IA</strong> y validación progresiva CAE.</p>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <article class="prose"><h1 id="especificacion-funcional" class="doc-main-title">ESPECIFICACIÓN FUNCIONAL</h1>
+<h2 id="sistema-de-asistencia-inteligente-para-la-plataforma-cae-v30" class="section-title">SISTEMA DE ASISTENCIA INTELIGENTE PARA LA PLATAFORMA CAE v3.0</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Versión</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>Borrador para revisión</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>03/07/2026</td>
+</tr>
+<tr>
+<td><strong>Proyecto</strong></td>
+<td>Plataforma CAE v2.0 — Desarrollo IA</td>
+</tr>
+<tr>
+<td><strong>Clasificación</strong></td>
+<td>Confidencial — IDEAUTO / Babooni</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="historico-de-revisiones" class="section-title">Histórico de revisiones</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Rev.</th>
+<th>Fecha</th>
+<th>Naturaleza del cambio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>27/06/2026</td>
+<td>Primera versión del documento (Borrador)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>27/06/2026</td>
+<td>Incorporación elementos de negocio (Operaciones)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>03/07/2026</td>
+<td><strong>v3.0</strong> — Validación progresiva, arquitectura por fases, capacidades CF-010 a CF-015, estados del expediente, scoring, asistencia inteligente, catálogo completo de reglas y matrices documentales</td>
+</tr>
+<tr>
+<td>3</td>
+<td>03/07/2026</td>
+<td><strong>v3.1</strong> — Alineación con diagrama maestro aprobado (<code>ARQUITECTURA-CAE-IA.md</code>): 10 fases funcionales, motor validación progresiva como núcleo, Decision Engine OK/Review/Reject, observabilidad transversal</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Diagrama de referencia:</strong> <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> — Visión funcional completa + arquitectura técnica E2E.</p></blockquote>
+<hr>
+<h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
+<ol>
+<li><a href="#1-introducci%C3%B3n">Introducción</a></li>
+<li><a href="#2-objetivos-de-negocio">Objetivos de negocio</a></li>
+<li><a href="#3-alcance">Alcance</a></li>
+<li><a href="#4-principios-funcionales">Principios funcionales</a></li>
+<li><a href="#5-actores-y-casos-de-uso">Actores y casos de uso</a></li>
+<li><a href="#6-arquitectura-funcional">Arquitectura funcional</a></li>
+<li><a href="#7-flujo-funcional-detallado">Flujo funcional detallado</a></li>
+<li><a href="#8-estados-del-expediente-y-del-documento">Estados del expediente y del documento</a></li>
+<li><a href="#9-capacidades-funcionales">Capacidades funcionales</a></li>
+<li><a href="#10-validaci%C3%B3n-progresiva-n%C3%BAcleo-del-sistema">Validación progresiva (núcleo del sistema)</a></li>
+<li><a href="#11-sistema-de-incidencias-y-severidades">Sistema de incidencias y severidades</a></li>
+<li><a href="#12-sistema-de-scoring">Sistema de scoring</a></li>
+<li><a href="#13-cat%C3%A1logo-de-reglas-funcionales-bloques-ag">Catálogo de reglas funcionales (Bloques A–G)</a></li>
+<li><a href="#14-matrices-documentales">Matrices documentales</a></li>
+<li><a href="#15-experiencia-de-usuario">Experiencia de usuario</a></li>
+<li><a href="#16-revisi%C3%B3n-operaciones">Revisión Operaciones</a></li>
+<li><a href="#17-feedback-y-mejora-continua">Feedback y mejora continua</a></li>
+<li><a href="#18-hist%C3%B3rico-y-anal%C3%ADtica">Histórico y analítica</a></li>
+<li><a href="#19-indicadores-de-%C3%A9xito-kpis">Indicadores de éxito (KPIs)</a></li>
+<li><a href="#20-roadmap-funcional">Roadmap funcional</a></li>
+<li><a href="#21-visi%C3%B3n-final">Visión final</a></li>
+</ol>
+<hr>
+<h2 id="1-introduccion" class="section-title">1. Introducción</h2>
+<h3 id="11-objetivo" class="subsection-title">1.1 Objetivo</h3>
+<p>El objetivo de este proyecto es incorporar capacidades de <strong>Inteligencia Artificial de asistencia continua</strong> en la Plataforma CAE v2.0 con el fin de asistir a los usuarios durante la creación, validación y revisión de expedientes de Certificados de Ahorro Energético (CAE).</p>
+<p>La solución deberá ayudar a:</p>
+<ul>
+<li>Reducir errores documentales y funcionales.</li>
+<li>Mejorar la calidad de la documentación aportada.</li>
+<li><strong>Detectar incidencias de forma temprana</strong>, conforme se incorporan documentos.</li>
+<li><strong>Validar progresivamente</strong> el expediente aplicando reglas de negocio CAE específicas.</li>
+<li><strong>Cruzar información entre documentos</strong> en tiempo real.</li>
+<li>Reducir devoluciones de expedientes.</li>
+<li>Disminuir la carga operativa del equipo de revisión de IDEAUTO.</li>
+<li>Mejorar los tiempos de tramitación.</li>
+</ul>
+<blockquote class="callout"><p><strong>Principio rector:</strong> La extracción automática de información desde documentos (OCR + IA) constituye <strong>únicamente una de las capacidades</strong> del sistema. El objetivo principal es la <strong>validación continua y asistida del expediente</strong> durante todo su ciclo de vida.</p></blockquote>
+<h3 id="12-contexto-y-respuesta-a-requisitos-del-cliente" class="subsection-title">1.2 Contexto y respuesta a requisitos del cliente</h3>
+<p>Tras la revisión del cliente (IDEAUTO), se identificaron carencias en la documentación v2.0 respecto al valor diferencial del proceso CAE. Esta versión 3.0 responde explícitamente a:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requisito del cliente</th>
+<th>Respuesta funcional v3.0</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Validación progresiva conforme se incorporan documentos</td>
+<td>CF-010, Fase 3–4 del flujo, recálculo automático tras cada evento</td>
+</tr>
+<tr>
+<td>Cruce de información entre documentos</td>
+<td>CF-005, Bloque C (RF-011 a RF-014), validador semántico</td>
+</tr>
+<tr>
+<td>Detección de incoherencias en tiempo real</td>
+<td>Incidencias inmediatas en UI cliente, sin esperar al envío</td>
+</tr>
+<tr>
+<td>Informar antes del envío a revisión</td>
+<td>Panel de completitud, scoring y bloqueo por incidencias críticas/mayores</td>
+</tr>
+<tr>
+<td>Reducir carga operativa de revisión</td>
+<td>Resumen ejecutivo IA, priorización de incidencias, First Time Right</td>
+</tr>
+<tr>
+<td>Reglas de negocio CAE específicas</td>
+<td>Catálogo RF-001 a RF-030, Bloques A–G, integración API IDEAUTO</td>
+</tr>
+<tr>
+<td>No limitarse a OCR genérico</td>
+<td>Separación explícita: extracción → validación determinista → razonamiento IA</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="2-objetivos-de-negocio" class="section-title">2. Objetivos de negocio</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Objetivo</th>
+<th>Métrica asociada</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OBJ-01</td>
+<td>Reducir expedientes devueltos por errores documentales</td>
+<td>% devoluciones / expedientes enviados</td>
+</tr>
+<tr>
+<td>OBJ-02</td>
+<td>Reducir tiempo medio de creación de expedientes</td>
+<td>Minutos desde creación hasta envío válido</td>
+</tr>
+<tr>
+<td>OBJ-03</td>
+<td>Reducir tiempo medio de revisión por Operaciones</td>
+<td>Minutos de revisión humana / expediente</td>
+</tr>
+<tr>
+<td>OBJ-04</td>
+<td>Detectar incidencias <strong>antes</strong> del envío a revisión</td>
+<td>% incidencias detectadas pre-envío</td>
+</tr>
+<tr>
+<td>OBJ-05</td>
+<td>Mejorar calidad global de expedientes</td>
+<td>First Time Right (FTR)</td>
+</tr>
+<tr>
+<td>OBJ-06</td>
+<td>Disponer de métricas objetivas sobre errores frecuentes</td>
+<td>Dashboard de calidad por marca/concesionario</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="3-alcance" class="section-title">3. Alcance</h2>
+<h3 id="31-incluido" class="subsection-title">3.1 Incluido</h3>
+<ul>
+<li>Asistencia continua al cliente durante construcción del expediente.</li>
+<li>Clasificación documental automática.</li>
+<li>OCR, extracción estructurada y auto-completado de campos.</li>
+<li><strong>Validación documental</strong> (legibilidad, integridad, tipo).</li>
+<li><strong>Validación funcional CAE</strong> (reglas de negocio deterministas).</li>
+<li><strong>Validación progresiva</strong> tras cada documento o modificación.</li>
+<li>Cruce semántico entre documentos del expediente.</li>
+<li>Control de completitud y scoring global.</li>
+<li>Detección, clasificación y explicación de incidencias.</li>
+<li>Asistencia inteligente conversacional (consultas contextuales).</li>
+<li>Resumen ejecutivo y priorización para Operaciones.</li>
+<li>Históricos, métricas y registro de correcciones.</li>
+<li>Feedback loop para mejora continua (reglas, prompts, extractores).</li>
+</ul>
+<h3 id="32-excluido" class="subsection-title">3.2 Excluido</h3>
+<ul>
+<li>Gestión de usuarios y permisos (permanece en plataforma CAE).</li>
+<li>Facturación y gestión económica.</li>
+<li>Gestión de Sujetos Delegados.</li>
+<li>Gestión de Lotes.</li>
+<li><strong>Aprobación automática de expedientes</strong> — la decisión final siempre corresponde a un usuario autorizado.</li>
+</ul>
+<hr>
+<h2 id="4-principios-funcionales" class="section-title">4. Principios funcionales</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Principio</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PF-01</td>
+<td><strong>Asistencia continua</strong></td>
+<td>La IA acompaña al usuario durante toda la construcción del expediente, no solo al final.</td>
+</tr>
+<tr>
+<td>PF-02</td>
+<td><strong>Prevención de errores</strong></td>
+<td>Las incidencias se detectan lo antes posible; preferencia por corrección en origen.</td>
+</tr>
+<tr>
+<td>PF-03</td>
+<td><strong>Explicabilidad</strong></td>
+<td>Toda validación indica: regla, documento, dato, motivo y acción recomendada.</td>
+</tr>
+<tr>
+<td>PF-04</td>
+<td><strong>Supervisión humana</strong></td>
+<td>La IA nunca aprueba expedientes automáticamente.</td>
+</tr>
+<tr>
+<td>PF-05</td>
+<td><strong>Trazabilidad completa</strong></td>
+<td>Toda acción de la IA es auditable (prompts, respuestas, reglas, correcciones).</td>
+</tr>
+<tr>
+<td>PF-06</td>
+<td><strong>Validación progresiva</strong></td>
+<td>Cada evento documental dispara recálculo del estado global del expediente.</td>
+</tr>
+<tr>
+<td>PF-07</td>
+<td><strong>Separación de responsabilidades</strong></td>
+<td>Extracción ≠ Validación determinista ≠ Razonamiento IA.</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="5-actores-y-casos-de-uso" class="section-title">5. Actores y casos de uso</h2>
+<h3 id="51-actores" class="subsection-title">5.1 Actores</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Rol</th>
+<th>Responsabilidades</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Cliente</strong></td>
+<td>Concesionario / usuario final</td>
+<td>Crear expediente, subir documentos, corregir incidencias, enviar a revisión</td>
+</tr>
+<tr>
+<td><strong>Operaciones IDEAUTO</strong></td>
+<td>Revisor CAE</td>
+<td>Revisar expedientes, validar/rechazar, devolver incidencias, corregir datos</td>
+</tr>
+<tr>
+<td><strong>Supervisor CAE</strong></td>
+<td>Responsable operativo</td>
+<td>Priorizar cola, validar casos complejos, alimentar feedback</td>
+</tr>
+<tr>
+<td><strong>Sistema IA</strong></td>
+<td>Asistente automatizado</td>
+<td>Clasificar, extraer, validar, puntuar, explicar, resumir</td>
+</tr>
+<tr>
+<td><strong>Plataforma CAE</strong></td>
+<td>Sistema host</td>
+<td>Propietario del expediente, formularios, flujos de negocio</td>
+</tr>
+</tbody></table></div>
+<h3 id="52-casos-de-uso-principales" class="subsection-title">5.2 Casos de uso principales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>UC</th>
+<th>Nombre</th>
+<th>Actor</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>UC-01</td>
+<td>Crear expediente</td>
+<td>Cliente</td>
+<td>Inicia expediente CAE; IA inactiva hasta primera documentación</td>
+</tr>
+<tr>
+<td>UC-02</td>
+<td>Subir documento</td>
+<td>Cliente</td>
+<td>Sube PDF/imagen; dispara pipeline completo de ingesta → validación</td>
+</tr>
+<tr>
+<td>UC-03</td>
+<td>Consultar estado</td>
+<td>Cliente</td>
+<td>Ve completitud, incidencias, scoring y recomendaciones</td>
+</tr>
+<tr>
+<td>UC-04</td>
+<td>Auto-completar campos</td>
+<td>Sistema IA</td>
+<td>Rellena formulario desde datos extraídos con confianza</td>
+</tr>
+<tr>
+<td>UC-05</td>
+<td>Consultar asistente</td>
+<td>Cliente</td>
+<td>Pregunta: «¿Qué falta?», «¿Por qué está rechazado?», «¿Cómo solucionarlo?»</td>
+</tr>
+<tr>
+<td>UC-06</td>
+<td>Enviar a revisión</td>
+<td>Cliente</td>
+<td>Solicita envío; Decision Engine evalúa OK / Revisión / Rechazo</td>
+</tr>
+<tr>
+<td>UC-07</td>
+<td>Revisar expediente</td>
+<td>Operaciones</td>
+<td>Consulta resumen IA, incidencias priorizadas, campos corregidos</td>
+</tr>
+<tr>
+<td>UC-08</td>
+<td>Devolver expediente</td>
+<td>Operaciones</td>
+<td>Genera devolución estructurada al cliente</td>
+</tr>
+<tr>
+<td>UC-09</td>
+<td>Registrar corrección</td>
+<td>Operaciones / Cliente</td>
+<td>Alimenta Feedback Engine</td>
+</tr>
+<tr>
+<td>UC-10</td>
+<td>Consultar analítica</td>
+<td>Operaciones / Dirección</td>
+<td>Dashboard de calidad e históricos</td>
+</tr>
+</tbody></table></div>
+<h3 id="53-user-journey-cliente" class="subsection-title">5.3 User Journey — Cliente</h3>
+<div class="mermaid">
+journey
+    title Construcción asistida de expediente CAE
+    section Creación
+      Crear expediente: 5: Cliente
+      Subir primer documento: 4: Cliente
+    section Asistencia continua
+      Ver auto-completado: 5: Cliente, Sistema IA
+      Corregir incidencia crítica: 3: Cliente
+      Subir documento pendiente: 4: Cliente
+      Consultar asistente IA: 5: Cliente, Sistema IA
+    section Envío
+      Validación final automática: 5: Sistema IA
+      Enviar a revisión: 5: Cliente
+    section Post-envío
+      Recibir devolución (si aplica): 2: Cliente
+      Corregir y reenviar: 4: Cliente
+</div><hr>
+<h2 id="6-arquitectura-funcional" class="section-title">6. Arquitectura funcional</h2>
+<h3 id="60-vision-funcional-completa-diagrama-aprobado" class="subsection-title">6.0 Visión funcional completa (diagrama aprobado)</h3>
+<p>La arquitectura funcional sigue el <strong>diagrama maestro de 10 fases</strong> aprobado por IDEAUTO. El diagrama completo con leyenda de colores, flujo técnico E2E y detalle del motor de validación está en <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a>.</p>
+<p>La arquitectura refleja el sistema como <strong>plataforma de asistencia inteligente</strong>, no como un OCR aislado. La <strong>Fase 5 — Validación Progresiva CAE</strong> es el núcleo funcional del sistema.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph P1["① FRONTEND"]
+        P1A["Crear expediente · Subir docs · Feedback IA"]
+    end
+    subgraph P2["②③④ INGESTA + EXTRACCIÓN"]
+        P2A["Gateway · Blob RAW · OCR · Vision · JSON"]
+    end
+    subgraph P3["⑤ VALIDACIÓN PROGRESIVA — CORE"]
+        P3A["Reglas CAE · Cruces · Completitud · Incidencias"]
+    end
+    subgraph P4["⑥ RAZONAMIENTO IA"]
+        P4A["Foundry · RAG · Resumen · Risk Score"]
+    end
+    subgraph P5["⑦ DECISIÓN"]
+        P5A["OK · Review · Reject"]
+    end
+    subgraph P6["⑧ OPERACIONES"]
+        P6A["Supervisor · Validación humana"]
+    end
+    subgraph P7["⑨ MLOps"]
+        P7A["Feedback · Dataset · Fine-tuning"]
+    end
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
+    P8["⑩ OBSERVABILIDAD transversal"] -.-> P1 & P2 & P3 & P4 & P5 & P6 & P7
+</div><h3 id="61-detalle-de-las-10-fases" class="subsection-title">6.1 Detalle de las 10 fases</h3>
+<h4>Fase 1 — Frontend: Asistencia continua</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Comportamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Creación expediente</td>
+<td>Usuario inicia expediente CAE en la plataforma</td>
+</tr>
+<tr>
+<td>Subida documental</td>
+<td>PDF, JPG, PNG, HEIC — pack documental CAE</td>
+</tr>
+<tr>
+<td>Feedback inmediato</td>
+<td>Tras cada documento: % completitud, incidencias, scoring</td>
+</tr>
+<tr>
+<td>Auto-fill UI</td>
+<td>Campos rellenados con badge de confidence</td>
+</tr>
+<tr>
+<td>Asistente IA</td>
+<td>Consultas: «¿Qué falta?», «¿Por qué rechazado?», «¿Cómo corregir?»</td>
+</tr>
+</tbody></table></div>
+<h4>Fases 2–4 — Ingesta + Extracción</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Componente</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>Gateway + Auth + Idempotencia</td>
+<td>Request validado, tenant identificado</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Blob Storage RAW (inmutable)</td>
+<td>Original preservado para auditoría</td>
+</tr>
+<tr>
+<td>4a</td>
+<td>Preprocesado + OCR (Document Intelligence)</td>
+<td>Texto estructurado</td>
+</tr>
+<tr>
+<td>4b</td>
+<td>Fallback GPT-4o Vision</td>
+<td>Si confidence OCR &lt; umbral</td>
+</tr>
+<tr>
+<td>4c</td>
+<td>Clasificación documental</td>
+<td>Tipo detectado → extractor asignado</td>
+</tr>
+<tr>
+<td>4d</td>
+<td>Extracción estructurada</td>
+<td>JSON + confidence score + provenance</td>
+</tr>
+</tbody></table></div>
+<h4>Fase 5 — Validación progresiva CAE (CORE)</h4>
+<blockquote class="callout"><p><strong>Esta fase es el valor diferencial del sistema.</strong> Se ejecuta tras cada documento o modificación, no solo al final.</p></blockquote>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Validation Engine</td>
+<td>Reglas deterministas Bloques A–G (RF-001 a RF-030)</td>
+</tr>
+<tr>
+<td>Cruce semántico</td>
+<td>Titular, VIN, matrícula, fechas, marca/modelo, empresa</td>
+</tr>
+<tr>
+<td>Control completitud</td>
+<td>Documentos obligatorios por tipología CAE</td>
+</tr>
+<tr>
+<td>Clasificación incidencias</td>
+<td>Crítica / Mayor / Menor / Informativa</td>
+</tr>
+<tr>
+<td>Feedback tiempo real</td>
+<td>Cliente informado antes del envío a Operaciones</td>
+</tr>
+</tbody></table></div>
+<p><strong>Comportamiento por severidad:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Severidad</th>
+<th>Efecto</th>
+<th>Notificación cliente</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Crítica</strong></td>
+<td>Bloquea envío</td>
+<td>Inmediata, acción obligatoria</td>
+</tr>
+<tr>
+<td><strong>Mayor</strong></td>
+<td>Bloquea envío</td>
+<td>Advertencia + sugerencia corrección</td>
+</tr>
+<tr>
+<td><strong>Menor</strong></td>
+<td>No bloquea</td>
+<td>Información / mejora calidad</td>
+</tr>
+<tr>
+<td><strong>Informativa</strong></td>
+<td>No bloquea</td>
+<td>Sugerencia opcional</td>
+</tr>
+</tbody></table></div>
+<h4>Fase 6 — Razonamiento IA avanzado</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>AI Orchestrator</td>
+<td>Coordina flujo, agrega resultados, gestiona agentes</td>
+</tr>
+<tr>
+<td>Azure AI Foundry</td>
+<td>Análisis global del expediente</td>
+</tr>
+<tr>
+<td>RAG — Knowledge Base CAE</td>
+<td>Normativa, checklists, casuísticas, FAQ Operaciones</td>
+</tr>
+<tr>
+<td>Análisis global</td>
+<td>Resumen ejecutivo + Risk Score</td>
+</tr>
+</tbody></table></div>
+<h4>Fase 7 — Validación final y decisión (pre-envío)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Decisión</th>
+<th>Significado</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>OK</strong></td>
+<td>Expediente listo para envío</td>
+<td>Permite envío a Operaciones</td>
+</tr>
+<tr>
+<td><strong>Review</strong></td>
+<td>Requiere revisión humana</td>
+<td>Cola Operaciones + resumen IA</td>
+</tr>
+<tr>
+<td><strong>Reject</strong></td>
+<td>Rechazo automático</td>
+<td>Detalle incidencias bloqueantes</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>La IA <strong>nunca aprueba</strong> definitivamente. OK significa «listo para envío», no «aprobado».</p></blockquote>
+<h4>Fase 8 — Revisión Operaciones</h4>
+<ul>
+<li>Resumen IA con incidencias priorizadas.</li>
+<li>Supervisor CAE + Asistente IA para Operaciones.</li>
+<li>Validación humana final (aprobar / devolver / rechazar).</li>
+</ul>
+<h4>Fase 9 — Feedback + MLOps</h4>
+<ul>
+<li>Feedback Engine registra correcciones (Operaciones y cliente).</li>
+<li>Dataset + Labeling para mejora continua.</li>
+<li>Fine-tuning de extractores, reglas CAE y prompts Foundry.</li>
+</ul>
+<h4>Fase 10 — Observabilidad + Auditoría (transversal)</h4>
+<p>Flujo horizontal que atraviesa todo el sistema:</p>
+<p><code>Audit Log completo</code> → <code>Trazabilidad E2E</code> → <code>Monitorización + alertas</code> → <code>KPIs + Dashboards</code></p>
+<h3 id="62-leyenda-de-fases-colores-del-diagrama" class="subsection-title">6.2 Leyenda de fases (colores del diagrama)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Color</th>
+<th>Fase</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Azul claro / Azul</td>
+<td>Ingesta + Extracción</td>
+</tr>
+<tr>
+<td><strong>Amarillo</strong></td>
+<td><strong>Validación progresiva (CORE)</strong></td>
+</tr>
+<tr>
+<td>Púrpura</td>
+<td>Razonamiento IA</td>
+</tr>
+<tr>
+<td>Azul oscuro</td>
+<td>Decisión</td>
+</tr>
+<tr>
+<td>Rojo</td>
+<td>Humano / Operaciones</td>
+</tr>
+<tr>
+<td>Naranja</td>
+<td>MLOps</td>
+</tr>
+<tr>
+<td>Beige</td>
+<td>Observabilidad</td>
+</tr>
+</tbody></table></div>
+<h3 id="63-principios-transversales" class="subsection-title">6.3 Principios transversales</h3>
+<ul>
+<li><strong>API First</strong> — Toda capacidad IA consumible vía API.</li>
+<li><strong>Desacoplamiento</strong> — CAE es propietario del expediente; IA es servicio auxiliar.</li>
+<li><strong>Stateless</strong> — Persistencia en sistemas especializados.</li>
+<li><strong>Human in the Loop</strong> — Sin aprobación automática de expedientes.</li>
+<li><strong>Observabilidad</strong> — Logs, telemetría, trazabilidad end-to-end.</li>
+</ul>
+<hr>
+<h2 id="7-flujo-funcional-detallado" class="section-title">7. Flujo funcional detallado</h2>
+<h3 id="71-resumen-simplificado-comportamiento-real-para-el-cliente" class="subsection-title">7.1 Resumen simplificado (comportamiento real para el cliente)</h3>
+<p>Aunque la arquitectura interna es compleja, el comportamiento percibido por el usuario es:</p>
+<ol>
+<li>El cliente sube un documento (PDF/imagen).</li>
+<li>La IA identifica el tipo de documento.</li>
+<li>La IA extrae los datos relevantes.</li>
+<li>La IA evalúa si el documento es válido, legible y completo.</li>
+<li>La IA cruza la información con el resto del expediente.</li>
+<li>La IA informa incidencias, completitud y recomendaciones <strong>en tiempo real</strong>.</li>
+<li>Al enviar, la IA realiza validación final y recomienda OK / Revisión / Rechazo.</li>
+<li>Operaciones recibe resumen priorizado; la decisión final es humana.</li>
+</ol>
+<h3 id="72-fases-detalladas" class="subsection-title">7.2 Fases detalladas</h3>
+<h4>Fase 1 — Creación del expediente</h4>
+<ul>
+<li>El usuario crea un expediente en la plataforma CAE.</li>
+<li>El Sistema IA permanece <strong>inactivo</strong> hasta la incorporación de documentación.</li>
+<li>Estado inicial: <code>CREADO</code> → <code>EN_CONSTRUCCION</code>.</li>
+</ul>
+<h4>Fase 2 — Subida documental (por cada documento)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Paso</th>
+<th>Acción</th>
+<th>Resultado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.1</td>
+<td>Recepción y validación de formato</td>
+<td>Aceptación o rechazo inmediato</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Almacenamiento RAW inmutable</td>
+<td>Trazabilidad y auditoría</td>
+</tr>
+<tr>
+<td>2.3</td>
+<td>Preprocesado y OCR</td>
+<td>Texto estructurado + confidence</td>
+</tr>
+<tr>
+<td>2.4</td>
+<td>Clasificación documental</td>
+<td>Tipo detectado + extractor asignado</td>
+</tr>
+<tr>
+<td>2.5</td>
+<td>Extracción estructurada</td>
+<td>JSON con valor, confidence, origen</td>
+</tr>
+<tr>
+<td>2.6</td>
+<td>Validaciones documentales (Bloque A, G)</td>
+<td>Incidencias por documento</td>
+</tr>
+</tbody></table></div>
+<h4>Fase 3 — Construcción del expediente (validación progresiva)</h4>
+<p>Tras <strong>cada</strong> documento o modificación de datos:</p>
+<ul>
+<li>Auto-completar campos del formulario CAE.</li>
+<li>Ejecutar reglas de coherencia (Bloque C).</li>
+<li>Ejecutar reglas CAE (Bloque D).</li>
+<li>Validar firmas y anexos (Bloques B, F).</li>
+<li>Validar formulario (Bloque E).</li>
+<li>Recalcular completitud y scoring.</li>
+<li>Mostrar incidencias en tiempo real en UI cliente.</li>
+<li><strong>No esperar</strong> al envío para detectar errores críticos.</li>
+</ul>
+<h4>Fase 4 — Validación previa al envío</h4>
+<p>Antes de permitir el envío a Operaciones:</p>
+<ul>
+<li>Validación de completitud (100% documentos obligatorios).</li>
+<li>Validación de coherencia global (VIN, titular, matrícula, fechas).</li>
+<li>Validación funcional CAE completa (antigüedad VO, combustible, ahorro).</li>
+<li>Decision Engine: <strong>OK</strong> / <strong>Revisión</strong> / <strong>Rechazo</strong>.</li>
+<li>Incidencias críticas y mayores <strong>bloquean</strong> el envío.</li>
+</ul>
+<h4>Fase 5 — Revisión Operaciones</h4>
+<p>La IA genera para el revisor:</p>
+<ul>
+<li>Resumen ejecutivo del expediente.</li>
+<li>Incidencias priorizadas (críticas → mayores → menores).</li>
+<li>Risk score y nivel de confianza global.</li>
+<li>Campos auto-completados vs. modificados manualmente por el cliente.</li>
+<li>Historial de correcciones previas.</li>
+</ul>
+<h4>Fase 6 — Feedback</h4>
+<ul>
+<li>Correcciones de Operaciones y del cliente se registran en Feedback Engine.</li>
+<li>Alimentan datasets para mejora de reglas, prompts y extractores.</li>
+<li>Métricas de precisión y recall de incidencias.</li>
+</ul>
+<hr>
+<h2 id="8-estados-del-expediente-y-del-documento" class="section-title">8. Estados del expediente y del documento</h2>
+<h3 id="81-estados-del-expediente" class="subsection-title">8.1 Estados del expediente</h3>
+<div class="mermaid">
+stateDiagram-v2
+    [*] --> CREADO
+    CREADO --> EN_CONSTRUCCION: Primer documento
+    EN_CONSTRUCCION --> PENDIENTE_DOCUMENTOS: Faltan obligatorios
+    EN_CONSTRUCCION --> CON_INCIDENCIAS: Incidencias críticas/mayores
+    PENDIENTE_DOCUMENTOS --> EN_CONSTRUCCION: Documento añadido
+    CON_INCIDENCIAS --> EN_CONSTRUCCION: Incidencia resuelta
+    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado + Decision=Review
+    EN_CONSTRUCCION --> VALIDADO: Aprobación Operaciones
+    PENDIENTE_REVISION --> REVISION_OPERACIONES: En cola
+    REVISION_OPERACIONES --> CON_INCIDENCIAS: Devolución
+    REVISION_OPERACIONES --> VALIDADO: Aprobado
+    REVISION_OPERACIONES --> RECHAZADO: Rechazado
+    CON_INCIDENCIAS --> RECHAZADO: Rechazo automático pre-envío
+    VALIDADO --> [*]
+    RECHAZADO --> EN_CONSTRUCCION: Corrección y reintento
+</div><div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>Descripción</th>
+<th>Acciones permitidas al cliente</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CREADO</code></td>
+<td>Expediente vacío</td>
+<td>Subir documentos</td>
+</tr>
+<tr>
+<td><code>EN_CONSTRUCCION</code></td>
+<td>Con documentación parcial o completa</td>
+<td>Subir, corregir, consultar IA</td>
+</tr>
+<tr>
+<td><code>PENDIENTE_DOCUMENTOS</code></td>
+<td>Faltan documentos obligatorios</td>
+<td>Subir pendientes</td>
+</tr>
+<tr>
+<td><code>CON_INCIDENCIAS</code></td>
+<td>Incidencias críticas o mayores abiertas</td>
+<td>Corregir incidencias</td>
+</tr>
+<tr>
+<td><code>PENDIENTE_REVISION</code></td>
+<td>Enviado, en cola</td>
+<td>Solo consulta</td>
+</tr>
+<tr>
+<td><code>REVISION_OPERACIONES</code></td>
+<td>En revisión activa</td>
+<td>Responder devoluciones</td>
+</tr>
+<tr>
+<td><code>VALIDADO</code></td>
+<td>Aprobado por Operaciones</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>RECHAZADO</code></td>
+<td>Rechazado (automático o humano)</td>
+<td>Corregir y reiniciar flujo</td>
+</tr>
+</tbody></table></div>
+<h3 id="82-estados-del-documento" class="subsection-title">8.2 Estados del documento</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Estado</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SUBIDO</code></td>
+<td>Recibido, pendiente de procesamiento</td>
+</tr>
+<tr>
+<td><code>PROCESANDO</code></td>
+<td>En pipeline OCR/extracción</td>
+</tr>
+<tr>
+<td><code>EXTRAIDO</code></td>
+<td>Datos extraídos con confidence</td>
+</tr>
+<tr>
+<td><code>VALIDADO</code></td>
+<td>Pasa validaciones documentales</td>
+</tr>
+<tr>
+<td><code>CON_INCIDENCIAS</code></td>
+<td>Incidencias detectadas</td>
+</tr>
+<tr>
+<td><code>REEMPLAZADO</code></td>
+<td>Sustituido por nueva versión</td>
+</tr>
+<tr>
+<td><code>ERROR</code></td>
+<td>Fallo de procesamiento</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-capacidades-funcionales" class="section-title">9. Capacidades funcionales</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Capacidad</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CF-001</td>
+<td>Clasificación documental</td>
+<td>Identificación automática del tipo documental</td>
+</tr>
+<tr>
+<td>CF-002</td>
+<td>Extracción de información</td>
+<td>Auto-completado con valor, confidence y origen</td>
+</tr>
+<tr>
+<td>CF-003</td>
+<td>Validación documental</td>
+<td>Legibilidad, integridad, tipo, calidad mínima</td>
+</tr>
+<tr>
+<td>CF-004</td>
+<td>Validación funcional</td>
+<td>Reglas de negocio CAE (Bloques A–G)</td>
+</tr>
+<tr>
+<td>CF-005</td>
+<td>Detección de incoherencias</td>
+<td>Cruce entre documentos (titular, VIN, matrícula…)</td>
+</tr>
+<tr>
+<td>CF-006</td>
+<td>Control de completitud</td>
+<td>% avance permanente y listado de pendientes</td>
+</tr>
+<tr>
+<td>CF-007</td>
+<td>Asistente de revisión</td>
+<td>Resumen ejecutivo para Operaciones</td>
+</tr>
+<tr>
+<td>CF-008</td>
+<td>Gestión de incidencias</td>
+<td>Registro centralizado con severidad y trazabilidad</td>
+</tr>
+<tr>
+<td>CF-009</td>
+<td>Históricos</td>
+<td>Consulta de errores y correcciones por expediente</td>
+</tr>
+<tr>
+<td><strong>CF-010</strong></td>
+<td><strong>Validación progresiva</strong></td>
+<td>Recálculo continuo tras cada modificación documental</td>
+</tr>
+<tr>
+<td><strong>CF-011</strong></td>
+<td><strong>Auto-completado</strong></td>
+<td>Campos del formulario rellenados desde extracción</td>
+</tr>
+<tr>
+<td><strong>CF-012</strong></td>
+<td><strong>Explicabilidad</strong></td>
+<td>Regla + documento + dato + acción recomendada</td>
+</tr>
+<tr>
+<td><strong>CF-013</strong></td>
+<td><strong>Scoring</strong></td>
+<td>Completitud, riesgo, confianza global</td>
+</tr>
+<tr>
+<td><strong>CF-014</strong></td>
+<td><strong>Asistencia inteligente</strong></td>
+<td>Consultas contextuales («¿Qué falta?», «¿Cómo solucionarlo?»)</td>
+</tr>
+<tr>
+<td><strong>CF-015</strong></td>
+<td><strong>Aprendizaje continuo</strong></td>
+<td>Correcciones de Operaciones alimentan Feedback Engine</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="10-validacion-progresiva-nucleo-del-sistema" class="section-title">10. Validación progresiva (núcleo del sistema)</h2>
+<h3 id="101-definicion" class="subsection-title">10.1 Definición</h3>
+<p>La <strong>validación progresiva</strong> es la capacidad central que diferencia este sistema de un OCR genérico. Consiste en:</p>
+<ol>
+<li><strong>Disparador:</strong> Cada evento <code>DocumentoSubido</code>, <code>DocumentoReemplazado</code>, <code>CampoModificado</code> o <code>DocumentoEliminado</code>.</li>
+<li><strong>Pipeline:</strong> Extracción (si aplica) → Reglas documentales → Reglas de coherencia → Reglas CAE → Completitud.</li>
+<li><strong>Agregación:</strong> Actualización del estado global del expediente.</li>
+<li><strong>Notificación:</strong> UI cliente actualizada en tiempo real (&lt; 10 s objetivo por documento).</li>
+<li><strong>Persistencia:</strong> Histórico de evaluaciones versionado.</li>
+</ol>
+<h3 id="102-eventos-que-disparan-recalculo" class="subsection-title">10.2 Eventos que disparan recálculo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Acciones de validación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subida de documento</td>
+<td>Clasificación, extracción, reglas A/G, cruces C, CAE D, completitud</td>
+</tr>
+<tr>
+<td>Reemplazo de documento</td>
+<td>Invalidar extracción anterior, reprocesar, recalcular cruces</td>
+</tr>
+<tr>
+<td>Modificación manual de campo</td>
+<td>Validar coherencia campo ↔ documentos fuente</td>
+</tr>
+<tr>
+<td>Eliminación de documento</td>
+<td>Recalcular completitud y dependencias cruzadas</td>
+</tr>
+</tbody></table></div>
+<h3 id="103-separacion-de-capas-de-validacion" class="subsection-title">10.3 Separación de capas de validación</h3>
+<div class="mermaid">
+flowchart LR
+    EXT["Extracción documental"] --> VAL["Validación determinista"]
+    VAL --> SEM["Cruce semántico"]
+    SEM --> CAE["Reglas CAE"]
+    CAE --> SCORE["Scoring"]
+    SCORE --> IA["Razonamiento IA opcional"]
+    IA --> UX["Feedback UI"]
+</div><div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tipo</th>
+<th>Ejemplos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extracción</td>
+<td>IA + OCR</td>
+<td>VIN, matrícula, titular desde factura</td>
+</tr>
+<tr>
+<td>Determinista</td>
+<td>Reglas</td>
+<td>Regex DNI, checksum VIN, rangos fechas</td>
+</tr>
+<tr>
+<td>Semántica</td>
+<td>Cruces</td>
+<td>Titular DNI = titular factura</td>
+</tr>
+<tr>
+<td>CAE</td>
+<td>Negocio</td>
+<td>Antigüedad VO ≥ 365 días, VN = BEV</td>
+</tr>
+<tr>
+<td>IA</td>
+<td>Razonamiento</td>
+<td>Explicación, resumen, casos ambiguos</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="11-sistema-de-incidencias-y-severidades" class="section-title">11. Sistema de incidencias y severidades</h2>
+<h3 id="111-modelo-de-severidades" class="subsection-title">11.1 Modelo de severidades</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Severidad</th>
+<th>Código</th>
+<th>Comportamiento</th>
+<th>Bloquea envío</th>
+<th>Ejemplos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Crítica</strong></td>
+<td><code>CRITICA</code></td>
+<td>Corrección obligatoria inmediata</td>
+<td><strong>Sí</strong></td>
+<td>Documento obligatorio ausente, VIN inconsistente, falta firma</td>
+</tr>
+<tr>
+<td><strong>Mayor</strong></td>
+<td><code>MAYOR</code></td>
+<td>Requiere corrección antes del envío</td>
+<td><strong>Sí</strong></td>
+<td>Información incoherente, documento incompleto</td>
+</tr>
+<tr>
+<td><strong>Menor</strong></td>
+<td><code>MENOR</code></td>
+<td>Advertencia, no bloquea</td>
+<td>No</td>
+<td>Calidad mejorable, confidence baja</td>
+</tr>
+<tr>
+<td><strong>Informativa</strong></td>
+<td><code>INFO</code></td>
+<td>Contexto o sugerencia</td>
+<td>No</td>
+<td>Recomendación de mejora documental</td>
+</tr>
+</tbody></table></div>
+<h3 id="112-estructura-de-una-incidencia" class="subsection-title">11.2 Estructura de una incidencia</h3>
+<p>Cada incidencia incluye (CF-012 — Explicabilidad):</p>
+<pre class="code-block"><code class="language-json">{
+  &quot;id&quot;: &quot;INC-2026-004521&quot;,
+  &quot;severidad&quot;: &quot;CRITICA&quot;,
+  &quot;reglaId&quot;: &quot;RF-012&quot;,
+  &quot;reglaNombre&quot;: &quot;Coherencia VIN&quot;,
+  &quot;documentoOrigen&quot;: &quot;factura_vn&quot;,
+  &quot;documentoComparado&quot;: &quot;ficha_tecnica_vn&quot;,
+  &quot;campo&quot;: &quot;vin&quot;,
+  &quot;valorDetectado&quot;: &quot;VF1ABC12345678901&quot;,
+  &quot;valorEsperado&quot;: &quot;VF1ABC12345678902&quot;,
+  &quot;mensaje&quot;: &quot;El VIN de la factura no coincide con la ficha técnica.&quot;,
+  &quot;accionRecomendada&quot;: &quot;Verifique que ha subido la ficha técnica correspondiente al vehículo de la factura.&quot;,
+  &quot;bloqueaEnvio&quot;: true,
+  &quot;fechaDeteccion&quot;: &quot;2026-07-03T10:15:00Z&quot;
+}
+</code></pre>
+<h3 id="113-priorizacion-para-operaciones" class="subsection-title">11.3 Priorización para Operaciones</h3>
+<p>Orden de presentación en vista Operaciones:</p>
+<ol>
+<li>Críticas abiertas</li>
+<li>Mayores abiertas</li>
+<li>Menores</li>
+<li>Informativas (colapsadas por defecto)</li>
+</ol>
+<hr>
+<h2 id="12-sistema-de-scoring" class="section-title">12. Sistema de scoring</h2>
+<h3 id="121-dimensiones" class="subsection-title">12.1 Dimensiones</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>Rango</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Completitud</strong></td>
+<td>0–100%</td>
+<td>% documentos obligatorios presentes y válidos</td>
+</tr>
+<tr>
+<td><strong>Confianza</strong></td>
+<td>0–100%</td>
+<td>Media ponderada de confidence de extracciones</td>
+</tr>
+<tr>
+<td><strong>Riesgo</strong></td>
+<td>Bajo / Medio / Alto</td>
+<td>Derivado de incidencias abiertas y reglas CAE</td>
+</tr>
+<tr>
+<td><strong>First Time Right</strong></td>
+<td>Boolean</td>
+<td>Sin incidencias críticas/mayores al primer envío</td>
+</tr>
+</tbody></table></div>
+<h3 id="122-calculo-de-riesgo" class="subsection-title">12.2 Cálculo de riesgo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Condición</th>
+<th>Impacto en riesgo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Incidencia crítica abierta</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Incidencia mayor abierta</td>
+<td>Medio–Alto</td>
+</tr>
+<tr>
+<td>Confidence media &lt; 80%</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>Solo menores/informativas</td>
+<td>Bajo</td>
+</tr>
+<tr>
+<td>Expediente 100% completo sin incidencias</td>
+<td>Bajo</td>
+</tr>
+</tbody></table></div>
+<h3 id="123-presentacion-en-ui" class="subsection-title">12.3 Presentación en UI</h3>
+<pre><code>Expediente: EXP-2026-004521
+Completitud: ████████░░ 85%
+Confianza:   ███████░░░ 78%
+Riesgo:      MEDIO
+
+Pendiente:
+  - Último IVTM
+  - Firma Convenio CAE
+
+Incidencias abiertas: 2 mayores, 1 menor
+</code></pre>
+<hr>
+<h2 id="13-catalogo-de-reglas-funcionales-bloques-ag" class="section-title">13. Catálogo de reglas funcionales (Bloques A–G)</h2>
+<h3 id="131-bloque-a-validaciones-documentales" class="subsection-title">13.1 Bloque A — Validaciones documentales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Validaciones</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-001</td>
+<td>DNI</td>
+<td>Documento DNI, dos caras, legible, datos extraíbles</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-002</td>
+<td>Factura VN</td>
+<td>Factura válida, titular, matrícula/VIN, marca, modelo</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-003</td>
+<td>Ficha Técnica VN</td>
+<td>Matrícula, VIN, marca, modelo, versión, energía</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-004</td>
+<td>Documento Sustitución VO</td>
+<td>Baja definitiva, contrato compraventa o permiso nuevo propietario</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-005</td>
+<td>Ficha Técnica VO</td>
+<td>Ficha técnica o informe DGT por extravío</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-006</td>
+<td>Permiso Circulación VO</td>
+<td>Permiso circulación o penúltimo IVTM por extravío</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-007</td>
+<td>Último IVTM</td>
+<td>Matrícula, VIN, ejercicio correspondiente</td>
+<td>Crítica</td>
+</tr>
+</tbody></table></div>
+<h3 id="132-bloque-b-validaciones-de-firmas" class="subsection-title">13.2 Bloque B — Validaciones de firmas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Validaciones</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-008</td>
+<td>Firma manuscrita</td>
+<td>Anexo, Convenio CAE, Autorización datos — obligatoria para particulares</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-009</td>
+<td>Firma digital</td>
+<td>Permitida para empresas cuando proceda</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RF-010</td>
+<td>Comparación firma DNI</td>
+<td>Similitud firma aportada vs. DNI</td>
+<td>Advertencia (Menor)</td>
+</tr>
+</tbody></table></div>
+<h3 id="133-bloque-c-validaciones-de-coherencia" class="subsection-title">13.3 Bloque C — Validaciones de coherencia</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Documentos cruzados</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-011</td>
+<td>Titular</td>
+<td>DNI, factura, contrato, permiso circulación</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-012</td>
+<td>VIN</td>
+<td>Factura, ficha técnica, permiso, BD IDEAUTO</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-013</td>
+<td>Matrícula</td>
+<td>Toda la documentación del expediente</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-014</td>
+<td>Marca y modelo</td>
+<td>Factura, ficha técnica, BD vehículos IDEAUTO</td>
+<td>Mayor</td>
+</tr>
+</tbody></table></div>
+<h3 id="134-bloque-d-validaciones-cae" class="subsection-title">13.4 Bloque D — Validaciones CAE</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Criterio</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-015</td>
+<td>Antigüedad VO</td>
+<td>Periodo mínimo 365 días (API IDEAUTO)</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-016</td>
+<td>Combustible VO</td>
+<td>No puede ser BEV</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-017</td>
+<td>Combustible VN</td>
+<td>Debe ser BEV</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-018</td>
+<td>Categoría homologación</td>
+<td>Compatible entre VO y VN</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-019</td>
+<td>Fechas actuación</td>
+<td>Sustitución VO antes VN: máx. 3 meses; VN antes VO: máx. 6 meses</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-020</td>
+<td>Ahorro energético</td>
+<td>Valor dentro de rangos por tipología</td>
+<td>Advertencia (Menor)</td>
+</tr>
+</tbody></table></div>
+<h3 id="135-bloque-e-formulario" class="subsection-title">13.5 Bloque E — Formulario</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Descripción</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-021</td>
+<td>Nombre expediente</td>
+<td>Formato homogéneo, numeración automática</td>
+<td>Menor</td>
+</tr>
+<tr>
+<td>RF-022</td>
+<td>Dirección postal</td>
+<td>Autocompletado desde DNI/factura</td>
+<td>—</td>
+</tr>
+<tr>
+<td>RF-023</td>
+<td>Referencia catastral</td>
+<td>Autocompletado desde dirección postal</td>
+<td>Mayor</td>
+</tr>
+<tr>
+<td>RF-024</td>
+<td>Ayudas públicas</td>
+<td>Si indicadas: denominación, entidad, disposición, año</td>
+<td>Mayor</td>
+</tr>
+<tr>
+<td>RF-025</td>
+<td>Datos bancarios</td>
+<td>Determinar transferencia vs. abono</td>
+<td>Mayor</td>
+</tr>
+</tbody></table></div>
+<h3 id="136-bloque-f-documentos-anexos" class="subsection-title">13.6 Bloque F — Documentos anexos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Validaciones</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-026</td>
+<td>Convenio CAE</td>
+<td>Firmado, contraprestación cumplimentada</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-027</td>
+<td>Contraprestación convenio</td>
+<td>Rango: 0,10 €/kWh ≤ valor ≤ 0,20 €/kWh</td>
+<td>Crítica</td>
+</tr>
+<tr>
+<td>RF-028</td>
+<td>Autorización datos personales</td>
+<td>Obligatorio solo marcas definidas por IDEAUTO</td>
+<td>Crítica</td>
+</tr>
+</tbody></table></div>
+<h3 id="137-bloque-g-calidad-documental" class="subsection-title">13.7 Bloque G — Calidad documental</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Regla</th>
+<th>Validaciones</th>
+<th>Severidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RF-029</td>
+<td>Calidad imagen</td>
+<td>Resolución, contraste, legibilidad</td>
+<td>Menor</td>
+</tr>
+<tr>
+<td>RF-030</td>
+<td>Integridad documento</td>
+<td>Páginas faltantes, duplicadas, superpuestas, orden incorrecto</td>
+<td>Mayor</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="14-matrices-documentales" class="section-title">14. Matrices documentales</h2>
+<h3 id="141-matriz-documento-validaciones" class="subsection-title">14.1 Matriz Documento → Validaciones</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Documento</th>
+<th>Reglas aplicables</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DNI</td>
+<td>RF-001, RF-008, RF-010, RF-011, RF-029, RF-030</td>
+</tr>
+<tr>
+<td>Factura VN</td>
+<td>RF-002, RF-011, RF-012, RF-013, RF-014, RF-017, RF-022</td>
+</tr>
+<tr>
+<td>Ficha Técnica VN</td>
+<td>RF-003, RF-012, RF-013, RF-014, RF-017, RF-018</td>
+</tr>
+<tr>
+<td>Documento Sustitución VO</td>
+<td>RF-004, RF-015, RF-019</td>
+</tr>
+<tr>
+<td>Ficha Técnica VO</td>
+<td>RF-005, RF-012, RF-016</td>
+</tr>
+<tr>
+<td>Permiso Circulación VO</td>
+<td>RF-006, RF-011, RF-012, RF-013</td>
+</tr>
+<tr>
+<td>Último IVTM</td>
+<td>RF-007, RF-012, RF-013</td>
+</tr>
+<tr>
+<td>Convenio CAE</td>
+<td>RF-008, RF-026, RF-027</td>
+</tr>
+<tr>
+<td>Autorización datos</td>
+<td>RF-008, RF-028</td>
+</tr>
+<tr>
+<td>Anexo</td>
+<td>RF-008</td>
+</tr>
+</tbody></table></div>
+<h3 id="142-matriz-documento-datos-extraidos" class="subsection-title">14.2 Matriz Documento → Datos extraídos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Documento</th>
+<th>Campos extraídos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DNI</td>
+<td>Nombre, apellidos, DNI/NIE, fecha nacimiento, dirección, firma</td>
+</tr>
+<tr>
+<td>Factura VN</td>
+<td>Titular, NIF, matrícula, VIN, marca, modelo, fecha, importe</td>
+</tr>
+<tr>
+<td>Ficha Técnica VN/V O</td>
+<td>Matrícula, VIN, marca, modelo, versión, energía, categoría, masa</td>
+</tr>
+<tr>
+<td>Permiso Circulación</td>
+<td>Titular, matrícula, VIN, fecha matriculación</td>
+</tr>
+<tr>
+<td>IVTM</td>
+<td>Matrícula, VIN, ejercicio, importe</td>
+</tr>
+<tr>
+<td>Convenio CAE</td>
+<td>Firmas, contraprestación €/kWh, fecha</td>
+</tr>
+</tbody></table></div>
+<h3 id="143-matriz-campo-formulario-fuente" class="subsection-title">14.3 Matriz Campo formulario → Fuente</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo expediente CAE</th>
+<th>Fuente primaria</th>
+<th>Fuente secundaria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Titular</td>
+<td>DNI</td>
+<td>Factura, permiso</td>
+</tr>
+<tr>
+<td>VIN vehículo nuevo</td>
+<td>Factura VN</td>
+<td>Ficha técnica VN</td>
+</tr>
+<tr>
+<td>VIN vehículo antiguo</td>
+<td>Ficha técnica VO</td>
+<td>Permiso, IVTM</td>
+</tr>
+<tr>
+<td>Matrícula VO</td>
+<td>Permiso circulación</td>
+<td>IVTM, ficha técnica</td>
+</tr>
+<tr>
+<td>Dirección postal</td>
+<td>DNI</td>
+<td>Factura</td>
+</tr>
+<tr>
+<td>Referencia catastral</td>
+<td>API catastro</td>
+<td>— (desde dirección)</td>
+</tr>
+<tr>
+<td>Contraprestación</td>
+<td>Convenio CAE</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Ahorro energético</td>
+<td>Cálculo CAE</td>
+<td>API IDEAUTO</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="15-experiencia-de-usuario" class="section-title">15. Experiencia de usuario</h2>
+<h3 id="151-vista-cliente" class="subsection-title">15.1 Vista Cliente</h3>
+<p>Elementos visibles permanentemente:</p>
+<ul>
+<li><strong>Barra de completitud</strong> (% y listado de pendientes).</li>
+<li><strong>Panel de incidencias</strong> agrupadas por severidad.</li>
+<li><strong>Indicadores de scoring</strong> (completitud, confianza, riesgo).</li>
+<li><strong>Auto-completado</strong> de campos con badge de confidence.</li>
+<li><strong>Asistente inteligente</strong> (chat contextual).</li>
+<li><strong>Estado por documento</strong> (procesando, válido, con incidencias).</li>
+</ul>
+<h3 id="152-vista-operaciones" class="subsection-title">15.2 Vista Operaciones</h3>
+<p>Mostrar <strong>únicamente</strong>:</p>
+<ul>
+<li>Incidencias detectadas (priorizadas).</li>
+<li>Alertas y risk score.</li>
+<li>Campos corregidos manualmente por el cliente.</li>
+<li>Resumen ejecutivo IA.</li>
+<li>Histórico de devoluciones.</li>
+</ul>
+<p>No mostrar validaciones correctas salvo consulta expresa.</p>
+<h3 id="153-comunicacion-de-incidencias" class="subsection-title">15.3 Comunicación de incidencias</h3>
+<p>Operaciones puede generar una <strong>devolución estructurada</strong> al usuario con:</p>
+<ul>
+<li>Listado de incidencias seleccionadas.</li>
+<li>Comentarios adicionales del revisor.</li>
+<li>Plazo de corrección (opcional).</li>
+<li>Trazabilidad en histórico del expediente.</li>
+</ul>
+<hr>
+<h2 id="16-revision-operaciones" class="section-title">16. Revisión Operaciones</h2>
+<h3 id="161-flujo-de-revision" class="subsection-title">16.1 Flujo de revisión</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant C as Cliente
+    participant CAE as Plataforma CAE
+    participant IA as Sistema IA
+    participant OP as Operaciones<pre><code>C-&gt;&gt;CAE: Enviar expediente
+CAE-&gt;&gt;IA: Solicitar análisis global
+IA-&gt;&gt;IA: Validación final + Decision Engine
+IA--&gt;&gt;CAE: Resumen + incidencias + risk score
+CAE-&gt;&gt;OP: Expediente en cola revisión
+OP-&gt;&gt;CAE: Consultar expediente
+CAE-&gt;&gt;IA: Obtener resumen ejecutivo
+IA--&gt;&gt;OP: Resumen priorizado
+OP-&gt;&gt;CAE: Validar / Devolver / Rechazar
+alt Devolución
+    CAE-&gt;&gt;C: Notificación incidencias
+end
+</code></pre>
+</div><h3 id="162-contenido-del-resumen-ejecutivo-ia" class="subsection-title">16.2 Contenido del resumen ejecutivo IA</h3>
+<ul>
+<li>Identificación del expediente y concesionario.</li>
+<li>Completitud y riesgo global.</li>
+<li>Top 5 incidencias por impacto.</li>
+<li>Campos con baja confidence (&lt; 80%).</li>
+<li>Campos modificados manualmente vs. extraídos.</li>
+<li>Recomendación: aprobar / revisar con atención / rechazar.</li>
+</ul>
+<hr>
+<h2 id="17-feedback-y-mejora-continua" class="section-title">17. Feedback y mejora continua</h2>
+<h3 id="171-fuentes-de-feedback" class="subsection-title">17.1 Fuentes de feedback</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Datos capturados</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Operaciones</td>
+<td>Dato corregido, motivo, usuario, fecha</td>
+</tr>
+<tr>
+<td>Cliente</td>
+<td>Campo modificado, motivo</td>
+</tr>
+<tr>
+<td>Sistema</td>
+<td>Falsos positivos/negativos detectados</td>
+</tr>
+</tbody></table></div>
+<h3 id="172-uso-del-feedback" class="subsection-title">17.2 Uso del feedback</h3>
+<ul>
+<li>Generación de datasets etiquetados.</li>
+<li>Evaluación de precisión de extractores.</li>
+<li>Refinamiento de prompts (Azure AI Foundry).</li>
+<li>Actualización de reglas CAE versionadas.</li>
+<li>Métricas de mejora continua (MLOps).</li>
+</ul>
+<hr>
+<h2 id="18-historico-y-analitica" class="section-title">18. Histórico y analítica</h2>
+<h3 id="181-historico-por-expediente" class="subsection-title">18.1 Histórico por expediente</h3>
+<ul>
+<li>Errores detectados y resueltos.</li>
+<li>Correcciones (quién, cuándo, qué).</li>
+<li>Versiones de documentos.</li>
+<li>Evaluaciones de validación (timestamped).</li>
+</ul>
+<h3 id="182-dashboard-de-calidad" class="subsection-title">18.2 Dashboard de calidad</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Dimensión</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Errores por marca</td>
+<td>Marca vehículo</td>
+</tr>
+<tr>
+<td>Errores por concesionario</td>
+<td>Concesionario</td>
+</tr>
+<tr>
+<td>Errores por mes</td>
+<td>Temporal</td>
+</tr>
+<tr>
+<td>Errores por tipo documental</td>
+<td>Tipo documento</td>
+</tr>
+<tr>
+<td>Expedientes devueltos</td>
+<td>Ratio</td>
+</tr>
+<tr>
+<td>Expedientes corregidos</td>
+<td>Ratio</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>Global</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="19-indicadores-de-exito-kpis" class="section-title">19. Indicadores de éxito (KPIs)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+<th>Responsable medición</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reducción expedientes devueltos</td>
+<td>-30% vs. baseline</td>
+<td>Operaciones</td>
+</tr>
+<tr>
+<td>Reducción tiempo revisión</td>
+<td>-40% vs. baseline</td>
+<td>Operaciones</td>
+</tr>
+<tr>
+<td>Reducción tiempo creación</td>
+<td>-25% vs. baseline</td>
+<td>Producto</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>&gt; 60%</td>
+<td>Sistema IA</td>
+</tr>
+<tr>
+<td>Incidencias detectadas pre-envío</td>
+<td>&gt; 90%</td>
+<td>Sistema IA</td>
+</tr>
+<tr>
+<td>Precisión clasificación documental</td>
+<td>&gt; 95%</td>
+<td>MLOps</td>
+</tr>
+<tr>
+<td>Precisión extracción campos clave</td>
+<td>&gt; 95%</td>
+<td>MLOps</td>
+</tr>
+<tr>
+<td>Recall incidencias críticas</td>
+<td>&gt; 98%</td>
+<td>MLOps</td>
+</tr>
+<tr>
+<td>Tiempo análisis por documento</td>
+<td>&lt; 10 s</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>100%</td>
+<td>Auditoría</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="20-roadmap-funcional" class="section-title">20. Roadmap funcional</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Alcance</th>
+<th>Entregables</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>MVP</strong></td>
+<td>CF-001 a CF-009, Bloques A–C, validación progresiva básica</td>
+<td>Extracción + cruces + UI incidencias</td>
+</tr>
+<tr>
+<td><strong>v1</strong></td>
+<td>Bloques D–G, CF-010 a CF-013, Decision Engine</td>
+<td>Reglas CAE completas + scoring</td>
+</tr>
+<tr>
+<td><strong>v2</strong></td>
+<td>CF-014, CF-015, asistente conversacional</td>
+<td>RAG + feedback loop</td>
+</tr>
+<tr>
+<td><strong>v3</strong></td>
+<td>Fine-tuning, extractores especializados</td>
+<td>MLOps avanzado</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="21-vision-final" class="section-title">21. Visión final</h2>
+<p>La IA deberá actuar como un <strong>asistente especializado en expedientes CAE</strong> capaz de:</p>
+<ul>
+<li>Guiar al usuario durante la construcción del expediente.</li>
+<li><strong>Validar continuamente</strong> la documentación aportada.</li>
+<li>Aplicar <strong>reglas de negocio específicas</strong> del proceso CAE.</li>
+<li><strong>Cruzar información entre documentos</strong> en tiempo real.</li>
+<li>Detectar incidencias <strong>antes</strong> de la revisión por Operaciones.</li>
+<li>Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.</li>
+<li>Reducir significativamente la carga operativa manual.</li>
+<li>Mejorar la calidad de los expedientes tramitados.</li>
+</ul>
+<blockquote class="callout"><p><em>Este documento describe una <strong>plataforma de asistencia inteligente para expedientes CAE</strong>, no un sistema genérico de OCR. La validación progresiva y las reglas de negocio CAE son el núcleo funcional del sistema.</em></p></blockquote>
+<hr>
+<p><em>Documento generado como Especificación Funcional v3.0 — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
+</article>
+        <footer class="doc-footer">
+          <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script>
+    const fab = document.getElementById('fabTop');
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+      fab.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = [...tocLinks]
+      .map((a) => document.getElementById(a.dataset.section))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((l) =>
+              l.classList.toggle('active', l.dataset.section === entry.target.id)
+            );
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+  </script>
+</body>
+</html>
