@@ -17,10 +17,7 @@
 | Rev. | Fecha | Naturaleza del cambio |
 |------|-------|------------------------|
 | 0 | 27/06/2026 | Primera versión del documento (Borrador) |
-| 1 | 03/07/2026 | **v3.0** — Arquitectura por fases end-to-end, nuevos componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), 8 flujos técnicos, modelo de datos, eventos, APIs, seguridad ampliada, observabilidad y MLOps |
-| 2 | 03/07/2026 | **v3.1** — Alineación con diagrama maestro (`ARQUITECTURA-CAE-IA.md`): flujo E2E completo, Motor Validación Progresiva CAE, extractores especializados, capa observabilidad transversal, bucle CDN/thumbnails |
-
-> **Diagrama de referencia:** [`ARQUITECTURA-CAE-IA.md`](ARQUITECTURA-CAE-IA.md) — Visión funcional + arquitectura técnica E2E detallada.
+| 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), flujos técnicos, modelo de datos, eventos, APIs, seguridad, observabilidad y MLOps |
 
 ---
 
@@ -148,21 +145,11 @@ flowchart TB
     OBS -.-> GW & AO & VE & FDR & FB
 ```
 
-### 3.2 Evolución respecto a v2.0
-
-| v2.0 (anterior) | v3.0 (actual) |
-|-----------------|---------------|
-| CAE → Orchestrator → DI → Foundry → Validation → Feedback | Arquitectura por 13 fases con Edge, Blob RAW, Preprocessing, Classifier, Workers, Decision Engine |
-| 4 flujos técnicos | 8 flujos técnicos |
-| Validación al final | Validación progresiva reactiva a eventos |
-| Observabilidad mencionada | Observabilidad como componente de primer nivel |
-| Componentes genéricos | 12+ componentes con responsabilidades definidas |
-
 ---
 
 ## 4. Arquitectura por fases (end-to-end)
 
-Alineada con el **diagrama maestro aprobado** — ver [`ARQUITECTURA-CAE-IA.md`](ARQUITECTURA-CAE-IA.md) para diagramas completos exportables.
+Arquitectura alineada con el **modelo de 10 fases** del sistema de asistencia inteligente CAE.
 
 ### 4.0 Flujo técnico E2E (resumen)
 
@@ -326,7 +313,7 @@ Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
 
 ### 5.5 Extraction Engine + Workers IA
 
-Workers especializados alineados con el clasificador documental del flujo E2E (ver [`ARQUITECTURA-CAE-IA.md`](ARQUITECTURA-CAE-IA.md) §4.3):
+Workers especializados alineados con el clasificador documental del flujo E2E:
 
 | Worker | Documentos | Routing clasificador |
 |--------|------------|---------------------|
@@ -350,7 +337,7 @@ Workers especializados alineados con el clasificador documental del flujo E2E (v
     "titular": { "valor": "GARCIA LOPEZ, JUAN", "confidence": 0.95, "bbox": null },
     "matricula": { "valor": "1234ABC", "confidence": 0.98, "bbox": [80, 200, 180, 220] }
   },
-  "provenance": "document-intelligence:v3.1",
+  "provenance": "document-intelligence",
   "timestamp": "2026-07-03T10:15:00Z"
 }
 ```
@@ -1116,7 +1103,7 @@ flowchart TB
 
 ## 20. Visión final
 
-La arquitectura v3.0 utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
+La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 
@@ -1126,4 +1113,4 @@ El **Feedback Engine** y pipeline **MLOps** cierran el ciclo de mejora continua,
 
 ---
 
-*Documento generado como Diseño Técnico de Referencia v3.0 — Sistema de Asistencia Inteligente para Plataforma CAE.*
+*Diseño Técnico de Referencia — Sistema de Asistencia Inteligente para Plataforma CAE.*

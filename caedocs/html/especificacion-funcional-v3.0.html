@@ -27,7 +27,7 @@
         </div>
         <div class="header-meta">
           <span class="badge badge-red">Funcional</span>
-          <span class="badge badge-neutral">v3.1</span>
+          <span class="badge badge-neutral">v3.0</span>
         </div>
       </div>
       <p class="header-subtitle">Sistema de Asistencia Inteligente — Plataforma CAE</p>
@@ -35,7 +35,6 @@
         <a href="index.html" class="nav-pill">Inicio</a>
         <a href="especificacion-funcional-v3.0.html" class="nav-pill active">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill">Diseño técnico</a>
-        <a href="../ARQUITECTURA-CAE-IA.png" class="nav-pill" target="_blank" rel="noopener">Diagrama PNG</a>
       </nav>
     </header>
 
@@ -66,10 +65,6 @@
 <li><a href="#19-indicadores-de-exito-kpis" class="toc-link" data-section="19-indicadores-de-exito-kpis">19. Indicadores de éxito (KPIs)</a></li>
 <li><a href="#20-roadmap-funcional" class="toc-link" data-section="20-roadmap-funcional">20. Roadmap funcional</a></li>
 <li><a href="#21-vision-final" class="toc-link" data-section="21-vision-final">21. Visión final</a></li></ul>
-        </div>
-        <div class="sidebar-card sidebar-tip">
-          <p class="sidebar-label">Referencia</p>
-          <p>Documento alineado con el diagrama maestro <strong>ARQUITECTURA-CAE-IA</strong> y validación progresiva CAE.</p>
         </div>
       </aside>
 
@@ -127,15 +122,9 @@
 <tr>
 <td>2</td>
 <td>03/07/2026</td>
-<td><strong>v3.0</strong> — Validación progresiva, arquitectura por fases, capacidades CF-010 a CF-015, estados del expediente, scoring, asistencia inteligente, catálogo completo de reglas y matrices documentales</td>
-</tr>
-<tr>
-<td>3</td>
-<td>03/07/2026</td>
-<td><strong>v3.1</strong> — Alineación con diagrama maestro aprobado (<code>ARQUITECTURA-CAE-IA.md</code>): 10 fases funcionales, motor validación progresiva como núcleo, Decision Engine OK/Review/Reject, observabilidad transversal</td>
+<td>Validación progresiva, arquitectura por fases, capacidades CF-010 a CF-015, estados del expediente, scoring, asistencia inteligente, catálogo de reglas y matrices documentales</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p><strong>Diagrama de referencia:</strong> <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> — Visión funcional completa + arquitectura técnica E2E.</p></blockquote>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
 <ol>
@@ -178,12 +167,12 @@
 </ul>
 <blockquote class="callout"><p><strong>Principio rector:</strong> La extracción automática de información desde documentos (OCR + IA) constituye <strong>únicamente una de las capacidades</strong> del sistema. El objetivo principal es la <strong>validación continua y asistida del expediente</strong> durante todo su ciclo de vida.</p></blockquote>
 <h3 id="12-contexto-y-respuesta-a-requisitos-del-cliente" class="subsection-title">1.2 Contexto y respuesta a requisitos del cliente</h3>
-<p>Tras la revisión del cliente (IDEAUTO), se identificaron carencias en la documentación v2.0 respecto al valor diferencial del proceso CAE. Esta versión 3.0 responde explícitamente a:</p>
+<p>Tras la revisión del cliente (IDEAUTO), se identificaron carencias respecto al valor diferencial del proceso CAE. Este documento responde explícitamente a:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Requisito del cliente</th>
-<th>Respuesta funcional v3.0</th>
+<th>Respuesta funcional</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -457,8 +446,8 @@ journey
 </div>
 <hr>
 <h2 id="6-arquitectura-funcional" class="section-title">6. Arquitectura funcional</h2>
-<h3 id="60-vision-funcional-completa-diagrama-aprobado" class="subsection-title">6.0 Visión funcional completa (diagrama aprobado)</h3>
-<p>La arquitectura funcional sigue el <strong>diagrama maestro de 10 fases</strong> aprobado por IDEAUTO. El diagrama completo con leyenda de colores, flujo técnico E2E y detalle del motor de validación está en <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a>.</p>
+<h3 id="60-vision-funcional-completa" class="subsection-title">6.0 Visión funcional completa</h3>
+<p>La arquitectura funcional sigue un <strong>modelo de 10 fases</strong> aprobado por IDEAUTO, con leyenda de fases, flujo técnico end-to-end y detalle del motor de validación progresiva integrados en este documento.</p>
 <p>La arquitectura refleja el sistema como <strong>plataforma de asistencia inteligente</strong>, no como un OCR aislado. La <strong>Fase 5 — Validación Progresiva CAE</strong> es el núcleo funcional del sistema.</p>
 <div class="mermaid">
 flowchart LR
@@ -1875,7 +1864,7 @@ sequenceDiagram
 </ul>
 <blockquote class="callout"><p><em>Este documento describe una <strong>plataforma de asistencia inteligente para expedientes CAE</strong>, no un sistema genérico de OCR. La validación progresiva y las reglas de negocio CAE son el núcleo funcional del sistema.</em></p></blockquote>
 <hr>
-<p><em>Documento generado como Especificación Funcional v3.0 — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
+<p><em>Especificación Funcional — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
 </article>
         <footer class="doc-footer">
           <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>

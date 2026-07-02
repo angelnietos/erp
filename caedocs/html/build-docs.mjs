@@ -144,7 +144,7 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         </div>
         <div class="header-meta">
           <span class="badge ${badgeClass}">${badge}</span>
-          <span class="badge badge-neutral">v3.1</span>
+          <span class="badge badge-neutral">v3.0</span>
         </div>
       </div>
       <p class="header-subtitle">${subtitle}</p>
@@ -152,7 +152,6 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         <a href="index.html" class="nav-pill">Inicio</a>
         <a href="especificacion-funcional-v3.0.html" class="nav-pill${accent === 'red' ? ' active' : ''}">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill${accent === 'blue' ? ' active' : ''}">Diseño técnico</a>
-        <a href="../ARQUITECTURA-CAE-IA.png" class="nav-pill" target="_blank" rel="noopener">Diagrama PNG</a>
       </nav>
     </header>
 
@@ -161,10 +160,6 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         <div class="sidebar-card">
           <p class="sidebar-label">Índice</p>
           <ul class="toc">${toc}</ul>
-        </div>
-        <div class="sidebar-card sidebar-tip">
-          <p class="sidebar-label">Referencia</p>
-          <p>Documento alineado con el diagrama maestro <strong>ARQUITECTURA-CAE-IA</strong> y validación progresiva CAE.</p>
         </div>
       </aside>
 

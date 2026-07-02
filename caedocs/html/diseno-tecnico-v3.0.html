@@ -27,7 +27,7 @@
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">Técnico</span>
-          <span class="badge badge-neutral">v3.1</span>
+          <span class="badge badge-neutral">v3.0</span>
         </div>
       </div>
       <p class="header-subtitle">Diseño Técnico de Referencia — Plataforma CAE</p>
@@ -35,7 +35,6 @@
         <a href="index.html" class="nav-pill">Inicio</a>
         <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill active">Diseño técnico</a>
-        <a href="../ARQUITECTURA-CAE-IA.png" class="nav-pill" target="_blank" rel="noopener">Diagrama PNG</a>
       </nav>
     </header>
 
@@ -65,10 +64,6 @@
 <li><a href="#18-despliegue-azure" class="toc-link" data-section="18-despliegue-azure">18. Despliegue Azure</a></li>
 <li><a href="#19-kpis-tecnicos" class="toc-link" data-section="19-kpis-tecnicos">19. KPIs técnicos</a></li>
 <li><a href="#20-vision-final" class="toc-link" data-section="20-vision-final">20. Visión final</a></li></ul>
-        </div>
-        <div class="sidebar-card sidebar-tip">
-          <p class="sidebar-label">Referencia</p>
-          <p>Documento alineado con el diagrama maestro <strong>ARQUITECTURA-CAE-IA</strong> y validación progresiva CAE.</p>
         </div>
       </aside>
 
@@ -121,15 +116,9 @@
 <tr>
 <td>1</td>
 <td>03/07/2026</td>
-<td><strong>v3.0</strong> — Arquitectura por fases end-to-end, nuevos componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), 8 flujos técnicos, modelo de datos, eventos, APIs, seguridad ampliada, observabilidad y MLOps</td>
-</tr>
-<tr>
-<td>2</td>
-<td>03/07/2026</td>
-<td><strong>v3.1</strong> — Alineación con diagrama maestro (<code>ARQUITECTURA-CAE-IA.md</code>): flujo E2E completo, Motor Validación Progresiva CAE, extractores especializados, capa observabilidad transversal, bucle CDN/thumbnails</td>
+<td>Arquitectura por fases end-to-end, componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), flujos técnicos, modelo de datos, eventos, APIs, seguridad, observabilidad y MLOps</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p><strong>Diagrama de referencia:</strong> <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> — Visión funcional + arquitectura técnica E2E detallada.</p></blockquote>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
 <ol>
@@ -280,38 +269,9 @@ flowchart TB
     FB --> DS
     OBS -.-> GW & AO & VE & FDR & FB
 </div>
-<h3 id="32-evolucion-respecto-a-v20" class="subsection-title">3.2 Evolución respecto a v2.0</h3>
-<div class="table-wrap"><table>
-<thead>
-<tr>
-<th>v2.0 (anterior)</th>
-<th>v3.0 (actual)</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>CAE → Orchestrator → DI → Foundry → Validation → Feedback</td>
-<td>Arquitectura por 13 fases con Edge, Blob RAW, Preprocessing, Classifier, Workers, Decision Engine</td>
-</tr>
-<tr>
-<td>4 flujos técnicos</td>
-<td>8 flujos técnicos</td>
-</tr>
-<tr>
-<td>Validación al final</td>
-<td>Validación progresiva reactiva a eventos</td>
-</tr>
-<tr>
-<td>Observabilidad mencionada</td>
-<td>Observabilidad como componente de primer nivel</td>
-</tr>
-<tr>
-<td>Componentes genéricos</td>
-<td>12+ componentes con responsabilidades definidas</td>
-</tr>
-</tbody></table></div>
 <hr>
 <h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
-<p>Alineada con el <strong>diagrama maestro aprobado</strong> — ver <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> para diagramas completos exportables.</p>
+<p>Arquitectura alineada con el <strong>modelo de 10 fases</strong> del sistema de asistencia inteligente CAE.</p>
 <h3 id="40-flujo-tecnico-e2e-resumen" class="subsection-title">4.0 Flujo técnico E2E (resumen)</h3>
 <div class="mermaid">
 flowchart TD
@@ -709,7 +669,7 @@ flowchart TD
 </tr>
 </tbody></table></div>
 <h3 id="55-extraction-engine-workers-ia" class="subsection-title">5.5 Extraction Engine + Workers IA</h3>
-<p>Workers especializados alineados con el clasificador documental del flujo E2E (ver <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a> §4.3):</p>
+<p>Workers especializados alineados con el clasificador documental del flujo E2E:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -768,7 +728,7 @@ flowchart TD
     "titular": { "valor": "GARCIA LOPEZ, JUAN", "confidence": 0.95, "bbox": null },
     "matricula": { "valor": "1234ABC", "confidence": 0.98, "bbox": [80, 200, 180, 220] }
   },
-  "provenance": "document-intelligence:v3.1",
+  "provenance": "document-intelligence",
   "timestamp": "2026-07-03T10:15:00Z"
 }</code></pre>
 <h3 id="56-motor-validacion-progresiva-cae-validation-engine" class="subsection-title">5.6 Motor Validación Progresiva CAE (Validation Engine)</h3>
@@ -2090,12 +2050,12 @@ flowchart TB
 </tbody></table></div>
 <hr>
 <h2 id="20-vision-final" class="section-title">20. Visión final</h2>
-<p>La arquitectura v3.0 utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
+<p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua, convirtiendo correcciones humanas en datasets, evaluaciones y refinamiento de reglas, prompts y extractores.</p>
 <blockquote class="callout"><p><em>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</em></p></blockquote>
 <hr>
-<p><em>Documento generado como Diseño Técnico de Referencia v3.0 — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
+<p><em>Diseño Técnico de Referencia — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
 </article>
         <footer class="doc-footer">
           <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
