@@ -1,0 +1,32 @@
+flowchart TB
+    subgraph TOP["Capa superior — pocas, lentas, alto valor"]
+        E2E["E2E / smoke<br/>Playwright · flujos CAE + MFE"]
+        LOAD["Carga · estrés · soak<br/>k6 · Azure Load Testing"]
+    end
+
+    subgraph MID["Capa media — contratos y fronteras"]
+        INT["Integración<br/>API · colas · adaptadores · BD"]
+        COMP["Componentes<br/>Storybook + Testing Library"]
+        CONTRACT["Contrato<br/>OpenAPI · eventos · MF remote"]
+    end
+
+    subgraph BASE["Base — muchas, rápidas, baratas"]
+        UNIT["Unitarios<br/>dominio · reglas · utils · UI tonta"]
+    end
+
+    subgraph IA["Transversal IA"]
+        GOLD["Golden set + fitness<br/>regresión en CI"]
+    end
+
+    UNIT --> INT
+    INT --> COMP
+    COMP --> CONTRACT
+    CONTRACT --> E2E
+    E2E --> LOAD
+    UNIT -.-> GOLD
+    INT -.-> GOLD
+
+    style BASE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style MID fill:#e3f2fd,stroke:#1565c0
+    style TOP fill:#fff3e0,stroke:#ef6c00
+    style IA fill:#f3e5f5,stroke:#7b1fa2

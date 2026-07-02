@@ -22,6 +22,7 @@
 | 3 | 03/07/2026 | Enfoque de implementación: arquitectura hexagonal, DDD y microservicios |
 | 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
+| 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
 
 ---
 
@@ -178,6 +179,8 @@ Este documento define de forma integral:
 | PF-12 | **Servicios autónomos** | Cada capacidad (extracción, validación, MLOps…) es una lib desacoplada, desplegable en monolito o microservicio. |
 | PF-13 | **Libs first** | Desarrollo en `libs/` reutilizables; integración en CAE v2 sin acoplar código al host. |
 | PF-14 | **UI embebida (MFE)** | Paneles IA en CAE v2 como microfrontend React (default); Angular como alternativa. |
+| PF-15 | **Testabilidad en capas** | Pirámide de testing: unitarios abundantes, integración, E2E selectivos, carga/estrés periódicos. |
+| PF-16 | **UI reusable documentada** | Componentes tontos en catálogo Storybook; componentes listos sin lógica de dominio embebida. |
 
 ---
 
@@ -454,6 +457,53 @@ flowchart TB
 | RNF-12 | ACL hacia Core CAE; sin BD compartida entre libs |
 | RNF-13 | MFE React default; contrato host ↔ remote versionado |
 | RNF-14 | MFE Angular opcional; misma API de integración que React |
+
+### 6.6 Calidad de software, testing y frontend reusable
+
+La plataforma IA debe ser **testeable por diseño** y la UI **composable** mediante componentes reutilizables documentados.
+
+#### 6.6.1 Pirámide de testing
+
+| Nivel | Alcance funcional | Objetivo de negocio |
+|-------|-------------------|---------------------|
+| **Unitarios** | Reglas CAE, scoring, severidades, mappers, UI tonta | Detectar regresiones de lógica al instante |
+| **Integración** | APIs IA, colas, ACL CAE, persistencia | Validar fronteras entre capacidades |
+| **Contrato** | OpenAPI, eventos, remote MFE | Evitar roturas entre CAE host e IA |
+| **Componentes (Storybook)** | Estados visuales, accesibilidad, interacción | UI consistente sin desplegar CAE completo |
+| **E2E** | Flujos cliente y Operaciones de punta a punta | Garantizar experiencia real del expediente |
+| **Carga / estrés / soak** | Picos documentales, colas, latencia | SLO de rendimiento §23 bajo demanda real |
+| **Golden set + fitness** | Precisión IA vs dataset etiquetado | No promover modelos que empeoren calidad |
+
+```mermaid
+flowchart TB
+    LOAD["Carga · estrés · soak"] --> E2E["E2E · smoke Playwright"]
+    E2E --> CONTRACT["Contratos API / MFE"]
+    CONTRACT --> COMP["Storybook + component tests"]
+    COMP --> INT["Integración"]
+    INT --> UNIT["Unitarios · dominio · UI tonta"]
+    GOLD["Golden set · fitness"] -.-> UNIT & INT
+
+    style UNIT fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style COMP fill:#fff9c4,stroke:#f9a825
+```
+
+#### 6.6.2 Componentes listos vs tontos (frontend)
+
+| Tipo | Nombre alternativo | Ubicación | Responsabilidad |
+|------|-------------------|-----------|-----------------|
+| **Tonto** | Presentational / dumb | `libs/react/cae/ui` (default), `libs/angular/cae/ui` (opc.) | Renderizar según props; emitir eventos; **sin** reglas CAE |
+| **Listo** | Smart / container | `libs/react/cae/feature-*`, `libs/angular/cae/feature-*` | Datos, SSE, orquestación; compone tontos |
+
+**Storybook** (`apps/cae-ui-storybook`) documenta los componentes tontos: variantes de severidad, estados vacío/error/carga, temas y accesibilidad. Es requisito de entrega para todo componente nuevo en `ui/`.
+
+| RNF asociado | Requisito |
+|--------------|-----------|
+| RNF-15 | Pirámide de testing aplicada por lib Nx |
+| RNF-16 | E2E flujos críticos expediente antes de PRO |
+| RNF-17 | Pruebas carga/estrés periódicas con SLO verificados |
+| RNF-18 | Storybook obligatorio para componentes `ui/` |
+| RNF-19 | Reglas CAE solo en dominio; UI tonta sin lógica de negocio |
+| RNF-20 | Golden set + fitness como gate de promoción IA |
 
 ---
 
@@ -1207,6 +1257,12 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | RNF-12 | Integración backend | Anti-Corruption Layer hacia Core CAE; sin BD compartida entre libs |
 | RNF-13 | Integración UI | MFE **React** (default) embebido en CAE v2; Module Federation; despliegue independente |
 | RNF-14 | Integración UI alt. | MFE **Angular** opcional; misma API de slots y eventos que React |
+| RNF-15 | Calidad — pirámide | Unitarios, integración, contrato, Storybook, E2E y carga según §6.6 |
+| RNF-16 | Calidad — E2E | Suite E2E flujos críticos (subida, incidencias, envío, Operaciones) en STAGING |
+| RNF-17 | Calidad — rendimiento | Pruebas carga/estrés/soak periódicas; P95 documento < 10 s bajo carga nominal |
+| RNF-18 | Calidad — UI | Storybook para componentes tontos `ui/`; interaction tests en CI |
+| RNF-19 | Calidad — frontend | Separación listos/tontos; dominio CAE fuera de presentación |
+| RNF-20 | Calidad — IA | Golden set + fitness mínimo antes de promoción a STAGING/PRO |
 
 ---
 

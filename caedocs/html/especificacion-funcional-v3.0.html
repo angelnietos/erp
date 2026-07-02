@@ -146,6 +146,11 @@
 <td>03/07/2026</td>
 <td>Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada</td>
 </tr>
+<tr>
+<td>6</td>
+<td>03/07/2026</td>
+<td>Pirámide de testing, Storybook, componentes listos/tontos en frontend</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -412,6 +417,16 @@
 <td>PF-14</td>
 <td><strong>UI embebida (MFE)</strong></td>
 <td>Paneles IA en CAE v2 como microfrontend React (default); Angular como alternativa.</td>
+</tr>
+<tr>
+<td>PF-15</td>
+<td><strong>Testabilidad en capas</strong></td>
+<td>Pirámide de testing: unitarios abundantes, integración, E2E selectivos, carga/estrés periódicos.</td>
+</tr>
+<tr>
+<td>PF-16</td>
+<td><strong>UI reusable documentada</strong></td>
+<td>Componentes tontos en catálogo Storybook; componentes listos sin lógica de dominio embebida.</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -1018,6 +1033,121 @@ flowchart TB
 <tr>
 <td>RNF-14</td>
 <td>MFE Angular opcional; misma API de integración que React</td>
+</tr>
+</tbody></table></div>
+<h3 id="66-calidad-de-software-testing-y-frontend-reusable" class="subsection-title">6.6 Calidad de software, testing y frontend reusable</h3>
+<p>La plataforma IA debe ser <strong>testeable por diseño</strong> y la UI <strong>composable</strong> mediante componentes reutilizables documentados.</p>
+<h4>6.6.1 Pirámide de testing</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Alcance funcional</th>
+<th>Objetivo de negocio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Unitarios</strong></td>
+<td>Reglas CAE, scoring, severidades, mappers, UI tonta</td>
+<td>Detectar regresiones de lógica al instante</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>APIs IA, colas, ACL CAE, persistencia</td>
+<td>Validar fronteras entre capacidades</td>
+</tr>
+<tr>
+<td><strong>Contrato</strong></td>
+<td>OpenAPI, eventos, remote MFE</td>
+<td>Evitar roturas entre CAE host e IA</td>
+</tr>
+<tr>
+<td><strong>Componentes (Storybook)</strong></td>
+<td>Estados visuales, accesibilidad, interacción</td>
+<td>UI consistente sin desplegar CAE completo</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flujos cliente y Operaciones de punta a punta</td>
+<td>Garantizar experiencia real del expediente</td>
+</tr>
+<tr>
+<td><strong>Carga / estrés / soak</strong></td>
+<td>Picos documentales, colas, latencia</td>
+<td>SLO de rendimiento §23 bajo demanda real</td>
+</tr>
+<tr>
+<td><strong>Golden set + fitness</strong></td>
+<td>Precisión IA vs dataset etiquetado</td>
+<td>No promover modelos que empeoren calidad</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    LOAD["Carga · estrés · soak"] --> E2E["E2E · smoke Playwright"]
+    E2E --> CONTRACT["Contratos API / MFE"]
+    CONTRACT --> COMP["Storybook + component tests"]
+    COMP --> INT["Integración"]
+    INT --> UNIT["Unitarios · dominio · UI tonta"]
+    GOLD["Golden set · fitness"] -.-> UNIT & INT
+
+    style UNIT fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style COMP fill:#fff9c4,stroke:#f9a825
+</div>
+<h4>6.6.2 Componentes listos vs tontos (frontend)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Nombre alternativo</th>
+<th>Ubicación</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tonto</strong></td>
+<td>Presentational / dumb</td>
+<td><code>libs/react/cae/ui</code> (default), <code>libs/angular/cae/ui</code> (opc.)</td>
+<td>Renderizar según props; emitir eventos; <strong>sin</strong> reglas CAE</td>
+</tr>
+<tr>
+<td><strong>Listo</strong></td>
+<td>Smart / container</td>
+<td><code>libs/react/cae/feature-*</code>, <code>libs/angular/cae/feature-*</code></td>
+<td>Datos, SSE, orquestación; compone tontos</td>
+</tr>
+</tbody></table></div>
+<p><strong>Storybook</strong> (<code>apps/cae-ui-storybook</code>) documenta los componentes tontos: variantes de severidad, estados vacío/error/carga, temas y accesibilidad. Es requisito de entrega para todo componente nuevo en <code>ui/</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>RNF asociado</th>
+<th>Requisito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RNF-15</td>
+<td>Pirámide de testing aplicada por lib Nx</td>
+</tr>
+<tr>
+<td>RNF-16</td>
+<td>E2E flujos críticos expediente antes de PRO</td>
+</tr>
+<tr>
+<td>RNF-17</td>
+<td>Pruebas carga/estrés periódicas con SLO verificados</td>
+</tr>
+<tr>
+<td>RNF-18</td>
+<td>Storybook obligatorio para componentes <code>ui/</code></td>
+</tr>
+<tr>
+<td>RNF-19</td>
+<td>Reglas CAE solo en dominio; UI tonta sin lógica de negocio</td>
+</tr>
+<tr>
+<td>RNF-20</td>
+<td>Golden set + fitness como gate de promoción IA</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -2681,6 +2811,36 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <td>RNF-14</td>
 <td>Integración UI alt.</td>
 <td>MFE <strong>Angular</strong> opcional; misma API de slots y eventos que React</td>
+</tr>
+<tr>
+<td>RNF-15</td>
+<td>Calidad — pirámide</td>
+<td>Unitarios, integración, contrato, Storybook, E2E y carga según §6.6</td>
+</tr>
+<tr>
+<td>RNF-16</td>
+<td>Calidad — E2E</td>
+<td>Suite E2E flujos críticos (subida, incidencias, envío, Operaciones) en STAGING</td>
+</tr>
+<tr>
+<td>RNF-17</td>
+<td>Calidad — rendimiento</td>
+<td>Pruebas carga/estrés/soak periódicas; P95 documento &lt; 10 s bajo carga nominal</td>
+</tr>
+<tr>
+<td>RNF-18</td>
+<td>Calidad — UI</td>
+<td>Storybook para componentes tontos <code>ui/</code>; interaction tests en CI</td>
+</tr>
+<tr>
+<td>RNF-19</td>
+<td>Calidad — frontend</td>
+<td>Separación listos/tontos; dominio CAE fuera de presentación</td>
+</tr>
+<tr>
+<td>RNF-20</td>
+<td>Calidad — IA</td>
+<td>Golden set + fitness mínimo antes de promoción a STAGING/PRO</td>
 </tr>
 </tbody></table></div>
 <hr>

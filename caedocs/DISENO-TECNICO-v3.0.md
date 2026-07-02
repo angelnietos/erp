@@ -22,6 +22,7 @@
 | 3 | 03/07/2026 | Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios |
 | 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
+| 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
 
 ---
 
@@ -47,7 +48,8 @@
 18. [Fitness Engine y evaluación](#18-fitness-engine-y-evaluación)
 19. [Despliegue Azure](#19-despliegue-azure)
 20. [KPIs técnicos](#20-kpis-técnicos)
-21. [Visión final](#21-visión-final)
+21. [Estrategia de calidad y testing](#21-estrategia-de-calidad-y-testing)
+22. [Visión final](#22-visión-final)
 
 ---
 
@@ -88,6 +90,8 @@ La arquitectura deberá:
 | PA-11 | **Anti-Corruption Layer** | Integración con Plataforma CAE v2.0 mediante adaptadores, sin acoplar dominios. |
 | PA-12 | **Libs first** | Toda capacidad IA como lib Nx; apps solo componen y despliegan. |
 | PA-13 | **Deploy elástico** | Misma codebase: monolito modular (default) → microservicios bajo demanda. |
+| PA-14 | **Pirámide de testing** | Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI. |
+| PA-15 | **UI reusable** | Componentes tontos en `ui/` + Storybook; componentes listos en `feature-*`; sin lógica de negocio en presentación. |
 
 ---
 
@@ -279,6 +283,8 @@ La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La
 | Backend por capacidad | `libs/node/cae/*-backend` | NestJS modules exportables (`forRoot()`) |
 | UI React (default) | `libs/react/cae/*` | Componentes y features para host CAE v2 (React) |
 | UI Angular (opcional) | `libs/angular/cae/*` | Misma superficie funcional; implementación alternativa |
+| UI reusable (tontos) | `libs/react/cae/ui`, `libs/angular/cae/ui` | Presentational + Storybook |
+| Storybook | `apps/cae-ui-storybook` | Catálogo visual de componentes React y Angular |
 | Host backend IA | `apps/cae-ia-backend` | Monolito modular NestJS |
 | MFE React (default) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
 | MFE Angular (opcional) | `apps/cae-assistant-mfe-angular` | Remote alternativo (Module Federation) |
@@ -290,7 +296,8 @@ cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 ├── apps/
 │   ├── cae-ia-backend/                        # Host monolito modular backend IA
 │   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
-│   └── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   ├── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   └── cae-ui-storybook/                      # Storybook — catálogo componentes UI
 │
 ├── libs/
 │   ├── isomorphic/cae/
@@ -308,14 +315,16 @@ cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 │   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
 │   │
 │   ├── react/cae/                             # UI default — stack nativo CAE v2
-│   │   ├── data-access/
-│   │   ├── feature-assistant/
+│   │   ├── ui/                                # Componentes tontos + *.stories.tsx
+│   │   ├── data-access/                       # Hooks, stores, clientes API
+│   │   ├── feature-assistant/                 # Componentes listos (containers)
 │   │   ├── feature-operations/
 │   │   └── feature-mlops/
 │   │
 │   └── angular/cae/                           # UI opcional — misma API de componentes
+│       ├── ui/                                # Componentes tontos + *.stories.ts
 │       ├── data-access/
-│       ├── feature-assistant/
+│       ├── feature-assistant/                 # Smart components / containers
 │       ├── feature-operations/
 │       └── feature-mlops/
 ```
@@ -495,6 +504,104 @@ flowchart TB
 | **2b — MFE Angular (opc.)** | `cae-assistant-mfe-angular` | Mismo slot; solo si se elige stack alternativo |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
+
+### 3.5 Arquitectura frontend: componentes listos y tontos
+
+La capa UI del MFE sigue el patrón **Smart / Dumb** (también *container / presentational*). El dominio y las reglas CAE **nunca** viven en componentes de presentación.
+
+#### 3.5.1 Componentes tontos (presentational / dumb)
+
+Ubicación: `libs/react/cae/ui` (default) y `libs/angular/cae/ui` (opcional).
+
+| Característica | Descripción |
+|----------------|-------------|
+| Responsabilidad | Solo renderizar UI a partir de **props/inputs** y emitir **eventos/callbacks** |
+| Sin efectos secundarios | No llamadas HTTP, no acceso a stores globales, no reglas de negocio |
+| Testabilidad | Tests unitarios con Testing Library; snapshots solo como complemento |
+| Reutilización | Compartibles entre features, MFE y Storybook |
+| Design system | Tokens y estilos alineados con CAE v2 (React default) |
+
+**Ejemplos de componentes tontos:**
+
+| Componente | Props principales | Eventos |
+|------------|-------------------|---------|
+| `IncidentCard` | incidencia, severidad, mensaje | `onResolve`, `onDismiss` |
+| `CompletenessGauge` | porcentaje, etiqueta | — |
+| `DocumentStatusBadge` | estado, confidence | — |
+| `AssistantMessage` | rol, contenido, timestamp | `onCopy`, `onFeedback` |
+| `OperationsSummaryBlock` | items, prioridad | `onExpand` |
+
+#### 3.5.2 Componentes listos (smart / container)
+
+Ubicación: `libs/react/cae/feature-*` y `libs/angular/cae/feature-*`.
+
+| Característica | Descripción |
+|----------------|-------------|
+| Responsabilidad | Orquestar datos, estado local, suscripciones SSE/WebSocket, navegación MFE |
+| Data access | Consumen `data-access` (React Query / signals / NgRx según convención CAE) |
+| Composición | Ensamblan componentes tontos; mapean DTOs API → props de presentación |
+| Límite de lógica | Reglas de negocio CAE permanecen en `isomorphic/cae/core`; aquí solo coordinación UI |
+
+**Ejemplos de componentes listos:**
+
+| Componente listo | Compone (tontos) | Responsabilidad |
+|------------------|------------------|-----------------|
+| `AssistantPanel` | `AssistantMessage`, `CompletenessGauge`, `IncidentCard` | Chat IA + estado expediente |
+| `IncidentsSidebar` | `IncidentCard`, filtros UI | Lista incidencias en tiempo real |
+| `DocumentUploadAssist` | `DocumentStatusBadge`, progreso | Feedback post-OCR |
+| `OperationsReviewPanel` | `OperationsSummaryBlock` | Cola Operaciones |
+
+```mermaid
+flowchart TB
+    subgraph SMART["Componentes LISTOS — feature-*"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+        DA["data-access hooks"]
+        AP --> DA
+        IS --> DA
+    end
+
+    subgraph DUMB["Componentes TONTOS — ui/"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+        AM["AssistantMessage"]
+    end
+
+    subgraph SB["Storybook — apps/cae-ui-storybook"]
+        ST1["IncidentCard stories"]
+        ST2["CompletenessGauge stories"]
+    end
+
+    AP --> IC & CG & AM
+    IS --> IC
+    IC & CG & AM --> ST1 & ST2
+
+    style DUMB fill:#e8f5e9,stroke:#2e7d32
+    style SMART fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+```
+
+#### 3.5.3 Storybook — catálogo de componentes reutilizables
+
+**Storybook** es la herramienta oficial para documentar, desarrollar y probar en aislamiento los **componentes tontos** reutilizables.
+
+| Aspecto | Implementación |
+|---------|----------------|
+| App Nx | `apps/cae-ui-storybook` con targets `storybook` y `build-storybook` |
+| Stories React | `libs/react/cae/ui/**/*.stories.tsx` |
+| Stories Angular | `libs/angular/cae/ui/**/*.stories.ts` (opcional) |
+| Controles | Args para variantes: severidad, estados vacío/carga/error, temas claro/oscuro |
+| Documentación | MDX por componente: cuándo usarlo, accesibilidad, props |
+| Interaction tests | `@storybook/test` + Testing Library en CI (`test-storybook`) |
+| Visual regression | Opcional: Chromatic o Loki en pipeline STAGING |
+| Design tokens | Variables CSS / theme compartido con shell CAE v2 |
+
+**Reglas de gobernanza UI:**
+
+1. Todo componente nuevo en `ui/` **debe** tener al menos una story antes de merge.
+2. Los componentes listos (`feature-*`) **no** requieren Storybook obligatorio; se prueban con integración/E2E.
+3. Cambios breaking en props de `ui/` exigen bump semver del paquete `@cae-ia/react-ui`.
+4. Angular opcional: mismas variantes funcionales documentadas en Storybook Angular.
 
 ---
 
@@ -1726,8 +1833,9 @@ flowchart TB
 ### 19.3 CI/CD
 
 - GitHub Actions / Azure DevOps
-- Deploy independiente: reglas, prompts, workers, fitness evaluators, infra
+- Deploy independiente: reglas, prompts, workers, fitness evaluators, infra, **Storybook estático** (design review)
 - Gate de CI: evaluación golden set + fitness mínimo antes de promoción a STAGING/PRO
+- Pipeline por capa de pirámide §21: unit → integración → Storybook → contrato → E2E smoke → carga (release)
 - Feature flags para activación gradual de reglas
 
 ---
@@ -1751,11 +1859,127 @@ flowchart TB
 
 ---
 
-## 21. Visión final
+## 21. Estrategia de calidad y testing
+
+La calidad del sistema se garantiza mediante una **pirámide de testing** alineada con Nx: tests rápidos y numerosos en la base; tests de frontera en el medio; flujos E2E y pruebas de carga en la cima. La capa IA añade **regresión con golden set** y **fitness** como gate de CI.
+
+> Diagrama: [`diagrams/07-testing-piramide.mmd`](diagrams/07-testing-piramide.mmd)
+
+```mermaid
+flowchart TB
+    subgraph TOP["Capa superior — pocas, lentas, alto valor"]
+        E2E["E2E / smoke<br/>Playwright · flujos CAE + MFE"]
+        LOAD["Carga · estrés · soak<br/>k6 · Azure Load Testing"]
+    end
+
+    subgraph MID["Capa media — contratos y fronteras"]
+        INT["Integración<br/>API · colas · adaptadores · BD"]
+        COMP["Componentes<br/>Storybook + Testing Library"]
+        CONTRACT["Contrato<br/>OpenAPI · eventos · MF remote"]
+    end
+
+    subgraph BASE["Base — muchas, rápidas, baratas"]
+        UNIT["Unitarios<br/>dominio · reglas · utils · UI tonta"]
+    end
+
+    subgraph IA["Transversal IA"]
+        GOLD["Golden set + fitness<br/>regresión en CI"]
+    end
+
+    UNIT --> INT
+    INT --> COMP
+    COMP --> CONTRACT
+    CONTRACT --> E2E
+    E2E --> LOAD
+    UNIT -.-> GOLD
+    INT -.-> GOLD
+
+    style BASE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style MID fill:#e3f2fd,stroke:#1565c0
+    style TOP fill:#fff3e0,stroke:#ef6c00
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+```
+
+### 21.1 Capas de la pirámide
+
+| Capa | Qué se prueba | Herramientas | Target Nx (ejemplo) | Frecuencia CI |
+|------|---------------|--------------|---------------------|---------------|
+| **Unitarios** | Dominio DDD, reglas RF, utils, mappers, componentes tontos | Jest / Vitest, Testing Library | `nx test <lib>` | Cada PR |
+| **Integración** | Módulos NestJS, repos, adaptadores Azure (mocks/emuladores), colas | Jest + Supertest, Testcontainers, Azurite | `nx test <backend-lib> --configuration=integration` | Cada PR |
+| **Contrato** | OpenAPI request/response, esquemas eventos, remote entry MFE | Pact / Schemathesis, contract tests | `nx run cae-api:contract-test` | Cada PR + nightly |
+| **Componentes** | Estados UI, accesibilidad, interacción en aislamiento | Storybook, `@storybook/test`, test-runner | `nx storybook`, `nx test-storybook cae-ui-storybook` | Cada PR (UI) |
+| **E2E** | Flujos usuario: subida doc → incidencias → envío → Operaciones; MFE embebido | Playwright (preferido) o Cypress | `nx e2e cae-assistant-e2e` | Nightly + pre-release |
+| **Integración E2E** | CAE host + remote MFE + backend IA en entorno STAGING | Playwright multi-app | `nx e2e cae-integration-e2e` | STAGING deploy |
+| **Carga / estrés** | Throughput documentos, latencia P95/P99, colas, autoscaling AKS | k6, Azure Load Testing, JMeter | `nx run cae-load-test:stress` | Mensual + pre-PRO |
+| **Soak / resistencia** | Fugas memoria, degradación 24–72 h bajo carga sostenida | k6 + monitorización | Pipeline programado | Trimestral |
+| **IA — golden set** | Precisión clasificación, extracción, incidencias vs dataset etiquetado | Evaluation Pipeline + Fitness Engine | `nx run mlops-backend:evaluate` | Gate promoción |
+| **IA — fitness gate** | Score compuesto F₁–F₆ ≥ umbral antes de STAGING/PRO | Fitness Engine | CI gate en §19.3 | Cada release |
+
+### 21.2 Alcance por capa del monorepo
+
+| Ruta | Unitarios | Integración | Storybook | E2E |
+|------|-----------|-------------|-----------|-----|
+| `libs/isomorphic/cae/core` | Reglas, agregados, value objects | — | — | — |
+| `libs/node/cae/*-backend` | Application services, domain | Adaptadores, API modules | — | — |
+| `libs/react/cae/ui` | Render + eventos | — | **Obligatorio** | — |
+| `libs/react/cae/feature-*` | Mappers ligeros | MSW / mock API | Opcional | vía E2E |
+| `apps/cae-ia-backend` | — | Smoke API | — | Parcial |
+| `apps/cae-assistant-mfe` | — | — | — | Playwright |
+| `apps/cae-ui-storybook` | — | — | Catálogo + interaction | — |
+
+### 21.3 Escenarios E2E prioritarios
+
+| ID | Flujo | Actores |
+|----|-------|---------|
+| E2E-01 | Crear expediente → subir DNI + factura → ver incidencias en sidebar | Cliente |
+| E2E-02 | Resolver incidencia menor → recalcular completitud | Cliente |
+| E2E-03 | Subida documento ilegible → feedback OCR + incidencia calidad | Cliente |
+| E2E-04 | Envío expediente → decisión Review → cola Operaciones | Cliente + Operaciones |
+| E2E-05 | MFE React cargado en slot CAE v2 (Module Federation smoke) | Sistema |
+| E2E-06 | Regresión golden set post-deploy STAGING | CI / MLOps |
+
+### 21.4 Pruebas de carga y estrés
+
+| Escenario | Objetivo | Criterio de éxito |
+|-----------|----------|-------------------|
+| **Carga nominal** | 100 docs/min sostenidos 30 min | P95 análisis doc < 10 s; error rate < 0,1% |
+| **Pico** | 3× carga nominal 10 min | Autoscaling AKS; cola DLQ < umbral |
+| **Estrés** | Incremento gradual hasta fallo | Identificar cuello de botella; sin pérdida de mensajes |
+| **Soak** | 50% carga nominal 24 h | Sin memory leak; latencia estable |
+| **Chaos ligero** | Reinicio pods + retry colas | Idempotencia; recuperación < 5 min |
+
+Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Testing** para entornos STAGING espejo de PRO.
+
+### 21.5 Gates de CI/CD
+
+| Gate | Condición | Bloquea |
+|------|-----------|---------|
+| G1 — Lint + unit | 100% libs afectadas pasan `test` + `lint` | Merge PR |
+| G2 — Integración | Backend libs críticas pasan integration suite | Merge PR (backend) |
+| G3 — Storybook | Componentes `ui/` modificados tienen stories + test-runner OK | Merge PR (frontend) |
+| G4 — Contrato | OpenAPI diff compatible; contract tests verdes | Merge PR (API) |
+| G5 — Golden set | Fitness ≥ umbral STAGING (p. ej. 85) | Deploy STAGING |
+| G6 — E2E smoke | Suite smoke Playwright en STAGING | Deploy PRO |
+| G7 — Carga | Informe k6 dentro de SLO (pre-release mayor) | Release PRO |
+
+### 21.6 Objetivos de cobertura (orientativos)
+
+| Ámbito | Cobertura mínima | Notas |
+|--------|------------------|-------|
+| `isomorphic/cae/core` (reglas) | ≥ 90% líneas | Prioridad absoluta |
+| `*-backend` application layer | ≥ 80% | Excluir adaptadores cloud mockeados |
+| `react/cae/ui` | ≥ 70% + 100% stories | Calidad visual vía Storybook |
+| E2E | Flujos críticos §21.3 | No sustituye unitarios de dominio |
+
+---
+
+## 22. Visión final
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI default es **React** (`apps/cae-assistant-mfe`), alineada con CAE v2; **Angular** queda como MFE opcional.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI default es **React** (`apps/cae-assistant-mfe`), alineada con CAE v2; **Angular** queda como MFE opcional. Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
+
+La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 

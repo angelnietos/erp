@@ -52,7 +52,9 @@
 <li><a href="#4-bucle-mlops-fitness-y-feedback" class="toc-link" data-section="4-bucle-mlops-fitness-y-feedback">4. Bucle MLOps, Fitness y Feedback</a></li>
 <li><a href="#5-capa-de-observabilidad-transversal" class="toc-link" data-section="5-capa-de-observabilidad-transversal">5. Capa de observabilidad transversal</a></li>
 <li><a href="#6-mapa-fase-funcional-componente-tecnico" class="toc-link" data-section="6-mapa-fase-funcional-componente-tecnico">6. Mapa fase funcional ↔ componente técnico</a></li>
-<li><a href="#7-mapa-objetivo-monorepo-nx" class="toc-link" data-section="7-mapa-objetivo-monorepo-nx">7. Mapa objetivo monorepo Nx</a></li></ul>
+<li><a href="#7-mapa-objetivo-monorepo-nx" class="toc-link" data-section="7-mapa-objetivo-monorepo-nx">7. Mapa objetivo monorepo Nx</a></li>
+<li><a href="#8-calidad-piramide-de-testing-y-frontend-reusable" class="toc-link" data-section="8-calidad-piramide-de-testing-y-frontend-reusable">8. Calidad: pirámide de testing y frontend reusable</a></li>
+<li><a href="#exportar-diagramas" class="toc-link" data-section="exportar-diagramas">Exportar diagramas</a></li></ul>
         </div>
       </aside>
 
@@ -127,7 +129,7 @@
 <td>Transversal — audit, tracing, KPIs</td>
 </tr>
 </tbody></table></div>
-<p><strong>Principios transversales:</strong> API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Human in the Loop · Observabilidad</p>
+<p><strong>Principios transversales:</strong> API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Smart/Dumb UI · Storybook · Pirámide testing · Human in the Loop · Observabilidad</p>
 <hr>
 <h2 id="0-paradigma-arquitectonico" class="section-title">0. Paradigma arquitectónico</h2>
 <p>La capa de asistencia inteligente se implementará con:</p>
@@ -161,6 +163,14 @@
 <tr>
 <td><strong>UI Angular (opcional)</strong></td>
 <td>MFE alternativo <code>apps/cae-assistant-mfe-angular</code></td>
+</tr>
+<tr>
+<td><strong>Componentes tontos + Storybook</strong></td>
+<td><code>libs/*/cae/ui</code> + <code>apps/cae-ui-storybook</code></td>
+</tr>
+<tr>
+<td><strong>Pirámide de testing</strong></td>
+<td>Unit → integración → Storybook → E2E → carga/estrés + golden set</td>
 </tr>
 </tbody></table></div>
 <h3 id="01-situacion-actual-vs-objetivo" class="subsection-title">0.1 Situación actual vs objetivo</h3>
@@ -870,6 +880,101 @@ flowchart LR
     style DEF fill:#e3f2fd,stroke:#1565c0
     style ALT fill:#f3e5f5,stroke:#7b1fa2
 </div>
+<hr>
+<h2 id="8-calidad-piramide-de-testing-y-frontend-reusable" class="section-title">8. Calidad: pirámide de testing y frontend reusable</h2>
+<h3 id="81-piramide-de-testing" class="subsection-title">8.1 Pirámide de testing</h3>
+<p><img src="../diagrams/07-testing-piramide.png" alt="Pirámide de testing"></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Qué valida</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Unitarios</strong></td>
+<td>Dominio CAE, reglas RF, utils, componentes tontos</td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>NestJS modules, adaptadores, colas, BD</td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Contrato</strong></td>
+<td>OpenAPI, eventos, Module Federation remote</td>
+<td>PR + nightly</td>
+</tr>
+<tr>
+<td><strong>Storybook</strong></td>
+<td>Componentes <code>ui/</code> — estados, a11y, interacción</td>
+<td>PR (frontend)</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flujos expediente + MFE en CAE v2</td>
+<td>Nightly / STAGING</td>
+</tr>
+<tr>
+<td><strong>Carga / estrés / soak</strong></td>
+<td>SLO latencia y throughput bajo pico</td>
+<td>Pre-release / mensual</td>
+</tr>
+<tr>
+<td><strong>Golden set + fitness</strong></td>
+<td>Regresión IA</td>
+<td>Gate promoción</td>
+</tr>
+</tbody></table></div>
+<h3 id="82-frontend-listos-vs-tontos-storybook" class="subsection-title">8.2 Frontend: listos vs tontos + Storybook</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph FEAT["feature-* LISTOS"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+    end
+
+    subgraph UI["ui/ TONTOS"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+    end
+
+    subgraph SB["Storybook"]
+        ST["*.stories"]
+    end
+
+    AP --> IC & CG
+    IS --> IC
+    IC & CG --> ST
+    FEAT --> API["cae-ia-backend"]
+
+    style UI fill:#e8f5e9,stroke:#2e7d32
+    style FEAT fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Rol</th>
+<th>Storybook</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tonto</strong> (<code>ui/</code>)</td>
+<td>Solo props + eventos; reusable</td>
+<td><strong>Obligatorio</strong></td>
+</tr>
+<tr>
+<td><strong>Listo</strong> (<code>feature-*</code>)</td>
+<td>Datos, SSE, composición</td>
+<td>Opcional (E2E)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="exportar-diagramas" class="section-title">Exportar diagramas</h2>
 <ol>
 <li>Abrir <a href="https://mermaid.live">mermaid.live</a></li>
 <li>Pegar el bloque Mermaid deseado</li>

@@ -10,7 +10,7 @@
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
 > **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios + monorepo Nx + MFE React/Angular).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`.
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`.
 
 ---
 
@@ -27,7 +27,7 @@
 | 🟠 Naranja | **MLOps + Fitness** | Feedback, labeling, dataset, evaluación, fitness, promoción/rollback |
 | 🟤 Beige | **Observabilidad** | Transversal — audit, tracing, KPIs |
 
-**Principios transversales:** API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Human in the Loop · Observabilidad
+**Principios transversales:** API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Smart/Dumb UI · Storybook · Pirámide testing · Human in the Loop · Observabilidad
 
 ---
 
@@ -43,6 +43,8 @@ La capa de asistencia inteligente se implementará con:
 | **Deploy elástico** | Monolito modular (`apps/cae-ia-backend`) → microservicios según demanda |
 | **UI React (default)** | CAE v2 es React; MFE principal en `apps/cae-assistant-mfe` |
 | **UI Angular (opcional)** | MFE alternativo `apps/cae-assistant-mfe-angular` |
+| **Componentes tontos + Storybook** | `libs/*/cae/ui` + `apps/cae-ui-storybook` |
+| **Pirámide de testing** | Unit → integración → Storybook → E2E → carga/estrés + golden set |
 
 ### 0.1 Situación actual vs objetivo
 
@@ -552,6 +554,61 @@ flowchart LR
     style DEF fill:#e3f2fd,stroke:#1565c0
     style ALT fill:#f3e5f5,stroke:#7b1fa2
 ```
+
+---
+
+## 8. Calidad: pirámide de testing y frontend reusable
+
+### 8.1 Pirámide de testing
+
+![Pirámide de testing](diagrams/07-testing-piramide.png)
+
+| Capa | Qué valida | Cuándo |
+|------|------------|--------|
+| **Unitarios** | Dominio CAE, reglas RF, utils, componentes tontos | Cada PR |
+| **Integración** | NestJS modules, adaptadores, colas, BD | Cada PR |
+| **Contrato** | OpenAPI, eventos, Module Federation remote | PR + nightly |
+| **Storybook** | Componentes `ui/` — estados, a11y, interacción | PR (frontend) |
+| **E2E** | Flujos expediente + MFE en CAE v2 | Nightly / STAGING |
+| **Carga / estrés / soak** | SLO latencia y throughput bajo pico | Pre-release / mensual |
+| **Golden set + fitness** | Regresión IA | Gate promoción |
+
+### 8.2 Frontend: listos vs tontos + Storybook
+
+```mermaid
+flowchart LR
+    subgraph FEAT["feature-* LISTOS"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+    end
+
+    subgraph UI["ui/ TONTOS"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+    end
+
+    subgraph SB["Storybook"]
+        ST["*.stories"]
+    end
+
+    AP --> IC & CG
+    IS --> IC
+    IC & CG --> ST
+    FEAT --> API["cae-ia-backend"]
+
+    style UI fill:#e8f5e9,stroke:#2e7d32
+    style FEAT fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+```
+
+| Tipo | Rol | Storybook |
+|------|-----|-----------|
+| **Tonto** (`ui/`) | Solo props + eventos; reusable | **Obligatorio** |
+| **Listo** (`feature-*`) | Datos, SSE, composición | Opcional (E2E) |
+
+---
+
+## Exportar diagramas
 
 1. Abrir [mermaid.live](https://mermaid.live)
 2. Pegar el bloque Mermaid deseado

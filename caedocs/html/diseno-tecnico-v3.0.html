@@ -65,7 +65,8 @@
 <li><a href="#18-fitness-engine-y-evaluacion" class="toc-link" data-section="18-fitness-engine-y-evaluacion">18. Fitness Engine y evaluación</a></li>
 <li><a href="#19-despliegue-azure" class="toc-link" data-section="19-despliegue-azure">19. Despliegue Azure</a></li>
 <li><a href="#20-kpis-tecnicos" class="toc-link" data-section="20-kpis-tecnicos">20. KPIs técnicos</a></li>
-<li><a href="#21-vision-final" class="toc-link" data-section="21-vision-final">21. Visión final</a></li></ul>
+<li><a href="#21-estrategia-de-calidad-y-testing" class="toc-link" data-section="21-estrategia-de-calidad-y-testing">21. Estrategia de calidad y testing</a></li>
+<li><a href="#22-vision-final" class="toc-link" data-section="22-vision-final">22. Visión final</a></li></ul>
         </div>
       </aside>
 
@@ -140,6 +141,11 @@
 <td>03/07/2026</td>
 <td>Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada</td>
 </tr>
+<tr>
+<td>6</td>
+<td>03/07/2026</td>
+<td>Pirámide de testing, Storybook, componentes listos/tontos en frontend</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -164,7 +170,8 @@
 <li><a href="#18-fitness-engine-y-evaluaci%C3%B3n">Fitness Engine y evaluación</a></li>
 <li><a href="#19-despliegue-azure">Despliegue Azure</a></li>
 <li><a href="#20-kpis-t%C3%A9cnicos">KPIs técnicos</a></li>
-<li><a href="#21-visi%C3%B3n-final">Visión final</a></li>
+<li><a href="#21-estrategia-de-calidad-y-testing">Estrategia de calidad y testing</a></li>
+<li><a href="#22-visi%C3%B3n-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
@@ -257,6 +264,16 @@
 <td>PA-13</td>
 <td><strong>Deploy elástico</strong></td>
 <td>Misma codebase: monolito modular (default) → microservicios bajo demanda.</td>
+</tr>
+<tr>
+<td>PA-14</td>
+<td><strong>Pirámide de testing</strong></td>
+<td>Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI.</td>
+</tr>
+<tr>
+<td>PA-15</td>
+<td><strong>UI reusable</strong></td>
+<td>Componentes tontos en <code>ui/</code> + Storybook; componentes listos en <code>feature-*</code>; sin lógica de negocio en presentación.</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -579,6 +596,16 @@ flowchart TB
 <td>Misma superficie funcional; implementación alternativa</td>
 </tr>
 <tr>
+<td>UI reusable (tontos)</td>
+<td><code>libs/react/cae/ui</code>, <code>libs/angular/cae/ui</code></td>
+<td>Presentational + Storybook</td>
+</tr>
+<tr>
+<td>Storybook</td>
+<td><code>apps/cae-ui-storybook</code></td>
+<td>Catálogo visual de componentes React y Angular</td>
+</tr>
+<tr>
 <td>Host backend IA</td>
 <td><code>apps/cae-ia-backend</code></td>
 <td>Monolito modular NestJS</td>
@@ -599,7 +626,8 @@ flowchart TB
 ├── apps/
 │   ├── cae-ia-backend/                        # Host monolito modular backend IA
 │   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
-│   └── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   ├── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   └── cae-ui-storybook/                      # Storybook — catálogo componentes UI
 │
 ├── libs/
 │   ├── isomorphic/cae/
@@ -617,14 +645,16 @@ flowchart TB
 │   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
 │   │
 │   ├── react/cae/                             # UI default — stack nativo CAE v2
-│   │   ├── data-access/
-│   │   ├── feature-assistant/
+│   │   ├── ui/                                # Componentes tontos + *.stories.tsx
+│   │   ├── data-access/                       # Hooks, stores, clientes API
+│   │   ├── feature-assistant/                 # Componentes listos (containers)
 │   │   ├── feature-operations/
 │   │   └── feature-mlops/
 │   │
 │   └── angular/cae/                           # UI opcional — misma API de componentes
+│       ├── ui/                                # Componentes tontos + *.stories.ts
 │       ├── data-access/
-│       ├── feature-assistant/
+│       ├── feature-assistant/                 # Smart components / containers
 │       ├── feature-operations/
 │       └── feature-mlops/</code></pre>
 <p>Cada lib <code>*-backend</code> sigue <strong>domain / application / infrastructure</strong>, exportando un módulo NestJS composable (<code>XxxBackendModule.forRoot()</code>). Las libs UI comparten <strong><code>data-access</code></strong> y contratos de props/eventos; solo cambia la capa de presentación (React vs Angular).</p>
@@ -968,6 +998,207 @@ flowchart TB
 <td>AKS multi-pod</td>
 </tr>
 </tbody></table></div>
+<h3 id="35-arquitectura-frontend-componentes-listos-y-tontos" class="subsection-title">3.5 Arquitectura frontend: componentes listos y tontos</h3>
+<p>La capa UI del MFE sigue el patrón <strong>Smart / Dumb</strong> (también <em>container / presentational</em>). El dominio y las reglas CAE <strong>nunca</strong> viven en componentes de presentación.</p>
+<h4>3.5.1 Componentes tontos (presentational / dumb)</h4>
+<p>Ubicación: <code>libs/react/cae/ui</code> (default) y <code>libs/angular/cae/ui</code> (opcional).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Característica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Responsabilidad</td>
+<td>Solo renderizar UI a partir de <strong>props/inputs</strong> y emitir <strong>eventos/callbacks</strong></td>
+</tr>
+<tr>
+<td>Sin efectos secundarios</td>
+<td>No llamadas HTTP, no acceso a stores globales, no reglas de negocio</td>
+</tr>
+<tr>
+<td>Testabilidad</td>
+<td>Tests unitarios con Testing Library; snapshots solo como complemento</td>
+</tr>
+<tr>
+<td>Reutilización</td>
+<td>Compartibles entre features, MFE y Storybook</td>
+</tr>
+<tr>
+<td>Design system</td>
+<td>Tokens y estilos alineados con CAE v2 (React default)</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplos de componentes tontos:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Props principales</th>
+<th>Eventos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IncidentCard</code></td>
+<td>incidencia, severidad, mensaje</td>
+<td><code>onResolve</code>, <code>onDismiss</code></td>
+</tr>
+<tr>
+<td><code>CompletenessGauge</code></td>
+<td>porcentaje, etiqueta</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>DocumentStatusBadge</code></td>
+<td>estado, confidence</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>AssistantMessage</code></td>
+<td>rol, contenido, timestamp</td>
+<td><code>onCopy</code>, <code>onFeedback</code></td>
+</tr>
+<tr>
+<td><code>OperationsSummaryBlock</code></td>
+<td>items, prioridad</td>
+<td><code>onExpand</code></td>
+</tr>
+</tbody></table></div>
+<h4>3.5.2 Componentes listos (smart / container)</h4>
+<p>Ubicación: <code>libs/react/cae/feature-*</code> y <code>libs/angular/cae/feature-*</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Característica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Responsabilidad</td>
+<td>Orquestar datos, estado local, suscripciones SSE/WebSocket, navegación MFE</td>
+</tr>
+<tr>
+<td>Data access</td>
+<td>Consumen <code>data-access</code> (React Query / signals / NgRx según convención CAE)</td>
+</tr>
+<tr>
+<td>Composición</td>
+<td>Ensamblan componentes tontos; mapean DTOs API → props de presentación</td>
+</tr>
+<tr>
+<td>Límite de lógica</td>
+<td>Reglas de negocio CAE permanecen en <code>isomorphic/cae/core</code>; aquí solo coordinación UI</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplos de componentes listos:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente listo</th>
+<th>Compone (tontos)</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AssistantPanel</code></td>
+<td><code>AssistantMessage</code>, <code>CompletenessGauge</code>, <code>IncidentCard</code></td>
+<td>Chat IA + estado expediente</td>
+</tr>
+<tr>
+<td><code>IncidentsSidebar</code></td>
+<td><code>IncidentCard</code>, filtros UI</td>
+<td>Lista incidencias en tiempo real</td>
+</tr>
+<tr>
+<td><code>DocumentUploadAssist</code></td>
+<td><code>DocumentStatusBadge</code>, progreso</td>
+<td>Feedback post-OCR</td>
+</tr>
+<tr>
+<td><code>OperationsReviewPanel</code></td>
+<td><code>OperationsSummaryBlock</code></td>
+<td>Cola Operaciones</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph SMART["Componentes LISTOS — feature-*"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+        DA["data-access hooks"]
+        AP --> DA
+        IS --> DA
+    end
+
+    subgraph DUMB["Componentes TONTOS — ui/"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+        AM["AssistantMessage"]
+    end
+
+    subgraph SB["Storybook — apps/cae-ui-storybook"]
+        ST1["IncidentCard stories"]
+        ST2["CompletenessGauge stories"]
+    end
+
+    AP --> IC & CG & AM
+    IS --> IC
+    IC & CG & AM --> ST1 & ST2
+
+    style DUMB fill:#e8f5e9,stroke:#2e7d32
+    style SMART fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+</div>
+<h4>3.5.3 Storybook — catálogo de componentes reutilizables</h4>
+<p><strong>Storybook</strong> es la herramienta oficial para documentar, desarrollar y probar en aislamiento los <strong>componentes tontos</strong> reutilizables.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>App Nx</td>
+<td><code>apps/cae-ui-storybook</code> con targets <code>storybook</code> y <code>build-storybook</code></td>
+</tr>
+<tr>
+<td>Stories React</td>
+<td><code>libs/react/cae/ui/**/*.stories.tsx</code></td>
+</tr>
+<tr>
+<td>Stories Angular</td>
+<td><code>libs/angular/cae/ui/**/*.stories.ts</code> (opcional)</td>
+</tr>
+<tr>
+<td>Controles</td>
+<td>Args para variantes: severidad, estados vacío/carga/error, temas claro/oscuro</td>
+</tr>
+<tr>
+<td>Documentación</td>
+<td>MDX por componente: cuándo usarlo, accesibilidad, props</td>
+</tr>
+<tr>
+<td>Interaction tests</td>
+<td><code>@storybook/test</code> + Testing Library en CI (<code>test-storybook</code>)</td>
+</tr>
+<tr>
+<td>Visual regression</td>
+<td>Opcional: Chromatic o Loki en pipeline STAGING</td>
+</tr>
+<tr>
+<td>Design tokens</td>
+<td>Variables CSS / theme compartido con shell CAE v2</td>
+</tr>
+</tbody></table></div>
+<p><strong>Reglas de gobernanza UI:</strong></p>
+<ol>
+<li>Todo componente nuevo en <code>ui/</code> <strong>debe</strong> tener al menos una story antes de merge.</li>
+<li>Los componentes listos (<code>feature-*</code>) <strong>no</strong> requieren Storybook obligatorio; se prueban con integración/E2E.</li>
+<li>Cambios breaking en props de <code>ui/</code> exigen bump semver del paquete <code>@cae-ia/react-ui</code>.</li>
+<li>Angular opcional: mismas variantes funcionales documentadas en Storybook Angular.</li>
+</ol>
 <hr>
 <h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
 <p>Arquitectura alineada con el <strong>modelo de 10 fases</strong> del sistema de asistencia inteligente CAE.</p>
@@ -3274,8 +3505,9 @@ flowchart TB
 <h3 id="193-cicd" class="subsection-title">19.3 CI/CD</h3>
 <ul>
 <li>GitHub Actions / Azure DevOps</li>
-<li>Deploy independiente: reglas, prompts, workers, fitness evaluators, infra</li>
+<li>Deploy independiente: reglas, prompts, workers, fitness evaluators, infra, <strong>Storybook estático</strong> (design review)</li>
 <li>Gate de CI: evaluación golden set + fitness mínimo antes de promoción a STAGING/PRO</li>
+<li>Pipeline por capa de pirámide §21: unit → integración → Storybook → contrato → E2E smoke → carga (release)</li>
 <li>Feature flags para activación gradual de reglas</li>
 </ul>
 <hr>
@@ -3337,9 +3569,349 @@ flowchart TB
 </tr>
 </tbody></table></div>
 <hr>
-<h2 id="21-vision-final" class="section-title">21. Visión final</h2>
+<h2 id="21-estrategia-de-calidad-y-testing" class="section-title">21. Estrategia de calidad y testing</h2>
+<p>La calidad del sistema se garantiza mediante una <strong>pirámide de testing</strong> alineada con Nx: tests rápidos y numerosos en la base; tests de frontera en el medio; flujos E2E y pruebas de carga en la cima. La capa IA añade <strong>regresión con golden set</strong> y <strong>fitness</strong> como gate de CI.</p>
+<blockquote class="callout"><p>Diagrama: <a href="../diagrams/07-testing-piramide.mmd"><code>diagrams/07-testing-piramide.mmd</code></a></p></blockquote>
+<div class="mermaid">
+flowchart TB
+    subgraph TOP["Capa superior — pocas, lentas, alto valor"]
+        E2E["E2E / smoke
+Playwright · flujos CAE + MFE"]
+        LOAD["Carga · estrés · soak
+k6 · Azure Load Testing"]
+    end
+
+    subgraph MID["Capa media — contratos y fronteras"]
+        INT["Integración
+API · colas · adaptadores · BD"]
+        COMP["Componentes
+Storybook + Testing Library"]
+        CONTRACT["Contrato
+OpenAPI · eventos · MF remote"]
+    end
+
+    subgraph BASE["Base — muchas, rápidas, baratas"]
+        UNIT["Unitarios
+dominio · reglas · utils · UI tonta"]
+    end
+
+    subgraph IA["Transversal IA"]
+        GOLD["Golden set + fitness
+regresión en CI"]
+    end
+
+    UNIT --> INT
+    INT --> COMP
+    COMP --> CONTRACT
+    CONTRACT --> E2E
+    E2E --> LOAD
+    UNIT -.-> GOLD
+    INT -.-> GOLD
+
+    style BASE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style MID fill:#e3f2fd,stroke:#1565c0
+    style TOP fill:#fff3e0,stroke:#ef6c00
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+</div>
+<h3 id="211-capas-de-la-piramide" class="subsection-title">21.1 Capas de la pirámide</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Qué se prueba</th>
+<th>Herramientas</th>
+<th>Target Nx (ejemplo)</th>
+<th>Frecuencia CI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Unitarios</strong></td>
+<td>Dominio DDD, reglas RF, utils, mappers, componentes tontos</td>
+<td>Jest / Vitest, Testing Library</td>
+<td><code>nx test &lt;lib&gt;</code></td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>Módulos NestJS, repos, adaptadores Azure (mocks/emuladores), colas</td>
+<td>Jest + Supertest, Testcontainers, Azurite</td>
+<td><code>nx test &lt;backend-lib&gt; --configuration=integration</code></td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Contrato</strong></td>
+<td>OpenAPI request/response, esquemas eventos, remote entry MFE</td>
+<td>Pact / Schemathesis, contract tests</td>
+<td><code>nx run cae-api:contract-test</code></td>
+<td>Cada PR + nightly</td>
+</tr>
+<tr>
+<td><strong>Componentes</strong></td>
+<td>Estados UI, accesibilidad, interacción en aislamiento</td>
+<td>Storybook, <code>@storybook/test</code>, test-runner</td>
+<td><code>nx storybook</code>, <code>nx test-storybook cae-ui-storybook</code></td>
+<td>Cada PR (UI)</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flujos usuario: subida doc → incidencias → envío → Operaciones; MFE embebido</td>
+<td>Playwright (preferido) o Cypress</td>
+<td><code>nx e2e cae-assistant-e2e</code></td>
+<td>Nightly + pre-release</td>
+</tr>
+<tr>
+<td><strong>Integración E2E</strong></td>
+<td>CAE host + remote MFE + backend IA en entorno STAGING</td>
+<td>Playwright multi-app</td>
+<td><code>nx e2e cae-integration-e2e</code></td>
+<td>STAGING deploy</td>
+</tr>
+<tr>
+<td><strong>Carga / estrés</strong></td>
+<td>Throughput documentos, latencia P95/P99, colas, autoscaling AKS</td>
+<td>k6, Azure Load Testing, JMeter</td>
+<td><code>nx run cae-load-test:stress</code></td>
+<td>Mensual + pre-PRO</td>
+</tr>
+<tr>
+<td><strong>Soak / resistencia</strong></td>
+<td>Fugas memoria, degradación 24–72 h bajo carga sostenida</td>
+<td>k6 + monitorización</td>
+<td>Pipeline programado</td>
+<td>Trimestral</td>
+</tr>
+<tr>
+<td><strong>IA — golden set</strong></td>
+<td>Precisión clasificación, extracción, incidencias vs dataset etiquetado</td>
+<td>Evaluation Pipeline + Fitness Engine</td>
+<td><code>nx run mlops-backend:evaluate</code></td>
+<td>Gate promoción</td>
+</tr>
+<tr>
+<td><strong>IA — fitness gate</strong></td>
+<td>Score compuesto F₁–F₆ ≥ umbral antes de STAGING/PRO</td>
+<td>Fitness Engine</td>
+<td>CI gate en §19.3</td>
+<td>Cada release</td>
+</tr>
+</tbody></table></div>
+<h3 id="212-alcance-por-capa-del-monorepo" class="subsection-title">21.2 Alcance por capa del monorepo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ruta</th>
+<th>Unitarios</th>
+<th>Integración</th>
+<th>Storybook</th>
+<th>E2E</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Reglas, agregados, value objects</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>Application services, domain</td>
+<td>Adaptadores, API modules</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/ui</code></td>
+<td>Render + eventos</td>
+<td>—</td>
+<td><strong>Obligatorio</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/feature-*</code></td>
+<td>Mappers ligeros</td>
+<td>MSW / mock API</td>
+<td>Opcional</td>
+<td>vía E2E</td>
+</tr>
+<tr>
+<td><code>apps/cae-ia-backend</code></td>
+<td>—</td>
+<td>Smoke API</td>
+<td>—</td>
+<td>Parcial</td>
+</tr>
+<tr>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>Playwright</td>
+</tr>
+<tr>
+<td><code>apps/cae-ui-storybook</code></td>
+<td>—</td>
+<td>—</td>
+<td>Catálogo + interaction</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<h3 id="213-escenarios-e2e-prioritarios" class="subsection-title">21.3 Escenarios E2E prioritarios</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Flujo</th>
+<th>Actores</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E2E-01</td>
+<td>Crear expediente → subir DNI + factura → ver incidencias en sidebar</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-02</td>
+<td>Resolver incidencia menor → recalcular completitud</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-03</td>
+<td>Subida documento ilegible → feedback OCR + incidencia calidad</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-04</td>
+<td>Envío expediente → decisión Review → cola Operaciones</td>
+<td>Cliente + Operaciones</td>
+</tr>
+<tr>
+<td>E2E-05</td>
+<td>MFE React cargado en slot CAE v2 (Module Federation smoke)</td>
+<td>Sistema</td>
+</tr>
+<tr>
+<td>E2E-06</td>
+<td>Regresión golden set post-deploy STAGING</td>
+<td>CI / MLOps</td>
+</tr>
+</tbody></table></div>
+<h3 id="214-pruebas-de-carga-y-estres" class="subsection-title">21.4 Pruebas de carga y estrés</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Objetivo</th>
+<th>Criterio de éxito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Carga nominal</strong></td>
+<td>100 docs/min sostenidos 30 min</td>
+<td>P95 análisis doc &lt; 10 s; error rate &lt; 0,1%</td>
+</tr>
+<tr>
+<td><strong>Pico</strong></td>
+<td>3× carga nominal 10 min</td>
+<td>Autoscaling AKS; cola DLQ &lt; umbral</td>
+</tr>
+<tr>
+<td><strong>Estrés</strong></td>
+<td>Incremento gradual hasta fallo</td>
+<td>Identificar cuello de botella; sin pérdida de mensajes</td>
+</tr>
+<tr>
+<td><strong>Soak</strong></td>
+<td>50% carga nominal 24 h</td>
+<td>Sin memory leak; latencia estable</td>
+</tr>
+<tr>
+<td><strong>Chaos ligero</strong></td>
+<td>Reinicio pods + retry colas</td>
+<td>Idempotencia; recuperación &lt; 5 min</td>
+</tr>
+</tbody></table></div>
+<p>Herramientas recomendadas: <strong>k6</strong> (scripts versionados en repo), <strong>Azure Load Testing</strong> para entornos STAGING espejo de PRO.</p>
+<h3 id="215-gates-de-cicd" class="subsection-title">21.5 Gates de CI/CD</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Condición</th>
+<th>Bloquea</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G1 — Lint + unit</td>
+<td>100% libs afectadas pasan <code>test</code> + <code>lint</code></td>
+<td>Merge PR</td>
+</tr>
+<tr>
+<td>G2 — Integración</td>
+<td>Backend libs críticas pasan integration suite</td>
+<td>Merge PR (backend)</td>
+</tr>
+<tr>
+<td>G3 — Storybook</td>
+<td>Componentes <code>ui/</code> modificados tienen stories + test-runner OK</td>
+<td>Merge PR (frontend)</td>
+</tr>
+<tr>
+<td>G4 — Contrato</td>
+<td>OpenAPI diff compatible; contract tests verdes</td>
+<td>Merge PR (API)</td>
+</tr>
+<tr>
+<td>G5 — Golden set</td>
+<td>Fitness ≥ umbral STAGING (p. ej. 85)</td>
+<td>Deploy STAGING</td>
+</tr>
+<tr>
+<td>G6 — E2E smoke</td>
+<td>Suite smoke Playwright en STAGING</td>
+<td>Deploy PRO</td>
+</tr>
+<tr>
+<td>G7 — Carga</td>
+<td>Informe k6 dentro de SLO (pre-release mayor)</td>
+<td>Release PRO</td>
+</tr>
+</tbody></table></div>
+<h3 id="216-objetivos-de-cobertura-orientativos" class="subsection-title">21.6 Objetivos de cobertura (orientativos)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ámbito</th>
+<th>Cobertura mínima</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/cae/core</code> (reglas)</td>
+<td>≥ 90% líneas</td>
+<td>Prioridad absoluta</td>
+</tr>
+<tr>
+<td><code>*-backend</code> application layer</td>
+<td>≥ 80%</td>
+<td>Excluir adaptadores cloud mockeados</td>
+</tr>
+<tr>
+<td><code>react/cae/ui</code></td>
+<td>≥ 70% + 100% stories</td>
+<td>Calidad visual vía Storybook</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>Flujos críticos §21.3</td>
+<td>No sustituye unitarios de dominio</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI default es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>), alineada con CAE v2; <strong>Angular</strong> queda como MFE opcional.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI default es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>), alineada con CAE v2; <strong>Angular</strong> queda como MFE opcional. Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
+<p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
 <blockquote class="callout"><p>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</p></blockquote>
