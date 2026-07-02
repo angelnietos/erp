@@ -36,6 +36,7 @@
         <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill">Diseño técnico</a>
         <a href="arquitectura-cae-ia.html" class="nav-pill active">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill">Estrategia migración</a>
       </nav>
     </header>
 
@@ -171,6 +172,10 @@
 <tr>
 <td><strong>Pirámide de testing</strong></td>
 <td>Unit → integración → Storybook → E2E → carga/estrés + golden set</td>
+</tr>
+<tr>
+<td><strong>Strangler Fig (React→Angular)</strong></td>
+<td>MFE como puente; Angular destino — <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a></td>
 </tr>
 </tbody></table></div>
 <h3 id="01-situacion-actual-vs-objetivo" class="subsection-title">0.1 Situación actual vs objetivo</h3>
@@ -881,29 +886,42 @@ flowchart LR
     style REACT_MFE fill:#e3f2fd,stroke:#1565c0
     style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 </div>
-<h3 id="72-escenario-evolutivo-propuesto" class="subsection-title">7.2 Escenario evolutivo propuesto</h3>
+<h3 id="72-escenario-evolutivo-strangler-fig" class="subsection-title">7.2 Escenario evolutivo — Strangler Fig</h3>
+<p>Patrón <strong>Strangler Fig</strong> (<em>estrangular</em> el legacy): el host <strong>React</strong> se reduce módulo a módulo mientras <strong>Angular</strong> crece como remotes embebidos hasta sustituir el shell.</p>
+<p><img src="../diagrams/08-strangler-migracion.png" alt="Evolución migración Strangler Fig"></p>
+<blockquote class="callout"><p>Documento completo: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a></p></blockquote>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Fase</th>
 <th>CAE legacy (React)</th>
-<th>Capa IA / CAE nuevo (Angular)</th>
+<th>CAE nuevo (Angular)</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>Actual</strong></td>
-<td>Host estable; mejoras incrementales</td>
-<td>Backend IA + MFE React en slots</td>
+<td><strong>0 — Baseline</strong></td>
+<td>100 % plataforma</td>
+<td>Auditoría módulos y deuda</td>
 </tr>
 <tr>
-<td><strong>Intermedia</strong></td>
-<td>Zonas estables sin reescritura</td>
-<td>MFE Angular en paralelo; comparativa técnica</td>
+<td><strong>1 — IA integrada</strong></td>
+<td>Host estable; MFE React (cliente) + Angular POC</td>
+<td>Capa asistencia IA</td>
 </tr>
 <tr>
-<td><strong>Objetivo</strong></td>
-<td>Retirada progresiva de módulos legacy</td>
-<td>Pantallas CAE nuevas en Angular greenfield</td>
+<td><strong>2 — Nuevos módulos</strong></td>
+<td>Sin features grandes nuevas en React</td>
+<td>Todo greenfield en Angular</td>
+</tr>
+<tr>
+<td><strong>3 — Sustitución</strong></td>
+<td>Retirada módulo a módulo</td>
+<td>Reescrituras priorizadas por ROI</td>
+</tr>
+<tr>
+<td><strong>4 — Consolidación</strong></td>
+<td><strong>Shell React desaparece</strong></td>
+<td><strong>CAE unificado en Angular</strong></td>
 </tr>
 </tbody></table></div>
 <hr>

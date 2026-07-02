@@ -24,6 +24,7 @@
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 | 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
 | 7 | 03/07/2026 | Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo |
+| 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 
 ---
 
@@ -182,6 +183,7 @@ Este documento define de forma integral:
 | PF-14 | **UI embebida (MFE)** | Paneles IA en CAE v2: **React** por decisión del cliente (integración con host legacy); **Angular** documentado como alternativa técnicamente preferible. |
 | PF-15 | **Testabilidad en capas** | Pirámide de testing: unitarios abundantes, integración, E2E selectivos, carga/estrés periódicos. |
 | PF-16 | **UI reusable documentada** | Componentes tontos en catálogo Storybook; componentes listos sin lógica de dominio embebida. |
+| PF-17 | **Modernización incremental** | Estrategia Strangler Fig: módulos nuevos en Angular vía MFE; React legacy en retirada progresiva (ver doc. estrategia). |
 
 ---
 
@@ -259,7 +261,7 @@ A nivel de implementación, la plataforma de asistencia IA se construirá como *
 | **Motivo** | Continuidad con la plataforma existente; menor fricción de adopción inmediata | Framework más estructurado para aplicaciones enterprise: DI nativa, módulos, testing integrado, tipado estricto |
 | **Alcance actual** | MFE principal `apps/cae-assistant-mfe` embebido en slots CAE v2 | Libs y MFE alternativo en paralelo (`cae-assistant-mfe-angular`) como inversión estratégica |
 
-> La Plataforma CAE v2.0 presenta **deuda técnica y deficiencias** en su capa React (acoplamiento, inconsistencias de estado, mantenibilidad). A medio plazo, conviene **plantear al cliente** una estrategia híbrida: **mantener el CAE legacy en React** con mejoras incrementales, y **construir la capa IA (y futuras pantallas CAE) en Angular**. De momento, el alcance contractual respeta la **elección React del cliente** para el MFE integrado en el host actual.
+> La Plataforma CAE v2.0 presenta **deuda técnica y deficiencias** en su capa React (acoplamiento, inconsistencias de estado, mantenibilidad) — coherente con las **quejas continuas del cliente**. La estrategia de modernización completa está en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): **Strangler Fig** con módulos nuevos en **Angular**, integrados en el host React vía microfrontends, hasta **retirar React progresivamente**. De momento, el alcance contractual respeta la **elección React del cliente** para el MFE de fase 1.
 
 ```mermaid
 flowchart LR
@@ -436,7 +438,7 @@ CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE 
 2. **Fase intermedia:** mismo backend IA; UI Angular en paralelo demostrando ventajas (Storybook, tests, consistencia).
 3. **Fase objetivo:** pantallas CAE nuevas o reescritas en Angular; CAE React legacy reducido a zonas estables hasta retirada progresiva.
 
-> El documento **contempla ambos stacks** en el monorepo para no cerrar puertas. La prioridad de entrega sigue **React** mientras el cliente no apruebe un cambio de estrategia frontend.
+> El documento **contempla ambos stacks** en el monorepo para no cerrar puertas. La prioridad de entrega fase 1 sigue **React** mientras el cliente no apruebe el programa de modernización. Ver **[Estrategia de migración frontend](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)** para el roadmap Strangler Fig completo.
 
 ```mermaid
 flowchart TB
@@ -1368,7 +1370,7 @@ La IA actuará como un **asistente especializado en expedientes CAE** capaz de:
 - Detectar incidencias **antes** de la revisión por Operaciones.
 - Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.
 - **Aprender y mejorar** mediante feedback, cálculo de fitness y ciclo MLOps gobernado.
-- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend React embebido — **decisión del cliente** para el host legacy — sin sustituir el expediente de inmediato; **Angular** queda como vía recomendada para modernización futura.
+- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend embebido — **decisión del cliente** fase 1 — mientras la **modernización Strangler Fig** (Angular destino, ver doc. estrategia) avanza en paralelo.
 - Reducir la carga operativa y mejorar la calidad de los expedientes tramitados.
 
 > Plataforma de **asistencia inteligente para expedientes CAE**: validación progresiva, reglas de negocio, razonamiento contextual, **libs reutilizables en monorepo Nx** y **evolución continua medida por fitness**.

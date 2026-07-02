@@ -10,7 +10,7 @@
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
 > **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios + monorepo Nx + MFE React/Angular).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`.
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`, `08-strangler-migracion.png`.
 
 ---
 
@@ -45,6 +45,7 @@ La capa de asistencia inteligente se implementará con:
 | **UI Angular (recom. técnica)** | Stack preferido greenfield; MFE `apps/cae-assistant-mfe-angular` + escenario migración CAE |
 | **Componentes tontos + Storybook** | `libs/*/cae/ui` + `apps/cae-ui-storybook` |
 | **Pirámide de testing** | Unit → integración → Storybook → E2E → carga/estrés + golden set |
+| **Strangler Fig (React→Angular)** | MFE como puente; Angular destino — [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) |
 
 ### 0.1 Situación actual vs objetivo
 
@@ -557,13 +558,21 @@ flowchart LR
     style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
-### 7.2 Escenario evolutivo propuesto
+### 7.2 Escenario evolutivo — Strangler Fig
 
-| Fase | CAE legacy (React) | Capa IA / CAE nuevo (Angular) |
-|------|-------------------|-------------------------------|
-| **Actual** | Host estable; mejoras incrementales | Backend IA + MFE React en slots |
-| **Intermedia** | Zonas estables sin reescritura | MFE Angular en paralelo; comparativa técnica |
-| **Objetivo** | Retirada progresiva de módulos legacy | Pantallas CAE nuevas en Angular greenfield |
+Patrón **Strangler Fig** (*estrangular* el legacy): el host **React** se reduce módulo a módulo mientras **Angular** crece como remotes embebidos hasta sustituir el shell.
+
+![Evolución migración Strangler Fig](diagrams/08-strangler-migracion.png)
+
+> Documento completo: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)
+
+| Fase | CAE legacy (React) | CAE nuevo (Angular) |
+|------|-------------------|---------------------|
+| **0 — Baseline** | 100 % plataforma | Auditoría módulos y deuda |
+| **1 — IA integrada** | Host estable; MFE React (cliente) + Angular POC | Capa asistencia IA |
+| **2 — Nuevos módulos** | Sin features grandes nuevas en React | Todo greenfield en Angular |
+| **3 — Sustitución** | Retirada módulo a módulo | Reescrituras priorizadas por ROI |
+| **4 — Consolidación** | **Shell React desaparece** | **CAE unificado en Angular** |
 
 ---
 

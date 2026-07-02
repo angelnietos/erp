@@ -31,6 +31,14 @@ const docs = [
     accent: 'blue',
     subtitle: 'Diagrama maestro — Visión funcional + Técnica E2E + MLOps',
   },
+  {
+    input: 'ESTRATEGIA-MIGRACION-FRONTEND-CAE.md',
+    output: 'estrategia-migracion-frontend-cae.html',
+    badge: 'Estrategia',
+    badgeClass: 'badge-blue',
+    accent: 'blue',
+    subtitle: 'Modernización incremental CAE — Strangler Fig React → Angular',
+  },
 ];
 
 function slugify(text) {
@@ -167,6 +175,7 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         <a href="especificacion-funcional-v3.0.html" class="nav-pill${accent === 'red' ? ' active' : ''}">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill${accent === 'blue' && badge === 'Técnico' ? ' active' : ''}">Diseño técnico</a>
         <a href="arquitectura-cae-ia.html" class="nav-pill${accent === 'blue' && badge === 'Arquitectura' ? ' active' : ''}">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill${badge === 'Estrategia' ? ' active' : ''}">Estrategia migración</a>
       </nav>
     </header>
 

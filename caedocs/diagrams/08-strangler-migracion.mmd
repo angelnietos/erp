@@ -1,0 +1,40 @@
+flowchart TB
+    subgraph T0["Hoy — CAE v2 React legacy"]
+        R0["Shell React monolítico"]
+        R0M["Módulos React acoplados"]
+        R0 --> R0M
+    end
+
+    subgraph T1["Fase 1 — Capa IA + slots MFE"]
+        R1["Host React estable"]
+        MF_R["MFE React IA (cliente)"]
+        MF_A["MFE Angular IA (recomendado)"]
+        BE["cae-ia-backend"]
+        R1 --> MF_R & MF_A
+        MF_R & MF_A --> BE
+    end
+
+    subgraph T2["Fase 2 — Módulos nuevos en Angular"]
+        R2["React legacy reducido"]
+        NG2["Nuevos módulos Angular"]
+        R2 -->|Module Federation| NG2
+    end
+
+    subgraph T3["Fase 3 — Sustitución progresiva"]
+        R3["React residual"]
+        NG3["Módulos Angular sustituyen React"]
+        R3 -.->|retirada| NG3
+    end
+
+    subgraph T4["Objetivo — CAE Angular"]
+        ANG["Shell Angular / host unificado"]
+        ANG --> MOD["Módulos CAE + IA"]
+    end
+
+    T0 --> T1 --> T2 --> T3 --> T4
+
+    style T0 fill:#ffebee,stroke:#c62828
+    style T1 fill:#fff9c4,stroke:#f9a825
+    style T2 fill:#e3f2fd,stroke:#1565c0
+    style T3 fill:#e8f5e9,stroke:#2e7d32
+    style T4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px

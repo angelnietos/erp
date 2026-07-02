@@ -24,6 +24,7 @@
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 | 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
 | 7 | 03/07/2026 | Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo |
+| 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 
 ---
 
@@ -409,7 +410,7 @@ apps/cae-mlops-service/
 
 CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React** — stack **elegido por el cliente** para continuidad con la plataforma existente. La capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
 
-> **Contexto técnico:** el frontend React de CAE v2 acumula **deuda técnica** (acoplamiento, gestión de estado inconsistente, dificultad de testeo E2E). **Angular es la recomendación del equipo** para desarrollo greenfield: arquitectura opinionada, DI nativa, testing integrado y mejor escalabilidad en equipos enterprise. El monorepo **mantiene ambos stacks** para no bloquear una futura migración: CAE legacy en React con mejoras incrementales, **capa nueva (y eventualmente CAE modernizado) en Angular**.
+> **Contexto técnico:** el frontend React de CAE v2 acumula **deuda técnica** y genera **quejas recurrentes** del cliente. **Angular es la recomendación del equipo** como stack **destino** para greenfield enterprise. La transición sigue el patrón **Strangler Fig** documentado en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): módulos nuevos en Angular embebidos en el host React vía MFE hasta retirada progresiva del legacy.
 
 #### 3.4.0 Decisión cliente vs recomendación técnica
 
@@ -516,7 +517,8 @@ flowchart TB
 | **1 — Libs** | `isomorphic/cae/core` + `validation-backend` + `react/cae/feature-assistant` | Monolito `cae-ia-backend`; CAE consume API REST |
 | **2 — MFE React piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE React carga remote en slot (**entrega cliente**) |
 | **2b — MFE Angular (paralelo)** | `cae-assistant-mfe-angular` | POC técnico; comparativa calidad/mantenibilidad; base argumentario migración |
-| **2c — Escenario evolutivo** | Nuevas pantallas CAE o reescritura módulos | Angular greenfield; React legacy estable hasta retirada progresiva |
+| **2c — Strangler Fig** | Módulos CAE nuevos en Angular embebidos en host React | Ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8 |
+| **2d — Consolidación** | Host Angular unificado; React desmantelado | Objetivo final plataforma |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
@@ -1992,7 +1994,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI de entrega inmediata es **React** (`apps/cae-assistant-mfe`) por **decisión del cliente**, integrada en el CAE v2 legacy; **Angular** queda como **recomendación técnica** y vía de modernización futura (`cae-assistant-mfe-angular`). Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI de entrega inmediata es **React** (`apps/cae-assistant-mfe`) por **decisión del cliente**; **Angular** es el **stack destino** según la [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) (Strangler Fig: módulos nuevos en Angular embebidos en React hasta retirada del legacy). Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
 
 La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 

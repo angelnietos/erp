@@ -36,6 +36,7 @@
         <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill active">Diseño técnico</a>
         <a href="arquitectura-cae-ia.html" class="nav-pill">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill">Estrategia migración</a>
       </nav>
     </header>
 
@@ -150,6 +151,11 @@
 <td>7</td>
 <td>03/07/2026</td>
 <td>Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo</td>
+</tr>
+<tr>
+<td>8</td>
+<td>03/07/2026</td>
+<td>Enlace a <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> — Strangler Fig React→Angular</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -818,7 +824,7 @@ apps/cae-extraction-service/
 apps/cae-mlops-service/</code></pre>
 <h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
 <p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong> — stack <strong>elegido por el cliente</strong> para continuidad con la plataforma existente. La capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
-<blockquote class="callout"><p><strong>Contexto técnico:</strong> el frontend React de CAE v2 acumula <strong>deuda técnica</strong> (acoplamiento, gestión de estado inconsistente, dificultad de testeo E2E). <strong>Angular es la recomendación del equipo</strong> para desarrollo greenfield: arquitectura opinionada, DI nativa, testing integrado y mejor escalabilidad en equipos enterprise. El monorepo <strong>mantiene ambos stacks</strong> para no bloquear una futura migración: CAE legacy en React con mejoras incrementales, <strong>capa nueva (y eventualmente CAE modernizado) en Angular</strong>.</p></blockquote>
+<blockquote class="callout"><p><strong>Contexto técnico:</strong> el frontend React de CAE v2 acumula <strong>deuda técnica</strong> y genera <strong>quejas recurrentes</strong> del cliente. <strong>Angular es la recomendación del equipo</strong> como stack <strong>destino</strong> para greenfield enterprise. La transición sigue el patrón <strong>Strangler Fig</strong> documentado en <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: módulos nuevos en Angular embebidos en el host React vía MFE hasta retirada progresiva del legacy.</p></blockquote>
 <h4>3.4.0 Decisión cliente vs recomendación técnica</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1034,9 +1040,14 @@ flowchart TB
 <td>POC técnico; comparativa calidad/mantenibilidad; base argumentario migración</td>
 </tr>
 <tr>
-<td><strong>2c — Escenario evolutivo</strong></td>
-<td>Nuevas pantallas CAE o reescritura módulos</td>
-<td>Angular greenfield; React legacy estable hasta retirada progresiva</td>
+<td><strong>2c — Strangler Fig</strong></td>
+<td>Módulos CAE nuevos en Angular embebidos en host React</td>
+<td>Ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8</td>
+</tr>
+<tr>
+<td><strong>2d — Consolidación</strong></td>
+<td>Host Angular unificado; React desmantelado</td>
+<td>Objetivo final plataforma</td>
 </tr>
 <tr>
 <td><strong>3 — Pipeline completo</strong></td>
@@ -3961,7 +3972,7 @@ regresión en CI"]
 <hr>
 <h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI de entrega inmediata es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>) por <strong>decisión del cliente</strong>, integrada en el CAE v2 legacy; <strong>Angular</strong> queda como <strong>recomendación técnica</strong> y vía de modernización futura (<code>cae-assistant-mfe-angular</code>). Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI de entrega inmediata es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>) por <strong>decisión del cliente</strong>; <strong>Angular</strong> es el <strong>stack destino</strong> según la <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> (Strangler Fig: módulos nuevos en Angular embebidos en React hasta retirada del legacy). Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
