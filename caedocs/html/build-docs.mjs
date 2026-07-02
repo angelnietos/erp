@@ -205,6 +205,7 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
       startOnLoad: false,
       theme: 'base',
       securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true },
       themeVariables: {
         primaryColor: '${accent === 'red' ? '#ffe5e8' : '#e0f7ff'}',
         primaryTextColor: '#1a1a2e',
@@ -219,6 +220,12 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
     const nodes = document.querySelectorAll('.mermaid');
     if (nodes.length) {
       await mermaid.run({ nodes });
+      document.querySelectorAll('.mermaid svg').forEach((svg) => {
+        svg.removeAttribute('height');
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+      });
     }
   </script>
 

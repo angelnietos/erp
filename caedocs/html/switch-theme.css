@@ -412,6 +412,11 @@ body {
   color: var(--text);
 }
 
+/* Don't let global strong override table header contrast */
+.prose thead strong {
+  color: #fff;
+}
+
 .prose hr {
   border: none;
   height: 2px;
@@ -454,7 +459,16 @@ body {
   letter-spacing: 0.04em;
 }
 
-.prose > .table-wrap:first-of-type tbody tr:hover {
+.prose > .table-wrap:first-of-type td {
+  color: #1a1a2e;
+  background: transparent;
+}
+
+.prose > .table-wrap:first-of-type td strong {
+  color: var(--text-muted);
+}
+
+.prose > .table-wrap:first-of-type tbody tr:hover td {
   background: transparent;
 }
 
@@ -471,6 +485,8 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  color: var(--text);
+  background: #fff;
 }
 
 .prose thead {
@@ -486,20 +502,56 @@ body {
   text-transform: uppercase;
   color: #fff;
   white-space: nowrap;
+  background: transparent;
+}
+
+/* strong/code inside header cells must stay light on dark thead */
+.prose thead th,
+.prose thead th strong,
+.prose thead th a,
+.prose thead th code {
+  color: #fff;
+}
+
+.prose thead th code {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .prose td {
   padding: 12px 16px;
   border-bottom: 1px solid #eeeef4;
   vertical-align: top;
+  color: #1a1a2e;
+  background: #fff;
 }
 
-.prose tbody tr:hover {
+.prose tbody td strong {
+  color: #1a1a2e;
+  font-weight: 800;
+}
+
+.prose tbody tr:nth-child(even) td {
+  background: #f8f8fc;
+}
+
+.prose tbody tr:hover td {
   background: var(--bg-muted);
+  color: var(--text);
 }
 
 .prose tbody tr:last-child td {
   border-bottom: none;
+}
+
+.prose td code:not(.code-block code) {
+  background: #eef2ff;
+  color: #1e3a5f;
+  font-weight: 600;
+}
+
+body.accent-blue .prose td code:not(.code-block code) {
+  background: #e0f7ff;
+  color: #006688;
 }
 
 /* Code */
@@ -543,6 +595,12 @@ body.accent-blue .prose code:not(.code-block code) {
   border: 2px solid #e8e8f0;
   overflow-x: auto;
   text-align: center;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  width: 100%;
+  height: auto;
 }
 
 /* Footer */
