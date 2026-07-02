@@ -19,6 +19,7 @@
 | 0 | 27/06/2026 | Primera versión del documento (Borrador) |
 | 1 | 27/06/2026 | Incorporación elementos de negocio (Operaciones) |
 | 2 | 03/07/2026 | Versión consolidada: validación progresiva, MLOps, modelo de fitness, integraciones, requisitos no funcionales y catálogo completo de reglas |
+| 3 | 03/07/2026 | Enfoque de implementación: arquitectura hexagonal, DDD y microservicios |
 
 ---
 
@@ -171,6 +172,8 @@ Este documento define de forma integral:
 | PF-08 | **Mejora continua gobernada** | Toda evolución de IA se basa en feedback, fitness y evaluación objetiva. |
 | PF-09 | **Gobernanza de modelos** | Versionado, trazabilidad y rollback de modelos, prompts y reglas. |
 | PF-10 | **Calidad medible** | Precisión, recall, FTR y fitness son métricas de producto, no solo técnicas. |
+| PF-11 | **Dominio explícito (DDD)** | Reglas CAE, incidencias y validación modeladas en el dominio, no como lógica de presentación. |
+| PF-12 | **Servicios autónomos** | Cada capacidad (extracción, validación, MLOps…) es un microservicio desacoplado con contrato propio. |
 
 ---
 
@@ -237,6 +240,8 @@ journey
 La arquitectura funcional sigue un **modelo de 10 fases** aprobado por IDEAUTO, con leyenda de fases, flujo técnico end-to-end y detalle del motor de validación progresiva integrados en este documento.
 
 La arquitectura refleja el sistema como **plataforma de asistencia inteligente**, no como un OCR aislado. La **Fase 5 — Validación Progresiva CAE** es el núcleo funcional del sistema.
+
+A nivel de implementación, la plataforma de asistencia IA se construirá con **arquitectura hexagonal**, **DDD** (Domain-Driven Design) y **microservicios**: cada fase funcional corresponde a uno o más servicios autónomos que colaboran mediante APIs y eventos, manteniendo el dominio CAE (reglas, incidencias, scoring) aislado de la infraestructura cloud.
 
 ```mermaid
 flowchart LR
@@ -362,9 +367,24 @@ Flujo horizontal que atraviesa todo el sistema:
 
 - **API First** — Toda capacidad IA consumible vía API.
 - **Desacoplamiento** — CAE es propietario del expediente; IA es servicio auxiliar.
+- **Arquitectura hexagonal** — Dominio en el centro; Azure, BD y colas en adaptadores periféricos.
+- **DDD** — Bounded contexts por capacidad (validación, extracción, MLOps…); lenguaje ubicuo CAE.
+- **Microservicios** — Despliegue independiente, persistencia propia, comunicación por eventos.
 - **Stateless** — Persistencia en sistemas especializados.
 - **Human in the Loop** — Sin aprobación automática de expedientes.
 - **Observabilidad** — Logs, telemetría, trazabilidad end-to-end.
+
+### 6.4 Correspondencia fases funcionales ↔ microservicios
+
+| Fase funcional | Microservicio(s) | Bounded context DDD |
+|----------------|------------------|---------------------|
+| ②–④ Ingesta + Extracción | `cae-ingestion`, `cae-extraction` | Ingesta, Extracción |
+| ⑤ Validación progresiva | `cae-validation` | Validación CAE |
+| ⑥ Razonamiento IA | `cae-reasoning`, `cae-knowledge` | Razonamiento, Conocimiento |
+| ⑦ Decisión | `cae-validation` (Decision Engine) | Validación CAE |
+| ⑨ MLOps + Fitness | `cae-feedback`, `cae-mlops` | Feedback, MLOps |
+| Integración CAE | `cae-integration` | Anti-corruption Layer |
+| Transversal | `cae-gateway` | Edge / routing |
 
 ---
 
@@ -1114,6 +1134,8 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | RNF-08 | Explicabilidad | Toda incidencia con regla y motivo |
 | RNF-09 | Evolutividad | Fitness calculable en cada release |
 | RNF-10 | Recuperación | Rollback artefacto IA < 15 min |
+| RNF-11 | Arquitectura | Microservicios con hexagonal + DDD; despliegue independiente por servicio |
+| RNF-12 | Integración | Anti-Corruption Layer hacia Core CAE; sin acceso cruzado a BD entre servicios |
 
 ---
 

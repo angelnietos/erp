@@ -130,6 +130,11 @@
 <td>03/07/2026</td>
 <td>Versión consolidada: validación progresiva, MLOps, modelo de fitness, integraciones, requisitos no funcionales y catálogo completo de reglas</td>
 </tr>
+<tr>
+<td>3</td>
+<td>03/07/2026</td>
+<td>Enfoque de implementación: arquitectura hexagonal, DDD y microservicios</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -377,6 +382,16 @@
 <td><strong>Calidad medible</strong></td>
 <td>Precisión, recall, FTR y fitness son métricas de producto, no solo técnicas.</td>
 </tr>
+<tr>
+<td>PF-11</td>
+<td><strong>Dominio explícito (DDD)</strong></td>
+<td>Reglas CAE, incidencias y validación modeladas en el dominio, no como lógica de presentación.</td>
+</tr>
+<tr>
+<td>PF-12</td>
+<td><strong>Servicios autónomos</strong></td>
+<td>Cada capacidad (extracción, validación, MLOps…) es un microservicio desacoplado con contrato propio.</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="5-actores-y-casos-de-uso" class="section-title">5. Actores y casos de uso</h2>
@@ -545,6 +560,7 @@ journey
 <h3 id="60-vision-funcional-completa" class="subsection-title">6.0 Visión funcional completa</h3>
 <p>La arquitectura funcional sigue un <strong>modelo de 10 fases</strong> aprobado por IDEAUTO, con leyenda de fases, flujo técnico end-to-end y detalle del motor de validación progresiva integrados en este documento.</p>
 <p>La arquitectura refleja el sistema como <strong>plataforma de asistencia inteligente</strong>, no como un OCR aislado. La <strong>Fase 5 — Validación Progresiva CAE</strong> es el núcleo funcional del sistema.</p>
+<p>A nivel de implementación, la plataforma de asistencia IA se construirá con <strong>arquitectura hexagonal</strong>, <strong>DDD</strong> (Domain-Driven Design) y <strong>microservicios</strong>: cada fase funcional corresponde a uno o más servicios autónomos que colaboran mediante APIs y eventos, manteniendo el dominio CAE (reglas, incidencias, scoring) aislado de la infraestructura cloud.</p>
 <div class="mermaid">
 flowchart LR
     subgraph P1["① FRONTEND"]
@@ -808,10 +824,58 @@ flowchart LR
 <ul>
 <li><strong>API First</strong> — Toda capacidad IA consumible vía API.</li>
 <li><strong>Desacoplamiento</strong> — CAE es propietario del expediente; IA es servicio auxiliar.</li>
+<li><strong>Arquitectura hexagonal</strong> — Dominio en el centro; Azure, BD y colas en adaptadores periféricos.</li>
+<li><strong>DDD</strong> — Bounded contexts por capacidad (validación, extracción, MLOps…); lenguaje ubicuo CAE.</li>
+<li><strong>Microservicios</strong> — Despliegue independiente, persistencia propia, comunicación por eventos.</li>
 <li><strong>Stateless</strong> — Persistencia en sistemas especializados.</li>
 <li><strong>Human in the Loop</strong> — Sin aprobación automática de expedientes.</li>
 <li><strong>Observabilidad</strong> — Logs, telemetría, trazabilidad end-to-end.</li>
 </ul>
+<h3 id="64-correspondencia-fases-funcionales-microservicios" class="subsection-title">6.4 Correspondencia fases funcionales ↔ microservicios</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase funcional</th>
+<th>Microservicio(s)</th>
+<th>Bounded context DDD</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>②–④ Ingesta + Extracción</td>
+<td><code>cae-ingestion</code>, <code>cae-extraction</code></td>
+<td>Ingesta, Extracción</td>
+</tr>
+<tr>
+<td>⑤ Validación progresiva</td>
+<td><code>cae-validation</code></td>
+<td>Validación CAE</td>
+</tr>
+<tr>
+<td>⑥ Razonamiento IA</td>
+<td><code>cae-reasoning</code>, <code>cae-knowledge</code></td>
+<td>Razonamiento, Conocimiento</td>
+</tr>
+<tr>
+<td>⑦ Decisión</td>
+<td><code>cae-validation</code> (Decision Engine)</td>
+<td>Validación CAE</td>
+</tr>
+<tr>
+<td>⑨ MLOps + Fitness</td>
+<td><code>cae-feedback</code>, <code>cae-mlops</code></td>
+<td>Feedback, MLOps</td>
+</tr>
+<tr>
+<td>Integración CAE</td>
+<td><code>cae-integration</code></td>
+<td>Anti-corruption Layer</td>
+</tr>
+<tr>
+<td>Transversal</td>
+<td><code>cae-gateway</code></td>
+<td>Edge / routing</td>
+</tr>
+</tbody></table></div>
 <hr>
 <h2 id="7-flujo-funcional-detallado" class="section-title">7. Flujo funcional detallado</h2>
 <h3 id="71-resumen-simplificado-comportamiento-real-para-el-cliente" class="subsection-title">7.1 Resumen simplificado (comportamiento real para el cliente)</h3>
@@ -2453,6 +2517,16 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <td>RNF-10</td>
 <td>Recuperación</td>
 <td>Rollback artefacto IA &lt; 15 min</td>
+</tr>
+<tr>
+<td>RNF-11</td>
+<td>Arquitectura</td>
+<td>Microservicios con hexagonal + DDD; despliegue independiente por servicio</td>
+</tr>
+<tr>
+<td>RNF-12</td>
+<td>Integración</td>
+<td>Anti-Corruption Layer hacia Core CAE; sin acceso cruzado a BD entre servicios</td>
 </tr>
 </tbody></table></div>
 <hr>

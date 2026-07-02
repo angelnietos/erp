@@ -124,6 +124,11 @@
 <td>03/07/2026</td>
 <td>MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness</td>
 </tr>
+<tr>
+<td>3</td>
+<td>03/07/2026</td>
+<td>Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -155,6 +160,9 @@
 <p>Definir la arquitectura tecnológica de referencia para la incorporación de capacidades de <strong>Inteligencia Artificial de asistencia continua</strong> dentro de la plataforma CAE v2.0.</p>
 <p>La arquitectura deberá:</p>
 <ul>
+<li>Adoptar <strong>arquitectura hexagonal</strong> (Ports &amp; Adapters) en cada servicio desplegable.</li>
+<li>Organizarse mediante <strong>DDD</strong> (Domain-Driven Design): bounded contexts, agregados y lenguaje ubicuo CAE.</li>
+<li>Implementarse como <strong>microservicios</strong> independientes, comunicados por APIs y eventos asíncronos.</li>
 <li>Ser <strong>escalable</strong> horizontalmente (workers, colas, inferencia stateless).</li>
 <li><strong>Desacoplar</strong> completamente las capacidades IA del núcleo CAE.</li>
 <li>Mantener <strong>trazabilidad completa</strong> del expediente (audit log end-to-end).</li>
@@ -208,6 +216,26 @@
 <td>PA-07</td>
 <td><strong>Separación de capas</strong></td>
 <td>Extracción ≠ Validación determinista ≠ Razonamiento generativo.</td>
+</tr>
+<tr>
+<td>PA-08</td>
+<td><strong>Arquitectura hexagonal</strong></td>
+<td>Dominio en el centro; infraestructura (Azure, BD, colas) en adaptadores periféricos.</td>
+</tr>
+<tr>
+<td>PA-09</td>
+<td><strong>DDD</strong></td>
+<td>Bounded contexts explícitos; reglas CAE y validación en el dominio, no en controllers.</td>
+</tr>
+<tr>
+<td>PA-10</td>
+<td><strong>Microservicios</strong></td>
+<td>Un servicio desplegable por capacidad de negocio; contratos API/eventos versionados.</td>
+</tr>
+<tr>
+<td>PA-11</td>
+<td><strong>Anti-Corruption Layer</strong></td>
+<td>Integración con Plataforma CAE v2.0 mediante adaptadores, sin acoplar dominios.</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -285,6 +313,226 @@ flowchart TB
     MR -.-> DI & FDR & VE
     OBS -.-> GW & AO & VE & FDR & FB & FE
 </div>
+<h3 id="32-paradigma-arquitectura-hexagonal-ddd-y-microservicios" class="subsection-title">3.2 Paradigma: arquitectura hexagonal, DDD y microservicios</h3>
+<p>La capa de asistencia inteligente se implementará como <strong>conjunto de microservicios</strong>, cada uno con <strong>arquitectura hexagonal</strong> interna y fronteras de dominio definidas mediante <strong>DDD</strong>.</p>
+<h4>3.2.1 Arquitectura hexagonal (Ports &amp; Adapters)</h4>
+<p>Cada microservicio estructura su código en tres anillos:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anillo</th>
+<th>Contenido</th>
+<th>Regla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dominio</strong></td>
+<td>Entidades, agregados, value objects, reglas de negocio, domain events</td>
+<td>Sin dependencias de framework ni Azure</td>
+</tr>
+<tr>
+<td><strong>Aplicación</strong></td>
+<td>Casos de uso, orquestación, puertos de entrada/salida (interfaces)</td>
+<td>Depende solo del dominio</td>
+</tr>
+<tr>
+<td><strong>Infraestructura</strong></td>
+<td>Adaptadores REST, consumidores de cola, clientes Azure DI/Foundry, repositorios</td>
+<td>Implementa los puertos definidos en aplicación</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph EXT["Adaptadores de entrada"]
+        REST["REST Controller"]
+        CONS["Event Consumer"]
+    end
+
+    subgraph APP["Capa aplicación"]
+        UC["Casos de uso"]
+        PIN["Puertos entrada"]
+        POUT["Puertos salida"]
+    end
+
+    subgraph DOM["Dominio DDD"]
+        AGG["Agregados"]
+        REGLAS["Reglas CAE / validación"]
+        EVT["Domain Events"]
+    end
+
+    subgraph ADP["Adaptadores de salida"]
+        REPO["Repositorio PostgreSQL"]
+        BLOB["Blob Adapter"]
+        AZ["Azure DI / Foundry Client"]
+        BUS["Service Bus Publisher"]
+    end
+
+    REST --> PIN
+    CONS --> PIN
+    PIN --> UC
+    UC --> AGG
+    AGG --> REGLAS
+    AGG --> EVT
+    UC --> POUT
+    POUT --> REPO & BLOB & AZ & BUS
+</div>
+<h4>3.2.2 Bounded contexts (DDD)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bounded context</th>
+<th>Responsabilidad de dominio</th>
+<th>Agregados principales</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Expedición CAE</strong> (host)</td>
+<td>Ciclo de vida expediente, formulario, envío</td>
+<td><code>Expediente</code>, <code>Documento</code></td>
+</tr>
+<tr>
+<td><strong>Ingesta documental</strong></td>
+<td>Recepción, almacenamiento RAW, normalización</td>
+<td><code>DocumentoRaw</code>, <code>JobIngesta</code></td>
+</tr>
+<tr>
+<td><strong>Extracción</strong></td>
+<td>Clasificación y extracción estructurada</td>
+<td><code>Extraccion</code>, <code>CampoExtraido</code></td>
+</tr>
+<tr>
+<td><strong>Validación CAE</strong></td>
+<td>Reglas RF-001–RF-030, cruces, scoring, incidencias</td>
+<td><code>EvaluacionExpediente</code>, <code>Incidencia</code></td>
+</tr>
+<tr>
+<td><strong>Razonamiento IA</strong></td>
+<td>Resumen, explicaciones, asistencia conversacional</td>
+<td><code>AnalisisExpediente</code>, <code>ConsultaAsistente</code></td>
+</tr>
+<tr>
+<td><strong>Conocimiento CAE</strong></td>
+<td>Índices RAG, procedimientos, normativa</td>
+<td><code>IndiceConocimiento</code>, <code>Fragmento</code></td>
+</tr>
+<tr>
+<td><strong>Feedback y calidad</strong></td>
+<td>Correcciones, labeling, datasets</td>
+<td><code>Feedback</code>, <code>Etiqueta</code></td>
+</tr>
+<tr>
+<td><strong>MLOps</strong></td>
+<td>Evaluación, fitness, promoción/rollback</td>
+<td><code>Evaluacion</code>, <code>Fitness</code>, <code>ArtefactoIA</code></td>
+</tr>
+</tbody></table></div>
+<p>Los contextos se comunican mediante <strong>contratos de integración</strong> (API REST + eventos de dominio), nunca compartiendo modelos de persistencia.</p>
+<h4>3.2.3 Mapa de microservicios</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Microservicio</th>
+<th>Bounded context</th>
+<th>Responsabilidad</th>
+<th>Comunicación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cae-gateway</code></td>
+<td>Transversal</td>
+<td>Auth, rate limit, idempotency, enrutamiento</td>
+<td>REST → servicios internos</td>
+</tr>
+<tr>
+<td><code>cae-ingestion</code></td>
+<td>Ingesta</td>
+<td>Upload, Blob RAW, preprocessing, jobs</td>
+<td>REST + <code>DocumentUploaded</code></td>
+</tr>
+<tr>
+<td><code>cae-extraction</code></td>
+<td>Extracción</td>
+<td>OCR, clasificación, workers extractores</td>
+<td>Eventos + REST interno</td>
+</tr>
+<tr>
+<td><code>cae-validation</code></td>
+<td>Validación CAE</td>
+<td>Motor validación progresiva, Decision Engine</td>
+<td>Eventos + REST</td>
+</tr>
+<tr>
+<td><code>cae-reasoning</code></td>
+<td>Razonamiento IA</td>
+<td>Orchestrator, Foundry, resumen ejecutivo</td>
+<td>REST + eventos</td>
+</tr>
+<tr>
+<td><code>cae-knowledge</code></td>
+<td>Conocimiento</td>
+<td>RAG, AI Search, indexación</td>
+<td>REST interno</td>
+</tr>
+<tr>
+<td><code>cae-feedback</code></td>
+<td>Feedback</td>
+<td>Captura correcciones, labeling</td>
+<td>REST + <code>FeedbackStored</code></td>
+</tr>
+<tr>
+<td><code>cae-mlops</code></td>
+<td>MLOps</td>
+<td>Dataset, evaluación, Fitness Engine, Registry</td>
+<td>REST + eventos batch</td>
+</tr>
+<tr>
+<td><code>cae-integration</code></td>
+<td>Anti-corruption</td>
+<td>Sincronización con Core CAE v2.0</td>
+<td>REST hacia plataforma host</td>
+</tr>
+</tbody></table></div>
+<p>Cada microservicio:</p>
+<ul>
+<li>Se despliega de forma <strong>independiente</strong> (contenedor en AKS).</li>
+<li>Expone <strong>OpenAPI</strong> versionada.</li>
+<li>Persiste en <strong>su propia base de datos</strong> o almacén (database-per-service).</li>
+<li>Publica/consuma eventos en <strong>Azure Service Bus</strong> (comunicación asíncrona).</li>
+<li>Usa <strong>Redis</strong> para estado efímero (FSM, idempotency, cache).</li>
+</ul>
+<h4>3.2.4 Orquestación vs. coreografía</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Patrón</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Coreografía (eventos)</strong></td>
+<td>Pipeline documental: upload → extracción → validación progresiva</td>
+</tr>
+<tr>
+<td><strong>Orquestación (Orchestrator)</strong></td>
+<td>Análisis global expediente, fan-out/fan-in multi-documento</td>
+</tr>
+<tr>
+<td><strong>Saga</strong></td>
+<td>Envío a revisión: validación final + decisión + cola Operaciones + rollback compensatorio si falla integración CAE</td>
+</tr>
+</tbody></table></div>
+<h4>3.2.5 Estructura de repositorio (referencia)</h4>
+<pre class="code-block"><code class="language-">services/
+  cae-validation/
+    domain/          # Agregados, reglas, eventos
+    application/     # Casos de uso, puertos
+    infrastructure/  # REST, PostgreSQL, Redis, Service Bus
+    Dockerfile
+  cae-extraction/
+    ...
+libs/
+  cae-domain-shared/ # Value objects compartidos (VIN, NIF) — mínimo</code></pre>
+<blockquote class="callout"><p><strong>Regla:</strong> solo tipos y value objects estables se comparten entre servicios; la lógica de negocio permanece dentro de cada bounded context.</p></blockquote>
 <hr>
 <h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
 <p>Arquitectura alineada con el <strong>modelo de 10 fases</strong> del sistema de asistencia inteligente CAE.</p>
@@ -2656,6 +2904,7 @@ flowchart TB
 <hr>
 <h2 id="21-vision-final" class="section-title">21. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
+<p>La implementación se basa en <strong>microservicios con arquitectura hexagonal y DDD</strong>: cada capacidad (ingesta, extracción, validación, razonamiento, MLOps) es un servicio autónomo con dominio explícito, puertos/adaptadores y contratos versionados, integrado con la Plataforma CAE mediante una capa anti-corrupción.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
 <blockquote class="callout"><p>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</p></blockquote>

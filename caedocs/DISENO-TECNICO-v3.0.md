@@ -19,6 +19,7 @@
 | 0 | 27/06/2026 | Primera versión del documento (Borrador) |
 | 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad |
 | 2 | 03/07/2026 | MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness |
+| 3 | 03/07/2026 | Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios |
 
 ---
 
@@ -54,6 +55,9 @@ Definir la arquitectura tecnológica de referencia para la incorporación de cap
 
 La arquitectura deberá:
 
+- Adoptar **arquitectura hexagonal** (Ports & Adapters) en cada servicio desplegable.
+- Organizarse mediante **DDD** (Domain-Driven Design): bounded contexts, agregados y lenguaje ubicuo CAE.
+- Implementarse como **microservicios** independientes, comunicados por APIs y eventos asíncronos.
 - Ser **escalable** horizontalmente (workers, colas, inferencia stateless).
 - **Desacoplar** completamente las capacidades IA del núcleo CAE.
 - Mantener **trazabilidad completa** del expediente (audit log end-to-end).
@@ -76,6 +80,10 @@ La arquitectura deberá:
 | PA-05 | **Observabilidad** | OpenTelemetry, audit log, métricas por componente y coste IA. |
 | PA-06 | **Idempotencia** | Reintentos seguros en ingesta y procesamiento documental. |
 | PA-07 | **Separación de capas** | Extracción ≠ Validación determinista ≠ Razonamiento generativo. |
+| PA-08 | **Arquitectura hexagonal** | Dominio en el centro; infraestructura (Azure, BD, colas) en adaptadores periféricos. |
+| PA-09 | **DDD** | Bounded contexts explícitos; reglas CAE y validación en el dominio, no en controllers. |
+| PA-10 | **Microservicios** | Un servicio desplegable por capacidad de negocio; contratos API/eventos versionados. |
+| PA-11 | **Anti-Corruption Layer** | Integración con Plataforma CAE v2.0 mediante adaptadores, sin acoplar dominios. |
 
 ---
 
@@ -155,6 +163,118 @@ flowchart TB
     MR -.-> DI & FDR & VE
     OBS -.-> GW & AO & VE & FDR & FB & FE
 ```
+
+### 3.2 Paradigma: arquitectura hexagonal, DDD y microservicios
+
+La capa de asistencia inteligente se implementará como **conjunto de microservicios**, cada uno con **arquitectura hexagonal** interna y fronteras de dominio definidas mediante **DDD**.
+
+#### 3.2.1 Arquitectura hexagonal (Ports & Adapters)
+
+Cada microservicio estructura su código en tres anillos:
+
+| Anillo | Contenido | Regla |
+|--------|-----------|-------|
+| **Dominio** | Entidades, agregados, value objects, reglas de negocio, domain events | Sin dependencias de framework ni Azure |
+| **Aplicación** | Casos de uso, orquestación, puertos de entrada/salida (interfaces) | Depende solo del dominio |
+| **Infraestructura** | Adaptadores REST, consumidores de cola, clientes Azure DI/Foundry, repositorios | Implementa los puertos definidos en aplicación |
+
+```mermaid
+flowchart TB
+    subgraph EXT["Adaptadores de entrada"]
+        REST["REST Controller"]
+        CONS["Event Consumer"]
+    end
+
+    subgraph APP["Capa aplicación"]
+        UC["Casos de uso"]
+        PIN["Puertos entrada"]
+        POUT["Puertos salida"]
+    end
+
+    subgraph DOM["Dominio DDD"]
+        AGG["Agregados"]
+        REGLAS["Reglas CAE / validación"]
+        EVT["Domain Events"]
+    end
+
+    subgraph ADP["Adaptadores de salida"]
+        REPO["Repositorio PostgreSQL"]
+        BLOB["Blob Adapter"]
+        AZ["Azure DI / Foundry Client"]
+        BUS["Service Bus Publisher"]
+    end
+
+    REST --> PIN
+    CONS --> PIN
+    PIN --> UC
+    UC --> AGG
+    AGG --> REGLAS
+    AGG --> EVT
+    UC --> POUT
+    POUT --> REPO & BLOB & AZ & BUS
+```
+
+#### 3.2.2 Bounded contexts (DDD)
+
+| Bounded context | Responsabilidad de dominio | Agregados principales |
+|-----------------|---------------------------|------------------------|
+| **Expedición CAE** (host) | Ciclo de vida expediente, formulario, envío | `Expediente`, `Documento` |
+| **Ingesta documental** | Recepción, almacenamiento RAW, normalización | `DocumentoRaw`, `JobIngesta` |
+| **Extracción** | Clasificación y extracción estructurada | `Extraccion`, `CampoExtraido` |
+| **Validación CAE** | Reglas RF-001–RF-030, cruces, scoring, incidencias | `EvaluacionExpediente`, `Incidencia` |
+| **Razonamiento IA** | Resumen, explicaciones, asistencia conversacional | `AnalisisExpediente`, `ConsultaAsistente` |
+| **Conocimiento CAE** | Índices RAG, procedimientos, normativa | `IndiceConocimiento`, `Fragmento` |
+| **Feedback y calidad** | Correcciones, labeling, datasets | `Feedback`, `Etiqueta` |
+| **MLOps** | Evaluación, fitness, promoción/rollback | `Evaluacion`, `Fitness`, `ArtefactoIA` |
+
+Los contextos se comunican mediante **contratos de integración** (API REST + eventos de dominio), nunca compartiendo modelos de persistencia.
+
+#### 3.2.3 Mapa de microservicios
+
+| Microservicio | Bounded context | Responsabilidad | Comunicación |
+|---------------|-----------------|-----------------|--------------|
+| `cae-gateway` | Transversal | Auth, rate limit, idempotency, enrutamiento | REST → servicios internos |
+| `cae-ingestion` | Ingesta | Upload, Blob RAW, preprocessing, jobs | REST + `DocumentUploaded` |
+| `cae-extraction` | Extracción | OCR, clasificación, workers extractores | Eventos + REST interno |
+| `cae-validation` | Validación CAE | Motor validación progresiva, Decision Engine | Eventos + REST |
+| `cae-reasoning` | Razonamiento IA | Orchestrator, Foundry, resumen ejecutivo | REST + eventos |
+| `cae-knowledge` | Conocimiento | RAG, AI Search, indexación | REST interno |
+| `cae-feedback` | Feedback | Captura correcciones, labeling | REST + `FeedbackStored` |
+| `cae-mlops` | MLOps | Dataset, evaluación, Fitness Engine, Registry | REST + eventos batch |
+| `cae-integration` | Anti-corruption | Sincronización con Core CAE v2.0 | REST hacia plataforma host |
+
+Cada microservicio:
+
+- Se despliega de forma **independiente** (contenedor en AKS).
+- Expone **OpenAPI** versionada.
+- Persiste en **su propia base de datos** o almacén (database-per-service).
+- Publica/consuma eventos en **Azure Service Bus** (comunicación asíncrona).
+- Usa **Redis** para estado efímero (FSM, idempotency, cache).
+
+#### 3.2.4 Orquestación vs. coreografía
+
+| Patrón | Uso |
+|--------|-----|
+| **Coreografía (eventos)** | Pipeline documental: upload → extracción → validación progresiva |
+| **Orquestación (Orchestrator)** | Análisis global expediente, fan-out/fan-in multi-documento |
+| **Saga** | Envío a revisión: validación final + decisión + cola Operaciones + rollback compensatorio si falla integración CAE |
+
+#### 3.2.5 Estructura de repositorio (referencia)
+
+```
+services/
+  cae-validation/
+    domain/          # Agregados, reglas, eventos
+    application/     # Casos de uso, puertos
+    infrastructure/  # REST, PostgreSQL, Redis, Service Bus
+    Dockerfile
+  cae-extraction/
+    ...
+libs/
+  cae-domain-shared/ # Value objects compartidos (VIN, NIF) — mínimo
+```
+
+> **Regla:** solo tipos y value objects estables se comparten entre servicios; la lógica de negocio permanece dentro de cada bounded context.
 
 ---
 
@@ -1414,6 +1534,8 @@ flowchart TB
 ## 21. Visión final
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
+
+La implementación se basa en **microservicios con arquitectura hexagonal y DDD**: cada capacidad (ingesta, extracción, validación, razonamiento, MLOps) es un servicio autónomo con dominio explícito, puertos/adaptadores y contratos versionados, integrado con la Plataforma CAE mediante una capa anti-corrupción.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 

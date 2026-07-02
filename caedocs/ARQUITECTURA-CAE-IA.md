@@ -9,8 +9,8 @@
 
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
-> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`.
+> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios).
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`.
 
 ---
 
@@ -27,7 +27,43 @@
 | 🟠 Naranja | **MLOps + Fitness** | Feedback, labeling, dataset, evaluación, fitness, promoción/rollback |
 | 🟤 Beige | **Observabilidad** | Transversal — audit, tracing, KPIs |
 
-**Principios transversales:** API First · Desacoplamiento · Stateless · Human in the Loop · Observabilidad
+**Principios transversales:** API First · Hexagonal · DDD · Microservicios · Desacoplamiento · Stateless · Human in the Loop · Observabilidad
+
+---
+
+## 0. Paradigma arquitectónico
+
+La capa de asistencia inteligente se implementará con:
+
+| Paradigma | Aplicación en el proyecto |
+|-----------|---------------------------|
+| **Arquitectura hexagonal** | Puertos y adaptadores en cada servicio; dominio aislado de Azure |
+| **DDD** | Bounded contexts: Validación CAE, Extracción, MLOps, Conocimiento… |
+| **Microservicios** | Servicios desplegables independientes en AKS, comunicación REST + eventos |
+
+```mermaid
+flowchart LR
+    subgraph MS["Microservicios CAE IA"]
+        GW["cae-gateway"]
+        ING["cae-ingestion"]
+        EXT["cae-extraction"]
+        VAL["cae-validation"]
+        REA["cae-reasoning"]
+        FB["cae-feedback"]
+        MLO["cae-mlops"]
+        INT["cae-integration"]
+    end
+
+    CAE["Plataforma CAE v2.0"] <-->|ACL| INT
+    GW --> ING & EXT & VAL & REA & FB & MLO
+    ING -->|eventos| EXT
+    EXT -->|eventos| VAL
+    VAL -->|eventos| REA
+    FB -->|eventos| MLO
+    MLO -.->|promoción| EXT & VAL & REA
+
+    style VAL fill:#fff9c4,stroke:#f9a825,stroke-width:2px
+```
 
 ---
 
@@ -418,6 +454,7 @@ flowchart LR
 | ⑦ Decisión | Decision Engine |
 | ⑧ Operaciones | Cola revisión, resumen IA, UI supervisor |
 | ⑨ MLOps + Fitness | Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry |
+| — | **Paradigma** | Hexagonal + DDD + microservicios (`cae-*`) |
 | ⑩ Observabilidad | OpenTelemetry, Audit Log, dashboards |
 
 ---
