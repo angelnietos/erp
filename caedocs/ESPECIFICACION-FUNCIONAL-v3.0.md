@@ -21,6 +21,7 @@
 | 2 | 03/07/2026 | Versión consolidada: validación progresiva, MLOps, modelo de fitness, integraciones, requisitos no funcionales y catálogo completo de reglas |
 | 3 | 03/07/2026 | Enfoque de implementación: arquitectura hexagonal, DDD y microservicios |
 | 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
+| 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 
 ---
 
@@ -176,7 +177,7 @@ Este documento define de forma integral:
 | PF-11 | **Dominio explícito (DDD)** | Reglas CAE, incidencias y validación modeladas en el dominio, no como lógica de presentación. |
 | PF-12 | **Servicios autónomos** | Cada capacidad (extracción, validación, MLOps…) es una lib desacoplada, desplegable en monolito o microservicio. |
 | PF-13 | **Libs first** | Desarrollo en `libs/` reutilizables; integración en CAE v2 sin acoplar código al host. |
-| PF-14 | **UI embebida (MFE)** | Paneles de asistencia IA cargados en CAE v2 como microfrontend, no sustituyendo el shell CAE. |
+| PF-14 | **UI embebida (MFE)** | Paneles IA en CAE v2 como microfrontend React (default); Angular como alternativa. |
 
 ---
 
@@ -244,7 +245,7 @@ La arquitectura funcional sigue un **modelo de 10 fases** aprobado por IDEAUTO, 
 
 La arquitectura refleja el sistema como **plataforma de asistencia inteligente**, no como un OCR aislado. La **Fase 5 — Validación Progresiva CAE** es el núcleo funcional del sistema.
 
-A nivel de implementación, la plataforma de asistencia IA se construirá como **libs independientes en monorepo Nx** (`libs/isomorphic/cae`, `libs/node/cae`, `libs/browser/cae`), siguiendo el patrón de `apps/backend` + `apps/frontend` del workspace. Las libs se componen en **monolito modular** por defecto y pueden **escalar a microservicios** según demanda. La UI se integrará en CAE v2 mediante **microfrontends** (Module Federation).
+A nivel de implementación, la plataforma de asistencia IA se construirá como **libs independientes en monorepo Nx** (`libs/isomorphic/cae`, `libs/node/cae`, `libs/react/cae` y opcionalmente `libs/angular/cae`). Las libs se componen en **monolito modular** por defecto y pueden **escalar a microservicios** según demanda. La UI se integrará en CAE v2 mediante **microfrontends en React** (stack nativo del host); **Angular** se documenta como **opción alternativa** para el remote.
 
 ```mermaid
 flowchart LR
@@ -374,79 +375,85 @@ Flujo horizontal que atraviesa todo el sistema:
 - **DDD** — Bounded contexts por capacidad (validación, extracción, MLOps…); lenguaje ubicuo CAE.
 - **Libs first (Nx)** — Capacidades IA como paquetes en `libs/` antes que apps desplegables.
 - **Deploy elástico** — Monolito modular por defecto; microservicios solo bajo demanda.
-- **Microfrontend CAE v2** — Paneles IA embebidos vía Module Federation, CAE permanece host.
+- **Microfrontend React (default)** — Paneles IA embebidos en shell CAE v2 (React + Module Federation).
+- **Microfrontend Angular (opcional)** — Misma integración funcional; stack alternativo sugerido.
 - **Stateless** — Persistencia en sistemas especializados.
 - **Human in the Loop** — Sin aprobación automática de expedientes.
 - **Observabilidad** — Logs, telemetría, trazabilidad end-to-end.
 
 ### 6.4 Correspondencia fases ↔ libs Nx (objetivo)
 
-| Fase funcional | Lib backend (`libs/node/cae/`) | Lib frontend (`libs/browser/cae/`) |
-|----------------|--------------------------------|-------------------------------------|
-| ②–④ Ingesta + Extracción | `ingestion-backend`, `extraction-backend` | — |
-| ⑤ Validación progresiva | `validation-backend` | `feature-assistant` |
-| ⑥ Razonamiento IA | `reasoning-backend`, `knowledge-backend` | `feature-assistant` (chat) |
-| ⑦ Decisión | `validation-backend` | `feature-assistant` |
-| ⑧ Operaciones | `reasoning-backend` | `feature-operations` |
-| ⑨ MLOps + Fitness | `feedback-backend`, `mlops-backend` | `feature-mlops` |
-| Integración CAE v2 | `integration-backend` | `shell` (boundary MFE) |
-| Dominio compartido | `isomorphic/cae/core`, `isomorphic/cae/api` | `data-access` |
+| Fase funcional | Lib backend | Lib UI React (default) | Lib UI Angular (opc.) |
+|----------------|-------------|------------------------|----------------------|
+| ②–④ Ingesta + Extracción | `ingestion-backend`, `extraction-backend` | — | — |
+| ⑤ Validación progresiva | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
+| ⑥ Razonamiento IA | `reasoning-backend`, `knowledge-backend` | `feature-assistant` (chat) | idem |
+| ⑦ Decisión | `validation-backend` | `feature-assistant` | idem |
+| ⑧ Operaciones | `reasoning-backend` | `react/cae/feature-operations` | `angular/cae/feature-operations` |
+| ⑨ MLOps + Fitness | `feedback-backend`, `mlops-backend` | `react/cae/feature-mlops` | `angular/cae/feature-mlops` |
+| Integración CAE v2 | `integration-backend` | — | — |
+| Dominio compartido | `isomorphic/cae/core`, `api` | `react/cae/data-access` | `angular/cae/data-access` |
 
-### 6.5 Integración con CAE v2.0 — Monorepo y microfrontends
+*(Rutas relativas a `libs/node/cae/` y `libs/` respectivamente.)*
 
-CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El objetivo es:
+### 6.5 Integración con CAE v2.0 — Monorepo, React y microfrontends
 
-1. **Desarrollar primero en `libs/`** — Dominio, backend y UI como paquetes Nx reutilizables e integrables.
-2. **Componer en `apps/cae-ia-backend`** — Monolito modular NestJS (Modo A) como despliegue inicial.
-3. **Exponer UI vía `apps/cae-assistant-mfe`** — Microfrontend Angular cargado por el shell CAE v2 en slots definidos (panel incidencias, auto-fill, cola Operaciones).
-4. **Escalar a microservicios** — Solo si volumen, latencia o equipos lo requieren; misma codebase, distinto host `apps/cae-*-service`.
+CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE v2 es React**. El objetivo es:
+
+1. **Desarrollar primero en `libs/`** — Dominio, backend y UI como paquetes Nx reutilizables.
+2. **Componer en `apps/cae-ia-backend`** — Monolito modular NestJS (Modo A).
+3. **Exponer UI vía `apps/cae-assistant-mfe` (React)** — Microfrontend **default**, cargado en slots del shell CAE v2.
+4. **Opcional: `apps/cae-assistant-mfe-angular`** — Misma superficie funcional; stack Angular + Module Federation si se elige.
+5. **Escalar a microservicios** — Solo si volumen, latencia o equipos lo requieren.
 
 ```mermaid
 flowchart TB
-    subgraph CAE["Plataforma CAE v2.0 — Host"]
-        H["Shell CAE"]
+    subgraph CAE["Plataforma CAE v2.0 — Host React"]
+        H["Shell CAE React"]
         EXP["Core Expedientes"]
         S1["Slot UI asistencia"]
         S2["Slot UI operaciones"]
     end
 
-    subgraph MFE["apps/cae-assistant-mfe"]
-        FA["feature-assistant"]
-        FO["feature-operations"]
+    subgraph MFE_R["DEFAULT — cae-assistant-mfe React"]
+        R_FA["react/cae/feature-assistant"]
+        R_FO["react/cae/feature-operations"]
     end
 
-    subgraph LIBS["libs/browser/cae + libs/node/cae"]
-        DA["data-access"]
-        BE["validation-backend · extraction-backend · mlops-backend…"]
+    subgraph MFE_A["OPCIONAL — cae-assistant-mfe-angular"]
+        A_FA["angular/cae/feature-assistant"]
+        A_FO["angular/cae/feature-operations"]
     end
 
-    subgraph APP["apps/cae-ia-backend — Monolito modular"]
-        HOST["NestJS compositor"]
+    subgraph BACK["apps/cae-ia-backend"]
+        BE["node/cae/*-backend"]
     end
 
     H --> EXP
-    S1 -->|Module Federation| FA
-    S2 -->|Module Federation| FO
-    FA & FO --> DA
-    DA --> HOST
-    HOST --> BE
+    S1 -->|Module Federation| R_FA
+    S2 -->|Module Federation| R_FO
+    S1 -.->|alternativa| A_FA
+    S2 -.->|alternativa| A_FO
+    R_FA & R_FO & A_FA & A_FO --> BE
     BE -->|ACL| EXP
 ```
 
-**Experiencia funcional para el usuario CAE:** el flujo de negocio (crear expediente, enviar, revisar) **no cambia**; los paneles IA aparecen integrados visualmente en las pantallas existentes.
+**Experiencia funcional:** el flujo de negocio CAE **no cambia**; los paneles IA se integran en las pantallas existentes.
 
-| Slot en CAE v2 | Componente MFE | Capacidad funcional |
-|----------------|----------------|---------------------|
-| Construcción expediente | `AssistantPanel`, `IncidentsSidebar` | Incidencias, completitud, auto-fill |
-| Subida documentos | `DocumentUploadAssist` | Feedback post-OCR en tiempo real |
-| Cola Operaciones | `OperationsReviewPanel` | Resumen IA, incidencias priorizadas |
-| Backoffice (opcional) | `MlopsDashboard` | Fitness, evaluaciones |
+| Slot CAE v2 | Componente | Stack | Capacidad |
+|-------------|------------|-------|-----------|
+| Construcción expediente | `AssistantPanel`, `IncidentsSidebar` | React (default) | Incidencias, completitud, auto-fill |
+| Subida documentos | `DocumentUploadAssist` | React (default) | Feedback post-OCR |
+| Cola Operaciones | `OperationsReviewPanel` | React (default) | Resumen IA |
+| Mismos slots | Equivalentes Angular | Angular (opc.) | Misma funcionalidad |
+| Backoffice | `MlopsDashboard` | React o Angular | Fitness, evaluaciones |
 
 | RNF asociado | Requisito |
 |--------------|-----------|
-| RNF-11 | Libs Nx + hexagonal + DDD; composición en monolito o microservicio |
+| RNF-11 | Libs Nx + hexagonal + DDD; monolito o microservicio |
 | RNF-12 | ACL hacia Core CAE; sin BD compartida entre libs |
-| RNF-13 | MFE versionado semver; contrato estable host ↔ remote |
+| RNF-13 | MFE React default; contrato host ↔ remote versionado |
+| RNF-14 | MFE Angular opcional; misma API de integración que React |
 
 ---
 
@@ -1198,7 +1205,8 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | RNF-10 | Recuperación | Rollback artefacto IA < 15 min |
 | RNF-11 | Arquitectura | Libs Nx + hexagonal + DDD; monolito modular por defecto, microservicios bajo demanda |
 | RNF-12 | Integración backend | Anti-Corruption Layer hacia Core CAE; sin BD compartida entre libs |
-| RNF-13 | Integración UI | Microfrontend CAE v2 (Module Federation); MFE desplegable de forma independiente |
+| RNF-13 | Integración UI | MFE **React** (default) embebido en CAE v2; Module Federation; despliegue independente |
+| RNF-14 | Integración UI alt. | MFE **Angular** opcional; misma API de slots y eventos que React |
 
 ---
 
@@ -1275,7 +1283,7 @@ La IA actuará como un **asistente especializado en expedientes CAE** capaz de:
 - Detectar incidencias **antes** de la revisión por Operaciones.
 - Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.
 - **Aprender y mejorar** mediante feedback, cálculo de fitness y ciclo MLOps gobernado.
-- **Integrarse en CAE v2** como libs Nx y microfrontend embebido, sin sustituir el host del expediente.
+- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend React embebido, sin sustituir el host del expediente.
 - Reducir la carga operativa y mejorar la calidad de los expedientes tramitados.
 
 > Plataforma de **asistencia inteligente para expedientes CAE**: validación progresiva, reglas de negocio, razonamiento contextual, **libs reutilizables en monorepo Nx** y **evolución continua medida por fitness**.

@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph CAE20["Plataforma CAE v2.0 — Host React"]
+        SHELL["Shell CAE React"]
+        SLOT1["Slot asistencia"]
+        SLOT2["Slot operaciones"]
+        SHELL --> SLOT1 & SLOT2
+    end
+
+    subgraph REACT_MFE["DEFAULT — React MFE"]
+        R_APP["apps/cae-assistant-mfe"]
+        R_LIB["libs/react/cae/feature-*"]
+        R_APP --> R_LIB
+    end
+
+    subgraph NG_MFE["OPCIONAL — Angular MFE"]
+        A_APP["apps/cae-assistant-mfe-angular"]
+        A_LIB["libs/angular/cae/feature-*"]
+        A_APP --> A_LIB
+    end
+
+    subgraph API["apps/cae-ia-backend"]
+        BE["libs/node/cae/*-backend"]
+    end
+
+    SLOT1 & SLOT2 -->|Module Federation| R_APP
+    SLOT1 & SLOT2 -.->|alternativa| A_APP
+    R_LIB & A_LIB --> BE
+
+    style REACT_MFE fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style NG_MFE fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:6 4
+    style CAE20 fill:#fff9c4,stroke:#f9a825

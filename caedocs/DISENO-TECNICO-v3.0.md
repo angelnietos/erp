@@ -20,7 +20,8 @@
 | 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad |
 | 2 | 03/07/2026 | MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness |
 | 3 | 03/07/2026 | Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios |
-| 4 | 03/07/2026 | Arquitectura objetivo en monorepo Nx (`libs` / `apps`), despliegue monolito modular vs microservicios, microfrontends CAE v2 |
+| 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
+| 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 
 ---
 
@@ -267,68 +268,71 @@ Cuando se despliegan aisladas (Modo C):
 
 ### 3.3 Arquitectura objetivo en monorepo Nx
 
-La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La **arquitectura objetivo** alinea el desarrollo con el patrón ya usado en el workspace `josanz-erp`: **`libs/`** reutilizables + **`apps/`** como hosts de composición.
+La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La **arquitectura objetivo** organiza el código en un **monorepo Nx** con **`libs/`** reutilizables e **`apps/`** como hosts de composición y despliegue.
 
-#### 3.3.1 Referencia: patrón actual del workspace
+#### 3.3.1 Patrón de capas (monorepo Nx)
 
-| Capa | Ubicación actual | Patrón |
-|------|------------------|--------|
-| Dominio + puertos | `libs/isomorphic/core/*/core` | DDD + hexagonal (ports) |
-| Backend por capacidad | `libs/node/backend/*-backend` | NestJS modules exportables |
-| Frontend por feature | `libs/browser/feature/*` | Angular libs lazy-loaded |
-| Host backend | `apps/backend` | Monolito modular NestJS |
-| Host frontend | `apps/frontend` | Shell Angular + feature libs |
-
-La capa IA CAE **replicará este patrón** antes de decidir despliegues distribuidos.
+| Capa | Ubicación objetivo | Patrón |
+|------|-------------------|--------|
+| Dominio + puertos | `libs/isomorphic/cae/core` | DDD + hexagonal (ports) — agnóstico de framework |
+| Contratos API | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos |
+| Backend por capacidad | `libs/node/cae/*-backend` | NestJS modules exportables (`forRoot()`) |
+| UI React (default) | `libs/react/cae/*` | Componentes y features para host CAE v2 (React) |
+| UI Angular (opcional) | `libs/angular/cae/*` | Misma superficie funcional; implementación alternativa |
+| Host backend IA | `apps/cae-ia-backend` | Monolito modular NestJS |
+| MFE React (default) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
+| MFE Angular (opcional) | `apps/cae-assistant-mfe-angular` | Remote alternativo (Module Federation) |
 
 #### 3.3.2 Estructura objetivo — libs IA CAE
 
 ```
-josanz-erp/                                    # Monorepo Nx
+cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 ├── apps/
-│   ├── frontend/                              # Host ERP existente (referencia)
-│   ├── backend/                               # Host NestJS existente (referencia)
-│   ├── cae-ia-backend/                        # [OBJETIVO] Host monolito modular solo IA
-│   └── cae-assistant-mfe/                     # [OBJETIVO] Microfrontend remoto CAE v2
+│   ├── cae-ia-backend/                        # Host monolito modular backend IA
+│   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
+│   └── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
 │
 ├── libs/
 │   ├── isomorphic/cae/
-│   │   ├── core/                              # Dominio DDD puro (sin Nest/Angular)
-│   │   │   ├── domain/                        # Agregados, reglas RF, eventos
-│   │   │   └── application/                   # Puertos (interfaces)
-│   │   └── api/                               # Contratos OpenAPI, DTOs compartidos
+│   │   ├── core/                              # Dominio DDD puro (sin Nest/React/Angular)
+│   │   └── api/                               # Contratos OpenAPI, DTOs
 │   │
 │   ├── node/cae/
-│   │   ├── ingestion-backend/                 # Hexagonal → NestJS module
+│   │   ├── ingestion-backend/
 │   │   ├── extraction-backend/
-│   │   ├── validation-backend/                # Motor validación progresiva
+│   │   ├── validation-backend/
 │   │   ├── reasoning-backend/
 │   │   ├── knowledge-backend/
 │   │   ├── feedback-backend/
-│   │   ├── mlops-backend/                     # Fitness Engine, Registry
+│   │   ├── mlops-backend/
 │   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
 │   │
-│   └── browser/cae/
-│       ├── data-access/                       # Clientes HTTP, SSE, WebSocket
-│       ├── feature-assistant/                 # Cliente: incidencias, auto-fill, chat
-│       ├── feature-operations/                # Operaciones: cola, resumen IA
-│       ├── feature-mlops/                     # Dashboard fitness / evaluación
-│       └── shell/                             # Rutas CAE IA (boundary MFE)
+│   ├── react/cae/                             # UI default — stack nativo CAE v2
+│   │   ├── data-access/
+│   │   ├── feature-assistant/
+│   │   ├── feature-operations/
+│   │   └── feature-mlops/
+│   │
+│   └── angular/cae/                           # UI opcional — misma API de componentes
+│       ├── data-access/
+│       ├── feature-assistant/
+│       ├── feature-operations/
+│       └── feature-mlops/
 ```
 
-Cada lib `*-backend` sigue internamente **domain / application / infrastructure**, exportando un `XxxBackendModule.forRoot()` composable — igual que `@josanz-erp/budget-backend` en `apps/backend` hoy.
+Cada lib `*-backend` sigue **domain / application / infrastructure**, exportando un módulo NestJS composable (`XxxBackendModule.forRoot()`). Las libs UI comparten **`data-access`** y contratos de props/eventos; solo cambia la capa de presentación (React vs Angular).
 
 #### 3.3.3 Correspondencia bounded context → lib Nx
 
-| Bounded context | Lib dominio | Lib backend | Lib frontend |
-|-----------------|-------------|-------------|--------------|
-| Validación CAE | `isomorphic/cae/core` | `node/cae/validation-backend` | `browser/cae/feature-assistant` |
-| Extracción | `isomorphic/cae/core` | `node/cae/extraction-backend` | — |
-| Ingesta | `isomorphic/cae/core` | `node/cae/ingestion-backend` | — |
-| Razonamiento IA | `isomorphic/cae/core` | `node/cae/reasoning-backend` | `feature-assistant` (chat) |
-| Operaciones | — | `reasoning-backend` + `validation-backend` | `feature-operations` |
-| MLOps / Fitness | `isomorphic/cae/core` | `node/cae/mlops-backend` | `feature-mlops` |
-| Integración CAE v2 | `isomorphic/cae/api` | `node/cae/integration-backend` | — |
+| Bounded context | Lib dominio | Lib backend | Lib UI React (default) | Lib UI Angular (opc.) |
+|-----------------|-------------|-------------|------------------------|----------------------|
+| Validación CAE | `isomorphic/cae/core` | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
+| Extracción | `isomorphic/cae/core` | `extraction-backend` | — | — |
+| Ingesta | `isomorphic/cae/core` | `ingestion-backend` | — | — |
+| Razonamiento IA | `isomorphic/cae/core` | `reasoning-backend` | `feature-assistant` (chat) | idem Angular |
+| Operaciones | — | `reasoning-backend` + `validation-backend` | `feature-operations` | idem Angular |
+| MLOps / Fitness | `isomorphic/cae/core` | `mlops-backend` | `feature-mlops` | idem Angular |
+| Integración CAE v2 | `isomorphic/cae/api` | `integration-backend` | — | — |
 
 #### 3.3.4 Modos de despliegue (misma codebase)
 
@@ -380,63 +384,91 @@ flowchart TB
 | App Nx | Tipo | Rol |
 |--------|------|-----|
 | `apps/cae-ia-backend` | NestJS host | Componer todos los `node/cae/*-backend`; API única IA |
-| `apps/cae-assistant-mfe` | Angular remote | Microfrontend cargado por CAE v2 (Module Federation) |
-| `apps/backend` (opcional) | NestJS host existente | Import selectivo de libs CAE si convive con ERP |
-| `apps/frontend` (opcional) | Angular host existente | Solo si IA se integra en ERP Josanz, no en CAE v2 |
+| `apps/cae-assistant-mfe` | **React remote (default)** | MFE embebido en shell CAE v2 (stack nativo React) |
+| `apps/cae-assistant-mfe-angular` | Angular remote (opcional) | MFE alternativo si el equipo prefiere Angular + Module Federation |
 
 Wrappers microservicio (Modo C), generados solo bajo demanda:
 
 ```
-apps/cae-validation-service/    → import @josanz-erp/cae-validation-backend
+apps/cae-validation-service/    → import @cae-ia/validation-backend
 apps/cae-extraction-service/
 apps/cae-mlops-service/
 ```
 
 ### 3.4 Integración con Plataforma CAE v2.0 — Microfrontends
 
-CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). La IA se integra como **capacidades embebidas**, no como reemplazo del frontend CAE.
+CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React**; la capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
 
-#### 3.4.1 Propuesta: Module Federation (microfrontend)
+#### 3.4.1 Stack UI: React (default) vs Angular (opcional)
 
-| Remote (MFE) | Expone | Host CAE v2 carga en |
-|--------------|--------|----------------------|
-| `cae-assistant-mfe` | `AssistantPanel`, `IncidentsSidebar`, `DocumentUploadAssist` | Pantalla construcción expediente |
-| `cae-assistant-mfe` | `OperationsReviewPanel`, `ExecutiveSummary` | Cola revisión Operaciones |
-| `cae-assistant-mfe` | `MlopsDashboard` (opcional) | Backoffice MLOps |
+| Aspecto | **React — default** | **Angular — opcional sugerida** |
+|---------|---------------------|----------------------------------|
+| Alineación con CAE v2 | Nativa (mismo stack) | Requiere puente MF cross-framework |
+| App remote | `apps/cae-assistant-mfe` | `apps/cae-assistant-mfe-angular` |
+| Libs UI | `libs/react/cae/*` | `libs/angular/cae/*` |
+| Federación | Vite / Webpack Module Federation (React) | `@nx/module-federation` (Angular) |
+| Recomendación | **Implementación principal** | Equipos con experiencia Angular o pilotos aislados |
 
 ```mermaid
-flowchart LR
-    subgraph CAE20["Plataforma CAE v2.0 — Host"]
-        SHELL["Shell / Layout CAE"]
+flowchart TB
+    subgraph CAE20["Plataforma CAE v2.0 — Host React"]
+        SHELL["Shell CAE React"]
         CORE["Core Expedientes"]
         SLOT1["Slot: panel asistencia"]
-        SLOT2["Slot: incidencias"]
+        SLOT2["Slot: incidencias / operaciones"]
         SHELL --> CORE
         SHELL --> SLOT1 & SLOT2
     end
 
-    subgraph MFE["apps/cae-assistant-mfe — Remote"]
-        FA["feature-assistant"]
-        FO["feature-operations"]
-        DA["data-access → cae-ia-backend"]
-        FA & FO --> DA
+    subgraph MFE_REACT["DEFAULT — apps/cae-assistant-mfe React"]
+        R_FA["react/cae/feature-assistant"]
+        R_FO["react/cae/feature-operations"]
+        R_DA["react/cae/data-access"]
+        R_FA & R_FO --> R_DA
     end
 
-    SLOT1 -->|Module Federation| FA
-    SLOT2 -->|Module Federation| FA
-    DA -->|REST / SSE| API["apps/cae-ia-backend"]
-    API --> ACL["integration-backend"]
+    subgraph MFE_NG["OPCIONAL — apps/cae-assistant-mfe-angular"]
+        N_FA["angular/cae/feature-assistant"]
+        N_FO["angular/cae/feature-operations"]
+        N_DA["angular/cae/data-access"]
+        N_FA & N_FO --> N_DA
+    end
+
+    subgraph API["apps/cae-ia-backend"]
+        BE["node/cae/*-backend"]
+        ACL["integration-backend"]
+        BE --> ACL
+    end
+
+    SLOT1 -->|Module Federation React| R_FA
+    SLOT2 -->|Module Federation React| R_FO
+    SLOT1 -.->|alternativa MF Angular| N_FA
+    SLOT2 -.->|alternativa MF Angular| N_FO
+    R_DA & N_DA -->|REST / SSE| API
     ACL --> CORE
+
+    style MFE_REACT fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style MFE_NG fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
+    style CAE20 fill:#fff9c4,stroke:#f9a825
 ```
 
-**Ventajas frente a iframe o copia de UI:**
+#### 3.4.2 Componentes expuestos por el MFE
 
-- Despliegue **independiente** del MFE sin redeploy de CAE v2 completo.
-- Reutilización de `libs/browser/cae/*` en host Josanz o CAE.
-- Contrato estable: remote entry + versión semver del MFE.
-- Alineado con Nx (`@nx/module-federation`).
+| Remote | Componentes | Pantalla CAE v2 |
+|--------|-------------|-----------------|
+| `cae-assistant-mfe` (React) | `AssistantPanel`, `IncidentsSidebar`, `DocumentUploadAssist` | Construcción expediente |
+| `cae-assistant-mfe` (React) | `OperationsReviewPanel`, `ExecutiveSummary` | Cola Operaciones |
+| `cae-assistant-mfe-angular` | Equivalentes Angular | Mismos slots (alternativa) |
+| Ambos | `MlopsDashboard` (opcional) | Backoffice MLOps |
 
-**Contrato de integración host ↔ MFE:**
+**Ventajas del MFE frente a iframe o copia de UI:**
+
+- Despliegue **independiente** del remote sin redeploy completo de CAE v2.
+- **React default:** mismo ecosistema, tipos y design tokens compartibles con CAE.
+- **Angular opcional:** misma API de integración (props/eventos); distinta implementación.
+- Contrato estable: remote entry + versión semver.
+
+**Contrato de integración host React ↔ remote (ambos stacks):**
 
 | Parámetro | Descripción |
 |-----------|-------------|
@@ -444,9 +476,9 @@ flowchart LR
 | `tenantId` / `concesionarioId` | Contexto multi-tenant |
 | `authToken` | JWT propagado desde CAE (Entra ID) |
 | `locale` | es-ES |
-| Eventos `@Output` | `incidenciaResuelta`, `documentoProcesado`, `envioSolicitado` |
+| Callbacks / eventos | `onIncidenciaResuelta`, `onDocumentoProcesado`, `onEnvioSolicitado` |
 
-#### 3.4.2 Backend — Anti-Corruption Layer
+#### 3.4.3 Backend — Anti-Corruption Layer
 
 `integration-backend` traduce entre modelos CAE v2 y agregados IA:
 
@@ -454,12 +486,13 @@ flowchart LR
 - Sincroniza estado expediente ↔ Unified Expedition JSON.
 - Emite eventos de dominio IA sin filtrar detalles internos CAE al resto de libs.
 
-#### 3.4.3 Fases de adopción
+#### 3.4.4 Fases de adopción
 
 | Fase | Entregable | Despliegue |
 |------|------------|------------|
-| **1 — Libs** | `isomorphic/cae/core` + `validation-backend` + `feature-assistant` | Monolito `cae-ia-backend`; CAE consume API REST |
-| **2 — MFE piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE carga remote en un slot |
+| **1 — Libs** | `isomorphic/cae/core` + `validation-backend` + `react/cae/feature-assistant` | Monolito `cae-ia-backend`; CAE consume API REST |
+| **2 — MFE React piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE React carga remote en slot |
+| **2b — MFE Angular (opc.)** | `cae-assistant-mfe-angular` | Mismo slot; solo si se elige stack alternativo |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
@@ -1722,7 +1755,7 @@ flowchart TB
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda, con **microfrontend** (`cae-assistant-mfe`) para integración embebida en CAE v2.0.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI default es **React** (`apps/cae-assistant-mfe`), alineada con CAE v2; **Angular** queda como MFE opcional.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 

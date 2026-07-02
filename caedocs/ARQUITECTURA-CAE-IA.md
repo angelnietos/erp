@@ -9,8 +9,8 @@
 
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
-> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`.
+> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios + monorepo Nx + MFE React/Angular).
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`.
 
 ---
 
@@ -37,11 +37,12 @@ La capa de asistencia inteligente se implementará con:
 
 | Paradigma | Aplicación en el proyecto |
 |-----------|---------------------------|
-| **Arquitectura hexagonal** | Puertos y adaptadores en cada lib; dominio aislado de Azure/Nest/Angular |
+| **Arquitectura hexagonal** | Puertos y adaptadores en cada lib; dominio aislado de frameworks cloud |
 | **DDD** | Bounded contexts en `libs/isomorphic/cae/core` |
-| **Monorepo Nx** | `libs/` reutilizables + `apps/` compositores — patrón `backend` / `frontend` existente |
+| **Monorepo Nx** | `libs/` reutilizables + `apps/` compositores |
 | **Deploy elástico** | Monolito modular (`apps/cae-ia-backend`) → microservicios según demanda |
-| **Microfrontend** | `apps/cae-assistant-mfe` embebido en shell CAE v2 (Module Federation) |
+| **UI React (default)** | CAE v2 es React; MFE principal en `apps/cae-assistant-mfe` |
+| **UI Angular (opcional)** | MFE alternativo `apps/cae-assistant-mfe-angular` |
 
 ### 0.1 Situación actual vs objetivo
 
@@ -49,37 +50,42 @@ La capa de asistencia inteligente se implementará con:
 |---|---------------------------|------------------------|
 | Estructura | Monolito / acoplado | `libs/` Nx independientes |
 | Backend | Core CAE propietario | `libs/node/cae/*-backend` + ACL |
-| Frontend | UI CAE única | MFE + slots embebidos |
+| Frontend host | **React** | Sin sustituir shell; MFE embebido |
+| UI IA | — | **React default** + Angular opcional |
 | Despliegue | Single app | Monolito IA → microservicios opcional |
 
 ```mermaid
 flowchart TB
-    subgraph WORKSPACE["josanz-erp — Monorepo Nx"]
+    subgraph WORKSPACE["Monorepo Nx — CAE IA"]
         subgraph APPS["apps/"]
-            A1["backend · frontend — referencia"]
-            A2["cae-ia-backend — host IA"]
-            A3["cae-assistant-mfe — remote"]
+            A2["cae-ia-backend"]
+            A3["cae-assistant-mfe React DEFAULT"]
+            A4["cae-assistant-mfe-angular OPCIONAL"]
         end
         subgraph LIBS["libs/"]
-            ISO["isomorphic/cae/core · api"]
+            ISO["isomorphic/cae"]
             NODE["node/cae/*-backend"]
-            BR["browser/cae/feature-* · data-access"]
+            REACT["react/cae/*"]
+            ANG["angular/cae/*"]
         end
     end
 
-    subgraph CAE20["Plataforma CAE v2.0"]
-        SHELL["Shell host"]
+    subgraph CAE20["Plataforma CAE v2.0 — React"]
+        SHELL["Shell host React"]
     end
 
     A2 --> NODE
-    A3 --> BR
+    A3 --> REACT
+    A4 --> ANG
     NODE --> ISO
-    BR --> A2
+    REACT & ANG --> A2
     SHELL -->|Module Federation| A3
-    NODE -->|integration-backend ACL| CAE20
+    SHELL -.->|alternativa| A4
+    NODE -->|ACL| CAE20
 
+    style A3 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style A4 fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
     style ISO fill:#fff9c4,stroke:#f9a825
-    style A3 fill:#e3f2fd,stroke:#1565c0
 ```
 
 ```mermaid
@@ -496,27 +502,56 @@ flowchart LR
 | ⑧ Operaciones | Cola revisión, resumen IA, UI supervisor |
 | ⑨ MLOps + Fitness | Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry |
 | ⑩ Observabilidad | OpenTelemetry, Audit Log, dashboards |
-| **Implementación** | **Monorepo Nx:** `libs/isomorphic/cae`, `libs/node/cae`, `libs/browser/cae` + `apps/cae-ia-backend` + MFE CAE v2 |
+| **Implementación** | Monorepo Nx: `libs/isomorphic/cae`, `libs/node/cae`, `libs/react/cae` (+ `libs/angular/cae` opc.), `apps/cae-ia-backend`, MFE React default |
 
 ---
 
 ## 7. Mapa objetivo monorepo Nx
 
-| Capa workspace | Ruta objetivo | Rol |
-|----------------|---------------|-----|
-| Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas RF, eventos — sin Nest/Angular |
-| Contratos | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos |
-| Backend IA | `libs/node/cae/*-backend` | NestJS modules hexagonales composables |
-| Frontend IA | `libs/browser/cae/feature-*` | Paneles asistencia, operaciones, MLOps |
-| Host backend | `apps/cae-ia-backend` | Monolito modular IA (Modo A default) |
-| Microfrontend | `apps/cae-assistant-mfe` | Remote Module Federation → shell CAE v2 |
-| Referencia | `apps/backend`, `apps/frontend` | Patrón existente del workspace |
+| Capa | Ruta objetivo | Rol |
+|------|---------------|-----|
+| Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas RF, eventos |
+| Contratos | `libs/isomorphic/cae/api` | OpenAPI, DTOs |
+| Backend IA | `libs/node/cae/*-backend` | NestJS modules hexagonales |
+| UI React (default) | `libs/react/cae/feature-*` | Paneles para host CAE v2 (React) |
+| UI Angular (opc.) | `libs/angular/cae/feature-*` | Misma funcionalidad; stack alternativo |
+| Host backend | `apps/cae-ia-backend` | Monolito modular IA (Modo A) |
+| MFE React (default) | `apps/cae-assistant-mfe` | Remote → shell CAE v2 |
+| MFE Angular (opc.) | `apps/cae-assistant-mfe-angular` | Remote alternativo |
 
 | Modo despliegue | Composición | Cuándo |
 |-----------------|-------------|--------|
 | A — Monolito modular | Solo `cae-ia-backend` | MVP, integración CAE, baja carga |
-| B — Híbrido | Monolito + 1–2 servicios (p. ej. MLOps) | Picos aislados |
-| C — Microservicios | Un `apps/cae-*-service` por lib backend | Alta escala, equipos separados |
+| B — Híbrido | Monolito + 1–2 servicios | Picos aislados (p. ej. MLOps) |
+| C — Microservicios | Un `apps/cae-*-service` por lib backend | Alta escala |
+
+### 7.1 Integración UI: React vs Angular
+
+```mermaid
+flowchart LR
+    subgraph HOST["CAE v2 Host React"]
+        SLOT["Slots UI"]
+    end
+
+    subgraph DEF["DEFAULT React MFE"]
+        R["libs/react/cae"]
+        APP_R["cae-assistant-mfe"]
+        R --> APP_R
+    end
+
+    subgraph ALT["OPCIONAL Angular MFE"]
+        A["libs/angular/cae"]
+        APP_A["cae-assistant-mfe-angular"]
+        A --> APP_A
+    end
+
+    SLOT -->|Module Federation| APP_R
+    SLOT -.-> APP_A
+    APP_R & APP_A --> API["cae-ia-backend"]
+
+    style DEF fill:#e3f2fd,stroke:#1565c0
+    style ALT fill:#f3e5f5,stroke:#7b1fa2
+```
 
 1. Abrir [mermaid.live](https://mermaid.live)
 2. Pegar el bloque Mermaid deseado

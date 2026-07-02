@@ -140,7 +140,7 @@
 </thead>
 <tbody><tr>
 <td><strong>Arquitectura hexagonal</strong></td>
-<td>Puertos y adaptadores en cada lib; dominio aislado de Azure/Nest/Angular</td>
+<td>Puertos y adaptadores en cada lib; dominio aislado de frameworks cloud</td>
 </tr>
 <tr>
 <td><strong>DDD</strong></td>
@@ -148,15 +148,19 @@
 </tr>
 <tr>
 <td><strong>Monorepo Nx</strong></td>
-<td><code>libs/</code> reutilizables + <code>apps/</code> compositores — patrón <code>backend</code> / <code>frontend</code> existente</td>
+<td><code>libs/</code> reutilizables + <code>apps/</code> compositores</td>
 </tr>
 <tr>
 <td><strong>Deploy elástico</strong></td>
 <td>Monolito modular (<code>apps/cae-ia-backend</code>) → microservicios según demanda</td>
 </tr>
 <tr>
-<td><strong>Microfrontend</strong></td>
-<td><code>apps/cae-assistant-mfe</code> embebido en shell CAE v2 (Module Federation)</td>
+<td><strong>UI React (default)</strong></td>
+<td>CAE v2 es React; MFE principal en <code>apps/cae-assistant-mfe</code></td>
+</tr>
+<tr>
+<td><strong>UI Angular (opcional)</strong></td>
+<td>MFE alternativo <code>apps/cae-assistant-mfe-angular</code></td>
 </tr>
 </tbody></table></div>
 <h3 id="01-situacion-actual-vs-objetivo" class="subsection-title">0.1 Situación actual vs objetivo</h3>
@@ -179,9 +183,14 @@
 <td><code>libs/node/cae/*-backend</code> + ACL</td>
 </tr>
 <tr>
-<td>Frontend</td>
-<td>UI CAE única</td>
-<td>MFE + slots embebidos</td>
+<td>Frontend host</td>
+<td><strong>React</strong></td>
+<td>Sin sustituir shell; MFE embebido</td>
+</tr>
+<tr>
+<td>UI IA</td>
+<td>—</td>
+<td><strong>React default</strong> + Angular opcional</td>
 </tr>
 <tr>
 <td>Despliegue</td>
@@ -191,32 +200,36 @@
 </tbody></table></div>
 <div class="mermaid">
 flowchart TB
-    subgraph WORKSPACE["josanz-erp — Monorepo Nx"]
+    subgraph WORKSPACE["Monorepo Nx — CAE IA"]
         subgraph APPS["apps/"]
-            A1["backend · frontend — referencia"]
-            A2["cae-ia-backend — host IA"]
-            A3["cae-assistant-mfe — remote"]
+            A2["cae-ia-backend"]
+            A3["cae-assistant-mfe React DEFAULT"]
+            A4["cae-assistant-mfe-angular OPCIONAL"]
         end
         subgraph LIBS["libs/"]
-            ISO["isomorphic/cae/core · api"]
+            ISO["isomorphic/cae"]
             NODE["node/cae/*-backend"]
-            BR["browser/cae/feature-* · data-access"]
+            REACT["react/cae/*"]
+            ANG["angular/cae/*"]
         end
     end
 
-    subgraph CAE20["Plataforma CAE v2.0"]
-        SHELL["Shell host"]
+    subgraph CAE20["Plataforma CAE v2.0 — React"]
+        SHELL["Shell host React"]
     end
 
     A2 --> NODE
-    A3 --> BR
+    A3 --> REACT
+    A4 --> ANG
     NODE --> ISO
-    BR --> A2
+    REACT & ANG --> A2
     SHELL -->|Module Federation| A3
-    NODE -->|integration-backend ACL| CAE20
+    SHELL -.->|alternativa| A4
+    NODE -->|ACL| CAE20
 
+    style A3 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style A4 fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
     style ISO fill:#fff9c4,stroke:#f9a825
-    style A3 fill:#e3f2fd,stroke:#1565c0
 </div>
 <div class="mermaid">
 flowchart LR
@@ -753,7 +766,7 @@ flowchart LR
 </tr>
 <tr>
 <td><strong>Implementación</strong></td>
-<td><strong>Monorepo Nx:</strong> <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/browser/cae</code> + <code>apps/cae-ia-backend</code> + MFE CAE v2</td>
+<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> opc.), <code>apps/cae-ia-backend</code>, MFE React default</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -761,7 +774,7 @@ flowchart LR
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>Capa workspace</th>
+<th>Capa</th>
 <th>Ruta objetivo</th>
 <th>Rol</th>
 </tr>
@@ -769,37 +782,42 @@ flowchart LR
 <tbody><tr>
 <td>Dominio DDD</td>
 <td><code>libs/isomorphic/cae/core</code></td>
-<td>Agregados, reglas RF, eventos — sin Nest/Angular</td>
+<td>Agregados, reglas RF, eventos</td>
 </tr>
 <tr>
 <td>Contratos</td>
 <td><code>libs/isomorphic/cae/api</code></td>
-<td>OpenAPI, DTOs compartidos</td>
+<td>OpenAPI, DTOs</td>
 </tr>
 <tr>
 <td>Backend IA</td>
 <td><code>libs/node/cae/*-backend</code></td>
-<td>NestJS modules hexagonales composables</td>
+<td>NestJS modules hexagonales</td>
 </tr>
 <tr>
-<td>Frontend IA</td>
-<td><code>libs/browser/cae/feature-*</code></td>
-<td>Paneles asistencia, operaciones, MLOps</td>
+<td>UI React (default)</td>
+<td><code>libs/react/cae/feature-*</code></td>
+<td>Paneles para host CAE v2 (React)</td>
+</tr>
+<tr>
+<td>UI Angular (opc.)</td>
+<td><code>libs/angular/cae/feature-*</code></td>
+<td>Misma funcionalidad; stack alternativo</td>
 </tr>
 <tr>
 <td>Host backend</td>
 <td><code>apps/cae-ia-backend</code></td>
-<td>Monolito modular IA (Modo A default)</td>
+<td>Monolito modular IA (Modo A)</td>
 </tr>
 <tr>
-<td>Microfrontend</td>
+<td>MFE React (default)</td>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Remote Module Federation → shell CAE v2</td>
+<td>Remote → shell CAE v2</td>
 </tr>
 <tr>
-<td>Referencia</td>
-<td><code>apps/backend</code>, <code>apps/frontend</code></td>
-<td>Patrón existente del workspace</td>
+<td>MFE Angular (opc.)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote alternativo</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -817,15 +835,41 @@ flowchart LR
 </tr>
 <tr>
 <td>B — Híbrido</td>
-<td>Monolito + 1–2 servicios (p. ej. MLOps)</td>
-<td>Picos aislados</td>
+<td>Monolito + 1–2 servicios</td>
+<td>Picos aislados (p. ej. MLOps)</td>
 </tr>
 <tr>
 <td>C — Microservicios</td>
 <td>Un <code>apps/cae-*-service</code> por lib backend</td>
-<td>Alta escala, equipos separados</td>
+<td>Alta escala</td>
 </tr>
 </tbody></table></div>
+<h3 id="71-integracion-ui-react-vs-angular" class="subsection-title">7.1 Integración UI: React vs Angular</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph HOST["CAE v2 Host React"]
+        SLOT["Slots UI"]
+    end
+
+    subgraph DEF["DEFAULT React MFE"]
+        R["libs/react/cae"]
+        APP_R["cae-assistant-mfe"]
+        R --> APP_R
+    end
+
+    subgraph ALT["OPCIONAL Angular MFE"]
+        A["libs/angular/cae"]
+        APP_A["cae-assistant-mfe-angular"]
+        A --> APP_A
+    end
+
+    SLOT -->|Module Federation| APP_R
+    SLOT -.-> APP_A
+    APP_R & APP_A --> API["cae-ia-backend"]
+
+    style DEF fill:#e3f2fd,stroke:#1565c0
+    style ALT fill:#f3e5f5,stroke:#7b1fa2
+</div>
 <ol>
 <li>Abrir <a href="https://mermaid.live">mermaid.live</a></li>
 <li>Pegar el bloque Mermaid deseado</li>

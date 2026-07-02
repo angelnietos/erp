@@ -133,7 +133,12 @@
 <tr>
 <td>4</td>
 <td>03/07/2026</td>
-<td>Arquitectura objetivo en monorepo Nx (<code>libs</code> / <code>apps</code>), despliegue monolito modular vs microservicios, microfrontends CAE v2</td>
+<td>Arquitectura objetivo monorepo Nx (<code>libs</code>/<code>apps</code>), monolito modular vs microservicios, microfrontends CAE v2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>03/07/2026</td>
+<td>Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -538,75 +543,91 @@ flowchart TB
 <h4>3.2.5 Regla de compartición entre libs</h4>
 <blockquote class="callout"><p>Solo <strong>value objects</strong> y <strong>contratos API</strong> estables se comparten entre bounded contexts (<code>VIN</code>, <code>NIF</code>, DTOs OpenAPI). La lógica de negocio permanece encapsulada en cada lib de dominio.</p></blockquote>
 <h3 id="33-arquitectura-objetivo-en-monorepo-nx" class="subsection-title">3.3 Arquitectura objetivo en monorepo Nx</h3>
-<p>La Plataforma CAE v2.0 <strong>no dispone hoy</strong> de esta estructura modular para IA. La <strong>arquitectura objetivo</strong> alinea el desarrollo con el patrón ya usado en el workspace <code>josanz-erp</code>: <strong><code>libs/</code></strong> reutilizables + <strong><code>apps/</code></strong> como hosts de composición.</p>
-<h4>3.3.1 Referencia: patrón actual del workspace</h4>
+<p>La Plataforma CAE v2.0 <strong>no dispone hoy</strong> de esta estructura modular para IA. La <strong>arquitectura objetivo</strong> organiza el código en un <strong>monorepo Nx</strong> con <strong><code>libs/</code></strong> reutilizables e <strong><code>apps/</code></strong> como hosts de composición y despliegue.</p>
+<h4>3.3.1 Patrón de capas (monorepo Nx)</h4>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Capa</th>
-<th>Ubicación actual</th>
+<th>Ubicación objetivo</th>
 <th>Patrón</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Dominio + puertos</td>
-<td><code>libs/isomorphic/core/*/core</code></td>
-<td>DDD + hexagonal (ports)</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>DDD + hexagonal (ports) — agnóstico de framework</td>
+</tr>
+<tr>
+<td>Contratos API</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs compartidos</td>
 </tr>
 <tr>
 <td>Backend por capacidad</td>
-<td><code>libs/node/backend/*-backend</code></td>
-<td>NestJS modules exportables</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules exportables (<code>forRoot()</code>)</td>
 </tr>
 <tr>
-<td>Frontend por feature</td>
-<td><code>libs/browser/feature/*</code></td>
-<td>Angular libs lazy-loaded</td>
+<td>UI React (default)</td>
+<td><code>libs/react/cae/*</code></td>
+<td>Componentes y features para host CAE v2 (React)</td>
 </tr>
 <tr>
-<td>Host backend</td>
-<td><code>apps/backend</code></td>
+<td>UI Angular (opcional)</td>
+<td><code>libs/angular/cae/*</code></td>
+<td>Misma superficie funcional; implementación alternativa</td>
+</tr>
+<tr>
+<td>Host backend IA</td>
+<td><code>apps/cae-ia-backend</code></td>
 <td>Monolito modular NestJS</td>
 </tr>
 <tr>
-<td>Host frontend</td>
-<td><code>apps/frontend</code></td>
-<td>Shell Angular + feature libs</td>
+<td>MFE React (default)</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote embebido en shell CAE v2</td>
+</tr>
+<tr>
+<td>MFE Angular (opcional)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote alternativo (Module Federation)</td>
 </tr>
 </tbody></table></div>
-<p>La capa IA CAE <strong>replicará este patrón</strong> antes de decidir despliegues distribuidos.</p>
 <h4>3.3.2 Estructura objetivo — libs IA CAE</h4>
-<pre class="code-block"><code class="language-">josanz-erp/                                    # Monorepo Nx
+<pre class="code-block"><code class="language-">cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 ├── apps/
-│   ├── frontend/                              # Host ERP existente (referencia)
-│   ├── backend/                               # Host NestJS existente (referencia)
-│   ├── cae-ia-backend/                        # [OBJETIVO] Host monolito modular solo IA
-│   └── cae-assistant-mfe/                     # [OBJETIVO] Microfrontend remoto CAE v2
+│   ├── cae-ia-backend/                        # Host monolito modular backend IA
+│   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
+│   └── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
 │
 ├── libs/
 │   ├── isomorphic/cae/
-│   │   ├── core/                              # Dominio DDD puro (sin Nest/Angular)
-│   │   │   ├── domain/                        # Agregados, reglas RF, eventos
-│   │   │   └── application/                   # Puertos (interfaces)
-│   │   └── api/                               # Contratos OpenAPI, DTOs compartidos
+│   │   ├── core/                              # Dominio DDD puro (sin Nest/React/Angular)
+│   │   └── api/                               # Contratos OpenAPI, DTOs
 │   │
 │   ├── node/cae/
-│   │   ├── ingestion-backend/                 # Hexagonal → NestJS module
+│   │   ├── ingestion-backend/
 │   │   ├── extraction-backend/
-│   │   ├── validation-backend/                # Motor validación progresiva
+│   │   ├── validation-backend/
 │   │   ├── reasoning-backend/
 │   │   ├── knowledge-backend/
 │   │   ├── feedback-backend/
-│   │   ├── mlops-backend/                     # Fitness Engine, Registry
+│   │   ├── mlops-backend/
 │   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
 │   │
-│   └── browser/cae/
-│       ├── data-access/                       # Clientes HTTP, SSE, WebSocket
-│       ├── feature-assistant/                 # Cliente: incidencias, auto-fill, chat
-│       ├── feature-operations/                # Operaciones: cola, resumen IA
-│       ├── feature-mlops/                     # Dashboard fitness / evaluación
-│       └── shell/                             # Rutas CAE IA (boundary MFE)</code></pre>
-<p>Cada lib <code>*-backend</code> sigue internamente <strong>domain / application / infrastructure</strong>, exportando un <code>XxxBackendModule.forRoot()</code> composable — igual que <code>@josanz-erp/budget-backend</code> en <code>apps/backend</code> hoy.</p>
+│   ├── react/cae/                             # UI default — stack nativo CAE v2
+│   │   ├── data-access/
+│   │   ├── feature-assistant/
+│   │   ├── feature-operations/
+│   │   └── feature-mlops/
+│   │
+│   └── angular/cae/                           # UI opcional — misma API de componentes
+│       ├── data-access/
+│       ├── feature-assistant/
+│       ├── feature-operations/
+│       └── feature-mlops/</code></pre>
+<p>Cada lib <code>*-backend</code> sigue <strong>domain / application / infrastructure</strong>, exportando un módulo NestJS composable (<code>XxxBackendModule.forRoot()</code>). Las libs UI comparten <strong><code>data-access</code></strong> y contratos de props/eventos; solo cambia la capa de presentación (React vs Angular).</p>
 <h4>3.3.3 Correspondencia bounded context → lib Nx</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -614,49 +635,57 @@ flowchart TB
 <th>Bounded context</th>
 <th>Lib dominio</th>
 <th>Lib backend</th>
-<th>Lib frontend</th>
+<th>Lib UI React (default)</th>
+<th>Lib UI Angular (opc.)</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Validación CAE</td>
 <td><code>isomorphic/cae/core</code></td>
-<td><code>node/cae/validation-backend</code></td>
-<td><code>browser/cae/feature-assistant</code></td>
+<td><code>validation-backend</code></td>
+<td><code>react/cae/feature-assistant</code></td>
+<td><code>angular/cae/feature-assistant</code></td>
 </tr>
 <tr>
 <td>Extracción</td>
 <td><code>isomorphic/cae/core</code></td>
-<td><code>node/cae/extraction-backend</code></td>
+<td><code>extraction-backend</code></td>
+<td>—</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Ingesta</td>
 <td><code>isomorphic/cae/core</code></td>
-<td><code>node/cae/ingestion-backend</code></td>
+<td><code>ingestion-backend</code></td>
+<td>—</td>
 <td>—</td>
 </tr>
 <tr>
 <td>Razonamiento IA</td>
 <td><code>isomorphic/cae/core</code></td>
-<td><code>node/cae/reasoning-backend</code></td>
+<td><code>reasoning-backend</code></td>
 <td><code>feature-assistant</code> (chat)</td>
+<td>idem Angular</td>
 </tr>
 <tr>
 <td>Operaciones</td>
 <td>—</td>
 <td><code>reasoning-backend</code> + <code>validation-backend</code></td>
 <td><code>feature-operations</code></td>
+<td>idem Angular</td>
 </tr>
 <tr>
 <td>MLOps / Fitness</td>
 <td><code>isomorphic/cae/core</code></td>
-<td><code>node/cae/mlops-backend</code></td>
+<td><code>mlops-backend</code></td>
 <td><code>feature-mlops</code></td>
+<td>idem Angular</td>
 </tr>
 <tr>
 <td>Integración CAE v2</td>
 <td><code>isomorphic/cae/api</code></td>
-<td><code>node/cae/integration-backend</code></td>
+<td><code>integration-backend</code></td>
+<td>—</td>
 <td>—</td>
 </tr>
 </tbody></table></div>
@@ -739,83 +768,136 @@ flowchart TB
 </tr>
 <tr>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Angular remote</td>
-<td>Microfrontend cargado por CAE v2 (Module Federation)</td>
+<td><strong>React remote (default)</strong></td>
+<td>MFE embebido en shell CAE v2 (stack nativo React)</td>
 </tr>
 <tr>
-<td><code>apps/backend</code> (opcional)</td>
-<td>NestJS host existente</td>
-<td>Import selectivo de libs CAE si convive con ERP</td>
-</tr>
-<tr>
-<td><code>apps/frontend</code> (opcional)</td>
-<td>Angular host existente</td>
-<td>Solo si IA se integra en ERP Josanz, no en CAE v2</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Angular remote (opcional)</td>
+<td>MFE alternativo si el equipo prefiere Angular + Module Federation</td>
 </tr>
 </tbody></table></div>
 <p>Wrappers microservicio (Modo C), generados solo bajo demanda:</p>
-<pre class="code-block"><code class="language-">apps/cae-validation-service/    → import @josanz-erp/cae-validation-backend
+<pre class="code-block"><code class="language-">apps/cae-validation-service/    → import @cae-ia/validation-backend
 apps/cae-extraction-service/
 apps/cae-mlops-service/</code></pre>
 <h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
-<p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). La IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del frontend CAE.</p>
-<h4>3.4.1 Propuesta: Module Federation (microfrontend)</h4>
+<p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong>; la capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
+<h4>3.4.1 Stack UI: React (default) vs Angular (opcional)</h4>
 <div class="table-wrap"><table>
 <thead>
 <tr>
-<th>Remote (MFE)</th>
-<th>Expone</th>
-<th>Host CAE v2 carga en</th>
+<th>Aspecto</th>
+<th><strong>React — default</strong></th>
+<th><strong>Angular — opcional sugerida</strong></th>
 </tr>
 </thead>
 <tbody><tr>
-<td><code>cae-assistant-mfe</code></td>
-<td><code>AssistantPanel</code>, <code>IncidentsSidebar</code>, <code>DocumentUploadAssist</code></td>
-<td>Pantalla construcción expediente</td>
+<td>Alineación con CAE v2</td>
+<td>Nativa (mismo stack)</td>
+<td>Requiere puente MF cross-framework</td>
 </tr>
 <tr>
-<td><code>cae-assistant-mfe</code></td>
-<td><code>OperationsReviewPanel</code>, <code>ExecutiveSummary</code></td>
-<td>Cola revisión Operaciones</td>
+<td>App remote</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
 </tr>
 <tr>
-<td><code>cae-assistant-mfe</code></td>
-<td><code>MlopsDashboard</code> (opcional)</td>
-<td>Backoffice MLOps</td>
+<td>Libs UI</td>
+<td><code>libs/react/cae/*</code></td>
+<td><code>libs/angular/cae/*</code></td>
+</tr>
+<tr>
+<td>Federación</td>
+<td>Vite / Webpack Module Federation (React)</td>
+<td><code>@nx/module-federation</code> (Angular)</td>
+</tr>
+<tr>
+<td>Recomendación</td>
+<td><strong>Implementación principal</strong></td>
+<td>Equipos con experiencia Angular o pilotos aislados</td>
 </tr>
 </tbody></table></div>
 <div class="mermaid">
-flowchart LR
-    subgraph CAE20["Plataforma CAE v2.0 — Host"]
-        SHELL["Shell / Layout CAE"]
+flowchart TB
+    subgraph CAE20["Plataforma CAE v2.0 — Host React"]
+        SHELL["Shell CAE React"]
         CORE["Core Expedientes"]
         SLOT1["Slot: panel asistencia"]
-        SLOT2["Slot: incidencias"]
+        SLOT2["Slot: incidencias / operaciones"]
         SHELL --> CORE
         SHELL --> SLOT1 & SLOT2
     end
 
-    subgraph MFE["apps/cae-assistant-mfe — Remote"]
-        FA["feature-assistant"]
-        FO["feature-operations"]
-        DA["data-access → cae-ia-backend"]
-        FA & FO --> DA
+    subgraph MFE_REACT["DEFAULT — apps/cae-assistant-mfe React"]
+        R_FA["react/cae/feature-assistant"]
+        R_FO["react/cae/feature-operations"]
+        R_DA["react/cae/data-access"]
+        R_FA & R_FO --> R_DA
     end
 
-    SLOT1 -->|Module Federation| FA
-    SLOT2 -->|Module Federation| FA
-    DA -->|REST / SSE| API["apps/cae-ia-backend"]
-    API --> ACL["integration-backend"]
+    subgraph MFE_NG["OPCIONAL — apps/cae-assistant-mfe-angular"]
+        N_FA["angular/cae/feature-assistant"]
+        N_FO["angular/cae/feature-operations"]
+        N_DA["angular/cae/data-access"]
+        N_FA & N_FO --> N_DA
+    end
+
+    subgraph API["apps/cae-ia-backend"]
+        BE["node/cae/*-backend"]
+        ACL["integration-backend"]
+        BE --> ACL
+    end
+
+    SLOT1 -->|Module Federation React| R_FA
+    SLOT2 -->|Module Federation React| R_FO
+    SLOT1 -.->|alternativa MF Angular| N_FA
+    SLOT2 -.->|alternativa MF Angular| N_FO
+    R_DA & N_DA -->|REST / SSE| API
     ACL --> CORE
+
+    style MFE_REACT fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style MFE_NG fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
+    style CAE20 fill:#fff9c4,stroke:#f9a825
 </div>
-<p><strong>Ventajas frente a iframe o copia de UI:</strong></p>
+<h4>3.4.2 Componentes expuestos por el MFE</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Remote</th>
+<th>Componentes</th>
+<th>Pantalla CAE v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cae-assistant-mfe</code> (React)</td>
+<td><code>AssistantPanel</code>, <code>IncidentsSidebar</code>, <code>DocumentUploadAssist</code></td>
+<td>Construcción expediente</td>
+</tr>
+<tr>
+<td><code>cae-assistant-mfe</code> (React)</td>
+<td><code>OperationsReviewPanel</code>, <code>ExecutiveSummary</code></td>
+<td>Cola Operaciones</td>
+</tr>
+<tr>
+<td><code>cae-assistant-mfe-angular</code></td>
+<td>Equivalentes Angular</td>
+<td>Mismos slots (alternativa)</td>
+</tr>
+<tr>
+<td>Ambos</td>
+<td><code>MlopsDashboard</code> (opcional)</td>
+<td>Backoffice MLOps</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ventajas del MFE frente a iframe o copia de UI:</strong></p>
 <ul>
-<li>Despliegue <strong>independiente</strong> del MFE sin redeploy de CAE v2 completo.</li>
-<li>Reutilización de <code>libs/browser/cae/*</code> en host Josanz o CAE.</li>
-<li>Contrato estable: remote entry + versión semver del MFE.</li>
-<li>Alineado con Nx (<code>@nx/module-federation</code>).</li>
+<li>Despliegue <strong>independiente</strong> del remote sin redeploy completo de CAE v2.</li>
+<li><strong>React default:</strong> mismo ecosistema, tipos y design tokens compartibles con CAE.</li>
+<li><strong>Angular opcional:</strong> misma API de integración (props/eventos); distinta implementación.</li>
+<li>Contrato estable: remote entry + versión semver.</li>
 </ul>
-<p><strong>Contrato de integración host ↔ MFE:</strong></p>
+<p><strong>Contrato de integración host React ↔ remote (ambos stacks):</strong></p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -840,18 +922,18 @@ flowchart LR
 <td>es-ES</td>
 </tr>
 <tr>
-<td>Eventos <code>@Output</code></td>
-<td><code>incidenciaResuelta</code>, <code>documentoProcesado</code>, <code>envioSolicitado</code></td>
+<td>Callbacks / eventos</td>
+<td><code>onIncidenciaResuelta</code>, <code>onDocumentoProcesado</code>, <code>onEnvioSolicitado</code></td>
 </tr>
 </tbody></table></div>
-<h4>3.4.2 Backend — Anti-Corruption Layer</h4>
+<h4>3.4.3 Backend — Anti-Corruption Layer</h4>
 <p><code>integration-backend</code> traduce entre modelos CAE v2 y agregados IA:</p>
 <ul>
 <li><strong>No</strong> accede a la BD de CAE directamente salvo acuerdo explícito; preferencia por <strong>APIs CAE</strong> existentes.</li>
 <li>Sincroniza estado expediente ↔ Unified Expedition JSON.</li>
 <li>Emite eventos de dominio IA sin filtrar detalles internos CAE al resto de libs.</li>
 </ul>
-<h4>3.4.3 Fases de adopción</h4>
+<h4>3.4.4 Fases de adopción</h4>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -862,13 +944,18 @@ flowchart LR
 </thead>
 <tbody><tr>
 <td><strong>1 — Libs</strong></td>
-<td><code>isomorphic/cae/core</code> + <code>validation-backend</code> + <code>feature-assistant</code></td>
+<td><code>isomorphic/cae/core</code> + <code>validation-backend</code> + <code>react/cae/feature-assistant</code></td>
 <td>Monolito <code>cae-ia-backend</code>; CAE consume API REST</td>
 </tr>
 <tr>
-<td><strong>2 — MFE piloto</strong></td>
+<td><strong>2 — MFE React piloto</strong></td>
 <td><code>cae-assistant-mfe</code> con panel incidencias</td>
-<td>Host CAE carga remote en un slot</td>
+<td>Host CAE React carga remote en slot</td>
+</tr>
+<tr>
+<td><strong>2b — MFE Angular (opc.)</strong></td>
+<td><code>cae-assistant-mfe-angular</code></td>
+<td>Mismo slot; solo si se elige stack alternativo</td>
 </tr>
 <tr>
 <td><strong>3 — Pipeline completo</strong></td>
@@ -3252,7 +3339,7 @@ flowchart TB
 <hr>
 <h2 id="21-vision-final" class="section-title">21. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda, con <strong>microfrontend</strong> (<code>cae-assistant-mfe</code>) para integración embebida en CAE v2.0.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI default es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>), alineada con CAE v2; <strong>Angular</strong> queda como MFE opcional.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
 <blockquote class="callout"><p>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</p></blockquote>
