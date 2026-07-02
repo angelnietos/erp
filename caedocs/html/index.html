@@ -8,74 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="switch-theme.css" />
-  <style>
-    .home-hero {
-      text-align: center;
-      padding: 48px 24px 40px;
-    }
-    .home-hero h1 {
-      font-size: clamp(1.8rem, 4vw, 2.6rem);
-      font-weight: 800;
-      color: #fff;
-      margin: 0 0 12px;
-    }
-    .home-hero p {
-      color: rgba(255,255,255,.65);
-      font-size: 1.05rem;
-      font-weight: 600;
-      max-width: 560px;
-      margin: 0 auto 40px;
-    }
-    .home-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .home-card {
-      display: block;
-      padding: 32px 28px;
-      border-radius: var(--radius-xl);
-      text-decoration: none;
-      color: var(--text);
-      background: #fff;
-      border: 4px solid rgba(255,255,255,.95);
-      box-shadow: var(--shadow);
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .25s;
-    }
-    .home-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 32px 70px rgba(0,0,0,.4);
-    }
-    .home-card.red { border-top: 8px solid var(--joy-red); }
-    .home-card.blue { border-top: 8px solid var(--joy-blue); }
-    .home-card.png { border-top: 8px solid #888; }
-    .home-card-icon {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
-    }
-    .home-card h2 {
-      margin: 0 0 8px;
-      font-size: 1.25rem;
-      font-weight: 800;
-    }
-    .home-card p {
-      margin: 0;
-      font-size: .9rem;
-      color: var(--text-muted);
-      line-height: 1.5;
-    }
-    .home-card .arrow {
-      display: inline-block;
-      margin-top: 20px;
-      font-weight: 800;
-      font-size: .85rem;
-    }
-    .home-card.red .arrow { color: var(--joy-red); }
-    .home-card.blue .arrow { color: var(--joy-blue); }
-    .home-card.png .arrow { color: #666; }
-  </style>
 </head>
 <body class="accent-red">
   <div class="joycon joycon-left" aria-hidden="true"></div>
@@ -85,19 +17,25 @@
     <section class="home-hero">
       <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
       <h1>Documentación CAE IA</h1>
-      <p>Sistema de Asistencia Inteligente — Especificación funcional y diseño técnico.</p>
+      <p>Sistema de Asistencia Inteligente — Especificación funcional, diseño técnico y arquitectura.</p>
 
       <div class="home-grid">
         <a href="especificacion-funcional-v3.0.html" class="home-card red">
           <div class="home-card-icon">📋</div>
           <h2>Especificación Funcional</h2>
-          <p>Validación progresiva, reglas CAE, capacidades, incidencias, UX y KPIs.</p>
+          <p>Validación progresiva, reglas CAE, MLOps, fitness, capacidades e incidencias.</p>
           <span class="arrow">Abrir documento →</span>
         </a>
         <a href="diseno-tecnico-v3.0.html" class="home-card blue">
           <div class="home-card-icon">⚙️</div>
           <h2>Diseño Técnico</h2>
-          <p>Arquitectura hexagonal, DDD, microservicios, Azure, APIs, MLOps, fitness y despliegue.</p>
+          <p>Hexagonal, DDD, microservicios, Azure, APIs, MLOps y despliegue.</p>
+          <span class="arrow">Abrir documento →</span>
+        </a>
+        <a href="arquitectura-cae-ia.html" class="home-card blue">
+          <div class="home-card-icon">🗺️</div>
+          <h2>Arquitectura CAE IA</h2>
+          <p>Diagramas maestros: 10 fases, E2E técnico, MLOps/fitness y microservicios.</p>
           <span class="arrow">Abrir documento →</span>
         </a>
       </div>

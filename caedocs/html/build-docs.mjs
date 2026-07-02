@@ -23,6 +23,14 @@ const docs = [
     accent: 'blue',
     subtitle: 'Diseño Técnico de Referencia — Plataforma CAE',
   },
+  {
+    input: 'ARQUITECTURA-CAE-IA.md',
+    output: 'arquitectura-cae-ia.html',
+    badge: 'Arquitectura',
+    badgeClass: 'badge-blue',
+    accent: 'blue',
+    subtitle: 'Diagrama maestro — Visión funcional + Técnica E2E + MLOps',
+  },
 ];
 
 function slugify(text) {
@@ -77,6 +85,10 @@ function postProcessHtml(html) {
       .replace(/<h1 id="[^"]*" class="doc-main-title"[^>]*>[\s\S]*?<\/h1>\s*/i, '')
       .replace(/<h2 id="[^"]*" class="section-title"[^>]*>SISTEMA DE ASISTENCIA[\s\S]*?<\/h2>\s*/i, '')
       .replace(/<h2 id="[^"]*" class="section-title"[^>]*>DISEÑO TÉCNICO[\s\S]*?<\/h2>\s*/i, '')
+      .replace(
+        /<blockquote>\s*<p>Este fichero es la[\s\S]*?<\/blockquote>/i,
+        '<div class="arch-diagram"><a href="../ARQUITECTURA-CAE-IA.png" target="_blank" rel="noopener"><img src="../ARQUITECTURA-CAE-IA.png" alt="Diagrama maestro de arquitectura CAE IA" loading="lazy" /></a></div>'
+      )
       .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/g, (_, attrs, inner) => {
         const text = stripMd(inner.replace(/<[^>]+>/g, ''));
         const id = slugify(text);
@@ -102,6 +114,8 @@ function postProcessHtml(html) {
         /<pre><code class="language-(\w+)">/g,
         '<pre class="code-block"><code class="language-$1">'
       )
+      .replace(/href="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'href="../$1"')
+      .replace(/src="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'src="../$1"')
   );
 }
 
@@ -151,7 +165,8 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
       <nav class="doc-nav">
         <a href="index.html" class="nav-pill">Inicio</a>
         <a href="especificacion-funcional-v3.0.html" class="nav-pill${accent === 'red' ? ' active' : ''}">Especificación funcional</a>
-        <a href="diseno-tecnico-v3.0.html" class="nav-pill${accent === 'blue' ? ' active' : ''}">Diseño técnico</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill${accent === 'blue' && badge === 'Técnico' ? ' active' : ''}">Diseño técnico</a>
+        <a href="arquitectura-cae-ia.html" class="nav-pill${accent === 'blue' && badge === 'Arquitectura' ? ' active' : ''}">Arquitectura</a>
       </nav>
     </header>
 
