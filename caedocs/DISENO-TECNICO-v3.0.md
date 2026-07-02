@@ -17,7 +17,8 @@
 | Rev. | Fecha | Naturaleza del cambio |
 |------|-------|------------------------|
 | 0 | 27/06/2026 | Primera versión del documento (Borrador) |
-| 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), flujos técnicos, modelo de datos, eventos, APIs, seguridad, observabilidad y MLOps |
+| 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad |
+| 2 | 03/07/2026 | MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness |
 
 ---
 
@@ -40,9 +41,10 @@
 15. [Seguridad](#15-seguridad)
 16. [Observabilidad](#16-observabilidad)
 17. [MLOps y Feedback Engine](#17-mlops-y-feedback-engine)
-18. [Despliegue Azure](#18-despliegue-azure)
-19. [KPIs técnicos](#19-kpis-técnicos)
-20. [Visión final](#20-visión-final)
+18. [Fitness Engine y evaluación](#18-fitness-engine-y-evaluación)
+19. [Despliegue Azure](#19-despliegue-azure)
+20. [KPIs técnicos](#20-kpis-técnicos)
+21. [Visión final](#21-visión-final)
 
 ---
 
@@ -116,9 +118,13 @@ flowchart TB
         KB["Knowledge Base RAG"]
     end
 
-    subgraph OPS["Operaciones y Feedback"]
+    subgraph OPS["Operaciones, Feedback y MLOps"]
         FB["Feedback Engine"]
-        DS["Dataset + MLOps"]
+        LB["Labeling Service"]
+        DS["Dataset Builder"]
+        FE["Fitness Engine"]
+        EV["Evaluation Pipeline"]
+        MR["Model / Prompt Registry"]
     end
 
     subgraph OBS["Observabilidad"]
@@ -141,8 +147,13 @@ flowchart TB
     AO --> DE
     DE --> CORE
     CORE --> FB
-    FB --> DS
-    OBS -.-> GW & AO & VE & FDR & FB
+    FB --> LB
+    LB --> DS
+    DS --> EV
+    EV --> FE
+    FE --> MR
+    MR -.-> DI & FDR & VE
+    OBS -.-> GW & AO & VE & FDR & FB & FE
 ```
 
 ---
@@ -174,7 +185,7 @@ flowchart TD
     LOOP -->|Sí| FDR["Foundry + RAG"]
     FDR --> DEC{"OK / Review / Reject"}
     DEC --> SUP["Supervisor + Asistente IA"]
-    SUP --> FB["Feedback Engine → MLOps"]
+    SUP --> FB["Feedback Engine → Labeling → Fitness"]
     DEC --> AUDIT["Audit + Tracing"]
     AUDIT --> CDN["AVIF/WebP + CDN → Thumbnails UI"]
 ```
@@ -262,7 +273,7 @@ Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
 | ⑥ Razonamiento IA | Orchestrator, Foundry, AI Search RAG |
 | ⑦ Decisión | Decision Engine |
 | ⑧ Operaciones | Cola revisión, UI supervisor, asistente IA |
-| ⑨ MLOps | Feedback Engine, dataset, evaluación |
+| ⑨ MLOps | Feedback Engine, Labeling, Dataset, Fitness Engine, Evaluation, Registry |
 | ⑩ Observabilidad | OpenTelemetry, Audit, dashboards |
 
 ---
@@ -412,11 +423,74 @@ Ver [sección 4.1](#41-motor-validación-progresiva-cae-componente-central) y [s
 | Atributo | Detalle |
 |----------|---------|
 | **Responsabilidad** | Captura correcciones humanas y alimenta mejora |
-| **Registra** | Dato corregido, motivo, usuario, fecha, regla/incidencia asociada |
-| **Genera** | Datasets etiquetados, métricas precisión, evaluaciones Foundry |
-| **Salidas** | Mejora prompts, reglas, extractores |
+| **Registra** | Dato corregido, motivo, usuario, fecha, regla/incidencia asociada, etiqueta sugerida |
+| **Genera** | Eventos `FeedbackStored`, cola labeling, métricas precisión por campo |
+| **Salidas** | Labeling Service, Dataset Builder, Fitness Engine |
 
-### 5.11 Observability Stack
+**Payload estándar:**
+
+```json
+{
+  "feedbackId": "FB-2026-001234",
+  "expedienteId": "exp-123",
+  "documentoId": "doc-456",
+  "tipo": "CORRECCION_EXTRACCION",
+  "campo": "vin",
+  "valorIa": "VF1ABC12345678901",
+  "valorCorrecto": "VF1ABC12345678902",
+  "etiquetaSugerida": "FALLO_EXTRACCION",
+  "reglaAsociada": "RF-012",
+  "usuario": "operaciones@ideauto.com",
+  "timestamp": "2026-07-03T14:22:00Z"
+}
+```
+
+### 5.11 Labeling Service
+
+| Atributo | Detalle |
+|----------|---------|
+| **Responsabilidad** | Etiquetado asistido de feedback para datasets de entrenamiento/evaluación |
+| **Entrada** | Eventos FeedbackStored |
+| **Etiquetas** | `ACIERTO_IA`, `FALLO_EXTRACCION`, `FALLO_CLASIFICACION`, `FALLO_REGLA`, `FALSO_POSITIVO`, `FALSO_NEGATIVO` |
+| **Salida** | Registros etiquetados versionados en Dataset Builder |
+
+### 5.12 Dataset Builder
+
+| Atributo | Detalle |
+|----------|---------|
+| **Responsabilidad** | Construcción y versionado de datasets (producción + golden set) |
+| **Funciones** | Agregación batch nocturna, deduplicación, anonimización PII, split train/eval |
+| **Almacenamiento** | Blob (archivos) + PostgreSQL (metadata, versiones) |
+| **Salida** | Datasets referenciados por Evaluation Pipeline |
+
+### 5.13 Fitness Engine
+
+| Atributo | Detalle |
+|----------|---------|
+| **Responsabilidad** | Cálculo de fitness compuesto (0–100) por artefacto y global del sistema |
+| **Entrada** | Resultados Evaluation Pipeline + métricas producción (FTR, latencia, coste) |
+| **Componentes** | F₁ Clasificación (15%), F₂ Extracción (25%), F₃ Validación (25%), F₄ FTR (15%), F₅ Latencia (10%), F₆ Coste (10%) |
+| **Salida** | `{ fitnessGlobal, componentes{}, artefactoId, version, candidato }` |
+| **Decisiones** | Promoción, bloqueo o rollback según umbrales |
+
+### 5.14 Evaluation Pipeline
+
+| Atributo | Detalle |
+|----------|---------|
+| **Responsabilidad** | Evaluación offline de versiones candidatas vs. producción |
+| **Funciones** | Golden set (≥200 casos), regresión cruzada, comparativa A/B offline |
+| **Herramientas** | Foundry Eval, MLflow, tests automatizados reglas YAML |
+| **Bloqueo deploy** | Regresión global > 2% o caída > 1 pt en F₂/F₃ |
+
+### 5.15 Model / Prompt Registry
+
+| Atributo | Detalle |
+|----------|---------|
+| **Responsabilidad** | Registro versionado de extractores, prompts, reglas y umbrales activos |
+| **Funciones** | Promoción controlada, rollback < 15 min, trazabilidad versión por expediente |
+| **Integración** | Document Intelligence custom models, Foundry Prompt Registry, Git reglas |
+
+### 5.16 Observability Stack
 
 | Componente | Función |
 |------------|---------|
@@ -606,7 +680,8 @@ flowchart LR
 | FT-05 | Construcción expediente | Auto-fill + incidencias continuas |
 | FT-06 | Validación final | Decision Engine pre-envío |
 | FT-07 | Revisión Operaciones | Resumen IA + cola + validación humana |
-| FT-08 | Feedback continuo | Correcciones → Dataset → MLOps |
+| FT-08 | Feedback continuo | Correcciones → Labeling → Dataset → Evaluación → Fitness |
+| FT-09 | Evaluación y fitness | Golden set → Fitness Engine → Promoción / Rollback |
 
 ### 9.1 FT-02 Subida documento (detalle)
 
@@ -635,10 +710,22 @@ Cliente → POST /api/v1/expedientes/{id}/enviar
 
 ```
 Operaciones corrige dato → POST /api/v1/feedback
-                        → Feedback Engine persiste
-                        → Dataset Builder (batch nocturno)
-                        → Evaluation pipeline
-                        → Actualización reglas/prompts (CI/CD)
+                        → Feedback Engine persiste + etiqueta sugerida
+                        → Labeling Service (confirmación humana opcional)
+                        → Dataset Builder (batch nocturno, versionado)
+                        → Evaluation Pipeline (golden set + muestra producción)
+                        → Fitness Engine calcula score candidato vs. activo
+```
+
+### 9.4 FT-09 Evaluación y promoción
+
+```
+MLOps dispara evaluación → Evaluation Pipeline ejecuta golden set
+                        → Fitness Engine agrega componentes F₁–F₆
+                        → Si fitness candidato ≥ activo + 1 y sin regresión crítica:
+                              Model Registry promueve versión
+                        → Si regresión > 2%: bloqueo + alerta
+                        → Rollback manual/automático vía Registry (< 15 min)
 ```
 
 ---
@@ -653,19 +740,40 @@ Operaciones corrige dato → POST /api/v1/feedback
 | **IA Generativa** | Azure AI Foundry, GPT-4o, RAG | Resumen, explicación, asistencia |
 | **IA Especializada** | Workers custom | Firmas, VO, VN, convenios |
 
-### 10.2 Fase inicial (MVP)
+### 10.2 Capas evolutivas de IA
 
-- Azure AI Foundry + GPT-4o
-- Document Intelligence prebuilt + custom models
-- Prompt Engineering + RAG
-- Sin fine-tuning propio
+| Capa | Tecnología | Evolución |
+|------|------------|-----------|
+| **Extractiva base** | Document Intelligence prebuilt + custom | Prompt tuning → custom models → fine-tuning |
+| **Generativa** | Azure AI Foundry + RAG | Prompt Registry + evaluación Foundry |
+| **Determinista** | Validation Engine YAML | Git versionado + tests regresión |
+| **Fitness** | Fitness Engine + Evaluation Pipeline | Golden set + métricas producción |
 
-### 10.3 Fase avanzada (opcional)
+### 10.3 Fine-tuning y extractores especializados
 
-- Fine-tuning extractores
-- Modelos especializados por marca/documento
-- Evaluación continua con datasets etiquetados
-- Model Registry (Azure ML)
+Cuando el fitness de un extractor (F₂ por artefacto) permanezca por debajo del umbral durante dos ciclos consecutivos:
+
+1. Dataset Builder genera corpus específico del tipo documental.
+2. Evaluation Pipeline evalúa modelo candidato (DI custom / fine-tune).
+3. Fitness Engine compara candidato vs. producción.
+4. Model Registry promueve solo si supera umbrales y pasa regresión cruzada.
+
+### 10.4 Trazabilidad de versión IA por expediente
+
+Cada evaluación de expediente persiste:
+
+```json
+{
+  "expedienteId": "exp-123",
+  "artefactos": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "promptResumen": "v14-hash-abc",
+    "reglasCAE": "2026.07.01"
+  },
+  "fitnessSnapshot": 88.1
+}
+```
 
 ---
 
@@ -681,6 +789,10 @@ erDiagram
     EXPEDIENTE ||--o{ EVENTO : registra
     INCIDENCIA }o--|| REGLA : referencia
     EXPEDIENTE ||--o{ FEEDBACK : recibe
+    FEEDBACK ||--o| ETIQUETA : clasifica
+    DATASET ||--o{ EVALUACION : alimenta
+    EVALUACION ||--|| FITNESS : genera
+    ARTEFACTO ||--o{ EVALUACION : evalua
     DOCUMENTO ||--o{ VERSION : versiona
 
     EXPEDIENTE {
@@ -729,9 +841,51 @@ erDiagram
         string campo
         string valor_anterior
         string valor_nuevo
+        string etiqueta
         string motivo
         string usuario
         timestamp fecha
+    }
+
+    ETIQUETA {
+        string codigo
+        string descripcion
+    }
+
+    DATASET {
+        uuid id
+        string version
+        int registros
+        string blob_uri
+        timestamp creado
+    }
+
+    EVALUACION {
+        uuid id
+        uuid dataset_id
+        string artefacto_id
+        string version_candidata
+        jsonb metricas
+        float fitness
+        boolean aprobada
+        timestamp ejecutada
+    }
+
+    FITNESS {
+        uuid id
+        uuid evaluacion_id
+        float global
+        jsonb componentes
+        boolean promovible
+        timestamp calculado
+    }
+
+    ARTEFACTO {
+        string id
+        string tipo
+        string version_activa
+        string version_candidata
+        timestamp actualizado
     }
 
     EVENTO {
@@ -752,6 +906,9 @@ erDiagram
 | Documentos optimizados (AVIF/WebP) | Blob + CDN |
 | Estado FSM / cache | Redis |
 | Vectores RAG | Azure AI Search |
+| Datasets + golden set | Blob + PostgreSQL metadata |
+| Evaluaciones / fitness | PostgreSQL |
+| Model Registry | PostgreSQL + Foundry / Azure ML |
 | Audit log | Blob append-only + Log Analytics |
 
 ---
@@ -765,7 +922,13 @@ erDiagram
 | `ValidationCompleted` | Validation Engine | Orchestrator, Frontend |
 | `IncidentDetected` | Validation Engine | Frontend, Audit |
 | `ReviewRequested` | Decision Engine | Cola Operaciones |
-| `FeedbackStored` | Feedback Engine | MLOps Pipeline |
+| `FeedbackStored` | Feedback Engine | Labeling Service, MLOps Pipeline |
+| `LabelConfirmed` | Labeling Service | Dataset Builder |
+| `DatasetVersionCreated` | Dataset Builder | Evaluation Pipeline |
+| `EvaluationCompleted` | Evaluation Pipeline | Fitness Engine, Dashboards |
+| `FitnessCalculated` | Fitness Engine | Model Registry, Alerting |
+| `ModelPromoted` | Model Registry | Workers, Validation Engine, Audit |
+| `ModelRollback` | Model Registry | Workers, Alerting |
 | `ExpedienteStateChanged` | Orchestrator | CAE Core, Audit |
 
 **Ejemplo payload:**
@@ -810,6 +973,13 @@ erDiagram
 | GET | `/api/v1/expedientes/{id}/resumen` | Resumen ejecutivo IA |
 | POST | `/api/v1/expedientes/{id}/asistente` | Consulta asistente inteligente |
 | POST | `/api/v1/feedback` | Registrar corrección |
+| POST | `/api/v1/feedback/{id}/etiqueta` | Confirmar/modificar etiqueta labeling |
+| GET | `/api/v1/mlops/datasets` | Listar datasets versionados |
+| POST | `/api/v1/mlops/evaluaciones` | Lanzar evaluación offline |
+| GET | `/api/v1/mlops/fitness` | Fitness global y por componente |
+| GET | `/api/v1/mlops/fitness/{artefactoId}` | Fitness por extractor/prompt/reglas |
+| POST | `/api/v1/mlops/promover` | Promoción controlada (requiere rol MLOps) |
+| POST | `/api/v1/mlops/rollback` | Rollback a versión anterior |
 | GET | `/api/v1/jobs/{jobId}` | Estado procesamiento async |
 
 ### 13.3 Ejemplo — Subir documento
@@ -961,7 +1131,8 @@ tipoEsperado: factura_vn  (opcional)
 | Recall incidencias | % incidencias reales detectadas |
 | First Time Right | Expedientes sin devolución |
 | Incidencias pre-envío | % detectadas antes de Operaciones |
-| Tiempo hasta primera incidencia | Minutos desde primer upload |
+| Fitness global / por componente | Score 0–100, tendencia temporal |
+| Cola labeling pendiente | Registros sin etiqueta confirmada |
 
 ### 16.3 Tracing
 
@@ -975,7 +1146,7 @@ tipoEsperado: factura_vn  (opcional)
 |-----------|-----------|
 | Pipeline health | DevOps |
 | Costes IA | Dirección / FinOps |
-| Calidad extracción | MLOps |
+| Fitness y evaluación | MLOps / Dirección |
 | KPIs funcionales | Operaciones / Producto |
 | Audit trail | Compliance |
 
@@ -987,39 +1158,167 @@ tipoEsperado: factura_vn  (opcional)
 
 ```mermaid
 flowchart LR
-    FB["Feedback humano"] --> LB["Labeling"]
+    FB["Feedback humano"] --> LB["Labeling asistido"]
     LB --> DS["Dataset versionado"]
-    DS --> EV["Evaluation"]
-    EV --> PT["Prompt tuning"]
-    EV --> FT["Fine-tuning opcional"]
-    PT --> RG["Regression tests"]
-    FT --> MR["Model Registry"]
-    RG --> DEP["Deploy"]
-    MR --> DEP
+    DS --> EV["Evaluation Pipeline"]
+    EV --> FIT["Fitness Engine"]
+    FIT --> DEC{"¿Supera umbrales?"}
+    DEC -->|Sí| PROM["Promoción Registry"]
+    DEC -->|No| REF["Refinamiento"]
+    PROM --> PROD["Producción"]
+    PROD --> MON["Monitorización"]
+    MON --> FB
+    REF --> PT["Prompt tuning"]
+    REF --> FT["Fine-tuning extractores"]
+    PT --> EV
+    FT --> EV
 ```
 
 ### 17.2 Artefactos versionados
 
-| Artefacto | Repositorio |
-|-----------|-------------|
-| Reglas CAE | Git (YAML) |
-| Prompts | Foundry Prompt Registry |
-| Custom models DI | Azure ML / DI Studio |
-| Datasets | Blob + metadata DB |
-| Evaluaciones | MLflow / Foundry Eval |
+| Artefacto | Repositorio | Evaluación |
+|-----------|-------------|------------|
+| Reglas CAE | Git (YAML) | Tests regresión + golden set |
+| Prompts | Foundry Prompt Registry | Foundry Eval + fitness F₃/F₄ |
+| Custom models DI | Azure ML / DI Studio | Fitness F₂ por extractor |
+| Clasificador documental | DI / custom | Fitness F₁ |
+| Datasets | Blob + metadata DB | Versionado semver |
+| Golden set | Blob + PostgreSQL | ≥ 200 casos, revisión semestral |
+| Evaluaciones / fitness | MLflow + PostgreSQL | Histórico comparativo |
 
-### 17.3 Regression testing
+### 17.3 Labeling y datasets
 
-- Suite de expedientes golden (anonimizados)
-- Umbral mínimo precisión extracción: 95%
-- Umbral mínimo recall incidencias críticas: 98%
-- Bloqueo de deploy si regresión > 2%
+| Etiqueta | Uso en dataset |
+|----------|----------------|
+| `ACIERTO_IA` | Negative sample para falsos positivos |
+| `FALLO_EXTRACCION` | Train/eval extractores |
+| `FALLO_CLASIFICACION` | Train/eval clasificador |
+| `FALLO_REGLA` | Mejora reglas YAML |
+| `FALSO_POSITIVO` | Ajuste umbrales incidencias |
+| `FALSO_NEGATIVO` | Recall reglas / validación |
+
+Batch nocturno: Dataset Builder agrega feedback etiquetado, anonimiza PII y publica `DatasetVersionCreated`.
+
+### 17.4 Regression testing
+
+- Golden set anonimizado (todos los tipos documentales + casos borde).
+- Umbral mínimo precisión extracción: 95%.
+- Umbral mínimo recall incidencias críticas: 98%.
+- Bloqueo de deploy si regresión fitness global > 2%.
+- Bloqueo si caída > 1 punto en F₂ (extracción) o F₃ (validación).
+
+### 17.5 Promoción y rollback
+
+| Acción | Condición | SLA |
+|--------|-----------|-----|
+| Promoción automática | Fitness candidato ≥ activo + 1; sin regresión crítica | Tras evaluación aprobada |
+| Promoción manual | Aprobación rol MLOps + comité | Bajo demanda |
+| Rollback | Regresión en producción o fitness < umbral | < 15 min operativos |
 
 ---
 
-## 18. Despliegue Azure
+## 18. Fitness Engine y evaluación
 
-### 18.1 Vista física (referencia)
+### 18.1 Arquitectura del Fitness Engine
+
+```mermaid
+flowchart TB
+    subgraph INPUTS["Entradas"]
+        I1["Evaluation Pipeline — offline"]
+        I2["Métricas producción — FTR, latencia, coste"]
+        I3["Audit / incidencias reales"]
+    end
+
+    subgraph ENGINE["Fitness Engine"]
+        N1["Normalizar scores 0-100"]
+        N2["Ponderar componentes F1-F6"]
+        N3["Calcular fitness por artefacto"]
+        N4["Agregar fitness global"]
+        N5["Evaluar promovible"]
+    end
+
+    subgraph OUTPUTS["Salidas"]
+        O1["Dashboard MLOps"]
+        O2["Model Registry"]
+        O3["Alertas regresión"]
+        O4["Informe trimestral gobernanza"]
+    end
+
+    I1 & I2 & I3 --> N1 --> N2 --> N3 --> N4 --> N5
+    N5 --> O1 & O2 & O3 & O4
+```
+
+### 18.2 Componentes y pesos
+
+| ID | Componente | Peso | Fuente de datos | Métrica base |
+|----|------------|------|-----------------|--------------|
+| F₁ | Clasificación | 15% | Evaluation Pipeline | F1-score tipo documental |
+| F₂ | Extracción | 25% | Golden set + feedback | Exactitud campos clave (VIN, titular, matrícula) |
+| F₃ | Validación | 25% | Golden set incidencias | Recall + precisión incidencias |
+| F₄ | FTR | 15% | Producción Operaciones | % expedientes sin devolución primer envío |
+| F₅ | Latencia | 10% | OpenTelemetry | P95 tiempo análisis documento |
+| F₆ | Coste | 10% | FinOps / App Insights | Coste medio por expediente |
+
+### 18.3 Fórmula
+
+```
+Fitness Global = Σ (peso_i × score_i)    // score_i normalizado 0–100
+
+Promovible = (fitness_candidato ≥ fitness_activo + 1)
+          AND (regresión_F2 ≤ 1 pt)
+          AND (regresión_F3 ≤ 1 pt)
+          AND (recall_críticas ≥ 98%)
+```
+
+### 18.4 Fitness por artefacto
+
+| Artefacto | Componentes aplicables | Umbral mínimo |
+|-----------|------------------------|---------------|
+| Extractor DNI | F₂ campos identidad | 92 |
+| Extractor Factura | F₂ VIN, matrícula, titular | 95 |
+| Clasificador | F₁ | 95 |
+| Bloque reglas C | F₃ recall cruce semántico | 98 |
+| Prompt resumen | F₄ proxy utilidad | 80 |
+
+### 18.5 Periodicidad
+
+| Job | Frecuencia | Trigger |
+|-----|------------|---------|
+| Agregación métricas producción | Continua | Eventos + OTEL |
+| Informe fitness semanal | Cron semanal | Azure Functions |
+| Evaluación golden set | Mensual | MLOps manual/automático |
+| Revisión gobernania | Trimestral | Comité IA |
+
+### 18.6 Ejemplo respuesta API
+
+```json
+GET /api/v1/mlops/fitness
+
+{
+  "fitnessGlobal": 88.1,
+  "componentes": {
+    "clasificacion": { "score": 96, "peso": 0.15, "contribucion": 14.4 },
+    "extraccion": { "score": 92, "peso": 0.25, "contribucion": 23.0 },
+    "validacion": { "score": 94, "peso": 0.25, "contribucion": 23.5 },
+    "ftr": { "score": 68, "peso": 0.15, "contribucion": 10.2 },
+    "latencia": { "score": 88, "peso": 0.10, "contribucion": 8.8 },
+    "coste": { "score": 82, "peso": 0.10, "contribucion": 8.2 }
+  },
+  "versionActiva": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "reglasCAE": "2026.07.01"
+  },
+  "candidato": null,
+  "calculadoEn": "2026-07-03T12:00:00Z"
+}
+```
+
+---
+
+## 19. Despliegue Azure
+
+### 19.1 Vista física (referencia)
 
 ```mermaid
 flowchart TB
@@ -1043,6 +1342,11 @@ flowchart TB
             EID["Entra ID"]
             KV["Key Vault"]
         end
+        subgraph MLOps["MLOps"]
+            FE["Fitness Engine"]
+            EV["Evaluation Pipeline"]
+            MR["Model Registry"]
+        end
         subgraph Monitor["Monitoring"]
             LA["Log Analytics"]
             AM["Application Insights"]
@@ -1057,6 +1361,9 @@ flowchart TB
     AKS --> DI
     AKS --> FDR
     AKS --> AIS
+    AKS --> FE
+    AKS --> EV
+    AKS --> MR
     AKS --> BLOB
     AKS --> REDIS
     AKS --> SB
@@ -1068,7 +1375,7 @@ flowchart TB
     BLOB --> CDN
 ```
 
-### 18.2 Entornos
+### 19.2 Entornos
 
 | Entorno | Propósito |
 |---------|-----------|
@@ -1076,15 +1383,16 @@ flowchart TB
 | STAGING | Integración, regression tests |
 | PRO | Producción con SLA |
 
-### 18.3 CI/CD
+### 19.3 CI/CD
 
 - GitHub Actions / Azure DevOps
-- Deploy independiente: reglas, prompts, workers, infra
+- Deploy independiente: reglas, prompts, workers, fitness evaluators, infra
+- Gate de CI: evaluación golden set + fitness mínimo antes de promoción a STAGING/PRO
 - Feature flags para activación gradual de reglas
 
 ---
 
-## 19. KPIs técnicos
+## 20. KPIs técnicos
 
 | KPI | Objetivo |
 |-----|----------|
@@ -1095,21 +1403,23 @@ flowchart TB
 | Precisión clasificación | > 95% |
 | Precisión extracción campos clave | > 95% |
 | Recall incidencias críticas | > 98% |
+| **Fitness global** | **> 85; mejora trimestral demostrable** |
+| Rollback artefacto IA | < 15 min |
 | Trazabilidad | 100% |
 | Expedientes auditables | 100% |
 | First Time Right | > 60% |
 
 ---
 
-## 20. Visión final
+## 21. Visión final
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 
-El **Feedback Engine** y pipeline **MLOps** cierran el ciclo de mejora continua, convirtiendo correcciones humanas en datasets, evaluaciones y refinamiento de reglas, prompts y extractores.
+El **Feedback Engine**, **Fitness Engine** y pipeline **MLOps** cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en **fitness medible**, no en despliegues ciegos de modelos.
 
-> *Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.*
+> Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.
 
 ---
 

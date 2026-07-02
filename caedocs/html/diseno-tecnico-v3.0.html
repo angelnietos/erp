@@ -61,9 +61,10 @@
 <li><a href="#15-seguridad" class="toc-link" data-section="15-seguridad">15. Seguridad</a></li>
 <li><a href="#16-observabilidad" class="toc-link" data-section="16-observabilidad">16. Observabilidad</a></li>
 <li><a href="#17-mlops-y-feedback-engine" class="toc-link" data-section="17-mlops-y-feedback-engine">17. MLOps y Feedback Engine</a></li>
-<li><a href="#18-despliegue-azure" class="toc-link" data-section="18-despliegue-azure">18. Despliegue Azure</a></li>
-<li><a href="#19-kpis-tecnicos" class="toc-link" data-section="19-kpis-tecnicos">19. KPIs técnicos</a></li>
-<li><a href="#20-vision-final" class="toc-link" data-section="20-vision-final">20. Visión final</a></li></ul>
+<li><a href="#18-fitness-engine-y-evaluacion" class="toc-link" data-section="18-fitness-engine-y-evaluacion">18. Fitness Engine y evaluación</a></li>
+<li><a href="#19-despliegue-azure" class="toc-link" data-section="19-despliegue-azure">19. Despliegue Azure</a></li>
+<li><a href="#20-kpis-tecnicos" class="toc-link" data-section="20-kpis-tecnicos">20. KPIs técnicos</a></li>
+<li><a href="#21-vision-final" class="toc-link" data-section="21-vision-final">21. Visión final</a></li></ul>
         </div>
       </aside>
 
@@ -116,7 +117,12 @@
 <tr>
 <td>1</td>
 <td>03/07/2026</td>
-<td>Arquitectura por fases end-to-end, componentes (Edge Gateway, Preprocessing, Decision Engine, Workers), flujos técnicos, modelo de datos, eventos, APIs, seguridad, observabilidad y MLOps</td>
+<td>Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad</td>
+</tr>
+<tr>
+<td>2</td>
+<td>03/07/2026</td>
+<td>MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -139,9 +145,10 @@
 <li><a href="#15-seguridad">Seguridad</a></li>
 <li><a href="#16-observabilidad">Observabilidad</a></li>
 <li><a href="#17-mlops-y-feedback-engine">MLOps y Feedback Engine</a></li>
-<li><a href="#18-despliegue-azure">Despliegue Azure</a></li>
-<li><a href="#19-kpis-t%C3%A9cnicos">KPIs técnicos</a></li>
-<li><a href="#20-visi%C3%B3n-final">Visión final</a></li>
+<li><a href="#18-fitness-engine-y-evaluaci%C3%B3n">Fitness Engine y evaluación</a></li>
+<li><a href="#19-despliegue-azure">Despliegue Azure</a></li>
+<li><a href="#20-kpis-t%C3%A9cnicos">KPIs técnicos</a></li>
+<li><a href="#21-visi%C3%B3n-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
@@ -241,9 +248,13 @@ flowchart TB
         KB["Knowledge Base RAG"]
     end
 
-    subgraph OPS["Operaciones y Feedback"]
+    subgraph OPS["Operaciones, Feedback y MLOps"]
         FB["Feedback Engine"]
-        DS["Dataset + MLOps"]
+        LB["Labeling Service"]
+        DS["Dataset Builder"]
+        FE["Fitness Engine"]
+        EV["Evaluation Pipeline"]
+        MR["Model / Prompt Registry"]
     end
 
     subgraph OBS["Observabilidad"]
@@ -266,8 +277,13 @@ flowchart TB
     AO --> DE
     DE --> CORE
     CORE --> FB
-    FB --> DS
-    OBS -.-> GW & AO & VE & FDR & FB
+    FB --> LB
+    LB --> DS
+    DS --> EV
+    EV --> FE
+    FE --> MR
+    MR -.-> DI & FDR & VE
+    OBS -.-> GW & AO & VE & FDR & FB & FE
 </div>
 <hr>
 <h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
@@ -294,7 +310,7 @@ flowchart TD
     LOOP -->|Sí| FDR["Foundry + RAG"]
     FDR --> DEC{"OK / Review / Reject"}
     DEC --> SUP["Supervisor + Asistente IA"]
-    SUP --> FB["Feedback Engine → MLOps"]
+    SUP --> FB["Feedback Engine → Labeling → Fitness"]
     DEC --> AUDIT["Audit + Tracing"]
     AUDIT --> CDN["AVIF/WebP + CDN → Thumbnails UI"]
 </div>
@@ -535,7 +551,7 @@ flowchart TD
 </tr>
 <tr>
 <td>⑨ MLOps</td>
-<td>Feedback Engine, dataset, evaluación</td>
+<td>Feedback Engine, Labeling, Dataset, Fitness Engine, Evaluation, Registry</td>
 </tr>
 <tr>
 <td>⑩ Observabilidad</td>
@@ -887,18 +903,157 @@ flowchart TD
 </tr>
 <tr>
 <td><strong>Registra</strong></td>
-<td>Dato corregido, motivo, usuario, fecha, regla/incidencia asociada</td>
+<td>Dato corregido, motivo, usuario, fecha, regla/incidencia asociada, etiqueta sugerida</td>
 </tr>
 <tr>
 <td><strong>Genera</strong></td>
-<td>Datasets etiquetados, métricas precisión, evaluaciones Foundry</td>
+<td>Eventos <code>FeedbackStored</code>, cola labeling, métricas precisión por campo</td>
 </tr>
 <tr>
 <td><strong>Salidas</strong></td>
-<td>Mejora prompts, reglas, extractores</td>
+<td>Labeling Service, Dataset Builder, Fitness Engine</td>
 </tr>
 </tbody></table></div>
-<h3 id="511-observability-stack" class="subsection-title">5.11 Observability Stack</h3>
+<p><strong>Payload estándar:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  "feedbackId": "FB-2026-001234",
+  "expedienteId": "exp-123",
+  "documentoId": "doc-456",
+  "tipo": "CORRECCION_EXTRACCION",
+  "campo": "vin",
+  "valorIa": "VF1ABC12345678901",
+  "valorCorrecto": "VF1ABC12345678902",
+  "etiquetaSugerida": "FALLO_EXTRACCION",
+  "reglaAsociada": "RF-012",
+  "usuario": "operaciones@ideauto.com",
+  "timestamp": "2026-07-03T14:22:00Z"
+}</code></pre>
+<h3 id="511-labeling-service" class="subsection-title">5.11 Labeling Service</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Etiquetado asistido de feedback para datasets de entrenamiento/evaluación</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Eventos FeedbackStored</td>
+</tr>
+<tr>
+<td><strong>Etiquetas</strong></td>
+<td><code>ACIERTO_IA</code>, <code>FALLO_EXTRACCION</code>, <code>FALLO_CLASIFICACION</code>, <code>FALLO_REGLA</code>, <code>FALSO_POSITIVO</code>, <code>FALSO_NEGATIVO</code></td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Registros etiquetados versionados en Dataset Builder</td>
+</tr>
+</tbody></table></div>
+<h3 id="512-dataset-builder" class="subsection-title">5.12 Dataset Builder</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Construcción y versionado de datasets (producción + golden set)</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Agregación batch nocturna, deduplicación, anonimización PII, split train/eval</td>
+</tr>
+<tr>
+<td><strong>Almacenamiento</strong></td>
+<td>Blob (archivos) + PostgreSQL (metadata, versiones)</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Datasets referenciados por Evaluation Pipeline</td>
+</tr>
+</tbody></table></div>
+<h3 id="513-fitness-engine" class="subsection-title">5.13 Fitness Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Cálculo de fitness compuesto (0–100) por artefacto y global del sistema</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Resultados Evaluation Pipeline + métricas producción (FTR, latencia, coste)</td>
+</tr>
+<tr>
+<td><strong>Componentes</strong></td>
+<td>F₁ Clasificación (15%), F₂ Extracción (25%), F₃ Validación (25%), F₄ FTR (15%), F₅ Latencia (10%), F₆ Coste (10%)</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ fitnessGlobal, componentes{}, artefactoId, version, candidato }</code></td>
+</tr>
+<tr>
+<td><strong>Decisiones</strong></td>
+<td>Promoción, bloqueo o rollback según umbrales</td>
+</tr>
+</tbody></table></div>
+<h3 id="514-evaluation-pipeline" class="subsection-title">5.14 Evaluation Pipeline</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Evaluación offline de versiones candidatas vs. producción</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Golden set (≥200 casos), regresión cruzada, comparativa A/B offline</td>
+</tr>
+<tr>
+<td><strong>Herramientas</strong></td>
+<td>Foundry Eval, MLflow, tests automatizados reglas YAML</td>
+</tr>
+<tr>
+<td><strong>Bloqueo deploy</strong></td>
+<td>Regresión global &gt; 2% o caída &gt; 1 pt en F₂/F₃</td>
+</tr>
+</tbody></table></div>
+<h3 id="515-model-prompt-registry" class="subsection-title">5.15 Model / Prompt Registry</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Registro versionado de extractores, prompts, reglas y umbrales activos</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Promoción controlada, rollback &lt; 15 min, trazabilidad versión por expediente</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>Document Intelligence custom models, Foundry Prompt Registry, Git reglas</td>
+</tr>
+</tbody></table></div>
+<h3 id="516-observability-stack" class="subsection-title">5.16 Observability Stack</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1246,7 +1401,12 @@ flowchart LR
 <tr>
 <td>FT-08</td>
 <td>Feedback continuo</td>
-<td>Correcciones → Dataset → MLOps</td>
+<td>Correcciones → Labeling → Dataset → Evaluación → Fitness</td>
+</tr>
+<tr>
+<td>FT-09</td>
+<td>Evaluación y fitness</td>
+<td>Golden set → Fitness Engine → Promoción / Rollback</td>
 </tr>
 </tbody></table></div>
 <h3 id="91-ft-02-subida-documento-detalle" class="subsection-title">9.1 FT-02 Subida documento (detalle)</h3>
@@ -1266,10 +1426,18 @@ flowchart LR
        → Si OK/REVIEW: Cola Operaciones</code></pre>
 <h3 id="93-ft-08-feedback-continuo" class="subsection-title">9.3 FT-08 Feedback continuo</h3>
 <pre class="code-block"><code class="language-">Operaciones corrige dato → POST /api/v1/feedback
-                        → Feedback Engine persiste
-                        → Dataset Builder (batch nocturno)
-                        → Evaluation pipeline
-                        → Actualización reglas/prompts (CI/CD)</code></pre>
+                        → Feedback Engine persiste + etiqueta sugerida
+                        → Labeling Service (confirmación humana opcional)
+                        → Dataset Builder (batch nocturno, versionado)
+                        → Evaluation Pipeline (golden set + muestra producción)
+                        → Fitness Engine calcula score candidato vs. activo</code></pre>
+<h3 id="94-ft-09-evaluacion-y-promocion" class="subsection-title">9.4 FT-09 Evaluación y promoción</h3>
+<pre class="code-block"><code class="language-">MLOps dispara evaluación → Evaluation Pipeline ejecuta golden set
+                        → Fitness Engine agrega componentes F₁–F₆
+                        → Si fitness candidato ≥ activo + 1 y sin regresión crítica:
+                              Model Registry promueve versión
+                        → Si regresión &gt; 2%: bloqueo + alerta
+                        → Rollback manual/automático vía Registry (&lt; 15 min)</code></pre>
 <hr>
 <h2 id="10-modelo-de-ia" class="section-title">10. Modelo de IA</h2>
 <h3 id="101-capas-de-ia" class="subsection-title">10.1 Capas de IA</h3>
@@ -1297,20 +1465,56 @@ flowchart LR
 <td>Firmas, VO, VN, convenios</td>
 </tr>
 </tbody></table></div>
-<h3 id="102-fase-inicial-mvp" class="subsection-title">10.2 Fase inicial (MVP)</h3>
-<ul>
-<li>Azure AI Foundry + GPT-4o</li>
-<li>Document Intelligence prebuilt + custom models</li>
-<li>Prompt Engineering + RAG</li>
-<li>Sin fine-tuning propio</li>
-</ul>
-<h3 id="103-fase-avanzada-opcional" class="subsection-title">10.3 Fase avanzada (opcional)</h3>
-<ul>
-<li>Fine-tuning extractores</li>
-<li>Modelos especializados por marca/documento</li>
-<li>Evaluación continua con datasets etiquetados</li>
-<li>Model Registry (Azure ML)</li>
-</ul>
+<h3 id="102-capas-evolutivas-de-ia" class="subsection-title">10.2 Capas evolutivas de IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Evolución</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Extractiva base</strong></td>
+<td>Document Intelligence prebuilt + custom</td>
+<td>Prompt tuning → custom models → fine-tuning</td>
+</tr>
+<tr>
+<td><strong>Generativa</strong></td>
+<td>Azure AI Foundry + RAG</td>
+<td>Prompt Registry + evaluación Foundry</td>
+</tr>
+<tr>
+<td><strong>Determinista</strong></td>
+<td>Validation Engine YAML</td>
+<td>Git versionado + tests regresión</td>
+</tr>
+<tr>
+<td><strong>Fitness</strong></td>
+<td>Fitness Engine + Evaluation Pipeline</td>
+<td>Golden set + métricas producción</td>
+</tr>
+</tbody></table></div>
+<h3 id="103-fine-tuning-y-extractores-especializados" class="subsection-title">10.3 Fine-tuning y extractores especializados</h3>
+<p>Cuando el fitness de un extractor (F₂ por artefacto) permanezca por debajo del umbral durante dos ciclos consecutivos:</p>
+<ol>
+<li>Dataset Builder genera corpus específico del tipo documental.</li>
+<li>Evaluation Pipeline evalúa modelo candidato (DI custom / fine-tune).</li>
+<li>Fitness Engine compara candidato vs. producción.</li>
+<li>Model Registry promueve solo si supera umbrales y pasa regresión cruzada.</li>
+</ol>
+<h3 id="104-trazabilidad-de-version-ia-por-expediente" class="subsection-title">10.4 Trazabilidad de versión IA por expediente</h3>
+<p>Cada evaluación de expediente persiste:</p>
+<pre class="code-block"><code class="language-json">{
+  "expedienteId": "exp-123",
+  "artefactos": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "promptResumen": "v14-hash-abc",
+    "reglasCAE": "2026.07.01"
+  },
+  "fitnessSnapshot": 88.1
+}</code></pre>
 <hr>
 <h2 id="11-modelo-de-datos" class="section-title">11. Modelo de datos</h2>
 <h3 id="111-entidades-principales" class="subsection-title">11.1 Entidades principales</h3>
@@ -1322,6 +1526,10 @@ erDiagram
     EXPEDIENTE ||--o{ EVENTO : registra
     INCIDENCIA }o--|| REGLA : referencia
     EXPEDIENTE ||--o{ FEEDBACK : recibe
+    FEEDBACK ||--o| ETIQUETA : clasifica
+    DATASET ||--o{ EVALUACION : alimenta
+    EVALUACION ||--|| FITNESS : genera
+    ARTEFACTO ||--o{ EVALUACION : evalua
     DOCUMENTO ||--o{ VERSION : versiona
 
     EXPEDIENTE {
@@ -1370,9 +1578,51 @@ erDiagram
         string campo
         string valor_anterior
         string valor_nuevo
+        string etiqueta
         string motivo
         string usuario
         timestamp fecha
+    }
+
+    ETIQUETA {
+        string codigo
+        string descripcion
+    }
+
+    DATASET {
+        uuid id
+        string version
+        int registros
+        string blob_uri
+        timestamp creado
+    }
+
+    EVALUACION {
+        uuid id
+        uuid dataset_id
+        string artefacto_id
+        string version_candidata
+        jsonb metricas
+        float fitness
+        boolean aprobada
+        timestamp ejecutada
+    }
+
+    FITNESS {
+        uuid id
+        uuid evaluacion_id
+        float global
+        jsonb componentes
+        boolean promovible
+        timestamp calculado
+    }
+
+    ARTEFACTO {
+        string id
+        string tipo
+        string version_activa
+        string version_candidata
+        timestamp actualizado
     }
 
     EVENTO {
@@ -1410,6 +1660,18 @@ erDiagram
 <tr>
 <td>Vectores RAG</td>
 <td>Azure AI Search</td>
+</tr>
+<tr>
+<td>Datasets + golden set</td>
+<td>Blob + PostgreSQL metadata</td>
+</tr>
+<tr>
+<td>Evaluaciones / fitness</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>Model Registry</td>
+<td>PostgreSQL + Foundry / Azure ML</td>
 </tr>
 <tr>
 <td>Audit log</td>
@@ -1454,7 +1716,37 @@ erDiagram
 <tr>
 <td><code>FeedbackStored</code></td>
 <td>Feedback Engine</td>
-<td>MLOps Pipeline</td>
+<td>Labeling Service, MLOps Pipeline</td>
+</tr>
+<tr>
+<td><code>LabelConfirmed</code></td>
+<td>Labeling Service</td>
+<td>Dataset Builder</td>
+</tr>
+<tr>
+<td><code>DatasetVersionCreated</code></td>
+<td>Dataset Builder</td>
+<td>Evaluation Pipeline</td>
+</tr>
+<tr>
+<td><code>EvaluationCompleted</code></td>
+<td>Evaluation Pipeline</td>
+<td>Fitness Engine, Dashboards</td>
+</tr>
+<tr>
+<td><code>FitnessCalculated</code></td>
+<td>Fitness Engine</td>
+<td>Model Registry, Alerting</td>
+</tr>
+<tr>
+<td><code>ModelPromoted</code></td>
+<td>Model Registry</td>
+<td>Workers, Validation Engine, Audit</td>
+</tr>
+<tr>
+<td><code>ModelRollback</code></td>
+<td>Model Registry</td>
+<td>Workers, Alerting</td>
 </tr>
 <tr>
 <td><code>ExpedienteStateChanged</code></td>
@@ -1534,6 +1826,41 @@ erDiagram
 <td>POST</td>
 <td><code>/api/v1/feedback</code></td>
 <td>Registrar corrección</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/feedback/{id}/etiqueta</code></td>
+<td>Confirmar/modificar etiqueta labeling</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/datasets</code></td>
+<td>Listar datasets versionados</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/evaluaciones</code></td>
+<td>Lanzar evaluación offline</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/fitness</code></td>
+<td>Fitness global y por componente</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/fitness/{artefactoId}</code></td>
+<td>Fitness por extractor/prompt/reglas</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/promover</code></td>
+<td>Promoción controlada (requiere rol MLOps)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/rollback</code></td>
+<td>Rollback a versión anterior</td>
 </tr>
 <tr>
 <td>GET</td>
@@ -1832,8 +2159,12 @@ tipoEsperado: factura_vn  (opcional)</code></pre>
 <td>% detectadas antes de Operaciones</td>
 </tr>
 <tr>
-<td>Tiempo hasta primera incidencia</td>
-<td>Minutos desde primer upload</td>
+<td>Fitness global / por componente</td>
+<td>Score 0–100, tendencia temporal</td>
+</tr>
+<tr>
+<td>Cola labeling pendiente</td>
+<td>Registros sin etiqueta confirmada</td>
 </tr>
 </tbody></table></div>
 <h3 id="163-tracing" class="subsection-title">16.3 Tracing</h3>
@@ -1859,8 +2190,8 @@ tipoEsperado: factura_vn  (opcional)</code></pre>
 <td>Dirección / FinOps</td>
 </tr>
 <tr>
-<td>Calidad extracción</td>
-<td>MLOps</td>
+<td>Fitness y evaluación</td>
+<td>MLOps / Dirección</td>
 </tr>
 <tr>
 <td>KPIs funcionales</td>
@@ -1876,15 +2207,20 @@ tipoEsperado: factura_vn  (opcional)</code></pre>
 <h3 id="171-pipeline-mlops" class="subsection-title">17.1 Pipeline MLOps</h3>
 <div class="mermaid">
 flowchart LR
-    FB["Feedback humano"] --> LB["Labeling"]
+    FB["Feedback humano"] --> LB["Labeling asistido"]
     LB --> DS["Dataset versionado"]
-    DS --> EV["Evaluation"]
-    EV --> PT["Prompt tuning"]
-    EV --> FT["Fine-tuning opcional"]
-    PT --> RG["Regression tests"]
-    FT --> MR["Model Registry"]
-    RG --> DEP["Deploy"]
-    MR --> DEP
+    DS --> EV["Evaluation Pipeline"]
+    EV --> FIT["Fitness Engine"]
+    FIT --> DEC{"¿Supera umbrales?"}
+    DEC -->|Sí| PROM["Promoción Registry"]
+    DEC -->|No| REF["Refinamiento"]
+    PROM --> PROD["Producción"]
+    PROD --> MON["Monitorización"]
+    MON --> FB
+    REF --> PT["Prompt tuning"]
+    REF --> FT["Fine-tuning extractores"]
+    PT --> EV
+    FT --> EV
 </div>
 <h3 id="172-artefactos-versionados" class="subsection-title">17.2 Artefactos versionados</h3>
 <div class="table-wrap"><table>
@@ -1892,39 +2228,291 @@ flowchart LR
 <tr>
 <th>Artefacto</th>
 <th>Repositorio</th>
+<th>Evaluación</th>
 </tr>
 </thead>
 <tbody><tr>
 <td>Reglas CAE</td>
 <td>Git (YAML)</td>
+<td>Tests regresión + golden set</td>
 </tr>
 <tr>
 <td>Prompts</td>
 <td>Foundry Prompt Registry</td>
+<td>Foundry Eval + fitness F₃/F₄</td>
 </tr>
 <tr>
 <td>Custom models DI</td>
 <td>Azure ML / DI Studio</td>
+<td>Fitness F₂ por extractor</td>
+</tr>
+<tr>
+<td>Clasificador documental</td>
+<td>DI / custom</td>
+<td>Fitness F₁</td>
 </tr>
 <tr>
 <td>Datasets</td>
 <td>Blob + metadata DB</td>
+<td>Versionado semver</td>
 </tr>
 <tr>
-<td>Evaluaciones</td>
-<td>MLflow / Foundry Eval</td>
+<td>Golden set</td>
+<td>Blob + PostgreSQL</td>
+<td>≥ 200 casos, revisión semestral</td>
+</tr>
+<tr>
+<td>Evaluaciones / fitness</td>
+<td>MLflow + PostgreSQL</td>
+<td>Histórico comparativo</td>
 </tr>
 </tbody></table></div>
-<h3 id="173-regression-testing" class="subsection-title">17.3 Regression testing</h3>
+<h3 id="173-labeling-y-datasets" class="subsection-title">17.3 Labeling y datasets</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Etiqueta</th>
+<th>Uso en dataset</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ACIERTO_IA</code></td>
+<td>Negative sample para falsos positivos</td>
+</tr>
+<tr>
+<td><code>FALLO_EXTRACCION</code></td>
+<td>Train/eval extractores</td>
+</tr>
+<tr>
+<td><code>FALLO_CLASIFICACION</code></td>
+<td>Train/eval clasificador</td>
+</tr>
+<tr>
+<td><code>FALLO_REGLA</code></td>
+<td>Mejora reglas YAML</td>
+</tr>
+<tr>
+<td><code>FALSO_POSITIVO</code></td>
+<td>Ajuste umbrales incidencias</td>
+</tr>
+<tr>
+<td><code>FALSO_NEGATIVO</code></td>
+<td>Recall reglas / validación</td>
+</tr>
+</tbody></table></div>
+<p>Batch nocturno: Dataset Builder agrega feedback etiquetado, anonimiza PII y publica <code>DatasetVersionCreated</code>.</p>
+<h3 id="174-regression-testing" class="subsection-title">17.4 Regression testing</h3>
 <ul>
-<li>Suite de expedientes golden (anonimizados)</li>
-<li>Umbral mínimo precisión extracción: 95%</li>
-<li>Umbral mínimo recall incidencias críticas: 98%</li>
-<li>Bloqueo de deploy si regresión &gt; 2%</li>
+<li>Golden set anonimizado (todos los tipos documentales + casos borde).</li>
+<li>Umbral mínimo precisión extracción: 95%.</li>
+<li>Umbral mínimo recall incidencias críticas: 98%.</li>
+<li>Bloqueo de deploy si regresión fitness global &gt; 2%.</li>
+<li>Bloqueo si caída &gt; 1 punto en F₂ (extracción) o F₃ (validación).</li>
 </ul>
+<h3 id="175-promocion-y-rollback" class="subsection-title">17.5 Promoción y rollback</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Acción</th>
+<th>Condición</th>
+<th>SLA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Promoción automática</td>
+<td>Fitness candidato ≥ activo + 1; sin regresión crítica</td>
+<td>Tras evaluación aprobada</td>
+</tr>
+<tr>
+<td>Promoción manual</td>
+<td>Aprobación rol MLOps + comité</td>
+<td>Bajo demanda</td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>Regresión en producción o fitness &lt; umbral</td>
+<td>&lt; 15 min operativos</td>
+</tr>
+</tbody></table></div>
 <hr>
-<h2 id="18-despliegue-azure" class="section-title">18. Despliegue Azure</h2>
-<h3 id="181-vista-fisica-referencia" class="subsection-title">18.1 Vista física (referencia)</h3>
+<h2 id="18-fitness-engine-y-evaluacion" class="section-title">18. Fitness Engine y evaluación</h2>
+<h3 id="181-arquitectura-del-fitness-engine" class="subsection-title">18.1 Arquitectura del Fitness Engine</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph INPUTS["Entradas"]
+        I1["Evaluation Pipeline — offline"]
+        I2["Métricas producción — FTR, latencia, coste"]
+        I3["Audit / incidencias reales"]
+    end
+
+    subgraph ENGINE["Fitness Engine"]
+        N1["Normalizar scores 0-100"]
+        N2["Ponderar componentes F1-F6"]
+        N3["Calcular fitness por artefacto"]
+        N4["Agregar fitness global"]
+        N5["Evaluar promovible"]
+    end
+
+    subgraph OUTPUTS["Salidas"]
+        O1["Dashboard MLOps"]
+        O2["Model Registry"]
+        O3["Alertas regresión"]
+        O4["Informe trimestral gobernanza"]
+    end
+
+    I1 & I2 & I3 --> N1 --> N2 --> N3 --> N4 --> N5
+    N5 --> O1 & O2 & O3 & O4
+</div>
+<h3 id="182-componentes-y-pesos" class="subsection-title">18.2 Componentes y pesos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Componente</th>
+<th>Peso</th>
+<th>Fuente de datos</th>
+<th>Métrica base</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F₁</td>
+<td>Clasificación</td>
+<td>15%</td>
+<td>Evaluation Pipeline</td>
+<td>F1-score tipo documental</td>
+</tr>
+<tr>
+<td>F₂</td>
+<td>Extracción</td>
+<td>25%</td>
+<td>Golden set + feedback</td>
+<td>Exactitud campos clave (VIN, titular, matrícula)</td>
+</tr>
+<tr>
+<td>F₃</td>
+<td>Validación</td>
+<td>25%</td>
+<td>Golden set incidencias</td>
+<td>Recall + precisión incidencias</td>
+</tr>
+<tr>
+<td>F₄</td>
+<td>FTR</td>
+<td>15%</td>
+<td>Producción Operaciones</td>
+<td>% expedientes sin devolución primer envío</td>
+</tr>
+<tr>
+<td>F₅</td>
+<td>Latencia</td>
+<td>10%</td>
+<td>OpenTelemetry</td>
+<td>P95 tiempo análisis documento</td>
+</tr>
+<tr>
+<td>F₆</td>
+<td>Coste</td>
+<td>10%</td>
+<td>FinOps / App Insights</td>
+<td>Coste medio por expediente</td>
+</tr>
+</tbody></table></div>
+<h3 id="183-formula" class="subsection-title">18.3 Fórmula</h3>
+<pre class="code-block"><code class="language-">Fitness Global = Σ (peso_i × score_i)    // score_i normalizado 0–100
+
+Promovible = (fitness_candidato ≥ fitness_activo + 1)
+          AND (regresión_F2 ≤ 1 pt)
+          AND (regresión_F3 ≤ 1 pt)
+          AND (recall_críticas ≥ 98%)</code></pre>
+<h3 id="184-fitness-por-artefacto" class="subsection-title">18.4 Fitness por artefacto</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Artefacto</th>
+<th>Componentes aplicables</th>
+<th>Umbral mínimo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extractor DNI</td>
+<td>F₂ campos identidad</td>
+<td>92</td>
+</tr>
+<tr>
+<td>Extractor Factura</td>
+<td>F₂ VIN, matrícula, titular</td>
+<td>95</td>
+</tr>
+<tr>
+<td>Clasificador</td>
+<td>F₁</td>
+<td>95</td>
+</tr>
+<tr>
+<td>Bloque reglas C</td>
+<td>F₃ recall cruce semántico</td>
+<td>98</td>
+</tr>
+<tr>
+<td>Prompt resumen</td>
+<td>F₄ proxy utilidad</td>
+<td>80</td>
+</tr>
+</tbody></table></div>
+<h3 id="185-periodicidad" class="subsection-title">18.5 Periodicidad</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Frecuencia</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agregación métricas producción</td>
+<td>Continua</td>
+<td>Eventos + OTEL</td>
+</tr>
+<tr>
+<td>Informe fitness semanal</td>
+<td>Cron semanal</td>
+<td>Azure Functions</td>
+</tr>
+<tr>
+<td>Evaluación golden set</td>
+<td>Mensual</td>
+<td>MLOps manual/automático</td>
+</tr>
+<tr>
+<td>Revisión gobernania</td>
+<td>Trimestral</td>
+<td>Comité IA</td>
+</tr>
+</tbody></table></div>
+<h3 id="186-ejemplo-respuesta-api" class="subsection-title">18.6 Ejemplo respuesta API</h3>
+<pre class="code-block"><code class="language-json">GET /api/v1/mlops/fitness
+
+{
+  "fitnessGlobal": 88.1,
+  "componentes": {
+    "clasificacion": { "score": 96, "peso": 0.15, "contribucion": 14.4 },
+    "extraccion": { "score": 92, "peso": 0.25, "contribucion": 23.0 },
+    "validacion": { "score": 94, "peso": 0.25, "contribucion": 23.5 },
+    "ftr": { "score": 68, "peso": 0.15, "contribucion": 10.2 },
+    "latencia": { "score": 88, "peso": 0.10, "contribucion": 8.8 },
+    "coste": { "score": 82, "peso": 0.10, "contribucion": 8.2 }
+  },
+  "versionActiva": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "reglasCAE": "2026.07.01"
+  },
+  "candidato": null,
+  "calculadoEn": "2026-07-03T12:00:00Z"
+}</code></pre>
+<hr>
+<h2 id="19-despliegue-azure" class="section-title">19. Despliegue Azure</h2>
+<h3 id="191-vista-fisica-referencia" class="subsection-title">19.1 Vista física (referencia)</h3>
 <div class="mermaid">
 flowchart TB
     subgraph Azure["Azure Cloud"]
@@ -1947,6 +2535,11 @@ flowchart TB
             EID["Entra ID"]
             KV["Key Vault"]
         end
+        subgraph MLOps["MLOps"]
+            FE["Fitness Engine"]
+            EV["Evaluation Pipeline"]
+            MR["Model Registry"]
+        end
         subgraph Monitor["Monitoring"]
             LA["Log Analytics"]
             AM["Application Insights"]
@@ -1961,6 +2554,9 @@ flowchart TB
     AKS --> DI
     AKS --> FDR
     AKS --> AIS
+    AKS --> FE
+    AKS --> EV
+    AKS --> MR
     AKS --> BLOB
     AKS --> REDIS
     AKS --> SB
@@ -1971,7 +2567,7 @@ flowchart TB
     AKS --> AM
     BLOB --> CDN
 </div>
-<h3 id="182-entornos" class="subsection-title">18.2 Entornos</h3>
+<h3 id="192-entornos" class="subsection-title">19.2 Entornos</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1992,14 +2588,15 @@ flowchart TB
 <td>Producción con SLA</td>
 </tr>
 </tbody></table></div>
-<h3 id="183-cicd" class="subsection-title">18.3 CI/CD</h3>
+<h3 id="193-cicd" class="subsection-title">19.3 CI/CD</h3>
 <ul>
 <li>GitHub Actions / Azure DevOps</li>
-<li>Deploy independiente: reglas, prompts, workers, infra</li>
+<li>Deploy independiente: reglas, prompts, workers, fitness evaluators, infra</li>
+<li>Gate de CI: evaluación golden set + fitness mínimo antes de promoción a STAGING/PRO</li>
 <li>Feature flags para activación gradual de reglas</li>
 </ul>
 <hr>
-<h2 id="19-kpis-tecnicos" class="section-title">19. KPIs técnicos</h2>
+<h2 id="20-kpis-tecnicos" class="section-title">20. KPIs técnicos</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -2036,6 +2633,14 @@ flowchart TB
 <td>&gt; 98%</td>
 </tr>
 <tr>
+<td><strong>Fitness global</strong></td>
+<td><strong>&gt; 85; mejora trimestral demostrable</strong></td>
+</tr>
+<tr>
+<td>Rollback artefacto IA</td>
+<td>&lt; 15 min</td>
+</tr>
+<tr>
 <td>Trazabilidad</td>
 <td>100%</td>
 </tr>
@@ -2049,11 +2654,11 @@ flowchart TB
 </tr>
 </tbody></table></div>
 <hr>
-<h2 id="20-vision-final" class="section-title">20. Visión final</h2>
+<h2 id="21-vision-final" class="section-title">21. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
-<p>El <strong>Feedback Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua, convirtiendo correcciones humanas en datasets, evaluaciones y refinamiento de reglas, prompts y extractores.</p>
-<blockquote class="callout"><p><em>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</em></p></blockquote>
+<p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>
+<blockquote class="callout"><p>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</p></blockquote>
 <hr>
 <p><em>Diseño Técnico de Referencia — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
 </article>

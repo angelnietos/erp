@@ -4,14 +4,13 @@
 
 | Campo | Valor |
 |-------|-------|
-| **Versión diagrama** | 3.1 |
+| **Versión diagrama** | 3.0 |
 | **Fecha** | 03/07/2026 |
-| **Documentos relacionados** | `ESPECIFICACION-FUNCIONAL-v3.0.md`, `DISENO-TECNICO-v3.0.md` |
 
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
-> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E).
-> PNGs individuales en [`diagrams/`](diagrams/).
+> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness).
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`.
 
 ---
 
@@ -25,7 +24,7 @@
 | 🟣 Púrpura | **Razonamiento IA** | Orchestrator, Foundry, RAG |
 | 🔷 Azul oscuro | **Decisión** | OK / Review / Reject pre-envío |
 | 🔴 Rojo | **Humano** | Operaciones, supervisor |
-| 🟠 Naranja | **MLOps** | Feedback, dataset, fine-tuning |
+| 🟠 Naranja | **MLOps + Fitness** | Feedback, labeling, dataset, evaluación, fitness, promoción/rollback |
 | 🟤 Beige | **Observabilidad** | Transversal — audit, tracing, KPIs |
 
 **Principios transversales:** API First · Desacoplamiento · Stateless · Human in the Loop · Observabilidad
@@ -106,13 +105,16 @@ flowchart LR
         P6A --> P6B --> P6C --> P6D
     end
 
-    subgraph P7["⑨ FEEDBACK + MLOps"]
+    subgraph P7["⑨ FEEDBACK + MLOps + FITNESS"]
         direction TB
         P7A["Feedback Engine"]
-        P7B["Registro correcciones"]
-        P7C["Dataset + Labeling"]
-        P7D["Fine-tuning modelos y reglas"]
-        P7A --> P7B --> P7C --> P7D
+        P7B["Registro correcciones + etiquetas"]
+        P7C["Dataset versionado + Labeling"]
+        P7D["Evaluation Pipeline + Golden set"]
+        P7E["Fitness Engine F1-F6"]
+        P7F["Promoción / Rollback Registry"]
+        P7A --> P7B --> P7C --> P7D --> P7E --> P7F
+        P7F -.->|Mejora| P2
     end
 
     P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
@@ -146,7 +148,7 @@ flowchart LR
 | 6 | Razonamiento IA | Expediente + incidencias | Resumen, explicaciones, risk score | Azure AI Foundry |
 | 7 | Decisión final | Validación completa | OK / Review / Reject | Decision Engine |
 | 8 | Revisión Operaciones | Expediente en cola | Aprobado / Devuelto / Rechazado | Operaciones |
-| 9 | Feedback + MLOps | Correcciones humanas | Dataset, mejora reglas/modelos | Sistema |
+| 9 | Feedback + MLOps + Fitness | Correcciones humanas | Dataset, fitness, promoción modelos | Sistema |
 | 10 | Observabilidad | Todos los eventos | Logs, métricas, dashboards | Transversal |
 
 ---
@@ -241,10 +243,19 @@ flowchart TD
     OK --> FB
     REJ2 --> FB
 
-    FB --> DS["Dataset validado + Labeling"]
-    DS --> IMP1["Mejora extractores IA"]
-    DS --> IMP2["Mejora reglas CAE"]
-    DS --> IMP3["Mejora prompts Foundry"]
+    FB --> DS["Dataset + Labeling"]
+    DS --> EV["Evaluation Pipeline"]
+    EV --> FIT["Fitness Engine"]
+    FIT --> REG{"¿Supera umbrales?"}
+    REG -->|Sí| PROM["Promoción Registry"]
+    REG -->|No| REF["Refinamiento prompts / extractores / reglas"]
+    PROM --> IMP1["Extractores IA"]
+    REF --> IMP1
+    PROM --> IMP2["Reglas CAE"]
+    REF --> IMP2
+    PROM --> IMP3["Prompts Foundry"]
+    REF --> IMP3
+    FIT --> MET["Métricas fitness + dashboards MLOps"]
 
     OK & REV & REJ2 --> AUDIT["Audit Log + Tracing OpenTelemetry"]
     AUDIT --> PNG["Guardar PNG procesado"]
@@ -305,7 +316,7 @@ flowchart TB
 
 ---
 
-## 4. Bucle MLOps y Feedback
+## 4. Bucle MLOps, Fitness y Feedback
 
 ```mermaid
 flowchart LR
@@ -313,18 +324,45 @@ flowchart LR
     H2["Corrección Cliente"] --> FE
     H3["Falso positivo/negativo"] --> FE
 
-    FE --> LOG["Log estructurado"]
-    LOG --> LB["Labeling"]
+    FE --> LOG["Log estructurado + etiqueta sugerida"]
+    LOG --> LB["Labeling asistido"]
     LB --> DS["Dataset versionado"]
-    DS --> EV["Evaluación regresión"]
-    EV --> R1["Actualizar reglas CAE"]
-    EV --> R2["Refinar prompts"]
-    EV --> R3["Reentrenar extractores"]
-    R1 & R2 & R3 --> DEP["Deploy controlado"]
-    DEP --> MET["Métricas precisión / recall"]
+    DS --> EV["Evaluation Pipeline"]
+    EV --> GS["Golden set >= 200 casos"]
+    GS --> FIT["Fitness Engine"]
+    FIT --> C1["F1 Clasificacion 15%"]
+    FIT --> C2["F2 Extraccion 25%"]
+    FIT --> C3["F3 Validacion 25%"]
+    FIT --> C4["F4 FTR 15%"]
+    FIT --> C5["F5 Latencia 10%"]
+    FIT --> C6["F6 Coste 10%"]
+    C1 & C2 & C3 & C4 & C5 & C6 --> FG["Fitness Global 0-100"]
+    FG --> DEC{"Promovible?"}
+    DEC -->|Si| DEP["Promocion Registry"]
+    DEC -->|No| REF["Refinamiento"]
+    DEP --> R1["Extractores"]
+    DEP --> R2["Reglas CAE"]
+    DEP --> R3["Prompts Foundry"]
+    REF --> EV
+    DEP --> RB["Rollback < 15 min si regresion"]
 
     style FE fill:#ffe0b2,stroke:#e65100
+    style FIT fill:#ffcc80,stroke:#ef6c00,stroke-width:2px
 ```
+
+### Modelo de fitness (resumen técnico)
+
+| Componente | Peso | Fuente |
+|------------|------|--------|
+| F₁ Clasificación | 15% | F1-score clasificador documental |
+| F₂ Extracción | 25% | Exactitud campos clave (golden set) |
+| F₃ Validación | 25% | Recall + precisión incidencias |
+| F₄ FTR | 15% | First Time Right producción |
+| F₅ Latencia | 10% | P95 análisis documento |
+| F₆ Coste | 10% | Coste medio por expediente |
+
+**Promoción:** fitness candidato ≥ activo + 1; regresión F₂/F₃ ≤ 1 pt; recall críticas ≥ 98%.
+**Rollback:** si fitness producción cae > 2% respecto versión activa.
 
 ---
 
@@ -361,7 +399,7 @@ flowchart LR
 |-----------|----------|
 | Latencia | OCR, Vision fallback, reglas, Foundry, E2E documento, E2E expediente |
 | Coste | Por documento, por expediente, por llamada Foundry |
-| Calidad | Precisión clasificación, extracción, recall incidencias |
+| Calidad | Precisión clasificación, extracción, recall incidencias, **fitness global** |
 | Negocio | FTR, incidencias pre-envío, devoluciones, tiempo revisión |
 | Infra | DLQ depth, error rate, disponibilidad |
 
@@ -379,7 +417,7 @@ flowchart LR
 | ⑥ Razonamiento IA | AI Orchestrator, Azure AI Foundry, AI Search RAG |
 | ⑦ Decisión | Decision Engine |
 | ⑧ Operaciones | Cola revisión, resumen IA, UI supervisor |
-| ⑨ MLOps | Feedback Engine, dataset, evaluación, fine-tuning |
+| ⑨ MLOps + Fitness | Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry |
 | ⑩ Observabilidad | OpenTelemetry, Audit Log, dashboards |
 
 ---
@@ -393,4 +431,4 @@ flowchart LR
 
 ---
 
-*Diagrama maestro v3.1 — alineado con la propuesta visual aprobada por IDEAUTO.*
+*Diagrama maestro v3.0 — Sistema de Asistencia Inteligente CAE.*

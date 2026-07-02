@@ -85,10 +85,20 @@ flowchart TD
     OK --> FB
     REJ2 --> FB
 
-    FB --> DS["Dataset validado + Labeling"]
-    DS --> IMP1["Mejora extractores IA"]
-    DS --> IMP2["Mejora reglas CAE"]
-    DS --> IMP3["Mejora prompts Foundry"]
+    FB --> LB["Labeling asistido"]
+    LB --> DS["Dataset versionado"]
+    DS --> EV["Evaluation Pipeline + Golden set"]
+    EV --> FIT["Fitness Engine F1-F6"]
+    FIT --> REG{"Supera umbrales?"}
+    REG -->|Sí| PROM["Promoción Registry"]
+    REG -->|No| REF["Refinar extractores / reglas / prompts"]
+    PROM --> IMP1["Extractores IA"]
+    REF --> IMP1
+    PROM --> IMP2["Reglas CAE"]
+    REF --> IMP2
+    PROM --> IMP3["Prompts Foundry"]
+    REF --> IMP3
+    FIT --> MET["Dashboard fitness MLOps"]
 
     OK & REV & REJ2 --> AUDIT["Audit Log + Tracing OpenTelemetry"]
     AUDIT --> PNG["Guardar PNG procesado"]
@@ -102,4 +112,5 @@ flowchart TD
     style DEC fill:#b3e5fc,stroke:#0277bd
     style SUP fill:#ffcdd2,stroke:#c62828
     style FB fill:#ffe0b2,stroke:#e65100
+    style FIT fill:#ffcc80,stroke:#ef6c00,stroke-width:2px
     style AUDIT fill:#d7ccc8,stroke:#4e342e
