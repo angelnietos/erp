@@ -459,7 +459,7 @@ sequenceDiagram
     participant VE as Validation Engine
     participant FD as AI Foundry
 
-    FE->>GW: POST /documentos (multipart)
+    FE->>GW: POST documentos multipart
     GW->>GW: Auth + Idempotency
     GW->>BL: Store RAW
     GW->>Q: Event DocumentUploaded
@@ -467,8 +467,8 @@ sequenceDiagram
     OR->>PR: Normalize
     PR->>DI: OCR
     alt Confidence baja
-        DI->>OR: Low confidence
-        OR->>FD: GPT-4o Vision fallback
+    DI->>OR: Low confidence
+    OR->>FD: GPT-4o Vision fallback
     end
     DI->>CL: Classify
     CL->>EX: Route to extractor
@@ -476,7 +476,7 @@ sequenceDiagram
     OR->>VE: Progressive validation
     VE->>OR: Incidencias + score
     OR->>FD: Optional reasoning
-    OR->>FE: WebSocket / poll result
+    OR->>FE: WebSocket o poll result
 ```
 
 ### 6.2 Formatos soportados
@@ -697,7 +697,7 @@ erDiagram
     DOCUMENTO ||--o{ VERSION : versiona
 
     EXPEDIENTE {
-        uuid id PK
+        uuid id
         string estado
         int completitud_pct
         int confianza_pct
@@ -707,8 +707,8 @@ erDiagram
     }
 
     DOCUMENTO {
-        uuid id PK
-        uuid expediente_id FK
+        uuid id
+        uuid expediente_id
         string tipo
         string estado
         string blob_uri
@@ -717,8 +717,8 @@ erDiagram
     }
 
     EXTRACCION {
-        uuid id PK
-        uuid documento_id FK
+        uuid id
+        uuid documento_id
         jsonb campos
         float confidence_media
         string provenance
@@ -726,8 +726,8 @@ erDiagram
     }
 
     INCIDENCIA {
-        uuid id PK
-        uuid expediente_id FK
+        uuid id
+        uuid expediente_id
         string regla_id
         string severidad
         string mensaje
@@ -737,8 +737,8 @@ erDiagram
     }
 
     FEEDBACK {
-        uuid id PK
-        uuid expediente_id FK
+        uuid id
+        uuid expediente_id
         string campo
         string valor_anterior
         string valor_nuevo
@@ -748,8 +748,8 @@ erDiagram
     }
 
     EVENTO {
-        uuid id PK
-        uuid expediente_id FK
+        uuid id
+        uuid expediente_id
         string tipo
         jsonb payload
         timestamp ocurrido
@@ -1067,10 +1067,17 @@ flowchart TB
 
     Users["Usuarios CAE"] --> APIM
     APIM --> AKS
-    AKS --> DI & FDR & AIS
-    AKS --> BLOB & REDIS & SB & PG
-    AKS --> EID & KV
-    AKS --> LA & AM
+    AKS --> DI
+    AKS --> FDR
+    AKS --> AIS
+    AKS --> BLOB
+    AKS --> REDIS
+    AKS --> SB
+    AKS --> PG
+    AKS --> EID
+    AKS --> KV
+    AKS --> LA
+    AKS --> AM
     BLOB --> CDN
 ```
 

@@ -53,36 +53,56 @@ function extractHeadings(md) {
   return headings;
 }
 
-function preprocessMarkdown(md) {
-  return md.replace(/```mermaid\n([\s\S]*?)```/g, (_, code) => {
-    return `\n<div class="mermaid">\n${code.trim()}\n</div>\n`;
+/** Repair mermaid blocks broken by marked parsing indented lines as code fences */
+function sanitizeMermaidBlocks(html) {
+  return html.replace(/<div class="mermaid">([\s\S]*?)<\/div>/g, (_, raw) => {
+    let code = raw
+      .replace(/<pre><code[^>]*>/gi, '\n')
+      .replace(/<\/code><\/pre>/gi, '\n')
+      .replace(/<\/?p>/gi, '\n')
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/&gt;/g, '>')
+      .replace(/&lt;/g, '<')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+    return `<div class="mermaid">\n${code}\n</div>`;
   });
 }
 
 function postProcessHtml(html) {
-  return html
-    .replace(/<h1 id="[^"]*" class="doc-main-title"[^>]*>[\s\S]*?<\/h1>\s*/i, '')
-    .replace(/<h2 id="[^"]*" class="section-title"[^>]*>SISTEMA DE ASISTENCIA[\s\S]*?<\/h2>\s*/i, '')
-    .replace(/<h2 id="[^"]*" class="section-title"[^>]*>DISEÑO TÉCNICO[\s\S]*?<\/h2>\s*/i, '')
-    .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/g, (_, attrs, inner) => {
-      const text = stripMd(inner.replace(/<[^>]+>/g, ''));
-      const id = slugify(text);
-      return `<h1 id="${id}" class="doc-main-title"${attrs}>${inner}</h1>`;
-    })
-    .replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (_, attrs, inner) => {
-      const text = stripMd(inner.replace(/<[^>]+>/g, ''));
-      const id = slugify(text);
-      return `<h2 id="${id}" class="section-title"${attrs}>${inner}</h2>`;
-    })
-    .replace(/<h3([^>]*)>([\s\S]*?)<\/h3>/g, (_, attrs, inner) => {
-      const text = stripMd(inner.replace(/<[^>]+>/g, ''));
-      const id = slugify(text);
-      return `<h3 id="${id}" class="subsection-title"${attrs}>${inner}</h3>`;
-    })
-    .replace(/<table>/g, '<div class="table-wrap"><table>')
-    .replace(/<\/table>/g, '</table></div>')
-    .replace(/<blockquote>\n<p>([\s\S]*?)<\/p>\n<\/blockquote>/g, '<blockquote class="callout"><p>$1</p></blockquote>')
-    .replace(/<pre><code class="language-(\w+)">/g, '<pre class="code-block"><code class="language-$1">');
+  return sanitizeMermaidBlocks(
+    html
+      .replace(/<h1 id="[^"]*" class="doc-main-title"[^>]*>[\s\S]*?<\/h1>\s*/i, '')
+      .replace(/<h2 id="[^"]*" class="section-title"[^>]*>SISTEMA DE ASISTENCIA[\s\S]*?<\/h2>\s*/i, '')
+      .replace(/<h2 id="[^"]*" class="section-title"[^>]*>DISEÑO TÉCNICO[\s\S]*?<\/h2>\s*/i, '')
+      .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/g, (_, attrs, inner) => {
+        const text = stripMd(inner.replace(/<[^>]+>/g, ''));
+        const id = slugify(text);
+        return `<h1 id="${id}" class="doc-main-title"${attrs}>${inner}</h1>`;
+      })
+      .replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (_, attrs, inner) => {
+        const text = stripMd(inner.replace(/<[^>]+>/g, ''));
+        const id = slugify(text);
+        return `<h2 id="${id}" class="section-title"${attrs}>${inner}</h2>`;
+      })
+      .replace(/<h3([^>]*)>([\s\S]*?)<\/h3>/g, (_, attrs, inner) => {
+        const text = stripMd(inner.replace(/<[^>]+>/g, ''));
+        const id = slugify(text);
+        return `<h3 id="${id}" class="subsection-title"${attrs}>${inner}</h3>`;
+      })
+      .replace(/<table>/g, '<div class="table-wrap"><table>')
+      .replace(/<\/table>/g, '</table></div>')
+      .replace(
+        /<blockquote>\n<p>([\s\S]*?)<\/p>\n<\/blockquote>/g,
+        '<blockquote class="callout"><p>$1</p></blockquote>'
+      )
+      .replace(
+        /<pre><code class="language-(\w+)">/g,
+        '<pre class="code-block"><code class="language-$1">'
+      )
+  );
 }
 
 function buildToc(headings) {
@@ -105,22 +125,6 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="switch-theme.css" />
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'base',
-      themeVariables: {
-        primaryColor: '${accent === 'red' ? '#ffe5e8' : '#e0f7ff'}',
-        primaryTextColor: '#1a1a2e',
-        primaryBorderColor: '${accent === 'red' ? '#e60012' : '#0ab9e5'}',
-        lineColor: '#4a4a68',
-        secondaryColor: '#f5f5f7',
-        tertiaryColor: '#ffffff',
-        fontFamily: 'Nunito, sans-serif',
-      },
-    });
-  </script>
 </head>
 <body class="accent-${accent}">
   <div class="joycon joycon-left" aria-hidden="true"></div>
@@ -175,6 +179,30 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
 
   <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
 
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '${accent === 'red' ? '#ffe5e8' : '#e0f7ff'}',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '${accent === 'red' ? '#e60012' : '#0ab9e5'}',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length) {
+      await mermaid.run({ nodes });
+    }
+  </script>
+
   <script>
     const fab = document.getElementById('fabTop');
     fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
@@ -205,15 +233,28 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
 </html>`;
 }
 
-marked.setOptions({ gfm: true });
+marked.use({
+  gfm: true,
+  renderer: {
+    code({ text, lang }) {
+      if (lang === 'mermaid') {
+        return `<div class="mermaid">\n${text.trim()}\n</div>\n`;
+      }
+      const escaped = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      return `<pre class="code-block"><code class="language-${lang ?? 'text'}">${escaped}</code></pre>\n`;
+    },
+  },
+});
 
 for (const doc of docs) {
   const inputPath = path.join(caedocsDir, doc.input);
   const md = fs.readFileSync(inputPath, 'utf8');
-  const processed = preprocessMarkdown(md);
   const headings = extractHeadings(md);
   const toc = buildToc(headings);
-  let body = marked.parse(processed);
+  let body = marked.parse(md);
   body = postProcessHtml(body);
   const titleMatch = md.match(/^#\s+(.+)$/m);
   const title = titleMatch ? titleMatch[1] : doc.input;

@@ -8,22 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="switch-theme.css" />
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'base',
-      themeVariables: {
-        primaryColor: '#ffe5e8',
-        primaryTextColor: '#1a1a2e',
-        primaryBorderColor: '#e60012',
-        lineColor: '#4a4a68',
-        secondaryColor: '#f5f5f7',
-        tertiaryColor: '#ffffff',
-        fontFamily: 'Nunito, sans-serif',
-      },
-    });
-  </script>
 </head>
 <body class="accent-red">
   <div class="joycon joycon-left" aria-hidden="true"></div>
@@ -470,7 +454,8 @@ journey
     section Post-envío
       Recibir devolución (si aplica): 2: Cliente
       Corregir y reenviar: 4: Cliente
-</div><hr>
+</div>
+<hr>
 <h2 id="6-arquitectura-funcional" class="section-title">6. Arquitectura funcional</h2>
 <h3 id="60-vision-funcional-completa-diagrama-aprobado" class="subsection-title">6.0 Visión funcional completa (diagrama aprobado)</h3>
 <p>La arquitectura funcional sigue el <strong>diagrama maestro de 10 fases</strong> aprobado por IDEAUTO. El diagrama completo con leyenda de colores, flujo técnico E2E y detalle del motor de validación está en <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a>.</p>
@@ -500,7 +485,8 @@ flowchart LR
     end
     P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
     P8["⑩ OBSERVABILIDAD transversal"] -.-> P1 & P2 & P3 & P4 & P5 & P6 & P7
-</div><h3 id="61-detalle-de-las-10-fases" class="subsection-title">6.1 Detalle de las 10 fases</h3>
+</div>
+<h3 id="61-detalle-de-las-10-fases" class="subsection-title">6.1 Detalle de las 10 fases</h3>
 <h4>Fase 1 — Frontend: Asistencia continua</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -858,7 +844,8 @@ stateDiagram-v2
     CON_INCIDENCIAS --> RECHAZADO: Rechazo automático pre-envío
     VALIDADO --> [*]
     RECHAZADO --> EN_CONSTRUCCION: Corrección y reintento
-</div><div class="table-wrap"><table>
+</div>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Estado</th>
@@ -1075,7 +1062,8 @@ flowchart LR
     CAE --> SCORE["Scoring"]
     SCORE --> IA["Razonamiento IA opcional"]
     IA --> UX["Feedback UI"]
-</div><div class="table-wrap"><table>
+</div>
+<div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Capa</th>
@@ -1154,21 +1142,20 @@ flowchart LR
 <h3 id="112-estructura-de-una-incidencia" class="subsection-title">11.2 Estructura de una incidencia</h3>
 <p>Cada incidencia incluye (CF-012 — Explicabilidad):</p>
 <pre class="code-block"><code class="language-json">{
-  &quot;id&quot;: &quot;INC-2026-004521&quot;,
-  &quot;severidad&quot;: &quot;CRITICA&quot;,
-  &quot;reglaId&quot;: &quot;RF-012&quot;,
-  &quot;reglaNombre&quot;: &quot;Coherencia VIN&quot;,
-  &quot;documentoOrigen&quot;: &quot;factura_vn&quot;,
-  &quot;documentoComparado&quot;: &quot;ficha_tecnica_vn&quot;,
-  &quot;campo&quot;: &quot;vin&quot;,
-  &quot;valorDetectado&quot;: &quot;VF1ABC12345678901&quot;,
-  &quot;valorEsperado&quot;: &quot;VF1ABC12345678902&quot;,
-  &quot;mensaje&quot;: &quot;El VIN de la factura no coincide con la ficha técnica.&quot;,
-  &quot;accionRecomendada&quot;: &quot;Verifique que ha subido la ficha técnica correspondiente al vehículo de la factura.&quot;,
-  &quot;bloqueaEnvio&quot;: true,
-  &quot;fechaDeteccion&quot;: &quot;2026-07-03T10:15:00Z&quot;
-}
-</code></pre>
+  "id": "INC-2026-004521",
+  "severidad": "CRITICA",
+  "reglaId": "RF-012",
+  "reglaNombre": "Coherencia VIN",
+  "documentoOrigen": "factura_vn",
+  "documentoComparado": "ficha_tecnica_vn",
+  "campo": "vin",
+  "valorDetectado": "VF1ABC12345678901",
+  "valorEsperado": "VF1ABC12345678902",
+  "mensaje": "El VIN de la factura no coincide con la ficha técnica.",
+  "accionRecomendada": "Verifique que ha subido la ficha técnica correspondiente al vehículo de la factura.",
+  "bloqueaEnvio": true,
+  "fechaDeteccion": "2026-07-03T10:15:00Z"
+}</code></pre>
 <h3 id="113-priorizacion-para-operaciones" class="subsection-title">11.3 Priorización para Operaciones</h3>
 <p>Orden de presentación en vista Operaciones:</p>
 <ol>
@@ -1239,7 +1226,7 @@ flowchart LR
 </tr>
 </tbody></table></div>
 <h3 id="123-presentacion-en-ui" class="subsection-title">12.3 Presentación en UI</h3>
-<pre><code>Expediente: EXP-2026-004521
+<pre class="code-block"><code class="language-">Expediente: EXP-2026-004521
 Completitud: ████████░░ 85%
 Confianza:   ███████░░░ 78%
 Riesgo:      MEDIO
@@ -1248,8 +1235,7 @@ Pendiente:
   - Último IVTM
   - Firma Convenio CAE
 
-Incidencias abiertas: 2 mayores, 1 menor
-</code></pre>
+Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <hr>
 <h2 id="13-catalogo-de-reglas-funcionales-bloques-ag" class="section-title">13. Catálogo de reglas funcionales (Bloques A–G)</h2>
 <h3 id="131-bloque-a-validaciones-documentales" class="subsection-title">13.1 Bloque A — Validaciones documentales</h3>
@@ -1681,20 +1667,22 @@ sequenceDiagram
     participant C as Cliente
     participant CAE as Plataforma CAE
     participant IA as Sistema IA
-    participant OP as Operaciones<pre><code>C-&gt;&gt;CAE: Enviar expediente
-CAE-&gt;&gt;IA: Solicitar análisis global
-IA-&gt;&gt;IA: Validación final + Decision Engine
-IA--&gt;&gt;CAE: Resumen + incidencias + risk score
-CAE-&gt;&gt;OP: Expediente en cola revisión
-OP-&gt;&gt;CAE: Consultar expediente
-CAE-&gt;&gt;IA: Obtener resumen ejecutivo
-IA--&gt;&gt;OP: Resumen priorizado
-OP-&gt;&gt;CAE: Validar / Devolver / Rechazar
-alt Devolución
-    CAE-&gt;&gt;C: Notificación incidencias
-end
-</code></pre>
-</div><h3 id="162-contenido-del-resumen-ejecutivo-ia" class="subsection-title">16.2 Contenido del resumen ejecutivo IA</h3>
+    participant OP as Operaciones
+
+    C->>CAE: Enviar expediente
+    CAE->>IA: Solicitar análisis global
+    IA->>IA: Validación final + Decision Engine
+    IA-->>CAE: Resumen + incidencias + risk score
+    CAE->>OP: Expediente en cola revisión
+    OP->>CAE: Consultar expediente
+    CAE->>IA: Obtener resumen ejecutivo
+    IA-->>OP: Resumen priorizado
+    OP->>CAE: Validar / Devolver / Rechazar
+    alt Devolución
+        CAE->>C: Notificación incidencias
+    end
+</div>
+<h3 id="162-contenido-del-resumen-ejecutivo-ia" class="subsection-title">16.2 Contenido del resumen ejecutivo IA</h3>
 <ul>
 <li>Identificación del expediente y concesionario.</li>
 <li>Completitud y riesgo global.</li>
@@ -1897,6 +1885,30 @@ end
   </div>
 
   <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      themeVariables: {
+        primaryColor: '#ffe5e8',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#e60012',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length) {
+      await mermaid.run({ nodes });
+    }
+  </script>
 
   <script>
     const fab = document.getElementById('fabTop');
