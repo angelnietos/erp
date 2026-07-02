@@ -9,7 +9,9 @@
 | **Documentos relacionados** | `ESPECIFICACION-FUNCIONAL-v3.0.md`, `DISENO-TECNICO-v3.0.md` |
 
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
-> Renderizar con cualquier visor Mermaid (VS Code, GitHub, mermaid.live) para exportar a PNG/SVG.
+>
+> **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E).
+> PNGs individuales en [`diagrams/`](diagrams/).
 
 ---
 
