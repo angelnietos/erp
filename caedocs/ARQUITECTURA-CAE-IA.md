@@ -10,7 +10,7 @@
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
 > **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`.
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`.
 
 ---
 
@@ -27,7 +27,7 @@
 | 🟠 Naranja | **MLOps + Fitness** | Feedback, labeling, dataset, evaluación, fitness, promoción/rollback |
 | 🟤 Beige | **Observabilidad** | Transversal — audit, tracing, KPIs |
 
-**Principios transversales:** API First · Hexagonal · DDD · Microservicios · Desacoplamiento · Stateless · Human in the Loop · Observabilidad
+**Principios transversales:** API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Human in the Loop · Observabilidad
 
 ---
 
@@ -37,9 +37,50 @@ La capa de asistencia inteligente se implementará con:
 
 | Paradigma | Aplicación en el proyecto |
 |-----------|---------------------------|
-| **Arquitectura hexagonal** | Puertos y adaptadores en cada servicio; dominio aislado de Azure |
-| **DDD** | Bounded contexts: Validación CAE, Extracción, MLOps, Conocimiento… |
-| **Microservicios** | Servicios desplegables independientes en AKS, comunicación REST + eventos |
+| **Arquitectura hexagonal** | Puertos y adaptadores en cada lib; dominio aislado de Azure/Nest/Angular |
+| **DDD** | Bounded contexts en `libs/isomorphic/cae/core` |
+| **Monorepo Nx** | `libs/` reutilizables + `apps/` compositores — patrón `backend` / `frontend` existente |
+| **Deploy elástico** | Monolito modular (`apps/cae-ia-backend`) → microservicios según demanda |
+| **Microfrontend** | `apps/cae-assistant-mfe` embebido en shell CAE v2 (Module Federation) |
+
+### 0.1 Situación actual vs objetivo
+
+| | Plataforma CAE v2.0 (hoy) | Capa IA CAE (objetivo) |
+|---|---------------------------|------------------------|
+| Estructura | Monolito / acoplado | `libs/` Nx independientes |
+| Backend | Core CAE propietario | `libs/node/cae/*-backend` + ACL |
+| Frontend | UI CAE única | MFE + slots embebidos |
+| Despliegue | Single app | Monolito IA → microservicios opcional |
+
+```mermaid
+flowchart TB
+    subgraph WORKSPACE["josanz-erp — Monorepo Nx"]
+        subgraph APPS["apps/"]
+            A1["backend · frontend — referencia"]
+            A2["cae-ia-backend — host IA"]
+            A3["cae-assistant-mfe — remote"]
+        end
+        subgraph LIBS["libs/"]
+            ISO["isomorphic/cae/core · api"]
+            NODE["node/cae/*-backend"]
+            BR["browser/cae/feature-* · data-access"]
+        end
+    end
+
+    subgraph CAE20["Plataforma CAE v2.0"]
+        SHELL["Shell host"]
+    end
+
+    A2 --> NODE
+    A3 --> BR
+    NODE --> ISO
+    BR --> A2
+    SHELL -->|Module Federation| A3
+    NODE -->|integration-backend ACL| CAE20
+
+    style ISO fill:#fff9c4,stroke:#f9a825
+    style A3 fill:#e3f2fd,stroke:#1565c0
+```
 
 ```mermaid
 flowchart LR
@@ -454,12 +495,28 @@ flowchart LR
 | ⑦ Decisión | Decision Engine |
 | ⑧ Operaciones | Cola revisión, resumen IA, UI supervisor |
 | ⑨ MLOps + Fitness | Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry |
-| — | **Paradigma** | Hexagonal + DDD + microservicios (`cae-*`) |
 | ⑩ Observabilidad | OpenTelemetry, Audit Log, dashboards |
+| **Implementación** | **Monorepo Nx:** `libs/isomorphic/cae`, `libs/node/cae`, `libs/browser/cae` + `apps/cae-ia-backend` + MFE CAE v2 |
 
 ---
 
-## 7. Exportar diagrama a imagen
+## 7. Mapa objetivo monorepo Nx
+
+| Capa workspace | Ruta objetivo | Rol |
+|----------------|---------------|-----|
+| Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas RF, eventos — sin Nest/Angular |
+| Contratos | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos |
+| Backend IA | `libs/node/cae/*-backend` | NestJS modules hexagonales composables |
+| Frontend IA | `libs/browser/cae/feature-*` | Paneles asistencia, operaciones, MLOps |
+| Host backend | `apps/cae-ia-backend` | Monolito modular IA (Modo A default) |
+| Microfrontend | `apps/cae-assistant-mfe` | Remote Module Federation → shell CAE v2 |
+| Referencia | `apps/backend`, `apps/frontend` | Patrón existente del workspace |
+
+| Modo despliegue | Composición | Cuándo |
+|-----------------|-------------|--------|
+| A — Monolito modular | Solo `cae-ia-backend` | MVP, integración CAE, baja carga |
+| B — Híbrido | Monolito + 1–2 servicios (p. ej. MLOps) | Picos aislados |
+| C — Microservicios | Un `apps/cae-*-service` por lib backend | Alta escala, equipos separados |
 
 1. Abrir [mermaid.live](https://mermaid.live)
 2. Pegar el bloque Mermaid deseado

@@ -20,6 +20,7 @@
 | 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad |
 | 2 | 03/07/2026 | MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness |
 | 3 | 03/07/2026 | Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios |
+| 4 | 03/07/2026 | Arquitectura objetivo en monorepo Nx (`libs` / `apps`), despliegue monolito modular vs microservicios, microfrontends CAE v2 |
 
 ---
 
@@ -84,6 +85,8 @@ La arquitectura deberá:
 | PA-09 | **DDD** | Bounded contexts explícitos; reglas CAE y validación en el dominio, no en controllers. |
 | PA-10 | **Microservicios** | Un servicio desplegable por capacidad de negocio; contratos API/eventos versionados. |
 | PA-11 | **Anti-Corruption Layer** | Integración con Plataforma CAE v2.0 mediante adaptadores, sin acoplar dominios. |
+| PA-12 | **Libs first** | Toda capacidad IA como lib Nx; apps solo componen y despliegan. |
+| PA-13 | **Deploy elástico** | Misma codebase: monolito modular (default) → microservicios bajo demanda. |
 
 ---
 
@@ -229,9 +232,9 @@ flowchart TB
 
 Los contextos se comunican mediante **contratos de integración** (API REST + eventos de dominio), nunca compartiendo modelos de persistencia.
 
-#### 3.2.3 Mapa de microservicios
+#### 3.2.3 Unidades desplegables (lógicas)
 
-| Microservicio | Bounded context | Responsabilidad | Comunicación |
+| Unidad lógica | Bounded context | Responsabilidad | Comunicación |
 |---------------|-----------------|-----------------|--------------|
 | `cae-gateway` | Transversal | Auth, rate limit, idempotency, enrutamiento | REST → servicios internos |
 | `cae-ingestion` | Ingesta | Upload, Blob RAW, preprocessing, jobs | REST + `DocumentUploaded` |
@@ -243,13 +246,12 @@ Los contextos se comunican mediante **contratos de integración** (API REST + ev
 | `cae-mlops` | MLOps | Dataset, evaluación, Fitness Engine, Registry | REST + eventos batch |
 | `cae-integration` | Anti-corruption | Sincronización con Core CAE v2.0 | REST hacia plataforma host |
 
-Cada microservicio:
+> Materializadas primero como **libs Nx** (§3.3). El despliegue como contenedor independiente es **opcional** según demanda.
 
-- Se despliega de forma **independiente** (contenedor en AKS).
-- Expone **OpenAPI** versionada.
-- Persiste en **su propia base de datos** o almacén (database-per-service).
-- Publica/consuma eventos en **Azure Service Bus** (comunicación asíncrona).
-- Usa **Redis** para estado efímero (FSM, idempotency, cache).
+Cuando se despliegan aisladas (Modo C):
+
+- Contenedor propio en AKS (o equivalente).
+- OpenAPI versionada, persistencia propia, Service Bus, Redis según §3.3.4.
 
 #### 3.2.4 Orquestación vs. coreografía
 
@@ -259,22 +261,207 @@ Cada microservicio:
 | **Orquestación (Orchestrator)** | Análisis global expediente, fan-out/fan-in multi-documento |
 | **Saga** | Envío a revisión: validación final + decisión + cola Operaciones + rollback compensatorio si falla integración CAE |
 
-#### 3.2.5 Estructura de repositorio (referencia)
+#### 3.2.5 Regla de compartición entre libs
+
+> Solo **value objects** y **contratos API** estables se comparten entre bounded contexts (`VIN`, `NIF`, DTOs OpenAPI). La lógica de negocio permanece encapsulada en cada lib de dominio.
+
+### 3.3 Arquitectura objetivo en monorepo Nx
+
+La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La **arquitectura objetivo** alinea el desarrollo con el patrón ya usado en el workspace `josanz-erp`: **`libs/`** reutilizables + **`apps/`** como hosts de composición.
+
+#### 3.3.1 Referencia: patrón actual del workspace
+
+| Capa | Ubicación actual | Patrón |
+|------|------------------|--------|
+| Dominio + puertos | `libs/isomorphic/core/*/core` | DDD + hexagonal (ports) |
+| Backend por capacidad | `libs/node/backend/*-backend` | NestJS modules exportables |
+| Frontend por feature | `libs/browser/feature/*` | Angular libs lazy-loaded |
+| Host backend | `apps/backend` | Monolito modular NestJS |
+| Host frontend | `apps/frontend` | Shell Angular + feature libs |
+
+La capa IA CAE **replicará este patrón** antes de decidir despliegues distribuidos.
+
+#### 3.3.2 Estructura objetivo — libs IA CAE
 
 ```
-services/
-  cae-validation/
-    domain/          # Agregados, reglas, eventos
-    application/     # Casos de uso, puertos
-    infrastructure/  # REST, PostgreSQL, Redis, Service Bus
-    Dockerfile
-  cae-extraction/
-    ...
-libs/
-  cae-domain-shared/ # Value objects compartidos (VIN, NIF) — mínimo
+josanz-erp/                                    # Monorepo Nx
+├── apps/
+│   ├── frontend/                              # Host ERP existente (referencia)
+│   ├── backend/                               # Host NestJS existente (referencia)
+│   ├── cae-ia-backend/                        # [OBJETIVO] Host monolito modular solo IA
+│   └── cae-assistant-mfe/                     # [OBJETIVO] Microfrontend remoto CAE v2
+│
+├── libs/
+│   ├── isomorphic/cae/
+│   │   ├── core/                              # Dominio DDD puro (sin Nest/Angular)
+│   │   │   ├── domain/                        # Agregados, reglas RF, eventos
+│   │   │   └── application/                   # Puertos (interfaces)
+│   │   └── api/                               # Contratos OpenAPI, DTOs compartidos
+│   │
+│   ├── node/cae/
+│   │   ├── ingestion-backend/                 # Hexagonal → NestJS module
+│   │   ├── extraction-backend/
+│   │   ├── validation-backend/                # Motor validación progresiva
+│   │   ├── reasoning-backend/
+│   │   ├── knowledge-backend/
+│   │   ├── feedback-backend/
+│   │   ├── mlops-backend/                     # Fitness Engine, Registry
+│   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
+│   │
+│   └── browser/cae/
+│       ├── data-access/                       # Clientes HTTP, SSE, WebSocket
+│       ├── feature-assistant/                 # Cliente: incidencias, auto-fill, chat
+│       ├── feature-operations/                # Operaciones: cola, resumen IA
+│       ├── feature-mlops/                     # Dashboard fitness / evaluación
+│       └── shell/                             # Rutas CAE IA (boundary MFE)
 ```
 
-> **Regla:** solo tipos y value objects estables se comparten entre servicios; la lógica de negocio permanece dentro de cada bounded context.
+Cada lib `*-backend` sigue internamente **domain / application / infrastructure**, exportando un `XxxBackendModule.forRoot()` composable — igual que `@josanz-erp/budget-backend` en `apps/backend` hoy.
+
+#### 3.3.3 Correspondencia bounded context → lib Nx
+
+| Bounded context | Lib dominio | Lib backend | Lib frontend |
+|-----------------|-------------|-------------|--------------|
+| Validación CAE | `isomorphic/cae/core` | `node/cae/validation-backend` | `browser/cae/feature-assistant` |
+| Extracción | `isomorphic/cae/core` | `node/cae/extraction-backend` | — |
+| Ingesta | `isomorphic/cae/core` | `node/cae/ingestion-backend` | — |
+| Razonamiento IA | `isomorphic/cae/core` | `node/cae/reasoning-backend` | `feature-assistant` (chat) |
+| Operaciones | — | `reasoning-backend` + `validation-backend` | `feature-operations` |
+| MLOps / Fitness | `isomorphic/cae/core` | `node/cae/mlops-backend` | `feature-mlops` |
+| Integración CAE v2 | `isomorphic/cae/api` | `node/cae/integration-backend` | — |
+
+#### 3.3.4 Modos de despliegue (misma codebase)
+
+La decisión monolito vs microservicio es **operativa**, no de reescritura:
+
+```mermaid
+flowchart TB
+    subgraph LIBS["libs/ — código fuente único"]
+        L1["validation-backend"]
+        L2["extraction-backend"]
+        L3["mlops-backend"]
+        L4["feature-assistant"]
+    end
+
+    subgraph M1["Modo A — Monolito modular"]
+        APP1["apps/cae-ia-backend"]
+        APP1 --> L1 & L2 & L3
+    end
+
+    subgraph M2["Modo B — Híbrido"]
+        APP2["cae-ia-backend core"]
+        SVC["cae-mlops-service"]
+        APP2 --> L1 & L2
+        SVC --> L3
+    end
+
+    subgraph M3["Modo C — Microservicios"]
+        S1["cae-validation-svc"]
+        S2["cae-extraction-svc"]
+        S3["cae-mlops-svc"]
+        S1 --> L1
+        S2 --> L2
+        S3 --> L3
+    end
+
+    LIBS --> M1 & M2 & M3
+```
+
+| Modo | Cuándo | Composición | Comunicación interna |
+|------|--------|-------------|----------------------|
+| **A — Monolito modular** | MVP, dev, baja carga, integración temprana CAE | `apps/cae-ia-backend` importa todos los `*-backend` | Llamadas in-process / eventos in-memory |
+| **B — Híbrido** | MLOps o extracción con picos aislados | Core monolito + 1–2 servicios extraídos | REST + Service Bus |
+| **C — Microservicios** | Alta escala, equipos separados, SLA distintos | Un contenedor AKS por unidad lógica §3.2.3 | Service Bus + API Gateway |
+
+**Principio:** empezar siempre en **Modo A** (libs + monolito modular). Extraer a Modo B/C solo cuando métricas (latencia, coste, equipos) lo justifiquen — sin fork de código.
+
+#### 3.3.5 Apps objetivo
+
+| App Nx | Tipo | Rol |
+|--------|------|-----|
+| `apps/cae-ia-backend` | NestJS host | Componer todos los `node/cae/*-backend`; API única IA |
+| `apps/cae-assistant-mfe` | Angular remote | Microfrontend cargado por CAE v2 (Module Federation) |
+| `apps/backend` (opcional) | NestJS host existente | Import selectivo de libs CAE si convive con ERP |
+| `apps/frontend` (opcional) | Angular host existente | Solo si IA se integra en ERP Josanz, no en CAE v2 |
+
+Wrappers microservicio (Modo C), generados solo bajo demanda:
+
+```
+apps/cae-validation-service/    → import @josanz-erp/cae-validation-backend
+apps/cae-extraction-service/
+apps/cae-mlops-service/
+```
+
+### 3.4 Integración con Plataforma CAE v2.0 — Microfrontends
+
+CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). La IA se integra como **capacidades embebidas**, no como reemplazo del frontend CAE.
+
+#### 3.4.1 Propuesta: Module Federation (microfrontend)
+
+| Remote (MFE) | Expone | Host CAE v2 carga en |
+|--------------|--------|----------------------|
+| `cae-assistant-mfe` | `AssistantPanel`, `IncidentsSidebar`, `DocumentUploadAssist` | Pantalla construcción expediente |
+| `cae-assistant-mfe` | `OperationsReviewPanel`, `ExecutiveSummary` | Cola revisión Operaciones |
+| `cae-assistant-mfe` | `MlopsDashboard` (opcional) | Backoffice MLOps |
+
+```mermaid
+flowchart LR
+    subgraph CAE20["Plataforma CAE v2.0 — Host"]
+        SHELL["Shell / Layout CAE"]
+        CORE["Core Expedientes"]
+        SLOT1["Slot: panel asistencia"]
+        SLOT2["Slot: incidencias"]
+        SHELL --> CORE
+        SHELL --> SLOT1 & SLOT2
+    end
+
+    subgraph MFE["apps/cae-assistant-mfe — Remote"]
+        FA["feature-assistant"]
+        FO["feature-operations"]
+        DA["data-access → cae-ia-backend"]
+        FA & FO --> DA
+    end
+
+    SLOT1 -->|Module Federation| FA
+    SLOT2 -->|Module Federation| FA
+    DA -->|REST / SSE| API["apps/cae-ia-backend"]
+    API --> ACL["integration-backend"]
+    ACL --> CORE
+```
+
+**Ventajas frente a iframe o copia de UI:**
+
+- Despliegue **independiente** del MFE sin redeploy de CAE v2 completo.
+- Reutilización de `libs/browser/cae/*` en host Josanz o CAE.
+- Contrato estable: remote entry + versión semver del MFE.
+- Alineado con Nx (`@nx/module-federation`).
+
+**Contrato de integración host ↔ MFE:**
+
+| Parámetro | Descripción |
+|-----------|-------------|
+| `expedienteId` | ID expediente activo en CAE |
+| `tenantId` / `concesionarioId` | Contexto multi-tenant |
+| `authToken` | JWT propagado desde CAE (Entra ID) |
+| `locale` | es-ES |
+| Eventos `@Output` | `incidenciaResuelta`, `documentoProcesado`, `envioSolicitado` |
+
+#### 3.4.2 Backend — Anti-Corruption Layer
+
+`integration-backend` traduce entre modelos CAE v2 y agregados IA:
+
+- **No** accede a la BD de CAE directamente salvo acuerdo explícito; preferencia por **APIs CAE** existentes.
+- Sincroniza estado expediente ↔ Unified Expedition JSON.
+- Emite eventos de dominio IA sin filtrar detalles internos CAE al resto de libs.
+
+#### 3.4.3 Fases de adopción
+
+| Fase | Entregable | Despliegue |
+|------|------------|------------|
+| **1 — Libs** | `isomorphic/cae/core` + `validation-backend` + `feature-assistant` | Monolito `cae-ia-backend`; CAE consume API REST |
+| **2 — MFE piloto** | `cae-assistant-mfe` con panel incidencias | Host CAE carga remote en un slot |
+| **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
+| **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
 ---
 
@@ -1535,7 +1722,7 @@ flowchart TB
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **microservicios con arquitectura hexagonal y DDD**: cada capacidad (ingesta, extracción, validación, razonamiento, MLOps) es un servicio autónomo con dominio explícito, puertos/adaptadores y contratos versionados, integrado con la Plataforma CAE mediante una capa anti-corrupción.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda, con **microfrontend** (`cae-assistant-mfe`) para integración embebida en CAE v2.0.
 
 La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
 

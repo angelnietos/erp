@@ -52,7 +52,7 @@
 <li><a href="#4-bucle-mlops-fitness-y-feedback" class="toc-link" data-section="4-bucle-mlops-fitness-y-feedback">4. Bucle MLOps, Fitness y Feedback</a></li>
 <li><a href="#5-capa-de-observabilidad-transversal" class="toc-link" data-section="5-capa-de-observabilidad-transversal">5. Capa de observabilidad transversal</a></li>
 <li><a href="#6-mapa-fase-funcional-componente-tecnico" class="toc-link" data-section="6-mapa-fase-funcional-componente-tecnico">6. Mapa fase funcional ↔ componente técnico</a></li>
-<li><a href="#7-exportar-diagrama-a-imagen" class="toc-link" data-section="7-exportar-diagrama-a-imagen">7. Exportar diagrama a imagen</a></li></ul>
+<li><a href="#7-mapa-objetivo-monorepo-nx" class="toc-link" data-section="7-mapa-objetivo-monorepo-nx">7. Mapa objetivo monorepo Nx</a></li></ul>
         </div>
       </aside>
 
@@ -127,7 +127,7 @@
 <td>Transversal — audit, tracing, KPIs</td>
 </tr>
 </tbody></table></div>
-<p><strong>Principios transversales:</strong> API First · Hexagonal · DDD · Microservicios · Desacoplamiento · Stateless · Human in the Loop · Observabilidad</p>
+<p><strong>Principios transversales:</strong> API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Human in the Loop · Observabilidad</p>
 <hr>
 <h2 id="0-paradigma-arquitectonico" class="section-title">0. Paradigma arquitectónico</h2>
 <p>La capa de asistencia inteligente se implementará con:</p>
@@ -140,17 +140,84 @@
 </thead>
 <tbody><tr>
 <td><strong>Arquitectura hexagonal</strong></td>
-<td>Puertos y adaptadores en cada servicio; dominio aislado de Azure</td>
+<td>Puertos y adaptadores en cada lib; dominio aislado de Azure/Nest/Angular</td>
 </tr>
 <tr>
 <td><strong>DDD</strong></td>
-<td>Bounded contexts: Validación CAE, Extracción, MLOps, Conocimiento…</td>
+<td>Bounded contexts en <code>libs/isomorphic/cae/core</code></td>
 </tr>
 <tr>
-<td><strong>Microservicios</strong></td>
-<td>Servicios desplegables independientes en AKS, comunicación REST + eventos</td>
+<td><strong>Monorepo Nx</strong></td>
+<td><code>libs/</code> reutilizables + <code>apps/</code> compositores — patrón <code>backend</code> / <code>frontend</code> existente</td>
+</tr>
+<tr>
+<td><strong>Deploy elástico</strong></td>
+<td>Monolito modular (<code>apps/cae-ia-backend</code>) → microservicios según demanda</td>
+</tr>
+<tr>
+<td><strong>Microfrontend</strong></td>
+<td><code>apps/cae-assistant-mfe</code> embebido en shell CAE v2 (Module Federation)</td>
 </tr>
 </tbody></table></div>
+<h3 id="01-situacion-actual-vs-objetivo" class="subsection-title">0.1 Situación actual vs objetivo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Plataforma CAE v2.0 (hoy)</th>
+<th>Capa IA CAE (objetivo)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Estructura</td>
+<td>Monolito / acoplado</td>
+<td><code>libs/</code> Nx independientes</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Core CAE propietario</td>
+<td><code>libs/node/cae/*-backend</code> + ACL</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>UI CAE única</td>
+<td>MFE + slots embebidos</td>
+</tr>
+<tr>
+<td>Despliegue</td>
+<td>Single app</td>
+<td>Monolito IA → microservicios opcional</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph WORKSPACE["josanz-erp — Monorepo Nx"]
+        subgraph APPS["apps/"]
+            A1["backend · frontend — referencia"]
+            A2["cae-ia-backend — host IA"]
+            A3["cae-assistant-mfe — remote"]
+        end
+        subgraph LIBS["libs/"]
+            ISO["isomorphic/cae/core · api"]
+            NODE["node/cae/*-backend"]
+            BR["browser/cae/feature-* · data-access"]
+        end
+    end
+
+    subgraph CAE20["Plataforma CAE v2.0"]
+        SHELL["Shell host"]
+    end
+
+    A2 --> NODE
+    A3 --> BR
+    NODE --> ISO
+    BR --> A2
+    SHELL -->|Module Federation| A3
+    NODE -->|integration-backend ACL| CAE20
+
+    style ISO fill:#fff9c4,stroke:#f9a825
+    style A3 fill:#e3f2fd,stroke:#1565c0
+</div>
 <div class="mermaid">
 flowchart LR
     subgraph MS["Microservicios CAE IA"]
@@ -681,16 +748,84 @@ flowchart LR
 <td>Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry</td>
 </tr>
 <tr>
-<td>—</td>
-<td><strong>Paradigma</strong></td>
-</tr>
-<tr>
 <td>⑩ Observabilidad</td>
 <td>OpenTelemetry, Audit Log, dashboards</td>
 </tr>
+<tr>
+<td><strong>Implementación</strong></td>
+<td><strong>Monorepo Nx:</strong> <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/browser/cae</code> + <code>apps/cae-ia-backend</code> + MFE CAE v2</td>
+</tr>
 </tbody></table></div>
 <hr>
-<h2 id="7-exportar-diagrama-a-imagen" class="section-title">7. Exportar diagrama a imagen</h2>
+<h2 id="7-mapa-objetivo-monorepo-nx" class="section-title">7. Mapa objetivo monorepo Nx</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa workspace</th>
+<th>Ruta objetivo</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dominio DDD</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Agregados, reglas RF, eventos — sin Nest/Angular</td>
+</tr>
+<tr>
+<td>Contratos</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs compartidos</td>
+</tr>
+<tr>
+<td>Backend IA</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules hexagonales composables</td>
+</tr>
+<tr>
+<td>Frontend IA</td>
+<td><code>libs/browser/cae/feature-*</code></td>
+<td>Paneles asistencia, operaciones, MLOps</td>
+</tr>
+<tr>
+<td>Host backend</td>
+<td><code>apps/cae-ia-backend</code></td>
+<td>Monolito modular IA (Modo A default)</td>
+</tr>
+<tr>
+<td>Microfrontend</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote Module Federation → shell CAE v2</td>
+</tr>
+<tr>
+<td>Referencia</td>
+<td><code>apps/backend</code>, <code>apps/frontend</code></td>
+<td>Patrón existente del workspace</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Modo despliegue</th>
+<th>Composición</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A — Monolito modular</td>
+<td>Solo <code>cae-ia-backend</code></td>
+<td>MVP, integración CAE, baja carga</td>
+</tr>
+<tr>
+<td>B — Híbrido</td>
+<td>Monolito + 1–2 servicios (p. ej. MLOps)</td>
+<td>Picos aislados</td>
+</tr>
+<tr>
+<td>C — Microservicios</td>
+<td>Un <code>apps/cae-*-service</code> por lib backend</td>
+<td>Alta escala, equipos separados</td>
+</tr>
+</tbody></table></div>
 <ol>
 <li>Abrir <a href="https://mermaid.live">mermaid.live</a></li>
 <li>Pegar el bloque Mermaid deseado</li>
