@@ -28,6 +28,7 @@
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
 | 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2) |
 | 11 | 03/07/2026 | Respuesta explícita a requisitos Operaciones IDEAUTO; posicionamiento CAE vs OCR genérico; objetivo reducción carga operativa |
+| 12 | 03/07/2026 | Modelo AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT — IA aprueba/rechaza autónomamente; Operaciones solo excepciones |
 
 ---
 
@@ -89,7 +90,7 @@ Un expediente CAE agrupa la documentación necesaria para certificar el ahorro e
 - Documentación acreditativa del titular, vehículos y operación de sustitución.
 - Coherencia entre múltiples fuentes (DNI, facturas, fichas técnicas, permisos, IVTM, convenios).
 - Cumplimiento de requisitos regulatorios y de negocio IDEAUTO (antigüedad VO, tipología BEV, plazos, ahorro energético).
-- Revisión humana final por el equipo de Operaciones antes de la tramitación definitiva — con el objetivo de que la **IA asuma progresivamente las comprobaciones** que hoy realiza ese equipo de forma manual (§1.7, §17.4).
+- Revisión humana **solo en excepciones** (`HUMAN_REVIEW`) y auditoría muestral; expedientes limpios los **aprueba la IA** automáticamente (§17.5).
 
 El sistema de asistencia inteligente no sustituye el proceso CAE: **lo acompaña**, detectando errores en origen, reduciendo retrabajo y generando datos para la **evolución continua** de la calidad del servicio IA.
 
@@ -114,7 +115,7 @@ Este documento define de forma integral:
 | **Fitness** | Puntuación compuesta que mide la calidad global de un modelo, extractor, prompt o versión de reglas |
 | **Feedback** | Corrección humana registrada que alimenta el ciclo de mejora |
 | **Golden set** | Conjunto de expedientes/documentos de referencia para evaluación y regresión |
-| **Human in the Loop** | Supervisión humana obligatoria en decisiones finales de aprobación |
+| **Human in the Loop** | Supervisión humana en **excepciones y auditoría**; la IA **aprueba o rechaza automáticamente** los expedientes que cumplen umbrales de confianza (§17.5) |
 | **Operaciones IDEAUTO** | Equipo de revisión CAE de IDEAUTO (Operaciones); responsable de la validación humana final antes de tramitación |
 
 ### 1.5 Posicionamiento: solución CAE específica, no OCR genérico
@@ -157,16 +158,16 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 | Operaciones **detecta incidencias** que el cliente no corrigió | La IA **detecta y bloquea** incidencias críticas/mayores **antes del envío** |
 | **Alta carga operativa** y devoluciones frecuentes | **Reducción medible** de tiempo de revisión (-40 % objetivo) y devoluciones (-30 % objetivo) |
 
-> **Matiz importante (Human in the Loop):** la **aprobación formal** del expediente para tramitación definitiva **permanece siempre humana** (§3.2, PF-04). Lo que evoluciona es **quién realiza el trabajo analítico de validación**: pasa de ser **100 % manual por Operaciones** a ser **ejecutado por la IA**, con Operaciones supervisando el resultado, atendiendo excepciones y aprobando.
+> **Modelo de decisión:** la IA **no deja todo en manos del humano**. En expedientes que cumplen todos los criterios (reglas CAE OK, confidence alta, sin incidencias), la IA **aprueba y tramita automáticamente** — Operaciones **no los revisa**. Solo intervienen en casos **Review** (dudosos), **auditoría muestral** y **gobernanza**. Detalle en §17.5.
 
 **Evolución del reparto de trabajo (horizonte 6 meses):**
 
 | Horizonte | Cliente | Sistema IA | Operaciones IDEAUTO |
 |-----------|---------|------------|---------------------|
-| **Meses 1–2** | Corrige incidencias en origen gracias al feedback en tiempo real | Validación progresiva + reglas CAE activas; MFE en producción | Recibe expedientes **pre-validados** con resumen ejecutivo IA; revisión acotada |
-| **Meses 3–4** | Menos reenvíos; mayor FTR | Cruces, completitud y scoring consolidados; RAG operativo | Atiende **solo excepciones** y casos marcados como Review |
-| **Meses 5–6** | Expedientes llegan mayoritariamente limpios | IA replica el know-how operativo acumulado (reglas + feedback + golden set) | **Supervisión** de muestra, casos complejos y aprobación formal |
-| **Evolución continua** | Experiencia asistida | Aprendizaje MLOps: cada corrección de Operaciones mejora reglas y modelos | Carga operativa **decreciente**; foco en gobernanza y calidad |
+| **Meses 1–2** | Corrige incidencias en origen | Validación progresiva activa; Decision Engine en **modo calibración** (IA decide, Operaciones confirma en paralelo) | Valida aciertos de la IA; alimenta feedback |
+| **Meses 3–4** | Menos reenvíos; mayor FTR | **Auto-aprobación activa** en casos OK + confidence alta | Cola reducida: **solo Review** y excepciones |
+| **Meses 5–6** | Expedientes limpios al primer envío | **> 70 % auto-aprobados**; auto-rechazo en casos claros | **Auditoría muestral** (~5 %) + casos complejos |
+| **Evolución continua** | Experiencia asistida | MLOps mejora umbrales; sube % auto-aprobación | Carga operativa mínima; foco en gobernanza |
 
 ---
 
@@ -180,7 +181,8 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 | OBJ-06 | Disponer de métricas objetivas sobre errores frecuentes | Dashboard de calidad por marca/concesionario |
 | OBJ-07 | Mejorar continuamente la calidad de la IA | Fitness de modelos y extractores en mejora trimestral |
 | OBJ-08 | Reducir falsos positivos/negativos en validación | Recall y precisión de incidencias monitorizados |
-| OBJ-09 | **Automatizar el trabajo de validación funcional** que hoy realiza Operaciones IDEAUTO manualmente | % comprobaciones CAE ejecutadas por IA vs. humano; reducción horas revisión / expediente |
+| OBJ-09 | **Automatizar el trabajo de validación y decisión** que hoy realiza Operaciones IDEAUTO manualmente | % comprobaciones CAE por IA; % expedientes **auto-aprobados** por IA |
+| OBJ-10 | **Auto-aprobación gobernada** — IA aprueba expedientes limpios sin intervención humana | % expedientes auto-aprobados (objetivo **> 70 %** al mes 6) |
 
 ---
 
@@ -207,6 +209,7 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 - **Fine-tuning** y mejora de extractores (fase evolutiva).
 - Integración con APIs IDEAUTO (vehículos, antigüedad, ahorro).
 - Knowledge Base CAE (RAG) para asistencia y explicaciones.
+- **Auto-aprobación y auto-rechazo gobernados** — Decision Engine aprueba o rechaza expedientes automáticamente cuando cumplen umbrales (§17.5).
 
 ### 3.2 Excluido
 
@@ -214,7 +217,7 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 - Facturación y gestión económica.
 - Gestión de Sujetos Delegados.
 - Gestión de Lotes.
-- **Aprobación automática de expedientes** — la decisión final siempre corresponde a un usuario autorizado.
+- **Aprobación ciega sin criterios** — toda auto-aprobación exige cumplir umbrales de confidence, fitness y reglas CAE; es auditable y reversible.
 - **Despliegue automático de modelos sin evaluación** — todo cambio de modelo/prompt/regla exige evaluación de fitness y aprobación de gobernanza IA.
 
 ---
@@ -226,7 +229,7 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 | PF-01 | **Asistencia continua** | La IA acompaña al usuario durante toda la construcción del expediente, no solo al final. |
 | PF-02 | **Prevención de errores** | Las incidencias se detectan lo antes posible; preferencia por corrección en origen. |
 | PF-03 | **Explicabilidad** | Toda validación indica: regla, documento, dato, motivo y acción recomendada. |
-| PF-04 | **Supervisión humana** | La IA nunca aprueba expedientes automáticamente. |
+| PF-04 | **Automatización progresiva** | La IA **aprueba o rechaza automáticamente** expedientes que cumplen umbrales; Operaciones interviene solo en excepciones (Review) y auditoría muestral. |
 | PF-05 | **Trazabilidad completa** | Toda acción de la IA es auditable (prompts, respuestas, reglas, correcciones). |
 | PF-06 | **Validación progresiva** | Cada evento documental dispara recálculo del estado global del expediente. |
 | PF-07 | **Separación de responsabilidades** | Extracción ≠ Validación determinista ≠ Razonamiento IA. |
@@ -240,7 +243,7 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 | PF-15 | **Testabilidad en capas** | Pirámide de testing: unitarios abundantes, integración, E2E selectivos, carga/estrés periódicos. |
 | PF-16 | **UI reusable documentada** | Componentes tontos en catálogo Storybook; componentes listos sin lógica de dominio embebida. |
 | PF-17 | **Modernización incremental** | Estrategia Strangler Fig: módulos nuevos en Angular vía MFE; host React actual en retirada progresiva (ver doc. estrategia). |
-| PF-18 | **Reducción carga Operaciones** | La IA debe **asumir progresivamente** las comprobaciones que hoy ejecuta manualmente el equipo de revisión IDEAUTO; Operaciones pasa a supervisar excepciones y aprobar. |
+| PF-18 | **Reducción carga Operaciones** | La IA **aprueba/rechaza** casos rutinarios; Operaciones deja de revisar expedientes limpios uno a uno. |
 | PF-19 | **Dominio CAE, no OCR genérico** | Toda capacidad se evalúa por su aportación al **proceso CAE** (reglas, cruces, completitud), no por calidad de extracción aislada. |
 
 ---
@@ -267,7 +270,7 @@ Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la
 | UC-03 | Consultar estado | Cliente | Ve completitud, incidencias, scoring y recomendaciones |
 | UC-04 | Auto-completar campos | Sistema IA | Rellena formulario desde datos extraídos con confianza |
 | UC-05 | Consultar asistente | Cliente | Preguntas contextuales sobre el expediente |
-| UC-06 | Enviar a revisión | Cliente | Solicita envío; Decision Engine evalúa OK / Revisión / Rechazo |
+| UC-06 | Enviar expediente | Cliente | Solicita envío; Decision Engine **auto-aprueba**, envía a excepciones o **auto-rechaza** |
 | UC-07 | Revisar expediente | Operaciones | Consulta resumen IA, incidencias priorizadas, campos corregidos |
 | UC-08 | Devolver expediente | Operaciones | Genera devolución estructurada al cliente |
 | UC-09 | Registrar corrección | Operaciones / Cliente | Alimenta Feedback Engine con dato corregido y motivo |
@@ -405,17 +408,18 @@ flowchart LR
 
 | Decisión | Significado | Acción |
 |----------|-------------|--------|
-| **OK** | Expediente listo para envío | Permite envío a Operaciones |
-| **Review** | Requiere revisión humana | Cola Operaciones + resumen IA |
-| **Reject** | Rechazo automático | Detalle incidencias bloqueantes |
+| **AUTO_APPROVE** | Expediente limpio: reglas OK, confidence alta, completitud 100 % | **IA aprueba y tramita** — no pasa por cola Operaciones |
+| **HUMAN_REVIEW** | Incidencias menores, confidence baja o caso atípico | Cola Operaciones + resumen IA |
+| **AUTO_REJECT** | Incidencias críticas/mayores abiertas | **IA rechaza** — bloqueo con detalle al cliente |
 
-> La IA **nunca aprueba** definitivamente. OK significa «listo para envío», no «aprobado».
+> En fases iniciales (meses 1–2, calibración), todos los expedientes OK pasan por Operaciones en **modo shadow** hasta validar aciertos de la IA. A partir del mes 3, **AUTO_APPROVE** entra en producción para casos que cumplen umbrales (§17.5).
 
-#### Fase 8 — Revisión Operaciones
+#### Fase 8 — Revisión Operaciones (solo excepciones)
 
-- Resumen IA con incidencias priorizadas.
-- Supervisor CAE + Asistente IA para Operaciones.
-- Validación humana final (aprobar / devolver / rechazar).
+- **No todos los expedientes pasan por aquí** — solo los marcados `HUMAN_REVIEW`.
+- Resumen IA con incidencias priorizadas para acelerar la decisión humana.
+- Supervisor CAE + Asistente IA para casos dudosos.
+- Aprobación / devolución / rechazo humano **solo en la cola de excepciones**.
 
 #### Fase 9 — Feedback + MLOps
 
@@ -452,7 +456,7 @@ Flujo horizontal que atraviesa todo el sistema:
 - **Microfrontend React (Fase 1)** — Paneles IA embebidos en shell CAE v2 (React + Module Federation).
 - **Microfrontend Angular (evolución)** — Misma integración funcional; stack propuesto para modernización progresiva de CAE.
 - **Stateless** — Persistencia en sistemas especializados.
-- **Human in the Loop** — Sin aprobación automática de expedientes.
+- **Human in the Loop acotado** — Operaciones interviene en excepciones y auditoría; no revisa expedientes auto-aprobados.
 - **Observabilidad** — Logs, telemetría, trazabilidad end-to-end.
 
 ### 6.4 Correspondencia fases ↔ libs Nx (objetivo)
@@ -633,9 +637,9 @@ Aunque la arquitectura interna es compleja, el comportamiento percibido por el u
 4. La IA evalúa si el documento es válido, legible y completo.
 5. La IA cruza la información con el resto del expediente.
 6. La IA informa incidencias, completitud y recomendaciones **en tiempo real**.
-7. Al enviar, la IA realiza validación final y recomienda OK / Revisión / Rechazo.
-8. Operaciones recibe **solo lo que requiere atención humana** (resumen priorizado, excepciones); la IA ya habrá ejecutado las comprobaciones rutinarias.
-9. Operaciones **aprueba, devuelve o rechaza** — la decisión formal es humana; el trabajo de validación funcional lo hace la IA.
+7. Al enviar, la IA decide: **auto-aprueba**, envía a **revisión humana** (excepción) o **auto-rechaza**.
+8. Operaciones **solo ve la cola de excepciones** (`HUMAN_REVIEW`) — no repite trabajo en expedientes auto-aprobados.
+9. Auditoría muestral periódica sobre auto-aprobaciones; feedback alimenta mejora continua.
 
 ### 7.2 Fases detalladas
 
@@ -676,7 +680,7 @@ Antes de permitir el envío a Operaciones:
 - Validación de completitud (100% documentos obligatorios).
 - Validación de coherencia global (VIN, titular, matrícula, fechas).
 - Validación funcional CAE completa (antigüedad VO, combustible, ahorro).
-- Decision Engine: **OK** / **Revisión** / **Rechazo**.
+- Decision Engine: **AUTO_APPROVE** / **HUMAN_REVIEW** / **AUTO_REJECT**.
 - Incidencias críticas y mayores **bloquean** el envío.
 
 #### Fase 5 — Revisión Operaciones
@@ -709,17 +713,18 @@ stateDiagram-v2
     EN_CONSTRUCCION --> CON_INCIDENCIAS: Incidencias críticas/mayores
     PENDIENTE_DOCUMENTOS --> EN_CONSTRUCCION: Documento añadido
     CON_INCIDENCIAS --> EN_CONSTRUCCION: Incidencia resuelta
-    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado (Decision=OK o Review)
-    PENDIENTE_REVISION --> REVISION_OPERACIONES: En cola
+    EN_CONSTRUCCION --> VALIDADO: Auto-aprobación IA (AUTO_APPROVE)
+    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío con HUMAN_REVIEW
+    PENDIENTE_REVISION --> REVISION_OPERACIONES: En cola excepciones
     REVISION_OPERACIONES --> CON_INCIDENCIAS: Devolución
-    REVISION_OPERACIONES --> VALIDADO: Aprobado
-    REVISION_OPERACIONES --> RECHAZADO: Rechazado
-    CON_INCIDENCIAS --> RECHAZADO: Envío bloqueado (Decision=Reject)
+    REVISION_OPERACIONES --> VALIDADO: Aprobado por Operaciones
+    REVISION_OPERACIONES --> RECHAZADO: Rechazado por Operaciones
+    CON_INCIDENCIAS --> RECHAZADO: Auto-rechazo IA (AUTO_REJECT)
     VALIDADO --> [*]
     RECHAZADO --> EN_CONSTRUCCION: Corrección y reintento
 ```
 
-> Tanto `Decision=OK` (sin incidencias) como `Decision=Review` (incidencias menores) envían el expediente a la cola de Operaciones; la diferencia es la prioridad y el nivel de detalle del resumen IA. Solo `Decision=Reject` (incidencias críticas/mayores abiertas) bloquea el envío antes de llegar a Operaciones. El estado `VALIDADO` del expediente se alcanza siempre tras la aprobación de Operaciones — nunca se salta la cola de revisión.
+> **`VALIDADO`** se alcanza por **auto-aprobación IA** (casos limpios — la mayoría al mes 6) o por **aprobación humana** (cola de excepciones). Operaciones **no revisa** expedientes auto-aprobados; interviene solo en `HUMAN_REVIEW` y en **auditoría muestral** (~5 %).
 
 | Estado | Descripción | Acciones permitidas al cliente |
 |--------|-------------|--------------------------------|
@@ -729,7 +734,7 @@ stateDiagram-v2
 | `CON_INCIDENCIAS` | Incidencias críticas o mayores abiertas | Corregir incidencias |
 | `PENDIENTE_REVISION` | Enviado, en cola | Solo consulta |
 | `REVISION_OPERACIONES` | En revisión activa | Responder devoluciones |
-| `VALIDADO` | Aprobado por Operaciones | Solo consulta |
+| `VALIDADO` | Aprobado (por IA auto-aprobación o por Operaciones) | Solo consulta |
 | `RECHAZADO` | Rechazado (automático o humano) | Corregir y reiniciar flujo |
 
 ### 8.2 Estados del documento
@@ -1086,7 +1091,7 @@ Operaciones puede generar una **devolución estructurada** al usuario con listad
 
 ## 17. Revisión Operaciones
 
-El equipo de **Operaciones IDEAUTO** mantiene la **aprobación formal** de expedientes, pero el sistema está diseñado para que la IA **asuma progresivamente el trabajo de validación funcional** que hoy ejecutan de forma manual (§1.7, §17.4). Operaciones recibe expedientes **pre-validados**, con resumen ejecutivo y solo las incidencias que requieren atención humana.
+El equipo de **Operaciones IDEAUTO** interviene **solo en la cola de excepciones** (`HUMAN_REVIEW`) y en **auditoría muestral**. Los expedientes limpios los **aprueba la IA automáticamente** sin pasar por Operaciones (§17.5).
 
 ### 17.1 Flujo de revisión
 
@@ -1098,16 +1103,25 @@ sequenceDiagram
     participant OP as Operaciones
 
     C->>CAE: Enviar expediente
-    CAE->>IA: Solicitar análisis global
-    IA->>IA: Validación final + Decision Engine
-    IA-->>CAE: Resumen + incidencias + risk score
-    CAE->>OP: Expediente en cola revisión
-    OP->>CAE: Consultar expediente
-    CAE->>IA: Obtener resumen ejecutivo
-    IA-->>OP: Resumen priorizado
-    OP->>CAE: Validar / Devolver / Rechazar
-    alt Devolución
-        CAE->>C: Notificación incidencias
+    CAE->>IA: Validación final + Decision Engine
+    IA->>IA: Evaluar reglas, confidence, umbrales
+
+    alt AUTO_APPROVE — expediente limpio
+        IA-->>CAE: Aprobado automáticamente
+        CAE->>CAE: Tramitación directa (sin cola Operaciones)
+    else HUMAN_REVIEW — excepción
+        IA-->>CAE: Resumen + incidencias + risk score
+        CAE->>OP: Expediente en cola excepciones
+        OP->>CAE: Consultar expediente
+        CAE->>IA: Obtener resumen ejecutivo
+        IA-->>OP: Resumen priorizado
+        OP->>CAE: Aprobar / Devolver / Rechazar
+        alt Devolución
+            CAE->>C: Notificación incidencias
+        end
+    else AUTO_REJECT — incidencias bloqueantes
+        IA-->>CAE: Rechazado automáticamente
+        CAE->>C: Detalle incidencias bloqueantes
     end
 ```
 
@@ -1120,52 +1134,99 @@ sequenceDiagram
 - Campos modificados manualmente vs. extraídos.
 - Recomendación: aprobar / revisar con atención / rechazar.
 
-### 17.3 Decision Engine (pre-envío)
+### 17.3 Decision Engine (pre-envío y post-envío)
 
 | Resultado | Condición funcional | Efecto |
 |-----------|---------------------|--------|
-| **OK** | Sin incidencias críticas/mayores; completitud 100% | Permite envío a Operaciones |
-| **Review** | Incidencias menores o confidence global baja | Cola revisión + resumen IA |
-| **Reject** | Incidencias críticas/mayores abiertas | Bloqueo con detalle al cliente |
+| **AUTO_APPROVE** | Sin incidencias críticas/mayores; completitud 100 %; confidence global ≥ umbral; sin flags de riesgo | **IA aprueba y tramita** — expediente → `VALIDADO` sin cola Operaciones |
+| **HUMAN_REVIEW** | Incidencias menores, confidence global baja, campos editados manualmente, tipología atípica | Cola excepciones Operaciones + resumen IA |
+| **AUTO_REJECT** | Incidencias críticas/mayores abiertas | **IA rechaza** — bloqueo al cliente con detalle |
 
 ### 17.4 Reducción de la carga operativa de Operaciones IDEAUTO
 
-Esta sección responde directamente a la pregunta de **cómo se reduce la intervención manual** del equipo de revisión de Operaciones IDEAUTO.
+Esta sección responde a **cómo se reduce la intervención manual** del equipo de revisión: la IA **no solo comprueba** — **aprueba o rechaza** expedientes completos cuando cumple criterios, igual que haría un revisor humano en un caso rutinario.
 
 #### 17.4.1 Qué hace hoy Operaciones vs. qué hará la IA
 
 | Tarea de revisión (hoy manual) | Responsable futuro | Cuándo |
 |--------------------------------|-------------------|--------|
-| Comprobar legibilidad e integridad documental | **IA** (Bloque A, G — RF-001–RF-007, RF-029–RF-030) | Validación progresiva, en origen |
-| Verificar firmas y anexos | **IA** (Bloque B, F — RF-008–RF-010, RF-026–RF-028) | Al incorporar cada documento |
-| Cruzar titular, VIN, matrícula entre documentos | **IA** (Bloque C — RF-011–RF-014) | Tras cada documento o modificación |
-| Validar reglas CAE (antigüedad VO, BEV, plazos, ahorro) | **IA** (Bloque D — RF-015–RF-020) + API IDEAUTO | Continuo + pre-envío |
-| Comprobar completitud del pack documental | **IA** (§15.3, control completitud) | Permanente en UI cliente |
-| Detectar incidencias y priorizarlas | **IA** (Validation Engine + scoring) | Antes de que llegue a Operaciones |
-| Resumir expediente para el revisor | **IA** (resumen ejecutivo — §17.2) | Al entrar en cola |
-| **Aprobar, devolver o rechazar** expediente | **Operaciones IDEAUTO** (humano) | Siempre — aprobación formal |
-| Casos excepcionales, dudosos o nuevos | **Operaciones IDEAUTO** (humano) | Cuando IA marca Review o confidence baja |
+| Comprobar legibilidad e integridad documental | **IA** (Bloque A, G) | Validación progresiva, en origen |
+| Verificar firmas y anexos | **IA** (Bloque B, F) | Al incorporar cada documento |
+| Cruzar titular, VIN, matrícula entre documentos | **IA** (Bloque C) | Tras cada documento o modificación |
+| Validar reglas CAE (antigüedad VO, BEV, plazos, ahorro) | **IA** (Bloque D) + API IDEAUTO | Continuo + pre-envío |
+| Comprobar completitud del pack documental | **IA** (§15.3) | Permanente en UI cliente |
+| Detectar incidencias y priorizarlas | **IA** (Validation Engine + scoring) | Antes del envío |
+| **Aprobar expedientes rutinarios (limpios)** | **IA** (AUTO_APPROVE) | Al enviar — **sin pasar por Operaciones** |
+| **Rechazar expedientes con errores claros** | **IA** (AUTO_REJECT) | Pre-envío o al enviar |
+| Revisar casos dudosos o atípicos | **Operaciones IDEAUTO** | Solo cola `HUMAN_REVIEW` |
+| Auditoría de calidad sobre auto-aprobaciones | **Operaciones IDEAUTO** | Muestra periódica (~5 %) |
 | Corregir y alimentar mejora del sistema | **Operaciones IDEAUTO** → Feedback Engine | Continuo; mejora reglas y modelos |
 
-> **La IA no sustituye la decisión de aprobación** (PF-04). **Sí sustituye el trabajo repetitivo de comprobación** que hoy consume la mayor parte del tiempo de revisión.
+> **El ahorro real:** si Operaciones tuviera que **revisar de nuevo** cada expediente que la IA ya validó, no habría reducción de carga. Por eso los expedientes limpios **no entran en cola humana** — la IA **aprueba directamente**.
 
 #### 17.4.2 Mecanismos concretos de reducción de carga
 
-1. **Filtrado pre-envío** — Incidencias críticas/mayores bloquean el envío; Operaciones no recibe expedientes con errores evidentes sin corregir.
-2. **First Time Right (FTR)** — Objetivo > 60 %: expedientes que llegan limpios a la cola, reduciendo devoluciones y re-trabajo.
-3. **Resumen ejecutivo priorizado** — Operaciones ve solo incidencias, alertas y campos dudosos (§16.2); no repite comprobaciones ya validadas por la IA.
-4. **Cola inteligente** — Expedientes OK vs. Review vs. Reject pre-clasificados; Operaciones invierte tiempo en excepciones.
-5. **Ciclo MLOps** — Cada corrección de Operaciones mejora reglas y modelos; la IA aprende el criterio operativo de IDEAUTO.
+1. **Auto-aprobación gobernada** — Expedientes OK + confidence alta → tramitación directa; Operaciones no los ve.
+2. **Auto-rechazo** — Incidencias críticas/mayores bloquean o rechazan sin consumir tiempo de revisión.
+3. **Cola de excepciones** — Operaciones solo atiende `HUMAN_REVIEW` (casos dudosos).
+4. **First Time Right (FTR)** — Objetivo > 60 %: más expedientes auto-aprobables al primer envío.
+5. **Auditoría muestral** — ~5 % de auto-aprobaciones revisadas por Operaciones; detecta regresiones sin revisar todo.
+6. **Ciclo MLOps** — Cada corrección en auditoría mejora umbrales y reglas.
 
 #### 17.4.3 KPIs de reducción de carga (Operaciones IDEAUTO)
 
 | KPI | Objetivo | Efecto en Operaciones |
 |-----|----------|----------------------|
-| Reducción tiempo revisión | **-40 %** vs. baseline | Menos minutos por expediente en cola |
-| Reducción expedientes devueltos | **-30 %** vs. baseline | Menos ciclos de corrección cliente ↔ Operaciones |
-| Incidencias detectadas pre-envío | **> 90 %** | Operaciones recibe menos sorpresas |
-| First Time Right | **> 60 %** | Mayoría de expedientes listos al primer envío |
-| % comprobaciones CAE por IA | Crecimiento hasta **> 95 %** (mes 6) | Operaciones deja de ejecutar comprobaciones rutinarias |
+| **% expedientes auto-aprobados por IA** | **> 70 %** al mes 6 | Operaciones no revisa la mayoría de expedientes |
+| Reducción tiempo revisión | **-40 %** vs. baseline | Solo mide cola de excepciones + auditoría |
+| Reducción expedientes devueltos | **-30 %** vs. baseline | Menos ciclos cliente ↔ Operaciones |
+| Incidencias detectadas pre-envío | **> 90 %** | Menos sorpresas en cola de excepciones |
+| First Time Right | **> 60 %** | Más candidatos a AUTO_APPROVE |
+| Precisión auto-aprobación (auditoría) | **> 98 %** | Confianza en decisiones automáticas |
+
+### 17.5 Criterios de auto-aprobación y auto-rechazo (AUTO_APPROVE / AUTO_REJECT)
+
+La IA **puede aprobar o rechazar expedientes por sí misma** cuando se cumplen criterios objetivos y medibles. No es una aprobación ciega: cada decisión queda registrada en audit log con reglas aplicadas, confidence y motivo.
+
+#### 17.5.1 Criterios AUTO_APPROVE (todos obligatorios)
+
+| # | Criterio | Umbral |
+|---|----------|--------|
+| 1 | Sin incidencias críticas ni mayores abiertas | 0 |
+| 2 | Completitud documental | 100 % |
+| 3 | Confidence global de extracciones | ≥ 85 % |
+| 4 | Sin campos clave modificados manualmente tras extracción | Sin flags |
+| 5 | Reglas CAE Bloques A–G | Todas PASS |
+| 6 | Cruces semánticos (titular, VIN, matrícula) | Coherentes |
+| 7 | Fitness global del sistema | ≥ umbral activo (§21) |
+| 8 | Tipología de expediente | No marcada como atípica |
+
+#### 17.5.2 Criterios AUTO_REJECT
+
+| Condición | Efecto |
+|-----------|--------|
+| Incidencias críticas abiertas | Rechazo automático |
+| Incidencias mayores abiertas | Rechazo automático (o bloqueo pre-envío) |
+| Completitud < 100 % al enviar | Bloqueo al cliente |
+
+#### 17.5.3 Criterios HUMAN_REVIEW (cola Operaciones)
+
+| Condición | Motivo |
+|-----------|--------|
+| Incidencias menores abiertas | Requiere criterio humano |
+| Confidence global < 85 % | Extracciones dudosas |
+| Campo clave editado manualmente | Posible discrepancia con documento |
+| Tipología atípica o primera vez | Sin precedente en golden set |
+| Cualquier regla en estado ADVERTENCIA | Zona gris |
+
+#### 17.5.4 Activación progresiva
+
+| Fase | Comportamiento |
+|------|----------------|
+| **Meses 1–2 (calibración)** | IA emite decisión; **todos** los OK pasan por Operaciones en paralelo (shadow). Se mide precisión antes de activar auto-aprobación. |
+| **Meses 3–4** | **AUTO_APPROVE activo** si precisión auditoría ≥ 95 %. Operaciones solo ve HUMAN_REVIEW. |
+| **Meses 5–6** | Objetivo **> 70 % auto-aprobados**; auditoría muestral ~5 %. |
+| **Rollback** | Si precisión auto-aprobación cae bajo umbral en auditoría → desactivar AUTO_APPROVE hasta recalibrar (§20, §21). |
 
 ---
 
@@ -1458,7 +1519,8 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | Reducción expedientes devueltos | -30% vs. baseline | Operaciones |
 | Reducción tiempo revisión | -40% vs. baseline | Operaciones |
 | Reducción tiempo creación | -25% vs. baseline | Producto |
-| **Comprobaciones CAE ejecutadas por IA** | **> 95 % al mes 6** (vs. 0 % hoy) | Sistema IA / Operaciones |
+| **Comprobaciones CAE ejecutadas por IA** | **> 95 %** al mes 6 | Sistema IA |
+| **Expedientes auto-aprobados por IA** | **> 70 %** al mes 6 | Operaciones no los revisa |
 | First Time Right | > 60% | Sistema IA |
 | Incidencias detectadas pre-envío | > 90% | Sistema IA |
 | Precisión clasificación documental | > 95% | MLOps |
@@ -1484,7 +1546,7 @@ Participantes: Operaciones, MLOps, Producto, Dirección. Revisa trimestralmente 
 |-----------|-------------|-------------------------------|
 | **Meses 1–2 (corto plazo)** | Validación progresiva completa, reglas A–G, scoring, Decision Engine, MFE en producción | Expedientes pre-validados; resumen IA en cola; **inicio reducción carga** |
 | **Meses 3–4 (medio plazo)** | Asistente RAG, feedback estructurado, fitness automatizado, cola inteligente | Operaciones atiende **excepciones**; FTR en crecimiento |
-| **Meses 5–6 (consolidación)** | IA replica know-how operativo; golden set maduro; reglas refinadas con feedback | **> 95 % comprobaciones por IA**; Operaciones en supervisión y aprobación |
+| **Meses 5–6 (consolidación)** | Auto-aprobación madura; golden set refinado | **> 70 % auto-aprobados**; Operaciones = excepciones + auditoría ~5 % |
 | **Evolución continua** | Fine-tuning extractores, A/B testing, fitness predictivo | Carga operativa **decreciente**; foco en gobernanza |
 
 La evolución se mide por **fitness demostrable**, no por despliegue de funcionalidades aisladas.
@@ -1493,7 +1555,7 @@ La evolución se mide por **fitness demostrable**, no por despliegue de funciona
 
 ## 27. Visión final
 
-La IA actuará como un **revisor funcional automatizado del expediente CAE** — capaz de **hacer el trabajo de validación que hoy realiza manualmente el equipo de Operaciones IDEAUTO**, con supervisión humana en la aprobación formal y en casos excepcionales.
+La IA actuará como **revisor y decisor funcional del expediente CAE** — capaz de **aprobar, rechazar y validar** expedientes de forma autónoma cuando cumplen criterios objetivos, realizando el trabajo que hoy ejecuta manualmente el equipo de Operaciones IDEAUTO.
 
 ### 27.1 Capacidades de la plataforma
 
@@ -1501,23 +1563,23 @@ La IA actuará como un **revisor funcional automatizado del expediente CAE** —
 - **Validar continuamente** la documentación aportada (no solo al final).
 - Aplicar **reglas de negocio específicas** del proceso CAE (RF-001–RF-030).
 - **Cruzar información entre documentos** en tiempo real.
-- Detectar incidencias **antes** de la revisión por Operaciones.
-- **Ejecutar automáticamente** las comprobaciones que hoy consume el tiempo de revisión humano.
-- Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones **solo en lo que requiere atención humana**.
-- **Aprender y mejorar** mediante feedback, cálculo de fitness y ciclo MLOps gobernado.
-- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend embebido (meses 1–2), con **migración a Angular completa al mes 6**.
+- Detectar incidencias **antes** del envío.
+- **Aprobar automáticamente** expedientes limpios (`AUTO_APPROVE`) — sin intervención humana.
+- **Rechazar automáticamente** expedientes con errores claros (`AUTO_REJECT`).
+- Enviar a Operaciones **solo excepciones** (`HUMAN_REVIEW`) con resumen priorizado.
+- **Aprender y mejorar** mediante feedback, fitness y MLOps gobernado.
 
 ### 27.2 Objetivo estratégico para Operaciones IDEAUTO
 
 | Dimensión | Situación actual | Objetivo con la solución |
 |-----------|------------------|--------------------------|
-| **Trabajo de revisión** | Operaciones comprueba manualmente cada regla, cruce y documento | **La IA ejecuta esas comprobaciones**; Operaciones supervisa el resultado |
-| **Momento de detección** | Incidencias detectadas en revisión (tarde) | Incidencias detectadas **en origen**, antes del envío |
-| **Carga operativa** | Alta; devoluciones y re-trabajo frecuentes | **Reducción -40 % tiempo revisión**, **-30 % devoluciones** |
-| **Rol del revisor** | Ejecutor de comprobaciones rutinarias | **Supervisor de excepciones** y aprobador formal |
-| **Conocimiento CAE** | Concentrado en el equipo de revisión | **Codificado en reglas + RAG + feedback** → mejora continua |
+| **Trabajo de revisión** | Operaciones comprueba y **aprueba manualmente** cada expediente | **IA aprueba/rechaza** casos rutinarios; Operaciones solo excepciones |
+| **Volumen en cola humana** | 100 % de expedientes enviados | **< 30 %** al mes 6 (solo HUMAN_REVIEW + auditoría) |
+| **Carga operativa** | Alta; devoluciones frecuentes | **-40 % tiempo revisión**, **-30 % devoluciones** |
+| **Rol del revisor** | Ejecutor de todas las comprobaciones y decisiones | **Supervisor de excepciones** y auditor de calidad |
+| **Conocimiento CAE** | Concentrado en el equipo de revisión | **Codificado en reglas + RAG + feedback** → la IA decide como Operaciones |
 
-> **No es una solución documental genérica.** Es una **plataforma de asistencia inteligente diseñada para el proceso CAE de IDEAUTO**: validación progresiva, reglas de negocio, razonamiento contextual, **libs reutilizables en monorepo Nx** y **evolución continua medida por fitness** — con el objetivo explícito de **reducir la carga operativa del equipo de revisión** y **transferir progresivamente a la IA el trabajo de validación funcional** que hoy realizan de forma manual.
+> **No es OCR + revisión humana de todo.** Es una plataforma donde la IA **hace el trabajo de Operaciones** en casos rutinarios — aprueba, rechaza y valida — y los humanos intervienen **solo donde hace falta criterio**, no en cada expediente.
 
 ---
 

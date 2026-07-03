@@ -244,8 +244,8 @@
 </tr>
 <tr>
 <td>PA-04</td>
-<td><strong>Human in the Loop</strong></td>
-<td>Decision Engine recomienda; nunca aprueba automáticamente.</td>
+<td><strong>Automatización progresiva</strong></td>
+<td>Decision Engine: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT; Operaciones solo en excepciones.</td>
 </tr>
 <tr>
 <td>PA-05</td>
@@ -310,7 +310,7 @@
 <tr>
 <td>PA-17</td>
 <td><strong>Reducción carga Operaciones</strong></td>
-<td>Diseño orientado a que la IA ejecute comprobaciones que hoy son manuales; Operaciones supervisa excepciones y aprueba.</td>
+<td>AUTO_APPROVE evita cola humana en casos limpios; HUMAN_REVIEW solo excepciones.</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -1529,7 +1529,7 @@ flowchart TD
 <td>Extracción best-effort</td>
 </tr>
 </tbody></table></div>
-<h3 id="44-decision-final-y-revision-humana" class="subsection-title">4.4 Decisión final y revisión humana</h3>
+<h3 id="44-decision-final-auto-aprobacion-excepciones-y-auto-rechazo" class="subsection-title">4.4 Decisión final — auto-aprobación, excepciones y auto-rechazo</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1539,22 +1539,22 @@ flowchart TD
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>OK</strong></td>
-<td>Sin incidencias críticas/mayores; completitud 100%</td>
-<td>Permite envío a Operaciones</td>
+<td><strong>AUTO_APPROVE</strong></td>
+<td>Sin incidencias críticas/mayores; completitud 100 %; confidence ≥ umbral; reglas PASS</td>
+<td><strong>Tramitación directa</strong> — sin cola Operaciones</td>
 </tr>
 <tr>
-<td><strong>Review</strong></td>
-<td>Incidencias menores o baja confidence global</td>
-<td>Cola revisión + resumen IA</td>
+<td><strong>HUMAN_REVIEW</strong></td>
+<td>Incidencias menores, baja confidence, flags de riesgo</td>
+<td>Cola excepciones Operaciones + resumen IA</td>
 </tr>
 <tr>
-<td><strong>Reject</strong></td>
+<td><strong>AUTO_REJECT</strong></td>
 <td>Incidencias críticas/mayores abiertas</td>
-<td>Bloqueo + detalle al cliente</td>
+<td>Bloqueo / rechazo automático + detalle al cliente</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p><strong>Importante:</strong> OK no es aprobación automática. La validación humana en Operaciones (Fase 8) es obligatoria para aprobación definitiva.</p></blockquote>
+<blockquote class="callout"><p>Meses 1–2: modo calibración (shadow). Desde mes 3: <strong>AUTO_APPROVE en producción</strong> cuando auditoría confirma precisión ≥ 95 % (criterios §17.5 ESPECIFICACION-FUNCIONAL).</p></blockquote>
 <h3 id="45-capa-observabilidad-y-entrega-ui" class="subsection-title">4.5 Capa observabilidad y entrega UI</h3>
 <p>Flujo transversal post-procesamiento:</p>
 <pre class="code-block"><code class="language-">Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
@@ -1918,19 +1918,19 @@ flowchart TD
 </thead>
 <tbody><tr>
 <td><strong>Responsabilidad</strong></td>
-<td>Decisión pre-envío: OK / Review / Reject</td>
+<td>Decisión pre-envío/post-envío: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT</td>
 </tr>
 <tr>
 <td><strong>Entrada</strong></td>
-<td>Resultado Validation Engine + análisis Foundry</td>
+<td>Resultado Validation Engine + análisis Foundry + umbrales confidence/fitness</td>
 </tr>
 <tr>
 <td><strong>Lógica</strong></td>
-<td>Críticas abiertas → Reject; Mayores → Reject; Solo menores → Review; Limpio → OK</td>
+<td>Críticas/mayores abiertas → AUTO_REJECT; Cumple todos criterios §17.5 → AUTO_APPROVE; Resto → HUMAN_REVIEW</td>
 </tr>
 <tr>
 <td><strong>Salida</strong></td>
-<td><code>{ decision: &quot;REVIEW&quot;, motivo: &quot;...&quot;, incidenciasBloqueantes: [] }</code></td>
+<td><code>{ decision: &quot;AUTO_APPROVE&quot;, motivo: &quot;...&quot;, auditTrail: [...] }</code></td>
 </tr>
 </tbody></table></div>
 <h3 id="59-knowledge-base-cae-rag" class="subsection-title">5.9 Knowledge Base CAE (RAG)</h3>

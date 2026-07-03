@@ -87,7 +87,7 @@ La arquitectura deberá:
 | PA-01 | **API First** | Toda funcionalidad IA consumible vía REST/OpenAPI. Sin acceso directo a BD desde componentes IA. |
 | PA-02 | **Desacoplamiento** | CAE es propietario del expediente; servicios IA son auxiliares stateless. |
 | PA-03 | **Stateless** | Workers de inferencia sin estado; persistencia en Blob, Redis, PostgreSQL/Cosmos. |
-| PA-04 | **Human in the Loop** | Decision Engine recomienda; nunca aprueba automáticamente. |
+| PA-04 | **Automatización progresiva** | Decision Engine: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT; Operaciones solo en excepciones. |
 | PA-05 | **Observabilidad** | OpenTelemetry, audit log, métricas por componente y coste IA. |
 | PA-06 | **Idempotencia** | Reintentos seguros en ingesta y procesamiento documental. |
 | PA-07 | **Separación de capas** | Extracción ≠ Validación determinista ≠ Razonamiento generativo. |
@@ -100,7 +100,7 @@ La arquitectura deberá:
 | PA-14 | **Pirámide de testing** | Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI. |
 | PA-15 | **UI reusable** | Componentes tontos en `ui/` + Storybook; componentes listos en `feature-*`; sin lógica de negocio en presentación. |
 | PA-16 | **Dominio CAE, no OCR genérico** | El Validation Engine (reglas RF, cruces, completitud) es el núcleo; extracción alimenta validación, no la sustituye. |
-| PA-17 | **Reducción carga Operaciones** | Diseño orientado a que la IA ejecute comprobaciones que hoy son manuales; Operaciones supervisa excepciones y aprueba. |
+| PA-17 | **Reducción carga Operaciones** | AUTO_APPROVE evita cola humana en casos limpios; HUMAN_REVIEW solo excepciones. |
 
 ---
 
@@ -739,15 +739,15 @@ El **Motor Validación Progresiva CAE** es el núcleo técnico del sistema. Se e
 | Firma | Todos los firmables | Detección, comparación DNI |
 | Genérico | No clasificado | Extracción best-effort |
 
-### 4.4 Decisión final y revisión humana
+### 4.4 Decisión final — auto-aprobación, excepciones y auto-rechazo
 
 | Resultado | Condición técnica | Destino |
 |-----------|-------------------|---------|
-| **OK** | Sin incidencias críticas/mayores; completitud 100% | Permite envío a Operaciones |
-| **Review** | Incidencias menores o baja confidence global | Cola revisión + resumen IA |
-| **Reject** | Incidencias críticas/mayores abiertas | Bloqueo + detalle al cliente |
+| **AUTO_APPROVE** | Sin incidencias críticas/mayores; completitud 100 %; confidence ≥ umbral; reglas PASS | **Tramitación directa** — sin cola Operaciones |
+| **HUMAN_REVIEW** | Incidencias menores, baja confidence, flags de riesgo | Cola excepciones Operaciones + resumen IA |
+| **AUTO_REJECT** | Incidencias críticas/mayores abiertas | Bloqueo / rechazo automático + detalle al cliente |
 
-> **Importante:** OK no es aprobación automática. La validación humana en Operaciones (Fase 8) es obligatoria para aprobación definitiva.
+> Meses 1–2: modo calibración (shadow). Desde mes 3: **AUTO_APPROVE en producción** cuando auditoría confirma precisión ≥ 95 % (criterios §17.5 ESPECIFICACION-FUNCIONAL).
 
 ### 4.5 Capa observabilidad y entrega UI
 
@@ -911,10 +911,10 @@ Ver [sección 4.1](#41-motor-validación-progresiva-cae-componente-central) y [s
 
 | Atributo | Detalle |
 |----------|---------|
-| **Responsabilidad** | Decisión pre-envío: OK / Review / Reject |
-| **Entrada** | Resultado Validation Engine + análisis Foundry |
-| **Lógica** | Críticas abiertas → Reject; Mayores → Reject; Solo menores → Review; Limpio → OK |
-| **Salida** | `{ decision: "REVIEW", motivo: "...", incidenciasBloqueantes: [] }` |
+| **Responsabilidad** | Decisión pre-envío/post-envío: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT |
+| **Entrada** | Resultado Validation Engine + análisis Foundry + umbrales confidence/fitness |
+| **Lógica** | Críticas/mayores abiertas → AUTO_REJECT; Cumple todos criterios §17.5 → AUTO_APPROVE; Resto → HUMAN_REVIEW |
+| **Salida** | `{ decision: "AUTO_APPROVE", motivo: "...", auditTrail: [...] }` |
 
 ### 5.9 Knowledge Base CAE (RAG)
 
