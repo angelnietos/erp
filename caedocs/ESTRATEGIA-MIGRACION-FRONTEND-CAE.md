@@ -28,8 +28,8 @@
 
 1. [Contexto y oportunidad de mejora](#1-contexto-y-oportunidad-de-mejora)
 2. [Propuesta estratégica](#2-propuesta-estratégica)
-3. [Patrón Strangler Fig con microfrontends](#3-patrón-strangler-fig-con-microfrontends)
-4. [Angular vs React — criterios de selección](#4-angular-vs-react--criterios-de-selección)
+3. [Patrón Strangler Fig — microfrontends como puente temporal](#3-patrón-strangler-fig-microfrontends-como-puente-temporal)
+4. [Angular vs React — criterios de selección](#4-angular-vs-react-criterios-de-selección)
 5. [Ventajas del enfoque incremental](#5-ventajas-del-enfoque-incremental)
 6. [Costes, riesgos e inconvenientes](#6-costes-riesgos-e-inconvenientes)
 7. [Criterios de aplicabilidad](#7-criterios-de-aplicabilidad)
@@ -148,12 +148,13 @@ CAE React (actual)          App IA (nueva)              CAE Angular (nueva)
 
 | Fase | CAE React | App IA | CAE Angular | Microfrontends |
 |------|-----------|--------|-------------|----------------|
-| **1 — IA en producción** | Operativa; desarrollo continúa | MFE embebido en CAE React | Arranque / primeros módulos | **Sí** — IA → React |
+| **0 — Baseline** | Desarrollo en curso | Diseño / arranque | Diseño / arranque | No |
+| **1 — IA integrada** | Operativa; desarrollo continúa | MFE embebido en CAE React | Arranque / primeros módulos | **Sí** — IA → React |
 | **2 — Convivencia** | Se reduce módulo a módulo | Misma funcionalidad; UI puede migrar a Angular | Crece; asume rutas de negocio | **Sí** — React ↔ Angular |
-| **3 — Consolidación** | Retirada | Integrada como módulos Angular nativos | Plataforma principal | **No** — app Angular única |
-| **4 — Objetivo** | Desmantelada | Parte de CAE Angular (`libs/angular/cae`) | **100 % plataforma** | **Eliminados** |
+| **3 — Sustitución** | Módulos retirados uno a uno | Integrada como módulos Angular nativos | Asume la mayoría de rutas de negocio | **Sí**, reduciéndose |
+| **4 — Consolidación** | Desmantelada | Parte de CAE Angular (`libs/angular/cae`) | **100 % plataforma** | **Eliminados** |
 
-> Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, **no hace falta Module Federation**: todo vive en la misma aplicación Angular.
+> Esta tabla resume el mismo esquema de fases 0–4 detallado en §8 (con horizontes temporales orientativos), aplicado a las tres aplicaciones en paralelo. Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, **no hace falta Module Federation**: todo vive en la misma aplicación Angular.
 
 ### 2.4 Integración técnica durante la transición
 
@@ -504,7 +505,7 @@ React y Module Federation se consideran **retirados** cuando:
 | ¿Por qué dos stacks (React y Angular)? | React integra la Fase 1 en CAE v2; Angular es el stack de evolución para módulos nuevos |
 | ¿Implica parar la plataforma? | No. Migración incremental mediante microfrontends |
 | ¿Cuánto dura la convivencia dual? | Acotada por fases; se revisa trimestralmente en comité de arquitectura |
-| ¿Se puede mantener solo React? | Fase 1 sí; la evolución Angular es opcional y se activa por módulo según ROI |
+| ¿Se puede mantener solo React? | En Fase 1, sí. Angular es el horizonte acordado de la plataforma; el **ritmo** de migración por módulo se ajusta según ROI, pero no es una opción a nivel de estrategia |
 | ¿Por qué microfrontends si el objetivo es Angular? | Son el **puente temporal** para integrar IA en CAE React y convivir con CAE Angular sin parar el desarrollo |
 | ¿Se eliminan los MFE al final? | **Sí.** La arquitectura objetivo es **una sola app Angular**, sin Module Federation |
 | ¿Qué pasa con CAE React mientras tanto? | **Sigue desarrollándose** hasta completarse o hasta que cada módulo tenga equivalente en Angular |

@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **Versión** | 3.0 |
-| **Estado** | Borrador para revisión |
+| **Estado** | Versión de entrega |
 | **Fecha** | 03/07/2026 |
 | **Proyecto** | Plataforma CAE v2.0 — Desarrollo IA |
 | **Clasificación** | Confidencial — IDEAUTO / Babooni |
@@ -26,7 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 11 | 03/07/2026 | Tres apps en paralelo; MFE temporal; §3.4.5 actualizado |
+| 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; §3.4.5 actualizado |
 
 ---
 
@@ -142,7 +142,7 @@ flowchart TB
         FB["Feedback Engine"]
         LB["Labeling Service"]
         DS["Dataset Builder"]
-        FE["Fitness Engine"]
+        FIT["Fitness Engine"]
         EV["Evaluation Pipeline"]
         MR["Model / Prompt Registry"]
     end
@@ -170,15 +170,15 @@ flowchart TB
     FB --> LB
     LB --> DS
     DS --> EV
-    EV --> FE
-    FE --> MR
+    EV --> FIT
+    FIT --> MR
     MR -.-> DI & FDR & VE
-    OBS -.-> GW & AO & VE & FDR & FB & FE
+    OBS -.-> GW & AO & VE & FDR & FB & FIT
 ```
 
 ### 3.2 Paradigma: arquitectura hexagonal, DDD y microservicios
 
-La capa de asistencia inteligente se implementará como **conjunto de microservicios**, cada uno con **arquitectura hexagonal** interna y fronteras de dominio definidas mediante **DDD**.
+La capa de asistencia inteligente se **descompone lógicamente en microservicios**, cada uno con **arquitectura hexagonal** interna y fronteras de dominio definidas mediante **DDD**. Esa descomposición es el modelo de dominio; el **despliegue inicial** se realiza como monolito modular (Modo A, §3.3.4), y solo se extraen servicios independientes cuando la demanda lo justifica.
 
 #### 3.2.1 Arquitectura hexagonal (Ports & Adapters)
 
@@ -260,7 +260,7 @@ Los contextos se comunican mediante **contratos de integración** (API REST + ev
 Cuando se despliegan aisladas (Modo C):
 
 - Contenedor propio en AKS (o equivalente).
-- OpenAPI versionada, persistencia propia, Service Bus, Redis según §3.3.4.
+- OpenAPI versionada, persistencia propia, Service Bus, Redis según §14.
 
 #### 3.2.4 Orquestación vs. coreografía
 
@@ -286,12 +286,12 @@ La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La
 | Contratos API | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos |
 | Backend por capacidad | `libs/node/cae/*-backend` | NestJS modules exportables (`forRoot()`) |
 | UI React (Fase 1) | `libs/react/cae/*` | MFE integrado en host CAE v2 actual |
-| UI Angular (recom. técnica) | `libs/angular/cae/*` | Stack preferido greenfield; POC migración |
+| UI Angular (evolución) | `libs/angular/cae/*` | Stack de evolución de la plataforma; activación progresiva por módulo |
 | UI reusable (tontos) | `libs/react/cae/ui`, `libs/angular/cae/ui` | Presentational + Storybook |
 | Storybook | `apps/cae-ui-storybook` | Catálogo visual de componentes React y Angular |
 | Host backend IA | `apps/cae-ia-backend` | Monolito modular NestJS |
 | MFE React (Fase 1) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
-| MFE Angular (recom. técnica) | `apps/cae-assistant-mfe-angular` | Remote alternativo; stack preferido a medio plazo |
+| MFE Angular (evolución) | `apps/cae-assistant-mfe-angular` | Remote de evolución; sustituye progresivamente al remote React |
 
 #### 3.3.2 Estructura objetivo — libs IA CAE
 
@@ -300,7 +300,7 @@ cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 ├── apps/
 │   ├── cae-ia-backend/                        # Host monolito modular backend IA
 │   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
-│   ├── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   ├── cae-assistant-mfe-angular/             # [EVOLUCIÓN] Microfrontend Angular
 │   └── cae-ui-storybook/                      # Storybook — catálogo componentes UI
 │
 ├── libs/
@@ -325,7 +325,7 @@ cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
 │   │   ├── feature-operations/
 │   │   └── feature-mlops/
 │   │
-│   └── angular/cae/                           # UI opcional — misma API de componentes
+│   └── angular/cae/                           # UI evolución — misma API de componentes
 │       ├── ui/                                # Componentes tontos + *.stories.ts
 │       ├── data-access/
 │       ├── feature-assistant/                 # Smart components / containers
@@ -337,7 +337,7 @@ Cada lib `*-backend` sigue **domain / application / infrastructure**, exportando
 
 #### 3.3.3 Correspondencia bounded context → lib Nx
 
-| Bounded context | Lib dominio | Lib backend | Lib UI React (cliente) | Lib UI Angular (recom.) |
+| Bounded context | Lib dominio | Lib backend | Lib UI React (cliente) | Lib UI Angular (evolución) |
 |-----------------|-------------|-------------|------------------------|----------------------|
 | Validación CAE | `isomorphic/cae/core` | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
 | Extracción | `isomorphic/cae/core` | `extraction-backend` | Sin capa UI | Sin capa UI |
@@ -398,7 +398,7 @@ flowchart TB
 |--------|------|-----|
 | `apps/cae-ia-backend` | NestJS host | Componer todos los `node/cae/*-backend`; API única IA |
 | `apps/cae-assistant-mfe` | **React remote (Fase 1)** | MFE embebido en shell CAE v2 actual |
-| `apps/cae-assistant-mfe-angular` | **Angular remote (recom. técnica)** | Stack preferido; POC y escenario migración CAE |
+| `apps/cae-assistant-mfe-angular` | **Angular remote (evolución)** | Sustituye progresivamente al remote React según roadmap de migración |
 
 Wrappers microservicio (Modo C), generados solo bajo demanda:
 
@@ -412,7 +412,7 @@ apps/cae-mlops-service/
 
 CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React** — stack **actual de la plataforma**, acordado para la integración de Fase 1. La capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
 
-> **Contexto de evolución:** **CAE React actual** se termina sin interrupción. La **App IA** se integra en CAE React vía MFE (Fase 1). En paralelo se construye **CAE Angular nueva** como sustituto. Los microfrontends son **temporales** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
+> **Contexto de evolución:** **CAE React actual** se termina sin interrupción. La **App IA** se integra en CAE React vía MFE (Fase 1). En paralelo se construye **CAE Angular nueva** (`apps/cae-platform-angular`) como sustituto — distinta del MFE de evolución `apps/cae-assistant-mfe-angular`, que es la capa IA expuesta en Angular. Los microfrontends son **temporales** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
 
 #### 3.4.0 Fase 1 acordada y evolución Angular
 
@@ -523,6 +523,8 @@ flowchart TB
 | **2d — Consolidación** | Host Angular unificado; React desmantelado | Objetivo final plataforma |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
+
+> **Nota de correspondencia:** estas son las **fases de entrega técnica de la capa IA** (libs, pipeline, escala), independientes de las **fases de migración de la plataforma** (0–4, con horizontes 0–36+ meses) definidas en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ Fase 1 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ Fases 2–3 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ Fase 4 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) son ortogonales y aplican en cualquier fase de migración de plataforma.
 
 #### 3.4.5 Module Federation — integración temporal (React ↔ Angular)
 
@@ -877,15 +879,19 @@ Ver [sección 4.1](#41-motor-validación-progresiva-cae-componente-central) y [s
 
 **Contrato entrada/salida:**
 
+*Entrada:*
+
 ```json
-// Entrada
 {
   "expedienteId": "exp-123",
   "evento": "DOCUMENTO_PROCESADO",
   "documentos": [{ "id": "doc-1", "tipo": "dni", "extraccion": {} }]
 }
+```
 
-// Salida
+*Salida:*
+
+```json
 {
   "expedienteId": "exp-123",
   "estado": "CON_INCIDENCIAS",
@@ -1398,7 +1404,7 @@ erDiagram
 
 | Dato | Tecnología |
 |------|------------|
-| Metadatos expediente/incidencias | PostgreSQL o Cosmos DB |
+| Metadatos expediente/incidencias | PostgreSQL (por defecto) — Cosmos DB si se requiere escala multi-región |
 | Documentos RAW | Azure Blob (Hot) |
 | Documentos optimizados (AVIF/WebP) | Blob + CDN |
 | Estado FSM / cache | Redis |
@@ -1687,7 +1693,7 @@ flowchart LR
 
 | Etiqueta | Uso en dataset |
 |----------|----------------|
-| `ACIERTO_IA` | Negative sample para falsos positivos |
+| `ACIERTO_IA` | Positive sample — refuerzo de extracciones/validaciones correctas |
 | `FALLO_EXTRACCION` | Train/eval extractores |
 | `FALLO_CLASIFICACION` | Train/eval clasificador |
 | `FALLO_REGLA` | Mejora reglas YAML |
@@ -1784,13 +1790,13 @@ Promovible = (fitness_candidato ≥ fitness_activo + 1)
 | Agregación métricas producción | Continua | Eventos + OTEL |
 | Informe fitness semanal | Cron semanal | Azure Functions |
 | Evaluación golden set | Mensual | MLOps manual/automático |
-| Revisión gobernania | Trimestral | Comité IA |
+| Revisión gobernanza | Trimestral | Comité IA |
 
 ### 18.6 Ejemplo respuesta API
 
-```json
-GET /api/v1/mlops/fitness
+`GET /api/v1/mlops/fitness`
 
+```json
 {
   "fitnessGlobal": 88.1,
   "componentes": {

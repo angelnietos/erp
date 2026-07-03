@@ -92,7 +92,7 @@
 </tr>
 <tr>
 <td><strong>Estado</strong></td>
-<td>Borrador para revisión</td>
+<td>Versión de entrega</td>
 </tr>
 <tr>
 <td><strong>Fecha</strong></td>
@@ -160,7 +160,7 @@
 <tr>
 <td>8</td>
 <td>03/07/2026</td>
-<td>Enlace a <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> — Strangler Fig React→Angular</td>
+<td>Enlace a <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> — Strangler Fig React→Angular</td>
 </tr>
 <tr>
 <td>9</td>
@@ -168,7 +168,7 @@
 <td>Tono de entrega al cliente; eliminación de lenguaje interno</td>
 </tr>
 <tr>
-<td>11</td>
+<td>10</td>
 <td>03/07/2026</td>
 <td>Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2)</td>
 </tr>
@@ -176,7 +176,7 @@
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
 <ol>
-<li><a href="#1-introducci%C3%B3n">Introducción</a></li>
+<li><a href="#1-introduccion">Introducción</a></li>
 <li><a href="#2-objetivos-de-negocio">Objetivos de negocio</a></li>
 <li><a href="#3-alcance">Alcance</a></li>
 <li><a href="#4-principios-funcionales">Principios funcionales</a></li>
@@ -185,24 +185,24 @@
 <li><a href="#7-flujo-funcional-detallado">Flujo funcional detallado</a></li>
 <li><a href="#8-estados-del-expediente-y-del-documento">Estados del expediente y del documento</a></li>
 <li><a href="#9-capacidades-funcionales">Capacidades funcionales</a></li>
-<li><a href="#10-validaci%C3%B3n-progresiva-n%C3%BAcleo-del-sistema">Validación progresiva (núcleo del sistema)</a></li>
+<li><a href="#10-validacion-progresiva-nucleo-del-sistema">Validación progresiva (núcleo del sistema)</a></li>
 <li><a href="#11-sistema-de-incidencias-y-severidades">Sistema de incidencias y severidades</a></li>
 <li><a href="#12-sistema-de-scoring">Sistema de scoring</a></li>
-<li><a href="#13-cat%C3%A1logo-de-reglas-funcionales-bloques-ag">Catálogo de reglas funcionales (Bloques A–G)</a></li>
+<li><a href="#13-catalogo-de-reglas-funcionales-bloques-ag">Catálogo de reglas funcionales (Bloques A–G)</a></li>
 <li><a href="#14-matrices-documentales">Matrices documentales</a></li>
-<li><a href="#15-pack-documental-y-tipolog%C3%ADas-de-expediente">Pack documental y tipologías de expediente</a></li>
+<li><a href="#15-pack-documental-y-tipologias-de-expediente">Pack documental y tipologías de expediente</a></li>
 <li><a href="#16-experiencia-de-usuario">Experiencia de usuario</a></li>
-<li><a href="#17-revisi%C3%B3n-operaciones">Revisión Operaciones</a></li>
+<li><a href="#17-revision-operaciones">Revisión Operaciones</a></li>
 <li><a href="#18-knowledge-base-y-asistencia-contextual">Knowledge Base y asistencia contextual</a></li>
 <li><a href="#19-feedback-operativo">Feedback operativo</a></li>
-<li><a href="#20-mlops-y-evoluci%C3%B3n-de-modelos-ia">MLOps y evolución de modelos IA</a></li>
-<li><a href="#21-modelo-de-fitness-y-evaluaci%C3%B3n">Modelo de fitness y evaluación</a></li>
+<li><a href="#20-mlops-y-evolucion-de-modelos-ia">MLOps y evolución de modelos IA</a></li>
+<li><a href="#21-modelo-de-fitness-y-evaluacion">Modelo de fitness y evaluación</a></li>
 <li><a href="#22-integraciones-externas">Integraciones externas</a></li>
 <li><a href="#23-requisitos-no-funcionales">Requisitos no funcionales</a></li>
-<li><a href="#24-hist%C3%B3rico-y-anal%C3%ADtica">Histórico y analítica</a></li>
-<li><a href="#25-indicadores-de-%C3%A9xito-kpis">Indicadores de éxito (KPIs)</a></li>
-<li><a href="#26-gobernanza-y-evoluci%C3%B3n-planificada">Gobernanza y evolución planificada</a></li>
-<li><a href="#27-visi%C3%B3n-final">Visión final</a></li>
+<li><a href="#24-historico-y-analitica">Histórico y analítica</a></li>
+<li><a href="#25-indicadores-de-exito-kpis">Indicadores de éxito (KPIs)</a></li>
+<li><a href="#26-gobernanza-y-evolucion-planificada">Gobernanza y evolución planificada</a></li>
+<li><a href="#27-vision-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-introduccion" class="section-title">1. Introducción</h2>
@@ -648,7 +648,7 @@ journey
 <td>MFE alternativo <code>cae-assistant-mfe-angular</code> y libs en paralelo</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>La evolución de la plataforma se documenta en <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: <strong>CAE React actual</strong> se termina sin interrupción; la <strong>App IA</strong> se integra en React vía MFE; <strong>CAE Angular nueva</strong> la sustituye progresivamente. Los microfrontends son <strong>solución temporal</strong> de transición; el objetivo final es <strong>todo Angular, sin MFE</strong>.</p></blockquote>
+<blockquote class="callout"><p>La evolución de la plataforma se documenta en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: <strong>CAE React actual</strong> se termina sin interrupción; la <strong>App IA</strong> se integra en React vía MFE; <strong>CAE Angular nueva</strong> la sustituye progresivamente. Los microfrontends son <strong>solución temporal</strong> de transición; el objetivo final es <strong>todo Angular, sin MFE</strong>.</p></blockquote>
 <div class="mermaid">
 flowchart LR
     subgraph P1["① FRONTEND"]
@@ -1032,7 +1032,7 @@ flowchart LR
 <li><strong>Fase intermedia:</strong> mismo backend IA; UI Angular en paralelo con arquitectura estandarizada (Storybook, tests).</li>
 <li><strong>Fase objetivo:</strong> pantallas CAE nuevas o reescritas en Angular; reducción progresiva de módulos React.</li>
 </ol>
-<blockquote class="callout"><p>El monorepo <strong>contempla ambos stacks</strong>. Detalle en <strong><a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md">Estrategia de migración frontend</a></strong>.</p></blockquote>
+<blockquote class="callout"><p>El monorepo <strong>contempla ambos stacks</strong>. Detalle en <strong><a href="estrategia-migracion-frontend-cae.html">Estrategia de migración frontend</a></strong>.</p></blockquote>
 <h4>6.5.2 Tres aplicaciones en paralelo</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1098,7 +1098,7 @@ flowchart LR
 <td>Requiere adaptación del sistema de build</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>Detalle: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3–2.4 y <a href="DISENO-TECNICO-v3.0.md"><code>DISENO-TECNICO-v3.0.md</code></a> §3.4.5.</p></blockquote>
+<blockquote class="callout"><p>Detalle: <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3–2.4 y <a href="diseno-tecnico-v3.0.html"><code>DISENO-TECNICO-v3.0.md</code></a> §3.4.5.</p></blockquote>
 <div class="mermaid">
 flowchart TB
     subgraph CAE["Plataforma CAE v2.0 — Host React"]
@@ -1195,7 +1195,7 @@ flowchart TB
 <td>MFE <strong>Angular</strong> evolución; misma API de integración; desarrollo en paralelo</td>
 </tr>
 </tbody></table></div>
-<h3 id="66-calidad-de-software-testing-y-frontend-reusable" class="subsection-title">6.6 Calidad de software, testing y frontend reusable</h3>
+<h3 id="66-calidad-de-software-testing-y-frontend-reutilizable" class="subsection-title">6.6 Calidad de software, testing y frontend reutilizable</h3>
 <p>La plataforma IA debe ser <strong>testeable por diseño</strong> y la UI <strong>composable</strong> mediante componentes reutilizables documentados.</p>
 <h4>6.6.1 Pirámide de testing</h4>
 <div class="table-wrap"><table>
@@ -1312,6 +1312,7 @@ flowchart TB
 </tbody></table></div>
 <hr>
 <h2 id="7-flujo-funcional-detallado" class="section-title">7. Flujo funcional detallado</h2>
+<blockquote class="callout"><p>Las <strong>6 fases</strong> de esta sección describen el <strong>flujo de trabajo percibido por el usuario</strong> (crear expediente → subir documentos → validar → enviar → revisar → mejorar). Son una vista simplificada de las <strong>10 fases de arquitectura funcional</strong> de §6 (que incluyen además Razonamiento IA, Observabilidad y el detalle de Ingesta/Extracción como pasos independientes).</p></blockquote>
 <h3 id="71-resumen-simplificado-comportamiento-real-para-el-cliente" class="subsection-title">7.1 Resumen simplificado (comportamiento real para el cliente)</h3>
 <p>Aunque la arquitectura interna es compleja, el comportamiento percibido por el usuario es:</p>
 <ol>
@@ -1418,16 +1419,16 @@ stateDiagram-v2
     EN_CONSTRUCCION --> CON_INCIDENCIAS: Incidencias críticas/mayores
     PENDIENTE_DOCUMENTOS --> EN_CONSTRUCCION: Documento añadido
     CON_INCIDENCIAS --> EN_CONSTRUCCION: Incidencia resuelta
-    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado + Decision=Review
-    EN_CONSTRUCCION --> VALIDADO: Aprobación Operaciones
+    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado (Decision=OK o Review)
     PENDIENTE_REVISION --> REVISION_OPERACIONES: En cola
     REVISION_OPERACIONES --> CON_INCIDENCIAS: Devolución
     REVISION_OPERACIONES --> VALIDADO: Aprobado
     REVISION_OPERACIONES --> RECHAZADO: Rechazado
-    CON_INCIDENCIAS --> RECHAZADO: Rechazo automático pre-envío
+    CON_INCIDENCIAS --> RECHAZADO: Envío bloqueado (Decision=Reject)
     VALIDADO --> [*]
     RECHAZADO --> EN_CONSTRUCCION: Corrección y reintento
 </div>
+<blockquote class="callout"><p>Tanto <code>Decision=OK</code> (sin incidencias) como <code>Decision=Review</code> (incidencias menores) envían el expediente a la cola de Operaciones; la diferencia es la prioridad y el nivel de detalle del resumen IA. Solo <code>Decision=Reject</code> (incidencias críticas/mayores abiertas) bloquea el envío antes de llegar a Operaciones. El estado <code>VALIDADO</code> del expediente se alcanza siempre tras la aprobación de Operaciones — nunca se salta la cola de revisión.</p></blockquote>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1498,8 +1499,8 @@ stateDiagram-v2
 <td>Datos extraídos con confidence</td>
 </tr>
 <tr>
-<td><code>VALIDADO</code></td>
-<td>Pasa validaciones documentales</td>
+<td><code>VALIDADO_DOCUMENTAL</code></td>
+<td>Pasa las validaciones documentales (Bloques A–G a nivel de documento)</td>
 </tr>
 <tr>
 <td><code>CON_INCIDENCIAS</code></td>
@@ -1877,7 +1878,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <tr>
 <td>RF-004</td>
 <td>Documento Sustitución VO</td>
-<td>Baja definitiva, contrato compraventa o permiso nuevo propietario</td>
+<td>Baja definitiva, contrato de compraventa o permiso del nuevo propietario</td>
 <td>Crítica</td>
 </tr>
 <tr>
@@ -1918,14 +1919,14 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <tr>
 <td>RF-009</td>
 <td>Firma digital</td>
-<td>Permitida para empresas cuando proceda</td>
-<td>Informativa (condicional)</td>
+<td>Permitida para empresas cuando proceda; regla aplica solo si el expediente usa firma digital</td>
+<td>Informativa</td>
 </tr>
 <tr>
 <td>RF-010</td>
 <td>Comparación firma DNI</td>
 <td>Similitud firma aportada vs. DNI</td>
-<td>Advertencia (Menor)</td>
+<td>Menor</td>
 </tr>
 </tbody></table></div>
 <h3 id="133-bloque-c-validaciones-de-coherencia" class="subsection-title">13.3 Bloque C — Validaciones de coherencia</h3>
@@ -2000,14 +2001,14 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <tr>
 <td>RF-019</td>
 <td>Fechas actuación</td>
-<td>Sustitución VO antes VN: máx. 3 meses; VN antes VO: máx. 6 meses</td>
+<td>Sustitución VO antes de VN: máx. 3 meses; VN antes de VO: máx. 6 meses</td>
 <td>Crítica</td>
 </tr>
 <tr>
 <td>RF-020</td>
 <td>Ahorro energético</td>
 <td>Valor dentro de rangos por tipología</td>
-<td>Advertencia (Menor)</td>
+<td>Menor</td>
 </tr>
 </tbody></table></div>
 <h3 id="135-bloque-e-formulario" class="subsection-title">13.5 Bloque E — Formulario</h3>
@@ -2076,7 +2077,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <tr>
 <td>RF-028</td>
 <td>Autorización datos personales</td>
-<td>Obligatorio solo marcas definidas por IDEAUTO</td>
+<td>Obligatorio solo marcas definidas por IDEAUTO (ver Anexo A — Listado de marcas, a facilitar por IDEAUTO)</td>
 <td>Crítica</td>
 </tr>
 </tbody></table></div>
@@ -2171,7 +2172,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <td>Titular, NIF, matrícula, VIN, marca, modelo, fecha, importe</td>
 </tr>
 <tr>
-<td>Ficha Técnica VN/V O</td>
+<td>Ficha Técnica VN/VO</td>
 <td>Matrícula, VIN, marca, modelo, versión, energía, categoría, masa</td>
 </tr>
 <tr>
@@ -2265,7 +2266,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <td>3</td>
 <td>Ficha técnica VN</td>
 <td>Sí</td>
-<td></td>
+<td>Incluye homologación BEV</td>
 </tr>
 <tr>
 <td>4</td>
@@ -3124,6 +3125,7 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <td>Auditoría</td>
 </tr>
 </tbody></table></div>
+<blockquote class="callout"><p><strong>Baseline y naturaleza de los objetivos:</strong> los KPIs de reducción (devoluciones, tiempo de revisión, tiempo de creación) se miden frente a la <strong>media de los 3 meses previos al despliegue</strong> de cada fase, sobre la misma tipología de expediente. Los KPIs de precisión, recall y fitness son <strong>objetivos orientativos de mejora continua</strong>, verificados en el golden set (§21.7) y ajustados en el comité de gobernanza (§26.1); no constituyen compromiso contractual salvo que se pacte expresamente por fase.</p></blockquote>
 <hr>
 <h2 id="26-gobernanza-y-evolucion-planificada" class="section-title">26. Gobernanza y evolución planificada</h2>
 <h3 id="261-comite-de-gobernanza-ia" class="subsection-title">26.1 Comité de gobernanza IA</h3>

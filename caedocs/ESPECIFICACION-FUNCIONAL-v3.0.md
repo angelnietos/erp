@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **Versión** | 3.0 |
-| **Estado** | Borrador para revisión |
+| **Estado** | Versión de entrega |
 | **Fecha** | 03/07/2026 |
 | **Proyecto** | Plataforma CAE v2.0 — Desarrollo IA |
 | **Clasificación** | Confidencial — IDEAUTO / Babooni |
@@ -26,7 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 11 | 03/07/2026 | Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2) |
+| 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2) |
 
 ---
 
@@ -513,7 +513,7 @@ flowchart TB
 | RNF-13 | MFE **React** Fase 1; contrato host ↔ remote versionado |
 | RNF-14 | MFE **Angular** evolución; misma API de integración; desarrollo en paralelo |
 
-### 6.6 Calidad de software, testing y frontend reusable
+### 6.6 Calidad de software, testing y frontend reutilizable
 
 La plataforma IA debe ser **testeable por diseño** y la UI **composable** mediante componentes reutilizables documentados.
 
@@ -563,6 +563,8 @@ flowchart TB
 ---
 
 ## 7. Flujo funcional detallado
+
+> Las **6 fases** de esta sección describen el **flujo de trabajo percibido por el usuario** (crear expediente → subir documentos → validar → enviar → revisar → mejorar). Son una vista simplificada de las **10 fases de arquitectura funcional** de §6 (que incluyen además Razonamiento IA, Observabilidad y el detalle de Ingesta/Extracción como pasos independientes).
 
 ### 7.1 Resumen simplificado (comportamiento real para el cliente)
 
@@ -649,16 +651,17 @@ stateDiagram-v2
     EN_CONSTRUCCION --> CON_INCIDENCIAS: Incidencias críticas/mayores
     PENDIENTE_DOCUMENTOS --> EN_CONSTRUCCION: Documento añadido
     CON_INCIDENCIAS --> EN_CONSTRUCCION: Incidencia resuelta
-    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado + Decision=Review
-    EN_CONSTRUCCION --> VALIDADO: Aprobación Operaciones
+    EN_CONSTRUCCION --> PENDIENTE_REVISION: Envío solicitado (Decision=OK o Review)
     PENDIENTE_REVISION --> REVISION_OPERACIONES: En cola
     REVISION_OPERACIONES --> CON_INCIDENCIAS: Devolución
     REVISION_OPERACIONES --> VALIDADO: Aprobado
     REVISION_OPERACIONES --> RECHAZADO: Rechazado
-    CON_INCIDENCIAS --> RECHAZADO: Rechazo automático pre-envío
+    CON_INCIDENCIAS --> RECHAZADO: Envío bloqueado (Decision=Reject)
     VALIDADO --> [*]
     RECHAZADO --> EN_CONSTRUCCION: Corrección y reintento
 ```
+
+> Tanto `Decision=OK` (sin incidencias) como `Decision=Review` (incidencias menores) envían el expediente a la cola de Operaciones; la diferencia es la prioridad y el nivel de detalle del resumen IA. Solo `Decision=Reject` (incidencias críticas/mayores abiertas) bloquea el envío antes de llegar a Operaciones. El estado `VALIDADO` del expediente se alcanza siempre tras la aprobación de Operaciones — nunca se salta la cola de revisión.
 
 | Estado | Descripción | Acciones permitidas al cliente |
 |--------|-------------|--------------------------------|
@@ -678,7 +681,7 @@ stateDiagram-v2
 | `SUBIDO` | Recibido, pendiente de procesamiento |
 | `PROCESANDO` | En pipeline OCR/extracción |
 | `EXTRAIDO` | Datos extraídos con confidence |
-| `VALIDADO` | Pasa validaciones documentales |
+| `VALIDADO_DOCUMENTAL` | Pasa las validaciones documentales (Bloques A–G a nivel de documento) |
 | `CON_INCIDENCIAS` | Incidencias detectadas |
 | `REEMPLAZADO` | Sustituido por nueva versión |
 | `ERROR` | Fallo de procesamiento |
@@ -846,7 +849,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 | RF-001 | DNI | Documento DNI, dos caras, legible, datos extraíbles | Crítica |
 | RF-002 | Factura VN | Factura válida, titular, matrícula/VIN, marca, modelo | Crítica |
 | RF-003 | Ficha Técnica VN | Matrícula, VIN, marca, modelo, versión, energía | Crítica |
-| RF-004 | Documento Sustitución VO | Baja definitiva, contrato compraventa o permiso nuevo propietario | Crítica |
+| RF-004 | Documento Sustitución VO | Baja definitiva, contrato de compraventa o permiso del nuevo propietario | Crítica |
 | RF-005 | Ficha Técnica VO | Ficha técnica o informe DGT por extravío | Crítica |
 | RF-006 | Permiso Circulación VO | Permiso circulación o penúltimo IVTM por extravío | Crítica |
 | RF-007 | Último IVTM | Matrícula, VIN, ejercicio correspondiente | Crítica |
@@ -856,8 +859,8 @@ Incidencias abiertas: 2 mayores, 1 menor
 | ID | Regla | Validaciones | Severidad |
 |----|-------|--------------|-----------|
 | RF-008 | Firma manuscrita | Anexo, Convenio CAE, Autorización datos — obligatoria para particulares | Crítica |
-| RF-009 | Firma digital | Permitida para empresas cuando proceda | Informativa (condicional) |
-| RF-010 | Comparación firma DNI | Similitud firma aportada vs. DNI | Advertencia (Menor) |
+| RF-009 | Firma digital | Permitida para empresas cuando proceda; regla aplica solo si el expediente usa firma digital | Informativa |
+| RF-010 | Comparación firma DNI | Similitud firma aportada vs. DNI | Menor |
 
 ### 13.3 Bloque C — Validaciones de coherencia
 
@@ -876,8 +879,8 @@ Incidencias abiertas: 2 mayores, 1 menor
 | RF-016 | Combustible VO | No puede ser BEV | Crítica |
 | RF-017 | Combustible VN | Debe ser BEV | Crítica |
 | RF-018 | Categoría homologación | Compatible entre VO y VN | Crítica |
-| RF-019 | Fechas actuación | Sustitución VO antes VN: máx. 3 meses; VN antes VO: máx. 6 meses | Crítica |
-| RF-020 | Ahorro energético | Valor dentro de rangos por tipología | Advertencia (Menor) |
+| RF-019 | Fechas actuación | Sustitución VO antes de VN: máx. 3 meses; VN antes de VO: máx. 6 meses | Crítica |
+| RF-020 | Ahorro energético | Valor dentro de rangos por tipología | Menor |
 
 ### 13.5 Bloque E — Formulario
 
@@ -895,7 +898,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 |----|-------|--------------|-----------|
 | RF-026 | Convenio CAE | Firmado, contraprestación cumplimentada | Crítica |
 | RF-027 | Contraprestación convenio | Rango: 0,10 €/kWh ≤ valor ≤ 0,20 €/kWh | Crítica |
-| RF-028 | Autorización datos personales | Obligatorio solo marcas definidas por IDEAUTO | Crítica |
+| RF-028 | Autorización datos personales | Obligatorio solo marcas definidas por IDEAUTO (ver Anexo A — Listado de marcas, a facilitar por IDEAUTO) | Crítica |
 
 ### 13.7 Bloque G — Calidad documental
 
@@ -929,7 +932,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 |-----------|------------------|
 | DNI | Nombre, apellidos, DNI/NIE, fecha nacimiento, dirección, firma |
 | Factura VN | Titular, NIF, matrícula, VIN, marca, modelo, fecha, importe |
-| Ficha Técnica VN/V O | Matrícula, VIN, marca, modelo, versión, energía, categoría, masa |
+| Ficha Técnica VN/VO | Matrícula, VIN, marca, modelo, versión, energía, categoría, masa |
 | Permiso Circulación | Titular, matrícula, VIN, fecha matriculación |
 | IVTM | Matrícula, VIN, ejercicio, importe |
 | Convenio CAE | Firmas, contraprestación €/kWh, fecha |
@@ -957,7 +960,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 |---|-----------|-------------|---------------|
 | 1 | DNI / NIE titular | Sí | Dos caras, legible |
 | 2 | Factura vehículo nuevo (VN) | Sí | BEV |
-| 3 | Ficha técnica VN | Sí | |
+| 3 | Ficha técnica VN | Sí | Incluye homologación BEV |
 | 4 | Documento sustitución VO | Sí | Baja, contrato o permiso nuevo propietario |
 | 5 | Ficha técnica VO | Sí | O informe DGT por extravío |
 | 6 | Permiso circulación VO | Sí | O penúltimo IVTM por extravío |
@@ -1362,6 +1365,8 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | **Fitness global** | **> 85 y mejora trimestral** | **MLOps** |
 | Tiempo análisis por documento | < 10 s | DevOps |
 | Trazabilidad | 100% | Auditoría |
+
+> **Baseline y naturaleza de los objetivos:** los KPIs de reducción (devoluciones, tiempo de revisión, tiempo de creación) se miden frente a la **media de los 3 meses previos al despliegue** de cada fase, sobre la misma tipología de expediente. Los KPIs de precisión, recall y fitness son **objetivos orientativos de mejora continua**, verificados en el golden set (§21.7) y ajustados en el comité de gobernanza (§26.1); no constituyen compromiso contractual salvo que se pacte expresamente por fase.
 
 ---
 

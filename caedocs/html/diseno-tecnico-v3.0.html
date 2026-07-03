@@ -87,7 +87,7 @@
 </tr>
 <tr>
 <td><strong>Estado</strong></td>
-<td>Borrador para revisión</td>
+<td>Versión de entrega</td>
 </tr>
 <tr>
 <td><strong>Fecha</strong></td>
@@ -155,7 +155,7 @@
 <tr>
 <td>8</td>
 <td>03/07/2026</td>
-<td>Enlace a <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> — Strangler Fig React→Angular</td>
+<td>Enlace a <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> — Strangler Fig React→Angular</td>
 </tr>
 <tr>
 <td>9</td>
@@ -163,7 +163,7 @@
 <td>Tono de entrega al cliente; eliminación de lenguaje interno</td>
 </tr>
 <tr>
-<td>11</td>
+<td>10</td>
 <td>03/07/2026</td>
 <td>Tres apps en paralelo; MFE temporal; §3.4.5 actualizado</td>
 </tr>
@@ -171,7 +171,7 @@
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
 <ol>
-<li><a href="#1-objetivo-t%C3%A9cnico">Objetivo técnico</a></li>
+<li><a href="#1-objetivo-tecnico">Objetivo técnico</a></li>
 <li><a href="#2-principios-de-arquitectura">Principios de arquitectura</a></li>
 <li><a href="#3-arquitectura-general">Arquitectura general</a></li>
 <li><a href="#4-arquitectura-por-fases-end-to-end">Arquitectura por fases (end-to-end)</a></li>
@@ -179,20 +179,20 @@
 <li><a href="#6-pipeline-documental">Pipeline documental</a></li>
 <li><a href="#7-validation-engine">Validation Engine</a></li>
 <li><a href="#8-azure-ai-foundry-y-knowledge-base">Azure AI Foundry y Knowledge Base</a></li>
-<li><a href="#9-flujos-t%C3%A9cnicos">Flujos técnicos</a></li>
+<li><a href="#9-flujos-tecnicos">Flujos técnicos</a></li>
 <li><a href="#10-modelo-de-ia">Modelo de IA</a></li>
 <li><a href="#11-modelo-de-datos">Modelo de datos</a></li>
 <li><a href="#12-modelo-de-eventos">Modelo de eventos</a></li>
 <li><a href="#13-apis">APIs</a></li>
-<li><a href="#14-colas-y-orquestaci%C3%B3n">Colas y orquestación</a></li>
+<li><a href="#14-colas-y-orquestacion">Colas y orquestación</a></li>
 <li><a href="#15-seguridad">Seguridad</a></li>
 <li><a href="#16-observabilidad">Observabilidad</a></li>
 <li><a href="#17-mlops-y-feedback-engine">MLOps y Feedback Engine</a></li>
-<li><a href="#18-fitness-engine-y-evaluaci%C3%B3n">Fitness Engine y evaluación</a></li>
+<li><a href="#18-fitness-engine-y-evaluacion">Fitness Engine y evaluación</a></li>
 <li><a href="#19-despliegue-azure">Despliegue Azure</a></li>
-<li><a href="#20-kpis-t%C3%A9cnicos">KPIs técnicos</a></li>
+<li><a href="#20-kpis-tecnicos">KPIs técnicos</a></li>
 <li><a href="#21-estrategia-de-calidad-y-testing">Estrategia de calidad y testing</a></li>
-<li><a href="#22-visi%C3%B3n-final">Visión final</a></li>
+<li><a href="#22-vision-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
@@ -339,7 +339,7 @@ flowchart TB
         FB["Feedback Engine"]
         LB["Labeling Service"]
         DS["Dataset Builder"]
-        FE["Fitness Engine"]
+        FIT["Fitness Engine"]
         EV["Evaluation Pipeline"]
         MR["Model / Prompt Registry"]
     end
@@ -367,13 +367,13 @@ flowchart TB
     FB --> LB
     LB --> DS
     DS --> EV
-    EV --> FE
-    FE --> MR
+    EV --> FIT
+    FIT --> MR
     MR -.-> DI & FDR & VE
-    OBS -.-> GW & AO & VE & FDR & FB & FE
+    OBS -.-> GW & AO & VE & FDR & FB & FIT
 </div>
 <h3 id="32-paradigma-arquitectura-hexagonal-ddd-y-microservicios" class="subsection-title">3.2 Paradigma: arquitectura hexagonal, DDD y microservicios</h3>
-<p>La capa de asistencia inteligente se implementará como <strong>conjunto de microservicios</strong>, cada uno con <strong>arquitectura hexagonal</strong> interna y fronteras de dominio definidas mediante <strong>DDD</strong>.</p>
+<p>La capa de asistencia inteligente se <strong>descompone lógicamente en microservicios</strong>, cada uno con <strong>arquitectura hexagonal</strong> interna y fronteras de dominio definidas mediante <strong>DDD</strong>. Esa descomposición es el modelo de dominio; el <strong>despliegue inicial</strong> se realiza como monolito modular (Modo A, §3.3.4), y solo se extraen servicios independientes cuando la demanda lo justifica.</p>
 <h4>3.2.1 Arquitectura hexagonal (Ports &amp; Adapters)</h4>
 <p>Cada microservicio estructura su código en tres anillos:</p>
 <div class="table-wrap"><table>
@@ -555,7 +555,7 @@ flowchart TB
 <p>Cuando se despliegan aisladas (Modo C):</p>
 <ul>
 <li>Contenedor propio en AKS (o equivalente).</li>
-<li>OpenAPI versionada, persistencia propia, Service Bus, Redis según §3.3.4.</li>
+<li>OpenAPI versionada, persistencia propia, Service Bus, Redis según §14.</li>
 </ul>
 <h4>3.2.4 Orquestación vs. coreografía</h4>
 <div class="table-wrap"><table>
@@ -612,9 +612,9 @@ flowchart TB
 <td>MFE integrado en host CAE v2 actual</td>
 </tr>
 <tr>
-<td>UI Angular (recom. técnica)</td>
+<td>UI Angular (evolución)</td>
 <td><code>libs/angular/cae/*</code></td>
-<td>Stack preferido greenfield; POC migración</td>
+<td>Stack de evolución de la plataforma; activación progresiva por módulo</td>
 </tr>
 <tr>
 <td>UI reusable (tontos)</td>
@@ -637,9 +637,9 @@ flowchart TB
 <td>Remote embebido en shell CAE v2</td>
 </tr>
 <tr>
-<td>MFE Angular (recom. técnica)</td>
+<td>MFE Angular (evolución)</td>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td>Remote alternativo; stack preferido a medio plazo</td>
+<td>Remote de evolución; sustituye progresivamente al remote React</td>
 </tr>
 </tbody></table></div>
 <h4>3.3.2 Estructura objetivo — libs IA CAE</h4>
@@ -647,7 +647,7 @@ flowchart TB
 ├── apps/
 │   ├── cae-ia-backend/                        # Host monolito modular backend IA
 │   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
-│   ├── cae-assistant-mfe-angular/             # [OPCIONAL] Microfrontend Angular
+│   ├── cae-assistant-mfe-angular/             # [EVOLUCIÓN] Microfrontend Angular
 │   └── cae-ui-storybook/                      # Storybook — catálogo componentes UI
 │
 ├── libs/
@@ -672,7 +672,7 @@ flowchart TB
 │   │   ├── feature-operations/
 │   │   └── feature-mlops/
 │   │
-│   └── angular/cae/                           # UI opcional — misma API de componentes
+│   └── angular/cae/                           # UI evolución — misma API de componentes
 │       ├── ui/                                # Componentes tontos + *.stories.ts
 │       ├── data-access/
 │       ├── feature-assistant/                 # Smart components / containers
@@ -687,7 +687,7 @@ flowchart TB
 <th>Lib dominio</th>
 <th>Lib backend</th>
 <th>Lib UI React (cliente)</th>
-<th>Lib UI Angular (recom.)</th>
+<th>Lib UI Angular (evolución)</th>
 </tr>
 </thead>
 <tbody><tr>
@@ -824,8 +824,8 @@ flowchart TB
 </tr>
 <tr>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td><strong>Angular remote (recom. técnica)</strong></td>
-<td>Stack preferido; POC y escenario migración CAE</td>
+<td><strong>Angular remote (evolución)</strong></td>
+<td>Sustituye progresivamente al remote React según roadmap de migración</td>
 </tr>
 </tbody></table></div>
 <p>Wrappers microservicio (Modo C), generados solo bajo demanda:</p>
@@ -834,7 +834,7 @@ apps/cae-extraction-service/
 apps/cae-mlops-service/</code></pre>
 <h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
 <p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong> — stack <strong>actual de la plataforma</strong>, acordado para la integración de Fase 1. La capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
-<blockquote class="callout"><p><strong>Contexto de evolución:</strong> <strong>CAE React actual</strong> se termina sin interrupción. La <strong>App IA</strong> se integra en CAE React vía MFE (Fase 1). En paralelo se construye <strong>CAE Angular nueva</strong> como sustituto. Los microfrontends son <strong>temporales</strong> — ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3.</p></blockquote>
+<blockquote class="callout"><p><strong>Contexto de evolución:</strong> <strong>CAE React actual</strong> se termina sin interrupción. La <strong>App IA</strong> se integra en CAE React vía MFE (Fase 1). En paralelo se construye <strong>CAE Angular nueva</strong> (<code>apps/cae-platform-angular</code>) como sustituto — distinta del MFE de evolución <code>apps/cae-assistant-mfe-angular</code>, que es la capa IA expuesta en Angular. Los microfrontends son <strong>temporales</strong> — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3.</p></blockquote>
 <h4>3.4.0 Fase 1 acordada y evolución Angular</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1052,7 +1052,7 @@ flowchart TB
 <tr>
 <td><strong>2c — Strangler Fig</strong></td>
 <td>Módulos CAE nuevos en Angular embebidos en host React</td>
-<td>Ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8</td>
+<td>Ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8</td>
 </tr>
 <tr>
 <td><strong>2d — Consolidación</strong></td>
@@ -1070,6 +1070,7 @@ flowchart TB
 <td>AKS multi-pod</td>
 </tr>
 </tbody></table></div>
+<blockquote class="callout"><p><strong>Nota de correspondencia:</strong> estas son las <strong>fases de entrega técnica de la capa IA</strong> (libs, pipeline, escala), independientes de las <strong>fases de migración de la plataforma</strong> (0–4, con horizontes 0–36+ meses) definidas en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ Fase 1 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ Fases 2–3 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ Fase 4 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) son ortogonales y aplican en cualquier fase de migración de plataforma.</p></blockquote>
 <h4>3.4.5 Module Federation — integración temporal (React ↔ Angular)</h4>
 <p>Module Federation conecta <strong>CAE React</strong>, la <strong>App IA</strong> y <strong>CAE Angular</strong> mientras conviven. <strong>No es la arquitectura objetivo</strong>: al consolidar CAE Angular única, los remotes desaparecen y la IA pasa a <code>libs/angular/cae/feature-*</code>.</p>
 <div class="table-wrap"><table>
@@ -1140,7 +1141,7 @@ flowchart TB
 <td>Actualizar toolchain antes de federar</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>Opciones de shell (React vs Angular) y modelo de dos equipos: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3 y §3.2.</p></blockquote>
+<blockquote class="callout"><p>Opciones de shell (React vs Angular) y modelo de dos equipos: <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3 y §3.2.</p></blockquote>
 <h3 id="35-arquitectura-frontend-componentes-listos-y-tontos" class="subsection-title">3.5 Arquitectura frontend: componentes listos y tontos</h3>
 <p>La capa UI del MFE sigue el patrón <strong>Smart / Dumb</strong> (también <em>container / presentational</em>). El dominio y las reglas CAE <strong>nunca</strong> viven en componentes de presentación.</p>
 <h4>3.5.1 Componentes tontos (presentational / dumb)</h4>
@@ -1841,7 +1842,7 @@ flowchart TD
 <td>Rangos, marcas, tipologías configurables sin redeploy</td>
 </tr>
 </tbody></table></div>
-<p>Ver <a href="#41-motor-validaci%C3%B3n-progresiva-cae-componente-central">sección 4.1</a> y <a href="#7-validation-engine">sección 7</a>.</p>
+<p>Ver <a href="#41-motor-validacion-progresiva-cae-componente-central">sección 4.1</a> y <a href="#7-validation-engine">sección 7</a>.</p>
 <h3 id="57-ai-orchestrator" class="subsection-title">5.7 AI Orchestrator</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -1876,15 +1877,14 @@ flowchart TD
 </tr>
 </tbody></table></div>
 <p><strong>Contrato entrada/salida:</strong></p>
-<pre class="code-block"><code class="language-json">// Entrada
-{
+<p><em>Entrada:</em></p>
+<pre class="code-block"><code class="language-json">{
   "expedienteId": "exp-123",
   "evento": "DOCUMENTO_PROCESADO",
   "documentos": [{ "id": "doc-1", "tipo": "dni", "extraccion": {} }]
-}
-
-// Salida
-{
+}</code></pre>
+<p><em>Salida:</em></p>
+<pre class="code-block"><code class="language-json">{
   "expedienteId": "exp-123",
   "estado": "CON_INCIDENCIAS",
   "scoring": { "completitud": 85, "confianza": 78, "riesgo": "MEDIO" },
@@ -2700,7 +2700,7 @@ erDiagram
 </thead>
 <tbody><tr>
 <td>Metadatos expediente/incidencias</td>
-<td>PostgreSQL o Cosmos DB</td>
+<td>PostgreSQL (por defecto) — Cosmos DB si se requiere escala multi-región</td>
 </tr>
 <tr>
 <td>Documentos RAW</td>
@@ -3334,7 +3334,7 @@ flowchart LR
 </thead>
 <tbody><tr>
 <td><code>ACIERTO_IA</code></td>
-<td>Negative sample para falsos positivos</td>
+<td>Positive sample — refuerzo de extracciones/validaciones correctas</td>
 </tr>
 <tr>
 <td><code>FALLO_EXTRACCION</code></td>
@@ -3541,15 +3541,14 @@ Promovible = (fitness_candidato ≥ fitness_activo + 1)
 <td>MLOps manual/automático</td>
 </tr>
 <tr>
-<td>Revisión gobernania</td>
+<td>Revisión gobernanza</td>
 <td>Trimestral</td>
 <td>Comité IA</td>
 </tr>
 </tbody></table></div>
 <h3 id="186-ejemplo-respuesta-api" class="subsection-title">18.6 Ejemplo respuesta API</h3>
-<pre class="code-block"><code class="language-json">GET /api/v1/mlops/fitness
-
-{
+<p><code>GET /api/v1/mlops/fitness</code></p>
+<pre class="code-block"><code class="language-json">{
   "fitnessGlobal": 88.1,
   "componentes": {
     "clasificacion": { "score": 96, "peso": 0.15, "contribucion": 14.4 },
@@ -4053,7 +4052,7 @@ regresión en CI"]
 <hr>
 <h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Fase 1:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Transición:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Objetivo:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Fase 1:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Transición:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Objetivo:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>

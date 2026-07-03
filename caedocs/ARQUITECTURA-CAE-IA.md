@@ -5,7 +5,9 @@
 | Campo | Valor |
 |-------|-------|
 | **Versión diagrama** | 3.0 |
+| **Estado** | Versión de entrega |
 | **Fecha** | 03/07/2026 |
+| **Clasificación** | Confidencial — IDEAUTO / Babooni |
 
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
@@ -91,6 +93,16 @@ flowchart TB
     style ISO fill:#fff9c4,stroke:#f9a825
 ```
 
+### 0.2 Las tres aplicaciones del programa
+
+| App | Stack | Rol |
+|-----|-------|-----|
+| **CAE React (actual)** | React | Plataforma CAE v2.0 en producción; host durante toda la transición |
+| **App IA** (`cae-assistant-mfe` + `cae-ia-backend`) | React MFE (Fase 1) | Capa de asistencia inteligente; se integra en CAE React vía microfrontend |
+| **CAE Angular** (`apps/cae-platform-angular`) | Angular | Plataforma sustituta; crece en paralelo y absorbe módulo a módulo a CAE React |
+
+> El MFE `apps/cae-assistant-mfe-angular` (§7.1) es la **evolución de la App IA** hacia Angular, no una cuarta aplicación: cuando un módulo migra a CAE Angular, la IA se expone allí como *feature* nativa (`libs/angular/cae/feature-*`). Detalle completo en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
+
 ```mermaid
 flowchart LR
     subgraph MS["Microservicios CAE IA"]
@@ -154,7 +166,7 @@ flowchart LR
         P3D["Control de completitud"]
         P3E{"¿Incidencias?"}
         P3F["🔴 Crítica — bloquea envío"]
-        P3G["🟠 Mayor — advertencia + corrección"]
+        P3G["🟠 Mayor — bloquea envío hasta corregir"]
         P3H["🟡 Menor — mejora calidad"]
         P3I["Feedback cliente tiempo real"]
         P3A --> P3B --> P3C --> P3D --> P3E
@@ -273,8 +285,8 @@ flowchart TD
     OCR --> RAWTXT
 
     RAWTXT --> CONF{"Calidad OCR / Confidence"}
-    CONF -->|Alta ≥ 0.85| REL["Texto fiable"]
-    CONF -->|Baja < 0.85| VLM["Fallback GPT-4o Vision"]
+    CONF -->|"Alta >= 0.85"| REL["Texto fiable"]
+    CONF -->|"Baja < 0.85"| VLM["Fallback GPT-4o Vision"]
     VLM --> REL
 
     REL --> CLASS{"Clasificador documental"}

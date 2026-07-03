@@ -27,7 +27,7 @@
         </div>
         <div class="header-meta">
           <span class="badge badge-blue">Estrategia</span>
-          <span class="badge badge-neutral">v3.0</span>
+          <span class="badge badge-neutral">v1.0</span>
         </div>
       </div>
       <p class="header-subtitle">Modernización incremental CAE — Strangler Fig React → Angular</p>
@@ -93,7 +93,7 @@
 </tr>
 <tr>
 <td><strong>Documentos relacionados</strong></td>
-<td><a href="ESPECIFICACION-FUNCIONAL-v3.0.md"><code>ESPECIFICACION-FUNCIONAL-v3.0.md</code></a>, <a href="DISENO-TECNICO-v3.0.md"><code>DISENO-TECNICO-v3.0.md</code></a>, <a href="ARQUITECTURA-CAE-IA.md"><code>ARQUITECTURA-CAE-IA.md</code></a></td>
+<td><a href="especificacion-funcional-v3.0.html"><code>ESPECIFICACION-FUNCIONAL-v3.0.md</code></a>, <a href="diseno-tecnico-v3.0.html"><code>DISENO-TECNICO-v3.0.md</code></a>, <a href="arquitectura-cae-ia.html"><code>ARQUITECTURA-CAE-IA.md</code></a></td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -131,17 +131,17 @@
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
 <ol>
 <li><a href="#1-contexto-y-oportunidad-de-mejora">Contexto y oportunidad de mejora</a></li>
-<li><a href="#2-propuesta-estrat%C3%A9gica">Propuesta estratégica</a></li>
-<li><a href="#3-patr%C3%B3n-strangler-fig-con-microfrontends">Patrón Strangler Fig con microfrontends</a></li>
-<li><a href="#4-angular-vs-react--criterios-de-selecci%C3%B3n">Angular vs React — criterios de selección</a></li>
+<li><a href="#2-propuesta-estrategica">Propuesta estratégica</a></li>
+<li><a href="#3-patron-strangler-fig-microfrontends-como-puente-temporal">Patrón Strangler Fig — microfrontends como puente temporal</a></li>
+<li><a href="#4-angular-vs-react-criterios-de-seleccion">Angular vs React — criterios de selección</a></li>
 <li><a href="#5-ventajas-del-enfoque-incremental">Ventajas del enfoque incremental</a></li>
 <li><a href="#6-costes-riesgos-e-inconvenientes">Costes, riesgos e inconvenientes</a></li>
 <li><a href="#7-criterios-de-aplicabilidad">Criterios de aplicabilidad</a></li>
-<li><a href="#8-fases-de-migraci%C3%B3n">Fases de migración</a></li>
-<li><a href="#9-relaci%C3%B3n-con-el-proyecto-de-asistencia-ia">Relación con el proyecto de Asistencia IA</a></li>
-<li><a href="#10-gobernanza-m%C3%A9tricas-y-criterios-de-%C3%A9xito">Gobernanza, métricas y criterios de éxito</a></li>
-<li><a href="#11-beneficios-y-encaje-estrat%C3%A9gico">Beneficios y encaje estratégico</a></li>
-<li><a href="#12-visi%C3%B3n-final">Visión final</a></li>
+<li><a href="#8-fases-de-migracion">Fases de migración</a></li>
+<li><a href="#9-relacion-con-el-proyecto-de-asistencia-ia">Relación con el proyecto de Asistencia IA</a></li>
+<li><a href="#10-gobernanza-metricas-y-criterios-de-exito">Gobernanza, métricas y criterios de éxito</a></li>
+<li><a href="#11-beneficios-y-encaje-estrategico">Beneficios y encaje estratégico</a></li>
+<li><a href="#12-vision-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-contexto-y-oportunidad-de-mejora" class="section-title">1. Contexto y oportunidad de mejora</h2>
@@ -333,7 +333,14 @@ IA integrada nativa"]
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>1 — IA en producción</strong></td>
+<td><strong>0 — Baseline</strong></td>
+<td>Desarrollo en curso</td>
+<td>Diseño / arranque</td>
+<td>Diseño / arranque</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>1 — IA integrada</strong></td>
 <td>Operativa; desarrollo continúa</td>
 <td>MFE embebido en CAE React</td>
 <td>Arranque / primeros módulos</td>
@@ -347,21 +354,21 @@ IA integrada nativa"]
 <td><strong>Sí</strong> — React ↔ Angular</td>
 </tr>
 <tr>
-<td><strong>3 — Consolidación</strong></td>
-<td>Retirada</td>
+<td><strong>3 — Sustitución</strong></td>
+<td>Módulos retirados uno a uno</td>
 <td>Integrada como módulos Angular nativos</td>
-<td>Plataforma principal</td>
-<td><strong>No</strong> — app Angular única</td>
+<td>Asume la mayoría de rutas de negocio</td>
+<td><strong>Sí</strong>, reduciéndose</td>
 </tr>
 <tr>
-<td><strong>4 — Objetivo</strong></td>
+<td><strong>4 — Consolidación</strong></td>
 <td>Desmantelada</td>
 <td>Parte de CAE Angular (<code>libs/angular/cae</code>)</td>
 <td><strong>100 % plataforma</strong></td>
 <td><strong>Eliminados</strong></td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, <strong>no hace falta Module Federation</strong>: todo vive en la misma aplicación Angular.</p></blockquote>
+<blockquote class="callout"><p>Esta tabla resume el mismo esquema de fases 0–4 detallado en §8 (con horizontes temporales orientativos), aplicado a las tres aplicaciones en paralelo. Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, <strong>no hace falta Module Federation</strong>: todo vive en la misma aplicación Angular.</p></blockquote>
 <h3 id="24-integracion-tecnica-durante-la-transicion" class="subsection-title">2.4 Integración técnica durante la transición</h3>
 <p>Mientras conviven las aplicaciones, <strong>Module Federation</strong> conecta host y remotes. No es plug-and-play: requiere configuración explícita y contrato compartido (auth, rutas, design system). La mayoría de apps React modernas pueden integrarse; algunas necesitarán ajustes en el build (ver §3.1).</p>
 <p><strong>Ejemplo de routing durante la convivencia:</strong></p>
@@ -1010,7 +1017,7 @@ flowchart LR
 </tr>
 <tr>
 <td>¿Se puede mantener solo React?</td>
-<td>Fase 1 sí; la evolución Angular es opcional y se activa por módulo según ROI</td>
+<td>En Fase 1, sí. Angular es el horizonte acordado de la plataforma; el <strong>ritmo</strong> de migración por módulo se ajusta según ROI, pero no es una opción a nivel de estrategia</td>
 </tr>
 <tr>
 <td>¿Por qué microfrontends si el objetivo es Angular?</td>

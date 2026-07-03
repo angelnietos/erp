@@ -14,6 +14,7 @@ const docs = [
     badgeClass: 'badge-red',
     accent: 'red',
     subtitle: 'Sistema de Asistencia Inteligente — Plataforma CAE',
+    version: 'v3.0',
   },
   {
     input: 'DISENO-TECNICO-v3.0.md',
@@ -22,6 +23,7 @@ const docs = [
     badgeClass: 'badge-blue',
     accent: 'blue',
     subtitle: 'Diseño Técnico de Referencia — Plataforma CAE',
+    version: 'v3.0',
   },
   {
     input: 'ARQUITECTURA-CAE-IA.md',
@@ -30,6 +32,7 @@ const docs = [
     badgeClass: 'badge-blue',
     accent: 'blue',
     subtitle: 'Diagrama maestro — Visión funcional + Técnica E2E + MLOps',
+    version: 'v3.0',
   },
   {
     input: 'ESTRATEGIA-MIGRACION-FRONTEND-CAE.md',
@@ -38,8 +41,12 @@ const docs = [
     badgeClass: 'badge-blue',
     accent: 'blue',
     subtitle: 'Modernización incremental CAE — Strangler Fig React → Angular',
+    version: 'v1.0',
   },
 ];
+
+/** Maps source .md filenames to their generated .html output, for cross-document links */
+const mdToHtml = new Map(docs.map((d) => [d.input, d.output]));
 
 function slugify(text) {
   return text
@@ -54,6 +61,22 @@ function slugify(text) {
 
 function stripMd(text) {
   return text.replace(/\*\*/g, '').replace(/`/g, '').trim();
+}
+
+/** Same normalization used for heading ids, so hand-written anchors with accents still resolve.
+ * marked() percent-encodes non-ASCII characters in href="#..." (e.g. "ó" -> "%C3%B3"), so we
+ * decode first, then strip diacritics the same way slugify() does for heading ids. */
+function normalizeAnchor(fragment) {
+  let decoded = fragment;
+  try {
+    decoded = decodeURIComponent(fragment);
+  } catch {
+    // malformed percent-encoding — fall back to the raw fragment
+  }
+  return decoded
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 }
 
 function extractHeadings(md) {
@@ -131,6 +154,13 @@ function postProcessHtml(html) {
       .replace(/<td>(\s*)—(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
       .replace(/<td>(\s*)<strong>—<\/strong>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
       .replace(/<td>(\s*)<em>—<\/em>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
+      // Cross-document links: point to the generated .html instead of the source .md
+      .replace(/href="([A-Za-z0-9_.-]+\.md)(#[^"]*)?"/g, (m, mdFile, anchor = '') => {
+        const htmlFile = mdToHtml.get(mdFile);
+        return htmlFile ? `href="${htmlFile}${anchor}"` : m;
+      })
+      // In-page anchors: normalize accents so hand-written links match generated heading ids
+      .replace(/href="#([^"]+)"/g, (_, frag) => `href="#${normalizeAnchor(frag)}"`)
   );
 }
 
@@ -143,7 +173,7 @@ function buildToc(headings) {
     .join('\n');
 }
 
-function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
+function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc, version }) {
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -173,7 +203,7 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         </div>
         <div class="header-meta">
           <span class="badge ${badgeClass}">${badge}</span>
-          <span class="badge badge-neutral">v3.0</span>
+          <span class="badge badge-neutral">${version}</span>
         </div>
       </div>
       <p class="header-subtitle">${subtitle}</p>
