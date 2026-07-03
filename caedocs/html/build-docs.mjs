@@ -124,6 +124,9 @@ function postProcessHtml(html) {
       )
       .replace(/href="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'href="../$1"')
       .replace(/src="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'src="../$1"')
+      .replace(/<td>(\s*)—(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
+      .replace(/<td>(\s*)<strong>—<\/strong>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
+      .replace(/<td>(\s*)<em>—<\/em>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
   );
 }
 

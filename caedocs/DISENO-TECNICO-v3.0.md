@@ -338,12 +338,12 @@ Cada lib `*-backend` sigue **domain / application / infrastructure**, exportando
 | Bounded context | Lib dominio | Lib backend | Lib UI React (cliente) | Lib UI Angular (recom.) |
 |-----------------|-------------|-------------|------------------------|----------------------|
 | Validación CAE | `isomorphic/cae/core` | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
-| Extracción | `isomorphic/cae/core` | `extraction-backend` | — | — |
-| Ingesta | `isomorphic/cae/core` | `ingestion-backend` | — | — |
+| Extracción | `isomorphic/cae/core` | `extraction-backend` | Sin capa UI | Sin capa UI |
+| Ingesta | `isomorphic/cae/core` | `ingestion-backend` | Sin capa UI | Sin capa UI |
 | Razonamiento IA | `isomorphic/cae/core` | `reasoning-backend` | `feature-assistant` (chat) | idem Angular |
-| Operaciones | — | `reasoning-backend` + `validation-backend` | `feature-operations` | idem Angular |
+| Operaciones | Reutiliza `isomorphic/cae/core` | `reasoning-backend` + `validation-backend` | `feature-operations` | idem Angular |
 | MLOps / Fitness | `isomorphic/cae/core` | `mlops-backend` | `feature-mlops` | idem Angular |
-| Integración CAE v2 | `isomorphic/cae/api` | `integration-backend` | — | — |
+| Integración CAE v2 | `isomorphic/cae/api` | `integration-backend` | Sin capa UI (solo ACL) | Sin capa UI (solo ACL) |
 
 #### 3.3.4 Modos de despliegue (misma codebase)
 
@@ -543,8 +543,8 @@ Ubicación: `libs/react/cae/ui` (decisión cliente) y `libs/angular/cae/ui` (rec
 | Componente | Props principales | Eventos |
 |------------|-------------------|---------|
 | `IncidentCard` | incidencia, severidad, mensaje | `onResolve`, `onDismiss` |
-| `CompletenessGauge` | porcentaje, etiqueta | — |
-| `DocumentStatusBadge` | estado, confidence | — |
+| `CompletenessGauge` | porcentaje, etiqueta | Sin eventos |
+| `DocumentStatusBadge` | estado, confidence | Sin eventos |
 | `AssistantMessage` | rol, contenido, timestamp | `onCopy`, `onFeedback` |
 | `OperationsSummaryBlock` | items, prioridad | `onExpand` |
 
@@ -1936,13 +1936,13 @@ flowchart TB
 
 | Ruta | Unitarios | Integración | Storybook | E2E |
 |------|-----------|-------------|-----------|-----|
-| `libs/isomorphic/cae/core` | Reglas, agregados, value objects | — | — | — |
-| `libs/node/cae/*-backend` | Application services, domain | Adaptadores, API modules | — | — |
-| `libs/react/cae/ui` | Render + eventos | — | **Obligatorio** | — |
+| `libs/isomorphic/cae/core` | Reglas, agregados, value objects | No aplica | No aplica | No aplica |
+| `libs/node/cae/*-backend` | Application services, domain | Adaptadores, API modules | No aplica | No aplica |
+| `libs/react/cae/ui` | Render + eventos | No aplica | **Obligatorio** | No aplica |
 | `libs/react/cae/feature-*` | Mappers ligeros | MSW / mock API | Opcional | vía E2E |
-| `apps/cae-ia-backend` | — | Smoke API | — | Parcial |
-| `apps/cae-assistant-mfe` | — | — | — | Playwright |
-| `apps/cae-ui-storybook` | — | — | Catálogo + interaction | — |
+| `apps/cae-ia-backend` | No aplica | Smoke API | No aplica | Parcial |
+| `apps/cae-assistant-mfe` | No aplica | No aplica | No aplica | Playwright |
+| `apps/cae-ui-storybook` | No aplica | No aplica | Catálogo + interaction | No aplica |
 
 ### 21.3 Escenarios E2E prioritarios
 

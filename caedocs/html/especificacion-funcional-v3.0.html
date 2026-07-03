@@ -925,8 +925,8 @@ flowchart LR
 <tbody><tr>
 <td>②–④ Ingesta + Extracción</td>
 <td><code>ingestion-backend</code>, <code>extraction-backend</code></td>
-<td>—</td>
-<td>—</td>
+<td>Sin capa UI</td>
+<td>Sin capa UI</td>
 </tr>
 <tr>
 <td>⑤ Validación progresiva</td>
@@ -961,8 +961,8 @@ flowchart LR
 <tr>
 <td>Integración CAE v2</td>
 <td><code>integration-backend</code></td>
-<td>—</td>
-<td>—</td>
+<td>Sin capa UI (solo ACL)</td>
+<td>Sin capa UI (solo ACL)</td>
 </tr>
 <tr>
 <td>Dominio compartido</td>
@@ -1393,7 +1393,7 @@ stateDiagram-v2
 <tr>
 <td><code>VALIDADO</code></td>
 <td>Aprobado por Operaciones</td>
-<td>—</td>
+<td>Solo consulta</td>
 </tr>
 <tr>
 <td><code>RECHAZADO</code></td>
@@ -1843,7 +1843,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <td>RF-009</td>
 <td>Firma digital</td>
 <td>Permitida para empresas cuando proceda</td>
-<td>—</td>
+<td>Informativa (condicional)</td>
 </tr>
 <tr>
 <td>RF-010</td>
@@ -1954,7 +1954,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <td>RF-022</td>
 <td>Dirección postal</td>
 <td>Autocompletado desde DNI/factura</td>
-<td>—</td>
+<td>Menor</td>
 </tr>
 <tr>
 <td>RF-023</td>
@@ -2148,12 +2148,12 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <tr>
 <td>Referencia catastral</td>
 <td>API catastro</td>
-<td>— (desde dirección)</td>
+<td>Derivada de dirección postal</td>
 </tr>
 <tr>
 <td>Contraprestación</td>
 <td>Convenio CAE</td>
-<td>—</td>
+<td>No aplica (solo convenio)</td>
 </tr>
 <tr>
 <td>Ahorro energético</td>

@@ -691,15 +691,15 @@ flowchart TB
 <td>Extracción</td>
 <td><code>isomorphic/cae/core</code></td>
 <td><code>extraction-backend</code></td>
-<td>—</td>
-<td>—</td>
+<td>Sin capa UI</td>
+<td>Sin capa UI</td>
 </tr>
 <tr>
 <td>Ingesta</td>
 <td><code>isomorphic/cae/core</code></td>
 <td><code>ingestion-backend</code></td>
-<td>—</td>
-<td>—</td>
+<td>Sin capa UI</td>
+<td>Sin capa UI</td>
 </tr>
 <tr>
 <td>Razonamiento IA</td>
@@ -710,7 +710,7 @@ flowchart TB
 </tr>
 <tr>
 <td>Operaciones</td>
-<td>—</td>
+<td>Reutiliza <code>isomorphic/cae/core</code></td>
 <td><code>reasoning-backend</code> + <code>validation-backend</code></td>
 <td><code>feature-operations</code></td>
 <td>idem Angular</td>
@@ -726,8 +726,8 @@ flowchart TB
 <td>Integración CAE v2</td>
 <td><code>isomorphic/cae/api</code></td>
 <td><code>integration-backend</code></td>
-<td>—</td>
-<td>—</td>
+<td>Sin capa UI (solo ACL)</td>
+<td>Sin capa UI (solo ACL)</td>
 </tr>
 </tbody></table></div>
 <h4>3.3.4 Modos de despliegue (misma codebase)</h4>
@@ -1109,12 +1109,12 @@ flowchart TB
 <tr>
 <td><code>CompletenessGauge</code></td>
 <td>porcentaje, etiqueta</td>
-<td>—</td>
+<td>Sin eventos</td>
 </tr>
 <tr>
 <td><code>DocumentStatusBadge</code></td>
 <td>estado, confidence</td>
-<td>—</td>
+<td>Sin eventos</td>
 </tr>
 <tr>
 <td><code>AssistantMessage</code></td>
@@ -3771,23 +3771,23 @@ regresión en CI"]
 <tbody><tr>
 <td><code>libs/isomorphic/cae/core</code></td>
 <td>Reglas, agregados, value objects</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>No aplica</td>
 </tr>
 <tr>
 <td><code>libs/node/cae/*-backend</code></td>
 <td>Application services, domain</td>
 <td>Adaptadores, API modules</td>
-<td>—</td>
-<td>—</td>
+<td>No aplica</td>
+<td>No aplica</td>
 </tr>
 <tr>
 <td><code>libs/react/cae/ui</code></td>
 <td>Render + eventos</td>
-<td>—</td>
+<td>No aplica</td>
 <td><strong>Obligatorio</strong></td>
-<td>—</td>
+<td>No aplica</td>
 </tr>
 <tr>
 <td><code>libs/react/cae/feature-*</code></td>
@@ -3798,24 +3798,24 @@ regresión en CI"]
 </tr>
 <tr>
 <td><code>apps/cae-ia-backend</code></td>
-<td>—</td>
+<td>No aplica</td>
 <td>Smoke API</td>
-<td>—</td>
+<td>No aplica</td>
 <td>Parcial</td>
 </tr>
 <tr>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>No aplica</td>
 <td>Playwright</td>
 </tr>
 <tr>
 <td><code>apps/cae-ui-storybook</code></td>
-<td>—</td>
-<td>—</td>
+<td>No aplica</td>
+<td>No aplica</td>
 <td>Catálogo + interaction</td>
-<td>—</td>
+<td>No aplica</td>
 </tr>
 </tbody></table></div>
 <h3 id="213-escenarios-e2e-prioritarios" class="subsection-title">21.3 Escenarios E2E prioritarios</h3>

@@ -543,15 +543,23 @@ body {
   border-bottom: none;
 }
 
+.prose td.cell-na {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.88rem;
+}
+
 .prose td code:not(.code-block code) {
-  background: #eef2ff;
-  color: #1e3a5f;
+  background: #f0f4f8;
+  color: #2c3e50;
   font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
 body.accent-blue .prose td code:not(.code-block code) {
-  background: #e0f7ff;
-  color: #006688;
+  background: #f0f9fc;
+  color: #0d5c72;
+  border-color: #cceef8;
 }
 
 /* Code */

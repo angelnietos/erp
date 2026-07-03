@@ -401,13 +401,13 @@ Flujo horizontal que atraviesa todo el sistema:
 
 | Fase funcional | Lib backend | Lib UI React (cliente) | Lib UI Angular (recom.) |
 |----------------|-------------|------------------------|----------------------|
-| ②–④ Ingesta + Extracción | `ingestion-backend`, `extraction-backend` | — | — |
+| ②–④ Ingesta + Extracción | `ingestion-backend`, `extraction-backend` | Sin capa UI | Sin capa UI |
 | ⑤ Validación progresiva | `validation-backend` | `react/cae/feature-assistant` | `angular/cae/feature-assistant` |
 | ⑥ Razonamiento IA | `reasoning-backend`, `knowledge-backend` | `feature-assistant` (chat) | idem |
 | ⑦ Decisión | `validation-backend` | `feature-assistant` | idem |
 | ⑧ Operaciones | `reasoning-backend` | `react/cae/feature-operations` | `angular/cae/feature-operations` |
 | ⑨ MLOps + Fitness | `feedback-backend`, `mlops-backend` | `react/cae/feature-mlops` | `angular/cae/feature-mlops` |
-| Integración CAE v2 | `integration-backend` | — | — |
+| Integración CAE v2 | `integration-backend` | Sin capa UI (solo ACL) | Sin capa UI (solo ACL) |
 | Dominio compartido | `isomorphic/cae/core`, `api` | `react/cae/data-access` | `angular/cae/data-access` |
 
 *(Rutas relativas a `libs/node/cae/` y `libs/` respectivamente.)*
@@ -644,7 +644,7 @@ stateDiagram-v2
 | `CON_INCIDENCIAS` | Incidencias críticas o mayores abiertas | Corregir incidencias |
 | `PENDIENTE_REVISION` | Enviado, en cola | Solo consulta |
 | `REVISION_OPERACIONES` | En revisión activa | Responder devoluciones |
-| `VALIDADO` | Aprobado por Operaciones | — |
+| `VALIDADO` | Aprobado por Operaciones | Solo consulta |
 | `RECHAZADO` | Rechazado (automático o humano) | Corregir y reiniciar flujo |
 
 ### 8.2 Estados del documento
@@ -832,7 +832,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 | ID | Regla | Validaciones | Severidad |
 |----|-------|--------------|-----------|
 | RF-008 | Firma manuscrita | Anexo, Convenio CAE, Autorización datos — obligatoria para particulares | Crítica |
-| RF-009 | Firma digital | Permitida para empresas cuando proceda | — |
+| RF-009 | Firma digital | Permitida para empresas cuando proceda | Informativa (condicional) |
 | RF-010 | Comparación firma DNI | Similitud firma aportada vs. DNI | Advertencia (Menor) |
 
 ### 13.3 Bloque C — Validaciones de coherencia
@@ -860,7 +860,7 @@ Incidencias abiertas: 2 mayores, 1 menor
 | ID | Regla | Descripción | Severidad |
 |----|-------|-------------|-----------|
 | RF-021 | Nombre expediente | Formato homogéneo, numeración automática | Menor |
-| RF-022 | Dirección postal | Autocompletado desde DNI/factura | — |
+| RF-022 | Dirección postal | Autocompletado desde DNI/factura | Menor |
 | RF-023 | Referencia catastral | Autocompletado desde dirección postal | Mayor |
 | RF-024 | Ayudas públicas | Si indicadas: denominación, entidad, disposición, año | Mayor |
 | RF-025 | Datos bancarios | Determinar transferencia vs. abono | Mayor |
@@ -919,8 +919,8 @@ Incidencias abiertas: 2 mayores, 1 menor
 | VIN vehículo antiguo | Ficha técnica VO | Permiso, IVTM |
 | Matrícula VO | Permiso circulación | IVTM, ficha técnica |
 | Dirección postal | DNI | Factura |
-| Referencia catastral | API catastro | — (desde dirección) |
-| Contraprestación | Convenio CAE | — |
+| Referencia catastral | API catastro | Derivada de dirección postal |
+| Contraprestación | Convenio CAE | No aplica (solo convenio) |
 | Ahorro energético | Cálculo CAE | API IDEAUTO |
 
 ---

@@ -54,7 +54,7 @@ La capa de asistencia inteligente se implementará con:
 | Estructura | Monolito / acoplado | `libs/` Nx independientes |
 | Backend | Core CAE propietario | `libs/node/cae/*-backend` + ACL |
 | Frontend host | **React** (legacy, deuda técnica) | Sin sustituir shell de inmediato; MFE React (cliente) |
-| UI IA | — | **React entrega acordada** + **Angular recomendado** en paralelo |
+| UI IA | No existía (greenfield) | **React entrega acordada** + **Angular recomendado** en paralelo |
 | Despliegue | Single app | Monolito IA → microservicios opcional |
 
 ```mermaid

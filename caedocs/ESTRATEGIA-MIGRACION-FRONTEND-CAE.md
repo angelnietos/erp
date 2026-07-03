@@ -235,7 +235,7 @@ Durante la transición (potencialmente **varios años**) coexistirán:
 
 | Fase | Horizonte | CAE React legacy | Angular | Entregables clave |
 |------|-----------|------------------|---------|-------------------|
-| **0 — Baseline** | Actual | 100% CAE | — | Auditoría deuda, mapa módulos, contrato MFE |
+| **0 — Baseline** | Actual | 100% CAE | Pendiente de arranque | Auditoría deuda, mapa módulos, contrato MFE |
 | **1 — IA integrada** | 0–6 meses | Host estable | MFE IA (React cliente + Angular POC) | `cae-ia-backend`, paneles asistencia, slots |
 | **2 — Nuevos módulos** | 6–18 meses | Sin features grandes nuevas | Todo greenfield en Angular | Primer módulo negocio nuevo en Angular embebido |
 | **3 — Sustitución** | 18–36+ meses | Módulos retirados uno a uno | Reescrituras priorizadas por ROI | Matriz módulo → fecha retirada React |
