@@ -12,7 +12,7 @@
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
 > **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios + monorepo Nx + MFE React/Angular).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`, `08-strangler-migracion.png`.
+> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`, `08-strangler-migracion.png`, `09-despliegue-azure.png`, `10-modelo-datos-er.png`, `11-secuencia-documento.png`.
 
 ---
 
@@ -238,6 +238,8 @@ flowchart LR
     style P8 fill:#d7ccc8,stroke:#4e342e
 ```
 
+![Visión funcional — 10 fases](diagrams/01-vision-funcional.png)
+
 ### Detalle por fase funcional
 
 | # | Fase | Entrada | Salida | Actor principal |
@@ -372,6 +374,8 @@ flowchart TD
     style AUDIT fill:#d7ccc8,stroke:#4e342e
 ```
 
+![Arquitectura técnica — flujo E2E](diagrams/02-arquitectura-tecnica-e2e.png)
+
 ---
 
 ## 3. MOTOR VALIDACIÓN PROGRESIVA CAE (detalle)
@@ -450,6 +454,8 @@ flowchart LR
     style FIT fill:#ffcc80,stroke:#ef6c00,stroke-width:2px
 ```
 
+![Bucle MLOps, Fitness y Feedback](diagrams/03-mlops-fitness.png)
+
 ### Modelo de fitness (resumen técnico)
 
 | Componente | Peso | Fuente |
@@ -525,6 +531,10 @@ flowchart LR
 
 ## 7. Mapa objetivo monorepo Nx
 
+![Arquitectura hexagonal y microservicios](diagrams/04-hexagonal-microservicios.png)
+
+![Monorepo Nx — estructura objetivo](diagrams/05-monorepo-nx-cae.png)
+
 | Capa | Ruta objetivo | Rol |
 |------|---------------|-----|
 | Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas RF, eventos |
@@ -572,6 +582,8 @@ flowchart LR
     style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 ```
 
+![Integración MFE React y Angular](diagrams/06-mfe-react-angular.png)
+
 ### 7.2 Escenario evolutivo — Strangler Fig
 
 Patrón **Strangler Fig**: el host **React** se reduce módulo a módulo mientras **Angular** crece como remotes embebidos hasta sustituir el shell.
@@ -608,6 +620,8 @@ flowchart LR
     style F3 fill:#e8f5e9,stroke:#2e7d32
     style F4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
 ```
+
+![Strangler Fig — migración React → Angular](diagrams/08-strangler-migracion.png)
 
 > Documento completo: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)
 

@@ -165,6 +165,10 @@ Al migrar `/expedientes` a Angular, **solo cambia qué app resuelve la ruta**; l
 
 La estrategia sigue el patrón **Strangler Fig**: la **CAE Angular nueva** crece alrededor de la **CAE React actual** hasta sustituirla. Los **microfrontends solo existen durante esa transición**; no forman parte de la arquitectura final.
 
+![Strangler Fig — migración React → Angular](diagrams/08-strangler-migracion.png)
+
+![Integración MFE React y Angular](diagrams/06-mfe-react-angular.png)
+
 ### 3.1 Integración técnica — Module Federation cross-framework
 
 **Module Federation** (Webpack 5 y plugins equivalentes en otras herramientas) permite exponer una aplicación React como microfrontend y consumirla desde Angular, o al revés. No obstante, **no es cierto que cualquier aplicación React pueda integrarse sin cambios**.

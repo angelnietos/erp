@@ -636,6 +636,17 @@ body.accent-blue .prose code:not(.code-block code) {
   box-shadow: var(--shadow-soft);
   background: var(--bg-muted);
   max-width: 100%;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prose .arch-diagram:hover {
+  border-color: var(--accent, #0ab9e5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.prose .arch-diagram a {
+  display: block;
+  line-height: 0;
 }
 
 .prose .arch-diagram img {

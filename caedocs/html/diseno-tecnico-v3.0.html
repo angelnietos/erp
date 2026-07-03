@@ -2141,6 +2141,7 @@ sequenceDiagram
     OR->>FD: Optional reasoning
     OR->>FE: WebSocket o poll result
 </div>
+<div class="arch-diagram"><a href="assets/11-secuencia-documento.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/11-secuencia-documento.png" alt="Secuencia de procesamiento documental" loading="lazy" /></a></div>
 <h3 id="62-formatos-soportados" class="subsection-title">6.2 Formatos soportados</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -2679,6 +2680,7 @@ erDiagram
         timestamp ocurrido
     }
 </div>
+<div class="arch-diagram"><a href="assets/10-modelo-datos-er.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/10-modelo-datos-er.png" alt="Modelo de datos — entidades principales" loading="lazy" /></a></div>
 <h3 id="113-almacenamiento" class="subsection-title">11.3 Almacenamiento</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -3612,6 +3614,7 @@ flowchart TB
     AKS --> AM
     BLOB --> CDN
 </div>
+<div class="arch-diagram"><a href="assets/09-despliegue-azure.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/09-despliegue-azure.png" alt="Despliegue Azure — vista física" loading="lazy" /></a></div>
 <h3 id="192-entornos" class="subsection-title">19.2 Entornos</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -3702,7 +3705,7 @@ flowchart TB
 <hr>
 <h2 id="21-estrategia-de-calidad-y-testing" class="section-title">21. Estrategia de calidad y testing</h2>
 <p>La calidad del sistema se garantiza mediante una <strong>pirámide de testing</strong> alineada con Nx: tests rápidos y numerosos en la base; tests de frontera en el medio; flujos E2E y pruebas de carga en la cima. La capa IA añade <strong>regresión con golden set</strong> y <strong>fitness</strong> como gate de CI.</p>
-<blockquote class="callout"><p>Diagrama: <a href="../diagrams/07-testing-piramide.mmd"><code>diagrams/07-testing-piramide.mmd</code></a></p></blockquote>
+<blockquote class="callout"><p>Diagrama: <a href="diagrams/07-testing-piramide.mmd"><code>diagrams/07-testing-piramide.mmd</code></a></p></blockquote>
 <div class="mermaid">
 flowchart TB
     subgraph TOP["Capa superior — pocas, lentas, alto valor"]

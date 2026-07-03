@@ -5,6 +5,26 @@ import { marked } from 'marked';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const caedocsDir = path.resolve(__dirname, '..');
+const assetsDir = path.join(__dirname, 'assets');
+const diagramsDir = path.join(caedocsDir, 'diagrams');
+
+/** Copy PNG assets next to HTML so diagrams work when opening files locally or from a zip. */
+function syncAssets() {
+  fs.mkdirSync(assetsDir, { recursive: true });
+  const copied = new Set();
+  const sources = [
+    path.join(caedocsDir, 'ARQUITECTURA-CAE-IA.png'),
+    ...(fs.existsSync(diagramsDir)
+      ? fs.readdirSync(diagramsDir).filter((f) => f.endsWith('.png')).map((f) => path.join(diagramsDir, f))
+      : []),
+  ];
+  for (const src of sources) {
+    const name = path.basename(src);
+    fs.copyFileSync(src, path.join(assetsDir, name));
+    copied.add(name);
+  }
+  return copied;
+}
 
 const docs = [
   {
@@ -119,6 +139,16 @@ function sanitizeMermaidBlocks(html) {
   });
 }
 
+function toAssetPath(file) {
+  const base = file.replace(/^(?:assets\/|\.\.\/)?(?:diagrams\/)?/, '');
+  return `assets/${base}`;
+}
+
+function wrapDiagramImg(src, alt = 'Diagrama') {
+  const asset = toAssetPath(src);
+  return `<div class="arch-diagram"><a href="${asset}" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="${asset}" alt="${alt}" loading="lazy" /></a></div>`;
+}
+
 function postProcessHtml(html) {
   return sanitizeMermaidBlocks(
     html
@@ -127,7 +157,7 @@ function postProcessHtml(html) {
       .replace(/<h2 id="[^"]*" class="section-title"[^>]*>DISEÑO TÉCNICO[\s\S]*?<\/h2>\s*/i, '')
       .replace(
         /<blockquote>\s*<p>Este fichero es la[\s\S]*?<\/blockquote>/i,
-        '<div class="arch-diagram"><a href="../ARQUITECTURA-CAE-IA.png" target="_blank" rel="noopener"><img src="../ARQUITECTURA-CAE-IA.png" alt="Diagrama maestro de arquitectura CAE IA" loading="lazy" /></a></div>'
+        wrapDiagramImg('ARQUITECTURA-CAE-IA.png', 'Diagrama maestro de arquitectura CAE IA')
       )
       .replace(/<h1([^>]*)>([\s\S]*?)<\/h1>/g, (_, attrs, inner) => {
         const text = stripMd(inner.replace(/<[^>]+>/g, ''));
@@ -154,11 +184,21 @@ function postProcessHtml(html) {
         /<pre><code class="language-(\w+)">/g,
         '<pre class="code-block"><code class="language-$1">'
       )
-      .replace(/href="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'href="../$1"')
-      .replace(/src="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'src="../$1"')
       .replace(
-        /<p><img src="(\.\.\/diagrams\/[^"]+)"([^>]*)><\/p>/g,
-        '<div class="arch-diagram"><img src="$1"$2 loading="lazy" /></div>'
+        /href="(?:\.\.\/)?(?:diagrams\/)?(ARQUITECTURA-CAE-IA\.png|[^"]+\.png)"/g,
+        (_, file) => `href="${toAssetPath(file)}"`
+      )
+      .replace(
+        /src="(?:\.\.\/)?(?:diagrams\/)?(ARQUITECTURA-CAE-IA\.png|[^"]+\.png)"/g,
+        (_, file) => `src="${toAssetPath(file)}"`
+      )
+      .replace(
+        /<p><img src="([^"]+\.png)" alt="([^"]*)"([^>]*)><\/p>/g,
+        (_, src, alt) => wrapDiagramImg(src.replace(/^assets\//, ''), alt)
+      )
+      .replace(
+        /<p><img src="([^"]+\.png)"([^>]*)><\/p>/g,
+        (_, src) => wrapDiagramImg(src.replace(/^assets\//, ''), 'Diagrama')
       )
       .replace(/<td>(\s*)—(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
       .replace(/<td>(\s*)<strong>—<\/strong>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
@@ -325,6 +365,9 @@ marked.use({
     },
   },
 });
+
+const assetCount = syncAssets();
+console.log(`Assets synced: ${assetCount.size} PNG → ${assetsDir}`);
 
 for (const doc of docs) {
   const inputPath = path.join(caedocsDir, doc.input);

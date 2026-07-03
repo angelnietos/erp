@@ -374,6 +374,8 @@ IA integrada nativa"]
 <hr>
 <h2 id="3-patron-strangler-fig-microfrontends-como-puente-temporal" class="section-title">3. Patrón Strangler Fig — microfrontends como puente temporal</h2>
 <p>La estrategia sigue el patrón <strong>Strangler Fig</strong>: la <strong>CAE Angular nueva</strong> crece alrededor de la <strong>CAE React actual</strong> hasta sustituirla. Los <strong>microfrontends solo existen durante esa transición</strong>; no forman parte de la arquitectura final.</p>
+<div class="arch-diagram"><a href="assets/08-strangler-migracion.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/08-strangler-migracion.png" alt="Strangler Fig — migración React → Angular" loading="lazy" /></a></div>
+<div class="arch-diagram"><a href="assets/06-mfe-react-angular.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/06-mfe-react-angular.png" alt="Integración MFE React y Angular" loading="lazy" /></a></div>
 <h3 id="31-integracion-tecnica-module-federation-cross-framework" class="subsection-title">3.1 Integración técnica — Module Federation cross-framework</h3>
 <p><strong>Module Federation</strong> (Webpack 5 y plugins equivalentes en otras herramientas) permite exponer una aplicación React como microfrontend y consumirla desde Angular, o al revés. No obstante, <strong>no es cierto que cualquier aplicación React pueda integrarse sin cambios</strong>.</p>
 <div class="table-wrap"><table>

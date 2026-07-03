@@ -1053,6 +1053,8 @@ sequenceDiagram
     OR->>FE: WebSocket o poll result
 ```
 
+![Secuencia de procesamiento documental](diagrams/11-secuencia-documento.png)
+
 ### 6.2 Formatos soportados
 
 | Formato | Tratamiento |
@@ -1421,6 +1423,8 @@ erDiagram
         timestamp ocurrido
     }
 ```
+
+![Modelo de datos — entidades principales](diagrams/10-modelo-datos-er.png)
 
 ### 11.3 Almacenamiento
 
@@ -1899,6 +1903,8 @@ flowchart TB
     AKS --> AM
     BLOB --> CDN
 ```
+
+![Despliegue Azure — vista física](diagrams/09-despliegue-azure.png)
 
 ### 19.2 Entornos
 
