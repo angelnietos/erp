@@ -27,6 +27,7 @@
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
 | 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; §3.4.5 actualizado |
+| 11 | 03/07/2026 | Posicionamiento CAE vs OCR genérico; reducción carga Operaciones IDEAUTO (PA-16, PA-17) |
 
 ---
 
@@ -60,6 +61,8 @@
 ## 1. Objetivo técnico
 
 Definir la arquitectura tecnológica de referencia para la incorporación de capacidades de **Inteligencia Artificial de asistencia continua** dentro de la plataforma CAE v2.0.
+
+> **Enfoque:** la arquitectura prioriza el **Validation Engine** (reglas CAE RF-001–RF-030, cruces, completitud) sobre la extracción documental. La OCR/IA extractiva es un **adaptador de entrada** al dominio CAE, no el producto. El objetivo es que la IA **realice progresivamente el trabajo de validación funcional** que hoy ejecuta manualmente Operaciones IDEAUTO.
 
 La arquitectura deberá:
 
@@ -96,6 +99,8 @@ La arquitectura deberá:
 | PA-13 | **Deploy elástico** | Misma codebase: monolito modular (default) → microservicios bajo demanda. |
 | PA-14 | **Pirámide de testing** | Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI. |
 | PA-15 | **UI reusable** | Componentes tontos en `ui/` + Storybook; componentes listos en `feature-*`; sin lógica de negocio en presentación. |
+| PA-16 | **Dominio CAE, no OCR genérico** | El Validation Engine (reglas RF, cruces, completitud) es el núcleo; extracción alimenta validación, no la sustituye. |
+| PA-17 | **Reducción carga Operaciones** | Diseño orientado a que la IA ejecute comprobaciones que hoy son manuales; Operaciones supervisa excepciones y aprueba. |
 
 ---
 

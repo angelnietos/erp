@@ -30,7 +30,7 @@
           <span class="badge badge-neutral">v3.0</span>
         </div>
       </div>
-      <p class="header-subtitle">Sistema de Asistencia Inteligente — Plataforma CAE</p>
+      <p class="header-subtitle">Sistema de Asistencia Inteligente — Validación progresiva CAE y reducción carga Operaciones</p>
       <nav class="doc-nav">
         <a href="index.html" class="nav-pill">Inicio</a>
         <a href="especificacion-funcional-v3.0.html" class="nav-pill active">Especificación funcional</a>
@@ -47,7 +47,6 @@
           <ul class="toc"><li><a href="#sistema-de-asistencia-inteligente-para-la-plataforma-cae-v30" class="toc-link" data-section="sistema-de-asistencia-inteligente-para-la-plataforma-cae-v30">SISTEMA DE ASISTENCIA INTELIGENTE PARA LA PLATAFORMA CAE v3.0</a></li>
 <li><a href="#historico-de-revisiones" class="toc-link" data-section="historico-de-revisiones">Histórico de revisiones</a></li>
 <li><a href="#1-introduccion" class="toc-link" data-section="1-introduccion">1. Introducción</a></li>
-<li><a href="#2-objetivos-de-negocio" class="toc-link" data-section="2-objetivos-de-negocio">2. Objetivos de negocio</a></li>
 <li><a href="#3-alcance" class="toc-link" data-section="3-alcance">3. Alcance</a></li>
 <li><a href="#4-principios-funcionales" class="toc-link" data-section="4-principios-funcionales">4. Principios funcionales</a></li>
 <li><a href="#5-actores-y-casos-de-uso" class="toc-link" data-section="5-actores-y-casos-de-uso">5. Actores y casos de uso</a></li>
@@ -172,6 +171,11 @@
 <td>03/07/2026</td>
 <td>Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2)</td>
 </tr>
+<tr>
+<td>11</td>
+<td>03/07/2026</td>
+<td>Respuesta explícita a requisitos Operaciones IDEAUTO; posicionamiento CAE vs OCR genérico; objetivo reducción carga operativa</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -226,7 +230,7 @@
 <li>Documentación acreditativa del titular, vehículos y operación de sustitución.</li>
 <li>Coherencia entre múltiples fuentes (DNI, facturas, fichas técnicas, permisos, IVTM, convenios).</li>
 <li>Cumplimiento de requisitos regulatorios y de negocio IDEAUTO (antigüedad VO, tipología BEV, plazos, ahorro energético).</li>
-<li>Revisión humana final por el equipo de Operaciones antes de la tramitación definitiva.</li>
+<li>Revisión humana final por el equipo de Operaciones antes de la tramitación definitiva — con el objetivo de que la <strong>IA asuma progresivamente las comprobaciones</strong> que hoy realiza ese equipo de forma manual (§1.7, §17.4).</li>
 </ul>
 <p>El sistema de asistencia inteligente no sustituye el proceso CAE: <strong>lo acompaña</strong>, detectando errores en origen, reduciendo retrabajo y generando datos para la <strong>evolución continua</strong> de la calidad del servicio IA.</p>
 <h3 id="13-alcance-funcional-del-documento" class="subsection-title">1.3 Alcance funcional del documento</h3>
@@ -275,8 +279,162 @@
 <td><strong>Human in the Loop</strong></td>
 <td>Supervisión humana obligatoria en decisiones finales de aprobación</td>
 </tr>
+<tr>
+<td><strong>Operaciones IDEAUTO</strong></td>
+<td>Equipo de revisión CAE de IDEAUTO (Operaciones); responsable de la validación humana final antes de tramitación</td>
+</tr>
 </tbody></table></div>
-<h2 id="2-objetivos-de-negocio" class="section-title">2. Objetivos de negocio</h2>
+<h3 id="15-posicionamiento-solucion-cae-especifica-no-ocr-generico" class="subsection-title">1.5 Posicionamiento: solución CAE específica, no OCR genérico</h3>
+<p>Este documento define una <strong>plataforma de asistencia inteligente para el proceso CAE</strong>, diseñada a partir del <strong>conocimiento funcional acumulado en la colaboración con IDEAUTO</strong> sobre flujos operativos, reglas de negocio, tipologías documentales y casuísticas de revisión. <strong>No se trata de un producto documental genérico</strong> aplicable a cualquier gestor documental.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Perspectiva</th>
+<th>Solución OCR / extracción genérica</th>
+<th>Esta solución CAE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Propósito</strong></td>
+<td>Digitalizar documentos y extraer campos</td>
+<td><strong>Validar el expediente CAE</strong> conforme se construye</td>
+</tr>
+<tr>
+<td><strong>Momento de validación</strong></td>
+<td>Tras extracción; revisión al final</td>
+<td><strong>Validación progresiva</strong> tras cada documento o dato</td>
+</tr>
+<tr>
+<td><strong>Reglas de negocio</strong></td>
+<td>Genéricas o inexistentes</td>
+<td><strong>Catálogo RF-001 a RF-030</strong> (Bloques A–G), específicas CAE</td>
+</tr>
+<tr>
+<td><strong>Cruces documentales</strong></td>
+<td>Limitados o manuales</td>
+<td><strong>Automáticos en tiempo real</strong> (titular, VIN, matrícula, fechas…)</td>
+</tr>
+<tr>
+<td><strong>Rol de Operaciones IDEAUTO</strong></td>
+<td>Revisión funcional <strong>completa manual</strong> de cada expediente</td>
+<td><strong>Evolución:</strong> la IA ejecuta las comprobaciones; Operaciones supervisa <strong>excepciones</strong></td>
+</tr>
+<tr>
+<td><strong>Valor diferencial</strong></td>
+<td>Ahorro de tecleo</td>
+<td><strong>Detección temprana de incidencias</strong>, FTR, reducción de devoluciones y <strong>menor carga operativa</strong></td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>La <strong>extracción documental (OCR + IA)</strong> es un <strong>medio</strong> para alimentar el motor de validación, no el fin del sistema. El <strong>núcleo funcional</strong> es el <strong>Validation Engine</strong> con reglas CAE deterministas (§10, §13).</p></blockquote>
+<h3 id="16-cobertura-de-los-requisitos-del-proceso-cae-operaciones-ideauto" class="subsection-title">1.6 Cobertura de los requisitos del proceso CAE (Operaciones IDEAUTO)</h3>
+<p>Los siguientes requisitos, planteados por el equipo de Operaciones IDEAUTO en la revisión del documento, quedan <strong>explícitamente cubiertos</strong> en esta especificación:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requisito</th>
+<th>Cómo se implementa</th>
+<th>Referencia</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Validar el expediente <strong>conforme se incorporan</strong> documentos y datos</td>
+<td>Pipeline de <strong>validación progresiva</strong> disparado por cada evento documental o de formulario</td>
+<td>§10, §7 Fase 3, CF-010</td>
+</tr>
+<tr>
+<td><strong>Cruzar información</strong> entre los distintos documentos aportados</td>
+<td>Bloque C (RF-011–RF-014): titular, VIN, matrícula, marca/modelo vs. BD IDEAUTO</td>
+<td>§13.3, §10.3</td>
+</tr>
+<tr>
+<td><strong>Detectar incoherencias en tiempo real</strong></td>
+<td>Recálculo &lt; 10 s; incidencias con severidad y explicabilidad en UI cliente</td>
+<td>§11, §16.1, RNF latencia</td>
+</tr>
+<tr>
+<td><strong>Informar al usuario</strong> de errores o ausencias <strong>antes</strong> del envío a revisión</td>
+<td>Incidencias críticas/mayores bloquean envío; checklist de completitud permanente</td>
+<td>§11.1, §17.3, §15.3</td>
+</tr>
+<tr>
+<td><strong>Reducir la carga operativa</strong> del equipo de revisión de IDEAUTO</td>
+<td>Resumen ejecutivo IA, priorización, FTR; objetivo -40 % tiempo revisión</td>
+<td>§17.4, OBJ-03, OBJ-09, §25</td>
+</tr>
+<tr>
+<td><strong>Reglas de negocio específicas CAE</strong> (no genéricas)</td>
+<td>30 reglas en 7 bloques + matrices documentales + integración API IDEAUTO</td>
+<td>§13, §14, §22</td>
+</tr>
+<tr>
+<td><strong>Conocimiento funcional del proceso</strong> (no solo captura documental)</td>
+<td>Knowledge Base RAG, procedimientos IDEAUTO, feedback de Operaciones → MLOps</td>
+<td>§18, §19, §20</td>
+</tr>
+</tbody></table></div>
+<h3 id="17-objetivo-estrategico-la-ia-asume-el-trabajo-de-validacion-de-operaciones-ideauto" class="subsection-title">1.7 Objetivo estratégico: la IA asume el trabajo de validación de Operaciones IDEAUTO</h3>
+<p><strong>Objetivo a futuro del programa:</strong> que la IA sea capaz de <strong>realizar el trabajo de validación funcional</strong> que hoy ejecuta manualmente el <strong>equipo de revisión de Operaciones IDEAUTO</strong> (validar coherencia documental, aplicar reglas CAE, detectar incidencias, comprobar completitud), de modo que ese equipo <strong>deje de repetir comprobaciones rutinarias</strong> y se concentre en <strong>excepciones, casos complejos, auditoría de calidad y aprobación formal</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Hoy (sin IA)</th>
+<th>Objetivo con la solución</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>El cliente construye el expediente <strong>sin feedback funcional</strong> en tiempo real</td>
+<td>El cliente recibe incidencias y recomendaciones <strong>mientras construye</strong></td>
+</tr>
+<tr>
+<td>Operaciones <strong>revisa manualmente</strong> cada campo, cruce y regla CAE</td>
+<td>La IA <strong>ejecuta las mismas comprobaciones</strong> (RF-001–RF-030) de forma automática</td>
+</tr>
+<tr>
+<td>Operaciones <strong>detecta incidencias</strong> que el cliente no corrigió</td>
+<td>La IA <strong>detecta y bloquea</strong> incidencias críticas/mayores <strong>antes del envío</strong></td>
+</tr>
+<tr>
+<td><strong>Alta carga operativa</strong> y devoluciones frecuentes</td>
+<td><strong>Reducción medible</strong> de tiempo de revisión (-40 % objetivo) y devoluciones (-30 % objetivo)</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Matiz importante (Human in the Loop):</strong> la <strong>aprobación formal</strong> del expediente para tramitación definitiva <strong>permanece siempre humana</strong> (§3.2, PF-04). Lo que evoluciona es <strong>quién realiza el trabajo analítico de validación</strong>: pasa de ser <strong>100 % manual por Operaciones</strong> a ser <strong>ejecutado por la IA</strong>, con Operaciones supervisando el resultado, atendiendo excepciones y aprobando.</p></blockquote>
+<p><strong>Evolución del reparto de trabajo (horizonte 6 meses):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Horizonte</th>
+<th>Cliente</th>
+<th>Sistema IA</th>
+<th>Operaciones IDEAUTO</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Meses 1–2</strong></td>
+<td>Corrige incidencias en origen gracias al feedback en tiempo real</td>
+<td>Validación progresiva + reglas CAE activas; MFE en producción</td>
+<td>Recibe expedientes <strong>pre-validados</strong> con resumen ejecutivo IA; revisión acotada</td>
+</tr>
+<tr>
+<td><strong>Meses 3–4</strong></td>
+<td>Menos reenvíos; mayor FTR</td>
+<td>Cruces, completitud y scoring consolidados; RAG operativo</td>
+<td>Atiende <strong>solo excepciones</strong> y casos marcados como Review</td>
+</tr>
+<tr>
+<td><strong>Meses 5–6</strong></td>
+<td>Expedientes llegan mayoritariamente limpios</td>
+<td>IA replica el know-how operativo acumulado (reglas + feedback + golden set)</td>
+<td><strong>Supervisión</strong> de muestra, casos complejos y aprobación formal</td>
+</tr>
+<tr>
+<td><strong>Evolución continua</strong></td>
+<td>Experiencia asistida</td>
+<td>Aprendizaje MLOps: cada corrección de Operaciones mejora reglas y modelos</td>
+<td>Carga operativa <strong>decreciente</strong>; foco en gobernanza y calidad</td>
+</tr>
+</tbody></table></div>
+<hr>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -324,6 +482,11 @@
 <td>OBJ-08</td>
 <td>Reducir falsos positivos/negativos en validación</td>
 <td>Recall y precisión de incidencias monitorizados</td>
+</tr>
+<tr>
+<td>OBJ-09</td>
+<td><strong>Automatizar el trabajo de validación funcional</strong> que hoy realiza Operaciones IDEAUTO manualmente</td>
+<td>% comprobaciones CAE ejecutadas por IA vs. humano; reducción horas revisión / expediente</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -453,6 +616,16 @@
 <td>PF-17</td>
 <td><strong>Modernización incremental</strong></td>
 <td>Estrategia Strangler Fig: módulos nuevos en Angular vía MFE; host React actual en retirada progresiva (ver doc. estrategia).</td>
+</tr>
+<tr>
+<td>PF-18</td>
+<td><strong>Reducción carga Operaciones</strong></td>
+<td>La IA debe <strong>asumir progresivamente</strong> las comprobaciones que hoy ejecuta manualmente el equipo de revisión IDEAUTO; Operaciones pasa a supervisar excepciones y aprobar.</td>
+</tr>
+<tr>
+<td>PF-19</td>
+<td><strong>Dominio CAE, no OCR genérico</strong></td>
+<td>Toda capacidad se evalúa por su aportación al <strong>proceso CAE</strong> (reglas, cruces, completitud), no por calidad de extracción aislada.</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -1327,7 +1500,8 @@ flowchart TB
 <li>La IA cruza la información con el resto del expediente.</li>
 <li>La IA informa incidencias, completitud y recomendaciones <strong>en tiempo real</strong>.</li>
 <li>Al enviar, la IA realiza validación final y recomienda OK / Revisión / Rechazo.</li>
-<li>Operaciones recibe resumen priorizado; la decisión final es humana.</li>
+<li>Operaciones recibe <strong>solo lo que requiere atención humana</strong> (resumen priorizado, excepciones); la IA ya habrá ejecutado las comprobaciones rutinarias.</li>
+<li>Operaciones <strong>aprueba, devuelve o rechaza</strong> — la decisión formal es humana; el trabajo de validación funcional lo hace la IA.</li>
 </ol>
 <h3 id="72-fases-detalladas" class="subsection-title">7.2 Fases detalladas</h3>
 <h4>Fase 1 — Creación del expediente</h4>
@@ -1633,7 +1807,8 @@ stateDiagram-v2
 <hr>
 <h2 id="10-validacion-progresiva-nucleo-del-sistema" class="section-title">10. Validación progresiva (núcleo del sistema)</h2>
 <h3 id="101-definicion" class="subsection-title">10.1 Definición</h3>
-<p>La <strong>validación progresiva</strong> es la capacidad central que diferencia este sistema de un OCR genérico. Consiste en:</p>
+<p>La <strong>validación progresiva</strong> es la capacidad central que diferencia este sistema de un OCR genérico — y responde al <strong>valor diferencial del proceso CAE</strong> identificado por Operaciones IDEAUTO: no basta con extraer datos; hay que <strong>validar continuamente</strong> conforme se construye el expediente.</p>
+<p>Consiste en:</p>
 <ol>
 <li><strong>Disparador:</strong> Cada evento <code>DocumentoSubido</code>, <code>DocumentoReemplazado</code>, <code>CampoModificado</code> o <code>DocumentoEliminado</code>.</li>
 <li><strong>Pipeline:</strong> Extracción (si aplica) → Reglas documentales → Reglas de coherencia → Reglas CAE → Completitud.</li>
@@ -2371,6 +2546,7 @@ Incidencias abiertas: 2 mayores, 1 menor</code></pre>
 <p>Operaciones puede generar una <strong>devolución estructurada</strong> al usuario con listado de incidencias, comentarios, plazo opcional y trazabilidad en histórico.</p>
 <hr>
 <h2 id="17-revision-operaciones" class="section-title">17. Revisión Operaciones</h2>
+<p>El equipo de <strong>Operaciones IDEAUTO</strong> mantiene la <strong>aprobación formal</strong> de expedientes, pero el sistema está diseñado para que la IA <strong>asuma progresivamente el trabajo de validación funcional</strong> que hoy ejecutan de forma manual (§1.7, §17.4). Operaciones recibe expedientes <strong>pre-validados</strong>, con resumen ejecutivo y solo las incidencias que requieren atención humana.</p>
 <h3 id="171-flujo-de-revision" class="subsection-title">17.1 Flujo de revisión</h3>
 <div class="mermaid">
 sequenceDiagram
@@ -2424,6 +2600,112 @@ sequenceDiagram
 <td><strong>Reject</strong></td>
 <td>Incidencias críticas/mayores abiertas</td>
 <td>Bloqueo con detalle al cliente</td>
+</tr>
+</tbody></table></div>
+<h3 id="174-reduccion-de-la-carga-operativa-de-operaciones-ideauto" class="subsection-title">17.4 Reducción de la carga operativa de Operaciones IDEAUTO</h3>
+<p>Esta sección responde directamente a la pregunta de <strong>cómo se reduce la intervención manual</strong> del equipo de revisión de Operaciones IDEAUTO.</p>
+<h4>17.4.1 Qué hace hoy Operaciones vs. qué hará la IA</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tarea de revisión (hoy manual)</th>
+<th>Responsable futuro</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Comprobar legibilidad e integridad documental</td>
+<td><strong>IA</strong> (Bloque A, G — RF-001–RF-007, RF-029–RF-030)</td>
+<td>Validación progresiva, en origen</td>
+</tr>
+<tr>
+<td>Verificar firmas y anexos</td>
+<td><strong>IA</strong> (Bloque B, F — RF-008–RF-010, RF-026–RF-028)</td>
+<td>Al incorporar cada documento</td>
+</tr>
+<tr>
+<td>Cruzar titular, VIN, matrícula entre documentos</td>
+<td><strong>IA</strong> (Bloque C — RF-011–RF-014)</td>
+<td>Tras cada documento o modificación</td>
+</tr>
+<tr>
+<td>Validar reglas CAE (antigüedad VO, BEV, plazos, ahorro)</td>
+<td><strong>IA</strong> (Bloque D — RF-015–RF-020) + API IDEAUTO</td>
+<td>Continuo + pre-envío</td>
+</tr>
+<tr>
+<td>Comprobar completitud del pack documental</td>
+<td><strong>IA</strong> (§15.3, control completitud)</td>
+<td>Permanente en UI cliente</td>
+</tr>
+<tr>
+<td>Detectar incidencias y priorizarlas</td>
+<td><strong>IA</strong> (Validation Engine + scoring)</td>
+<td>Antes de que llegue a Operaciones</td>
+</tr>
+<tr>
+<td>Resumir expediente para el revisor</td>
+<td><strong>IA</strong> (resumen ejecutivo — §17.2)</td>
+<td>Al entrar en cola</td>
+</tr>
+<tr>
+<td><strong>Aprobar, devolver o rechazar</strong> expediente</td>
+<td><strong>Operaciones IDEAUTO</strong> (humano)</td>
+<td>Siempre — aprobación formal</td>
+</tr>
+<tr>
+<td>Casos excepcionales, dudosos o nuevos</td>
+<td><strong>Operaciones IDEAUTO</strong> (humano)</td>
+<td>Cuando IA marca Review o confidence baja</td>
+</tr>
+<tr>
+<td>Corregir y alimentar mejora del sistema</td>
+<td><strong>Operaciones IDEAUTO</strong> → Feedback Engine</td>
+<td>Continuo; mejora reglas y modelos</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>La IA no sustituye la decisión de aprobación</strong> (PF-04). <strong>Sí sustituye el trabajo repetitivo de comprobación</strong> que hoy consume la mayor parte del tiempo de revisión.</p></blockquote>
+<h4>17.4.2 Mecanismos concretos de reducción de carga</h4>
+<ol>
+<li><strong>Filtrado pre-envío</strong> — Incidencias críticas/mayores bloquean el envío; Operaciones no recibe expedientes con errores evidentes sin corregir.</li>
+<li><strong>First Time Right (FTR)</strong> — Objetivo &gt; 60 %: expedientes que llegan limpios a la cola, reduciendo devoluciones y re-trabajo.</li>
+<li><strong>Resumen ejecutivo priorizado</strong> — Operaciones ve solo incidencias, alertas y campos dudosos (§16.2); no repite comprobaciones ya validadas por la IA.</li>
+<li><strong>Cola inteligente</strong> — Expedientes OK vs. Review vs. Reject pre-clasificados; Operaciones invierte tiempo en excepciones.</li>
+<li><strong>Ciclo MLOps</strong> — Cada corrección de Operaciones mejora reglas y modelos; la IA aprende el criterio operativo de IDEAUTO.</li>
+</ol>
+<h4>17.4.3 KPIs de reducción de carga (Operaciones IDEAUTO)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+<th>Efecto en Operaciones</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reducción tiempo revisión</td>
+<td><strong>-40 %</strong> vs. baseline</td>
+<td>Menos minutos por expediente en cola</td>
+</tr>
+<tr>
+<td>Reducción expedientes devueltos</td>
+<td><strong>-30 %</strong> vs. baseline</td>
+<td>Menos ciclos de corrección cliente ↔ Operaciones</td>
+</tr>
+<tr>
+<td>Incidencias detectadas pre-envío</td>
+<td><strong>&gt; 90 %</strong></td>
+<td>Operaciones recibe menos sorpresas</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td><strong>&gt; 60 %</strong></td>
+<td>Mayoría de expedientes listos al primer envío</td>
+</tr>
+<tr>
+<td>% comprobaciones CAE por IA</td>
+<td>Crecimiento hasta <strong>&gt; 95 %</strong> (mes 6)</td>
+<td>Operaciones deja de ejecutar comprobaciones rutinarias</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -3089,6 +3371,11 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <td>Producto</td>
 </tr>
 <tr>
+<td><strong>Comprobaciones CAE ejecutadas por IA</strong></td>
+<td><strong>&gt; 95 % al mes 6</strong> (vs. 0 % hoy)</td>
+<td>Sistema IA / Operaciones</td>
+</tr>
+<tr>
 <td>First Time Right</td>
 <td>&gt; 60%</td>
 <td>Sistema IA</td>
@@ -3140,37 +3427,82 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <tr>
 <th>Horizonte</th>
 <th>Capacidades</th>
+<th>Impacto en Operaciones IDEAUTO</th>
 </tr>
 </thead>
 <tbody><tr>
-<td><strong>Corto plazo</strong></td>
-<td>Validación progresiva completa, reglas A–G, scoring, Decision Engine</td>
+<td><strong>Meses 1–2 (corto plazo)</strong></td>
+<td>Validación progresiva completa, reglas A–G, scoring, Decision Engine, MFE en producción</td>
+<td>Expedientes pre-validados; resumen IA en cola; <strong>inicio reducción carga</strong></td>
 </tr>
 <tr>
-<td><strong>Medio plazo</strong></td>
-<td>Asistente RAG, feedback estructurado, fitness automatizado</td>
+<td><strong>Meses 3–4 (medio plazo)</strong></td>
+<td>Asistente RAG, feedback estructurado, fitness automatizado, cola inteligente</td>
+<td>Operaciones atiende <strong>excepciones</strong>; FTR en crecimiento</td>
 </tr>
 <tr>
-<td><strong>Largo plazo</strong></td>
-<td>Fine-tuning extractores, A/B testing en producción, fitness predictivo</td>
+<td><strong>Meses 5–6 (consolidación)</strong></td>
+<td>IA replica know-how operativo; golden set maduro; reglas refinadas con feedback</td>
+<td><strong>&gt; 95 % comprobaciones por IA</strong>; Operaciones en supervisión y aprobación</td>
+</tr>
+<tr>
+<td><strong>Evolución continua</strong></td>
+<td>Fine-tuning extractores, A/B testing, fitness predictivo</td>
+<td>Carga operativa <strong>decreciente</strong>; foco en gobernanza</td>
 </tr>
 </tbody></table></div>
 <p>La evolución se mide por <strong>fitness demostrable</strong>, no por despliegue de funcionalidades aisladas.</p>
 <hr>
 <h2 id="27-vision-final" class="section-title">27. Visión final</h2>
-<p>La IA actuará como un <strong>asistente especializado en expedientes CAE</strong> capaz de:</p>
+<p>La IA actuará como un <strong>revisor funcional automatizado del expediente CAE</strong> — capaz de <strong>hacer el trabajo de validación que hoy realiza manualmente el equipo de Operaciones IDEAUTO</strong>, con supervisión humana en la aprobación formal y en casos excepcionales.</p>
+<h3 id="271-capacidades-de-la-plataforma" class="subsection-title">27.1 Capacidades de la plataforma</h3>
 <ul>
 <li>Guiar al usuario durante la construcción del expediente.</li>
-<li><strong>Validar continuamente</strong> la documentación aportada.</li>
-<li>Aplicar <strong>reglas de negocio específicas</strong> del proceso CAE.</li>
+<li><strong>Validar continuamente</strong> la documentación aportada (no solo al final).</li>
+<li>Aplicar <strong>reglas de negocio específicas</strong> del proceso CAE (RF-001–RF-030).</li>
 <li><strong>Cruzar información entre documentos</strong> en tiempo real.</li>
 <li>Detectar incidencias <strong>antes</strong> de la revisión por Operaciones.</li>
-<li>Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.</li>
+<li><strong>Ejecutar automáticamente</strong> las comprobaciones que hoy consume el tiempo de revisión humano.</li>
+<li>Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones <strong>solo en lo que requiere atención humana</strong>.</li>
 <li><strong>Aprender y mejorar</strong> mediante feedback, cálculo de fitness y ciclo MLOps gobernado.</li>
 <li><strong>Integrarse en CAE v2 (React)</strong> como libs Nx y microfrontend embebido (meses 1–2), con <strong>migración a Angular completa al mes 6</strong>.</li>
-<li>Reducir la carga operativa y mejorar la calidad de los expedientes tramitados.</li>
 </ul>
-<blockquote class="callout"><p>Plataforma de <strong>asistencia inteligente para expedientes CAE</strong>: validación progresiva, reglas de negocio, razonamiento contextual, <strong>libs reutilizables en monorepo Nx</strong> y <strong>evolución continua medida por fitness</strong>.</p></blockquote>
+<h3 id="272-objetivo-estrategico-para-operaciones-ideauto" class="subsection-title">27.2 Objetivo estratégico para Operaciones IDEAUTO</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>Situación actual</th>
+<th>Objetivo con la solución</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Trabajo de revisión</strong></td>
+<td>Operaciones comprueba manualmente cada regla, cruce y documento</td>
+<td><strong>La IA ejecuta esas comprobaciones</strong>; Operaciones supervisa el resultado</td>
+</tr>
+<tr>
+<td><strong>Momento de detección</strong></td>
+<td>Incidencias detectadas en revisión (tarde)</td>
+<td>Incidencias detectadas <strong>en origen</strong>, antes del envío</td>
+</tr>
+<tr>
+<td><strong>Carga operativa</strong></td>
+<td>Alta; devoluciones y re-trabajo frecuentes</td>
+<td><strong>Reducción -40 % tiempo revisión</strong>, <strong>-30 % devoluciones</strong></td>
+</tr>
+<tr>
+<td><strong>Rol del revisor</strong></td>
+<td>Ejecutor de comprobaciones rutinarias</td>
+<td><strong>Supervisor de excepciones</strong> y aprobador formal</td>
+</tr>
+<tr>
+<td><strong>Conocimiento CAE</strong></td>
+<td>Concentrado en el equipo de revisión</td>
+<td><strong>Codificado en reglas + RAG + feedback</strong> → mejora continua</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>No es una solución documental genérica.</strong> Es una <strong>plataforma de asistencia inteligente diseñada para el proceso CAE de IDEAUTO</strong>: validación progresiva, reglas de negocio, razonamiento contextual, <strong>libs reutilizables en monorepo Nx</strong> y <strong>evolución continua medida por fitness</strong> — con el objetivo explícito de <strong>reducir la carga operativa del equipo de revisión</strong> y <strong>transferir progresivamente a la IA el trabajo de validación funcional</strong> que hoy realizan de forma manual.</p></blockquote>
 <hr>
 <p><em>Especificación Funcional — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
 </article>

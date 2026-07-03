@@ -13,7 +13,7 @@ const docs = [
     badge: 'Funcional',
     badgeClass: 'badge-red',
     accent: 'red',
-    subtitle: 'Sistema de Asistencia Inteligente — Plataforma CAE',
+    subtitle: 'Sistema de Asistencia Inteligente — Validación progresiva CAE y reducción carga Operaciones',
     version: 'v3.0',
   },
   {

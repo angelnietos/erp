@@ -31,6 +31,8 @@
 
 **Principios transversales:** API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Smart/Dumb UI · Storybook · Pirámide testing · Human in the Loop · Observabilidad
 
+> **Posicionamiento:** esta arquitectura **no es un pipeline OCR genérico**. La **Fase 5 — Validación Progresiva CAE** (amarillo) es el **núcleo funcional** del sistema. La extracción documental (Fases 2–4, azul) alimenta al motor de validación; el **objetivo estratégico** es que la IA **ejecute el trabajo de validación funcional** que hoy realiza manualmente Operaciones IDEAUTO, reduciendo su carga operativa (detalle en [`ESPECIFICACION-FUNCIONAL-v3.0.md`](ESPECIFICACION-FUNCIONAL-v3.0.md) §1.5–§1.7, §17.4).
+
 ---
 
 ## 0. Paradigma arquitectónico

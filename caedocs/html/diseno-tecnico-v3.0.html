@@ -167,6 +167,11 @@
 <td>03/07/2026</td>
 <td>Tres apps en paralelo; MFE temporal; §3.4.5 actualizado</td>
 </tr>
+<tr>
+<td>11</td>
+<td>03/07/2026</td>
+<td>Posicionamiento CAE vs OCR genérico; reducción carga Operaciones IDEAUTO (PA-16, PA-17)</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -197,6 +202,7 @@
 <hr>
 <h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
 <p>Definir la arquitectura tecnológica de referencia para la incorporación de capacidades de <strong>Inteligencia Artificial de asistencia continua</strong> dentro de la plataforma CAE v2.0.</p>
+<blockquote class="callout"><p><strong>Enfoque:</strong> la arquitectura prioriza el <strong>Validation Engine</strong> (reglas CAE RF-001–RF-030, cruces, completitud) sobre la extracción documental. La OCR/IA extractiva es un <strong>adaptador de entrada</strong> al dominio CAE, no el producto. El objetivo es que la IA <strong>realice progresivamente el trabajo de validación funcional</strong> que hoy ejecuta manualmente Operaciones IDEAUTO.</p></blockquote>
 <p>La arquitectura deberá:</p>
 <ul>
 <li>Adoptar <strong>arquitectura hexagonal</strong> (Ports &amp; Adapters) en cada servicio desplegable.</li>
@@ -295,6 +301,16 @@
 <td>PA-15</td>
 <td><strong>UI reusable</strong></td>
 <td>Componentes tontos en <code>ui/</code> + Storybook; componentes listos en <code>feature-*</code>; sin lógica de negocio en presentación.</td>
+</tr>
+<tr>
+<td>PA-16</td>
+<td><strong>Dominio CAE, no OCR genérico</strong></td>
+<td>El Validation Engine (reglas RF, cruces, completitud) es el núcleo; extracción alimenta validación, no la sustituye.</td>
+</tr>
+<tr>
+<td>PA-17</td>
+<td><strong>Reducción carga Operaciones</strong></td>
+<td>Diseño orientado a que la IA ejecute comprobaciones que hoy son manuales; Operaciones supervisa excepciones y aprueba.</td>
 </tr>
 </tbody></table></div>
 <hr>
