@@ -26,7 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 10 | 03/07/2026 | Modelo dos equipos/apps; Module Federation cross-framework (§6.5.2) |
+| 11 | 03/07/2026 | Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2) |
 
 ---
 
@@ -263,7 +263,7 @@ A nivel de implementación, la plataforma de asistencia IA se construirá como *
 | **Motivo** | Continuidad operativa; despliegue inmediato de la capa IA | Estandarización, mantenibilidad y testing en aplicaciones enterprise |
 | **Alcance** | MFE principal `apps/cae-assistant-mfe` en slots CAE v2 | MFE alternativo `cae-assistant-mfe-angular` y libs en paralelo |
 
-> La evolución de la plataforma CAE hacia una arquitectura modular se documenta en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): **dos equipos** (React y Angular) desarrollan **aplicaciones independientes** integradas por **Module Federation** con routing unificado; migración incremental (**Strangler Fig**) módulo a módulo. La **Fase 1** utiliza **React**, alineada con el stack actual de CAE v2.
+> La evolución de la plataforma se documenta en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): **CAE React actual** se termina sin interrupción; la **App IA** se integra en React vía MFE; **CAE Angular nueva** la sustituye progresivamente. Los microfrontends son **solución temporal** de transición; el objetivo final es **todo Angular, sin MFE**.
 
 ```mermaid
 flowchart LR
@@ -442,23 +442,27 @@ CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE 
 
 > El monorepo **contempla ambos stacks**. Detalle en **[Estrategia de migración frontend](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)**.
 
-#### 6.5.2 Modelo de dos equipos e integración cross-framework
+#### 6.5.2 Tres aplicaciones en paralelo
+
+| App | Rol | Integración |
+|-----|-----|-------------|
+| **CAE React (actual)** | Terminar el desarrollo planificado de CAE v2 | Plataforma operativa; host de la App IA en Fase 1 |
+| **App IA (nueva)** | Asistencia inteligente (`cae-ia-backend` + `cae-assistant-mfe`) | **MFE embebido** en slots de CAE React |
+| **CAE Angular (nueva)** | Sustituto progresivo de CAE React | Convive vía MFE durante transición; **objetivo final único** |
 
 | Aspecto | Descripción |
 |---------|-------------|
-| **Organización** | Equipo A evoluciona CAE v2 (React); equipo B desarrolla módulos nuevos (Angular) |
-| **Aplicaciones** | Dos apps desplegables de forma independiente, unidas por routing común y Module Federation |
-| **Navegación** | El usuario transita entre rutas React y Angular sin percibir el cambio de framework |
-| **Integración técnica** | No es plug-and-play: requiere configuración MFE en host y remote, dependencias compartidas y contrato de auth/rutas/estilos |
-| **Migración futura** | Sustitución del remote por ruta (p. ej. `/clientes` React → Angular) sin cambiar URL ni interrumpir servicio |
+| **Microfrontends** | **Temporales** — solo mientras conviven CAE React y CAE Angular |
+| **Objetivo final** | Una sola aplicación Angular; IA como módulos nativos; **sin Module Federation** |
+| **Migración** | Cada módulo React pasa a Angular; al completar, se retira React y los MFE |
 
-| Escenario build React | Implicación |
-|-----------------------|-------------|
+| Escenario build React (CAE v2) | Implicación para MFE temporal |
+|--------------------------------|------------------------------|
 | Webpack 5 | Integración MFE más directa |
 | Vite | Posible con plugins de federación |
 | CRA / Webpack 4 | Requiere adaptación del sistema de build |
 
-> Detalle técnico de Module Federation, opciones de shell y requisitos de integración: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §3.1–3.2 y [`DISENO-TECNICO-v3.0.md`](DISENO-TECNICO-v3.0.md) §3.4.5.
+> Detalle: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3–2.4 y [`DISENO-TECNICO-v3.0.md`](DISENO-TECNICO-v3.0.md) §3.4.5.
 
 ```mermaid
 flowchart TB

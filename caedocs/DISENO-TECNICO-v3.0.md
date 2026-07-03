@@ -26,7 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 10 | 03/07/2026 | Module Federation cross-framework React↔Angular (§3.4.5) |
+| 11 | 03/07/2026 | Tres apps en paralelo; MFE temporal; §3.4.5 actualizado |
 
 ---
 
@@ -412,7 +412,7 @@ apps/cae-mlops-service/
 
 CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React** — stack **actual de la plataforma**, acordado para la integración de Fase 1. La capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
 
-> **Contexto de evolución:** la plataforma CAE v2 presenta **oportunidades de mejora** en mantenibilidad, consistencia y estandarización del frontend. **Angular** se propone como stack de **evolución** para módulos nuevos y modernización enterprise. La transición sigue el patrón **Strangler Fig** documentado en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): módulos nuevos en Angular embebidos en el host React vía MFE hasta consolidación progresiva.
+> **Contexto de evolución:** **CAE React actual** se termina sin interrupción. La **App IA** se integra en CAE React vía MFE (Fase 1). En paralelo se construye **CAE Angular nueva** como sustituto. Los microfrontends son **temporales** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
 
 #### 3.4.0 Fase 1 acordada y evolución Angular
 
@@ -524,9 +524,9 @@ flowchart TB
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
-#### 3.4.5 Module Federation cross-framework (React ↔ Angular)
+#### 3.4.5 Module Federation — integración temporal (React ↔ Angular)
 
-Module Federation permite que una app **React** actúe como remote consumida por un host **Angular**, o al revés. **No implica integración automática**: host y remote deben configurarse explícitamente.
+Module Federation conecta **CAE React**, la **App IA** y **CAE Angular** mientras conviven. **No es la arquitectura objetivo**: al consolidar CAE Angular única, los remotes desaparecen y la IA pasa a `libs/angular/cae/feature-*`.
 
 | Capa | React (CAE v2 / MFE Fase 1) | Angular (evolución) |
 |------|----------------------------|---------------------|
@@ -2027,7 +2027,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD), componibles como **monolito modular** o **microservicios** según demanda. La UI de **Fase 1** es **React** (`apps/cae-assistant-mfe`), integrada con CAE v2; **Angular** es el stack de **evolución** según la [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) (Strangler Fig: módulos nuevos en Angular embebidos en React hasta consolidación). Los **componentes tontos** viven en `libs/*/cae/ui` con **Storybook**; los **componentes listos** orquestan en `feature-*`.
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD). **Fase 1:** App IA (`cae-assistant-mfe` React) integrada en CAE v2. **Transición:** MFE temporal entre CAE React y CAE Angular nueva. **Objetivo:** plataforma Angular única, IA nativa, sin Module Federation — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md).
 
 La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 

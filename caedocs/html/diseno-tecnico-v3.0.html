@@ -163,9 +163,9 @@
 <td>Tono de entrega al cliente; eliminación de lenguaje interno</td>
 </tr>
 <tr>
-<td>10</td>
+<td>11</td>
 <td>03/07/2026</td>
-<td>Module Federation cross-framework React↔Angular (§3.4.5)</td>
+<td>Tres apps en paralelo; MFE temporal; §3.4.5 actualizado</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -834,7 +834,7 @@ apps/cae-extraction-service/
 apps/cae-mlops-service/</code></pre>
 <h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
 <p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong> — stack <strong>actual de la plataforma</strong>, acordado para la integración de Fase 1. La capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
-<blockquote class="callout"><p><strong>Contexto de evolución:</strong> la plataforma CAE v2 presenta <strong>oportunidades de mejora</strong> en mantenibilidad, consistencia y estandarización del frontend. <strong>Angular</strong> se propone como stack de <strong>evolución</strong> para módulos nuevos y modernización enterprise. La transición sigue el patrón <strong>Strangler Fig</strong> documentado en <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: módulos nuevos en Angular embebidos en el host React vía MFE hasta consolidación progresiva.</p></blockquote>
+<blockquote class="callout"><p><strong>Contexto de evolución:</strong> <strong>CAE React actual</strong> se termina sin interrupción. La <strong>App IA</strong> se integra en CAE React vía MFE (Fase 1). En paralelo se construye <strong>CAE Angular nueva</strong> como sustituto. Los microfrontends son <strong>temporales</strong> — ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3.</p></blockquote>
 <h4>3.4.0 Fase 1 acordada y evolución Angular</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1070,8 +1070,8 @@ flowchart TB
 <td>AKS multi-pod</td>
 </tr>
 </tbody></table></div>
-<h4>3.4.5 Module Federation cross-framework (React ↔ Angular)</h4>
-<p>Module Federation permite que una app <strong>React</strong> actúe como remote consumida por un host <strong>Angular</strong>, o al revés. <strong>No implica integración automática</strong>: host y remote deben configurarse explícitamente.</p>
+<h4>3.4.5 Module Federation — integración temporal (React ↔ Angular)</h4>
+<p>Module Federation conecta <strong>CAE React</strong>, la <strong>App IA</strong> y <strong>CAE Angular</strong> mientras conviven. <strong>No es la arquitectura objetivo</strong>: al consolidar CAE Angular única, los remotes desaparecen y la IA pasa a <code>libs/angular/cae/feature-*</code>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -4053,7 +4053,7 @@ regresión en CI"]
 <hr>
 <h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD), componibles como <strong>monolito modular</strong> o <strong>microservicios</strong> según demanda. La UI de <strong>Fase 1</strong> es <strong>React</strong> (<code>apps/cae-assistant-mfe</code>), integrada con CAE v2; <strong>Angular</strong> es el stack de <strong>evolución</strong> según la <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> (Strangler Fig: módulos nuevos en Angular embebidos en React hasta consolidación). Los <strong>componentes tontos</strong> viven en <code>libs/*/cae/ui</code> con <strong>Storybook</strong>; los <strong>componentes listos</strong> orquestan en <code>feature-*</code>.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Fase 1:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Transición:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Objetivo:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>

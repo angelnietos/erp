@@ -45,7 +45,7 @@ La capa de asistencia inteligente se implementará con:
 | **UI Angular (evolución)** | Stack propuesto para módulos nuevos; MFE `apps/cae-assistant-mfe-angular` |
 | **Componentes tontos + Storybook** | `libs/*/cae/ui` + `apps/cae-ui-storybook` |
 | **Pirámide de testing** | Unit → integración → Storybook → E2E → carga/estrés + golden set |
-| **Strangler Fig (React→Angular)** | MFE como puente; Angular destino — [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) |
+| **Strangler Fig (React→Angular)** | MFE **temporal** en transición; CAE Angular sustituye React — [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) |
 
 ### 0.1 Situación actual vs objetivo
 
@@ -530,7 +530,7 @@ flowchart LR
 
 ### 7.1 Integración UI: React (Fase 1) vs Angular (evolución)
 
-> CAE v2 está construido en **React** (stack actual de la plataforma). **Angular** se propone como stack de **evolución** para la capa nueva y la modernización progresiva del frontend CAE. **Dos equipos** desarrollan aplicaciones independientes integradas por **Module Federation** con routing unificado (ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3).
+> CAE v2 está construido en **React** (stack actual). La **App IA** se integra en CAE React vía MFE (Fase 1). **CAE Angular nueva** sustituirá progresivamente a React. Los microfrontends son **temporales**; el objetivo es **una sola app Angular** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
 
 ```mermaid
 flowchart LR
