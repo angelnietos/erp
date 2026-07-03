@@ -8,6 +8,15 @@ const caedocsDir = path.resolve(__dirname, '..');
 
 const docs = [
   {
+    input: 'RESUMEN-EJECUTIVO-CLIENTE-v3.0.md',
+    output: 'resumen-ejecutivo-cliente-v3.0.html',
+    badge: 'Resumen',
+    badgeClass: 'badge-red',
+    accent: 'red',
+    subtitle: 'Resumen ejecutivo — validación CAE, auto-aprobación y reducción carga Operaciones',
+    version: 'v3.0',
+  },
+  {
     input: 'ESPECIFICACION-FUNCIONAL-v3.0.md',
     output: 'especificacion-funcional-v3.0.html',
     badge: 'Funcional',
@@ -209,7 +218,8 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc, versi
       <p class="header-subtitle">${subtitle}</p>
       <nav class="doc-nav">
         <a href="index.html" class="nav-pill">Inicio</a>
-        <a href="especificacion-funcional-v3.0.html" class="nav-pill${accent === 'red' ? ' active' : ''}">Especificación funcional</a>
+        <a href="resumen-ejecutivo-cliente-v3.0.html" class="nav-pill${badge === 'Resumen' ? ' active' : ''}">Resumen ejecutivo</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill${badge === 'Funcional' ? ' active' : ''}">Especificación funcional</a>
         <a href="diseno-tecnico-v3.0.html" class="nav-pill${accent === 'blue' && badge === 'Técnico' ? ' active' : ''}">Diseño técnico</a>
         <a href="arquitectura-cae-ia.html" class="nav-pill${accent === 'blue' && badge === 'Arquitectura' ? ' active' : ''}">Arquitectura</a>
         <a href="estrategia-migracion-frontend-cae.html" class="nav-pill${badge === 'Estrategia' ? ' active' : ''}">Estrategia migración</a>
