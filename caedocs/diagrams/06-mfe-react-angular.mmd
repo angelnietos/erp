@@ -1,18 +1,18 @@
 flowchart TB
-    subgraph CAE20["Plataforma CAE v2.0 — Host React legacy"]
+    subgraph CAE20["Plataforma CAE v2.0 — Host React (actual)"]
         SHELL["Shell CAE React"]
         SLOT1["Slot asistencia"]
         SLOT2["Slot operaciones"]
         SHELL --> SLOT1 & SLOT2
     end
 
-    subgraph REACT_MFE["VINCULANTE — React MFE (decisión cliente)"]
+    subgraph REACT_MFE["Fase 1 — React MFE"]
         R_APP["apps/cae-assistant-mfe"]
         R_LIB["libs/react/cae/feature-*"]
         R_APP --> R_LIB
     end
 
-    subgraph NG_MFE["RECOMENDADO — Angular MFE (equipo técnico)"]
+    subgraph NG_MFE["Evolución — Angular MFE"]
         A_APP["apps/cae-assistant-mfe-angular"]
         A_LIB["libs/angular/cae/feature-*"]
         A_APP --> A_LIB
@@ -23,7 +23,7 @@ flowchart TB
     end
 
     SLOT1 & SLOT2 -->|Module Federation| R_APP
-    SLOT1 & SLOT2 -.->|POC / migración futura| A_APP
+    SLOT1 & SLOT2 -.->|Evolución futura| A_APP
     R_LIB & A_LIB --> BE
 
     style REACT_MFE fill:#e3f2fd,stroke:#1565c0,stroke-width:2px

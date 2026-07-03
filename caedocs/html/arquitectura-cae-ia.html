@@ -158,12 +158,12 @@
 <td>Monolito modular (<code>apps/cae-ia-backend</code>) → microservicios según demanda</td>
 </tr>
 <tr>
-<td><strong>UI React (decisión cliente)</strong></td>
-<td>CAE v2 legacy es React; MFE vinculante en <code>apps/cae-assistant-mfe</code></td>
+<td><strong>UI React (Fase 1)</strong></td>
+<td>CAE v2 actual es React; MFE de Fase 1 en <code>apps/cae-assistant-mfe</code></td>
 </tr>
 <tr>
-<td><strong>UI Angular (recom. técnica)</strong></td>
-<td>Stack preferido greenfield; MFE <code>apps/cae-assistant-mfe-angular</code> + escenario migración CAE</td>
+<td><strong>UI Angular (evolución)</strong></td>
+<td>Stack propuesto para módulos nuevos; MFE <code>apps/cae-assistant-mfe-angular</code></td>
 </tr>
 <tr>
 <td><strong>Componentes tontos + Storybook</strong></td>
@@ -199,13 +199,13 @@
 </tr>
 <tr>
 <td>Frontend host</td>
-<td><strong>React</strong> (legacy, deuda técnica)</td>
-<td>Sin sustituir shell de inmediato; MFE React (cliente)</td>
+<td><strong>React</strong> (stack actual CAE v2)</td>
+<td>Sin sustituir shell de inmediato; MFE React (Fase 1)</td>
 </tr>
 <tr>
 <td>UI IA</td>
 <td>No existía (greenfield)</td>
-<td><strong>React entrega acordada</strong> + <strong>Angular recomendado</strong> en paralelo</td>
+<td><strong>React Fase 1</strong> + <strong>Angular evolución</strong> en paralelo</td>
 </tr>
 <tr>
 <td>Despliegue</td>
@@ -218,8 +218,8 @@ flowchart TB
     subgraph WORKSPACE["Monorepo Nx — CAE IA"]
         subgraph APPS["apps/"]
             A2["cae-ia-backend"]
-            A3["cae-assistant-mfe React CLIENTE"]
-            A4["cae-assistant-mfe-angular RECOMENDADO"]
+            A3["cae-assistant-mfe React Fase 1"]
+            A4["cae-assistant-mfe-angular evolución"]
         end
         subgraph LIBS["libs/"]
             ISO["isomorphic/cae"]
@@ -781,7 +781,7 @@ flowchart LR
 </tr>
 <tr>
 <td><strong>Implementación</strong></td>
-<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> recom.), <code>apps/cae-ia-backend</code>, MFE React (decisión cliente)</td>
+<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> evolución), <code>apps/cae-ia-backend</code>, MFE React (Fase 1)</td>
 </tr>
 </tbody></table></div>
 <hr>
@@ -810,14 +810,14 @@ flowchart LR
 <td>NestJS modules hexagonales</td>
 </tr>
 <tr>
-<td>UI React (decisión cliente)</td>
+<td>UI React (Fase 1)</td>
 <td><code>libs/react/cae/feature-*</code></td>
-<td>MFE integrado en host CAE v2 legacy</td>
+<td>MFE integrado en host CAE v2 actual</td>
 </tr>
 <tr>
-<td>UI Angular (recom. técnica)</td>
+<td>UI Angular (evolución)</td>
 <td><code>libs/angular/cae/feature-*</code></td>
-<td>Stack preferido; POC migración CAE</td>
+<td>Stack propuesto; modernización progresiva CAE</td>
 </tr>
 <tr>
 <td>Host backend</td>
@@ -825,14 +825,14 @@ flowchart LR
 <td>Monolito modular IA (Modo A)</td>
 </tr>
 <tr>
-<td>MFE React (decisión cliente)</td>
+<td>MFE React (Fase 1)</td>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Remote → shell CAE v2 (alcance acordado)</td>
+<td>Remote → shell CAE v2 (integración acordada)</td>
 </tr>
 <tr>
-<td>MFE Angular (recom. técnica)</td>
+<td>MFE Angular (evolución)</td>
 <td><code>apps/cae-assistant-mfe-angular</code></td>
-<td>Remote alternativo; modernización futura</td>
+<td>Remote alternativo; roadmap de modernización</td>
 </tr>
 </tbody></table></div>
 <div class="table-wrap"><table>
@@ -859,21 +859,21 @@ flowchart LR
 <td>Alta escala</td>
 </tr>
 </tbody></table></div>
-<h3 id="71-integracion-ui-react-cliente-vs-angular-recomendado" class="subsection-title">7.1 Integración UI: React (cliente) vs Angular (recomendado)</h3>
-<blockquote class="callout"><p>CAE v2 legacy está en <strong>React</strong> (decisión histórica del producto/cliente). <strong>Angular</strong> es la <strong>recomendación técnica</strong> para capa nueva y eventual modernización del frontend CAE.</p></blockquote>
+<h3 id="71-integracion-ui-react-fase-1-vs-angular-evolucion" class="subsection-title">7.1 Integración UI: React (Fase 1) vs Angular (evolución)</h3>
+<blockquote class="callout"><p>CAE v2 está construido en <strong>React</strong> (stack actual de la plataforma). <strong>Angular</strong> se propone como stack de <strong>evolución</strong> para la capa nueva y la modernización progresiva del frontend CAE.</p></blockquote>
 <div class="mermaid">
 flowchart LR
-    subgraph HOST["CAE v2 Host React legacy"]
+    subgraph HOST["CAE v2 Host React (actual)"]
         SLOT["Slots UI"]
     end
 
-    subgraph REACT_MFE["VINCULANTE — React MFE (cliente)"]
+    subgraph REACT_MFE["Fase 1 — React MFE"]
         R["libs/react/cae"]
         APP_R["cae-assistant-mfe"]
         R --> APP_R
     end
 
-    subgraph NG_MFE["RECOMENDADO — Angular MFE"]
+    subgraph NG_MFE["Evolución — Angular MFE"]
         A["libs/angular/cae"]
         APP_A["cae-assistant-mfe-angular"]
         A --> APP_A
@@ -887,25 +887,25 @@ flowchart LR
     style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
 </div>
 <h3 id="72-escenario-evolutivo-strangler-fig" class="subsection-title">7.2 Escenario evolutivo — Strangler Fig</h3>
-<p>Patrón <strong>Strangler Fig</strong> (<em>estrangular</em> el legacy): el host <strong>React</strong> se reduce módulo a módulo mientras <strong>Angular</strong> crece como remotes embebidos hasta sustituir el shell.</p>
+<p>Patrón <strong>Strangler Fig</strong>: el host <strong>React</strong> se reduce módulo a módulo mientras <strong>Angular</strong> crece como remotes embebidos hasta sustituir el shell.</p>
 <p><img src="../diagrams/08-strangler-migracion.png" alt="Evolución migración Strangler Fig"></p>
 <blockquote class="callout"><p>Documento completo: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a></p></blockquote>
 <div class="table-wrap"><table>
 <thead>
 <tr>
 <th>Fase</th>
-<th>CAE legacy (React)</th>
-<th>CAE nuevo (Angular)</th>
+<th>CAE v2 React (actual)</th>
+<th>CAE Angular (evolución)</th>
 </tr>
 </thead>
 <tbody><tr>
 <td><strong>0 — Baseline</strong></td>
 <td>100 % plataforma</td>
-<td>Auditoría módulos y deuda</td>
+<td>Análisis de módulos y arquitectura</td>
 </tr>
 <tr>
 <td><strong>1 — IA integrada</strong></td>
-<td>Host estable; MFE React (cliente) + Angular POC</td>
+<td>Host estable; MFE React (Fase 1) + Angular evolución</td>
 <td>Capa asistencia IA</td>
 </tr>
 <tr>

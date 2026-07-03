@@ -23,8 +23,9 @@
 | 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
 | 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
 | 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
-| 7 | 03/07/2026 | Matiz stack UI: React por decisión cliente; Angular como recomendación técnica y escenario evolutivo |
+| 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
+| 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
 
 ---
 
@@ -180,10 +181,10 @@ Este documento define de forma integral:
 | PF-11 | **Dominio explícito (DDD)** | Reglas CAE, incidencias y validación modeladas en el dominio, no como lógica de presentación. |
 | PF-12 | **Servicios autónomos** | Cada capacidad (extracción, validación, MLOps…) es una lib desacoplada, desplegable en monolito o microservicio. |
 | PF-13 | **Libs first** | Desarrollo en `libs/` reutilizables; integración en CAE v2 sin acoplar código al host. |
-| PF-14 | **UI embebida (MFE)** | Paneles IA en CAE v2: **React** por decisión del cliente (integración con host legacy); **Angular** documentado como alternativa técnicamente preferible. |
+| PF-14 | **UI embebida (MFE)** | Paneles IA en CAE v2: **React** en Fase 1 (integración acordada); **Angular** como opción de evolución arquitectónica. |
 | PF-15 | **Testabilidad en capas** | Pirámide de testing: unitarios abundantes, integración, E2E selectivos, carga/estrés periódicos. |
 | PF-16 | **UI reusable documentada** | Componentes tontos en catálogo Storybook; componentes listos sin lógica de dominio embebida. |
-| PF-17 | **Modernización incremental** | Estrategia Strangler Fig: módulos nuevos en Angular vía MFE; React legacy en retirada progresiva (ver doc. estrategia). |
+| PF-17 | **Modernización incremental** | Estrategia Strangler Fig: módulos nuevos en Angular vía MFE; host React actual en retirada progresiva (ver doc. estrategia). |
 
 ---
 
@@ -253,15 +254,15 @@ La arquitectura refleja el sistema como **plataforma de asistencia inteligente**
 
 A nivel de implementación, la plataforma de asistencia IA se construirá como **libs independientes en monorepo Nx** (`libs/isomorphic/cae`, `libs/node/cae`, `libs/react/cae` y opcionalmente `libs/angular/cae`). Las libs se componen en **monolito modular** por defecto y pueden **escalar a microservicios** según demanda.
 
-**Stack UI — decisión cliente vs recomendación técnica:**
+**Stack UI — Fase 1 acordada y evolución propuesta:**
 
-| | **React** | **Angular** |
-|---|-----------|-------------|
-| **Estado** | **Decisión del cliente** para integración con CAE v2 (host legacy en React) | **Recomendación técnica del equipo** para capa nueva y evolución futura |
-| **Motivo** | Continuidad con la plataforma existente; menor fricción de adopción inmediata | Framework más estructurado para aplicaciones enterprise: DI nativa, módulos, testing integrado, tipado estricto |
-| **Alcance actual** | MFE principal `apps/cae-assistant-mfe` embebido en slots CAE v2 | Libs y MFE alternativo en paralelo (`cae-assistant-mfe-angular`) como inversión estratégica |
+| | **React (Fase 1)** | **Angular (evolución)** |
+|---|-------------------|-------------------------|
+| **Rol** | Integración acordada con CAE v2 (host actual) | Stack propuesto para módulos nuevos y modernización |
+| **Motivo** | Continuidad operativa; despliegue inmediato de la capa IA | Estandarización, mantenibilidad y testing en aplicaciones enterprise |
+| **Alcance** | MFE principal `apps/cae-assistant-mfe` en slots CAE v2 | MFE alternativo `cae-assistant-mfe-angular` y libs en paralelo |
 
-> La Plataforma CAE v2.0 presenta **deuda técnica y deficiencias** en su capa React (acoplamiento, inconsistencias de estado, mantenibilidad) — coherente con las **quejas continuas del cliente**. La estrategia de modernización completa está en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): **Strangler Fig** con módulos nuevos en **Angular**, integrados en el host React vía microfrontends, hasta **retirar React progresivamente**. De momento, el alcance contractual respeta la **elección React del cliente** para el MFE de fase 1.
+> La evolución de la plataforma CAE hacia una arquitectura modular se documenta en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): migración incremental (**Strangler Fig**) con módulos nuevos en **Angular** integrados en el host React vía microfrontends. La **Fase 1** utiliza **React**, alineada con el stack actual de CAE v2.
 
 ```mermaid
 flowchart LR
@@ -391,8 +392,8 @@ Flujo horizontal que atraviesa todo el sistema:
 - **DDD** — Bounded contexts por capacidad (validación, extracción, MLOps…); lenguaje ubicuo CAE.
 - **Libs first (Nx)** — Capacidades IA como paquetes en `libs/` antes que apps desplegables.
 - **Deploy elástico** — Monolito modular por defecto; microservicios solo bajo demanda.
-- **Microfrontend React (decisión cliente)** — Paneles IA embebidos en shell CAE v2 legacy (React + Module Federation).
-- **Microfrontend Angular (recomendación técnica)** — Misma integración funcional; stack preferido para greenfield y migración futura de CAE.
+- **Microfrontend React (Fase 1)** — Paneles IA embebidos en shell CAE v2 (React + Module Federation).
+- **Microfrontend Angular (evolución)** — Misma integración funcional; stack propuesto para modernización progresiva de CAE.
 - **Stateless** — Persistencia en sistemas especializados.
 - **Human in the Loop** — Sin aprobación automática de expedientes.
 - **Observabilidad** — Logs, telemetría, trazabilidad end-to-end.
@@ -414,31 +415,31 @@ Flujo horizontal que atraviesa todo el sistema:
 
 ### 6.5 Integración con CAE v2.0 — Monorepo, React y microfrontends
 
-CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE v2 es React** (decisión histórica del producto). El objetivo de implementación es:
+CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE v2 es React** (stack actual de la plataforma). El objetivo de implementación es:
 
 1. **Desarrollar primero en `libs/`** — Dominio, backend y UI como paquetes Nx reutilizables.
 2. **Componer en `apps/cae-ia-backend`** — Monolito modular NestJS (Modo A).
-3. **Exponer UI vía `apps/cae-assistant-mfe` (React)** — MFE **vinculante por decisión del cliente**, cargado en slots del shell CAE v2 existente.
-4. **En paralelo: `apps/cae-assistant-mfe-angular`** — Misma superficie funcional; **stack preferido técnicamente** para validar migración futura y convencer al cliente de evolucionar CAE.
+3. **Exponer UI vía `apps/cae-assistant-mfe` (React)** — MFE de **Fase 1**, cargado en slots del shell CAE v2.
+4. **En paralelo: `apps/cae-assistant-mfe-angular`** — Misma superficie funcional; stack de **evolución** documentado en la estrategia de migración.
 5. **Escalar a microservicios** — Solo si volumen, latencia o equipos lo requieren.
 
-#### 6.5.1 Decisión del cliente vs recomendación técnica
+#### 6.5.1 Fase 1 acordada y evolución Angular
 
-| Criterio | React (alcance acordado) | Angular (recomendación equipo) |
-|----------|--------------------------|--------------------------------|
-| Origen de la decisión | Cliente / IDEAUTO — continuidad con CAE v2 | Equipo técnico — calidad arquitectónica greenfield |
-| Integración inmediata | Nativa con host React legacy | Requiere Module Federation cross-framework |
-| Mantenibilidad CAE legacy | Hereda deuda técnica del host React | No arrastra deuda; libs `angular/cae` limpias |
-| Testing / estructura | Variable según convenciones actuales CAE | DI, módulos, RxJS/signals, testing first-class |
-| Escenario propuesto | MFE React en producción fase 1–2 | POC Angular → argumentario para **nuevo CAE en Angular** + legacy React estable |
+| Criterio | React (Fase 1) | Angular (evolución) |
+|----------|----------------|---------------------|
+| Integración | Nativa con host CAE v2 | Module Federation cross-framework |
+| Alcance inicial | MFE asistencia IA en producción | MFE equivalente; módulos CAE nuevos |
+| Mantenibilidad | Continuidad con plataforma actual | Arquitectura modular estandarizada |
+| Testing / estructura | Convenciones CAE v2 existentes | DI, módulos, testing integrado |
+| Horizonte | Entrega Fase 1 | Modernización progresiva (ver doc. estrategia) |
 
-**Hipótesis de evolución (a plantear al cliente):**
+**Roadmap de evolución:**
 
-1. **Fase actual:** capa IA integrada en React (MFE) sobre CAE v2 sin reescribir el host.
-2. **Fase intermedia:** mismo backend IA; UI Angular en paralelo demostrando ventajas (Storybook, tests, consistencia).
-3. **Fase objetivo:** pantallas CAE nuevas o reescritas en Angular; CAE React legacy reducido a zonas estables hasta retirada progresiva.
+1. **Fase 1:** capa IA integrada en React (MFE) sobre CAE v2.
+2. **Fase intermedia:** mismo backend IA; UI Angular en paralelo con arquitectura estandarizada (Storybook, tests).
+3. **Fase objetivo:** pantallas CAE nuevas o reescritas en Angular; reducción progresiva de módulos React.
 
-> El documento **contempla ambos stacks** en el monorepo para no cerrar puertas. La prioridad de entrega fase 1 sigue **React** mientras el cliente no apruebe el programa de modernización. Ver **[Estrategia de migración frontend](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)** para el roadmap Strangler Fig completo.
+> El monorepo **contempla ambos stacks**. Detalle en **[Estrategia de migración frontend](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)**.
 
 ```mermaid
 flowchart TB
@@ -449,12 +450,12 @@ flowchart TB
         S2["Slot UI operaciones"]
     end
 
-    subgraph MFE_R["VINCULANTE — cae-assistant-mfe React (cliente)"]
+    subgraph MFE_R["Fase 1 — cae-assistant-mfe React"]
         R_FA["react/cae/feature-assistant"]
         R_FO["react/cae/feature-operations"]
     end
 
-    subgraph MFE_A["RECOMENDADO — cae-assistant-mfe-angular"]
+    subgraph MFE_A["Evolución — cae-assistant-mfe-angular"]
         A_FA["angular/cae/feature-assistant"]
         A_FO["angular/cae/feature-operations"]
     end
@@ -476,18 +477,18 @@ flowchart TB
 
 | Slot CAE v2 | Componente | Stack | Capacidad |
 |-------------|------------|-------|-----------|
-| Construcción expediente | `AssistantPanel`, `IncidentsSidebar` | React (decisión cliente) | Incidencias, completitud, auto-fill |
-| Subida documentos | `DocumentUploadAssist` | React (decisión cliente) | Feedback post-OCR |
-| Cola Operaciones | `OperationsReviewPanel` | React (decisión cliente) | Resumen IA |
-| Mismos slots | Equivalentes Angular | Angular (recom. técnica) | Misma funcionalidad; stack preferido greenfield |
+| Construcción expediente | `AssistantPanel`, `IncidentsSidebar` | React (Fase 1) | Incidencias, completitud, auto-fill |
+| Subida documentos | `DocumentUploadAssist` | React (Fase 1) | Feedback post-OCR |
+| Cola Operaciones | `OperationsReviewPanel` | React (Fase 1) | Resumen IA |
+| Mismos slots | Equivalentes Angular | Angular (evolución) | Misma funcionalidad |
 | Backoffice | `MlopsDashboard` | React o Angular | Fitness, evaluaciones |
 
 | RNF asociado | Requisito |
 |--------------|-----------|
 | RNF-11 | Libs Nx + hexagonal + DDD; monolito o microservicio |
 | RNF-12 | ACL hacia Core CAE; sin BD compartida entre libs |
-| RNF-13 | MFE **React** por decisión cliente; contrato host ↔ remote versionado |
-| RNF-14 | MFE **Angular** recomendado técnicamente; misma API de integración; desarrollo en paralelo |
+| RNF-13 | MFE **React** Fase 1; contrato host ↔ remote versionado |
+| RNF-14 | MFE **Angular** evolución; misma API de integración; desarrollo en paralelo |
 
 ### 6.6 Calidad de software, testing y frontend reusable
 
@@ -1286,8 +1287,8 @@ Toda integración externa debe ser **opcional con degradación graceful**: si la
 | RNF-10 | Recuperación | Rollback artefacto IA < 15 min |
 | RNF-11 | Arquitectura | Libs Nx + hexagonal + DDD; monolito modular por defecto, microservicios bajo demanda |
 | RNF-12 | Integración backend | Anti-Corruption Layer hacia Core CAE; sin BD compartida entre libs |
-| RNF-13 | Integración UI | MFE **React** embebido en CAE v2 — **decisión del cliente**; Module Federation; despliegue independiente |
-| RNF-14 | Integración UI — evolución | MFE **Angular** — **recomendación técnica**; misma API de slots y eventos; desarrollo paralelo para escenario migración CAE |
+| RNF-13 | Integración UI | MFE **React** Fase 1 embebido en CAE v2; Module Federation; despliegue independiente |
+| RNF-14 | Integración UI — evolución | MFE **Angular**; misma API de slots y eventos; roadmap de modernización CAE |
 | RNF-15 | Calidad — pirámide | Unitarios, integración, contrato, Storybook, E2E y carga según §6.6 |
 | RNF-16 | Calidad — E2E | Suite E2E flujos críticos (subida, incidencias, envío, Operaciones) en STAGING |
 | RNF-17 | Calidad — rendimiento | Pruebas carga/estrés/soak periódicas; P95 documento < 10 s bajo carga nominal |
@@ -1370,7 +1371,7 @@ La IA actuará como un **asistente especializado en expedientes CAE** capaz de:
 - Detectar incidencias **antes** de la revisión por Operaciones.
 - Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.
 - **Aprender y mejorar** mediante feedback, cálculo de fitness y ciclo MLOps gobernado.
-- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend embebido — **decisión del cliente** fase 1 — mientras la **modernización Strangler Fig** (Angular destino, ver doc. estrategia) avanza en paralelo.
+- **Integrarse en CAE v2 (React)** como libs Nx y microfrontend embebido en **Fase 1**, con **evolución Angular** documentada para modernización progresiva de la plataforma.
 - Reducir la carga operativa y mejorar la calidad de los expedientes tramitados.
 
 > Plataforma de **asistencia inteligente para expedientes CAE**: validación progresiva, reglas de negocio, razonamiento contextual, **libs reutilizables en monorepo Nx** y **evolución continua medida por fitness**.

@@ -5,7 +5,7 @@
 | Campo | Valor |
 |-------|-------|
 | **Versión** | 1.0 |
-| **Estado** | Propuesta estratégica para alineación con cliente |
+| **Estado** | Documento de referencia |
 | **Fecha** | 03/07/2026 |
 | **Proyecto** | Plataforma CAE v2.0 — Evolución frontend + Capa IA |
 | **Clasificación** | Confidencial — IDEAUTO / Babooni |
@@ -17,47 +17,48 @@
 
 | Rev. | Fecha | Naturaleza del cambio |
 |------|-------|------------------------|
-| 1 | 03/07/2026 | Primera versión: estrategia Strangler Fig, Angular destino, React transitorio, relación con capa IA |
+| 1 | 03/07/2026 | Primera versión: estrategia Strangler Fig, evolución React→Angular, relación con capa IA |
+| 2 | 03/07/2026 | Tono orientado a documentación de entrega; eliminación de lenguaje interno |
 
 ---
 
 ## Índice de contenidos
 
-1. [Contexto y problema](#1-contexto-y-problema)
+1. [Contexto y oportunidad de mejora](#1-contexto-y-oportunidad-de-mejora)
 2. [Propuesta estratégica](#2-propuesta-estratégica)
 3. [Patrón Strangler Fig con microfrontends](#3-patrón-strangler-fig-con-microfrontends)
-4. [Angular vs React — criterio técnico honesto](#4-angular-vs-react--criterio-técnico-honesto)
+4. [Angular vs React — criterios de selección](#4-angular-vs-react--criterios-de-selección)
 5. [Ventajas del enfoque incremental](#5-ventajas-del-enfoque-incremental)
 6. [Costes, riesgos e inconvenientes](#6-costes-riesgos-e-inconvenientes)
-7. [Cuándo recomendar esta estrategia](#7-cuándo-recomendar-esta-estrategia)
+7. [Criterios de aplicabilidad](#7-criterios-de-aplicabilidad)
 8. [Fases de migración](#8-fases-de-migración)
 9. [Relación con el proyecto de Asistencia IA](#9-relación-con-el-proyecto-de-asistencia-ia)
 10. [Gobernanza, métricas y criterios de éxito](#10-gobernanza-métricas-y-criterios-de-éxito)
-11. [Argumentario para el cliente](#11-argumentario-para-el-cliente)
+11. [Beneficios y encaje estratégico](#11-beneficios-y-encaje-estratégico)
 12. [Visión final](#12-visión-final)
 
 ---
 
-## 1. Contexto y problema
+## 1. Contexto y oportunidad de mejora
 
 ### 1.1 Situación actual
 
-La **Plataforma CAE v2.0** está construida en **React**. El cliente mantiene **quejas continuas** sobre calidad, mantenibilidad, inconsistencias de experiencia y dificultad para evolucionar el producto. Desde el análisis técnico, el frontend acumula:
+La **Plataforma CAE v2.0** está construida en **React**. Con el crecimiento funcional del producto se han identificado **oportunidades de mejora** en mantenibilidad, consistencia de experiencia, estandarización entre equipos y capacidad de evolución del frontend:
 
-- **Deuda técnica** — acoplamiento entre módulos, estado global difícil de razonar.
-- **Falta de estandarización** — distintos equipos han adoptado librerías y patrones diferentes (routing, estado, formularios, validación).
-- **Coste creciente de cambio** — cada nueva funcionalidad o corrección impacta zonas no relacionadas.
-- **Testing insuficiente** — difícil garantizar regresiones en un monolito frontend poco estructurado.
+- **Acoplamiento entre módulos** — dificulta cambios localizados.
+- **Heterogeneidad de patrones** — distintas librerías y enfoques (routing, estado, formularios, validación).
+- **Coste creciente de cambio** — nuevas funcionalidades impactan zonas no relacionadas.
+- **Cobertura de pruebas mejorable** — el monolito frontend dificulta regresiones automatizadas.
 
-> El problema **no siempre es React en sí**, sino **años de evolución sin arquitectura común**. En proyectos enterprise muy grandes, esa falta de disciplina suele penalizar más que el framework elegido.
+> La oportunidad no reside en sustituir React de forma abrupta, sino en **evolucionar la plataforma de forma incremental**, aprovechando el proyecto de Asistencia IA como primer hito de modernización arquitectónica.
 
-### 1.2 Decisión del cliente vs oportunidad de mejora
+### 1.2 Enfoque acordado y evolución propuesta
 
-| | Situación |
-|---|-----------|
-| **Decisión actual del cliente** | Mantener integración con CAE v2 en **React** (continuidad operativa) |
-| **Oportunidad detectada** | Presentar la **capa de Asistencia IA** y la **modernización CAE** como un **programa de mejora de plataforma**, no solo como un add-on OCR |
-| **Destino técnico propuesto** | **Angular** como stack estratégico para módulos nuevos y reescrituras; **React** como legado en retirada progresiva |
+| | Enfoque |
+|---|---------|
+| **Integración Fase 1 (acordada)** | Capa IA integrada en **CAE v2 (React)** mediante microfrontends — continuidad operativa |
+| **Programa de mejora** | Asistencia IA + **modernización progresiva** de la plataforma CAE |
+| **Horizonte de evolución** | **Angular** como stack para módulos nuevos y reescrituras; convivencia temporal con React hasta consolidación |
 
 ---
 
@@ -65,17 +66,17 @@ La **Plataforma CAE v2.0** está construida en **React**. El cliente mantiene **
 
 ### 2.1 Idea central
 
-**Incluir como mejora de la plataforma antigua** un modelo arquitectónico alineado con el monorepo Nx, libs hexagonales y microfrontends, de forma que:
+**Incluir como mejora de la plataforma CAE** un modelo arquitectónico alineado con monorepo Nx, libs hexagonales y microfrontends:
 
 1. **Hoy:** el host CAE v2 **React** sigue operando; la capa IA se integra por slots (MFE).
 2. **Mañana:** **todo módulo nuevo** se desarrolla en **Angular** e integra en el shell React vía Module Federation.
-3. **Progresivamente:** los módulos React legacy se **reescriben en Angular** cuando el coste/beneficio lo justifique.
+3. **Progresivamente:** los módulos React actuales se **reescriben en Angular** cuando el coste/beneficio lo justifique.
 4. **Objetivo final:** el shell React **desaparece**; CAE queda unificado en **Angular** (o host Angular con remotes Angular).
 
 ```mermaid
 flowchart LR
     subgraph HOY["Hoy"]
-        REACT["CAE React legacy"]
+        REACT["CAE v2 React (actual)"]
     end
 
     subgraph TRANS["Transición"]
@@ -101,17 +102,17 @@ flowchart LR
 |----|-----------|-------------|
 | EM-01 | **No big bang** | Nunca reescribir CAE completo de una vez |
 | EM-02 | **Angular greenfield** | Módulos nuevos siempre en Angular |
-| EM-03 | **React estable** | Legacy React solo mantenimiento y parches; sin features grandes nuevas |
+| EM-03 | **React estable en Fase 1** | CAE v2 React en operación; nuevas capacidades grandes priorizan Angular |
 | EM-04 | **Misma integración** | Contrato MFE versionado (slots, eventos, auth) independiente del framework |
-| EM-05 | **Libs first** | Dominio y backend en `libs/isomorphic` y `libs/node`; UI en `libs/angular/cae` |
-| EM-06 | **Medir para migrar** | Solo sustituir módulo React cuando ROI, riesgo y dependencias lo avalen |
-| EM-07 | **Cliente informado** | Beneficios y costes de dual stack explicitados desde el inicio |
+| EM-05 | **Libs first** | Dominio y backend en `libs/isomorphic` y `libs/node`; UI en `libs/angular/cae` y `libs/react/cae` |
+| EM-06 | **Medir para migrar** | Sustituir módulo React cuando ROI, riesgo y dependencias lo avalen |
+| EM-07 | **Transparencia** | Costes y plazos del período dual stack explicitados desde el inicio |
 
 ---
 
 ## 3. Patrón Strangler Fig con microfrontends
 
-La estrategia sigue el patrón **Strangler Fig** (*estrangular* el legacy): el sistema nuevo crece alrededor del antiguo hasta sustituirlo por completo.
+La estrategia sigue el patrón **Strangler Fig**: el sistema nuevo crece alrededor del existente hasta sustituirlo progresivamente.
 
 ![Evolución Strangler Fig](diagrams/08-strangler-migracion.png)
 
@@ -119,15 +120,15 @@ La estrategia sigue el patrón **Strangler Fig** (*estrangular* el legacy): el s
 |--------|-----|
 | **Host React (transitorio)** | Shell CAE v2; carga remotes por Module Federation |
 | **Remote Angular** | Módulos nuevos: IA, Operaciones mejoradas, backoffice, etc. |
-| **Remote React (fase 1 IA)** | Entrega acordada con cliente para integración inmediata de IA |
+| **Remote React (Fase 1 IA)** | Integración acordada de la capa IA en CAE v2 |
 | **Contrato de slot** | `expedienteId`, auth JWT, callbacks — idéntico para ambos stacks |
 | **Design system compartido** | Tokens visuales comunes para que la UX no “salte” entre frameworks |
 
 ```mermaid
 flowchart TB
     subgraph HOST["Host CAE — React (transitorio)"]
-        ROUTER["Router / layout legacy"]
-        SLOT_A["Slot módulo A — React legacy"]
+        ROUTER["Router / layout CAE v2"]
+        SLOT_A["Slot módulo A — React"]
         SLOT_B["Slot módulo B — Angular remote"]
         SLOT_IA["Slot Asistencia IA — Angular remote"]
         ROUTER --> SLOT_A & SLOT_B & SLOT_IA
@@ -148,7 +149,7 @@ flowchart TB
 
 ---
 
-## 4. Angular vs React — criterio técnico honesto
+## 4. Angular vs React — criterios de selección
 
 ### 4.1 Por qué Angular encaja en CAE (proyecto enterprise grande)
 
@@ -163,16 +164,16 @@ flowchart TB
 
 Por estas razones, **muchas organizaciones grandes** siguen apostando por Angular en aplicaciones con vida útil de muchos años y equipos numerosos.
 
-### 4.2 Fortalezas de React (sin demonizar)
+### 4.2 Fortalezas de React
 
-| Ventaja React | Matiz para CAE |
-|---------------|----------------|
-| Flexibilidad | Requiere **imponer disciplina**; sin ella aparecen N arquitecturas distintas |
-| Ecosistema enorme | Cada equipo elige librerías distintas → fragmentación en 5 años |
-| Curva de entrada baja | Proyectos pequeños sí; **proyectos grandes** necesitan convenciones estrictas |
-| Talento en mercado | Válido, pero no compensa solo el coste de migración |
+| Ventaja React | Aplicación en CAE v2 |
+|---------------|----------------------|
+| Integración nativa | Host actual de CAE v2; adopción inmediata en Fase 1 |
+| Flexibilidad | Permite evolución rápida con convenciones bien definidas |
+| Ecosistema | Amplia disponibilidad de librerías y perfiles |
+| Continuidad | Sin interrupción del servicio durante despliegue IA |
 
-> **Conclusión equilibrada:** React puede ser excelente con gobernanza fuerte. En CAE v2, la evidencia es **deuda acumulada y quejas del cliente**, no una comparativa abstracta de frameworks. La migración tiene sentido cuando el **beneficio esperado** (estandarización, mantenibilidad, productividad) **supera el coste** de mantener temporalmente ambos ecosistemas.
+> **Conclusión:** React es el **stack acordado para la Fase 1** (integración IA en CAE v2). Angular se propone como **stack de evolución** para módulos nuevos y modernización, cuando el beneficio en estandarización, mantenibilidad y productividad supere el coste de la convivencia temporal de ambos ecosistemas.
 
 ---
 
@@ -183,9 +184,9 @@ Por estas razones, **muchas organizaciones grandes** siguen apostando por Angula
 | **Sin parada de negocio** | CAE sigue operando durante toda la transición |
 | **Riesgo acotado** | Cada módulo migrado es un entregable independiente |
 | **Valor temprano** | IA y mejoras visibles antes de reescribir todo |
-| **Equipos en paralelo** | Un equipo en legacy React (mantenimiento); otro(s) en Angular greenfield |
+| **Equipos en paralelo** | Mantenimiento CAE v2 React y desarrollo Angular en módulos nuevos |
 | **Aprendizaje progresivo** | Module Federation, contratos y design system se afianzan módulo a módulo |
-| **Alineado con quejas cliente** | Responde al malestar con **plan de mejora**, no con parches eternos |
+| **Mejora estructurada** | Plan de evolución de plataforma, no parches aislados |
 
 ---
 
@@ -203,40 +204,38 @@ Durante la transición (potencialmente **varios años**) coexistirán:
 | **Complejidad MFE** | Auth centralizada, contrato de eventos, design tokens, semver remotes |
 | **Período dual stack** | Presupuesto y roadmap explícitos; no indefinido |
 
-> Los microfrontends **no son gratis**. La clave es que el cliente entienda que es el **precio de no hacer un big bang** — y que ese precio suele ser **mucho menor** que reescribir CAE entero fallando en plazo o funcionalidad.
+> Los microfrontends implican complejidad adicional. El enfoque incremental evita un *big bang* y permite validar cada módulo antes de consolidar la plataforma en Angular.
 
 ---
 
-## 7. Cuándo recomendar esta estrategia
+## 7. Criterios de aplicabilidad
 
-### 7.1 Sí recomendar si…
+### 7.1 La estrategia es adecuada cuando…
 
 | Condición | CAE |
 |-----------|-----|
-| Angular (o similar opinionado) es **decisión estratégica** de la organización | ✅ Propuesta del equipo |
-| El producto tiene **muchos años de vida** por delante | ✅ CAE es core de negocio |
-| **Varios equipos** trabajan en paralelo | ✅ IDEAUTO + Babooni + evolución continua |
-| Existe **arquitectura MFE** bien diseñada (contratos, auth, design system) | ✅ Documentada en diseño técnico v3.0 |
-| El legacy React tiene **deuda y quejas** recurrentes | ✅ Situación actual |
-| El cliente busca **mejora de plataforma**, no solo IA puntual | ✅ Encaje del programa IA + modernización |
+| El producto tiene **vida útil prolongada** | CAE es core de negocio IDEAUTO |
+| **Varios equipos** evolucionan la plataforma en paralelo | Desarrollo continuo CAE + capa IA |
+| Existe **arquitectura MFE** definida (contratos, auth, design system) | Documentada en diseño técnico v3.0 |
+| Se busca **mejora de plataforma** junto con la capa IA | Programa integrado IA + modernización |
+| Se requiere **estandarización** y mantenibilidad a largo plazo | Angular como stack de evolución |
 
-### 7.2 No recomendar (o replantear) si…
+### 7.2 Requiere replanteamiento cuando…
 
 | Condición | Notas |
 |-----------|-------|
-| React está **sano**, bien testeado y con convenciones claras | **No es el caso de CAE v2** según análisis actual |
-| Migración **solo por preferencia** tecnológica sin ROI | Evitar; aquí hay **quejas de negocio** de respaldo |
 | No hay presupuesto para **período dual stack** | Acordar fases y duración máxima de convivencia |
-| Un solo equipo minúsculo sin capacidad Angular | Valorar formación o refuerzo antes de comprometer |
+| Capacidad limitada para Angular | Valorar formación o refuerzo de equipo |
+| Migración sin ROI demostrable | Priorizar módulos con mayor impacto en negocio |
 
 ---
 
 ## 8. Fases de migración
 
-| Fase | Horizonte | CAE React legacy | Angular | Entregables clave |
-|------|-----------|------------------|---------|-------------------|
-| **0 — Baseline** | Actual | 100% CAE | Pendiente de arranque | Auditoría deuda, mapa módulos, contrato MFE |
-| **1 — IA integrada** | 0–6 meses | Host estable | MFE IA (React cliente + Angular POC) | `cae-ia-backend`, paneles asistencia, slots |
+| Fase | Horizonte | CAE v2 React (actual) | Angular | Entregables clave |
+|------|-----------|----------------------|---------|-------------------|
+| **0 — Baseline** | Actual | 100% CAE | Pendiente de arranque | Análisis de arquitectura, mapa módulos, contrato MFE |
+| **1 — IA integrada** | 0–6 meses | Host estable | MFE IA React (Fase 1) + Angular (evolución) | `cae-ia-backend`, paneles asistencia, slots |
 | **2 — Nuevos módulos** | 6–18 meses | Sin features grandes nuevas | Todo greenfield en Angular | Primer módulo negocio nuevo en Angular embebido |
 | **3 — Sustitución** | 18–36+ meses | Módulos retirados uno a uno | Reescrituras priorizadas por ROI | Matriz módulo → fecha retirada React |
 | **4 — Consolidación** | Objetivo | **0% shell React** | Host Angular unificado | CAE completo en Angular; React desmantelado |
@@ -245,10 +244,10 @@ Durante la transición (potencialmente **varios años**) coexistirán:
 
 | Criterio | Peso |
 |----------|------|
-| Volumen de incidencias / quejas en el módulo | Alto |
+| Volumen de incidencias en el módulo | Alto |
 | Complejidad y acoplamiento | Alto |
 | Frecuencia de cambios previstos | Medio |
-| Dependencias con otros módulos legacy | Medio (orden de migración) |
+| Dependencias con otros módulos React | Medio (orden de migración) |
 | Disponibilidad de diseño/UX revisado | Medio |
 | Equipo con capacidad Angular | Bloqueante |
 
@@ -261,10 +260,10 @@ La capa IA **no es un silo**: es el **primer candidato** para demostrar el model
 | Aspecto | Enfoque |
 |---------|---------|
 | **Backend** | Agnóstico de UI — `libs/node/cae`, `libs/isomorphic/cae` |
-| **MFE React (fase 1)** | Cumple decisión cliente; integración inmediata en CAE v2 |
-| **MFE Angular (paralelo)** | Demuestra calidad técnica: Storybook, tests, arquitectura limpia |
+| **MFE React (Fase 1)** | Integración acordada de la capa IA en el host CAE v2 |
+| **MFE Angular (evolución)** | Misma funcionalidad con arquitectura estandarizada: Storybook, tests, libs modulares |
 | **Segundo módulo Angular** | Cola Operaciones mejorada, dashboard MLOps o expediente v2 |
-| **Mensaje al cliente** | “La IA viene con un **plan de mejora de plataforma**, no solo un plugin” |
+| **Valor conjunto** | La capa IA incluye un **plan de mejora de plataforma**, no únicamente capacidades OCR |
 
 ```mermaid
 flowchart LR
@@ -283,7 +282,7 @@ flowchart LR
 
 ### 10.1 Comité de arquitectura frontend
 
-- Revisión mensual: módulos candidatos a migración, estado dual stack, deuda.
+- Revisión mensual: módulos candidatos a migración, estado dual stack, oportunidades de mejora.
 - Participantes: Arquitectura, Producto, IDEAUTO, Babooni.
 
 ### 10.2 Métricas de seguimiento
@@ -296,47 +295,47 @@ flowchart LR
 | Tiempo medio entrega feature | ↓ en módulos Angular estandarizados |
 | Cobertura tests + Storybook | ↑ en `libs/angular/cae/ui` |
 | Peso bundle remotes | Monitorizado; alertas si supera umbral |
-| Satisfacción cliente (encuesta) | ↑ respecto baseline quejas |
+| Satisfacción de usuario (encuesta) | ↑ respecto a línea base |
 
 ### 10.3 Criterio de cierre React
 
 React se considera **retirado** cuando:
 
-1. Ningún módulo de negocio crítico depende del shell legacy.
+1. Ningún módulo de negocio crítico depende del shell React actual.
 2. E2E completos pasan en host Angular.
-3. Cliente aprueba UAT de paridad funcional.
+3. UAT de paridad funcional aprobada.
 4. Período de hypercare post-switch sin incidencias P1.
 
 ---
 
-## 11. Argumentario para el cliente
+## 11. Beneficios y encaje estratégico
 
-### 11.1 Mensajes clave (lenguaje de negocio)
+### 11.1 Beneficios para la plataforma CAE
 
-1. **“No proponemos parar CAE para reescribirlo.”** Seguís operando; mejoramos por módulos.
-2. **“La IA es la primera pieza del nuevo CAE.”** Asistencia inteligente + arquitectura moderna.
-3. **“Angular nos da un CAE más mantenible.”** Menos sorpresas, más previsibilidad en evoluciones.
-4. **“React no desaparece mañana.”** Respetamos la inversión actual; migramos cuando aporta valor.
-5. **“Vuestras quejas actuales encajan con un plan estructurado.”** No más parches sin estrategia.
+1. **Continuidad operativa** — CAE sigue en producción durante toda la transición; mejoras por módulos.
+2. **Valor inmediato con IA** — Validación progresiva, MLOps y asistencia al usuario desde la Fase 1.
+3. **Estandarización progresiva** — Angular aporta arquitectura uniforme en módulos nuevos.
+4. **Inversión protegida** — React permanece en Fase 1; la migración avanza cuando aporta valor medible.
+5. **Plan estructurado** — Roadmap por fases con métricas, gobernanza y criterios de éxito.
 
-### 11.2 Respuesta a objeciones habituales
+### 11.2 Preguntas frecuentes
 
-| Objeción | Respuesta |
+| Pregunta | Respuesta |
 |----------|-----------|
-| “Ya tenemos React” | React se mantiene; **lo nuevo** nace mejor arquitecturado en Angular |
-| “Dos tecnologías es caro” | Es **más barato** que un big bang fallido; duración acotada y planificada |
-| “¿Por qué no seguir en React?” | Se puede, pero **la historia de CAE v2** muestra costes crecientes; Angular impone el orden que falta |
-| “¿Y si preferimos React?” | Alcance fase 1 en React; POC Angular demuestra diferencias con hechos, no opiniones |
+| ¿Por qué dos stacks (React y Angular)? | React integra la Fase 1 en CAE v2; Angular es el stack de evolución para módulos nuevos |
+| ¿Implica parar la plataforma? | No. Migración incremental mediante microfrontends |
+| ¿Cuánto dura la convivencia dual? | Acotada por fases; se revisa trimestralmente en comité de arquitectura |
+| ¿Se puede mantener solo React? | Fase 1 sí; la evolución Angular es opcional y se activa por módulo según ROI |
 
 ---
 
 ## 12. Visión final
 
-La Plataforma CAE puede evolucionar de un **monolito React con deuda y quejas recurrentes** hacia un **ecosistema modular en Angular**, construido módulo a módulo mediante **microfrontends**, sin interrumpir el negocio.
+La Plataforma CAE evoluciona hacia un **ecosistema modular en Angular**, construido módulo a módulo mediante **microfrontends**, sin interrumpir el negocio.
 
-El proyecto de **Asistencia Inteligente** es el **caballo de Troya constructivo**: entrega valor inmediato (validación progresiva, MLOps, fitness) y, al mismo tiempo, **establece el patrón** (libs Nx, hexagonal, MFE, Storybook, pirámide de testing) con el que el resto de CAE irá **estrangulando** el legacy React hasta su retirada natural.
+El proyecto de **Asistencia Inteligente** es el **primer hito** del programa: entrega valor inmediato (validación progresiva, MLOps, fitness) y establece el patrón arquitectónico (libs Nx, hexagonal, MFE, Storybook, pirámide de testing) para la modernización progresiva de CAE.
 
-> **Resumen en una frase:** *React hoy por decisión del cliente; Angular mañana por salud del producto; microfrontends como puente; desaparición progresiva de React cuando cada módulo lo merezca.*
+> **Resumen:** *Fase 1 en React (integración acordada con CAE v2); evolución en Angular para módulos nuevos; microfrontends como puente; consolidación progresiva cuando cada módulo lo justifique.*
 
 ---
 
