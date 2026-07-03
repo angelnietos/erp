@@ -12,7 +12,7 @@
 > Este fichero es la **referencia visual oficial** del proyecto. Los documentos funcional y técnico derivan de aquí.
 >
 > **PNG exportado:** [`ARQUITECTURA-CAE-IA.png`](ARQUITECTURA-CAE-IA.png) — diagrama maestro combinado (visión funcional + arquitectura técnica E2E + MLOps/Fitness + hexagonal/DDD/microservicios + monorepo Nx + MFE React/Angular).
-> PNGs individuales en [`diagrams/`](diagrams/): `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`, `08-strangler-migracion.png`, `09-despliegue-azure.png`, `10-modelo-datos-er.png`, `11-secuencia-documento.png`.
+> PNGs individuales en [`diagrams/`](diagrams/): `00-diagrama-maestro-v3.mmd` (fuente §4.0 diseño técnico), `01-vision-funcional.png`, `02-arquitectura-tecnica-e2e.png`, `03-mlops-fitness.png`, `04-hexagonal-microservicios.png`, `05-monorepo-nx-cae.png`, `06-mfe-react-angular.png`, `07-testing-piramide.png`, `08-strangler-migracion.png`, `09-despliegue-azure.png`, `10-modelo-datos-er.png`, `11-secuencia-documento.png`.
 
 ---
 

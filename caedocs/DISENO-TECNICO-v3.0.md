@@ -93,6 +93,8 @@ La arquitectura deberá:
 
 ### 3.1 Vista lógica de alto nivel
 
+Vista **infraestructural** simplificada (capas, servicios Azure, integración con CAE heredado). El **pipeline funcional completo** (9 capas, Decision Engine, MLOps) está en [§4.0 — Diagrama maestro v3.0](#40-flujo-técnico-e2e--diagrama-maestro-v30).
+
 ```mermaid
 flowchart TB
     subgraph CAE["Plataforma CAE v2.0 (entorno heredado)"]
@@ -662,7 +664,130 @@ flowchart TB
 
 Arquitectura alineada con el **modelo de 10 fases** del sistema de asistencia inteligente CAE.
 
-### 4.0 Flujo técnico E2E (resumen)
+### 4.0 Flujo técnico E2E — diagrama maestro v3.0
+
+Diagrama de referencia **definitivo** del pipeline completo: frontend → edge → ingesta → extracción → validación progresiva (núcleo) → razonamiento IA → Decision Engine (AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT) → MLOps → observabilidad.
+
+```mermaid
+flowchart TD
+    %% Estilos
+    classDef frontend fill:#f0f9ff,stroke:#1e40af,stroke-width:3px
+    classDef gateway fill:#fee2e9,stroke:#9f1239,stroke-width:2px
+    classDef storage fill:#ecfdf5,stroke:#166534
+    classDef validation fill:#fef3c7,stroke:#ca8a04,stroke-width:4px
+    classDef ai fill:#ede9fe,stroke:#4c1d95,stroke-width:3px
+    classDef human fill:#fee2e2,stroke:#b91c1c
+    classDef mlops fill:#f3e8ff,stroke:#6b21a8
+
+    subgraph L1["1. FRONTEND — Asistencia continua"]
+        A["Cliente sube documento / modifica dato"] --> B["Feedback inmediato UI<br/>Completitud + incidencias"]
+    end
+
+    subgraph L2["2. EDGE GATEWAY"]
+        C["Auth JWT + rate limit + idempotency"]
+        D{"Request válida?"}
+        ERR["Rechazo inmediato + UX"]
+        ID["Expedition ID + security context"]
+        D -->|No| ERR
+        D -->|Sí| ID
+    end
+
+    subgraph L3["3. INGESTA + STORAGE"]
+        RAW["Blob Storage RAW<br/>Inmutable + hash"]
+        PRE["Preprocessing Engine<br/>Normalización + filtro legibilidad"]
+        OCR["Document Intelligence<br/>+ GPT-4o Vision fallback"]
+        RAW --> PRE --> OCR
+    end
+
+    subgraph L4["4. PIPELINE DOCUMENTAL"]
+        CLASS["Clasificador documental"]
+        WORK["Fan-out workers extractores<br/>DNI, factura, ficha, permiso…"]
+        JSON["Unified Expedition JSON<br/>Confidence + bbox"]
+        CLASS --> WORK --> JSON
+    end
+
+    subgraph L5["5. VALIDACIÓN PROGRESIVA CAE — NÚCLEO"]
+        VAL["Validation Engine<br/>Reglas RF-001 a RF-030"]
+        CROSS["Cruce semántico multi-documento"]
+        RULES["Reglas CAE bloques A–G + completitud"]
+        INC{"Incidencias?"}
+        BLOCK["Bloquear + notificar cliente"]
+        WARN["Advertencia menor"]
+        SCORE["Scoring global"]
+        DEC{"Decision Engine"}
+        VAL --> CROSS --> RULES --> INC
+        INC -->|Crítica/Mayor| BLOCK
+        INC -->|Menor| WARN
+        INC --> SCORE --> DEC
+    end
+
+    subgraph L6["6. RAZONAMIENTO IA"]
+        ORCH["AI Orchestrator + FSM Redis"]
+        FOUNDRY["Azure AI Foundry + RAG<br/>Knowledge Base CAE"]
+        REASON["Resumen ejecutivo + explicabilidad"]
+        ORCH --> FOUNDRY --> REASON
+    end
+
+    subgraph L7["7. OUTPUT + HUMAN-IN-THE-LOOP"]
+        OK["AUTO_APPROVE<br/>Tramitación directa"]
+        REV["HUMAN_REVIEW<br/>Cola Operaciones + resumen IA"]
+        REJ["AUTO_REJECT<br/>Bloqueo automático"]
+        SUP["Supervisor + asistente IA"]
+        REV --> SUP
+    end
+
+    subgraph L8["8. MLOPS + FEEDBACK"]
+        FEED["Feedback Engine"]
+        LABEL["Labeling + dataset builder"]
+        EVAL["Evaluation pipeline + Fitness Engine"]
+        REG["Model / prompt / rules registry"]
+        FEED --> LABEL --> EVAL --> REG
+    end
+
+    subgraph L9["9. OBSERVABILITY + AUDIT"]
+        AUDIT["Audit log + OpenTelemetry"]
+        MON["Monitoring + dashboards + alerting"]
+        AUDIT --> MON
+    end
+
+    B --> C
+    ID --> RAW
+    OCR --> CLASS
+    JSON --> VAL
+    DEC --> ORCH
+    REASON --> DEC
+    DEC --> OK
+    DEC --> REV
+    DEC --> REJ
+    SUP --> FEED
+    OK --> AUDIT
+    REV --> AUDIT
+    REJ --> AUDIT
+    BLOCK --> AUDIT
+    FEED -.->|Mejora continua| VAL
+    REG -.->|Promoción| VAL
+
+    class A,B frontend
+    class C,D,ID,ERR gateway
+    class RAW,PRE,OCR storage
+    class VAL,CROSS,RULES,INC,SCORE,DEC,BLOCK,WARN validation
+    class ORCH,FOUNDRY,REASON ai
+    class OK,REV,REJ,SUP human
+    class FEED,LABEL,EVAL,REG mlops
+
+    style L1 fill:#f0f9ff,stroke:#1e40af,stroke-width:3px
+    style L2 fill:#fee2e9,stroke:#9f1239,stroke-width:2px
+    style L3 fill:#ecfdf5,stroke:#166534
+    style L5 fill:#fef3c7,stroke:#ca8a04,stroke-width:4px
+    style L6 fill:#ede9fe,stroke:#4c1d95,stroke-width:3px
+    style L7 fill:#fee2e2,stroke:#b91c1c
+    style L8 fill:#f3e8ff,stroke:#6b21a8
+    style L9 fill:#f3e8ff,stroke:#6b21a8
+```
+
+> **Leyenda rápida:** capa 5 (amarillo) = núcleo CAE; capa 7 = AUTO_APPROVE sin cola Operaciones en expedientes limpios; línea punteada desde MLOps = mejora continua de reglas y modelos.
+
+### 4.0.1 Flujo técnico E2E (vista compacta)
 
 ```mermaid
 flowchart TD
@@ -678,7 +803,7 @@ flowchart TD
     VLM --> CLASS
     CLASS --> EXT["Extractores especializados"]
     EXT --> JSON["JSON + confidence"]
-    JSON --> MOTOR["⚙ MOTOR VALIDACIÓN PROGRESIVA CAE"]
+    JSON --> MOTOR["Motor validación progresiva CAE"]
     MOTOR --> LOOP{"¿Completo?"}
     LOOP -->|No| UI["Feedback UI → esperar docs"]
     UI --> JSON
