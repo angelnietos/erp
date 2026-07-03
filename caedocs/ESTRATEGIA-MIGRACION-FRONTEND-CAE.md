@@ -368,7 +368,7 @@ Por estas razones, **muchas organizaciones grandes** siguen apostando por Angula
 
 ## 6. Costes, riesgos e inconvenientes
 
-Durante la transición (potencialmente **varios años**) coexistirán:
+Durante la transición (potencialmente **varios meses**) coexistirán:
 
 | Inconveniente | Mitigación |
 |---------------|------------|
