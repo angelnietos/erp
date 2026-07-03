@@ -53,13 +53,15 @@ La arquitectura deberá:
 - Organizarse mediante **DDD** (Domain-Driven Design): bounded contexts, agregados y lenguaje ubicuo CAE.
 - Implementarse como **microservicios** independientes, comunicados por APIs y eventos asíncronos.
 - Ser **escalable** horizontalmente (workers, colas, inferencia stateless).
-- **Desacoplar** completamente las capacidades IA del núcleo CAE.
+- **Desacoplar** completamente las capacidades IA del núcleo CAE actual, aislando los nuevos componentes de la deuda técnica heredada.
 - Mantener **trazabilidad completa** del expediente (audit log end-to-end).
 - Permitir la **evolución independiente** de modelos, reglas y prompts.
 - Garantizar **explicabilidad** y supervisión humana (Human in the Loop).
 - Implementar **validación progresiva** como pipeline reactivo a eventos.
 - Minimizar vendor lock-in mediante abstracciones API-first.
 - Soportar **observabilidad** de costes, latencia y calidad IA.
+
+**Aislamiento de deuda técnica externa:** para garantizar la alta disponibilidad y la velocidad de cómputo que requieren los modelos LLM y de visión, el sistema de asistencia inteligente operará de forma autónoma a nivel de infraestructura, lógica y persistencia. La integración con sistemas preexistentes de la plataforma se realizará exclusivamente mediante interfaces síncronas/asíncronas controladas por una **Capa de Anti-Corrupción (ACL)**. Se prohíbe explícitamente el acceso directo a bases de datos compartidas o la dependencia de lógicas de negocio externas no expuestas vía API contractual.
 
 ---
 
@@ -77,8 +79,8 @@ La arquitectura deberá:
 | PA-08 | **Arquitectura hexagonal** | Dominio en el centro; infraestructura (Azure, BD, colas) en adaptadores periféricos. |
 | PA-09 | **DDD** | Bounded contexts explícitos; reglas CAE y validación en el dominio, no en controllers. |
 | PA-10 | **Microservicios** | Un servicio desplegable por capacidad de negocio; contratos API/eventos versionados. |
-| PA-11 | **Anti-Corruption Layer** | Integración con Plataforma CAE v2.0 mediante adaptadores, sin acoplar dominios. |
-| PA-12 | **Libs first** | Toda capacidad IA como lib Nx; apps solo componen y despliegan. |
+| PA-11 | **Anti-Corruption Layer** | Integración con Plataforma CAE v2.0 mediante adaptadores independientes; evita contaminar el nuevo dominio por el software heredado. |
+| PA-12 | **Libs first** | Toda capacidad IA como lib Nx; apps solo componen y despliegan. Permite reutilizar el código en la migración global sin reescritura. |
 | PA-13 | **Deploy elástico** | Misma codebase: monolito modular (default) → microservicios bajo demanda. |
 | PA-14 | **Pirámide de testing** | Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI. |
 | PA-15 | **UI reusable** | Componentes tontos en `ui/` + Storybook; componentes listos en `feature-*`; sin lógica de negocio en presentación. |
@@ -93,9 +95,9 @@ La arquitectura deberá:
 
 ```mermaid
 flowchart TB
-    subgraph CAE["Plataforma CAE v2.0"]
-        FE["Frontend Asistido"]
-        CORE["Core Expedientes"]
+    subgraph CAE["Plataforma CAE v2.0 (entorno heredado)"]
+        FE["Frontend Asistido (React Host)"]
+        CORE["Core Expedientes / Backend legacy"]
     end
 
     subgraph EDGE["Edge Layer"]
@@ -104,20 +106,20 @@ flowchart TB
 
     subgraph ORCH["Orquestación"]
         AO["AI Orchestrator"]
-        WE["Workflow Engine / FSM"]
+        WE["Workflow Engine / FSM (Redis)"]
     end
 
     subgraph INGEST["Ingesta y Extracción"]
-        BLOB["Blob Storage RAW"]
-        PRE["Preprocessing Engine"]
+        BLOB["Blob Storage RAW (inmutable)"]
+        PRE["Preprocessing Engine (cortafuegos legibilidad)"]
         DI["Azure Document Intelligence"]
         VLM["GPT-4o Vision Fallback"]
         CLS["Document Classifier"]
         EXT["Extraction Engine + Workers"]
     end
 
-    subgraph VALID["Validación"]
-        VE["Validation Engine"]
+    subgraph VALID["Validación determinista"]
+        VE["Validation Engine (reglas CAE)"]
         DE["Decision Engine"]
     end
 
@@ -143,6 +145,7 @@ flowchart TB
     GW --> AO
     AO --> BLOB
     BLOB --> PRE
+    PRE -->|Ilegible| REJ["Rechazo preventivo UX"]
     PRE --> DI
     PRE --> VLM
     DI --> CLS
@@ -227,7 +230,7 @@ flowchart TB
 | **Feedback y calidad** | Correcciones, labeling, datasets | `Feedback`, `Etiqueta` |
 | **MLOps** | Evaluación, fitness, promoción/rollback | `Evaluacion`, `Fitness`, `ArtefactoIA` |
 
-Los contextos se comunican mediante **contratos de integración** (API REST + eventos de dominio), nunca compartiendo modelos de persistencia.
+Los contextos se comunican mediante **contratos de integración** (API REST + eventos de dominio), nunca compartiendo modelos de persistencia ni bases de datos con el software heredado.
 
 #### 3.2.3 Unidades desplegables (lógicas)
 
@@ -264,7 +267,7 @@ Cuando se despliegan aisladas (Modo C):
 
 ### 3.3 Arquitectura objetivo en monorepo Nx
 
-La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La **arquitectura objetivo** organiza el código en un **monorepo Nx** con **`libs/`** reutilizables e **`apps/`** como hosts de composición y despliegue.
+La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La **arquitectura objetivo** organiza el código en un **monorepo Nx** con **`libs/`** reutilizables e **`apps/`** como hosts de composición y despliegue. Esta estructura es el estándar técnico destino de la compañía (**Strangler Fig Pattern**): permite canibalizar el software heredado de forma progresiva sin interrumpir la operativa.
 
 #### 3.3.1 Patrón de capas (monorepo Nx)
 
@@ -399,6 +402,8 @@ apps/cae-mlops-service/
 ### 3.4 Integración con Plataforma CAE v2.0 — Microfrontends
 
 CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operaciones). El **frontend CAE v2 está construido en React** — stack **actual de la plataforma**, acordado para la integración de Fase 1. La capa IA se integra como **capacidades embebidas**, no como reemplazo del shell CAE.
+
+> **Estrategia Strangler Fig:** la iniciativa de IA introduce arquitectura limpia (Nx, DDD, hexagonal) en una **zona aislada** del sistema heredado. El MFE y el backend IA nacen con estándares modernos; el código legacy no se modifica internamente — solo se consume vía ACL. Cada nuevo módulo se desarrolla en el monorepo Nx y se expone al host mediante MFE, sustituyendo progresivamente el núcleo antiguo.
 
 > **Contexto de evolución:** **CAE React actual** se termina sin interrupción. La **App IA** se integra en CAE React vía MFE (Fase 1). En paralelo se construye **CAE Angular nueva** (`apps/cae-platform-angular`) como sustituto — distinta del MFE de evolución `apps/cae-assistant-mfe-angular`, que es la capa IA expuesta en Angular. Los microfrontends son **temporales** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
 
@@ -544,6 +549,14 @@ Module Federation conecta **CAE React**, la **App IA** y **CAE Angular** mientra
 | Webpack 4 | Baja | Actualizar toolchain antes de federar |
 
 > Opciones de shell (React vs Angular) y modelo de dos equipos: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3 y §3.2.
+
+#### 3.4.6 Garantías de aislamiento y resiliencia en convivencia UI
+
+Para asegurar que el rendimiento y la estabilidad del MFE de asistencia inteligente no se vean comprometidos por el estado o la toolchain del host heredado, se imponen las siguientes restricciones:
+
+1. **Encapsulamiento de estilos** — CSS Modules, CSS-in-JS con prefijos dinámicos o Shadow DOM. Ningún estilo global del host altera el layout del asistente, y viceversa.
+2. **Sandboxing de runtimes** — El MFE no depende de variables globales (`window.*`) inyectadas por el host, salvo el token de autenticación explícito. Dependencias compartidas gestionadas con `requiredVersion` estricto en Module Federation.
+3. **Estrategia Decoupled-First (fallback Web Components)** — Si la toolchain del host (Webpack 4 / CRA) impide federación nativa, el MFE se empaqueta como Custom Element autónomo. El host solo inyecta una etiqueta HTML (`<cae-assistant-panel dossier-id="123">`), aislando por completo los runtimes modernos del framework legacy.
 
 ### 3.5 Arquitectura frontend: componentes listos y tontos
 
@@ -696,6 +709,13 @@ El **Motor Validación Progresiva CAE** es el núcleo técnico del sistema. Se e
 
 **Latencia objetivo:** < 3 s (reglas deterministas); < 10 s (con Foundry opcional).
 
+#### 4.1.2 Filtro de viabilidad e ingesta preventiva (gatekeeping)
+
+Para optimizar el coste de inferencia en Azure AI Foundry y mantener la latencia del pipeline reactivo, el **Preprocessing Engine** actúa como cortafuegos de calidad:
+
+- **Validación estricta de legibilidad** — Análisis de metadatos e histograma de imagen. Si el documento presenta resolución inferior a 150 ppp, rotación severa no corregible o compresión corrupta, el job emite `DocumentRejectedUX` de forma inmediata, sin consumir recursos del pipeline IA.
+- **Bypass de inferencia genérica** — Ningún documento se deriva a GPT-4o Vision sin haber pasado por Document Intelligence y fallado el umbral de confianza mínimo (< 0,85). Esto evita el uso accidental de modelos multimodales costosos en tareas estructuradas estándar.
+
 ### 4.2 Pipeline de ingesta y extracción
 
 | Etapa | Tecnología | Notas |
@@ -794,10 +814,10 @@ Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
 
 | Atributo | Detalle |
 |----------|---------|
-| **Responsabilidad** | Normalización de formatos e imagen |
-| **Funciones** | HEIC/JPG/PNG → PNG, PDF split, mejora contraste, deskew, denoise |
+| **Responsabilidad** | Normalización de formatos e imagen y filtrado preventivo de legibilidad |
+| **Funciones** | HEIC/JPG/PNG → PNG, PDF split, mejora contraste, deskew, denoise, cálculo de umbral de viabilidad |
 | **Entrada** | Blob URI |
-| **Salida** | Páginas normalizadas listas para OCR |
+| **Salida** | Páginas normalizadas listas para OCR, o interrupción del job por ilegibilidad (`DocumentRejectedUX`) |
 | **Dependencias** | Blob, ImageMagick/libvips o equivalente |
 
 ### 5.4 Document Classifier
@@ -824,7 +844,7 @@ Workers especializados alineados con el clasificador documental del flujo E2E:
 | Extractor Firma | Detección y comparación firmas | `CLASS → Firma` |
 | Extractor Genérico | No clasificado / fallback | `CLASS → Otros` |
 
-**Salida estándar:**
+**Salida estándar** (invariante respecto al motor extractivo subyacente):
 
 ```json
 {
@@ -832,7 +852,7 @@ Workers especializados alineados con el clasificador documental del flujo E2E:
   "tipo": "factura_vn",
   "campos": {
     "vin": { "valor": "VF1ABC12345678901", "confidence": 0.97, "bbox": [120, 340, 400, 360] },
-    "titular": { "valor": "GARCIA LOPEZ, JUAN", "confidence": 0.95, "bbox": null },
+    "titular": { "valor": "GARCIA LOPEZ, JUAN", "confidence": 0.95, "bbox": [45, 100, 200, 120] },
     "matricula": { "valor": "1234ABC", "confidence": 0.98, "bbox": [80, 200, 180, 220] }
   },
   "provenance": "document-intelligence",
@@ -840,7 +860,7 @@ Workers especializados alineados con el clasificador documental del flujo E2E:
 }
 ```
 
-> **Nota sobre bbox:** Formato estandarizado `[x_min, y_min, x_max, y_max]` en píxeles relativos al documento. Cuando `bbox: null`, indica que el campo no tiene localización visual asociada (p. ej. valor calculado o inferido). Este formato permite al frontend resaltar visualmente errores en la UI de revisión.
+> **Nota sobre bbox:** Formato estandarizado `[x_min, y_min, x_max, y_max]` en píxeles relativos al documento. Cuando `bbox: null`, el campo no tiene localización visual (valor calculado o inferido). El frontend puede resaltar errores en la UI de revisión cuando bbox está presente.
 
 ### 5.6 Motor Validación Progresiva CAE (Validation Engine)
 
@@ -861,10 +881,10 @@ Ver [sección 4.1](#41-motor-validación-progresiva-cae-componente-central) y [s
 | Atributo | Detalle |
 |----------|---------|
 | **Responsabilidad** | Coordinación de todos los servicios IA |
-| **Funciones** | Planificación, fan-out/fan-in, agregación, gestión prompts, normalización respuestas, resumen ejecutivo, coordinación agentes |
-| **Entrada** | Eventos de expediente/documento |
-| **Salida** | Respuestas unificadas para CAE |
-| **Estado** | FSM en Redis (live state) |
+| **Funciones** | Planificación, fan-out/fan-in, agregación, gestión de estado unificado del expediente, normalización de respuestas, resumen ejecutivo, coordinación de agentes |
+| **Entrada** | Eventos de expediente/documento o llamadas de la capa UI |
+| **Salida** | Respuestas unificadas para Frontend Asistido y Core CAE |
+| **Estado** | FSM en Redis (live state) con **control de concurrencia optimista** — cada versión del Unified Expedition JSON incluye token de versión; modificaciones concurrentes obsoletas se rechazan |
 | **Dependencias** | Todos los subsistemas IA |
 
 **Contrato entrada/salida:**
@@ -1272,7 +1292,19 @@ Cada evaluación de expediente persiste:
 
 ## 11. Modelo de datos
 
-### 11.1 Entidades principales
+### 11.1 El Unified Expedition JSON como frontera de dominio
+
+El **Unified Expedition JSON** representa la verdad única del estado documental para el motor de asistencia. Se almacena en Redis para computación reactiva y se consolida de forma asíncrona. Contiene tres capas agnósticas de la persistencia heredada:
+
+| Capa | Contenido |
+|------|-----------|
+| **Procedencia** | Hashes SHA-256, mimetypes, marcas de tiempo, identificadores de workers |
+| **Extracción estructurada** | Campos tipados (`vin`, `titular`, etc.) con valor, `bbox` y `confidence` |
+| **Estado de validación** | Grafo de incidencias activas, histórico de correcciones y severidades |
+
+Este modelo está **blindado** contra el esquema relacional del backend CAE v2.0. Cualquier cambio en el sistema heredado se resuelve exclusivamente en `integration-backend` (ACL); los servicios IA permanecen inmutables.
+
+### 11.2 Entidades principales
 
 ```mermaid
 erDiagram
@@ -1390,7 +1422,7 @@ erDiagram
     }
 ```
 
-### 11.2 Almacenamiento
+### 11.3 Almacenamiento
 
 | Dato | Tecnología |
 |------|------------|
@@ -2021,7 +2053,19 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 ## 22. Monorepo Nx y organización del repositorio base
 
-### 22.1 Matriz de librerías y responsabilidades
+El monorepo Nx (`cae-ia-monorepo/`) constituye el núcleo operativo de la estrategia de evolución tecnológica: no es una mera agrupación de código, sino la infraestructura donde se aíslan los estándares modernos de la deuda técnica circundante.
+
+### 22.1 Estrategia Strangler Fig mediante librerías acoplables
+
+Toda la lógica de negocio, reglas de dominio y abstracciones de puertos se desarrollan como **librerías Nx independientes** (`libs/isomorphic/cae/core`). Las aplicaciones en `apps/` operan exclusivamente como hosts de orquestación y empaquetado.
+
+| Objetivo | Cómo se logra |
+|----------|---------------|
+| **Inmunidad frente al legado** | El código de extracción, validación y decisión nace con cobertura de tests bajo estándares DDD/hexagonal; el backend heredado no contamina el nuevo dominio |
+| **Reutilización en consolidación** | Al desmantelar el backend legacy, las libs `*-backend` y `core` se conectan a los hosts definitivos sin reescritura |
+| **Tolerancia cero a regresiones** | La lógica interna del sistema heredado no se modifica; la IA se integra como capacidad embebida vía ACL y MFE |
+
+### 22.2 Matriz de librerías y responsabilidades
 
 | Ruta objetivo | Tipo | Responsabilidad |
 |---------------|------|-----------------|
@@ -2038,7 +2082,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 | `libs/browser/feature/*` | Features UI | Smart components (contenedores) |
 | `libs/browser/shell/*` | Shell | Rutas, lazy loading, guards de plugin |
 
-### 22.2 Reglas de dependencias estrictas (Nx + ESLint module boundaries)
+### 22.3 Reglas de dependencias estrictas (Nx + ESLint module boundaries)
 
 | Origen | Permitido depender de | Justificación / Nota |
 |--------|---------------------|---------------------|
@@ -2053,7 +2097,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 Regla de dependencias: **las capas superiores (UI/feature) pueden depender de capas inferiores (core/api), nunca al revés.**
 
-### 22.3 BaseRepository Pattern (obligatorio para todos los dominios)
+### 22.4 BaseRepository Pattern (obligatorio para todos los dominios)
 
 Propósito: garantizar consistencia en todos los repositorios de dominio y aplicar filtrado por `tenantId` automáticamente (seguridad por defecto).
 
@@ -2070,7 +2114,7 @@ Beneficios:
 - Fácil activación de multi-tenant.
 - Testabilidad alta (mocks del puerto o base repository).
 
-### 22.4 Unit of Work (UoW) y transaccionalidad
+### 22.5 Unit of Work (UoW) y transaccionalidad
 
 Propósito: coordinar la escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza que la lógica de negocio y la persistencia del evento en outbox ocurran en la misma transacción.
 
@@ -2079,7 +2123,7 @@ Implementación con Prisma:
 - `PrismaUnitOfWork` en infrastructure (implementa $transaction).
 - El Service de aplicación orquesta: recibe UoW → ejecuta `runInTransaction` → pasa `tx` a repositorios → rollback automático si falla.
 
-### 22.5 Base Controller Pattern
+### 22.6 Base Controller Pattern
 
 Propósito: normalizar la entrada HTTP y reducir boilerplate.
 
@@ -2093,6 +2137,17 @@ Ubicación: `libs/node/shared-infrastructure/api/base.controller.ts`
 ---
 
 ## 23. Riesgos explícitos y mitigaciones
+
+### 23.1 Riesgos arquitectónicos de integración (sistema heredado)
+
+| ID | Riesgo | Impacto | Mitigación |
+|----|--------|---------|------------|
+| **R-01** | Incompatibilidad de toolchain del frontend heredado para Module Federation | Alto | Patrón Smart/Dumb en libs UI; fallback a Web Components si el host no acepta federación nativa |
+| **R-02** | Condiciones de carrera entre workers (`DocumentExtracted`) y ediciones manuales (`FieldModified`) | Alto | FSM en Redis con concurrencia optimista; versiones obsoletas del Unified Expedition JSON se rechazan |
+| **R-03** | Degradación por llamadas bloqueantes al backend heredado | Muy alto | ACL asíncrona vía Service Bus; servicios IA resuelven contra caché Redis sin esperar al core legacy |
+| **R-04** | Explosión de costes/latencia por uso indiscriminado de GPT-4o Vision | Medio-alto | Cortafuegos de legibilidad en Preprocessing (§4.1.2); fallback solo tras fallo explícito de DI (< 0,85) |
+
+### 23.2 Riesgos operativos del monorepo
 
 | ID | Riesgo | Impacto | Señal de alerta | Mitigación |
 |----|--------|---------|-----------------|------------|
@@ -2109,15 +2164,19 @@ Ubicación: `libs/node/shared-infrastructure/api/base.controller.ts`
 
 ## 24. Visión final
 
-La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
+El sistema de asistencia inteligente para la Plataforma CAE v3.0 establece el nuevo estándar de ingeniería para IDEAUTO / Babooni. Al encapsular la lógica cognitiva mediante **arquitectura hexagonal** y **DDD**, la organización adquiere una plataforma elástica, agnóstica de proveedores de IA y protegida frente a la obsolescencia técnica.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD). **Meses 1–2:** App IA (`cae-assistant-mfe` React) integrada en CAE v2. **Meses 2–5:** MFE temporal entre CAE React y CAE Angular nueva. **Mes 6:** plataforma Angular única, IA nativa, sin Module Federation — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8.
+La introducción de este diseño mediante **microfrontends** y **capa anticorrupción** garantiza un despliegue antifrágil: aporta valor operativo inmediato (validación progresiva, auto-aprobación, reducción de carga Operaciones) mientras ejecuta de forma progresiva la sustitución y modernización del núcleo heredado — **sin modificar la lógica interna del sistema actual**.
+
+La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento, **Document Intelligence** para captura documental y **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas. La implementación se basa en **libs Nx independientes** (hexagonal + DDD):
+
+- **Meses 1–2:** App IA (`cae-assistant-mfe` React) integrada en CAE v2; calibración del Decision Engine.
+- **Meses 2–5:** MFE temporal entre CAE React y CAE Angular nueva (Strangler Fig).
+- **Mes 6:** plataforma Angular única, IA nativa, sin Module Federation — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8.
 
 La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 
-La validación progresiva mediante **Validation Engine** determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.
-
-El **Feedback Engine**, **Fitness Engine** y pipeline **MLOps** cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en **fitness medible**, no en despliegues ciegos de modelos.
+El **Validation Engine** determinista — complementado, no sustituido, por razonamiento generativo — refleja el conocimiento funcional del proceso CAE y reduce la intervención manual de Operaciones. El **Feedback Engine**, **Fitness Engine** y pipeline **MLOps** cierran el ciclo de mejora continua con decisiones de promoción o rollback basadas en **fitness medible**.
 
 > Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.
 
