@@ -167,6 +167,11 @@
 <td>03/07/2026</td>
 <td>Tono de entrega al cliente; eliminación de lenguaje interno</td>
 </tr>
+<tr>
+<td>10</td>
+<td>03/07/2026</td>
+<td>Modelo dos equipos/apps; Module Federation cross-framework (§6.5.2)</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -643,7 +648,7 @@ journey
 <td>MFE alternativo <code>cae-assistant-mfe-angular</code> y libs en paralelo</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>La evolución de la plataforma CAE hacia una arquitectura modular se documenta en <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: migración incremental (<strong>Strangler Fig</strong>) con módulos nuevos en <strong>Angular</strong> integrados en el host React vía microfrontends. La <strong>Fase 1</strong> utiliza <strong>React</strong>, alineada con el stack actual de CAE v2.</p></blockquote>
+<blockquote class="callout"><p>La evolución de la plataforma CAE hacia una arquitectura modular se documenta en <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: <strong>dos equipos</strong> (React y Angular) desarrollan <strong>aplicaciones independientes</strong> integradas por <strong>Module Federation</strong> con routing unificado; migración incremental (<strong>Strangler Fig</strong>) módulo a módulo. La <strong>Fase 1</strong> utiliza <strong>React</strong>, alineada con el stack actual de CAE v2.</p></blockquote>
 <div class="mermaid">
 flowchart LR
     subgraph P1["① FRONTEND"]
@@ -1028,6 +1033,56 @@ flowchart LR
 <li><strong>Fase objetivo:</strong> pantallas CAE nuevas o reescritas en Angular; reducción progresiva de módulos React.</li>
 </ol>
 <blockquote class="callout"><p>El monorepo <strong>contempla ambos stacks</strong>. Detalle en <strong><a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md">Estrategia de migración frontend</a></strong>.</p></blockquote>
+<h4>6.5.2 Modelo de dos equipos e integración cross-framework</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Organización</strong></td>
+<td>Equipo A evoluciona CAE v2 (React); equipo B desarrolla módulos nuevos (Angular)</td>
+</tr>
+<tr>
+<td><strong>Aplicaciones</strong></td>
+<td>Dos apps desplegables de forma independiente, unidas por routing común y Module Federation</td>
+</tr>
+<tr>
+<td><strong>Navegación</strong></td>
+<td>El usuario transita entre rutas React y Angular sin percibir el cambio de framework</td>
+</tr>
+<tr>
+<td><strong>Integración técnica</strong></td>
+<td>No es plug-and-play: requiere configuración MFE en host y remote, dependencias compartidas y contrato de auth/rutas/estilos</td>
+</tr>
+<tr>
+<td><strong>Migración futura</strong></td>
+<td>Sustitución del remote por ruta (p. ej. <code>/clientes</code> React → Angular) sin cambiar URL ni interrumpir servicio</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario build React</th>
+<th>Implicación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Webpack 5</td>
+<td>Integración MFE más directa</td>
+</tr>
+<tr>
+<td>Vite</td>
+<td>Posible con plugins de federación</td>
+</tr>
+<tr>
+<td>CRA / Webpack 4</td>
+<td>Requiere adaptación del sistema de build</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Detalle técnico de Module Federation, opciones de shell y requisitos de integración: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §3.1–3.2 y <a href="DISENO-TECNICO-v3.0.md"><code>DISENO-TECNICO-v3.0.md</code></a> §3.4.5.</p></blockquote>
 <div class="mermaid">
 flowchart TB
     subgraph CAE["Plataforma CAE v2.0 — Host React"]

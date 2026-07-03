@@ -162,6 +162,11 @@
 <td>03/07/2026</td>
 <td>Tono de entrega al cliente; eliminación de lenguaje interno</td>
 </tr>
+<tr>
+<td>10</td>
+<td>03/07/2026</td>
+<td>Module Federation cross-framework React↔Angular (§3.4.5)</td>
+</tr>
 </tbody></table></div>
 <hr>
 <h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
@@ -627,9 +632,9 @@ flowchart TB
 <td>Monolito modular NestJS</td>
 </tr>
 <tr>
-<td>MFE React (decisión cliente)</td>
+<td>MFE React (Fase 1)</td>
 <td><code>apps/cae-assistant-mfe</code></td>
-<td>Remote embebido en shell CAE v2 — alcance acordado</td>
+<td>Remote embebido en shell CAE v2</td>
 </tr>
 <tr>
 <td>MFE Angular (recom. técnica)</td>
@@ -1065,6 +1070,77 @@ flowchart TB
 <td>AKS multi-pod</td>
 </tr>
 </tbody></table></div>
+<h4>3.4.5 Module Federation cross-framework (React ↔ Angular)</h4>
+<p>Module Federation permite que una app <strong>React</strong> actúe como remote consumida por un host <strong>Angular</strong>, o al revés. <strong>No implica integración automática</strong>: host y remote deben configurarse explícitamente.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>React (CAE v2 / MFE Fase 1)</th>
+<th>Angular (evolución)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Bundler / MFE</strong></td>
+<td>Webpack 5 MF o Vite + plugin federación</td>
+<td><code>@nx/module-federation</code> (Webpack)</td>
+</tr>
+<tr>
+<td><strong>Rol posible</strong></td>
+<td>Host (Fase 1) o remote (hasta migración)</td>
+<td>Remote (módulos nuevos) o host (consolidación)</td>
+</tr>
+<tr>
+<td><strong>Shared deps</strong></td>
+<td><code>react</code>, <code>react-dom</code> como singletons</td>
+<td><code>@angular/core</code>, <code>@angular/common</code>, etc.</td>
+</tr>
+<tr>
+<td><strong>Build legacy</strong></td>
+<td>Webpack 4 / CRA → adaptación previa</td>
+<td>Nx greenfield</td>
+</tr>
+</tbody></table></div>
+<p><strong>Requisitos de integración</strong> (obligatorios desde el inicio):</p>
+<ol>
+<li><strong>Autenticación compartida</strong> — JWT Entra ID propagado por el shell; sesión única.</li>
+<li><strong>Contrato de rutas</strong> — Tabla ruta → remote versionada; convención de paths común.</li>
+<li><strong>Design system</strong> — Tokens CSS / componentes base alineados entre equipos.</li>
+<li><strong>Comunicación entre MFE</strong> — Eventos tipados o bus ligero; evitar estado global duplicado.</li>
+<li><strong>Aislamiento CSS</strong> — Prefijos por MFE o estrategia acordada para evitar colisiones.</li>
+<li><strong>Versionado remotes</strong> — Semver + remote entry; despliegue independiente por equipo.</li>
+</ol>
+<p><strong>Escenarios de build React en CAE v2:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Viabilidad MFE</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Webpack 5</td>
+<td>Alta</td>
+<td>Configurar <code>ModuleFederationPlugin</code> en host y remotes</td>
+</tr>
+<tr>
+<td>Vite</td>
+<td>Media-alta</td>
+<td>Plugin <code>@originjs/vite-plugin-federation</code> o equivalente</td>
+</tr>
+<tr>
+<td>CRA sin eject</td>
+<td>Baja-media</td>
+<td>CRACO / migración a Webpack configurable</td>
+</tr>
+<tr>
+<td>Webpack 4</td>
+<td>Baja</td>
+<td>Actualizar toolchain antes de federar</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Opciones de shell (React vs Angular) y modelo de dos equipos: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3 y §3.2.</p></blockquote>
 <h3 id="35-arquitectura-frontend-componentes-listos-y-tontos" class="subsection-title">3.5 Arquitectura frontend: componentes listos y tontos</h3>
 <p>La capa UI del MFE sigue el patrón <strong>Smart / Dumb</strong> (también <em>container / presentational</em>). El dominio y las reglas CAE <strong>nunca</strong> viven en componentes de presentación.</p>
 <h4>3.5.1 Componentes tontos (presentational / dumb)</h4>

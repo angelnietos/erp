@@ -530,7 +530,7 @@ flowchart LR
 
 ### 7.1 Integración UI: React (Fase 1) vs Angular (evolución)
 
-> CAE v2 está construido en **React** (stack actual de la plataforma). **Angular** se propone como stack de **evolución** para la capa nueva y la modernización progresiva del frontend CAE.
+> CAE v2 está construido en **React** (stack actual de la plataforma). **Angular** se propone como stack de **evolución** para la capa nueva y la modernización progresiva del frontend CAE. **Dos equipos** desarrollan aplicaciones independientes integradas por **Module Federation** con routing unificado (ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3).
 
 ```mermaid
 flowchart LR

@@ -26,6 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
+| 10 | 03/07/2026 | Module Federation cross-framework React↔Angular (§3.4.5) |
 
 ---
 
@@ -289,7 +290,7 @@ La Plataforma CAE v2.0 **no dispone hoy** de esta estructura modular para IA. La
 | UI reusable (tontos) | `libs/react/cae/ui`, `libs/angular/cae/ui` | Presentational + Storybook |
 | Storybook | `apps/cae-ui-storybook` | Catálogo visual de componentes React y Angular |
 | Host backend IA | `apps/cae-ia-backend` | Monolito modular NestJS |
-| MFE React (decisión cliente) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 — alcance acordado |
+| MFE React (Fase 1) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
 | MFE Angular (recom. técnica) | `apps/cae-assistant-mfe-angular` | Remote alternativo; stack preferido a medio plazo |
 
 #### 3.3.2 Estructura objetivo — libs IA CAE
@@ -522,6 +523,37 @@ flowchart TB
 | **2d — Consolidación** | Host Angular unificado; React desmantelado | Objetivo final plataforma |
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
+
+#### 3.4.5 Module Federation cross-framework (React ↔ Angular)
+
+Module Federation permite que una app **React** actúe como remote consumida por un host **Angular**, o al revés. **No implica integración automática**: host y remote deben configurarse explícitamente.
+
+| Capa | React (CAE v2 / MFE Fase 1) | Angular (evolución) |
+|------|----------------------------|---------------------|
+| **Bundler / MFE** | Webpack 5 MF o Vite + plugin federación | `@nx/module-federation` (Webpack) |
+| **Rol posible** | Host (Fase 1) o remote (hasta migración) | Remote (módulos nuevos) o host (consolidación) |
+| **Shared deps** | `react`, `react-dom` como singletons | `@angular/core`, `@angular/common`, etc. |
+| **Build legacy** | Webpack 4 / CRA → adaptación previa | Nx greenfield |
+
+**Requisitos de integración** (obligatorios desde el inicio):
+
+1. **Autenticación compartida** — JWT Entra ID propagado por el shell; sesión única.
+2. **Contrato de rutas** — Tabla ruta → remote versionada; convención de paths común.
+3. **Design system** — Tokens CSS / componentes base alineados entre equipos.
+4. **Comunicación entre MFE** — Eventos tipados o bus ligero; evitar estado global duplicado.
+5. **Aislamiento CSS** — Prefijos por MFE o estrategia acordada para evitar colisiones.
+6. **Versionado remotes** — Semver + remote entry; despliegue independiente por equipo.
+
+**Escenarios de build React en CAE v2:**
+
+| Escenario | Viabilidad MFE | Acción |
+|-----------|----------------|--------|
+| Webpack 5 | Alta | Configurar `ModuleFederationPlugin` en host y remotes |
+| Vite | Media-alta | Plugin `@originjs/vite-plugin-federation` o equivalente |
+| CRA sin eject | Baja-media | CRACO / migración a Webpack configurable |
+| Webpack 4 | Baja | Actualizar toolchain antes de federar |
+
+> Opciones de shell (React vs Angular) y modelo de dos equipos: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3 y §3.2.
 
 ### 3.5 Arquitectura frontend: componentes listos y tontos
 

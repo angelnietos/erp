@@ -19,6 +19,7 @@
 |------|-------|------------------------|
 | 1 | 03/07/2026 | Primera versión: estrategia Strangler Fig, evolución React→Angular, relación con capa IA |
 | 2 | 03/07/2026 | Tono orientado a documentación de entrega; eliminación de lenguaje interno |
+| 3 | 03/07/2026 | Modelo dos equipos/dos apps; Module Federation cross-framework; opciones de shell |
 
 ---
 
@@ -68,33 +69,39 @@ La **Plataforma CAE v2.0** está construida en **React**. Con el crecimiento fun
 
 **Incluir como mejora de la plataforma CAE** un modelo arquitectónico alineado con monorepo Nx, libs hexagonales y microfrontends:
 
-1. **Hoy:** el host CAE v2 **React** sigue operando; la capa IA se integra por slots (MFE).
-2. **Mañana:** **todo módulo nuevo** se desarrolla en **Angular** e integra en el shell React vía Module Federation.
-3. **Progresivamente:** los módulos React actuales se **reescriben en Angular** cuando el coste/beneficio lo justifique.
-4. **Objetivo final:** el shell React **desaparece**; CAE queda unificado en **Angular** (o host Angular con remotes Angular).
+1. **Fase actual:** el **equipo React** continúa evolucionando **CAE v2**; la capa IA se integra como MFE en slots del host existente.
+2. **En paralelo:** el **equipo Angular** desarrolla **módulos nuevos** como aplicación/MFE independiente, con arquitectura limpia desde cero.
+3. **Integración:** ambas aplicaciones se **exponen como remotes** y el usuario **navega entre ellas** como si fuera una sola plataforma (routing común, misma sesión).
+4. **Progresivamente:** cada módulo React se **sustituye por su equivalente Angular** cuando el coste/beneficio lo justifique — sin cambiar la URL ni interrumpir el servicio.
+5. **Objetivo final:** shell unificado en **Angular** (o host Angular con remotes Angular); React retirado módulo a módulo.
 
 ```mermaid
-flowchart LR
-    subgraph HOY["Hoy"]
-        REACT["CAE v2 React (actual)"]
+flowchart TB
+    USER["Usuario"]
+
+    subgraph SHELL["Shell CAE — routing común"]
+        ROUTER["Login · Layout · Navegación · Auth"]
     end
 
-    subgraph TRANS["Transición"]
-        REACT2["React ↓ reduciéndose"]
-        ANG["Angular ↑ creciendo"]
-        REACT2 <-->|Microfrontends| ANG
+    subgraph REACT["App React — Equipo A"]
+        R_MOD["CAE v2 + MFE IA Fase 1"]
     end
 
-    subgraph META["Objetivo"]
-        CAE["CAE Angular unificado"]
+    subgraph ANG["App Angular — Equipo B"]
+        A_MOD["Módulos nuevos + MFE IA evolución"]
     end
 
-    HOY --> TRANS --> META
+    USER --> SHELL
+    SHELL -->|"/expedientes, /operaciones…"| REACT
+    SHELL -->|"/reportes, /admin…"| ANG
+    REACT <-->|Module Federation| ANG
 
-    style REACT fill:#ffebee,stroke:#c62828
+    style SHELL fill:#fff9c4,stroke:#f9a825
+    style REACT fill:#e3f2fd,stroke:#1565c0
     style ANG fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
-    style CAE fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
 ```
+
+> **Importante:** no se trata de “inyectar React sin cambios” dentro de Angular (ni al revés). Cada aplicación requiere **configuración explícita de Module Federation** y cumplir un **contrato compartido** (auth, rutas, design system). La mayoría de aplicaciones React modernas pueden integrarse, pero **algunas necesitarán ajustes** en su sistema de build.
 
 ### 2.2 Principios de la estrategia
 
@@ -107,12 +114,98 @@ flowchart LR
 | EM-05 | **Libs first** | Dominio y backend en `libs/isomorphic` y `libs/node`; UI en `libs/angular/cae` y `libs/react/cae` |
 | EM-06 | **Medir para migrar** | Sustituir módulo React cuando ROI, riesgo y dependencias lo avalen |
 | EM-07 | **Transparencia** | Costes y plazos del período dual stack explicitados desde el inicio |
+| EM-08 | **Equipos autónomos** | React y Angular evolucionan con pipelines y releases independientes |
+| EM-09 | **Contrato antes que código** | Auth, rutas, eventos y design system acordados antes de integrar remotes |
+
+### 2.3 Modelo operativo: dos equipos, dos aplicaciones
+
+En la **fase inicial** del programa coexisten **dos aplicaciones frontend distintas**, cada una con su equipo:
+
+| | **Equipo A — React** | **Equipo B — Angular** |
+|---|---------------------|------------------------|
+| **Aplicación** | CAE v2 (existente) + MFE IA Fase 1 | Módulos nuevos + MFE IA evolución |
+| **Objetivo** | Continuidad operativa; finalizar/evolucionar CAE v2 | Greenfield con arquitectura estandarizada |
+| **Despliegue** | Independiente (`apps/cae-assistant-mfe`, host CAE v2) | Independiente (`apps/cae-assistant-mfe-angular`, futuros módulos) |
+| **Integración** | Expone/consuma remotes vía Module Federation | Expone/consuma remotes vía Module Federation |
+
+**Ejemplo de routing unificado** (el usuario no percibe el cambio de framework):
+
+| Ruta | Remote | Stack |
+|------|--------|-------|
+| `/dashboard`, `/expedientes` | CAE v2 + paneles IA | React |
+| `/operaciones` | Cola Operaciones + resumen IA | React (Fase 1) |
+| `/reportes`, `/administracion` | Módulos nuevos | Angular |
+| `/mlops` (opcional) | Dashboard MLOps | Angular |
+
+Cuando un módulo React se migre a Angular, **solo cambia el remote** que resuelve esa ruta; la URL y el shell permanecen iguales para el usuario.
 
 ---
 
 ## 3. Patrón Strangler Fig con microfrontends
 
 La estrategia sigue el patrón **Strangler Fig**: el sistema nuevo crece alrededor del existente hasta sustituirlo progresivamente.
+
+### 3.1 Integración técnica — Module Federation cross-framework
+
+**Module Federation** (Webpack 5 y plugins equivalentes en otras herramientas) permite exponer una aplicación React como microfrontend y consumirla desde Angular, o al revés. No obstante, **no es cierto que cualquier aplicación React pueda integrarse sin cambios**.
+
+| Escenario de build | Integración MFE | Notas |
+|--------------------|-----------------|-------|
+| **React + Webpack 5** | Más directa | Module Federation nativo; configuración en host y remote |
+| **React + Vite** | Posible | Requiere plugins de federación compatibles; configuración distinta a Webpack |
+| **Create React App (CRA)** | Posible con adaptación | Suele requerir eject, CRACO o migración de configuración |
+| **Webpack 4 o anterior** | Requiere actualización | Adaptación del build antes de habilitar federación |
+| **Angular (Nx)** | Soportado | `@nx/module-federation`; host o remote según fase |
+
+**Aspectos que deben resolverse en la integración** (independientemente del framework):
+
+| Tema | Enfoque CAE |
+|------|-------------|
+| **Dependencias compartidas** | `react`/`react-dom` (y equivalentes Angular) como *shared singletons* para evitar cargar varias copias |
+| **Autenticación** | JWT / Entra ID propagado desde el shell; sesión única |
+| **Estado global** | Evitar stores duplicados; eventos o APIs para comunicación entre remotes |
+| **Design system** | Tokens CSS / componentes compartidos para UX homogénea |
+| **Conflictos CSS** | Namespaces, shadow DOM o convenciones de prefijo por MFE |
+| **Versionado** | Semver por remote; contrato host ↔ remote documentado |
+
+### 3.2 Opciones de shell
+
+Existen **dos enfoques válidos** para el shell que orquesta los microfrontends:
+
+#### Opción A — React como shell (fase inicial CAE)
+
+Adecuada cuando **CAE v2 ya existe en React** y se quiere evitar un shell nuevo al arrancar.
+
+```
+React Shell (CAE v2)
+├── Expedientes      → React (equipo A)
+├── Operaciones      → React + MFE IA
+├── Reportes         → Angular remote (equipo B)
+└── Administración   → Angular remote (equipo B)
+```
+
+#### Opción B — Angular como shell (horizonte de consolidación)
+
+Adecuada cuando **Angular es el framework de futuro** y se quiere que todo lo nuevo nazca nativo en el host.
+
+```
+Angular Shell
+├── Inicio           → Angular
+├── Usuarios         → Angular
+├── Facturación      → React remote (hasta migración)
+├── Informes         → React remote (hasta migración)
+└── Configuración    → Angular
+```
+
+El shell gestiona: **login**, **layout** (menú, cabecera), **routing principal**, **comunicación entre MFE** y **librerías compartidas**. Al migrar un módulo, se sustituye el remote sin tocar el shell.
+
+| Fase CAE | Shell recomendado | Motivo |
+|----------|-------------------|--------|
+| **Fase 1 — IA integrada** | React (CAE v2 actual) | Continuidad; CAE v2 ya es el host operativo |
+| **Fase 2–3 — Convivencia dual** | React o shell mínimo compartido | Según madurez del equipo Angular |
+| **Fase 4 — Consolidación** | Angular unificado | Objetivo de estandarización |
+
+### 3.3 Fases de evolución Strangler Fig
 
 ```mermaid
 flowchart LR
@@ -154,6 +247,8 @@ flowchart LR
 | **Remote React (Fase 1 IA)** | Integración acordada de la capa IA en CAE v2 |
 | **Contrato de slot** | `expedienteId`, auth JWT, callbacks — idéntico para ambos stacks |
 | **Design system compartido** | Tokens visuales comunes para que la UX no “salte” entre frameworks |
+
+### 3.4 Arquitectura de slots en el host
 
 ```mermaid
 flowchart TB
@@ -215,7 +310,7 @@ Por estas razones, **muchas organizaciones grandes** siguen apostando por Angula
 | **Sin parada de negocio** | CAE sigue operando durante toda la transición |
 | **Riesgo acotado** | Cada módulo migrado es un entregable independiente |
 | **Valor temprano** | IA y mejoras visibles antes de reescribir todo |
-| **Equipos en paralelo** | Mantenimiento CAE v2 React y desarrollo Angular en módulos nuevos |
+| **Equipos en paralelo** | Equipo A mantiene CAE v2 React; equipo B desarrolla Angular sin bloquearse mutuamente |
 | **Aprendizaje progresivo** | Module Federation, contratos y design system se afianzan módulo a módulo |
 | **Mejora estructurada** | Plan de evolución de plataforma, no parches aislados |
 
@@ -357,6 +452,9 @@ React se considera **retirado** cuando:
 | ¿Implica parar la plataforma? | No. Migración incremental mediante microfrontends |
 | ¿Cuánto dura la convivencia dual? | Acotada por fases; se revisa trimestralmente en comité de arquitectura |
 | ¿Se puede mantener solo React? | Fase 1 sí; la evolución Angular es opcional y se activa por módulo según ROI |
+| ¿Se integra React en Angular sin cambios? | No siempre. Requiere Module Federation configurado y contrato compartido (auth, rutas, estilos) |
+| ¿Cómo trabajan los equipos? | Dos aplicaciones independientes (React y Angular) integradas por MFE; el usuario navega entre ambas de forma transparente |
+| ¿Qué pasa al migrar un módulo? | Se sustituye el remote (p. ej. `/clientes` pasa de React a Angular); la URL no cambia |
 
 ---
 
@@ -366,7 +464,7 @@ La Plataforma CAE evoluciona hacia un **ecosistema modular en Angular**, constru
 
 El proyecto de **Asistencia Inteligente** es el **primer hito** del programa: entrega valor inmediato (validación progresiva, MLOps, fitness) y establece el patrón arquitectónico (libs Nx, hexagonal, MFE, Storybook, pirámide de testing) para la modernización progresiva de CAE.
 
-> **Resumen:** *Fase 1 en React (integración acordada con CAE v2); evolución en Angular para módulos nuevos; microfrontends como puente; consolidación progresiva cuando cada módulo lo justifique.*
+> **Resumen:** *Dos equipos, dos aplicaciones (React + Angular) integradas por Module Federation; Fase 1 en React (CAE v2); módulos nuevos en Angular; navegación unificada; migración módulo a módulo sin big bang.*
 
 ---
 

@@ -26,6 +26,7 @@
 | 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
 | 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
 | 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
+| 10 | 03/07/2026 | Modelo dos equipos/apps; Module Federation cross-framework (§6.5.2) |
 
 ---
 
@@ -262,7 +263,7 @@ A nivel de implementación, la plataforma de asistencia IA se construirá como *
 | **Motivo** | Continuidad operativa; despliegue inmediato de la capa IA | Estandarización, mantenibilidad y testing en aplicaciones enterprise |
 | **Alcance** | MFE principal `apps/cae-assistant-mfe` en slots CAE v2 | MFE alternativo `cae-assistant-mfe-angular` y libs en paralelo |
 
-> La evolución de la plataforma CAE hacia una arquitectura modular se documenta en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): migración incremental (**Strangler Fig**) con módulos nuevos en **Angular** integrados en el host React vía microfrontends. La **Fase 1** utiliza **React**, alineada con el stack actual de CAE v2.
+> La evolución de la plataforma CAE hacia una arquitectura modular se documenta en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md): **dos equipos** (React y Angular) desarrollan **aplicaciones independientes** integradas por **Module Federation** con routing unificado; migración incremental (**Strangler Fig**) módulo a módulo. La **Fase 1** utiliza **React**, alineada con el stack actual de CAE v2.
 
 ```mermaid
 flowchart LR
@@ -440,6 +441,24 @@ CAE v2.0 **no implementa hoy** esta arquitectura modular para IA. El **host CAE 
 3. **Fase objetivo:** pantallas CAE nuevas o reescritas en Angular; reducción progresiva de módulos React.
 
 > El monorepo **contempla ambos stacks**. Detalle en **[Estrategia de migración frontend](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)**.
+
+#### 6.5.2 Modelo de dos equipos e integración cross-framework
+
+| Aspecto | Descripción |
+|---------|-------------|
+| **Organización** | Equipo A evoluciona CAE v2 (React); equipo B desarrolla módulos nuevos (Angular) |
+| **Aplicaciones** | Dos apps desplegables de forma independiente, unidas por routing común y Module Federation |
+| **Navegación** | El usuario transita entre rutas React y Angular sin percibir el cambio de framework |
+| **Integración técnica** | No es plug-and-play: requiere configuración MFE en host y remote, dependencias compartidas y contrato de auth/rutas/estilos |
+| **Migración futura** | Sustitución del remote por ruta (p. ej. `/clientes` React → Angular) sin cambiar URL ni interrumpir servicio |
+
+| Escenario build React | Implicación |
+|-----------------------|-------------|
+| Webpack 5 | Integración MFE más directa |
+| Vite | Posible con plugins de federación |
+| CRA / Webpack 4 | Requiere adaptación del sistema de build |
+
+> Detalle técnico de Module Federation, opciones de shell y requisitos de integración: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §3.1–3.2 y [`DISENO-TECNICO-v3.0.md`](DISENO-TECNICO-v3.0.md) §3.4.5.
 
 ```mermaid
 flowchart TB
