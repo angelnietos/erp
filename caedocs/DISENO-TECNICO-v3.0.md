@@ -35,7 +35,9 @@
 19. [Despliegue Azure](#19-despliegue-azure)
 20. [KPIs técnicos](#20-kpis-técnicos)
 21. [Estrategia de calidad y testing](#21-estrategia-de-calidad-y-testing)
-22. [Visión final](#22-visión-final)
+22. [Monorepo Nx y organización del repositorio](#22-monorepo-nx-y-organización-del-repositorio-base)
+23. [Riesgos explícitos y mitigaciones](#23-riesgos-explícitos-y-mitigaciones)
+24. [Visión final](#22-visión-final)
 
 ---
 
@@ -2012,6 +2014,94 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 | `*-backend` application layer | ≥ 80% | Excluir adaptadores cloud mockeados |
 | `react/cae/ui` | ≥ 70% + 100% stories | Calidad visual vía Storybook |
 | E2E | Flujos críticos §21.3 | No sustituye unitarios de dominio |
+
+---
+
+## 22. Monorepo Nx y organización del repositorio base
+
+### 22.1 Matriz de librerías y responsabilidades
+
+| Ruta objetivo | Tipo | Responsabilidad |
+|---------------|------|-----------------|
+| `libs/isomorphic/cae/core` | Dominio | Agregados, reglas CAE, eventos; agnóstico de framework |
+| `libs/isomorphic/cae/api` | Contratos | OpenAPI, DTOs compartidos front/back |
+| `libs/isomorphic/shared/model` | Modelo compartido | Value Objects (EntityId, Money, Status) |
+| `libs/node/cae/*-backend` | Backend | NestJS modules hexagonales por capacidad |
+| `libs/node/shared-infrastructure` | Infraestructura transversal | Prisma, guards, outbox, utilities transversales |
+| `libs/node/adapters/*` | Adaptadores | Integraciones externas (Verifactu, email, webhooks) |
+| `libs/react/cae/*` | UI React Fase 1 | MFE asistencia integrado en CAE v2 |
+| `libs/angular/cae/*` | UI Angular evolución | Stack propuesto, módulos nativos |
+| `libs/browser/shared/ui-kit` | UI Components | Componentes tontos, presentacionales |
+| `libs/browser/shared/data-access` | Data Access | Servicios HTTP, interceptores, plugin store |
+| `libs/browser/feature/*` | Features UI | Smart components (contenedores) |
+| `libs/browser/shell/*` | Shell | Rutas, lazy loading, guards de plugin |
+
+### 22.2 Reglas de dependencias estrictas (Nx + ESLint module boundaries)
+
+| Origen | Permitido depender de | Justificación / Nota |
+|--------|---------------------|---------------------|
+| `isomorphic/core` | Ninguno | Dominio puro, sin dependencias externas |
+| `isomorphic/api` | `isomorphic/core` | Solo DTOs y contratos del dominio |
+| `node/backend/<dominio>` | `isomorphic/core`, `isomorphic/api`, `shared-infrastructure` | Sólo lógica de aplicación y adaptadores |
+| `node/shared-infrastructure` | `isomorphic/core`, `isomorphic/api` | Utilities, guards, Prisma, outbox reutilizable |
+| `browser/shared/ui-kit` | Ninguno | UI pura, sin lógica de negocio ni servicios |
+| `browser/data-access` | `isomorphic/api`, `browser/shared/ui-kit` | Servicios HTTP, stores, multitenancy; no depende de backend directo |
+| `browser/feature/<dominio>` | `data-access`, `shared/ui-kit` | Componentes listos, orquestan UI |
+| `libs/plugins/*` | `browser/feature`, `isomorphic/core`, `isomorphic/api` | Activar/desactivar módulos sin romper dominios |
+
+Regla de dependencias: **las capas superiores (UI/feature) pueden depender de capas inferiores (core/api), nunca al revés.**
+
+### 22.3 BaseRepository Pattern (obligatorio para todos los dominios)
+
+Propósito: garantizar consistencia en todos los repositorios de dominio y aplicar filtrado por `tenantId` automáticamente (seguridad por defecto).
+
+Estrategia de implementación:
+- Carpeta `repositories/` dentro de `libs/node/cae/<dominio>-backend`.
+- Extender siempre de `BaseRepository`.
+- Implementar métodos obligatorios + específicos del dominio.
+- Inyectar repositorio en Services vía puertos.
+- Mantener `tenantId` como parámetro obligatorio (aunque fijo actualmente).
+
+Beneficios:
+- Consistencia total entre dominios.
+- Seguridad por defecto contra fugas de datos.
+- Fácil activación de multi-tenant.
+- Testabilidad alta (mocks del puerto o base repository).
+
+### 22.4 Unit of Work (UoW) y transaccionalidad
+
+Propósito: coordinar la escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza que la lógica de negocio y la persistencia del evento en outbox ocurran en la misma transacción.
+
+Implementación con Prisma:
+- `UnitOfWorkPort` en core (interfaz).
+- `PrismaUnitOfWork` en infrastructure (implementa $transaction).
+- El Service de aplicación orquesta: recibe UoW → ejecuta `runInTransaction` → pasa `tx` a repositorios → rollback automático si falla.
+
+### 22.5 Base Controller Pattern
+
+Propósito: normalizar la entrada HTTP y reducir boilerplate.
+
+Funciones:
+- Extracción automática de `tenantId` y `userId` del request (inyectados por Guards).
+- Gestión de respuestas uniforme (éxito/error).
+- Seguridad por construcción: centraliza el filtrado del tenant.
+
+Ubicación: `libs/node/shared-infrastructure/api/base.controller.ts`
+
+---
+
+## 23. Riesgos explícitos y mitigaciones
+
+| ID | Riesgo | Impacto | Señal de alerta | Mitigación |
+|----|--------|---------|-----------------|------------|
+| R1 | Olvido de filtro `tenant_id` | Crítico (datos) | Code review, tests sin aislamiento | BaseRepository + reviews + tests de aislamiento |
+| R2 | Tenant no validado en BD | Alto (suplantación) | Cabecera presente pero UUID inexistente | Fortalecer TenantGuard y validación en BD |
+| R3 | Duplicación de eventos (outbox) | Alto (pagos/email duplicados) | Reintentos sin idempotencia | Idempotencia + claves únicas en DB |
+| R4 | Contención / locks en agregados calientes | Medio (timeouts) | Timeouts en picos | Transacciones cortas + colas para procesos pesados |
+| R5 | Violación de fronteras de capas | Medio | Imports incorrectos en PR | ESLint module boundaries + tags Nx estrictos |
+| R6 | Observabilidad insuficiente | Alto | "No sabemos qué pasó" en incidentes | Logs estructurados + métricas + trazas obligatorias |
+| R7 | Extracción prematura a microservicio | Alto | Latencia y bugs distribuidos | Reglas claras de Strangler; no antes de 6 meses |
+| R8 | Plugins sin paridad front/back | Medio | 403 inesperados o UX rota | Contratos compartidos + guards |
 
 ---
 

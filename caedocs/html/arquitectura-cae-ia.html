@@ -56,6 +56,7 @@
 <li><a href="#6-mapa-fase-funcional-componente-tecnico" class="toc-link" data-section="6-mapa-fase-funcional-componente-tecnico">6. Mapa fase funcional ↔ componente técnico</a></li>
 <li><a href="#7-mapa-objetivo-monorepo-nx" class="toc-link" data-section="7-mapa-objetivo-monorepo-nx">7. Mapa objetivo monorepo Nx</a></li>
 <li><a href="#8-calidad-piramide-de-testing-y-frontend-reusable" class="toc-link" data-section="8-calidad-piramide-de-testing-y-frontend-reusable">8. Calidad: pirámide de testing y frontend reusable</a></li>
+<li><a href="#monorepo-nx-y-patrones-operativos" class="toc-link" data-section="monorepo-nx-y-patrones-operativos">Monorepo Nx y patrones operativos</a></li>
 <li><a href="#exportar-diagramas" class="toc-link" data-section="exportar-diagramas">Exportar diagramas</a></li></ul>
         </div>
       </aside>
@@ -1090,6 +1091,119 @@ flowchart LR
 <td>Opcional (E2E)</td>
 </tr>
 </tbody></table></div>
+<hr>
+<h2 id="monorepo-nx-y-patrones-operativos" class="section-title">Monorepo Nx y patrones operativos</h2>
+<h3 id="matriz-de-librerias-y-responsabilidades" class="subsection-title">Matriz de librerías y responsabilidades</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Ruta objetivo</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dominio DDD</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Agregados, reglas CAE, eventos; agnóstico de framework</td>
+</tr>
+<tr>
+<td>Contratos</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs compartidos front/back</td>
+</tr>
+<tr>
+<td>Backend IA</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules hexagonales por capacidad</td>
+</tr>
+<tr>
+<td>UI React (Fase 1)</td>
+<td><code>libs/react/cae/*</code></td>
+<td>MFE integrado en host CAE v2 actual</td>
+</tr>
+<tr>
+<td>UI Angular (evolución)</td>
+<td><code>libs/angular/cae/*</code></td>
+<td>Stack propuesto; modernización progresiva de CAE</td>
+</tr>
+<tr>
+<td>Host backend</td>
+<td><code>apps/cae-ia-backend</code></td>
+<td>Monolito modular IA (Modo A)</td>
+</tr>
+<tr>
+<td>MFE React (Fase 1)</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote embebido en shell CAE v2</td>
+</tr>
+<tr>
+<td>MFE Angular (evolución)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote alternativo; roadmap de modernización</td>
+</tr>
+</tbody></table></div>
+<h3 id="reglas-de-dependencias-estrictas-nx-eslint-module-boundaries" class="subsection-title">Reglas de dependencias estrictas (Nx + ESLint module boundaries)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Origen</th>
+<th>Permitido depender de</th>
+<th>Justificación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/core</code></td>
+<td>Ninguno</td>
+<td>Dominio puro, sin dependencias externas</td>
+</tr>
+<tr>
+<td><code>isomorphic/api</code></td>
+<td><code>isomorphic/core</code></td>
+<td>Solo DTOs y contratos del dominio</td>
+</tr>
+<tr>
+<td><code>node/backend/&lt;dominio&gt;</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code>, <code>shared-infrastructure</code></td>
+<td>Sólo lógica de aplicación y adaptadores</td>
+</tr>
+<tr>
+<td><code>node/shared-infrastructure</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Utilities, guards, Prisma, outbox; reutilizable</td>
+</tr>
+<tr>
+<td><code>browser/shared/ui-kit</code></td>
+<td>Ninguno</td>
+<td>UI pura, sin lógica de negocio ni servicios</td>
+</tr>
+<tr>
+<td><code>browser/data-access</code></td>
+<td><code>isomorphic/api</code>, <code>shared/ui-kit</code></td>
+<td>Servicios HTTP, stores, multitenancy; no depende de backend directo</td>
+</tr>
+<tr>
+<td><code>browser/feature/&lt;dominio&gt;</code></td>
+<td><code>data-access</code>, <code>shared/ui-kit</code></td>
+<td>Smart components, orquestan UI</td>
+</tr>
+<tr>
+<td><code>libs/plugins/*</code></td>
+<td><code>browser/feature</code>, <code>isomorphic/core</code>, <code>api</code></td>
+<td>Permite activar/desactivar módulos sin romper dominios</td>
+</tr>
+</tbody></table></div>
+<h3 id="baserepository-pattern-obligatorio" class="subsection-title">BaseRepository Pattern (obligatorio)</h3>
+<p>Patrón para garantizar consistencia y seguridad multi-tenant:</p>
+<ul>
+<li>Garantiza consistencia en operaciones CRUD.</li>
+<li>Aplica filtrado automático por <code>tenantId</code> (seguridad por defecto).</li>
+<li>Facilita la transición futura a multi-tenant.</li>
+<li>Mejora testabilidad (mocks del puerto o base repository).</li>
+</ul>
+<h3 id="unit-of-work-uow-y-transaccionalidad" class="subsection-title">Unit of Work (UoW) y transaccionalidad</h3>
+<p>Propósito: coordinar escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza atomicidad entre persistencia y eventos Outbox.</p>
+<p>Implementación: <code>PrismaUnitOfWork</code> en infrastructure con <code>$transaction</code>; el Service orquesta la transacción y pasa el contexto a repositorios.</p>
 <hr>
 <h2 id="exportar-diagramas" class="section-title">Exportar diagramas</h2>
 <ol>

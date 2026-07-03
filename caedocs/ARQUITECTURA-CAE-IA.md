@@ -672,6 +672,50 @@ flowchart LR
 
 ---
 
+## Monorepo Nx y patrones operativos
+
+### Matriz de librerías y responsabilidades
+
+| Capa | Ruta objetivo | Rol |
+|------|---------------|-----|
+| Dominio DDD | `libs/isomorphic/cae/core` | Agregados, reglas CAE, eventos; agnóstico de framework |
+| Contratos | `libs/isomorphic/cae/api` | OpenAPI, DTOs compartidos front/back |
+| Backend IA | `libs/node/cae/*-backend` | NestJS modules hexagonales por capacidad |
+| UI React (Fase 1) | `libs/react/cae/*` | MFE integrado en host CAE v2 actual |
+| UI Angular (evolución) | `libs/angular/cae/*` | Stack propuesto; modernización progresiva de CAE |
+| Host backend | `apps/cae-ia-backend` | Monolito modular IA (Modo A) |
+| MFE React (Fase 1) | `apps/cae-assistant-mfe` | Remote embebido en shell CAE v2 |
+| MFE Angular (evolución) | `apps/cae-assistant-mfe-angular` | Remote alternativo; roadmap de modernización |
+
+### Reglas de dependencias estrictas (Nx + ESLint module boundaries)
+
+| Origen | Permitido depender de | Justificación |
+|--------|---------------------|-------------|
+| `isomorphic/core` | Ninguno | Dominio puro, sin dependencias externas |
+| `isomorphic/api` | `isomorphic/core` | Solo DTOs y contratos del dominio |
+| `node/backend/<dominio>` | `isomorphic/core`, `isomorphic/api`, `shared-infrastructure` | Sólo lógica de aplicación y adaptadores |
+| `node/shared-infrastructure` | `isomorphic/core`, `isomorphic/api` | Utilities, guards, Prisma, outbox; reutilizable |
+| `browser/shared/ui-kit` | Ninguno | UI pura, sin lógica de negocio ni servicios |
+| `browser/data-access` | `isomorphic/api`, `shared/ui-kit` | Servicios HTTP, stores, multitenancy; no depende de backend directo |
+| `browser/feature/<dominio>` | `data-access`, `shared/ui-kit` | Smart components, orquestan UI |
+| `libs/plugins/*` | `browser/feature`, `isomorphic/core`, `api` | Permite activar/desactivar módulos sin romper dominios |
+
+### BaseRepository Pattern (obligatorio)
+
+Patrón para garantizar consistencia y seguridad multi-tenant:
+- Garantiza consistencia en operaciones CRUD.
+- Aplica filtrado automático por `tenantId` (seguridad por defecto).
+- Facilita la transición futura a multi-tenant.
+- Mejora testabilidad (mocks del puerto o base repository).
+
+### Unit of Work (UoW) y transaccionalidad
+
+Propósito: coordinar escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza atomicidad entre persistencia y eventos Outbox.
+
+Implementación: `PrismaUnitOfWork` en infrastructure con `$transaction`; el Service orquesta la transacción y pasa el contexto a repositorios.
+
+---
+
 ## Exportar diagramas
 
 1. Abrir [mermaid.live](https://mermaid.live)

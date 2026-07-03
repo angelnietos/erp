@@ -67,6 +67,8 @@
 <li><a href="#19-despliegue-azure" class="toc-link" data-section="19-despliegue-azure">19. Despliegue Azure</a></li>
 <li><a href="#20-kpis-tecnicos" class="toc-link" data-section="20-kpis-tecnicos">20. KPIs técnicos</a></li>
 <li><a href="#21-estrategia-de-calidad-y-testing" class="toc-link" data-section="21-estrategia-de-calidad-y-testing">21. Estrategia de calidad y testing</a></li>
+<li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base" class="toc-link" data-section="22-monorepo-nx-y-organizacion-del-repositorio-base">22. Monorepo Nx y organización del repositorio base</a></li>
+<li><a href="#23-riesgos-explicitos-y-mitigaciones" class="toc-link" data-section="23-riesgos-explicitos-y-mitigaciones">23. Riesgos explícitos y mitigaciones</a></li>
 <li><a href="#22-vision-final" class="toc-link" data-section="22-vision-final">22. Visión final</a></li></ul>
         </div>
       </aside>
@@ -126,6 +128,8 @@
 <li><a href="#19-despliegue-azure">Despliegue Azure</a></li>
 <li><a href="#20-kpis-tecnicos">KPIs técnicos</a></li>
 <li><a href="#21-estrategia-de-calidad-y-testing">Estrategia de calidad y testing</a></li>
+<li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base">Monorepo Nx y organización del repositorio</a></li>
+<li><a href="#23-riesgos-explicitos-y-mitigaciones">Riesgos explícitos y mitigaciones</a></li>
 <li><a href="#22-vision-final">Visión final</a></li>
 </ol>
 <hr>
@@ -3992,6 +3996,232 @@ regresión en CI"]
 <td>E2E</td>
 <td>Flujos críticos §21.3</td>
 <td>No sustituye unitarios de dominio</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="22-monorepo-nx-y-organizacion-del-repositorio-base" class="section-title">22. Monorepo Nx y organización del repositorio base</h2>
+<h3 id="221-matriz-de-librerias-y-responsabilidades" class="subsection-title">22.1 Matriz de librerías y responsabilidades</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ruta objetivo</th>
+<th>Tipo</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Dominio</td>
+<td>Agregados, reglas CAE, eventos; agnóstico de framework</td>
+</tr>
+<tr>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>Contratos</td>
+<td>OpenAPI, DTOs compartidos front/back</td>
+</tr>
+<tr>
+<td><code>libs/isomorphic/shared/model</code></td>
+<td>Modelo compartido</td>
+<td>Value Objects (EntityId, Money, Status)</td>
+</tr>
+<tr>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>Backend</td>
+<td>NestJS modules hexagonales por capacidad</td>
+</tr>
+<tr>
+<td><code>libs/node/shared-infrastructure</code></td>
+<td>Infraestructura transversal</td>
+<td>Prisma, guards, outbox, utilities transversales</td>
+</tr>
+<tr>
+<td><code>libs/node/adapters/*</code></td>
+<td>Adaptadores</td>
+<td>Integraciones externas (Verifactu, email, webhooks)</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/*</code></td>
+<td>UI React Fase 1</td>
+<td>MFE asistencia integrado en CAE v2</td>
+</tr>
+<tr>
+<td><code>libs/angular/cae/*</code></td>
+<td>UI Angular evolución</td>
+<td>Stack propuesto, módulos nativos</td>
+</tr>
+<tr>
+<td><code>libs/browser/shared/ui-kit</code></td>
+<td>UI Components</td>
+<td>Componentes tontos, presentacionales</td>
+</tr>
+<tr>
+<td><code>libs/browser/shared/data-access</code></td>
+<td>Data Access</td>
+<td>Servicios HTTP, interceptores, plugin store</td>
+</tr>
+<tr>
+<td><code>libs/browser/feature/*</code></td>
+<td>Features UI</td>
+<td>Smart components (contenedores)</td>
+</tr>
+<tr>
+<td><code>libs/browser/shell/*</code></td>
+<td>Shell</td>
+<td>Rutas, lazy loading, guards de plugin</td>
+</tr>
+</tbody></table></div>
+<h3 id="222-reglas-de-dependencias-estrictas-nx-eslint-module-boundaries" class="subsection-title">22.2 Reglas de dependencias estrictas (Nx + ESLint module boundaries)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Origen</th>
+<th>Permitido depender de</th>
+<th>Justificación / Nota</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/core</code></td>
+<td>Ninguno</td>
+<td>Dominio puro, sin dependencias externas</td>
+</tr>
+<tr>
+<td><code>isomorphic/api</code></td>
+<td><code>isomorphic/core</code></td>
+<td>Solo DTOs y contratos del dominio</td>
+</tr>
+<tr>
+<td><code>node/backend/&lt;dominio&gt;</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code>, <code>shared-infrastructure</code></td>
+<td>Sólo lógica de aplicación y adaptadores</td>
+</tr>
+<tr>
+<td><code>node/shared-infrastructure</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Utilities, guards, Prisma, outbox reutilizable</td>
+</tr>
+<tr>
+<td><code>browser/shared/ui-kit</code></td>
+<td>Ninguno</td>
+<td>UI pura, sin lógica de negocio ni servicios</td>
+</tr>
+<tr>
+<td><code>browser/data-access</code></td>
+<td><code>isomorphic/api</code>, <code>browser/shared/ui-kit</code></td>
+<td>Servicios HTTP, stores, multitenancy; no depende de backend directo</td>
+</tr>
+<tr>
+<td><code>browser/feature/&lt;dominio&gt;</code></td>
+<td><code>data-access</code>, <code>shared/ui-kit</code></td>
+<td>Componentes listos, orquestan UI</td>
+</tr>
+<tr>
+<td><code>libs/plugins/*</code></td>
+<td><code>browser/feature</code>, <code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Activar/desactivar módulos sin romper dominios</td>
+</tr>
+</tbody></table></div>
+<p>Regla de dependencias: <strong>las capas superiores (UI/feature) pueden depender de capas inferiores (core/api), nunca al revés.</strong></p>
+<h3 id="223-baserepository-pattern-obligatorio-para-todos-los-dominios" class="subsection-title">22.3 BaseRepository Pattern (obligatorio para todos los dominios)</h3>
+<p>Propósito: garantizar consistencia en todos los repositorios de dominio y aplicar filtrado por <code>tenantId</code> automáticamente (seguridad por defecto).</p>
+<p>Estrategia de implementación:</p>
+<ul>
+<li>Carpeta <code>repositories/</code> dentro de <code>libs/node/cae/&lt;dominio&gt;-backend</code>.</li>
+<li>Extender siempre de <code>BaseRepository</code>.</li>
+<li>Implementar métodos obligatorios + específicos del dominio.</li>
+<li>Inyectar repositorio en Services vía puertos.</li>
+<li>Mantener <code>tenantId</code> como parámetro obligatorio (aunque fijo actualmente).</li>
+</ul>
+<p>Beneficios:</p>
+<ul>
+<li>Consistencia total entre dominios.</li>
+<li>Seguridad por defecto contra fugas de datos.</li>
+<li>Fácil activación de multi-tenant.</li>
+<li>Testabilidad alta (mocks del puerto o base repository).</li>
+</ul>
+<h3 id="224-unit-of-work-uow-y-transaccionalidad" class="subsection-title">22.4 Unit of Work (UoW) y transaccionalidad</h3>
+<p>Propósito: coordinar la escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza que la lógica de negocio y la persistencia del evento en outbox ocurran en la misma transacción.</p>
+<p>Implementación con Prisma:</p>
+<ul>
+<li><code>UnitOfWorkPort</code> en core (interfaz).</li>
+<li><code>PrismaUnitOfWork</code> en infrastructure (implementa $transaction).</li>
+<li>El Service de aplicación orquesta: recibe UoW → ejecuta <code>runInTransaction</code> → pasa <code>tx</code> a repositorios → rollback automático si falla.</li>
+</ul>
+<h3 id="225-base-controller-pattern" class="subsection-title">22.5 Base Controller Pattern</h3>
+<p>Propósito: normalizar la entrada HTTP y reducir boilerplate.</p>
+<p>Funciones:</p>
+<ul>
+<li>Extracción automática de <code>tenantId</code> y <code>userId</code> del request (inyectados por Guards).</li>
+<li>Gestión de respuestas uniforme (éxito/error).</li>
+<li>Seguridad por construcción: centraliza el filtrado del tenant.</li>
+</ul>
+<p>Ubicación: <code>libs/node/shared-infrastructure/api/base.controller.ts</code></p>
+<hr>
+<h2 id="23-riesgos-explicitos-y-mitigaciones" class="section-title">23. Riesgos explícitos y mitigaciones</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Riesgo</th>
+<th>Impacto</th>
+<th>Señal de alerta</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1</td>
+<td>Olvido de filtro <code>tenant_id</code></td>
+<td>Crítico (datos)</td>
+<td>Code review, tests sin aislamiento</td>
+<td>BaseRepository + reviews + tests de aislamiento</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Tenant no validado en BD</td>
+<td>Alto (suplantación)</td>
+<td>Cabecera presente pero UUID inexistente</td>
+<td>Fortalecer TenantGuard y validación en BD</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Duplicación de eventos (outbox)</td>
+<td>Alto (pagos/email duplicados)</td>
+<td>Reintentos sin idempotencia</td>
+<td>Idempotencia + claves únicas en DB</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Contención / locks en agregados calientes</td>
+<td>Medio (timeouts)</td>
+<td>Timeouts en picos</td>
+<td>Transacciones cortas + colas para procesos pesados</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Violación de fronteras de capas</td>
+<td>Medio</td>
+<td>Imports incorrectos en PR</td>
+<td>ESLint module boundaries + tags Nx estrictos</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Observabilidad insuficiente</td>
+<td>Alto</td>
+<td>&quot;No sabemos qué pasó&quot; en incidentes</td>
+<td>Logs estructurados + métricas + trazas obligatorias</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>Extracción prematura a microservicio</td>
+<td>Alto</td>
+<td>Latencia y bugs distribuidos</td>
+<td>Reglas claras de Strangler; no antes de 6 meses</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Plugins sin paridad front/back</td>
+<td>Medio</td>
+<td>403 inesperados o UX rota</td>
+<td>Contratos compartidos + guards</td>
 </tr>
 </tbody></table></div>
 <hr>
