@@ -648,7 +648,7 @@ journey
 <td>MFE alternativo <code>cae-assistant-mfe-angular</code> y libs en paralelo</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p>La evolución de la plataforma se documenta en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: <strong>CAE React actual</strong> se termina sin interrupción; la <strong>App IA</strong> se integra en React vía MFE; <strong>CAE Angular nueva</strong> la sustituye progresivamente. Los microfrontends son <strong>solución temporal</strong> de transición; el objetivo final es <strong>todo Angular, sin MFE</strong>.</p></blockquote>
+<blockquote class="callout"><p>La evolución de la plataforma se documenta en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>: <strong>CAE React</strong> opera como host transitorio; la <strong>App IA</strong> se integra en React vía MFE (meses 1–2); <strong>CAE Angular nueva</strong> la sustituye progresivamente (<strong>objetivo mes 6</strong>). Los microfrontends son <strong>solución temporal</strong> de transición; el objetivo final es <strong>todo Angular, sin MFE, en 6 meses</strong>.</p></blockquote>
 <div class="mermaid">
 flowchart LR
     subgraph P1["① FRONTEND"]
@@ -1022,17 +1022,17 @@ flowchart LR
 </tr>
 <tr>
 <td>Horizonte</td>
-<td>Entrega Fase 1</td>
-<td>Modernización progresiva (ver doc. estrategia)</td>
+<td>Meses 1–2 (MFE React en producción)</td>
+<td>Meses 2–6 (migración progresiva; <strong>100 % Angular en mes 6</strong>)</td>
 </tr>
 </tbody></table></div>
-<p><strong>Roadmap de evolución:</strong></p>
+<p><strong>Roadmap de evolución (6 meses):</strong></p>
 <ol>
-<li><strong>Fase 1:</strong> capa IA integrada en React (MFE) sobre CAE v2.</li>
-<li><strong>Fase intermedia:</strong> mismo backend IA; UI Angular en paralelo con arquitectura estandarizada (Storybook, tests).</li>
-<li><strong>Fase objetivo:</strong> pantallas CAE nuevas o reescritas en Angular; reducción progresiva de módulos React.</li>
+<li><strong>Meses 1–2:</strong> capa IA integrada en React (MFE) sobre CAE v2 — App IA en producción.</li>
+<li><strong>Meses 2–4:</strong> mismo backend IA; CAE Angular crece en paralelo; UI Angular con arquitectura estandarizada.</li>
+<li><strong>Meses 4–6:</strong> sustitución de módulos React; IA como features nativas Angular; <strong>mes 6 = plataforma Angular única, sin MFE</strong>.</li>
 </ol>
-<blockquote class="callout"><p>El monorepo <strong>contempla ambos stacks</strong>. Detalle en <strong><a href="estrategia-migracion-frontend-cae.html">Estrategia de migración frontend</a></strong>.</p></blockquote>
+<blockquote class="callout"><p>El monorepo <strong>contempla ambos stacks</strong>. Horizonte del programa: <strong>6 meses</strong>. Detalle en <strong><a href="estrategia-migracion-frontend-cae.html">Estrategia de migración frontend</a></strong> §8.</p></blockquote>
 <h4>6.5.2 Tres aplicaciones en paralelo</h4>
 <div class="table-wrap"><table>
 <thead>
@@ -1071,7 +1071,11 @@ flowchart LR
 </tr>
 <tr>
 <td><strong>Objetivo final</strong></td>
-<td>Una sola aplicación Angular; IA como módulos nativos; <strong>sin Module Federation</strong></td>
+<td>Una sola aplicación Angular al <strong>mes 6</strong>; IA como módulos nativos; <strong>sin Module Federation</strong></td>
+</tr>
+<tr>
+<td><strong>Plazo del programa</strong></td>
+<td><strong>6 meses</strong> — App IA completa + CAE Angular completa + migración finalizada</td>
 </tr>
 <tr>
 <td><strong>Migración</strong></td>
@@ -3163,7 +3167,7 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
 <li>Detectar incidencias <strong>antes</strong> de la revisión por Operaciones.</li>
 <li>Asistir al equipo de Operaciones mediante resúmenes, alertas y recomendaciones.</li>
 <li><strong>Aprender y mejorar</strong> mediante feedback, cálculo de fitness y ciclo MLOps gobernado.</li>
-<li><strong>Integrarse en CAE v2 (React)</strong> como libs Nx y microfrontend embebido en <strong>Fase 1</strong>, con <strong>evolución Angular</strong> documentada para modernización progresiva de la plataforma.</li>
+<li><strong>Integrarse en CAE v2 (React)</strong> como libs Nx y microfrontend embebido (meses 1–2), con <strong>migración a Angular completa al mes 6</strong>.</li>
 <li>Reducir la carga operativa y mejorar la calidad de los expedientes tramitados.</li>
 </ul>
 <blockquote class="callout"><p>Plataforma de <strong>asistencia inteligente para expedientes CAE</strong>: validación progresiva, reglas de negocio, razonamiento contextual, <strong>libs reutilizables en monorepo Nx</strong> y <strong>evolución continua medida por fitness</strong>.</p></blockquote>

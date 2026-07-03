@@ -422,7 +422,7 @@ CAE v2.0 permanece **host del expediente** (formulario, ciclo de vida, Operacion
 | **Alcance en el proyecto** | MFE de producción Fase 1 | MFE equivalente; referencia arquitectónica de evolución |
 | **Ventaja principal** | Continuidad con el host actual | Estructura modular, mantenibilidad y testing integrado |
 | **Consideración** | Alineado con stack CAE v2 existente | Integración Module Federation cross-framework |
-| **Horizonte** | Entrega Fase 1 | Modernización progresiva de la plataforma |
+| **Horizonte** | Meses 1–2 (MFE en producción) | Meses 2–6 (**100 % Angular en mes 6**) |
 
 #### 3.4.1 Stack UI: React (Fase 1) vs Angular (evolución)
 
@@ -524,7 +524,7 @@ flowchart TB
 | **3 — Pipeline completo** | Todas las libs backend + MFE operaciones | Modo A o B |
 | **4 — Escala** | Extracción servicios Modo C según métricas | AKS multi-pod |
 
-> **Nota de correspondencia:** estas son las **fases de entrega técnica de la capa IA** (libs, pipeline, escala), independientes de las **fases de migración de la plataforma** (0–4, con horizontes 0–36+ meses) definidas en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ Fase 1 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ Fases 2–3 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ Fase 4 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) son ortogonales y aplican en cualquier fase de migración de plataforma.
+> **Nota de correspondencia:** estas son las **fases de entrega técnica de la capa IA** (libs, pipeline, escala), alineadas con las **fases de migración de la plataforma** (0–4, **horizonte total 6 meses**) definidas en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ meses 1–2 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ meses 2–5 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ mes 6 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) se ejecutan en paralelo durante todo el programa.
 
 #### 3.4.5 Module Federation — integración temporal (React ↔ Angular)
 
@@ -2033,7 +2033,7 @@ Herramientas recomendadas: **k6** (scripts versionados en repo), **Azure Load Te
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 
-La implementación se basa en **libs Nx independientes** (hexagonal + DDD). **Fase 1:** App IA (`cae-assistant-mfe` React) integrada en CAE v2. **Transición:** MFE temporal entre CAE React y CAE Angular nueva. **Objetivo:** plataforma Angular única, IA nativa, sin Module Federation — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md).
+La implementación se basa en **libs Nx independientes** (hexagonal + DDD). **Meses 1–2:** App IA (`cae-assistant-mfe` React) integrada en CAE v2. **Meses 2–5:** MFE temporal entre CAE React y CAE Angular nueva. **Mes 6:** plataforma Angular única, IA nativa, sin Module Federation — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8.
 
 La **pirámide de testing** (unitarios → integración → Storybook → E2E → carga/estrés) y el **golden set con fitness** garantizan calidad continua sin sacrificar velocidad de entrega.
 

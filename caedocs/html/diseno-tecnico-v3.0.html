@@ -866,8 +866,8 @@ apps/cae-mlops-service/</code></pre>
 </tr>
 <tr>
 <td><strong>Horizonte</strong></td>
-<td>Entrega Fase 1</td>
-<td>Modernización progresiva de la plataforma</td>
+<td>Meses 1–2 (MFE en producción)</td>
+<td>Meses 2–6 (<strong>100 % Angular en mes 6</strong>)</td>
 </tr>
 </tbody></table></div>
 <h4>3.4.1 Stack UI: React (Fase 1) vs Angular (evolución)</h4>
@@ -1070,7 +1070,7 @@ flowchart TB
 <td>AKS multi-pod</td>
 </tr>
 </tbody></table></div>
-<blockquote class="callout"><p><strong>Nota de correspondencia:</strong> estas son las <strong>fases de entrega técnica de la capa IA</strong> (libs, pipeline, escala), independientes de las <strong>fases de migración de la plataforma</strong> (0–4, con horizontes 0–36+ meses) definidas en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ Fase 1 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ Fases 2–3 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ Fase 4 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) son ortogonales y aplican en cualquier fase de migración de plataforma.</p></blockquote>
+<blockquote class="callout"><p><strong>Nota de correspondencia:</strong> estas son las <strong>fases de entrega técnica de la capa IA</strong> (libs, pipeline, escala), alineadas con las <strong>fases de migración de la plataforma</strong> (0–4, <strong>horizonte total 6 meses</strong>) definidas en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ meses 1–2 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ meses 2–5 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ mes 6 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) se ejecutan en paralelo durante todo el programa.</p></blockquote>
 <h4>3.4.5 Module Federation — integración temporal (React ↔ Angular)</h4>
 <p>Module Federation conecta <strong>CAE React</strong>, la <strong>App IA</strong> y <strong>CAE Angular</strong> mientras conviven. <strong>No es la arquitectura objetivo</strong>: al consolidar CAE Angular única, los remotes desaparecen y la IA pasa a <code>libs/angular/cae/feature-*</code>.</p>
 <div class="table-wrap"><table>
@@ -4052,7 +4052,7 @@ regresión en CI"]
 <hr>
 <h2 id="22-vision-final" class="section-title">22. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
-<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Fase 1:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Transición:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Objetivo:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a>.</p>
+<p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Meses 1–2:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Meses 2–5:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Mes 6:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
 <p>La validación progresiva mediante <strong>Validation Engine</strong> determinista — complementada, no sustituida, por razonamiento generativo — garantiza que el sistema refleje el conocimiento funcional del proceso CAE y reduzca la intervención manual del equipo de Operaciones.</p>
 <p>El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua: las correcciones humanas se convierten en datasets etiquetados, evaluaciones objetivas y decisiones de promoción o rollback basadas en <strong>fitness medible</strong>, no en despliegues ciegos de modelos.</p>

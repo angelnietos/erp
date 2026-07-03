@@ -47,7 +47,7 @@ La capa de asistencia inteligente se implementará con:
 | **UI Angular (evolución)** | Stack propuesto para módulos nuevos; MFE `apps/cae-assistant-mfe-angular` |
 | **Componentes tontos + Storybook** | `libs/*/cae/ui` + `apps/cae-ui-storybook` |
 | **Pirámide de testing** | Unit → integración → Storybook → E2E → carga/estrés + golden set |
-| **Strangler Fig (React→Angular)** | MFE **temporal** en transición; CAE Angular sustituye React — [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) |
+| **Strangler Fig (React→Angular)** | MFE **temporal** (hasta mes 6); CAE Angular sustituye React — [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8 |
 
 ### 0.1 Situación actual vs objetivo
 
@@ -97,11 +97,11 @@ flowchart TB
 
 | App | Stack | Rol |
 |-----|-------|-----|
-| **CAE React (actual)** | React | Plataforma CAE v2.0 en producción; host durante toda la transición |
-| **App IA** (`cae-assistant-mfe` + `cae-ia-backend`) | React MFE (Fase 1) | Capa de asistencia inteligente; se integra en CAE React vía microfrontend |
-| **CAE Angular** (`apps/cae-platform-angular`) | Angular | Plataforma sustituta; crece en paralelo y absorbe módulo a módulo a CAE React |
+| **CAE React (actual)** | React | Plataforma CAE v2.0 en producción; host transitorio (meses 1–4) |
+| **App IA** (`cae-assistant-mfe` + `cae-ia-backend`) | React MFE (meses 1–2) → Angular nativo (mes 6) | Capa de asistencia inteligente; producción en mes 2, nativa en Angular al mes 6 |
+| **CAE Angular** (`apps/cae-platform-angular`) | Angular | Plataforma sustituta; **100 % operativa al mes 6** |
 
-> El MFE `apps/cae-assistant-mfe-angular` (§7.1) es la **evolución de la App IA** hacia Angular, no una cuarta aplicación: cuando un módulo migra a CAE Angular, la IA se expone allí como *feature* nativa (`libs/angular/cae/feature-*`). Detalle completo en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
+> El MFE `apps/cae-assistant-mfe-angular` (§7.1) es la **evolución de la App IA** hacia Angular, no una cuarta aplicación: cuando un módulo migra a CAE Angular, la IA se expone allí como *feature* nativa (`libs/angular/cae/feature-*`). **Horizonte del programa: 6 meses.** Detalle en [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8.
 
 ```mermaid
 flowchart LR
@@ -542,7 +542,7 @@ flowchart LR
 
 ### 7.1 Integración UI: React (Fase 1) vs Angular (evolución)
 
-> CAE v2 está construido en **React** (stack actual). La **App IA** se integra en CAE React vía MFE (Fase 1). **CAE Angular nueva** sustituirá progresivamente a React. Los microfrontends son **temporales**; el objetivo es **una sola app Angular** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §2.3.
+> CAE v2 está construido en **React** (stack actual). La **App IA** se integra en CAE React vía MFE (meses 1–2). **CAE Angular nueva** sustituye progresivamente a React (**objetivo mes 6**). Los microfrontends son **temporales**; el objetivo es **una sola app Angular** — ver [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) §8.
 
 ```mermaid
 flowchart LR
@@ -609,13 +609,13 @@ flowchart LR
 
 > Documento completo: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)
 
-| Fase | CAE v2 React (actual) | CAE Angular (evolución) |
-|------|----------------------|-------------------------|
-| **0 — Baseline** | 100 % plataforma | Análisis de módulos y arquitectura |
-| **1 — IA integrada** | Host estable; MFE React (Fase 1) + Angular evolución | Capa asistencia IA |
-| **2 — Nuevos módulos** | Sin features grandes nuevas en React | Todo greenfield en Angular |
-| **3 — Sustitución** | Retirada módulo a módulo | Reescrituras priorizadas por ROI |
-| **4 — Consolidación** | **Shell React desaparece** | **CAE unificado en Angular** |
+| Fase | Horizonte | CAE v2 React (actual) | CAE Angular (evolución) |
+|------|-----------|----------------------|-------------------------|
+| **0 — Baseline** | Mes 0 (S1–2) | 100 % plataforma | Análisis de módulos y arquitectura |
+| **1 — IA integrada** | Meses 1–2 | Host estable; MFE React (Fase 1) | Capa asistencia IA en arranque |
+| **2 — Nuevos módulos** | Meses 2–4 | Retirada gradual | Todo greenfield en Angular |
+| **3 — Sustitución** | Meses 4–5 | Retirada módulo a módulo | Reescrituras priorizadas por ROI |
+| **4 — Consolidación** | **Mes 6** | **Shell React desaparece** | **CAE unificado en Angular + IA nativa** |
 
 ---
 

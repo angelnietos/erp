@@ -21,6 +21,7 @@
 | 2 | 03/07/2026 | Tono orientado a documentación de entrega; eliminación de lenguaje interno |
 | 3 | 03/07/2026 | Modelo dos equipos/dos apps; Module Federation cross-framework; opciones de shell |
 | 4 | 03/07/2026 | Tres apps en paralelo (CAE React, App IA, CAE Angular); MFE como solución temporal de transición |
+| 5 | 03/07/2026 | Horizonte del programa acotado a **6 meses** (App IA + CAE Angular completas + migración finalizada) |
 
 ---
 
@@ -63,6 +64,7 @@ La **Plataforma CAE v2.0** está construida en **React**. Con el crecimiento fun
 | **CAE Angular (nueva)** | Se construye en paralelo como **sustituto** de la plataforma React actual |
 | **Microfrontends** | **Solución temporal** de transición: permiten convivencia React + Angular sin parar el negocio |
 | **Horizonte final** | **Una sola aplicación Angular**; los microfrontends **dejan de ser necesarios** al completar la migración |
+| **Plazo del programa** | **6 meses** — App IA completa en producción + CAE Angular completa + migración finalizada (React y MFE retirados) |
 
 ---
 
@@ -117,7 +119,7 @@ flowchart TB
 | EM-04 | **MFE solo en transición** | Module Federation se usa mientras conviven React y Angular; no forma parte del estado final |
 | EM-05 | **Libs first** | Dominio y backend en `libs/isomorphic` y `libs/node`; UI en `libs/react/cae` (IA Fase 1) y `libs/angular/cae` (CAE nueva) |
 | EM-06 | **Medir para migrar** | Sustituir módulo React por Angular cuando ROI, riesgo y dependencias lo avalen |
-| EM-07 | **Transparencia** | Costes y plazo del período dual stack explicitados; MFE acotado en el tiempo |
+| EM-07 | **Transparencia** | Plazo del programa **6 meses** explicitado; MFE acotado en el tiempo |
 | EM-08 | **Equipos autónomos** | CAE React, App IA y CAE Angular evolucionan con releases independientes |
 | EM-09 | **Contrato antes que código** | Auth, rutas, eventos y design system acordados para la fase de convivencia |
 
@@ -146,15 +148,15 @@ CAE React (actual)          App IA (nueva)              CAE Angular (nueva)
                                                     (IA nativa, sin MFE)
 ```
 
-| Fase | CAE React | App IA | CAE Angular | Microfrontends |
-|------|-----------|--------|-------------|----------------|
-| **0 — Baseline** | Desarrollo en curso | Diseño / arranque | Diseño / arranque | No |
-| **1 — IA integrada** | Operativa; desarrollo continúa | MFE embebido en CAE React | Arranque / primeros módulos | **Sí** — IA → React |
-| **2 — Convivencia** | Se reduce módulo a módulo | Misma funcionalidad; UI puede migrar a Angular | Crece; asume rutas de negocio | **Sí** — React ↔ Angular |
-| **3 — Sustitución** | Módulos retirados uno a uno | Integrada como módulos Angular nativos | Asume la mayoría de rutas de negocio | **Sí**, reduciéndose |
-| **4 — Consolidación** | Desmantelada | Parte de CAE Angular (`libs/angular/cae`) | **100 % plataforma** | **Eliminados** |
+| Fase | Horizonte | CAE React | App IA | CAE Angular | Microfrontends |
+|------|-----------|-----------|--------|-------------|----------------|
+| **0 — Baseline** | Mes 0 (S1–2) | Desarrollo en curso | Diseño / arranque | Diseño / arranque | No |
+| **1 — IA integrada** | Meses 1–2 | Operativa; host de la IA | **MFE en producción** | Arranque / primeros módulos | **Sí** — IA → React |
+| **2 — Convivencia** | Meses 2–4 | Retirada gradual de módulos | Funcionalidad estable | Crece en paralelo | **Sí** — React ↔ Angular |
+| **3 — Sustitución** | Meses 4–5 | Módulos retirados uno a uno | UI migrada a Angular | Asume rutas de negocio | **Sí**, reduciéndose |
+| **4 — Consolidación** | **Mes 6** | **Desmantelada** | Módulos nativos en CAE Angular | **100 % plataforma** | **Eliminados** |
 
-> Esta tabla resume el mismo esquema de fases 0–4 detallado en §8 (con horizontes temporales orientativos), aplicado a las tres aplicaciones en paralelo. Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, **no hace falta Module Federation**: todo vive en la misma aplicación Angular.
+> Esta tabla resume el mismo esquema de fases 0–4 detallado en §8. **Objetivo del programa: 6 meses** para tener la App IA completa, CAE Angular completa y la migración finalizada. Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, **no hace falta Module Federation**: todo vive en la misma aplicación Angular.
 
 ### 2.4 Integración técnica durante la transición
 
@@ -369,7 +371,7 @@ Por estas razones, **muchas organizaciones grandes** siguen apostando por Angula
 
 ## 6. Costes, riesgos e inconvenientes
 
-Durante la transición (potencialmente **varios meses**) coexistirán:
+Durante la transición (**hasta 6 meses**, objetivo de cierre en mes 6) coexistirán:
 
 | Inconveniente | Mitigación |
 |---------------|------------|
@@ -379,7 +381,7 @@ Durante la transición (potencialmente **varios meses**) coexistirán:
 | **Dos ecosistemas de dependencias** | Renovación automatizada; política de versiones shared |
 | **Mayor peso en navegador** | Lazy loading remotes; no cargar Angular + React en misma ruta si no es necesario |
 | **Complejidad MFE** | Auth centralizada, contrato de eventos, design tokens, semver remotes |
-| **Período dual stack** | Presupuesto y roadmap explícitos; no indefinido |
+| **Período dual stack** | Presupuesto y roadmap explícitos; **máximo 6 meses** |
 
 > Los microfrontends implican complejidad adicional **solo durante la transición**. Evitan un *big bang* y permiten terminar CAE React e integrar IA sin parar el negocio. **No son el diseño permanente** de la plataforma.
 
@@ -401,7 +403,7 @@ Durante la transición (potencialmente **varios meses**) coexistirán:
 
 | Condición | Notas |
 |-----------|-------|
-| No hay presupuesto para **período dual stack** | Acordar fases y duración máxima de convivencia |
+| No hay presupuesto para **período dual stack** | El programa está acotado a **6 meses**; requiere equipos en paralelo desde el mes 0 |
 | Capacidad limitada para Angular | Valorar formación o refuerzo de equipo |
 | Migración sin ROI demostrable | Priorizar módulos con mayor impacto en negocio |
 
@@ -409,13 +411,15 @@ Durante la transición (potencialmente **varios meses**) coexistirán:
 
 ## 8. Fases de migración
 
+**Horizonte del programa: 6 meses.** Al cierre del mes 6 el objetivo es disponer de la **App IA completa** (backend + UI nativa en Angular), la **plataforma CAE Angular completa** (100 % de rutas y funcionalidades) y **React + Module Federation retirados**.
+
 | Fase | Horizonte | CAE React (actual) | App IA | CAE Angular (nueva) | MFE |
 |------|-----------|-------------------|--------|---------------------|-----|
-| **0 — Baseline** | Actual | Desarrollo en curso | Diseño / arranque | Diseño / arranque | No |
-| **1 — IA integrada** | 0–6 meses | Operativa; desarrollo continúa | MFE embebido en CAE React | Primeros módulos | **Sí** (IA → React) |
-| **2 — Convivencia** | 6–18 meses | Sin features grandes nuevas; retirada gradual | Funcionalidad estable | Módulos de negocio en Angular | **Sí** (React ↔ Angular) |
-| **3 — Sustitución** | 18–36+ meses | Módulos retirados uno a uno | UI migrada a Angular | Plataforma principal | **Sí**, reduciéndose |
-| **4 — Consolidación** | Objetivo | **Desmantelada** | Módulos nativos en CAE Angular | **100 % plataforma** | **No** |
+| **0 — Baseline** | Mes 0 (S1–2) | Desarrollo en curso | Diseño / arranque backend + MFE | Diseño / arranque plataforma | No |
+| **1 — IA integrada** | Meses 1–2 | Operativa; host de la IA | **Producción** — MFE embebido en CAE React | Primeros módulos Angular | **Sí** (IA → React) |
+| **2 — Convivencia** | Meses 2–4 | Sin features grandes nuevas; retirada gradual | Funcionalidad estable | Módulos de negocio en Angular | **Sí** (React ↔ Angular) |
+| **3 — Sustitución** | Meses 4–5 | Módulos retirados uno a uno | UI migrada a Angular | Plataforma principal | **Sí**, reduciéndose |
+| **4 — Consolidación** | **Mes 6** | **Desmantelada** | Módulos nativos en CAE Angular | **100 % plataforma** | **No** |
 
 ### 8.1 Criterios para migrar un módulo React concreto
 
@@ -440,7 +444,7 @@ La **App IA** es una **aplicación nueva** (`cae-ia-backend` + `cae-assistant-mf
 | **UI Fase 1** | MFE React embebido en slots de CAE v2 (expediente, operaciones) |
 | **CAE React** | Sigue su desarrollo; la IA se añade sin reescribir el host |
 | **CAE Angular** | Cuando un módulo migre, la IA puede exponerse como feature nativa Angular (sin MFE) |
-| **Horizonte IA** | De remote MFE → módulos `libs/angular/cae/feature-*` dentro de CAE Angular única |
+| **Horizonte IA** | Meses 1–2: MFE React en producción → meses 4–6: módulos `libs/angular/cae/feature-*` nativos en CAE Angular única |
 
 ```mermaid
 flowchart LR
@@ -461,15 +465,15 @@ flowchart LR
 
 ### 10.1 Comité de arquitectura frontend
 
-- Revisión mensual: módulos candidatos a migración, estado dual stack, oportunidades de mejora.
+- Revisión quincenal: módulos candidatos a migración, estado dual stack, avance hacia el cierre en mes 6.
 - Participantes: Arquitectura, Producto, IDEAUTO, Babooni.
 
 ### 10.2 Métricas de seguimiento
 
 | Métrica | Objetivo transición |
 |---------|---------------------|
-| % líneas UI en Angular vs React | Crecimiento trimestral Angular |
-| Nº módulos React activos | Decrecimiento planificado |
+| % líneas UI en Angular vs React | 100 % Angular al mes 6; crecimiento mensual durante la transición |
+| Nº módulos React activos | Cero al mes 6 |
 | Incidencias frontend por módulo | ↓ post-migración Angular |
 | Tiempo medio entrega feature | ↓ en módulos Angular estandarizados |
 | Cobertura tests + Storybook | ↑ en `libs/angular/cae/ui` |
@@ -504,18 +508,19 @@ React y Module Federation se consideran **retirados** cuando:
 |----------|-----------|
 | ¿Por qué dos stacks (React y Angular)? | React integra la Fase 1 en CAE v2; Angular es el stack de evolución para módulos nuevos |
 | ¿Implica parar la plataforma? | No. Migración incremental mediante microfrontends |
-| ¿Cuánto dura la convivencia dual? | Acotada por fases; se revisa trimestralmente en comité de arquitectura |
+| ¿Cuánto dura la convivencia dual? | **Hasta 6 meses** — objetivo: plataforma Angular única con IA nativa al cierre del programa |
+| ¿Cuál es el plazo total del programa? | **6 meses** — App IA completa + CAE Angular completa + migración finalizada |
 | ¿Se puede mantener solo React? | En Fase 1, sí. Angular es el horizonte acordado de la plataforma; el **ritmo** de migración por módulo se ajusta según ROI, pero no es una opción a nivel de estrategia |
 | ¿Por qué microfrontends si el objetivo es Angular? | Son el **puente temporal** para integrar IA en CAE React y convivir con CAE Angular sin parar el desarrollo |
 | ¿Se eliminan los MFE al final? | **Sí.** La arquitectura objetivo es **una sola app Angular**, sin Module Federation |
-| ¿Qué pasa con CAE React mientras tanto? | **Sigue desarrollándose** hasta completarse o hasta que cada módulo tenga equivalente en Angular |
+| ¿Qué pasa con CAE React mientras tanto? | Opera como host durante meses 1–4; se retira progresivamente hasta **desmantelamiento en mes 6** |
 | ¿Cómo trabajan los equipos? | Tres líneas: CAE React (terminar), App IA (integrar en React), CAE Angular (sustituto) |
 
 ---
 
 ## 12. Visión final
 
-La Plataforma CAE converge hacia **una sola aplicación Angular** que sustituye por completo a CAE React. La capa de Asistencia IA deja de ser un microfrontend y pasa a ser **módulos nativos** de esa plataforma.
+La Plataforma CAE converge hacia **una sola aplicación Angular** que sustituye por completo a CAE React **en un horizonte de 6 meses**. La capa de Asistencia IA deja de ser un microfrontend y pasa a ser **módulos nativos** de esa plataforma.
 
 Durante la transición, los **microfrontends** permiten:
 
@@ -525,7 +530,7 @@ Durante la transición, los **microfrontends** permiten:
 
 Al completar la migración, **desaparece la complejidad de Module Federation**: una app, un stack, un pipeline.
 
-> **Resumen:** *CAE React se termina; App IA se integra vía MFE; CAE Angular la sustituye progresivamente; MFE solo durante la transición; objetivo final = todo Angular, sin microfrontends.*
+> **Resumen:** *CAE React opera como host transitorio (meses 1–4); App IA en producción en mes 2; CAE Angular la sustituye progresivamente; MFE solo durante la transición; **objetivo mes 6 = todo Angular, IA nativa, sin microfrontends**.*
 
 ---
 
