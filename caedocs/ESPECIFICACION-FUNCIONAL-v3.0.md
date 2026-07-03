@@ -12,26 +12,6 @@
 
 ---
 
-## Histórico de revisiones
-
-| Rev. | Fecha | Naturaleza del cambio |
-|------|-------|------------------------|
-| 0 | 27/06/2026 | Primera versión del documento (Borrador) |
-| 1 | 27/06/2026 | Incorporación elementos de negocio (Operaciones) |
-| 2 | 03/07/2026 | Versión consolidada: validación progresiva, MLOps, modelo de fitness, integraciones, requisitos no funcionales y catálogo completo de reglas |
-| 3 | 03/07/2026 | Enfoque de implementación: arquitectura hexagonal, DDD y microservicios |
-| 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
-| 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
-| 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
-| 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
-| 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
-| 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; CAE Angular sustituye React (§6.5.2) |
-| 11 | 03/07/2026 | Respuesta explícita a requisitos Operaciones IDEAUTO; posicionamiento CAE vs OCR genérico; objetivo reducción carga operativa |
-| 12 | 03/07/2026 | Modelo AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT — IA aprueba/rechaza autónomamente; Operaciones solo excepciones |
-
----
-
 ## Índice de contenidos
 
 1. [Introducción](#1-introducción)

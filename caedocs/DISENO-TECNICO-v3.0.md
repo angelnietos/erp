@@ -12,25 +12,6 @@
 
 ---
 
-## Histórico de revisiones
-
-| Rev. | Fecha | Naturaleza del cambio |
-|------|-------|------------------------|
-| 0 | 27/06/2026 | Primera versión del documento (Borrador) |
-| 1 | 03/07/2026 | Arquitectura por fases end-to-end, componentes, flujos, modelo de datos, eventos, APIs, seguridad, observabilidad |
-| 2 | 03/07/2026 | MLOps completo, Fitness Engine, golden set, criterios promoción/rollback, APIs evaluación, entidades de datos y KPIs de fitness |
-| 3 | 03/07/2026 | Paradigma arquitectónico: hexagonal, DDD y descomposición en microservicios |
-| 4 | 03/07/2026 | Arquitectura objetivo monorepo Nx (`libs`/`apps`), monolito modular vs microservicios, microfrontends CAE v2 |
-| 5 | 03/07/2026 | Stack UI React (default CAE v2) + Angular opcional MFE; arquitectura dual documentada |
-| 6 | 03/07/2026 | Pirámide de testing, Storybook, componentes listos/tontos en frontend |
-| 7 | 03/07/2026 | Stack UI: React Fase 1 acordada; Angular como evolución arquitectónica |
-| 8 | 03/07/2026 | Enlace a [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md) — Strangler Fig React→Angular |
-| 9 | 03/07/2026 | Tono de entrega al cliente; eliminación de lenguaje interno |
-| 10 | 03/07/2026 | Tres apps en paralelo; MFE temporal; §3.4.5 actualizado |
-| 11 | 03/07/2026 | Posicionamiento CAE vs OCR genérico; reducción carga Operaciones IDEAUTO (PA-16, PA-17) |
-
----
-
 ## Índice de contenidos
 
 1. [Objetivo técnico](#1-objetivo-técnico)

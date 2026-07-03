@@ -13,18 +13,6 @@
 
 ---
 
-## Histórico de revisiones
-
-| Rev. | Fecha | Naturaleza del cambio |
-|------|-------|------------------------|
-| 1 | 03/07/2026 | Primera versión: estrategia Strangler Fig, evolución React→Angular, relación con capa IA |
-| 2 | 03/07/2026 | Tono orientado a documentación de entrega; eliminación de lenguaje interno |
-| 3 | 03/07/2026 | Modelo dos equipos/dos apps; Module Federation cross-framework; opciones de shell |
-| 4 | 03/07/2026 | Tres apps en paralelo (CAE React, App IA, CAE Angular); MFE como solución temporal de transición |
-| 5 | 03/07/2026 | Horizonte del programa acotado a **6 meses** (App IA + CAE Angular completas + migración finalizada) |
-
----
-
 ## Índice de contenidos
 
 1. [Contexto y oportunidad de mejora](#1-contexto-y-oportunidad-de-mejora)
