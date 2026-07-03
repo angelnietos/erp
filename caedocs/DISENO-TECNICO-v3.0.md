@@ -37,7 +37,7 @@
 21. [Estrategia de calidad y testing](#21-estrategia-de-calidad-y-testing)
 22. [Monorepo Nx y organización del repositorio](#22-monorepo-nx-y-organización-del-repositorio-base)
 23. [Riesgos explícitos y mitigaciones](#23-riesgos-explícitos-y-mitigaciones)
-24. [Visión final](#22-visión-final)
+24. [Visión final](#24-visión-final)
 
 ---
 
@@ -839,6 +839,8 @@ Workers especializados alineados con el clasificador documental del flujo E2E:
   "timestamp": "2026-07-03T10:15:00Z"
 }
 ```
+
+> **Nota sobre bbox:** Formato estandarizado `[x_min, y_min, x_max, y_max]` en píxeles relativos al documento. Cuando `bbox: null`, indica que el campo no tiene localización visual asociada (p. ej. valor calculado o inferido). Este formato permite al frontend resaltar visualmente errores en la UI de revisión.
 
 ### 5.6 Motor Validación Progresiva CAE (Validation Engine)
 
@@ -2105,7 +2107,7 @@ Ubicación: `libs/node/shared-infrastructure/api/base.controller.ts`
 
 ---
 
-## 22. Visión final
+## 24. Visión final
 
 La arquitectura utiliza **Azure AI Foundry** como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en **Document Intelligence** para captura documental y en una **Knowledge Base CAE** (RAG) para recomendaciones contextualizadas.
 

@@ -69,7 +69,7 @@
 <li><a href="#21-estrategia-de-calidad-y-testing" class="toc-link" data-section="21-estrategia-de-calidad-y-testing">21. Estrategia de calidad y testing</a></li>
 <li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base" class="toc-link" data-section="22-monorepo-nx-y-organizacion-del-repositorio-base">22. Monorepo Nx y organización del repositorio base</a></li>
 <li><a href="#23-riesgos-explicitos-y-mitigaciones" class="toc-link" data-section="23-riesgos-explicitos-y-mitigaciones">23. Riesgos explícitos y mitigaciones</a></li>
-<li><a href="#22-vision-final" class="toc-link" data-section="22-vision-final">22. Visión final</a></li></ul>
+<li><a href="#24-vision-final" class="toc-link" data-section="24-vision-final">24. Visión final</a></li></ul>
         </div>
       </aside>
 
@@ -130,7 +130,7 @@
 <li><a href="#21-estrategia-de-calidad-y-testing">Estrategia de calidad y testing</a></li>
 <li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base">Monorepo Nx y organización del repositorio</a></li>
 <li><a href="#23-riesgos-explicitos-y-mitigaciones">Riesgos explícitos y mitigaciones</a></li>
-<li><a href="#22-vision-final">Visión final</a></li>
+<li><a href="#24-vision-final">Visión final</a></li>
 </ol>
 <hr>
 <h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
@@ -1754,6 +1754,7 @@ flowchart TD
   "provenance": "document-intelligence",
   "timestamp": "2026-07-03T10:15:00Z"
 }</code></pre>
+<blockquote class="callout"><p><strong>Nota sobre bbox:</strong> Formato estandarizado <code>[x_min, y_min, x_max, y_max]</code> en píxeles relativos al documento. Cuando <code>bbox: null</code>, indica que el campo no tiene localización visual asociada (p. ej. valor calculado o inferido). Este formato permite al frontend resaltar visualmente errores en la UI de revisión.</p></blockquote>
 <h3 id="56-motor-validacion-progresiva-cae-validation-engine" class="subsection-title">5.6 Motor Validación Progresiva CAE (Validation Engine)</h3>
 <div class="table-wrap"><table>
 <thead>
@@ -4225,7 +4226,7 @@ regresión en CI"]
 </tr>
 </tbody></table></div>
 <hr>
-<h2 id="22-vision-final" class="section-title">22. Visión final</h2>
+<h2 id="24-vision-final" class="section-title">24. Visión final</h2>
 <p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento para asistir activamente a usuarios y operadores durante todo el ciclo de vida del expediente, apoyándose en <strong>Document Intelligence</strong> para captura documental y en una <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas.</p>
 <p>La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD). <strong>Meses 1–2:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2. <strong>Meses 2–5:</strong> MFE temporal entre CAE React y CAE Angular nueva. <strong>Mes 6:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8.</p>
 <p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
