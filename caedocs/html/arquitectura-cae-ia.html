@@ -888,7 +888,38 @@ flowchart LR
 </div>
 <h3 id="72-escenario-evolutivo-strangler-fig" class="subsection-title">7.2 Escenario evolutivo — Strangler Fig</h3>
 <p>Patrón <strong>Strangler Fig</strong>: el host <strong>React</strong> se reduce módulo a módulo mientras <strong>Angular</strong> crece como remotes embebidos hasta sustituir el shell.</p>
-<p><img src="../diagrams/08-strangler-migracion.png" alt="Evolución migración Strangler Fig"></p>
+<div class="mermaid">
+flowchart LR
+    subgraph F0["Fase 0 — Baseline"]
+        R0["CAE v2 React actual"]
+    end
+
+    subgraph F1["Fase 1 — IA integrada"]
+        R1["Host React"]
+        MF["MFE React + Angular"]
+        R1 --> MF
+    end
+
+    subgraph F2["Fase 2 — Nuevos módulos"]
+        NG2["Módulos Angular nuevos"]
+    end
+
+    subgraph F3["Fase 3 — Sustitución"]
+        NG3["Reescritura progresiva"]
+    end
+
+    subgraph F4["Fase 4 — Consolidación"]
+        ANG["CAE Angular unificado"]
+    end
+
+    F0 --> F1 --> F2 --> F3 --> F4
+
+    style F0 fill:#ffebee,stroke:#c62828
+    style F1 fill:#fff9c4,stroke:#f9a825
+    style F2 fill:#e3f2fd,stroke:#1565c0
+    style F3 fill:#e8f5e9,stroke:#2e7d32
+    style F4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+</div>
 <blockquote class="callout"><p>Documento completo: <a href="ESTRATEGIA-MIGRACION-FRONTEND-CAE.md"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a></p></blockquote>
 <div class="table-wrap"><table>
 <thead>
@@ -927,7 +958,7 @@ flowchart LR
 <hr>
 <h2 id="8-calidad-piramide-de-testing-y-frontend-reusable" class="section-title">8. Calidad: pirámide de testing y frontend reusable</h2>
 <h3 id="81-piramide-de-testing" class="subsection-title">8.1 Pirámide de testing</h3>
-<p><img src="../diagrams/07-testing-piramide.png" alt="Pirámide de testing"></p>
+<div class="arch-diagram"><img src="../diagrams/07-testing-piramide.png" alt="Pirámide de testing" loading="lazy" /></div>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -1044,7 +1075,7 @@ flowchart LR
       startOnLoad: false,
       theme: 'base',
       securityLevel: 'loose',
-      flowchart: { useMaxWidth: true, htmlLabels: true },
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
       themeVariables: {
         primaryColor: '#e0f7ff',
         primaryTextColor: '#1a1a2e',
@@ -1064,6 +1095,10 @@ flowchart LR
         svg.style.maxWidth = '100%';
         svg.style.width = '100%';
         svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
       });
     }
   </script>

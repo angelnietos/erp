@@ -562,7 +562,38 @@ flowchart LR
 
 Patrón **Strangler Fig**: el host **React** se reduce módulo a módulo mientras **Angular** crece como remotes embebidos hasta sustituir el shell.
 
-![Evolución migración Strangler Fig](diagrams/08-strangler-migracion.png)
+```mermaid
+flowchart LR
+    subgraph F0["Fase 0 — Baseline"]
+        R0["CAE v2 React actual"]
+    end
+
+    subgraph F1["Fase 1 — IA integrada"]
+        R1["Host React"]
+        MF["MFE React + Angular"]
+        R1 --> MF
+    end
+
+    subgraph F2["Fase 2 — Nuevos módulos"]
+        NG2["Módulos Angular nuevos"]
+    end
+
+    subgraph F3["Fase 3 — Sustitución"]
+        NG3["Reescritura progresiva"]
+    end
+
+    subgraph F4["Fase 4 — Consolidación"]
+        ANG["CAE Angular unificado"]
+    end
+
+    F0 --> F1 --> F2 --> F3 --> F4
+
+    style F0 fill:#ffebee,stroke:#c62828
+    style F1 fill:#fff9c4,stroke:#f9a825
+    style F2 fill:#e3f2fd,stroke:#1565c0
+    style F3 fill:#e8f5e9,stroke:#2e7d32
+    style F4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+```
 
 > Documento completo: [`ESTRATEGIA-MIGRACION-FRONTEND-CAE.md`](ESTRATEGIA-MIGRACION-FRONTEND-CAE.md)
 

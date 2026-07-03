@@ -3113,7 +3113,7 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
       startOnLoad: false,
       theme: 'base',
       securityLevel: 'loose',
-      flowchart: { useMaxWidth: true, htmlLabels: true },
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
       themeVariables: {
         primaryColor: '#ffe5e8',
         primaryTextColor: '#1a1a2e',
@@ -3133,6 +3133,10 @@ Donde score_i está normalizado 0–100 por componente.</code></pre>
         svg.style.maxWidth = '100%';
         svg.style.width = '100%';
         svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
       });
     }
   </script>

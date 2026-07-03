@@ -4001,7 +4001,7 @@ regresión en CI"]
       startOnLoad: false,
       theme: 'base',
       securityLevel: 'loose',
-      flowchart: { useMaxWidth: true, htmlLabels: true },
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
       themeVariables: {
         primaryColor: '#e0f7ff',
         primaryTextColor: '#1a1a2e',
@@ -4021,6 +4021,10 @@ regresión en CI"]
         svg.style.maxWidth = '100%';
         svg.style.width = '100%';
         svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
       });
     }
   </script>

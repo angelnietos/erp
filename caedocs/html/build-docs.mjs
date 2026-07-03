@@ -124,6 +124,10 @@ function postProcessHtml(html) {
       )
       .replace(/href="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'href="../$1"')
       .replace(/src="(ARQUITECTURA-CAE-IA\.png|diagrams\/[^"]+)"/g, 'src="../$1"')
+      .replace(
+        /<p><img src="(\.\.\/diagrams\/[^"]+)"([^>]*)><\/p>/g,
+        '<div class="arch-diagram"><img src="$1"$2 loading="lazy" /></div>'
+      )
       .replace(/<td>(\s*)—(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
       .replace(/<td>(\s*)<strong>—<\/strong>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
       .replace(/<td>(\s*)<em>—<\/em>(\s*)<\/td>/g, '<td class="cell-na">No aplica</td>')
@@ -208,7 +212,7 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
       startOnLoad: false,
       theme: 'base',
       securityLevel: 'loose',
-      flowchart: { useMaxWidth: true, htmlLabels: true },
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
       themeVariables: {
         primaryColor: '${accent === 'red' ? '#ffe5e8' : '#e0f7ff'}',
         primaryTextColor: '#1a1a2e',
@@ -228,6 +232,10 @@ function wrapHtml({ title, badge, badgeClass, accent, subtitle, body, toc }) {
         svg.style.maxWidth = '100%';
         svg.style.width = '100%';
         svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
       });
     }
   </script>
