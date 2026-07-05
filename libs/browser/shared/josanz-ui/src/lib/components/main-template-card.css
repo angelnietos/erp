@@ -43,16 +43,16 @@
   transition-duration: 0.08s;
 }
 
-/* Avatar/leading mark en listado Clientes */
+/* Avatar/leading mark — positioned above the title as a visual identifier */
 .josanz-list-card__leading {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   letter-spacing: 0.06em;
   flex-shrink: 0;
   transition:

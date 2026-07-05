@@ -15,6 +15,7 @@ import {
   pillOutlineIconRingStyles,
 } from '../catalog/status-pill-presets';
 import { josanzListFieldWidthClass } from '../list-view/list-template-row-layout';
+import { josanzReadableOnSolid } from '../theme/josanz-theme-tokens';
 
 /** Variantes de pastilla: claves de flujo (`JosanzStatusPillKey`) o alias legacy (`primary`…). */
 export type JosanzStatusPillVariant =
@@ -147,12 +148,12 @@ export class MainTemplateCardComponent {
     if (this.railColor) {
       return { backgroundColor: this.railColor };
     }
+    if (this.customColor) {
+      return { backgroundColor: this.customColor };
+    }
     const key = this.resolvePillKey();
     if (this.statusBadgeStyle === 'outline') {
       return { backgroundColor: getEventOutlinePill(key).border };
-    }
-    if (this.customColor) {
-      return { backgroundColor: this.customColor };
     }
     return { backgroundColor: `var(--josanz-pill-${key}-text)` };
   }
@@ -162,12 +163,20 @@ export class MainTemplateCardComponent {
   }
 
   showStatusRail(): boolean {
-    return !(this.leadingMark && this.railColor);
+    return !!this.railColor || !!this.customColor || !!this.statusVariant;
   }
 
   getLeadingMarkStyles(): Record<string, string> {
     if (this.leadingMark && this.railColor) {
       return leadingMarkAvatarStyle(this.railColor);
+    }
+    if (this.leadingMark && this.customColor) {
+      return {
+        backgroundColor: this.customColor,
+        color: josanzReadableOnSolid(this.customColor),
+        borderColor: 'transparent',
+        boxShadow: '0 2px 6px -2px rgba(0, 0, 0, 0.15)',
+      };
     }
     return {
       borderColor: 'var(--josanz-border)',

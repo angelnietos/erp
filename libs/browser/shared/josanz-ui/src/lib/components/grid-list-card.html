@@ -9,7 +9,7 @@
 
   <div class="josanz-grid-list-card__inner">
     <header class="josanz-grid-list-card__header" [ngClass]="'josanz-grid-list-card__header--' + density">
-      <div class="josanz-grid-list-card__title-row min-w-0 flex-1">
+      <div class="josanz-grid-list-card__title-row min-w-0 flex flex-col items-start gap-2 flex-1">
         @if (leadingMark) {
         <span
           class="josanz-grid-list-card__leading"
@@ -21,7 +21,7 @@
         </span>
         }
         <h3
-          class="josanz-grid-list-card__title"
+          class="josanz-grid-list-card__title min-w-0"
           [ngClass]="'josanz-grid-list-card__title--' + density"
           [attr.title]="title"
         >
