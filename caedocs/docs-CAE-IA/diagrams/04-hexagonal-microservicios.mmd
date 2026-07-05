@@ -1,0 +1,54 @@
+flowchart TB
+    subgraph CAE_HOST["Plataforma CAE v2.0"]
+        CORE["Core Expedientes"]
+    end
+
+    subgraph ACL["Anti-Corruption Layer"]
+        INT["cae-integration"]
+    end
+
+    subgraph EDGE["Edge"]
+        GW["cae-gateway"]
+    end
+
+    subgraph MS_ING["cae-ingestion — hexagonal"]
+        direction TB
+        I_DOM["Dominio: DocumentoRaw"]
+        I_APP["Aplicación: UploadDocument"]
+        I_ADP["Adaptadores: REST, Blob, SB"]
+        I_DOM --- I_APP --- I_ADP
+    end
+
+    subgraph MS_EXT["cae-extraction — hexagonal"]
+        direction TB
+        E_DOM["Dominio: Extraccion, Campo"]
+        E_APP["Aplicación: ExtractDocument"]
+        E_ADP["Adaptadores: DI, Foundry Vision, SB"]
+        E_DOM --- E_APP --- E_ADP
+    end
+
+    subgraph MS_VAL["cae-validation — hexagonal"]
+        direction TB
+        V_DOM["Dominio: Reglas CAE, Incidencia"]
+        V_APP["Aplicación: ValidateExpediente"]
+        V_ADP["Adaptadores: PostgreSQL, Redis, REST"]
+        V_DOM --- V_APP --- V_ADP
+    end
+
+    subgraph MS_MLO["cae-mlops — hexagonal"]
+        direction TB
+        M_DOM["Dominio: Fitness, Evaluacion"]
+        M_APP["Aplicación: EvaluateAndPromote"]
+        M_ADP["Adaptadores: MLflow, Registry, Blob"]
+        M_DOM --- M_APP --- M_ADP
+    end
+
+    CORE <--> INT
+    GW --> MS_ING & MS_EXT & MS_VAL
+    MS_ING -->|DocumentUploaded| MS_EXT
+    MS_EXT -->|DocumentExtracted| MS_VAL
+    MS_VAL --> INT
+    MS_MLO -.->|promoción| MS_EXT & MS_VAL
+
+    style MS_VAL fill:#fff9c4,stroke:#f9a825,stroke-width:2px
+    style V_DOM fill:#fffde7,stroke:#f9a825

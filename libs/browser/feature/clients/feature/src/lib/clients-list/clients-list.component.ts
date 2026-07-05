@@ -899,7 +899,11 @@ export class ClientsListComponent
 
   /** @param force Si true, vuelve a pedir datos aunque ya haya clientes en memoria. */
   refreshClients(force = false) {
-    this.facade.loadClients(force);
+    if (force) {
+      this.facade.loadClients();
+    } else {
+      this.facade.refreshClients();
+    }
   }
 
   clearFiltersAndSearch() {

@@ -1,0 +1,116 @@
+flowchart TD
+    START(["Documento CAE entrada"]) --> GW{"Gateway Validación + Auth JWT"}
+
+    GW -->|Inválido| REJ1["Rechazo inmediato + UX Error"]
+    GW -->|Válido| BLOB["Blob Storage RAW inmutable"]
+
+    BLOB --> QSEL{"Selección cola"}
+    QSEL -->|Fast Path| REDIS["Redis Queue"]
+    QSEL -->|Reliable Path| SB["Service Bus + DLQ + Retry"]
+
+    REDIS --> ORCH["AI Orchestrator + Workflow Engine"]
+    SB --> ORCH
+
+    ORCH --> NORM["Normalización formato"]
+    NORM --> FT{"Tipo archivo"}
+
+    FT -->|HEIC/JPG/PNG| C1["Convertir PNG"]
+    FT -->|PDF Imagen| C2["PDF a PNG páginas"]
+    FT -->|PDF Texto| C3["Detectar texto embebido"]
+
+    C1 --> PRE["Preprocesado imagen"]
+    C2 --> PRE
+    C3 --> TXTSUF{"Texto suficiente?"}
+    TXTSUF -->|Sí| PDFP["PDF Parser"]
+    TXTSUF -->|No| PRE
+
+    PRE --> OCR["OCR Document Intelligence"]
+    PDFP --> RAWTXT["Texto bruto"]
+    OCR --> RAWTXT
+
+    RAWTXT --> CONF{"Calidad OCR / Confidence"}
+    CONF -->|"Alta >= 0.85"| REL["Texto fiable"]
+    CONF -->|"Baja < 0.85"| VLM["Fallback GPT-4o Vision"]
+    VLM --> REL
+
+    REL --> CLASS{"Clasificador documental"}
+
+    CLASS -->|DNI/NIE| EX1["Extractor Identidad"]
+    CLASS -->|Factura VN| EX2["Extractor Factura"]
+    CLASS -->|Ficha Técnica| EX3["Extractor Ficha Técnica"]
+    CLASS -->|Permiso/IVTM| EX4["Extractor Permiso"]
+    CLASS -->|Convenio/Anexo| EX5["Extractor Convenio CAE"]
+    CLASS -->|Firma| EX6["Extractor Firma"]
+    CLASS -->|VO/VN| EX7["Extractor Vehículo"]
+    CLASS -->|Otros| EX8["Extractor Genérico"]
+
+    EX1 & EX2 & EX3 & EX4 & EX5 & EX6 & EX7 & EX8 --> JSON["JSON + confidence + provenance + bbox"]
+
+    JSON --> UPD["Actualizar expediente CAE"]
+
+    UPD --> MOTOR["MOTOR VALIDACIÓN PROGRESIVA CAE"]
+
+    subgraph MOTOR_DETAIL["Motor Validación Progresiva CAE"]
+        direction TB
+        M1["Reglas deterministas Bloques A-G"]
+        M2["Cruce semántico multi-documento"]
+        M3["Validación fechas · seguros · actividad"]
+        M4["Validación empresa-trabajador"]
+        M5["Validación vehículo-documentación"]
+        M6["Documentación obligatoria"]
+        M7["Global Scoring + Risk"]
+        M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7
+    end
+
+    MOTOR --> MOTOR_DETAIL
+
+    MOTOR_DETAIL --> COMP{"Expediente completo?"}
+
+    COMP -->|No| LOOP["Informar incidencias UI cliente"]
+    LOOP --> WAIT["Esperar nuevos documentos"]
+    WAIT --> UPD
+
+    COMP -->|Sí| FDR["Azure AI Foundry Análisis global"]
+    FDR --> RAG["Knowledge Base CAE RAG"]
+    RAG --> DEC{"Decisión Final"}
+
+    DEC -->|OK| OK["Listo para envío"]
+    DEC -->|Review| REV["Cola revisión humana + resumen IA"]
+    DEC -->|Reject| REJ2["Rechazo automático con detalle"]
+
+    REV --> SUP["Supervisor CAE + Asistente IA"]
+    SUP --> HUM["Validación humana"]
+    HUM --> FB["Feedback Engine"]
+
+    OK --> FB
+    REJ2 --> FB
+
+    FB --> LB["Labeling asistido"]
+    LB --> DS["Dataset versionado"]
+    DS --> EV["Evaluation Pipeline + Golden set"]
+    EV --> FIT["Fitness Engine F1-F6"]
+    FIT --> REG{"Supera umbrales?"}
+    REG -->|Sí| PROM["Promoción Registry"]
+    REG -->|No| REF["Refinar extractores / reglas / prompts"]
+    PROM --> IMP1["Extractores IA"]
+    REF --> IMP1
+    PROM --> IMP2["Reglas CAE"]
+    REF --> IMP2
+    PROM --> IMP3["Prompts Foundry"]
+    REF --> IMP3
+    FIT --> MET["Dashboard fitness MLOps"]
+
+    OK & REV & REJ2 --> AUDIT["Audit Log + Tracing OpenTelemetry"]
+    AUDIT --> PNG["Guardar PNG procesado"]
+    PNG --> OPT["Optimización AVIF / WebP"]
+    OPT --> CDN["Storage optimizado + CDN"]
+    CDN --> UI["Frontend Thumbnails + Auto-fill UI"]
+
+    style MOTOR fill:#fff59d,stroke:#f57f17,stroke-width:3px
+    style MOTOR_DETAIL fill:#fff9c4,stroke:#f9a825
+    style FDR fill:#e1bee7,stroke:#6a1b9a
+    style DEC fill:#b3e5fc,stroke:#0277bd
+    style SUP fill:#ffcdd2,stroke:#c62828
+    style FB fill:#ffe0b2,stroke:#e65100
+    style FIT fill:#ffcc80,stroke:#ef6c00,stroke-width:2px
+    style AUDIT fill:#d7ccc8,stroke:#4e342e

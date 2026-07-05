@@ -1,0 +1,4547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DISEÑO TÉCNICO DE REFERENCIA — CAE IA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="switch-theme.css" />
+</head>
+<body class="accent-blue">
+  <div class="joycon joycon-left" aria-hidden="true"></div>
+  <div class="joycon joycon-right" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="40" height="24" rx="6" fill="currentColor" opacity=".15"/><rect x="8" y="16" width="32" height="16" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="24" r="3" fill="currentColor"/></svg>
+          </span>
+          <div>
+            <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
+            <h1 class="brand-title">DISEÑO TÉCNICO DE REFERENCIA</h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">Técnico</span>
+          <span class="badge badge-neutral">v3.0</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Diseño Técnico de Referencia — Plataforma CAE</p>
+      <nav class="doc-nav">
+        <a href="index.html" class="nav-pill">Inicio</a>
+        <a href="resumen-ejecutivo-cliente-v3.0.html" class="nav-pill">Resumen ejecutivo</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill active">Diseño técnico</a>
+        <a href="arquitectura-cae-ia.html" class="nav-pill">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill">Estrategia migración</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+          <p class="sidebar-label">Índice</p>
+          <ul class="toc"><li><a href="#sistema-de-asistencia-inteligente-para-plataforma-cae-v30" class="toc-link" data-section="sistema-de-asistencia-inteligente-para-plataforma-cae-v30">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE v3.0</a></li>
+<li><a href="#1-objetivo-tecnico" class="toc-link" data-section="1-objetivo-tecnico">1. Objetivo técnico</a></li>
+<li><a href="#2-principios-de-arquitectura" class="toc-link" data-section="2-principios-de-arquitectura">2. Principios de arquitectura</a></li>
+<li><a href="#3-arquitectura-general" class="toc-link" data-section="3-arquitectura-general">3. Arquitectura general</a></li>
+<li><a href="#4-arquitectura-por-fases-end-to-end" class="toc-link" data-section="4-arquitectura-por-fases-end-to-end">4. Arquitectura por fases (end-to-end)</a></li>
+<li><a href="#5-componentes-principales" class="toc-link" data-section="5-componentes-principales">5. Componentes principales</a></li>
+<li><a href="#6-pipeline-documental" class="toc-link" data-section="6-pipeline-documental">6. Pipeline documental</a></li>
+<li><a href="#7-validation-engine" class="toc-link" data-section="7-validation-engine">7. Validation Engine</a></li>
+<li><a href="#8-azure-ai-foundry-y-knowledge-base" class="toc-link" data-section="8-azure-ai-foundry-y-knowledge-base">8. Azure AI Foundry y Knowledge Base</a></li>
+<li><a href="#9-flujos-tecnicos" class="toc-link" data-section="9-flujos-tecnicos">9. Flujos técnicos</a></li>
+<li><a href="#10-modelo-de-ia" class="toc-link" data-section="10-modelo-de-ia">10. Modelo de IA</a></li>
+<li><a href="#11-modelo-de-datos" class="toc-link" data-section="11-modelo-de-datos">11. Modelo de datos</a></li>
+<li><a href="#12-modelo-de-eventos" class="toc-link" data-section="12-modelo-de-eventos">12. Modelo de eventos</a></li>
+<li><a href="#13-apis" class="toc-link" data-section="13-apis">13. APIs</a></li>
+<li><a href="#14-colas-y-orquestacion" class="toc-link" data-section="14-colas-y-orquestacion">14. Colas y orquestación</a></li>
+<li><a href="#15-seguridad" class="toc-link" data-section="15-seguridad">15. Seguridad</a></li>
+<li><a href="#16-observabilidad" class="toc-link" data-section="16-observabilidad">16. Observabilidad</a></li>
+<li><a href="#17-mlops-y-feedback-engine" class="toc-link" data-section="17-mlops-y-feedback-engine">17. MLOps y Feedback Engine</a></li>
+<li><a href="#18-fitness-engine-y-evaluacion" class="toc-link" data-section="18-fitness-engine-y-evaluacion">18. Fitness Engine y evaluación</a></li>
+<li><a href="#19-despliegue-azure" class="toc-link" data-section="19-despliegue-azure">19. Despliegue Azure</a></li>
+<li><a href="#20-kpis-tecnicos" class="toc-link" data-section="20-kpis-tecnicos">20. KPIs técnicos</a></li>
+<li><a href="#21-estrategia-de-calidad-y-testing" class="toc-link" data-section="21-estrategia-de-calidad-y-testing">21. Estrategia de calidad y testing</a></li>
+<li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base" class="toc-link" data-section="22-monorepo-nx-y-organizacion-del-repositorio-base">22. Monorepo Nx y organización del repositorio base</a></li>
+<li><a href="#23-riesgos-explicitos-y-mitigaciones" class="toc-link" data-section="23-riesgos-explicitos-y-mitigaciones">23. Riesgos explícitos y mitigaciones</a></li>
+<li><a href="#24-vision-final" class="toc-link" data-section="24-vision-final">24. Visión final</a></li></ul>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <article class="prose"><h1 id="diseno-tecnico-de-referencia" class="doc-main-title">DISEÑO TÉCNICO DE REFERENCIA</h1>
+<h2 id="sistema-de-asistencia-inteligente-para-plataforma-cae-v30" class="section-title">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE v3.0</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Versión</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>Versión de entrega</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>03/07/2026</td>
+</tr>
+<tr>
+<td><strong>Proyecto</strong></td>
+<td>Plataforma CAE v2.0 — Desarrollo IA</td>
+</tr>
+<tr>
+<td><strong>Clasificación</strong></td>
+<td>Confidencial — IDEAUTO / Babooni</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
+<ol>
+<li><a href="#1-objetivo-tecnico">Objetivo técnico</a></li>
+<li><a href="#2-principios-de-arquitectura">Principios de arquitectura</a></li>
+<li><a href="#3-arquitectura-general">Arquitectura general</a></li>
+<li><a href="#4-arquitectura-por-fases-end-to-end">Arquitectura por fases (end-to-end)</a></li>
+<li><a href="#5-componentes-principales">Componentes principales</a></li>
+<li><a href="#6-pipeline-documental">Pipeline documental</a></li>
+<li><a href="#7-validation-engine">Validation Engine</a></li>
+<li><a href="#8-azure-ai-foundry-y-knowledge-base">Azure AI Foundry y Knowledge Base</a></li>
+<li><a href="#9-flujos-tecnicos">Flujos técnicos</a></li>
+<li><a href="#10-modelo-de-ia">Modelo de IA</a></li>
+<li><a href="#11-modelo-de-datos">Modelo de datos</a></li>
+<li><a href="#12-modelo-de-eventos">Modelo de eventos</a></li>
+<li><a href="#13-apis">APIs</a></li>
+<li><a href="#14-colas-y-orquestacion">Colas y orquestación</a></li>
+<li><a href="#15-seguridad">Seguridad</a></li>
+<li><a href="#16-observabilidad">Observabilidad</a></li>
+<li><a href="#17-mlops-y-feedback-engine">MLOps y Feedback Engine</a></li>
+<li><a href="#18-fitness-engine-y-evaluacion">Fitness Engine y evaluación</a></li>
+<li><a href="#19-despliegue-azure">Despliegue Azure</a></li>
+<li><a href="#20-kpis-tecnicos">KPIs técnicos</a></li>
+<li><a href="#21-estrategia-de-calidad-y-testing">Estrategia de calidad y testing</a></li>
+<li><a href="#22-monorepo-nx-y-organizacion-del-repositorio-base">Monorepo Nx y organización del repositorio</a></li>
+<li><a href="#23-riesgos-explicitos-y-mitigaciones">Riesgos explícitos y mitigaciones</a></li>
+<li><a href="#24-vision-final">Visión final</a></li>
+</ol>
+<hr>
+<h2 id="1-objetivo-tecnico" class="section-title">1. Objetivo técnico</h2>
+<p>Definir la arquitectura tecnológica de referencia para la incorporación de capacidades de <strong>Inteligencia Artificial de asistencia continua</strong> dentro de la plataforma CAE v2.0.</p>
+<blockquote class="callout"><p><strong>Enfoque:</strong> la arquitectura prioriza el <strong>Validation Engine</strong> (reglas CAE RF-001–RF-030, cruces, completitud) sobre la extracción documental. La OCR/IA extractiva es un <strong>adaptador de entrada</strong> al dominio CAE, no el producto. El objetivo es que la IA <strong>realice progresivamente el trabajo de validación funcional</strong> que hoy ejecuta manualmente Operaciones IDEAUTO.</p></blockquote>
+<p>La arquitectura deberá:</p>
+<ul>
+<li>Adoptar <strong>arquitectura hexagonal</strong> (Ports &amp; Adapters) en cada servicio desplegable.</li>
+<li>Organizarse mediante <strong>DDD</strong> (Domain-Driven Design): bounded contexts, agregados y lenguaje ubicuo CAE.</li>
+<li>Implementarse como <strong>microservicios</strong> independientes, comunicados por APIs y eventos asíncronos.</li>
+<li>Ser <strong>escalable</strong> horizontalmente (workers, colas, inferencia stateless).</li>
+<li><strong>Desacoplar</strong> completamente las capacidades IA del núcleo CAE actual, aislando los nuevos componentes de la deuda técnica heredada.</li>
+<li>Mantener <strong>trazabilidad completa</strong> del expediente (audit log end-to-end).</li>
+<li>Permitir la <strong>evolución independiente</strong> de modelos, reglas y prompts.</li>
+<li>Garantizar <strong>explicabilidad</strong> y supervisión humana (Human in the Loop).</li>
+<li>Implementar <strong>validación progresiva</strong> como pipeline reactivo a eventos.</li>
+<li>Minimizar vendor lock-in mediante abstracciones API-first.</li>
+<li>Soportar <strong>observabilidad</strong> de costes, latencia y calidad IA.</li>
+</ul>
+<p><strong>Aislamiento de deuda técnica externa:</strong> para garantizar la alta disponibilidad y la velocidad de cómputo que requieren los modelos LLM y de visión, el sistema de asistencia inteligente operará de forma autónoma a nivel de infraestructura, lógica y persistencia. La integración con sistemas preexistentes de la plataforma se realizará exclusivamente mediante interfaces síncronas/asíncronas controladas por una <strong>Capa de Anti-Corrupción (ACL)</strong>. Se prohíbe explícitamente el acceso directo a bases de datos compartidas o la dependencia de lógicas de negocio externas no expuestas vía API contractual.</p>
+<hr>
+<h2 id="2-principios-de-arquitectura" class="section-title">2. Principios de arquitectura</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Principio</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PA-01</td>
+<td><strong>API First</strong></td>
+<td>Toda funcionalidad IA consumible vía REST/OpenAPI. Sin acceso directo a BD desde componentes IA.</td>
+</tr>
+<tr>
+<td>PA-02</td>
+<td><strong>Desacoplamiento</strong></td>
+<td>CAE es propietario del expediente; servicios IA son auxiliares stateless.</td>
+</tr>
+<tr>
+<td>PA-03</td>
+<td><strong>Stateless</strong></td>
+<td>Workers de inferencia sin estado; persistencia en Blob, Redis, PostgreSQL/Cosmos.</td>
+</tr>
+<tr>
+<td>PA-04</td>
+<td><strong>Automatización progresiva</strong></td>
+<td>Decision Engine: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT; Operaciones solo en excepciones.</td>
+</tr>
+<tr>
+<td>PA-05</td>
+<td><strong>Observabilidad</strong></td>
+<td>OpenTelemetry, audit log, métricas por componente y coste IA.</td>
+</tr>
+<tr>
+<td>PA-06</td>
+<td><strong>Idempotencia</strong></td>
+<td>Reintentos seguros en ingesta y procesamiento documental.</td>
+</tr>
+<tr>
+<td>PA-07</td>
+<td><strong>Separación de capas</strong></td>
+<td>Extracción ≠ Validación determinista ≠ Razonamiento generativo.</td>
+</tr>
+<tr>
+<td>PA-08</td>
+<td><strong>Arquitectura hexagonal</strong></td>
+<td>Dominio en el centro; infraestructura (Azure, BD, colas) en adaptadores periféricos.</td>
+</tr>
+<tr>
+<td>PA-09</td>
+<td><strong>DDD</strong></td>
+<td>Bounded contexts explícitos; reglas CAE y validación en el dominio, no en controllers.</td>
+</tr>
+<tr>
+<td>PA-10</td>
+<td><strong>Microservicios</strong></td>
+<td>Un servicio desplegable por capacidad de negocio; contratos API/eventos versionados.</td>
+</tr>
+<tr>
+<td>PA-11</td>
+<td><strong>Anti-Corruption Layer</strong></td>
+<td>Integración con Plataforma CAE v2.0 mediante adaptadores independientes; evita contaminar el nuevo dominio por el software heredado.</td>
+</tr>
+<tr>
+<td>PA-12</td>
+<td><strong>Libs first</strong></td>
+<td>Toda capacidad IA como lib Nx; apps solo componen y despliegan. Permite reutilizar el código en la migración global sin reescritura.</td>
+</tr>
+<tr>
+<td>PA-13</td>
+<td><strong>Deploy elástico</strong></td>
+<td>Misma codebase: monolito modular (default) → microservicios bajo demanda.</td>
+</tr>
+<tr>
+<td>PA-14</td>
+<td><strong>Pirámide de testing</strong></td>
+<td>Muchos unitarios e integración; pocos E2E; carga/estrés periódicos; golden set IA en CI.</td>
+</tr>
+<tr>
+<td>PA-15</td>
+<td><strong>UI reusable</strong></td>
+<td>Componentes tontos en <code>ui/</code> + Storybook; componentes listos en <code>feature-*</code>; sin lógica de negocio en presentación.</td>
+</tr>
+<tr>
+<td>PA-16</td>
+<td><strong>Dominio CAE, no OCR genérico</strong></td>
+<td>El Validation Engine (reglas RF, cruces, completitud) es el núcleo; extracción alimenta validación, no la sustituye.</td>
+</tr>
+<tr>
+<td>PA-17</td>
+<td><strong>Reducción carga Operaciones</strong></td>
+<td>AUTO_APPROVE evita cola humana en casos limpios; HUMAN_REVIEW solo excepciones.</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="3-arquitectura-general" class="section-title">3. Arquitectura general</h2>
+<h3 id="31-vista-logica-de-alto-nivel" class="subsection-title">3.1 Vista lógica de alto nivel</h3>
+<p>Vista <strong>infraestructural</strong> simplificada (capas, servicios Azure, integración con CAE heredado). El <strong>pipeline funcional completo</strong> (9 capas, Decision Engine, MLOps) está en <a href="#40-flujo-tecnico-e2e--diagrama-maestro-v30">§4.0 — Diagrama maestro v3.0</a>.</p>
+<div class="mermaid">
+flowchart TB
+    subgraph CAE["Plataforma CAE v2.0 (entorno heredado)"]
+        FE["Frontend Asistido (React Host)"]
+        CORE["Core Expedientes / Backend legacy"]
+    end
+
+    subgraph EDGE["Edge Layer"]
+        GW["API Gateway / Edge Gateway"]
+    end
+
+    subgraph ORCH["Orquestación"]
+        AO["AI Orchestrator"]
+        WE["Workflow Engine / FSM (Redis)"]
+    end
+
+    subgraph INGEST["Ingesta y Extracción"]
+        BLOB["Blob Storage RAW (inmutable)"]
+        PRE["Preprocessing Engine (cortafuegos legibilidad)"]
+        DI["Azure Document Intelligence"]
+        VLM["GPT-4o Vision Fallback"]
+        CLS["Document Classifier"]
+        EXT["Extraction Engine + Workers"]
+    end
+
+    subgraph VALID["Validación determinista"]
+        VE["Validation Engine (reglas CAE)"]
+        DE["Decision Engine"]
+    end
+
+    subgraph AI["Razonamiento IA"]
+        FDR["Azure AI Foundry"]
+        KB["Knowledge Base RAG"]
+    end
+
+    subgraph OPS["Operaciones, Feedback y MLOps"]
+        FB["Feedback Engine"]
+        LB["Labeling Service"]
+        DS["Dataset Builder"]
+        FIT["Fitness Engine"]
+        EV["Evaluation Pipeline"]
+        MR["Model / Prompt Registry"]
+    end
+
+    subgraph OBS["Observabilidad"]
+        OT["OpenTelemetry / Audit"]
+    end
+
+    FE --> GW
+    GW --> AO
+    AO --> BLOB
+    BLOB --> PRE
+    PRE -->|Ilegible| REJ["Rechazo preventivo UX"]
+    PRE --> DI
+    PRE --> VLM
+    DI --> CLS
+    VLM --> CLS
+    CLS --> EXT
+    EXT --> VE
+    VE --> AO
+    AO --> FDR
+    FDR --> KB
+    AO --> DE
+    DE --> CORE
+    CORE --> FB
+    FB --> LB
+    LB --> DS
+    DS --> EV
+    EV --> FIT
+    FIT --> MR
+    MR -.-> DI & FDR & VE
+    OBS -.-> GW & AO & VE & FDR & FB & FIT
+</div>
+<h3 id="32-paradigma-arquitectura-hexagonal-ddd-y-microservicios" class="subsection-title">3.2 Paradigma: arquitectura hexagonal, DDD y microservicios</h3>
+<p>La capa de asistencia inteligente se <strong>descompone lógicamente en microservicios</strong>, cada uno con <strong>arquitectura hexagonal</strong> interna y fronteras de dominio definidas mediante <strong>DDD</strong>. Esa descomposición es el modelo de dominio; el <strong>despliegue inicial</strong> se realiza como monolito modular (Modo A, §3.3.4), y solo se extraen servicios independientes cuando la demanda lo justifica.</p>
+<h4>3.2.1 Arquitectura hexagonal (Ports &amp; Adapters)</h4>
+<p>Cada microservicio estructura su código en tres anillos:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Anillo</th>
+<th>Contenido</th>
+<th>Regla</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dominio</strong></td>
+<td>Entidades, agregados, value objects, reglas de negocio, domain events</td>
+<td>Sin dependencias de framework ni Azure</td>
+</tr>
+<tr>
+<td><strong>Aplicación</strong></td>
+<td>Casos de uso, orquestación, puertos de entrada/salida (interfaces)</td>
+<td>Depende solo del dominio</td>
+</tr>
+<tr>
+<td><strong>Infraestructura</strong></td>
+<td>Adaptadores REST, consumidores de cola, clientes Azure DI/Foundry, repositorios</td>
+<td>Implementa los puertos definidos en aplicación</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph EXT["Adaptadores de entrada"]
+        REST["REST Controller"]
+        CONS["Event Consumer"]
+    end
+
+    subgraph APP["Capa aplicación"]
+        UC["Casos de uso"]
+        PIN["Puertos entrada"]
+        POUT["Puertos salida"]
+    end
+
+    subgraph DOM["Dominio DDD"]
+        AGG["Agregados"]
+        REGLAS["Reglas CAE / validación"]
+        EVT["Domain Events"]
+    end
+
+    subgraph ADP["Adaptadores de salida"]
+        REPO["Repositorio PostgreSQL"]
+        BLOB["Blob Adapter"]
+        AZ["Azure DI / Foundry Client"]
+        BUS["Service Bus Publisher"]
+    end
+
+    REST --> PIN
+    CONS --> PIN
+    PIN --> UC
+    UC --> AGG
+    AGG --> REGLAS
+    AGG --> EVT
+    UC --> POUT
+    POUT --> REPO & BLOB & AZ & BUS
+</div>
+<h4>3.2.2 Bounded contexts (DDD)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bounded context</th>
+<th>Responsabilidad de dominio</th>
+<th>Agregados principales</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Expedición CAE</strong> (host)</td>
+<td>Ciclo de vida expediente, formulario, envío</td>
+<td><code>Expediente</code>, <code>Documento</code></td>
+</tr>
+<tr>
+<td><strong>Ingesta documental</strong></td>
+<td>Recepción, almacenamiento RAW, normalización</td>
+<td><code>DocumentoRaw</code>, <code>JobIngesta</code></td>
+</tr>
+<tr>
+<td><strong>Extracción</strong></td>
+<td>Clasificación y extracción estructurada</td>
+<td><code>Extraccion</code>, <code>CampoExtraido</code></td>
+</tr>
+<tr>
+<td><strong>Validación CAE</strong></td>
+<td>Reglas RF-001–RF-030, cruces, scoring, incidencias</td>
+<td><code>EvaluacionExpediente</code>, <code>Incidencia</code></td>
+</tr>
+<tr>
+<td><strong>Razonamiento IA</strong></td>
+<td>Resumen, explicaciones, asistencia conversacional</td>
+<td><code>AnalisisExpediente</code>, <code>ConsultaAsistente</code></td>
+</tr>
+<tr>
+<td><strong>Conocimiento CAE</strong></td>
+<td>Índices RAG, procedimientos, normativa</td>
+<td><code>IndiceConocimiento</code>, <code>Fragmento</code></td>
+</tr>
+<tr>
+<td><strong>Feedback y calidad</strong></td>
+<td>Correcciones, labeling, datasets</td>
+<td><code>Feedback</code>, <code>Etiqueta</code></td>
+</tr>
+<tr>
+<td><strong>MLOps</strong></td>
+<td>Evaluación, fitness, promoción/rollback</td>
+<td><code>Evaluacion</code>, <code>Fitness</code>, <code>ArtefactoIA</code></td>
+</tr>
+</tbody></table></div>
+<p>Los contextos se comunican mediante <strong>contratos de integración</strong> (API REST + eventos de dominio), nunca compartiendo modelos de persistencia ni bases de datos con el software heredado.</p>
+<h4>3.2.3 Unidades desplegables (lógicas)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Unidad lógica</th>
+<th>Bounded context</th>
+<th>Responsabilidad</th>
+<th>Comunicación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cae-gateway</code></td>
+<td>Transversal</td>
+<td>Auth, rate limit, idempotency, enrutamiento</td>
+<td>REST → servicios internos</td>
+</tr>
+<tr>
+<td><code>cae-ingestion</code></td>
+<td>Ingesta</td>
+<td>Upload, Blob RAW, preprocessing, jobs</td>
+<td>REST + <code>DocumentUploaded</code></td>
+</tr>
+<tr>
+<td><code>cae-extraction</code></td>
+<td>Extracción</td>
+<td>OCR, clasificación, workers extractores</td>
+<td>Eventos + REST interno</td>
+</tr>
+<tr>
+<td><code>cae-validation</code></td>
+<td>Validación CAE</td>
+<td>Motor validación progresiva, Decision Engine</td>
+<td>Eventos + REST</td>
+</tr>
+<tr>
+<td><code>cae-reasoning</code></td>
+<td>Razonamiento IA</td>
+<td>Orchestrator, Foundry, resumen ejecutivo</td>
+<td>REST + eventos</td>
+</tr>
+<tr>
+<td><code>cae-knowledge</code></td>
+<td>Conocimiento</td>
+<td>RAG, AI Search, indexación</td>
+<td>REST interno</td>
+</tr>
+<tr>
+<td><code>cae-feedback</code></td>
+<td>Feedback</td>
+<td>Captura correcciones, labeling</td>
+<td>REST + <code>FeedbackStored</code></td>
+</tr>
+<tr>
+<td><code>cae-mlops</code></td>
+<td>MLOps</td>
+<td>Dataset, evaluación, Fitness Engine, Registry</td>
+<td>REST + eventos batch</td>
+</tr>
+<tr>
+<td><code>cae-integration</code></td>
+<td>Anti-corruption</td>
+<td>Sincronización con Core CAE v2.0</td>
+<td>REST hacia plataforma host</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Materializadas primero como <strong>libs Nx</strong> (§3.3). El despliegue como contenedor independiente es <strong>opcional</strong> según demanda.</p></blockquote>
+<p>Cuando se despliegan aisladas (Modo C):</p>
+<ul>
+<li>Contenedor propio en AKS (o equivalente).</li>
+<li>OpenAPI versionada, persistencia propia, Service Bus, Redis según §14.</li>
+</ul>
+<h4>3.2.4 Orquestación vs. coreografía</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Patrón</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Coreografía (eventos)</strong></td>
+<td>Pipeline documental: upload → extracción → validación progresiva</td>
+</tr>
+<tr>
+<td><strong>Orquestación (Orchestrator)</strong></td>
+<td>Análisis global expediente, fan-out/fan-in multi-documento</td>
+</tr>
+<tr>
+<td><strong>Saga</strong></td>
+<td>Envío a revisión: validación final + decisión + cola Operaciones + rollback compensatorio si falla integración CAE</td>
+</tr>
+</tbody></table></div>
+<h4>3.2.5 Regla de compartición entre libs</h4>
+<blockquote class="callout"><p>Solo <strong>value objects</strong> y <strong>contratos API</strong> estables se comparten entre bounded contexts (<code>VIN</code>, <code>NIF</code>, DTOs OpenAPI). La lógica de negocio permanece encapsulada en cada lib de dominio.</p></blockquote>
+<h3 id="33-arquitectura-objetivo-en-monorepo-nx" class="subsection-title">3.3 Arquitectura objetivo en monorepo Nx</h3>
+<p>La Plataforma CAE v2.0 <strong>no dispone hoy</strong> de esta estructura modular para IA. La <strong>arquitectura objetivo</strong> organiza el código en un <strong>monorepo Nx</strong> con <strong><code>libs/</code></strong> reutilizables e <strong><code>apps/</code></strong> como hosts de composición y despliegue. Esta estructura es el estándar técnico destino de la compañía (<strong>Strangler Fig Pattern</strong>): permite canibalizar el software heredado de forma progresiva sin interrumpir la operativa.</p>
+<h4>3.3.1 Patrón de capas (monorepo Nx)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Ubicación objetivo</th>
+<th>Patrón</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dominio + puertos</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>DDD + hexagonal (ports) — agnóstico de framework</td>
+</tr>
+<tr>
+<td>Contratos API</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs compartidos</td>
+</tr>
+<tr>
+<td>Backend por capacidad</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules exportables (<code>forRoot()</code>)</td>
+</tr>
+<tr>
+<td>UI React (Fase 1)</td>
+<td><code>libs/react/cae/*</code></td>
+<td>MFE integrado en host CAE v2 actual</td>
+</tr>
+<tr>
+<td>UI Angular (evolución)</td>
+<td><code>libs/angular/cae/*</code></td>
+<td>Stack de evolución de la plataforma; activación progresiva por módulo</td>
+</tr>
+<tr>
+<td>UI reusable (tontos)</td>
+<td><code>libs/react/cae/ui</code>, <code>libs/angular/cae/ui</code></td>
+<td>Presentational + Storybook</td>
+</tr>
+<tr>
+<td>Storybook</td>
+<td><code>apps/cae-ui-storybook</code></td>
+<td>Catálogo visual de componentes React y Angular</td>
+</tr>
+<tr>
+<td>Host backend IA</td>
+<td><code>apps/cae-ia-backend</code></td>
+<td>Monolito modular NestJS</td>
+</tr>
+<tr>
+<td>MFE React (Fase 1)</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote embebido en shell CAE v2</td>
+</tr>
+<tr>
+<td>MFE Angular (evolución)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote de evolución; sustituye progresivamente al remote React</td>
+</tr>
+</tbody></table></div>
+<h4>3.3.2 Estructura objetivo — libs IA CAE</h4>
+<pre class="code-block"><code class="language-">cae-ia-monorepo/                               # Monorepo Nx dedicado IA CAE
+├── apps/
+│   ├── cae-ia-backend/                        # Host monolito modular backend IA
+│   ├── cae-assistant-mfe/                     # [DEFAULT] Microfrontend React → CAE v2
+│   ├── cae-assistant-mfe-angular/             # [EVOLUCIÓN] Microfrontend Angular
+│   └── cae-ui-storybook/                      # Storybook — catálogo componentes UI
+│
+├── libs/
+│   ├── isomorphic/cae/
+│   │   ├── core/                              # Dominio DDD puro (sin Nest/React/Angular)
+│   │   └── api/                               # Contratos OpenAPI, DTOs
+│   │
+│   ├── node/cae/
+│   │   ├── ingestion-backend/
+│   │   ├── extraction-backend/
+│   │   ├── validation-backend/
+│   │   ├── reasoning-backend/
+│   │   ├── knowledge-backend/
+│   │   ├── feedback-backend/
+│   │   ├── mlops-backend/
+│   │   └── integration-backend/               # ACL → Plataforma CAE v2.0
+│   │
+│   ├── react/cae/                             # UI default — stack nativo CAE v2
+│   │   ├── ui/                                # Componentes tontos + *.stories.tsx
+│   │   ├── data-access/                       # Hooks, stores, clientes API
+│   │   ├── feature-assistant/                 # Componentes listos (containers)
+│   │   ├── feature-operations/
+│   │   └── feature-mlops/
+│   │
+│   └── angular/cae/                           # UI evolución — misma API de componentes
+│       ├── ui/                                # Componentes tontos + *.stories.ts
+│       ├── data-access/
+│       ├── feature-assistant/                 # Smart components / containers
+│       ├── feature-operations/
+│       └── feature-mlops/</code></pre>
+<p>Cada lib <code>*-backend</code> sigue <strong>domain / application / infrastructure</strong>, exportando un módulo NestJS composable (<code>XxxBackendModule.forRoot()</code>). Las libs UI comparten <strong><code>data-access</code></strong> y contratos de props/eventos; solo cambia la capa de presentación (React vs Angular).</p>
+<h4>3.3.3 Correspondencia bounded context → lib Nx</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Bounded context</th>
+<th>Lib dominio</th>
+<th>Lib backend</th>
+<th>Lib UI React (cliente)</th>
+<th>Lib UI Angular (evolución)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Validación CAE</td>
+<td><code>isomorphic/cae/core</code></td>
+<td><code>validation-backend</code></td>
+<td><code>react/cae/feature-assistant</code></td>
+<td><code>angular/cae/feature-assistant</code></td>
+</tr>
+<tr>
+<td>Extracción</td>
+<td><code>isomorphic/cae/core</code></td>
+<td><code>extraction-backend</code></td>
+<td>Sin capa UI</td>
+<td>Sin capa UI</td>
+</tr>
+<tr>
+<td>Ingesta</td>
+<td><code>isomorphic/cae/core</code></td>
+<td><code>ingestion-backend</code></td>
+<td>Sin capa UI</td>
+<td>Sin capa UI</td>
+</tr>
+<tr>
+<td>Razonamiento IA</td>
+<td><code>isomorphic/cae/core</code></td>
+<td><code>reasoning-backend</code></td>
+<td><code>feature-assistant</code> (chat)</td>
+<td>idem Angular</td>
+</tr>
+<tr>
+<td>Operaciones</td>
+<td>Reutiliza <code>isomorphic/cae/core</code></td>
+<td><code>reasoning-backend</code> + <code>validation-backend</code></td>
+<td><code>feature-operations</code></td>
+<td>idem Angular</td>
+</tr>
+<tr>
+<td>MLOps / Fitness</td>
+<td><code>isomorphic/cae/core</code></td>
+<td><code>mlops-backend</code></td>
+<td><code>feature-mlops</code></td>
+<td>idem Angular</td>
+</tr>
+<tr>
+<td>Integración CAE v2</td>
+<td><code>isomorphic/cae/api</code></td>
+<td><code>integration-backend</code></td>
+<td>Sin capa UI (solo ACL)</td>
+<td>Sin capa UI (solo ACL)</td>
+</tr>
+</tbody></table></div>
+<h4>3.3.4 Modos de despliegue (misma codebase)</h4>
+<p>La decisión monolito vs microservicio es <strong>operativa</strong>, no de reescritura:</p>
+<div class="mermaid">
+flowchart TB
+    subgraph LIBS["libs/ — código fuente único"]
+        L1["validation-backend"]
+        L2["extraction-backend"]
+        L3["mlops-backend"]
+        L4["feature-assistant"]
+    end
+
+    subgraph M1["Modo A — Monolito modular"]
+        APP1["apps/cae-ia-backend"]
+        APP1 --> L1 & L2 & L3
+    end
+
+    subgraph M2["Modo B — Híbrido"]
+        APP2["cae-ia-backend core"]
+        SVC["cae-mlops-service"]
+        APP2 --> L1 & L2
+        SVC --> L3
+    end
+
+    subgraph M3["Modo C — Microservicios"]
+        S1["cae-validation-svc"]
+        S2["cae-extraction-svc"]
+        S3["cae-mlops-svc"]
+        S1 --> L1
+        S2 --> L2
+        S3 --> L3
+    end
+
+    LIBS --> M1 & M2 & M3
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Modo</th>
+<th>Cuándo</th>
+<th>Composición</th>
+<th>Comunicación interna</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>A — Monolito modular</strong></td>
+<td>MVP, dev, baja carga, integración temprana CAE</td>
+<td><code>apps/cae-ia-backend</code> importa todos los <code>*-backend</code></td>
+<td>Llamadas in-process / eventos in-memory</td>
+</tr>
+<tr>
+<td><strong>B — Híbrido</strong></td>
+<td>MLOps o extracción con picos aislados</td>
+<td>Core monolito + 1–2 servicios extraídos</td>
+<td>REST + Service Bus</td>
+</tr>
+<tr>
+<td><strong>C — Microservicios</strong></td>
+<td>Alta escala, equipos separados, SLA distintos</td>
+<td>Un contenedor AKS por unidad lógica §3.2.3</td>
+<td>Service Bus + API Gateway</td>
+</tr>
+</tbody></table></div>
+<p><strong>Principio:</strong> empezar siempre en <strong>Modo A</strong> (libs + monolito modular). Extraer a Modo B/C solo cuando métricas (latencia, coste, equipos) lo justifiquen — sin fork de código.</p>
+<h4>3.3.5 Apps objetivo</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App Nx</th>
+<th>Tipo</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>apps/cae-ia-backend</code></td>
+<td>NestJS host</td>
+<td>Componer todos los <code>node/cae/*-backend</code>; API única IA</td>
+</tr>
+<tr>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td><strong>React remote (Fase 1)</strong></td>
+<td>MFE embebido en shell CAE v2 actual</td>
+</tr>
+<tr>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td><strong>Angular remote (evolución)</strong></td>
+<td>Sustituye progresivamente al remote React según roadmap de migración</td>
+</tr>
+</tbody></table></div>
+<p>Wrappers microservicio (Modo C), generados solo bajo demanda:</p>
+<pre class="code-block"><code class="language-">apps/cae-validation-service/    → import @cae-ia/validation-backend
+apps/cae-extraction-service/
+apps/cae-mlops-service/</code></pre>
+<h3 id="34-integracion-con-plataforma-cae-v20-microfrontends" class="subsection-title">3.4 Integración con Plataforma CAE v2.0 — Microfrontends</h3>
+<p>CAE v2.0 permanece <strong>host del expediente</strong> (formulario, ciclo de vida, Operaciones). El <strong>frontend CAE v2 está construido en React</strong> — stack <strong>actual de la plataforma</strong>, acordado para la integración de Fase 1. La capa IA se integra como <strong>capacidades embebidas</strong>, no como reemplazo del shell CAE.</p>
+<blockquote class="callout"><p><strong>Estrategia Strangler Fig:</strong> la iniciativa de IA introduce arquitectura limpia (Nx, DDD, hexagonal) en una <strong>zona aislada</strong> del sistema heredado. El MFE y el backend IA nacen con estándares modernos; el código legacy no se modifica internamente — solo se consume vía ACL. Cada nuevo módulo se desarrolla en el monorepo Nx y se expone al host mediante MFE, sustituyendo progresivamente el núcleo antiguo.</p></blockquote>
+<blockquote class="callout"><p><strong>Contexto de evolución:</strong> <strong>CAE React actual</strong> se termina sin interrupción. La <strong>App IA</strong> se integra en CAE React vía MFE (Fase 1). En paralelo se construye <strong>CAE Angular nueva</strong> (<code>apps/cae-platform-angular</code>) como sustituto — distinta del MFE de evolución <code>apps/cae-assistant-mfe-angular</code>, que es la capa IA expuesta en Angular. Los microfrontends son <strong>temporales</strong> — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3.</p></blockquote>
+<h4>3.4.0 Fase 1 acordada y evolución Angular</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dimensión</th>
+<th>React (Fase 1)</th>
+<th>Angular (evolución)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Rol</strong></td>
+<td>Integración acordada con CAE v2</td>
+<td>Stack propuesto para módulos nuevos y modernización</td>
+</tr>
+<tr>
+<td><strong>Alcance en el proyecto</strong></td>
+<td>MFE de producción Fase 1</td>
+<td>MFE equivalente; referencia arquitectónica de evolución</td>
+</tr>
+<tr>
+<td><strong>Ventaja principal</strong></td>
+<td>Continuidad con el host actual</td>
+<td>Estructura modular, mantenibilidad y testing integrado</td>
+</tr>
+<tr>
+<td><strong>Consideración</strong></td>
+<td>Alineado con stack CAE v2 existente</td>
+<td>Integración Module Federation cross-framework</td>
+</tr>
+<tr>
+<td><strong>Horizonte</strong></td>
+<td>Meses 1–2 (MFE en producción)</td>
+<td>Meses 2–6 (<strong>100 % Angular en mes 6</strong>)</td>
+</tr>
+</tbody></table></div>
+<h4>3.4.1 Stack UI: React (Fase 1) vs Angular (evolución)</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th><strong>React — Fase 1</strong></th>
+<th><strong>Angular — evolución</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Motivación</td>
+<td>Continuidad con CAE v2 actual</td>
+<td>Estandarización para aplicaciones enterprise CAE</td>
+</tr>
+<tr>
+<td>Alineación host</td>
+<td>Nativa (mismo stack del host)</td>
+<td>Module Federation cross-framework</td>
+</tr>
+<tr>
+<td>App remote</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+</tr>
+<tr>
+<td>Libs UI</td>
+<td><code>libs/react/cae/*</code></td>
+<td><code>libs/angular/cae/*</code></td>
+</tr>
+<tr>
+<td>Federación</td>
+<td>Vite / Webpack Module Federation (React)</td>
+<td><code>@nx/module-federation</code> (Angular)</td>
+</tr>
+<tr>
+<td>Prioridad entrega</td>
+<td><strong>Alcance contractual actual</strong></td>
+<td>Desarrollo paralelo; escenario evolutivo</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph CAE20["Plataforma CAE v2.0 — Host React"]
+        SHELL["Shell CAE React"]
+        CORE["Core Expedientes"]
+        SLOT1["Slot: panel asistencia"]
+        SLOT2["Slot: incidencias / operaciones"]
+        SHELL --> CORE
+        SHELL --> SLOT1 & SLOT2
+    end
+
+    subgraph MFE_REACT["Fase 1 — cae-assistant-mfe React"]
+        R_FA["react/cae/feature-assistant"]
+        R_FO["react/cae/feature-operations"]
+        R_DA["react/cae/data-access"]
+        R_FA & R_FO --> R_DA
+    end
+
+    subgraph MFE_NG["Evolución — cae-assistant-mfe-angular"]
+        N_FA["angular/cae/feature-assistant"]
+        N_FO["angular/cae/feature-operations"]
+        N_DA["angular/cae/data-access"]
+        N_FA & N_FO --> N_DA
+    end
+
+    subgraph API["apps/cae-ia-backend"]
+        BE["node/cae/*-backend"]
+        ACL["integration-backend"]
+        BE --> ACL
+    end
+
+    SLOT1 -->|Module Federation React| R_FA
+    SLOT2 -->|Module Federation React| R_FO
+    SLOT1 -.->|alternativa MF Angular| N_FA
+    SLOT2 -.->|alternativa MF Angular| N_FO
+    R_DA & N_DA -->|REST / SSE| API
+    ACL --> CORE
+
+    style MFE_REACT fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style MFE_NG fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
+    style CAE20 fill:#fff9c4,stroke:#f9a825
+</div>
+<h4>3.4.2 Componentes expuestos por el MFE</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Remote</th>
+<th>Componentes</th>
+<th>Pantalla CAE v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cae-assistant-mfe</code> (React)</td>
+<td><code>AssistantPanel</code>, <code>IncidentsSidebar</code>, <code>DocumentUploadAssist</code></td>
+<td>Construcción expediente</td>
+</tr>
+<tr>
+<td><code>cae-assistant-mfe</code> (React)</td>
+<td><code>OperationsReviewPanel</code>, <code>ExecutiveSummary</code></td>
+<td>Cola Operaciones</td>
+</tr>
+<tr>
+<td><code>cae-assistant-mfe-angular</code></td>
+<td>Equivalentes Angular</td>
+<td>Mismos slots (alternativa)</td>
+</tr>
+<tr>
+<td>Ambos</td>
+<td><code>MlopsDashboard</code> (opcional)</td>
+<td>Backoffice MLOps</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ventajas del MFE frente a iframe o copia de UI:</strong></p>
+<ul>
+<li>Despliegue <strong>independiente</strong> del remote sin redeploy completo de CAE v2.</li>
+<li><strong>React (Fase 1):</strong> integración inmediata con el host CAE v2; tipos y tokens compartibles donde existan.</li>
+<li><strong>Angular (evolución):</strong> capa UI con arquitectura estandarizada; referencia para la modernización progresiva de CAE.</li>
+<li>Contrato estable: remote entry + versión semver (válido para ambos stacks).</li>
+</ul>
+<p><strong>Contrato de integración host React ↔ remote (ambos stacks):</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>expedienteId</code></td>
+<td>ID expediente activo en CAE</td>
+</tr>
+<tr>
+<td><code>tenantId</code> / <code>concesionarioId</code></td>
+<td>Contexto multi-tenant</td>
+</tr>
+<tr>
+<td><code>authToken</code></td>
+<td>JWT propagado desde CAE (Entra ID)</td>
+</tr>
+<tr>
+<td><code>locale</code></td>
+<td>es-ES</td>
+</tr>
+<tr>
+<td>Callbacks / eventos</td>
+<td><code>onIncidenciaResuelta</code>, <code>onDocumentoProcesado</code>, <code>onEnvioSolicitado</code></td>
+</tr>
+</tbody></table></div>
+<h4>3.4.3 Backend — Anti-Corruption Layer</h4>
+<p><code>integration-backend</code> traduce entre modelos CAE v2 y agregados IA:</p>
+<ul>
+<li><strong>No</strong> accede a la BD de CAE directamente salvo acuerdo explícito; preferencia por <strong>APIs CAE</strong> existentes.</li>
+<li>Sincroniza estado expediente ↔ Unified Expedition JSON.</li>
+<li>Emite eventos de dominio IA sin filtrar detalles internos CAE al resto de libs.</li>
+</ul>
+<h4>3.4.4 Fases de adopción</h4>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Entregable</th>
+<th>Despliegue</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1 — Libs</strong></td>
+<td><code>isomorphic/cae/core</code> + <code>validation-backend</code> + <code>react/cae/feature-assistant</code></td>
+<td>Monolito <code>cae-ia-backend</code>; CAE consume API REST</td>
+</tr>
+<tr>
+<td><strong>2 — MFE React piloto</strong></td>
+<td><code>cae-assistant-mfe</code> con panel incidencias</td>
+<td>Host CAE React carga remote en slot (Fase 1)</td>
+</tr>
+<tr>
+<td><strong>2b — MFE Angular (paralelo)</strong></td>
+<td><code>cae-assistant-mfe-angular</code></td>
+<td>MFE equivalente; validación de arquitectura de evolución</td>
+</tr>
+<tr>
+<td><strong>2c — Strangler Fig</strong></td>
+<td>Módulos CAE nuevos en Angular embebidos en host React</td>
+<td>Ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8</td>
+</tr>
+<tr>
+<td><strong>2d — Consolidación</strong></td>
+<td>Host Angular unificado; React desmantelado</td>
+<td>Objetivo final plataforma</td>
+</tr>
+<tr>
+<td><strong>3 — Pipeline completo</strong></td>
+<td>Todas las libs backend + MFE operaciones</td>
+<td>Modo A o B</td>
+</tr>
+<tr>
+<td><strong>4 — Escala</strong></td>
+<td>Extracción servicios Modo C según métricas</td>
+<td>AKS multi-pod</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Nota de correspondencia:</strong> estas son las <strong>fases de entrega técnica de la capa IA</strong> (libs, pipeline, escala), alineadas con las <strong>fases de migración de la plataforma</strong> (0–4, <strong>horizonte total 6 meses</strong>) definidas en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8. Equivalencia aproximada: Fases 1–2 (Libs, MFE piloto) ↔ meses 1–2 Estrategia (IA integrada); Fases 2b–2c (paralelo Angular, Strangler Fig) ↔ meses 2–5 Estrategia (convivencia, sustitución); Fase 2d (consolidación) ↔ mes 6 Estrategia (consolidación); Fases 3–4 (pipeline completo, escala) se ejecutan en paralelo durante todo el programa.</p></blockquote>
+<h4>3.4.5 Module Federation — integración temporal (React ↔ Angular)</h4>
+<p>Module Federation conecta <strong>CAE React</strong>, la <strong>App IA</strong> y <strong>CAE Angular</strong> mientras conviven. <strong>No es la arquitectura objetivo</strong>: al consolidar CAE Angular única, los remotes desaparecen y la IA pasa a <code>libs/angular/cae/feature-*</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>React (CAE v2 / MFE Fase 1)</th>
+<th>Angular (evolución)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Bundler / MFE</strong></td>
+<td>Webpack 5 MF o Vite + plugin federación</td>
+<td><code>@nx/module-federation</code> (Webpack)</td>
+</tr>
+<tr>
+<td><strong>Rol posible</strong></td>
+<td>Host (Fase 1) o remote (hasta migración)</td>
+<td>Remote (módulos nuevos) o host (consolidación)</td>
+</tr>
+<tr>
+<td><strong>Shared deps</strong></td>
+<td><code>react</code>, <code>react-dom</code> como singletons</td>
+<td><code>@angular/core</code>, <code>@angular/common</code>, etc.</td>
+</tr>
+<tr>
+<td><strong>Build legacy</strong></td>
+<td>Webpack 4 / CRA → adaptación previa</td>
+<td>Nx greenfield</td>
+</tr>
+</tbody></table></div>
+<p><strong>Requisitos de integración</strong> (obligatorios desde el inicio):</p>
+<ol>
+<li><strong>Autenticación compartida</strong> — JWT Entra ID propagado por el shell; sesión única.</li>
+<li><strong>Contrato de rutas</strong> — Tabla ruta → remote versionada; convención de paths común.</li>
+<li><strong>Design system</strong> — Tokens CSS / componentes base alineados entre equipos.</li>
+<li><strong>Comunicación entre MFE</strong> — Eventos tipados o bus ligero; evitar estado global duplicado.</li>
+<li><strong>Aislamiento CSS</strong> — Prefijos por MFE o estrategia acordada para evitar colisiones.</li>
+<li><strong>Versionado remotes</strong> — Semver + remote entry; despliegue independiente por equipo.</li>
+</ol>
+<p><strong>Escenarios de build React en CAE v2:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Viabilidad MFE</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Webpack 5</td>
+<td>Alta</td>
+<td>Configurar <code>ModuleFederationPlugin</code> en host y remotes</td>
+</tr>
+<tr>
+<td>Vite</td>
+<td>Media-alta</td>
+<td>Plugin <code>@originjs/vite-plugin-federation</code> o equivalente</td>
+</tr>
+<tr>
+<td>CRA sin eject</td>
+<td>Baja-media</td>
+<td>CRACO / migración a Webpack configurable</td>
+</tr>
+<tr>
+<td>Webpack 4</td>
+<td>Baja</td>
+<td>Actualizar toolchain antes de federar</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Opciones de shell (React vs Angular) y modelo de dos equipos: <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §2.3 y §3.2.</p></blockquote>
+<h4>3.4.6 Garantías de aislamiento y resiliencia en convivencia UI</h4>
+<p>Para asegurar que el rendimiento y la estabilidad del MFE de asistencia inteligente no se vean comprometidos por el estado o la toolchain del host heredado, se imponen las siguientes restricciones:</p>
+<ol>
+<li><strong>Encapsulamiento de estilos</strong> — CSS Modules, CSS-in-JS con prefijos dinámicos o Shadow DOM. Ningún estilo global del host altera el layout del asistente, y viceversa.</li>
+<li><strong>Sandboxing de runtimes</strong> — El MFE no depende de variables globales (<code>window.*</code>) inyectadas por el host, salvo el token de autenticación explícito. Dependencias compartidas gestionadas con <code>requiredVersion</code> estricto en Module Federation.</li>
+<li><strong>Estrategia Decoupled-First (fallback Web Components)</strong> — Si la toolchain del host (Webpack 4 / CRA) impide federación nativa, el MFE se empaqueta como Custom Element autónomo. El host solo inyecta una etiqueta HTML (<code>&lt;cae-assistant-panel dossier-id=&quot;123&quot;&gt;</code>), aislando por completo los runtimes modernos del framework legacy.</li>
+</ol>
+<h3 id="35-arquitectura-frontend-componentes-listos-y-tontos" class="subsection-title">3.5 Arquitectura frontend: componentes listos y tontos</h3>
+<p>La capa UI del MFE sigue el patrón <strong>Smart / Dumb</strong> (también <em>container / presentational</em>). El dominio y las reglas CAE <strong>nunca</strong> viven en componentes de presentación.</p>
+<h4>3.5.1 Componentes tontos (presentational / dumb)</h4>
+<p>Ubicación: <code>libs/react/cae/ui</code> (Fase 1) y <code>libs/angular/cae/ui</code> (evolución).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Característica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Responsabilidad</td>
+<td>Solo renderizar UI a partir de <strong>props/inputs</strong> y emitir <strong>eventos/callbacks</strong></td>
+</tr>
+<tr>
+<td>Sin efectos secundarios</td>
+<td>No llamadas HTTP, no acceso a stores globales, no reglas de negocio</td>
+</tr>
+<tr>
+<td>Testabilidad</td>
+<td>Tests unitarios con Testing Library; snapshots solo como complemento</td>
+</tr>
+<tr>
+<td>Reutilización</td>
+<td>Compartibles entre features, MFE y Storybook</td>
+</tr>
+<tr>
+<td>Design system</td>
+<td>Tokens alineados con CAE v2 (React); Angular con design system modular propio</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplos de componentes tontos:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Props principales</th>
+<th>Eventos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>IncidentCard</code></td>
+<td>incidencia, severidad, mensaje</td>
+<td><code>onResolve</code>, <code>onDismiss</code></td>
+</tr>
+<tr>
+<td><code>CompletenessGauge</code></td>
+<td>porcentaje, etiqueta</td>
+<td>Sin eventos</td>
+</tr>
+<tr>
+<td><code>DocumentStatusBadge</code></td>
+<td>estado, confidence</td>
+<td>Sin eventos</td>
+</tr>
+<tr>
+<td><code>AssistantMessage</code></td>
+<td>rol, contenido, timestamp</td>
+<td><code>onCopy</code>, <code>onFeedback</code></td>
+</tr>
+<tr>
+<td><code>OperationsSummaryBlock</code></td>
+<td>items, prioridad</td>
+<td><code>onExpand</code></td>
+</tr>
+</tbody></table></div>
+<h4>3.5.2 Componentes listos (smart / container)</h4>
+<p>Ubicación: <code>libs/react/cae/feature-*</code> y <code>libs/angular/cae/feature-*</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Característica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Responsabilidad</td>
+<td>Orquestar datos, estado local, suscripciones SSE/WebSocket, navegación MFE</td>
+</tr>
+<tr>
+<td>Data access</td>
+<td>Consumen <code>data-access</code> (React Query / signals / NgRx según convención CAE)</td>
+</tr>
+<tr>
+<td>Composición</td>
+<td>Ensamblan componentes tontos; mapean DTOs API → props de presentación</td>
+</tr>
+<tr>
+<td>Límite de lógica</td>
+<td>Reglas de negocio CAE permanecen en <code>isomorphic/cae/core</code>; aquí solo coordinación UI</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplos de componentes listos:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente listo</th>
+<th>Compone (tontos)</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AssistantPanel</code></td>
+<td><code>AssistantMessage</code>, <code>CompletenessGauge</code>, <code>IncidentCard</code></td>
+<td>Chat IA + estado expediente</td>
+</tr>
+<tr>
+<td><code>IncidentsSidebar</code></td>
+<td><code>IncidentCard</code>, filtros UI</td>
+<td>Lista incidencias en tiempo real</td>
+</tr>
+<tr>
+<td><code>DocumentUploadAssist</code></td>
+<td><code>DocumentStatusBadge</code>, progreso</td>
+<td>Feedback post-OCR</td>
+</tr>
+<tr>
+<td><code>OperationsReviewPanel</code></td>
+<td><code>OperationsSummaryBlock</code></td>
+<td>Cola Operaciones</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph SMART["Componentes LISTOS — feature-*"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+        DA["data-access hooks"]
+        AP --> DA
+        IS --> DA
+    end
+
+    subgraph DUMB["Componentes TONTOS — ui/"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+        AM["AssistantMessage"]
+    end
+
+    subgraph SB["Storybook — apps/cae-ui-storybook"]
+        ST1["IncidentCard stories"]
+        ST2["CompletenessGauge stories"]
+    end
+
+    AP --> IC & CG & AM
+    IS --> IC
+    IC & CG & AM --> ST1 & ST2
+
+    style DUMB fill:#e8f5e9,stroke:#2e7d32
+    style SMART fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+</div>
+<h4>3.5.3 Storybook — catálogo de componentes reutilizables</h4>
+<p><strong>Storybook</strong> es la herramienta oficial para documentar, desarrollar y probar en aislamiento los <strong>componentes tontos</strong> reutilizables.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>App Nx</td>
+<td><code>apps/cae-ui-storybook</code> con targets <code>storybook</code> y <code>build-storybook</code></td>
+</tr>
+<tr>
+<td>Stories React</td>
+<td><code>libs/react/cae/ui/**/*.stories.tsx</code></td>
+</tr>
+<tr>
+<td>Stories Angular</td>
+<td><code>libs/angular/cae/ui/**/*.stories.ts</code> (opcional)</td>
+</tr>
+<tr>
+<td>Controles</td>
+<td>Args para variantes: severidad, estados vacío/carga/error, temas claro/oscuro</td>
+</tr>
+<tr>
+<td>Documentación</td>
+<td>MDX por componente: cuándo usarlo, accesibilidad, props</td>
+</tr>
+<tr>
+<td>Interaction tests</td>
+<td><code>@storybook/test</code> + Testing Library en CI (<code>test-storybook</code>)</td>
+</tr>
+<tr>
+<td>Visual regression</td>
+<td>Opcional: Chromatic o Loki en pipeline STAGING</td>
+</tr>
+<tr>
+<td>Design tokens</td>
+<td>Variables CSS / theme compartido con shell CAE v2</td>
+</tr>
+</tbody></table></div>
+<p><strong>Reglas de gobernanza UI:</strong></p>
+<ol>
+<li>Todo componente nuevo en <code>ui/</code> <strong>debe</strong> tener al menos una story antes de merge.</li>
+<li>Los componentes listos (<code>feature-*</code>) <strong>no</strong> requieren Storybook obligatorio; se prueban con integración/E2E.</li>
+<li>Cambios breaking en props de <code>ui/</code> exigen bump semver del paquete <code>@cae-ia/react-ui</code>.</li>
+<li>Angular opcional: mismas variantes funcionales documentadas en Storybook Angular.</li>
+</ol>
+<hr>
+<h2 id="4-arquitectura-por-fases-end-to-end" class="section-title">4. Arquitectura por fases (end-to-end)</h2>
+<p>Arquitectura alineada con el <strong>modelo de 10 fases</strong> del sistema de asistencia inteligente CAE.</p>
+<h3 id="40-flujo-tecnico-e2e-diagrama-maestro-v30" class="subsection-title">4.0 Flujo técnico E2E — diagrama maestro v3.0</h3>
+<p>Diagrama de referencia <strong>definitivo</strong> del pipeline completo: frontend → edge → ingesta → extracción → validación progresiva (núcleo) → razonamiento IA → Decision Engine (AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT) → MLOps → observabilidad.</p>
+<div class="mermaid">
+flowchart TD
+    %% Estilos
+    classDef frontend fill:#f0f9ff,stroke:#1e40af,stroke-width:3px
+    classDef gateway fill:#fee2e9,stroke:#9f1239,stroke-width:2px
+    classDef storage fill:#ecfdf5,stroke:#166534
+    classDef validation fill:#fef3c7,stroke:#ca8a04,stroke-width:4px
+    classDef ai fill:#ede9fe,stroke:#4c1d95,stroke-width:3px
+    classDef human fill:#fee2e2,stroke:#b91c1c
+    classDef mlops fill:#f3e8ff,stroke:#6b21a8
+
+    subgraph L1["1. FRONTEND — Asistencia continua"]
+        A["Cliente sube documento / modifica dato"] --> B["Feedback inmediato UI
+Completitud + incidencias"]
+    end
+
+    subgraph L2["2. EDGE GATEWAY"]
+        C["Auth JWT + rate limit + idempotency"]
+        D{"Request válida?"}
+        ERR["Rechazo inmediato + UX"]
+        ID["Expedition ID + security context"]
+        D -->|No| ERR
+        D -->|Sí| ID
+    end
+
+    subgraph L3["3. INGESTA + STORAGE"]
+        RAW["Blob Storage RAW
+Inmutable + hash"]
+        PRE["Preprocessing Engine
+Normalización + filtro legibilidad"]
+        OCR["Document Intelligence
++ GPT-4o Vision fallback"]
+        RAW --> PRE --> OCR
+    end
+
+    subgraph L4["4. PIPELINE DOCUMENTAL"]
+        CLASS["Clasificador documental"]
+        WORK["Fan-out workers extractores
+DNI, factura, ficha, permiso…"]
+        JSON["Unified Expedition JSON
+Confidence + bbox"]
+        CLASS --> WORK --> JSON
+    end
+
+    subgraph L5["5. VALIDACIÓN PROGRESIVA CAE — NÚCLEO"]
+        VAL["Validation Engine
+Reglas RF-001 a RF-030"]
+        CROSS["Cruce semántico multi-documento"]
+        RULES["Reglas CAE bloques A–G + completitud"]
+        INC{"Incidencias?"}
+        BLOCK["Bloquear + notificar cliente"]
+        WARN["Advertencia menor"]
+        SCORE["Scoring global"]
+        DEC{"Decision Engine"}
+        VAL --> CROSS --> RULES --> INC
+        INC -->|Crítica/Mayor| BLOCK
+        INC -->|Menor| WARN
+        INC --> SCORE --> DEC
+    end
+
+    subgraph L6["6. RAZONAMIENTO IA"]
+        ORCH["AI Orchestrator + FSM Redis"]
+        FOUNDRY["Azure AI Foundry + RAG
+Knowledge Base CAE"]
+        REASON["Resumen ejecutivo + explicabilidad"]
+        ORCH --> FOUNDRY --> REASON
+    end
+
+    subgraph L7["7. OUTPUT + HUMAN-IN-THE-LOOP"]
+        OK["AUTO_APPROVE
+Tramitación directa"]
+        REV["HUMAN_REVIEW
+Cola Operaciones + resumen IA"]
+        REJ["AUTO_REJECT
+Bloqueo automático"]
+        SUP["Supervisor + asistente IA"]
+        REV --> SUP
+    end
+
+    subgraph L8["8. MLOPS + FEEDBACK"]
+        FEED["Feedback Engine"]
+        LABEL["Labeling + dataset builder"]
+        EVAL["Evaluation pipeline + Fitness Engine"]
+        REG["Model / prompt / rules registry"]
+        FEED --> LABEL --> EVAL --> REG
+    end
+
+    subgraph L9["9. OBSERVABILITY + AUDIT"]
+        AUDIT["Audit log + OpenTelemetry"]
+        MON["Monitoring + dashboards + alerting"]
+        AUDIT --> MON
+    end
+
+    B --> C
+    ID --> RAW
+    OCR --> CLASS
+    JSON --> VAL
+    DEC --> ORCH
+    REASON --> DEC
+    DEC --> OK
+    DEC --> REV
+    DEC --> REJ
+    SUP --> FEED
+    OK --> AUDIT
+    REV --> AUDIT
+    REJ --> AUDIT
+    BLOCK --> AUDIT
+    FEED -.->|Mejora continua| VAL
+    REG -.->|Promoción| VAL
+
+    class A,B frontend
+    class C,D,ID,ERR gateway
+    class RAW,PRE,OCR storage
+    class VAL,CROSS,RULES,INC,SCORE,DEC,BLOCK,WARN validation
+    class ORCH,FOUNDRY,REASON ai
+    class OK,REV,REJ,SUP human
+    class FEED,LABEL,EVAL,REG mlops
+
+    style L1 fill:#f0f9ff,stroke:#1e40af,stroke-width:3px
+    style L2 fill:#fee2e9,stroke:#9f1239,stroke-width:2px
+    style L3 fill:#ecfdf5,stroke:#166534
+    style L5 fill:#fef3c7,stroke:#ca8a04,stroke-width:4px
+    style L6 fill:#ede9fe,stroke:#4c1d95,stroke-width:3px
+    style L7 fill:#fee2e2,stroke:#b91c1c
+    style L8 fill:#f3e8ff,stroke:#6b21a8
+    style L9 fill:#f3e8ff,stroke:#6b21a8
+</div>
+<blockquote class="callout"><p><strong>Leyenda rápida:</strong> capa 5 (amarillo) = núcleo CAE; capa 7 = AUTO_APPROVE sin cola Operaciones en expedientes limpios; línea punteada desde MLOps = mejora continua de reglas y modelos.</p></blockquote>
+<h3 id="401-flujo-tecnico-e2e-vista-compacta" class="subsection-title">4.0.1 Flujo técnico E2E (vista compacta)</h3>
+<div class="mermaid">
+flowchart TD
+    START(["Documento CAE"]) --> GW{"Gateway + Auth"}
+    GW -->|Inválido| REJ1["Rechazo UX"]
+    GW --> BLOB["Blob RAW"] --> Q["Redis / Service Bus"]
+    Q --> ORCH["Orchestrator + Workflow"]
+    ORCH --> NORM["Normalización HEIC/PDF/PNG"]
+    NORM --> OCR["Document Intelligence"]
+    OCR --> CONF{"Confidence"}
+    CONF -->|Baja| VLM["GPT-4o Vision"]
+    CONF -->|Alta| CLASS["Clasificador"]
+    VLM --> CLASS
+    CLASS --> EXT["Extractores especializados"]
+    EXT --> JSON["JSON + confidence"]
+    JSON --> MOTOR["Motor validación progresiva CAE"]
+    MOTOR --> LOOP{"¿Completo?"}
+    LOOP -->|No| UI["Feedback UI → esperar docs"]
+    UI --> JSON
+    LOOP -->|Sí| FDR["Foundry + RAG"]
+    FDR --> DEC{"OK / Review / Reject"}
+    DEC --> SUP["Supervisor + Asistente IA"]
+    SUP --> FB["Feedback Engine → Labeling → Fitness"]
+    DEC --> AUDIT["Audit + Tracing"]
+    AUDIT --> CDN["AVIF/WebP + CDN → Thumbnails UI"]
+</div>
+<h3 id="41-motor-validacion-progresiva-cae-componente-central" class="subsection-title">4.1 Motor Validación Progresiva CAE (componente central)</h3>
+<p>El <strong>Motor Validación Progresiva CAE</strong> es el núcleo técnico del sistema. Se ejecuta tras cada extracción o modificación de datos.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Submódulo</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reglas deterministas</td>
+<td>Bloques A–G (RF-001 a RF-030), versionadas en Git</td>
+</tr>
+<tr>
+<td>Cruce semántico</td>
+<td>Join multi-documento: titular, VIN, matrícula, fechas, empresa</td>
+</tr>
+<tr>
+<td>Validación fechas/vigencias</td>
+<td>RF-019, antigüedad VO (API IDEAUTO)</td>
+</tr>
+<tr>
+<td>Validación vehículo-documentación</td>
+<td>Coherencia VO/VN, combustible, homologación</td>
+</tr>
+<tr>
+<td>Documentación obligatoria</td>
+<td>Checklist por tipología expediente</td>
+</tr>
+<tr>
+<td>Global Scoring + Risk</td>
+<td>Completitud, confianza, riesgo, FTR</td>
+</tr>
+<tr>
+<td>Clasificador incidencias</td>
+<td>Crítica / Mayor / Menor / Informativa</td>
+</tr>
+</tbody></table></div>
+<p><strong>Entrada:</strong> Unified Expedition JSON (datos extraídos + formulario CAE).
+<strong>Salida:</strong> Incidencias[], scoring{}, estadoExpediente, bloqueaEnvio: boolean.</p>
+<p><strong>Latencia objetivo:</strong> &lt; 3 s (reglas deterministas); &lt; 10 s (con Foundry opcional).</p>
+<h4>4.1.2 Filtro de viabilidad e ingesta preventiva (gatekeeping)</h4>
+<p>Para optimizar el coste de inferencia en Azure AI Foundry y mantener la latencia del pipeline reactivo, el <strong>Preprocessing Engine</strong> actúa como cortafuegos de calidad:</p>
+<ul>
+<li><strong>Validación estricta de legibilidad</strong> — Análisis de metadatos e histograma de imagen. Si el documento presenta resolución inferior a 150 ppp, rotación severa no corregible o compresión corrupta, el job emite <code>DocumentRejectedUX</code> de forma inmediata, sin consumir recursos del pipeline IA.</li>
+<li><strong>Bypass de inferencia genérica</strong> — Ningún documento se deriva a GPT-4o Vision sin haber pasado por Document Intelligence y fallado el umbral de confianza mínimo (&lt; 0,85). Esto evita el uso accidental de modelos multimodales costosos en tareas estructuradas estándar.</li>
+</ul>
+<h3 id="42-pipeline-de-ingesta-y-extraccion" class="subsection-title">4.2 Pipeline de ingesta y extracción</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Tecnología</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gateway</td>
+<td>API Management / Edge Gateway</td>
+<td>JWT Entra ID, idempotency Redis</td>
+</tr>
+<tr>
+<td>Blob RAW</td>
+<td>Azure Blob Storage</td>
+<td>Inmutable, SHA-256, versionado</td>
+</tr>
+<tr>
+<td>Colas</td>
+<td>Redis (fast) + Service Bus (reliable)</td>
+<td>DLQ, retry exponencial</td>
+</tr>
+<tr>
+<td>Normalización</td>
+<td>Preprocessing Engine</td>
+<td>HEIC/JPG/PNG/PDF → PNG normalizado</td>
+</tr>
+<tr>
+<td>OCR primario</td>
+<td>Azure Document Intelligence</td>
+<td>Layout + custom models</td>
+</tr>
+<tr>
+<td>OCR fallback</td>
+<td>GPT-4o Vision (Foundry)</td>
+<td>Si confidence &lt; 0.85</td>
+</tr>
+<tr>
+<td>Clasificación</td>
+<td>DI classifier + reglas</td>
+<td>Routing a extractor</td>
+</tr>
+<tr>
+<td>Extracción</td>
+<td>Workers especializados</td>
+<td>Ver tabla 4.3</td>
+</tr>
+</tbody></table></div>
+<h3 id="43-extractores-especializados-cae" class="subsection-title">4.3 Extractores especializados CAE</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Extractor</th>
+<th>Tipos documentales</th>
+<th>Campos clave</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Identidad</td>
+<td>DNI, NIE</td>
+<td>Nombre, NIF, dirección, firma</td>
+</tr>
+<tr>
+<td>Factura</td>
+<td>Factura VN</td>
+<td>Titular, VIN, matrícula, marca, modelo</td>
+</tr>
+<tr>
+<td>Ficha Técnica</td>
+<td>Ficha VN/VO</td>
+<td>VIN, energía, categoría, masa</td>
+</tr>
+<tr>
+<td>Permiso</td>
+<td>Permiso circulación, IVTM</td>
+<td>Titular, matrícula, ejercicio</td>
+</tr>
+<tr>
+<td>Vehículo VO/VN</td>
+<td>Sustitución, baja, contrato</td>
+<td>Fechas, titular, identificación</td>
+</tr>
+<tr>
+<td>Convenio CAE</td>
+<td>Convenio, anexo, autorización</td>
+<td>Firma, contraprestación €/kWh</td>
+</tr>
+<tr>
+<td>Firma</td>
+<td>Todos los firmables</td>
+<td>Detección, comparación DNI</td>
+</tr>
+<tr>
+<td>Genérico</td>
+<td>No clasificado</td>
+<td>Extracción best-effort</td>
+</tr>
+</tbody></table></div>
+<h3 id="44-decision-final-auto-aprobacion-excepciones-y-auto-rechazo" class="subsection-title">4.4 Decisión final — auto-aprobación, excepciones y auto-rechazo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Resultado</th>
+<th>Condición técnica</th>
+<th>Destino</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>AUTO_APPROVE</strong></td>
+<td>Sin incidencias críticas/mayores; completitud 100 %; confidence ≥ umbral; reglas PASS</td>
+<td><strong>Tramitación directa</strong> — sin cola Operaciones</td>
+</tr>
+<tr>
+<td><strong>HUMAN_REVIEW</strong></td>
+<td>Incidencias menores, baja confidence, flags de riesgo</td>
+<td>Cola excepciones Operaciones + resumen IA</td>
+</tr>
+<tr>
+<td><strong>AUTO_REJECT</strong></td>
+<td>Incidencias críticas/mayores abiertas</td>
+<td>Bloqueo / rechazo automático + detalle al cliente</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Meses 1–2: modo calibración (shadow). Desde mes 3: <strong>AUTO_APPROVE en producción</strong> cuando auditoría confirma precisión ≥ 95 % (criterios §17.5 ESPECIFICACION-FUNCIONAL).</p></blockquote>
+<h3 id="45-capa-observabilidad-y-entrega-ui" class="subsection-title">4.5 Capa observabilidad y entrega UI</h3>
+<p>Flujo transversal post-procesamiento:</p>
+<pre class="code-block"><code class="language-">Audit Log → OpenTelemetry Tracing → Guardar PNG procesado
+         → Optimización AVIF/WebP → CDN → Frontend Thumbnails + Auto-fill UI</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Audit Log</td>
+<td>Append-only: prompts, respuestas, decisiones, correcciones</td>
+</tr>
+<tr>
+<td>OpenTelemetry</td>
+<td>Tracing E2E con correlation-id</td>
+</tr>
+<tr>
+<td>PNG procesado</td>
+<td>Versión normalizada para revisión</td>
+</tr>
+<tr>
+<td>AVIF/WebP</td>
+<td>Optimización para CDN</td>
+</tr>
+<tr>
+<td>Thumbnails</td>
+<td>Preview documentos en UI cliente</td>
+</tr>
+<tr>
+<td>Auto-fill UI</td>
+<td>Campos rellenados desde JSON extracción</td>
+</tr>
+</tbody></table></div>
+<h3 id="46-mapa-fase-funcional-tecnica" class="subsection-title">4.6 Mapa fase funcional ↔ técnica</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase funcional</th>
+<th>Componentes técnicos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① Frontend</td>
+<td>UI CAE, SSE/WebSocket, panel incidencias</td>
+</tr>
+<tr>
+<td>②–④ Ingesta + Extracción</td>
+<td>Gateway, Blob, OCR, Vision, Classifier, Workers</td>
+</tr>
+<tr>
+<td>⑤ Validación progresiva</td>
+<td><strong>Motor Validación Progresiva CAE</strong></td>
+</tr>
+<tr>
+<td>⑥ Razonamiento IA</td>
+<td>Orchestrator, Foundry, AI Search RAG</td>
+</tr>
+<tr>
+<td>⑦ Decisión</td>
+<td>Decision Engine</td>
+</tr>
+<tr>
+<td>⑧ Operaciones</td>
+<td>Cola revisión, UI supervisor, asistente IA</td>
+</tr>
+<tr>
+<td>⑨ MLOps</td>
+<td>Feedback Engine, Labeling, Dataset, Fitness Engine, Evaluation, Registry</td>
+</tr>
+<tr>
+<td>⑩ Observabilidad</td>
+<td>OpenTelemetry, Audit, dashboards</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="5-componentes-principales" class="section-title">5. Componentes principales</h2>
+<h3 id="51-edge-gateway" class="subsection-title">5.1 Edge Gateway</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Punto de entrada único para servicios IA</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Autenticación JWT (Entra ID), rate limiting, idempotency key, validación schema, trazabilidad request-id</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>HTTP/REST + multipart upload</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Request enrutado a Orchestrator o respuesta cached</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Redis (idempotency), Key Vault (secrets)</td>
+</tr>
+<tr>
+<td><strong>Escalabilidad</strong></td>
+<td>Horizontal, stateless</td>
+</tr>
+<tr>
+<td><strong>Errores</strong></td>
+<td>401/403 auth, 429 rate limit, 409 duplicate</td>
+</tr>
+</tbody></table></div>
+<h3 id="52-blob-storage-raw" class="subsection-title">5.2 Blob Storage RAW</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Almacenamiento inmutable del documento original</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Versionado, WORM lógico, hash SHA-256, metadata expediente</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Archivo binario post-validación gateway</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>URI + hash + metadata</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Azure Blob Storage</td>
+</tr>
+<tr>
+<td><strong>Auditoría</strong></td>
+<td>Toda versión documental trazable</td>
+</tr>
+</tbody></table></div>
+<h3 id="53-preprocessing-engine" class="subsection-title">5.3 Preprocessing Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Normalización de formatos e imagen y filtrado preventivo de legibilidad</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>HEIC/JPG/PNG → PNG, PDF split, mejora contraste, deskew, denoise, cálculo de umbral de viabilidad</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Blob URI</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Páginas normalizadas listas para OCR, o interrupción del job por ilegibilidad (<code>DocumentRejectedUX</code>)</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Blob, ImageMagick/libvips o equivalente</td>
+</tr>
+</tbody></table></div>
+<h3 id="54-document-classifier" class="subsection-title">5.4 Document Classifier</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Detectar tipo documental y asignar extractor</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Texto OCR + metadata imagen</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ tipo: &quot;factura_vn&quot;, confidence: 0.96, extractor: &quot;extractor-factura&quot; }</code></td>
+</tr>
+<tr>
+<td><strong>Modelos</strong></td>
+<td>Document Intelligence custom classifier + reglas fallback</td>
+</tr>
+</tbody></table></div>
+<h3 id="55-extraction-engine-workers-ia" class="subsection-title">5.5 Extraction Engine + Workers IA</h3>
+<p>Workers especializados alineados con el clasificador documental del flujo E2E:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Worker</th>
+<th>Documentos</th>
+<th>Routing clasificador</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extractor Identidad</td>
+<td>DNI, NIE</td>
+<td><code>CLASS → Identidad</code></td>
+</tr>
+<tr>
+<td>Extractor Factura</td>
+<td>Factura VN</td>
+<td><code>CLASS → Factura VN</code></td>
+</tr>
+<tr>
+<td>Extractor Ficha Técnica</td>
+<td>Ficha técnica VN/VO</td>
+<td><code>CLASS → Ficha Técnica</code></td>
+</tr>
+<tr>
+<td>Extractor Permiso</td>
+<td>Permiso circulación, IVTM</td>
+<td><code>CLASS → Permiso/IVTM</code></td>
+</tr>
+<tr>
+<td>Extractor Vehículo</td>
+<td>Sustitución VO, baja, contrato</td>
+<td><code>CLASS → VO/VN</code></td>
+</tr>
+<tr>
+<td>Extractor Convenio CAE</td>
+<td>Convenio, anexo, autorización datos</td>
+<td><code>CLASS → Convenio</code></td>
+</tr>
+<tr>
+<td>Extractor Firma</td>
+<td>Detección y comparación firmas</td>
+<td><code>CLASS → Firma</code></td>
+</tr>
+<tr>
+<td>Extractor Genérico</td>
+<td>No clasificado / fallback</td>
+<td><code>CLASS → Otros</code></td>
+</tr>
+</tbody></table></div>
+<p><strong>Salida estándar</strong> (invariante respecto al motor extractivo subyacente):</p>
+<pre class="code-block"><code class="language-json">{
+  "documentoId": "doc-abc123",
+  "tipo": "factura_vn",
+  "campos": {
+    "vin": { "valor": "VF1ABC12345678901", "confidence": 0.97, "bbox": [120, 340, 400, 360] },
+    "titular": { "valor": "GARCIA LOPEZ, JUAN", "confidence": 0.95, "bbox": [45, 100, 200, 120] },
+    "matricula": { "valor": "1234ABC", "confidence": 0.98, "bbox": [80, 200, 180, 220] }
+  },
+  "provenance": "document-intelligence",
+  "timestamp": "2026-07-03T10:15:00Z"
+}</code></pre>
+<blockquote class="callout"><p><strong>Nota sobre bbox:</strong> Formato estandarizado <code>[x_min, y_min, x_max, y_max]</code> en píxeles relativos al documento. Cuando <code>bbox: null</code>, el campo no tiene localización visual (valor calculado o inferido). El frontend puede resaltar errores en la UI de revisión cuando bbox está presente.</p></blockquote>
+<h3 id="56-motor-validacion-progresiva-cae-validation-engine" class="subsection-title">5.6 Motor Validación Progresiva CAE (Validation Engine)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td><strong>Núcleo técnico</strong> — motor determinista de reglas CAE + cruces + scoring</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Reglas RF-001 a RF-030, cruces semánticos, completitud, scoring, severidades, validación progresiva reactiva</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Unified Expedition JSON</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Incidencias[] + scoring{} + estadoExpediente + bloqueaEnvio</td>
+</tr>
+<tr>
+<td><strong>Disparadores</strong></td>
+<td>DocumentExtracted, FieldModified, DocumentReplaced</td>
+</tr>
+<tr>
+<td><strong>Versionado</strong></td>
+<td>Reglas versionadas en repositorio Git + despliegue controlado</td>
+</tr>
+<tr>
+<td><strong>Parametrización</strong></td>
+<td>Rangos, marcas, tipologías configurables sin redeploy</td>
+</tr>
+</tbody></table></div>
+<p>Ver <a href="#41-motor-validacion-progresiva-cae-componente-central">sección 4.1</a> y <a href="#7-validation-engine">sección 7</a>.</p>
+<h3 id="57-ai-orchestrator" class="subsection-title">5.7 AI Orchestrator</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Coordinación de todos los servicios IA</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Planificación, fan-out/fan-in, agregación, gestión de estado unificado del expediente, normalización de respuestas, resumen ejecutivo, coordinación de agentes</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Eventos de expediente/documento o llamadas de la capa UI</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Respuestas unificadas para Frontend Asistido y Core CAE</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>FSM en Redis (live state) con <strong>control de concurrencia optimista</strong> — cada versión del Unified Expedition JSON incluye token de versión; modificaciones concurrentes obsoletas se rechazan</td>
+</tr>
+<tr>
+<td><strong>Dependencias</strong></td>
+<td>Todos los subsistemas IA</td>
+</tr>
+</tbody></table></div>
+<p><strong>Contrato entrada/salida:</strong></p>
+<p><em>Entrada:</em></p>
+<pre class="code-block"><code class="language-json">{
+  "expedienteId": "exp-123",
+  "evento": "DOCUMENTO_PROCESADO",
+  "documentos": [{ "id": "doc-1", "tipo": "dni", "extraccion": {} }]
+}</code></pre>
+<p><em>Salida:</em></p>
+<pre class="code-block"><code class="language-json">{
+  "expedienteId": "exp-123",
+  "estado": "CON_INCIDENCIAS",
+  "scoring": { "completitud": 85, "confianza": 78, "riesgo": "MEDIO" },
+  "incidencias": [],
+  "recomendaciones": [],
+  "resumenEjecutivo": null
+}</code></pre>
+<h3 id="58-decision-engine" class="subsection-title">5.8 Decision Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Decisión pre-envío/post-envío: AUTO_APPROVE / HUMAN_REVIEW / AUTO_REJECT</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Resultado Validation Engine + análisis Foundry + umbrales confidence/fitness</td>
+</tr>
+<tr>
+<td><strong>Lógica</strong></td>
+<td>Críticas/mayores abiertas → AUTO_REJECT; Cumple todos criterios §17.5 → AUTO_APPROVE; Resto → HUMAN_REVIEW</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ decision: &quot;AUTO_APPROVE&quot;, motivo: &quot;...&quot;, auditTrail: [...] }</code></td>
+</tr>
+</tbody></table></div>
+<h3 id="59-knowledge-base-cae-rag" class="subsection-title">5.9 Knowledge Base CAE (RAG)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Conocimiento específico negocio CAE para Foundry</td>
+</tr>
+<tr>
+<td><strong>Fuentes</strong></td>
+<td>Procedimientos IDEAUTO, normativa, checklists, casuísticas, FAQ Operaciones</td>
+</tr>
+<tr>
+<td><strong>Tecnología</strong></td>
+<td>Embeddings + Vector DB (Azure AI Search)</td>
+</tr>
+<tr>
+<td><strong>Versionado</strong></td>
+<td>Índices versionados, rollback posible</td>
+</tr>
+<tr>
+<td><strong>Chunking</strong></td>
+<td>Por sección normativa, caso de uso, checklist</td>
+</tr>
+</tbody></table></div>
+<h3 id="510-feedback-engine" class="subsection-title">5.10 Feedback Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Captura correcciones humanas y alimenta mejora</td>
+</tr>
+<tr>
+<td><strong>Registra</strong></td>
+<td>Dato corregido, motivo, usuario, fecha, regla/incidencia asociada, etiqueta sugerida</td>
+</tr>
+<tr>
+<td><strong>Genera</strong></td>
+<td>Eventos <code>FeedbackStored</code>, cola labeling, métricas precisión por campo</td>
+</tr>
+<tr>
+<td><strong>Salidas</strong></td>
+<td>Labeling Service, Dataset Builder, Fitness Engine</td>
+</tr>
+</tbody></table></div>
+<p><strong>Payload estándar:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  "feedbackId": "FB-2026-001234",
+  "expedienteId": "exp-123",
+  "documentoId": "doc-456",
+  "tipo": "CORRECCION_EXTRACCION",
+  "campo": "vin",
+  "valorIa": "VF1ABC12345678901",
+  "valorCorrecto": "VF1ABC12345678902",
+  "etiquetaSugerida": "FALLO_EXTRACCION",
+  "reglaAsociada": "RF-012",
+  "usuario": "operaciones@ideauto.com",
+  "timestamp": "2026-07-03T14:22:00Z"
+}</code></pre>
+<h3 id="511-labeling-service" class="subsection-title">5.11 Labeling Service</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Etiquetado asistido de feedback para datasets de entrenamiento/evaluación</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Eventos FeedbackStored</td>
+</tr>
+<tr>
+<td><strong>Etiquetas</strong></td>
+<td><code>ACIERTO_IA</code>, <code>FALLO_EXTRACCION</code>, <code>FALLO_CLASIFICACION</code>, <code>FALLO_REGLA</code>, <code>FALSO_POSITIVO</code>, <code>FALSO_NEGATIVO</code></td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Registros etiquetados versionados en Dataset Builder</td>
+</tr>
+</tbody></table></div>
+<h3 id="512-dataset-builder" class="subsection-title">5.12 Dataset Builder</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Construcción y versionado de datasets (producción + golden set)</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Agregación batch nocturna, deduplicación, anonimización PII, split train/eval</td>
+</tr>
+<tr>
+<td><strong>Almacenamiento</strong></td>
+<td>Blob (archivos) + PostgreSQL (metadata, versiones)</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td>Datasets referenciados por Evaluation Pipeline</td>
+</tr>
+</tbody></table></div>
+<h3 id="513-fitness-engine" class="subsection-title">5.13 Fitness Engine</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Cálculo de fitness compuesto (0–100) por artefacto y global del sistema</td>
+</tr>
+<tr>
+<td><strong>Entrada</strong></td>
+<td>Resultados Evaluation Pipeline + métricas producción (FTR, latencia, coste)</td>
+</tr>
+<tr>
+<td><strong>Componentes</strong></td>
+<td>F₁ Clasificación (15%), F₂ Extracción (25%), F₃ Validación (25%), F₄ FTR (15%), F₅ Latencia (10%), F₆ Coste (10%)</td>
+</tr>
+<tr>
+<td><strong>Salida</strong></td>
+<td><code>{ fitnessGlobal, componentes{}, artefactoId, version, candidato }</code></td>
+</tr>
+<tr>
+<td><strong>Decisiones</strong></td>
+<td>Promoción, bloqueo o rollback según umbrales</td>
+</tr>
+</tbody></table></div>
+<h3 id="514-evaluation-pipeline" class="subsection-title">5.14 Evaluation Pipeline</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Evaluación offline de versiones candidatas vs. producción</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Golden set (≥200 casos), regresión cruzada, comparativa A/B offline</td>
+</tr>
+<tr>
+<td><strong>Herramientas</strong></td>
+<td>Foundry Eval, MLflow, tests automatizados reglas YAML</td>
+</tr>
+<tr>
+<td><strong>Bloqueo deploy</strong></td>
+<td>Regresión global &gt; 2% o caída &gt; 1 pt en F₂/F₃</td>
+</tr>
+</tbody></table></div>
+<h3 id="515-model-prompt-registry" class="subsection-title">5.15 Model / Prompt Registry</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Detalle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Responsabilidad</strong></td>
+<td>Registro versionado de extractores, prompts, reglas y umbrales activos</td>
+</tr>
+<tr>
+<td><strong>Funciones</strong></td>
+<td>Promoción controlada, rollback &lt; 15 min, trazabilidad versión por expediente</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>Document Intelligence custom models, Foundry Prompt Registry, Git reglas</td>
+</tr>
+</tbody></table></div>
+<h3 id="516-observability-stack" class="subsection-title">5.16 Observability Stack</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Función</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Audit Log</td>
+<td>Prompts, respuestas, decisiones, correcciones</td>
+</tr>
+<tr>
+<td>OpenTelemetry</td>
+<td>Tracing distribuido end-to-end</td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td>Latencia OCR, Foundry, reglas, coste por llamada</td>
+</tr>
+<tr>
+<td>Dashboards</td>
+<td>KPIs técnicos y funcionales</td>
+</tr>
+<tr>
+<td>Alerting</td>
+<td>DLQ, latencia P99, error rate, coste anómalo</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-pipeline-documental" class="section-title">6. Pipeline documental</h2>
+<h3 id="61-secuencia-por-documento" class="subsection-title">6.1 Secuencia por documento</h3>
+<div class="mermaid">
+sequenceDiagram
+    participant FE as Frontend
+    participant GW as Edge Gateway
+    participant BL as Blob RAW
+    participant Q as Redis/SB
+    participant OR as Orchestrator
+    participant PR as Preprocessing
+    participant DI as Doc Intelligence
+    participant CL as Classifier
+    participant EX as Extractor Worker
+    participant VE as Validation Engine
+    participant FD as AI Foundry
+
+    FE->>GW: POST documentos multipart
+    GW->>GW: Auth + Idempotency
+    GW->>BL: Store RAW
+    GW->>Q: Event DocumentUploaded
+    Q->>OR: Consume event
+    OR->>PR: Normalize
+    PR->>DI: OCR
+    alt Confidence baja
+    DI->>OR: Low confidence
+    OR->>FD: GPT-4o Vision fallback
+    end
+    DI->>CL: Classify
+    CL->>EX: Route to extractor
+    EX->>OR: Structured JSON
+    OR->>VE: Progressive validation
+    VE->>OR: Incidencias + score
+    OR->>FD: Optional reasoning
+    OR->>FE: WebSocket o poll result
+</div>
+<div class="arch-diagram"><a href="assets/11-secuencia-documento.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/11-secuencia-documento.png" alt="Secuencia de procesamiento documental" loading="lazy" /></a></div>
+<h3 id="62-formatos-soportados" class="subsection-title">6.2 Formatos soportados</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Formato</th>
+<th>Tratamiento</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PDF texto embebido</td>
+<td>PDF Parser directo</td>
+</tr>
+<tr>
+<td>PDF escaneado</td>
+<td>PDF → PNG → OCR</td>
+</tr>
+<tr>
+<td>JPG/PNG/HEIC</td>
+<td>Normalización → OCR</td>
+</tr>
+<tr>
+<td>Multi-página</td>
+<td>Split + procesamiento paralelo (fan-out)</td>
+</tr>
+</tbody></table></div>
+<h3 id="63-umbrales-de-confidence" class="subsection-title">6.3 Umbrales de confidence</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Nivel</th>
+<th>Rango</th>
+<th>Acción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Alta</td>
+<td>≥ 0.85</td>
+<td>Extracción aceptada</td>
+</tr>
+<tr>
+<td>Media</td>
+<td>0.65 – 0.84</td>
+<td>Extracción + advertencia menor</td>
+</tr>
+<tr>
+<td>Baja</td>
+<td>&lt; 0.65</td>
+<td>Fallback GPT-4o Vision</td>
+</tr>
+<tr>
+<td>Muy baja</td>
+<td>&lt; 0.50</td>
+<td>Incidencia mayor + revisión manual</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="7-validation-engine" class="section-title">7. Validation Engine</h2>
+<h3 id="71-arquitectura-interna" class="subsection-title">7.1 Arquitectura interna</h3>
+<div class="mermaid">
+flowchart LR
+    IN["Unified Expedition JSON"] --> DOC["Reglas documentales A/G"]
+    DOC --> COH["Cruces semánticos C"]
+    COH --> CAE["Reglas CAE D"]
+    CAE --> FORM["Reglas formulario E"]
+    FORM --> ANX["Anexos F"]
+    ANX --> COMP["Completitud"]
+    COMP --> SEV["Clasificación severidad"]
+    SEV --> SCORE["Scoring Engine"]
+    SCORE --> OUT["Incidencias + Estado"]
+</div>
+<h3 id="72-tipos-de-regla" class="subsection-title">7.2 Tipos de regla</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Implementación</th>
+<th>Ejemplo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Regex / Checksum</td>
+<td>Código determinista</td>
+<td>DNI, VIN (17 chars, sin I/O/Q)</td>
+</tr>
+<tr>
+<td>Comparación cross-doc</td>
+<td>Join por campo</td>
+<td>RF-012 VIN</td>
+</tr>
+<tr>
+<td>API externa</td>
+<td>HTTP client</td>
+<td>RF-015 antigüedad VO → API IDEAUTO</td>
+</tr>
+<tr>
+<td>Rango numérico</td>
+<td>Config parametrizable</td>
+<td>RF-027 contraprestación 0.10–0.20</td>
+</tr>
+<tr>
+<td>Temporal</td>
+<td>Date diff</td>
+<td>RF-019 fechas actuación</td>
+</tr>
+<tr>
+<td>Completitud</td>
+<td>Checklist obligatorios</td>
+<td>Documentos requeridos por tipología</td>
+</tr>
+</tbody></table></div>
+<h3 id="73-versionado-de-reglas" class="subsection-title">7.3 Versionado de reglas</h3>
+<pre class="code-block"><code class="language-yaml"># rules/rf-012-vin.yaml
+id: RF-012
+version: "2.1.0"
+nombre: Coherencia VIN
+severidad: CRITICA
+documentos:
+  - factura_vn
+  - ficha_tecnica_vn
+  - permiso_circulacion_vo
+campo: vin
+tipo: cross_document_match
+tolerancia: exact
+api_validacion: ideauto/vehiculos/{vin}</code></pre>
+<h3 id="74-validacion-progresiva-implementacion" class="subsection-title">7.4 Validación progresiva (implementación)</h3>
+<ul>
+<li><strong>Trigger:</strong> Eventos <code>DocumentExtracted</code>, <code>FieldModified</code>, <code>DocumentReplaced</code>.</li>
+<li><strong>Scope:</strong> Re-evaluar reglas afectadas (matriz documento → reglas).</li>
+<li><strong>Cache:</strong> Resultados parciales en Redis con TTL.</li>
+<li><strong>Latencia objetivo:</strong> &lt; 3 s reglas deterministas; &lt; 10 s incluyendo Foundry opcional.</li>
+</ul>
+<hr>
+<h2 id="8-azure-ai-foundry-y-knowledge-base" class="section-title">8. Azure AI Foundry y Knowledge Base</h2>
+<h3 id="81-azure-document-intelligence" class="subsection-title">8.1 Azure Document Intelligence</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OCR</td>
+<td>Extracción texto general</td>
+</tr>
+<tr>
+<td>Custom models</td>
+<td>DNI, facturas, fichas técnicas</td>
+</tr>
+<tr>
+<td>Layout analysis</td>
+<td>Bounding boxes, tablas</td>
+</tr>
+<tr>
+<td>Classification</td>
+<td>Tipo documental</td>
+</tr>
+</tbody></table></div>
+<h3 id="82-azure-ai-foundry" class="subsection-title">8.2 Azure AI Foundry</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capacidad</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GPT-4o</td>
+<td>Razonamiento, explicaciones, resumen</td>
+</tr>
+<tr>
+<td>GPT-4o Vision</td>
+<td>Fallback OCR baja confidence</td>
+</tr>
+<tr>
+<td>Prompt management</td>
+<td>Versionado prompts</td>
+</tr>
+<tr>
+<td>Evaluation</td>
+<td>Regression testing prompts</td>
+</tr>
+<tr>
+<td>Agents</td>
+<td>Orquestación multi-paso</td>
+</tr>
+</tbody></table></div>
+<h3 id="83-rag-knowledge-base-cae" class="subsection-title">8.3 RAG — Knowledge Base CAE</h3>
+<div class="mermaid">
+flowchart LR
+    Q["Consulta contextual"] --> E["Embedding query"]
+    E --> V["Vector Search Azure AI Search"]
+    V --> C["Top-K chunks"]
+    C --> P["Prompt enriquecido"]
+    P --> LLM["GPT-4o Foundry"]
+    LLM --> R["Respuesta con citas"]
+</div>
+<p><strong>Fuentes indexadas:</strong></p>
+<ul>
+<li>Procedimientos operativos IDEAUTO</li>
+<li>Normativa CAE y guías de gestión</li>
+<li>Checklists de revisión</li>
+<li>Casuísticas e incidencias frecuentes</li>
+<li>FAQ generadas por Operaciones</li>
+<li>Resoluciones históricas anonimizadas</li>
+</ul>
+<h3 id="84-guardrails-ia" class="subsection-title">8.4 Guardrails IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Guardrail</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hallucination guard</td>
+<td>Respuestas ancladas a chunks RAG + JSON expediente</td>
+</tr>
+<tr>
+<td>PII masking</td>
+<td>En logs y datasets</td>
+</tr>
+<tr>
+<td>Prompt injection</td>
+<td>Sanitización input usuario</td>
+</tr>
+<tr>
+<td>Confidence threshold</td>
+<td>No afirmar datos no presentes en extracción</td>
+</tr>
+<tr>
+<td>Human review</td>
+<td>Decisiones críticas siempre con revisión humana</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-flujos-tecnicos" class="section-title">9. Flujos técnicos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Flujo</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>FT-01</td>
+<td>Creación expediente</td>
+<td>CAE crea expediente; IA en standby</td>
+</tr>
+<tr>
+<td>FT-02</td>
+<td>Subida documento</td>
+<td>Gateway → Blob → Queue → Pipeline</td>
+</tr>
+<tr>
+<td>FT-03</td>
+<td>Extracción IA</td>
+<td>OCR → Classify → Extract → JSON</td>
+</tr>
+<tr>
+<td>FT-04</td>
+<td>Validación progresiva</td>
+<td>Rules → Cross → Score → UI feedback</td>
+</tr>
+<tr>
+<td>FT-05</td>
+<td>Construcción expediente</td>
+<td>Auto-fill + incidencias continuas</td>
+</tr>
+<tr>
+<td>FT-06</td>
+<td>Validación final</td>
+<td>Decision Engine pre-envío</td>
+</tr>
+<tr>
+<td>FT-07</td>
+<td>Revisión Operaciones</td>
+<td>Resumen IA + cola + validación humana</td>
+</tr>
+<tr>
+<td>FT-08</td>
+<td>Feedback continuo</td>
+<td>Correcciones → Labeling → Dataset → Evaluación → Fitness</td>
+</tr>
+<tr>
+<td>FT-09</td>
+<td>Evaluación y fitness</td>
+<td>Golden set → Fitness Engine → Promoción / Rollback</td>
+</tr>
+</tbody></table></div>
+<h3 id="91-ft-02-subida-documento-detalle" class="subsection-title">9.1 FT-02 Subida documento (detalle)</h3>
+<pre class="code-block"><code class="language-">Cliente → POST /api/v1/expedientes/{id}/documentos
+       → Edge Gateway (auth, idempotency, validation)
+       → Blob RAW (immutable)
+       → Event DocumentUploaded → Redis/SB
+       → Orchestrator → Fan-out worker
+       → Response 202 Accepted { jobId, status: "PROCESANDO" }
+       → Webhook/SSE → Frontend actualizado</code></pre>
+<h3 id="92-ft-06-validacion-final" class="subsection-title">9.2 FT-06 Validación final</h3>
+<pre class="code-block"><code class="language-">Cliente → POST /api/v1/expedientes/{id}/enviar
+       → Orchestrator → Validation Engine (full)
+       → Foundry → Análisis global + resumen
+       → Decision Engine → OK | REVIEW | REJECT
+       → Si REJECT: 422 + incidencias bloqueantes
+       → Si OK/REVIEW: Cola Operaciones</code></pre>
+<h3 id="93-ft-08-feedback-continuo" class="subsection-title">9.3 FT-08 Feedback continuo</h3>
+<pre class="code-block"><code class="language-">Operaciones corrige dato → POST /api/v1/feedback
+                        → Feedback Engine persiste + etiqueta sugerida
+                        → Labeling Service (confirmación humana opcional)
+                        → Dataset Builder (batch nocturno, versionado)
+                        → Evaluation Pipeline (golden set + muestra producción)
+                        → Fitness Engine calcula score candidato vs. activo</code></pre>
+<h3 id="94-ft-09-evaluacion-y-promocion" class="subsection-title">9.4 FT-09 Evaluación y promoción</h3>
+<pre class="code-block"><code class="language-">MLOps dispara evaluación → Evaluation Pipeline ejecuta golden set
+                        → Fitness Engine agrega componentes F₁–F₆
+                        → Si fitness candidato ≥ activo + 1 y sin regresión crítica:
+                              Model Registry promueve versión
+                        → Si regresión &gt; 2%: bloqueo + alerta
+                        → Rollback manual/automático vía Registry (&lt; 15 min)</code></pre>
+<hr>
+<h2 id="10-modelo-de-ia" class="section-title">10. Modelo de IA</h2>
+<h3 id="101-capas-de-ia" class="subsection-title">10.1 Capas de IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>IA Extractiva</strong></td>
+<td>Document Intelligence, OCR, Classifier</td>
+<td>Campos estructurados, confidence</td>
+</tr>
+<tr>
+<td><strong>IA Generativa</strong></td>
+<td>Azure AI Foundry, GPT-4o, RAG</td>
+<td>Resumen, explicación, asistencia</td>
+</tr>
+<tr>
+<td><strong>IA Especializada</strong></td>
+<td>Workers custom</td>
+<td>Firmas, VO, VN, convenios</td>
+</tr>
+</tbody></table></div>
+<h3 id="102-capas-evolutivas-de-ia" class="subsection-title">10.2 Capas evolutivas de IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Evolución</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Extractiva base</strong></td>
+<td>Document Intelligence prebuilt + custom</td>
+<td>Prompt tuning → custom models → fine-tuning</td>
+</tr>
+<tr>
+<td><strong>Generativa</strong></td>
+<td>Azure AI Foundry + RAG</td>
+<td>Prompt Registry + evaluación Foundry</td>
+</tr>
+<tr>
+<td><strong>Determinista</strong></td>
+<td>Validation Engine YAML</td>
+<td>Git versionado + tests regresión</td>
+</tr>
+<tr>
+<td><strong>Fitness</strong></td>
+<td>Fitness Engine + Evaluation Pipeline</td>
+<td>Golden set + métricas producción</td>
+</tr>
+</tbody></table></div>
+<h3 id="103-fine-tuning-y-extractores-especializados" class="subsection-title">10.3 Fine-tuning y extractores especializados</h3>
+<p>Cuando el fitness de un extractor (F₂ por artefacto) permanezca por debajo del umbral durante dos ciclos consecutivos:</p>
+<ol>
+<li>Dataset Builder genera corpus específico del tipo documental.</li>
+<li>Evaluation Pipeline evalúa modelo candidato (DI custom / fine-tune).</li>
+<li>Fitness Engine compara candidato vs. producción.</li>
+<li>Model Registry promueve solo si supera umbrales y pasa regresión cruzada.</li>
+</ol>
+<h3 id="104-trazabilidad-de-version-ia-por-expediente" class="subsection-title">10.4 Trazabilidad de versión IA por expediente</h3>
+<p>Cada evaluación de expediente persiste:</p>
+<pre class="code-block"><code class="language-json">{
+  "expedienteId": "exp-123",
+  "artefactos": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "promptResumen": "v14-hash-abc",
+    "reglasCAE": "2026.07.01"
+  },
+  "fitnessSnapshot": 88.1
+}</code></pre>
+<hr>
+<h2 id="11-modelo-de-datos" class="section-title">11. Modelo de datos</h2>
+<h3 id="111-el-unified-expedition-json-como-frontera-de-dominio" class="subsection-title">11.1 El Unified Expedition JSON como frontera de dominio</h3>
+<p>El <strong>Unified Expedition JSON</strong> representa la verdad única del estado documental para el motor de asistencia. Se almacena en Redis para computación reactiva y se consolida de forma asíncrona. Contiene tres capas agnósticas de la persistencia heredada:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Contenido</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Procedencia</strong></td>
+<td>Hashes SHA-256, mimetypes, marcas de tiempo, identificadores de workers</td>
+</tr>
+<tr>
+<td><strong>Extracción estructurada</strong></td>
+<td>Campos tipados (<code>vin</code>, <code>titular</code>, etc.) con valor, <code>bbox</code> y <code>confidence</code></td>
+</tr>
+<tr>
+<td><strong>Estado de validación</strong></td>
+<td>Grafo de incidencias activas, histórico de correcciones y severidades</td>
+</tr>
+</tbody></table></div>
+<p>Este modelo está <strong>blindado</strong> contra el esquema relacional del backend CAE v2.0. Cualquier cambio en el sistema heredado se resuelve exclusivamente en <code>integration-backend</code> (ACL); los servicios IA permanecen inmutables.</p>
+<h3 id="112-entidades-principales" class="subsection-title">11.2 Entidades principales</h3>
+<div class="mermaid">
+erDiagram
+    EXPEDIENTE ||--o{ DOCUMENTO : contiene
+    DOCUMENTO ||--o| EXTRACCION : genera
+    EXPEDIENTE ||--o{ INCIDENCIA : tiene
+    EXPEDIENTE ||--o{ EVENTO : registra
+    INCIDENCIA }o--|| REGLA : referencia
+    EXPEDIENTE ||--o{ FEEDBACK : recibe
+    FEEDBACK ||--o| ETIQUETA : clasifica
+    DATASET ||--o{ EVALUACION : alimenta
+    EVALUACION ||--|| FITNESS : genera
+    ARTEFACTO ||--o{ EVALUACION : evalua
+    DOCUMENTO ||--o{ VERSION : versiona
+
+    EXPEDIENTE {
+        uuid id
+        string estado
+        int completitud_pct
+        int confianza_pct
+        string riesgo
+        timestamp creado
+        timestamp actualizado
+    }
+
+    DOCUMENTO {
+        uuid id
+        uuid expediente_id
+        string tipo
+        string estado
+        string blob_uri
+        string hash_sha256
+        timestamp subido
+    }
+
+    EXTRACCION {
+        uuid id
+        uuid documento_id
+        jsonb campos
+        float confidence_media
+        string provenance
+        timestamp extraido
+    }
+
+    INCIDENCIA {
+        uuid id
+        uuid expediente_id
+        string regla_id
+        string severidad
+        string mensaje
+        boolean bloquea_envio
+        boolean resuelta
+        timestamp detectada
+    }
+
+    FEEDBACK {
+        uuid id
+        uuid expediente_id
+        string campo
+        string valor_anterior
+        string valor_nuevo
+        string etiqueta
+        string motivo
+        string usuario
+        timestamp fecha
+    }
+
+    ETIQUETA {
+        string codigo
+        string descripcion
+    }
+
+    DATASET {
+        uuid id
+        string version
+        int registros
+        string blob_uri
+        timestamp creado
+    }
+
+    EVALUACION {
+        uuid id
+        uuid dataset_id
+        string artefacto_id
+        string version_candidata
+        jsonb metricas
+        float fitness
+        boolean aprobada
+        timestamp ejecutada
+    }
+
+    FITNESS {
+        uuid id
+        uuid evaluacion_id
+        float global
+        jsonb componentes
+        boolean promovible
+        timestamp calculado
+    }
+
+    ARTEFACTO {
+        string id
+        string tipo
+        string version_activa
+        string version_candidata
+        timestamp actualizado
+    }
+
+    EVENTO {
+        uuid id
+        uuid expediente_id
+        string tipo
+        jsonb payload
+        timestamp ocurrido
+    }
+</div>
+<div class="arch-diagram"><a href="assets/10-modelo-datos-er.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/10-modelo-datos-er.png" alt="Modelo de datos — entidades principales" loading="lazy" /></a></div>
+<h3 id="113-almacenamiento" class="subsection-title">11.3 Almacenamiento</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dato</th>
+<th>Tecnología</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Metadatos expediente/incidencias</td>
+<td>PostgreSQL (por defecto) — Cosmos DB si se requiere escala multi-región</td>
+</tr>
+<tr>
+<td>Documentos RAW</td>
+<td>Azure Blob (Hot)</td>
+</tr>
+<tr>
+<td>Documentos optimizados (AVIF/WebP)</td>
+<td>Blob + CDN</td>
+</tr>
+<tr>
+<td>Estado FSM / cache</td>
+<td>Redis</td>
+</tr>
+<tr>
+<td>Vectores RAG</td>
+<td>Azure AI Search</td>
+</tr>
+<tr>
+<td>Datasets + golden set</td>
+<td>Blob + PostgreSQL metadata</td>
+</tr>
+<tr>
+<td>Evaluaciones / fitness</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td>Model Registry</td>
+<td>PostgreSQL + Foundry / Azure ML</td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td>Blob append-only + Log Analytics</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="12-modelo-de-eventos" class="section-title">12. Modelo de eventos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Evento</th>
+<th>Productor</th>
+<th>Consumidores</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>DocumentUploaded</code></td>
+<td>Edge Gateway</td>
+<td>Orchestrator</td>
+</tr>
+<tr>
+<td><code>DocumentExtracted</code></td>
+<td>Extraction Worker</td>
+<td>Validation Engine</td>
+</tr>
+<tr>
+<td><code>ValidationCompleted</code></td>
+<td>Validation Engine</td>
+<td>Orchestrator, Frontend</td>
+</tr>
+<tr>
+<td><code>IncidentDetected</code></td>
+<td>Validation Engine</td>
+<td>Frontend, Audit</td>
+</tr>
+<tr>
+<td><code>ReviewRequested</code></td>
+<td>Decision Engine</td>
+<td>Cola Operaciones</td>
+</tr>
+<tr>
+<td><code>FeedbackStored</code></td>
+<td>Feedback Engine</td>
+<td>Labeling Service, MLOps Pipeline</td>
+</tr>
+<tr>
+<td><code>LabelConfirmed</code></td>
+<td>Labeling Service</td>
+<td>Dataset Builder</td>
+</tr>
+<tr>
+<td><code>DatasetVersionCreated</code></td>
+<td>Dataset Builder</td>
+<td>Evaluation Pipeline</td>
+</tr>
+<tr>
+<td><code>EvaluationCompleted</code></td>
+<td>Evaluation Pipeline</td>
+<td>Fitness Engine, Dashboards</td>
+</tr>
+<tr>
+<td><code>FitnessCalculated</code></td>
+<td>Fitness Engine</td>
+<td>Model Registry, Alerting</td>
+</tr>
+<tr>
+<td><code>ModelPromoted</code></td>
+<td>Model Registry</td>
+<td>Workers, Validation Engine, Audit</td>
+</tr>
+<tr>
+<td><code>ModelRollback</code></td>
+<td>Model Registry</td>
+<td>Workers, Alerting</td>
+</tr>
+<tr>
+<td><code>ExpedienteStateChanged</code></td>
+<td>Orchestrator</td>
+<td>CAE Core, Audit</td>
+</tr>
+</tbody></table></div>
+<p><strong>Ejemplo payload:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  "eventId": "evt-789",
+  "type": "DocumentExtracted",
+  "timestamp": "2026-07-03T10:15:00Z",
+  "expedienteId": "exp-123",
+  "payload": {
+    "documentoId": "doc-456",
+    "tipo": "factura_vn",
+    "confidence": 0.97
+  },
+  "correlationId": "corr-abc",
+  "traceId": "00-4bf92f3577b34da6a3ce929d0e0e4736-00"
+}</code></pre>
+<hr>
+<h2 id="13-apis" class="section-title">13. APIs</h2>
+<h3 id="131-principios" class="subsection-title">13.1 Principios</h3>
+<ul>
+<li>REST JSON sobre HTTPS</li>
+<li>OpenAPI 3.1 spec versionada</li>
+<li>Autenticación JWT Bearer (Entra ID)</li>
+<li>Idempotency-Key header en operaciones de escritura</li>
+<li>Correlation-Id / X-Request-Id para tracing</li>
+</ul>
+<h3 id="132-endpoints-principales" class="subsection-title">13.2 Endpoints principales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Método</th>
+<th>Ruta</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/documentos</code></td>
+<td>Subir documento</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/estado</code></td>
+<td>Estado, scoring, incidencias</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/incidencias</code></td>
+<td>Listado incidencias</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/validar</code></td>
+<td>Forzar re-validación</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/enviar</code></td>
+<td>Solicitar envío a revisión</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/expedientes/{id}/resumen</code></td>
+<td>Resumen ejecutivo IA</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/expedientes/{id}/asistente</code></td>
+<td>Consulta asistente inteligente</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/feedback</code></td>
+<td>Registrar corrección</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/feedback/{id}/etiqueta</code></td>
+<td>Confirmar/modificar etiqueta labeling</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/datasets</code></td>
+<td>Listar datasets versionados</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/evaluaciones</code></td>
+<td>Lanzar evaluación offline</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/fitness</code></td>
+<td>Fitness global y por componente</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/mlops/fitness/{artefactoId}</code></td>
+<td>Fitness por extractor/prompt/reglas</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/promover</code></td>
+<td>Promoción controlada (requiere rol MLOps)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/v1/mlops/rollback</code></td>
+<td>Rollback a versión anterior</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/v1/jobs/{jobId}</code></td>
+<td>Estado procesamiento async</td>
+</tr>
+</tbody></table></div>
+<h3 id="133-ejemplo-subir-documento" class="subsection-title">13.3 Ejemplo — Subir documento</h3>
+<p><strong>Request:</strong></p>
+<pre class="code-block"><code class="language-http">POST /api/v1/expedientes/exp-123/documentos
+Authorization: Bearer {jwt}
+Idempotency-Key: upload-doc-001
+Content-Type: multipart/form-data
+
+file: [binary]
+tipoEsperado: factura_vn  (opcional)</code></pre>
+<p><strong>Response 202:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  "jobId": "job-xyz789",
+  "documentoId": "doc-new-001",
+  "estado": "PROCESANDO",
+  "links": {
+    "status": "/api/v1/jobs/job-xyz789"
+  }
+}</code></pre>
+<h3 id="134-ejemplo-estado-expediente" class="subsection-title">13.4 Ejemplo — Estado expediente</h3>
+<p><strong>Response 200:</strong></p>
+<pre class="code-block"><code class="language-json">{
+  "expedienteId": "exp-123",
+  "estado": "CON_INCIDENCIAS",
+  "scoring": {
+    "completitud": 85,
+    "confianza": 78,
+    "riesgo": "MEDIO"
+  },
+  "incidenciasAbiertas": {
+    "criticas": 0,
+    "mayores": 2,
+    "menores": 1
+  },
+  "documentosPendientes": ["ultimo_ivtm", "convenio_cae"],
+  "decisionPreEnvio": null
+}</code></pre>
+<h3 id="135-codigos-de-error" class="subsection-title">13.5 Códigos de error</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Código</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>400</td>
+<td>Payload inválido</td>
+</tr>
+<tr>
+<td>401</td>
+<td>No autenticado</td>
+</tr>
+<tr>
+<td>403</td>
+<td>Sin permisos</td>
+</tr>
+<tr>
+<td>409</td>
+<td>Duplicado (idempotency)</td>
+</tr>
+<tr>
+<td>422</td>
+<td>Validación fallida / incidencias bloqueantes</td>
+</tr>
+<tr>
+<td>429</td>
+<td>Rate limit excedido</td>
+</tr>
+<tr>
+<td>500</td>
+<td>Error interno</td>
+</tr>
+<tr>
+<td>503</td>
+<td>Servicio IA temporalmente no disponible</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="14-colas-y-orquestacion" class="section-title">14. Colas y orquestación</h2>
+<h3 id="141-estrategia-dual-de-colas" class="subsection-title">14.1 Estrategia dual de colas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Cola</th>
+<th>Uso</th>
+<th>Garantías</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Redis Queue</strong></td>
+<td>Fast path, feedback UI tiempo real</td>
+<td>At-least-once, baja latencia</td>
+</tr>
+<tr>
+<td><strong>Azure Service Bus</strong></td>
+<td>Reliable path, batch, reintentos</td>
+<td>At-least-once, DLQ, sessions</td>
+</tr>
+</tbody></table></div>
+<h3 id="142-resiliencia" class="subsection-title">14.2 Resiliencia</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Patrón</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Retry</td>
+<td>Exponential backoff (max 3)</td>
+</tr>
+<tr>
+<td>Dead Letter Queue</td>
+<td>Mensajes fallidos tras N reintentos</td>
+</tr>
+<tr>
+<td>Poison message</td>
+<td>Alerta + manual review</td>
+</tr>
+<tr>
+<td>Circuit Breaker</td>
+<td>API IDEAUTO, Foundry, DI</td>
+</tr>
+<tr>
+<td>Idempotency</td>
+<td>Redis key TTL 24h</td>
+</tr>
+</tbody></table></div>
+<h3 id="143-fan-out-fan-in" class="subsection-title">14.3 Fan-out / Fan-in</h3>
+<ul>
+<li><strong>Fan-out:</strong> Orchestrator despacha N workers paralelos (uno por documento/página).</li>
+<li><strong>Fan-in:</strong> Aggregator consolida JSON parciales en Unified Expedition JSON.</li>
+<li><strong>FSM:</strong> Estados en Redis con TTL y persistencia checkpoint.</li>
+</ul>
+<hr>
+<h2 id="15-seguridad" class="section-title">15. Seguridad</h2>
+<h3 id="151-identidad-y-acceso" class="subsection-title">15.1 Identidad y acceso</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Autenticación</td>
+<td>Microsoft Entra ID + JWT</td>
+</tr>
+<tr>
+<td>Autorización</td>
+<td>RBAC por rol (cliente, operaciones, admin)</td>
+</tr>
+<tr>
+<td>Service-to-service</td>
+<td>Managed Identity</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>Azure Key Vault</td>
+</tr>
+</tbody></table></div>
+<h3 id="152-datos" class="subsection-title">15.2 Datos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Requisito</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cifrado tránsito</td>
+<td>TLS 1.2+</td>
+</tr>
+<tr>
+<td>Cifrado reposo</td>
+<td>Azure Storage SSE</td>
+</tr>
+<tr>
+<td>PII</td>
+<td>Minimización, masking en logs</td>
+</tr>
+<tr>
+<td>GDPR</td>
+<td>Retención configurable, derecho supresión</td>
+</tr>
+<tr>
+<td>Blob RAW</td>
+<td>Acceso restringido, SAS temporales</td>
+</tr>
+</tbody></table></div>
+<h3 id="153-seguridad-ia" class="subsection-title">15.3 Seguridad IA</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Riesgo</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt injection</td>
+<td>Sanitización + system prompts reforzados</td>
+</tr>
+<tr>
+<td>Data leakage</td>
+<td>Tenant isolation, no cross-expediente en prompts</td>
+</tr>
+<tr>
+<td>Model abuse</td>
+<td>Rate limiting por tenant/usuario</td>
+</tr>
+<tr>
+<td>Audit</td>
+<td>Log completo prompts/respuestas (retención policy)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="16-observabilidad" class="section-title">16. Observabilidad</h2>
+<h3 id="161-metricas-tecnicas" class="subsection-title">16.1 Métricas técnicas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Disponibilidad</td>
+<td>&gt; 99,5%</td>
+</tr>
+<tr>
+<td>Latencia OCR (P95)</td>
+<td>&lt; 5 s</td>
+</tr>
+<tr>
+<td>Latencia Foundry (P95)</td>
+<td>&lt; 8 s</td>
+</tr>
+<tr>
+<td>Latencia reglas (P95)</td>
+<td>&lt; 1 s</td>
+</tr>
+<tr>
+<td>Latencia total documento (P95)</td>
+<td>&lt; 10 s</td>
+</tr>
+<tr>
+<td>Latencia total expediente</td>
+<td>&lt; 30 s</td>
+</tr>
+<tr>
+<td>Coste por documento</td>
+<td>Monitorizado</td>
+</tr>
+<tr>
+<td>Coste por expediente</td>
+<td>Monitorizado</td>
+</tr>
+<tr>
+<td>Error rate</td>
+<td>&lt; 0,5%</td>
+</tr>
+</tbody></table></div>
+<h3 id="162-metricas-funcionales" class="subsection-title">16.2 Métricas funcionales</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Precisión clasificación</td>
+<td>% tipo documental correcto</td>
+</tr>
+<tr>
+<td>Precisión extracción</td>
+<td>% campos clave correctos</td>
+</tr>
+<tr>
+<td>Recall incidencias</td>
+<td>% incidencias reales detectadas</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>Expedientes sin devolución</td>
+</tr>
+<tr>
+<td>Incidencias pre-envío</td>
+<td>% detectadas antes de Operaciones</td>
+</tr>
+<tr>
+<td>Fitness global / por componente</td>
+<td>Score 0–100, tendencia temporal</td>
+</tr>
+<tr>
+<td>Cola labeling pendiente</td>
+<td>Registros sin etiqueta confirmada</td>
+</tr>
+</tbody></table></div>
+<h3 id="163-tracing" class="subsection-title">16.3 Tracing</h3>
+<ul>
+<li>OpenTelemetry end-to-end: Gateway → Orchestrator → DI → VE → Foundry</li>
+<li>Correlation-Id propagado en todos los headers</li>
+<li>Prompt tracing en Foundry (version + tokens + cost)</li>
+</ul>
+<h3 id="164-dashboards" class="subsection-title">16.4 Dashboards</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Dashboard</th>
+<th>Audiencia</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pipeline health</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>Costes IA</td>
+<td>Dirección / FinOps</td>
+</tr>
+<tr>
+<td>Fitness y evaluación</td>
+<td>MLOps / Dirección</td>
+</tr>
+<tr>
+<td>KPIs funcionales</td>
+<td>Operaciones / Producto</td>
+</tr>
+<tr>
+<td>Audit trail</td>
+<td>Compliance</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="17-mlops-y-feedback-engine" class="section-title">17. MLOps y Feedback Engine</h2>
+<h3 id="171-pipeline-mlops" class="subsection-title">17.1 Pipeline MLOps</h3>
+<div class="mermaid">
+flowchart LR
+    FB["Feedback humano"] --> LB["Labeling asistido"]
+    LB --> DS["Dataset versionado"]
+    DS --> EV["Evaluation Pipeline"]
+    EV --> FIT["Fitness Engine"]
+    FIT --> DEC{"¿Supera umbrales?"}
+    DEC -->|Sí| PROM["Promoción Registry"]
+    DEC -->|No| REF["Refinamiento"]
+    PROM --> PROD["Producción"]
+    PROD --> MON["Monitorización"]
+    MON --> FB
+    REF --> PT["Prompt tuning"]
+    REF --> FT["Fine-tuning extractores"]
+    PT --> EV
+    FT --> EV
+</div>
+<h3 id="172-artefactos-versionados" class="subsection-title">17.2 Artefactos versionados</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Artefacto</th>
+<th>Repositorio</th>
+<th>Evaluación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Reglas CAE</td>
+<td>Git (YAML)</td>
+<td>Tests regresión + golden set</td>
+</tr>
+<tr>
+<td>Prompts</td>
+<td>Foundry Prompt Registry</td>
+<td>Foundry Eval + fitness F₃/F₄</td>
+</tr>
+<tr>
+<td>Custom models DI</td>
+<td>Azure ML / DI Studio</td>
+<td>Fitness F₂ por extractor</td>
+</tr>
+<tr>
+<td>Clasificador documental</td>
+<td>DI / custom</td>
+<td>Fitness F₁</td>
+</tr>
+<tr>
+<td>Datasets</td>
+<td>Blob + metadata DB</td>
+<td>Versionado semver</td>
+</tr>
+<tr>
+<td>Golden set</td>
+<td>Blob + PostgreSQL</td>
+<td>≥ 200 casos, revisión semestral</td>
+</tr>
+<tr>
+<td>Evaluaciones / fitness</td>
+<td>MLflow + PostgreSQL</td>
+<td>Histórico comparativo</td>
+</tr>
+</tbody></table></div>
+<h3 id="173-labeling-y-datasets" class="subsection-title">17.3 Labeling y datasets</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Etiqueta</th>
+<th>Uso en dataset</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ACIERTO_IA</code></td>
+<td>Positive sample — refuerzo de extracciones/validaciones correctas</td>
+</tr>
+<tr>
+<td><code>FALLO_EXTRACCION</code></td>
+<td>Train/eval extractores</td>
+</tr>
+<tr>
+<td><code>FALLO_CLASIFICACION</code></td>
+<td>Train/eval clasificador</td>
+</tr>
+<tr>
+<td><code>FALLO_REGLA</code></td>
+<td>Mejora reglas YAML</td>
+</tr>
+<tr>
+<td><code>FALSO_POSITIVO</code></td>
+<td>Ajuste umbrales incidencias</td>
+</tr>
+<tr>
+<td><code>FALSO_NEGATIVO</code></td>
+<td>Recall reglas / validación</td>
+</tr>
+</tbody></table></div>
+<p>Batch nocturno: Dataset Builder agrega feedback etiquetado, anonimiza PII y publica <code>DatasetVersionCreated</code>.</p>
+<h3 id="174-regression-testing" class="subsection-title">17.4 Regression testing</h3>
+<ul>
+<li>Golden set anonimizado (todos los tipos documentales + casos borde).</li>
+<li>Umbral mínimo precisión extracción: 95%.</li>
+<li>Umbral mínimo recall incidencias críticas: 98%.</li>
+<li>Bloqueo de deploy si regresión fitness global &gt; 2%.</li>
+<li>Bloqueo si caída &gt; 1 punto en F₂ (extracción) o F₃ (validación).</li>
+</ul>
+<h3 id="175-promocion-y-rollback" class="subsection-title">17.5 Promoción y rollback</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Acción</th>
+<th>Condición</th>
+<th>SLA</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Promoción automática</td>
+<td>Fitness candidato ≥ activo + 1; sin regresión crítica</td>
+<td>Tras evaluación aprobada</td>
+</tr>
+<tr>
+<td>Promoción manual</td>
+<td>Aprobación rol MLOps + comité</td>
+<td>Bajo demanda</td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td>Regresión en producción o fitness &lt; umbral</td>
+<td>&lt; 15 min operativos</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="18-fitness-engine-y-evaluacion" class="section-title">18. Fitness Engine y evaluación</h2>
+<h3 id="181-arquitectura-del-fitness-engine" class="subsection-title">18.1 Arquitectura del Fitness Engine</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph INPUTS["Entradas"]
+        I1["Evaluation Pipeline — offline"]
+        I2["Métricas producción — FTR, latencia, coste"]
+        I3["Audit / incidencias reales"]
+    end
+
+    subgraph ENGINE["Fitness Engine"]
+        N1["Normalizar scores 0-100"]
+        N2["Ponderar componentes F1-F6"]
+        N3["Calcular fitness por artefacto"]
+        N4["Agregar fitness global"]
+        N5["Evaluar promovible"]
+    end
+
+    subgraph OUTPUTS["Salidas"]
+        O1["Dashboard MLOps"]
+        O2["Model Registry"]
+        O3["Alertas regresión"]
+        O4["Informe trimestral gobernanza"]
+    end
+
+    I1 & I2 & I3 --> N1 --> N2 --> N3 --> N4 --> N5
+    N5 --> O1 & O2 & O3 & O4
+</div>
+<h3 id="182-componentes-y-pesos" class="subsection-title">18.2 Componentes y pesos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Componente</th>
+<th>Peso</th>
+<th>Fuente de datos</th>
+<th>Métrica base</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F₁</td>
+<td>Clasificación</td>
+<td>15%</td>
+<td>Evaluation Pipeline</td>
+<td>F1-score tipo documental</td>
+</tr>
+<tr>
+<td>F₂</td>
+<td>Extracción</td>
+<td>25%</td>
+<td>Golden set + feedback</td>
+<td>Exactitud campos clave (VIN, titular, matrícula)</td>
+</tr>
+<tr>
+<td>F₃</td>
+<td>Validación</td>
+<td>25%</td>
+<td>Golden set incidencias</td>
+<td>Recall + precisión incidencias</td>
+</tr>
+<tr>
+<td>F₄</td>
+<td>FTR</td>
+<td>15%</td>
+<td>Producción Operaciones</td>
+<td>% expedientes sin devolución primer envío</td>
+</tr>
+<tr>
+<td>F₅</td>
+<td>Latencia</td>
+<td>10%</td>
+<td>OpenTelemetry</td>
+<td>P95 tiempo análisis documento</td>
+</tr>
+<tr>
+<td>F₆</td>
+<td>Coste</td>
+<td>10%</td>
+<td>FinOps / App Insights</td>
+<td>Coste medio por expediente</td>
+</tr>
+</tbody></table></div>
+<h3 id="183-formula" class="subsection-title">18.3 Fórmula</h3>
+<pre class="code-block"><code class="language-">Fitness Global = Σ (peso_i × score_i)    // score_i normalizado 0–100
+
+Promovible = (fitness_candidato ≥ fitness_activo + 1)
+          AND (regresión_F2 ≤ 1 pt)
+          AND (regresión_F3 ≤ 1 pt)
+          AND (recall_críticas ≥ 98%)</code></pre>
+<h3 id="184-fitness-por-artefacto" class="subsection-title">18.4 Fitness por artefacto</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Artefacto</th>
+<th>Componentes aplicables</th>
+<th>Umbral mínimo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extractor DNI</td>
+<td>F₂ campos identidad</td>
+<td>92</td>
+</tr>
+<tr>
+<td>Extractor Factura</td>
+<td>F₂ VIN, matrícula, titular</td>
+<td>95</td>
+</tr>
+<tr>
+<td>Clasificador</td>
+<td>F₁</td>
+<td>95</td>
+</tr>
+<tr>
+<td>Bloque reglas C</td>
+<td>F₃ recall cruce semántico</td>
+<td>98</td>
+</tr>
+<tr>
+<td>Prompt resumen</td>
+<td>F₄ proxy utilidad</td>
+<td>80</td>
+</tr>
+</tbody></table></div>
+<h3 id="185-periodicidad" class="subsection-title">18.5 Periodicidad</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Frecuencia</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Agregación métricas producción</td>
+<td>Continua</td>
+<td>Eventos + OTEL</td>
+</tr>
+<tr>
+<td>Informe fitness semanal</td>
+<td>Cron semanal</td>
+<td>Azure Functions</td>
+</tr>
+<tr>
+<td>Evaluación golden set</td>
+<td>Mensual</td>
+<td>MLOps manual/automático</td>
+</tr>
+<tr>
+<td>Revisión gobernanza</td>
+<td>Trimestral</td>
+<td>Comité IA</td>
+</tr>
+</tbody></table></div>
+<h3 id="186-ejemplo-respuesta-api" class="subsection-title">18.6 Ejemplo respuesta API</h3>
+<p><code>GET /api/v1/mlops/fitness</code></p>
+<pre class="code-block"><code class="language-json">{
+  "fitnessGlobal": 88.1,
+  "componentes": {
+    "clasificacion": { "score": 96, "peso": 0.15, "contribucion": 14.4 },
+    "extraccion": { "score": 92, "peso": 0.25, "contribucion": 23.0 },
+    "validacion": { "score": 94, "peso": 0.25, "contribucion": 23.5 },
+    "ftr": { "score": 68, "peso": 0.15, "contribucion": 10.2 },
+    "latencia": { "score": 88, "peso": 0.10, "contribucion": 8.8 },
+    "coste": { "score": 82, "peso": 0.10, "contribucion": 8.2 }
+  },
+  "versionActiva": {
+    "extractorFactura": "2.3.1",
+    "clasificador": "1.8.0",
+    "reglasCAE": "2026.07.01"
+  },
+  "candidato": null,
+  "calculadoEn": "2026-07-03T12:00:00Z"
+}</code></pre>
+<hr>
+<h2 id="19-despliegue-azure" class="section-title">19. Despliegue Azure</h2>
+<h3 id="191-vista-fisica-referencia" class="subsection-title">19.1 Vista física (referencia)</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph Azure["Azure Cloud"]
+        subgraph Compute["Compute"]
+            AKS["AKS — Orchestrator, Workers, Validation"]
+            FA["Azure Functions — Webhooks, batch"]
+        end
+        subgraph AI["AI Services"]
+            DI["Document Intelligence"]
+            FDR["AI Foundry"]
+            AIS["AI Search — Vector DB"]
+        end
+        subgraph Data["Data"]
+            BLOB["Blob Storage"]
+            REDIS["Azure Cache Redis"]
+            SB["Service Bus"]
+            PG["PostgreSQL Flexible"]
+        end
+        subgraph Security["Security"]
+            EID["Entra ID"]
+            KV["Key Vault"]
+        end
+        subgraph MLOps["MLOps"]
+            FE["Fitness Engine"]
+            EV["Evaluation Pipeline"]
+            MR["Model Registry"]
+        end
+        subgraph Monitor["Monitoring"]
+            LA["Log Analytics"]
+            AM["Application Insights"]
+            OTEL["OpenTelemetry Collector"]
+        end
+        CDN["Azure CDN"]
+        APIM["API Management"]
+    end
+
+    Users["Usuarios CAE"] --> APIM
+    APIM --> AKS
+    AKS --> DI
+    AKS --> FDR
+    AKS --> AIS
+    AKS --> FE
+    AKS --> EV
+    AKS --> MR
+    AKS --> BLOB
+    AKS --> REDIS
+    AKS --> SB
+    AKS --> PG
+    AKS --> EID
+    AKS --> KV
+    AKS --> LA
+    AKS --> AM
+    BLOB --> CDN
+</div>
+<div class="arch-diagram"><a href="assets/09-despliegue-azure.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/09-despliegue-azure.png" alt="Despliegue Azure — vista física" loading="lazy" /></a></div>
+<h3 id="192-entornos" class="subsection-title">19.2 Entornos</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Entorno</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEV</td>
+<td>Desarrollo, mocks API IDEAUTO</td>
+</tr>
+<tr>
+<td>STAGING</td>
+<td>Integración, regression tests</td>
+</tr>
+<tr>
+<td>PRO</td>
+<td>Producción con SLA</td>
+</tr>
+</tbody></table></div>
+<h3 id="193-cicd" class="subsection-title">19.3 CI/CD</h3>
+<ul>
+<li>GitHub Actions / Azure DevOps</li>
+<li>Deploy independiente: reglas, prompts, workers, fitness evaluators, infra, <strong>Storybook estático</strong> (design review)</li>
+<li>Gate de CI: evaluación golden set + fitness mínimo antes de promoción a STAGING/PRO</li>
+<li>Pipeline por capa de pirámide §21: unit → integración → Storybook → contrato → E2E smoke → carga (release)</li>
+<li>Feature flags para activación gradual de reglas</li>
+</ul>
+<hr>
+<h2 id="20-kpis-tecnicos" class="section-title">20. KPIs técnicos</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>KPI</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Disponibilidad</td>
+<td>&gt; 99,5%</td>
+</tr>
+<tr>
+<td>Tiempo análisis documento</td>
+<td>&lt; 10 s (P95)</td>
+</tr>
+<tr>
+<td>Tiempo análisis expediente</td>
+<td>&lt; 30 s (P95)</td>
+</tr>
+<tr>
+<td>Precisión OCR</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Precisión clasificación</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Precisión extracción campos clave</td>
+<td>&gt; 95%</td>
+</tr>
+<tr>
+<td>Recall incidencias críticas</td>
+<td>&gt; 98%</td>
+</tr>
+<tr>
+<td><strong>Fitness global</strong></td>
+<td><strong>&gt; 85; mejora trimestral demostrable</strong></td>
+</tr>
+<tr>
+<td>Rollback artefacto IA</td>
+<td>&lt; 15 min</td>
+</tr>
+<tr>
+<td>Trazabilidad</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Expedientes auditables</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>First Time Right</td>
+<td>&gt; 60%</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="21-estrategia-de-calidad-y-testing" class="section-title">21. Estrategia de calidad y testing</h2>
+<p>La calidad del sistema se garantiza mediante una <strong>pirámide de testing</strong> alineada con Nx: tests rápidos y numerosos en la base; tests de frontera en el medio; flujos E2E y pruebas de carga en la cima. La capa IA añade <strong>regresión con golden set</strong> y <strong>fitness</strong> como gate de CI.</p>
+<blockquote class="callout"><p>Diagrama: <a href="diagrams/07-testing-piramide.mmd"><code>diagrams/07-testing-piramide.mmd</code></a></p></blockquote>
+<div class="mermaid">
+flowchart TB
+    subgraph TOP["Capa superior — pocas, lentas, alto valor"]
+        E2E["E2E / smoke
+Playwright · flujos CAE + MFE"]
+        LOAD["Carga · estrés · soak
+k6 · Azure Load Testing"]
+    end
+
+    subgraph MID["Capa media — contratos y fronteras"]
+        INT["Integración
+API · colas · adaptadores · BD"]
+        COMP["Componentes
+Storybook + Testing Library"]
+        CONTRACT["Contrato
+OpenAPI · eventos · MF remote"]
+    end
+
+    subgraph BASE["Base — muchas, rápidas, baratas"]
+        UNIT["Unitarios
+dominio · reglas · utils · UI tonta"]
+    end
+
+    subgraph IA["Transversal IA"]
+        GOLD["Golden set + fitness
+regresión en CI"]
+    end
+
+    UNIT --> INT
+    INT --> COMP
+    COMP --> CONTRACT
+    CONTRACT --> E2E
+    E2E --> LOAD
+    UNIT -.-> GOLD
+    INT -.-> GOLD
+
+    style BASE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    style MID fill:#e3f2fd,stroke:#1565c0
+    style TOP fill:#fff3e0,stroke:#ef6c00
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+</div>
+<h3 id="211-capas-de-la-piramide" class="subsection-title">21.1 Capas de la pirámide</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Qué se prueba</th>
+<th>Herramientas</th>
+<th>Target Nx (ejemplo)</th>
+<th>Frecuencia CI</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Unitarios</strong></td>
+<td>Dominio DDD, reglas RF, utils, mappers, componentes tontos</td>
+<td>Jest / Vitest, Testing Library</td>
+<td><code>nx test &lt;lib&gt;</code></td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>Módulos NestJS, repos, adaptadores Azure (mocks/emuladores), colas</td>
+<td>Jest + Supertest, Testcontainers, Azurite</td>
+<td><code>nx test &lt;backend-lib&gt; --configuration=integration</code></td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Contrato</strong></td>
+<td>OpenAPI request/response, esquemas eventos, remote entry MFE</td>
+<td>Pact / Schemathesis, contract tests</td>
+<td><code>nx run cae-api:contract-test</code></td>
+<td>Cada PR + nightly</td>
+</tr>
+<tr>
+<td><strong>Componentes</strong></td>
+<td>Estados UI, accesibilidad, interacción en aislamiento</td>
+<td>Storybook, <code>@storybook/test</code>, test-runner</td>
+<td><code>nx storybook</code>, <code>nx test-storybook cae-ui-storybook</code></td>
+<td>Cada PR (UI)</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flujos usuario: subida doc → incidencias → envío → Operaciones; MFE embebido</td>
+<td>Playwright (preferido) o Cypress</td>
+<td><code>nx e2e cae-assistant-e2e</code></td>
+<td>Nightly + pre-release</td>
+</tr>
+<tr>
+<td><strong>Integración E2E</strong></td>
+<td>CAE host + remote MFE + backend IA en entorno STAGING</td>
+<td>Playwright multi-app</td>
+<td><code>nx e2e cae-integration-e2e</code></td>
+<td>STAGING deploy</td>
+</tr>
+<tr>
+<td><strong>Carga / estrés</strong></td>
+<td>Throughput documentos, latencia P95/P99, colas, autoscaling AKS</td>
+<td>k6, Azure Load Testing, JMeter</td>
+<td><code>nx run cae-load-test:stress</code></td>
+<td>Mensual + pre-PRO</td>
+</tr>
+<tr>
+<td><strong>Soak / resistencia</strong></td>
+<td>Fugas memoria, degradación 24–72 h bajo carga sostenida</td>
+<td>k6 + monitorización</td>
+<td>Pipeline programado</td>
+<td>Trimestral</td>
+</tr>
+<tr>
+<td><strong>IA — golden set</strong></td>
+<td>Precisión clasificación, extracción, incidencias vs dataset etiquetado</td>
+<td>Evaluation Pipeline + Fitness Engine</td>
+<td><code>nx run mlops-backend:evaluate</code></td>
+<td>Gate promoción</td>
+</tr>
+<tr>
+<td><strong>IA — fitness gate</strong></td>
+<td>Score compuesto F₁–F₆ ≥ umbral antes de STAGING/PRO</td>
+<td>Fitness Engine</td>
+<td>CI gate en §19.3</td>
+<td>Cada release</td>
+</tr>
+</tbody></table></div>
+<h3 id="212-alcance-por-capa-del-monorepo" class="subsection-title">21.2 Alcance por capa del monorepo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ruta</th>
+<th>Unitarios</th>
+<th>Integración</th>
+<th>Storybook</th>
+<th>E2E</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Reglas, agregados, value objects</td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>No aplica</td>
+</tr>
+<tr>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>Application services, domain</td>
+<td>Adaptadores, API modules</td>
+<td>No aplica</td>
+<td>No aplica</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/ui</code></td>
+<td>Render + eventos</td>
+<td>No aplica</td>
+<td><strong>Obligatorio</strong></td>
+<td>No aplica</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/feature-*</code></td>
+<td>Mappers ligeros</td>
+<td>MSW / mock API</td>
+<td>Opcional</td>
+<td>vía E2E</td>
+</tr>
+<tr>
+<td><code>apps/cae-ia-backend</code></td>
+<td>No aplica</td>
+<td>Smoke API</td>
+<td>No aplica</td>
+<td>Parcial</td>
+</tr>
+<tr>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>Playwright</td>
+</tr>
+<tr>
+<td><code>apps/cae-ui-storybook</code></td>
+<td>No aplica</td>
+<td>No aplica</td>
+<td>Catálogo + interaction</td>
+<td>No aplica</td>
+</tr>
+</tbody></table></div>
+<h3 id="213-escenarios-e2e-prioritarios" class="subsection-title">21.3 Escenarios E2E prioritarios</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Flujo</th>
+<th>Actores</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>E2E-01</td>
+<td>Crear expediente → subir DNI + factura → ver incidencias en sidebar</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-02</td>
+<td>Resolver incidencia menor → recalcular completitud</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-03</td>
+<td>Subida documento ilegible → feedback OCR + incidencia calidad</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>E2E-04</td>
+<td>Envío expediente → decisión Review → cola Operaciones</td>
+<td>Cliente + Operaciones</td>
+</tr>
+<tr>
+<td>E2E-05</td>
+<td>MFE React cargado en slot CAE v2 (Module Federation smoke)</td>
+<td>Sistema</td>
+</tr>
+<tr>
+<td>E2E-06</td>
+<td>Regresión golden set post-deploy STAGING</td>
+<td>CI / MLOps</td>
+</tr>
+</tbody></table></div>
+<h3 id="214-pruebas-de-carga-y-estres" class="subsection-title">21.4 Pruebas de carga y estrés</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario</th>
+<th>Objetivo</th>
+<th>Criterio de éxito</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Carga nominal</strong></td>
+<td>100 docs/min sostenidos 30 min</td>
+<td>P95 análisis doc &lt; 10 s; error rate &lt; 0,1%</td>
+</tr>
+<tr>
+<td><strong>Pico</strong></td>
+<td>3× carga nominal 10 min</td>
+<td>Autoscaling AKS; cola DLQ &lt; umbral</td>
+</tr>
+<tr>
+<td><strong>Estrés</strong></td>
+<td>Incremento gradual hasta fallo</td>
+<td>Identificar cuello de botella; sin pérdida de mensajes</td>
+</tr>
+<tr>
+<td><strong>Soak</strong></td>
+<td>50% carga nominal 24 h</td>
+<td>Sin memory leak; latencia estable</td>
+</tr>
+<tr>
+<td><strong>Chaos ligero</strong></td>
+<td>Reinicio pods + retry colas</td>
+<td>Idempotencia; recuperación &lt; 5 min</td>
+</tr>
+</tbody></table></div>
+<p>Herramientas recomendadas: <strong>k6</strong> (scripts versionados en repo), <strong>Azure Load Testing</strong> para entornos STAGING espejo de PRO.</p>
+<h3 id="215-gates-de-cicd" class="subsection-title">21.5 Gates de CI/CD</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Condición</th>
+<th>Bloquea</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G1 — Lint + unit</td>
+<td>100% libs afectadas pasan <code>test</code> + <code>lint</code></td>
+<td>Merge PR</td>
+</tr>
+<tr>
+<td>G2 — Integración</td>
+<td>Backend libs críticas pasan integration suite</td>
+<td>Merge PR (backend)</td>
+</tr>
+<tr>
+<td>G3 — Storybook</td>
+<td>Componentes <code>ui/</code> modificados tienen stories + test-runner OK</td>
+<td>Merge PR (frontend)</td>
+</tr>
+<tr>
+<td>G4 — Contrato</td>
+<td>OpenAPI diff compatible; contract tests verdes</td>
+<td>Merge PR (API)</td>
+</tr>
+<tr>
+<td>G5 — Golden set</td>
+<td>Fitness ≥ umbral STAGING (p. ej. 85)</td>
+<td>Deploy STAGING</td>
+</tr>
+<tr>
+<td>G6 — E2E smoke</td>
+<td>Suite smoke Playwright en STAGING</td>
+<td>Deploy PRO</td>
+</tr>
+<tr>
+<td>G7 — Carga</td>
+<td>Informe k6 dentro de SLO (pre-release mayor)</td>
+<td>Release PRO</td>
+</tr>
+</tbody></table></div>
+<h3 id="216-objetivos-de-cobertura-orientativos" class="subsection-title">21.6 Objetivos de cobertura (orientativos)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ámbito</th>
+<th>Cobertura mínima</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/cae/core</code> (reglas)</td>
+<td>≥ 90% líneas</td>
+<td>Prioridad absoluta</td>
+</tr>
+<tr>
+<td><code>*-backend</code> application layer</td>
+<td>≥ 80%</td>
+<td>Excluir adaptadores cloud mockeados</td>
+</tr>
+<tr>
+<td><code>react/cae/ui</code></td>
+<td>≥ 70% + 100% stories</td>
+<td>Calidad visual vía Storybook</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>Flujos críticos §21.3</td>
+<td>No sustituye unitarios de dominio</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="22-monorepo-nx-y-organizacion-del-repositorio-base" class="section-title">22. Monorepo Nx y organización del repositorio base</h2>
+<p>El monorepo Nx (<code>cae-ia-monorepo/</code>) constituye el núcleo operativo de la estrategia de evolución tecnológica: no es una mera agrupación de código, sino la infraestructura donde se aíslan los estándares modernos de la deuda técnica circundante.</p>
+<h3 id="221-estrategia-strangler-fig-mediante-librerias-acoplables" class="subsection-title">22.1 Estrategia Strangler Fig mediante librerías acoplables</h3>
+<p>Toda la lógica de negocio, reglas de dominio y abstracciones de puertos se desarrollan como <strong>librerías Nx independientes</strong> (<code>libs/isomorphic/cae/core</code>). Las aplicaciones en <code>apps/</code> operan exclusivamente como hosts de orquestación y empaquetado.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Objetivo</th>
+<th>Cómo se logra</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Inmunidad frente al legado</strong></td>
+<td>El código de extracción, validación y decisión nace con cobertura de tests bajo estándares DDD/hexagonal; el backend heredado no contamina el nuevo dominio</td>
+</tr>
+<tr>
+<td><strong>Reutilización en consolidación</strong></td>
+<td>Al desmantelar el backend legacy, las libs <code>*-backend</code> y <code>core</code> se conectan a los hosts definitivos sin reescritura</td>
+</tr>
+<tr>
+<td><strong>Tolerancia cero a regresiones</strong></td>
+<td>La lógica interna del sistema heredado no se modifica; la IA se integra como capacidad embebida vía ACL y MFE</td>
+</tr>
+</tbody></table></div>
+<h3 id="222-matriz-de-librerias-y-responsabilidades" class="subsection-title">22.2 Matriz de librerías y responsabilidades</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ruta objetivo</th>
+<th>Tipo</th>
+<th>Responsabilidad</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Dominio</td>
+<td>Agregados, reglas CAE, eventos; agnóstico de framework</td>
+</tr>
+<tr>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>Contratos</td>
+<td>OpenAPI, DTOs compartidos front/back</td>
+</tr>
+<tr>
+<td><code>libs/isomorphic/shared/model</code></td>
+<td>Modelo compartido</td>
+<td>Value Objects (EntityId, Money, Status)</td>
+</tr>
+<tr>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>Backend</td>
+<td>NestJS modules hexagonales por capacidad</td>
+</tr>
+<tr>
+<td><code>libs/node/shared-infrastructure</code></td>
+<td>Infraestructura transversal</td>
+<td>Prisma, guards, outbox, utilities transversales</td>
+</tr>
+<tr>
+<td><code>libs/node/adapters/*</code></td>
+<td>Adaptadores</td>
+<td>Integraciones externas (Verifactu, email, webhooks)</td>
+</tr>
+<tr>
+<td><code>libs/react/cae/*</code></td>
+<td>UI React Fase 1</td>
+<td>MFE asistencia integrado en CAE v2</td>
+</tr>
+<tr>
+<td><code>libs/angular/cae/*</code></td>
+<td>UI Angular evolución</td>
+<td>Stack propuesto, módulos nativos</td>
+</tr>
+<tr>
+<td><code>libs/browser/shared/ui-kit</code></td>
+<td>UI Components</td>
+<td>Componentes tontos, presentacionales</td>
+</tr>
+<tr>
+<td><code>libs/browser/shared/data-access</code></td>
+<td>Data Access</td>
+<td>Servicios HTTP, interceptores, plugin store</td>
+</tr>
+<tr>
+<td><code>libs/browser/feature/*</code></td>
+<td>Features UI</td>
+<td>Smart components (contenedores)</td>
+</tr>
+<tr>
+<td><code>libs/browser/shell/*</code></td>
+<td>Shell</td>
+<td>Rutas, lazy loading, guards de plugin</td>
+</tr>
+</tbody></table></div>
+<h3 id="223-reglas-de-dependencias-estrictas-nx-eslint-module-boundaries" class="subsection-title">22.3 Reglas de dependencias estrictas (Nx + ESLint module boundaries)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Origen</th>
+<th>Permitido depender de</th>
+<th>Justificación / Nota</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/core</code></td>
+<td>Ninguno</td>
+<td>Dominio puro, sin dependencias externas</td>
+</tr>
+<tr>
+<td><code>isomorphic/api</code></td>
+<td><code>isomorphic/core</code></td>
+<td>Solo DTOs y contratos del dominio</td>
+</tr>
+<tr>
+<td><code>node/backend/&lt;dominio&gt;</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code>, <code>shared-infrastructure</code></td>
+<td>Sólo lógica de aplicación y adaptadores</td>
+</tr>
+<tr>
+<td><code>node/shared-infrastructure</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Utilities, guards, Prisma, outbox reutilizable</td>
+</tr>
+<tr>
+<td><code>browser/shared/ui-kit</code></td>
+<td>Ninguno</td>
+<td>UI pura, sin lógica de negocio ni servicios</td>
+</tr>
+<tr>
+<td><code>browser/data-access</code></td>
+<td><code>isomorphic/api</code>, <code>browser/shared/ui-kit</code></td>
+<td>Servicios HTTP, stores, multitenancy; no depende de backend directo</td>
+</tr>
+<tr>
+<td><code>browser/feature/&lt;dominio&gt;</code></td>
+<td><code>data-access</code>, <code>shared/ui-kit</code></td>
+<td>Componentes listos, orquestan UI</td>
+</tr>
+<tr>
+<td><code>libs/plugins/*</code></td>
+<td><code>browser/feature</code>, <code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Activar/desactivar módulos sin romper dominios</td>
+</tr>
+</tbody></table></div>
+<p>Regla de dependencias: <strong>las capas superiores (UI/feature) pueden depender de capas inferiores (core/api), nunca al revés.</strong></p>
+<h3 id="224-baserepository-pattern-obligatorio-para-todos-los-dominios" class="subsection-title">22.4 BaseRepository Pattern (obligatorio para todos los dominios)</h3>
+<p>Propósito: garantizar consistencia en todos los repositorios de dominio y aplicar filtrado por <code>tenantId</code> automáticamente (seguridad por defecto).</p>
+<p>Estrategia de implementación:</p>
+<ul>
+<li>Carpeta <code>repositories/</code> dentro de <code>libs/node/cae/&lt;dominio&gt;-backend</code>.</li>
+<li>Extender siempre de <code>BaseRepository</code>.</li>
+<li>Implementar métodos obligatorios + específicos del dominio.</li>
+<li>Inyectar repositorio en Services vía puertos.</li>
+<li>Mantener <code>tenantId</code> como parámetro obligatorio (aunque fijo actualmente).</li>
+</ul>
+<p>Beneficios:</p>
+<ul>
+<li>Consistencia total entre dominios.</li>
+<li>Seguridad por defecto contra fugas de datos.</li>
+<li>Fácil activación de multi-tenant.</li>
+<li>Testabilidad alta (mocks del puerto o base repository).</li>
+</ul>
+<h3 id="225-unit-of-work-uow-y-transaccionalidad" class="subsection-title">22.5 Unit of Work (UoW) y transaccionalidad</h3>
+<p>Propósito: coordinar la escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza que la lógica de negocio y la persistencia del evento en outbox ocurran en la misma transacción.</p>
+<p>Implementación con Prisma:</p>
+<ul>
+<li><code>UnitOfWorkPort</code> en core (interfaz).</li>
+<li><code>PrismaUnitOfWork</code> en infrastructure (implementa $transaction).</li>
+<li>El Service de aplicación orquesta: recibe UoW → ejecuta <code>runInTransaction</code> → pasa <code>tx</code> a repositorios → rollback automático si falla.</li>
+</ul>
+<h3 id="226-base-controller-pattern" class="subsection-title">22.6 Base Controller Pattern</h3>
+<p>Propósito: normalizar la entrada HTTP y reducir boilerplate.</p>
+<p>Funciones:</p>
+<ul>
+<li>Extracción automática de <code>tenantId</code> y <code>userId</code> del request (inyectados por Guards).</li>
+<li>Gestión de respuestas uniforme (éxito/error).</li>
+<li>Seguridad por construcción: centraliza el filtrado del tenant.</li>
+</ul>
+<p>Ubicación: <code>libs/node/shared-infrastructure/api/base.controller.ts</code></p>
+<hr>
+<h2 id="23-riesgos-explicitos-y-mitigaciones" class="section-title">23. Riesgos explícitos y mitigaciones</h2>
+<h3 id="231-riesgos-arquitectonicos-de-integracion-sistema-heredado" class="subsection-title">23.1 Riesgos arquitectónicos de integración (sistema heredado)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Riesgo</th>
+<th>Impacto</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>R-01</strong></td>
+<td>Incompatibilidad de toolchain del frontend heredado para Module Federation</td>
+<td>Alto</td>
+<td>Patrón Smart/Dumb en libs UI; fallback a Web Components si el host no acepta federación nativa</td>
+</tr>
+<tr>
+<td><strong>R-02</strong></td>
+<td>Condiciones de carrera entre workers (<code>DocumentExtracted</code>) y ediciones manuales (<code>FieldModified</code>)</td>
+<td>Alto</td>
+<td>FSM en Redis con concurrencia optimista; versiones obsoletas del Unified Expedition JSON se rechazan</td>
+</tr>
+<tr>
+<td><strong>R-03</strong></td>
+<td>Degradación por llamadas bloqueantes al backend heredado</td>
+<td>Muy alto</td>
+<td>ACL asíncrona vía Service Bus; servicios IA resuelven contra caché Redis sin esperar al core legacy</td>
+</tr>
+<tr>
+<td><strong>R-04</strong></td>
+<td>Explosión de costes/latencia por uso indiscriminado de GPT-4o Vision</td>
+<td>Medio-alto</td>
+<td>Cortafuegos de legibilidad en Preprocessing (§4.1.2); fallback solo tras fallo explícito de DI (&lt; 0,85)</td>
+</tr>
+</tbody></table></div>
+<h3 id="232-riesgos-operativos-del-monorepo" class="subsection-title">23.2 Riesgos operativos del monorepo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Riesgo</th>
+<th>Impacto</th>
+<th>Señal de alerta</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1</td>
+<td>Olvido de filtro <code>tenant_id</code></td>
+<td>Crítico (datos)</td>
+<td>Code review, tests sin aislamiento</td>
+<td>BaseRepository + reviews + tests de aislamiento</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>Tenant no validado en BD</td>
+<td>Alto (suplantación)</td>
+<td>Cabecera presente pero UUID inexistente</td>
+<td>Fortalecer TenantGuard y validación en BD</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>Duplicación de eventos (outbox)</td>
+<td>Alto (pagos/email duplicados)</td>
+<td>Reintentos sin idempotencia</td>
+<td>Idempotencia + claves únicas en DB</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>Contención / locks en agregados calientes</td>
+<td>Medio (timeouts)</td>
+<td>Timeouts en picos</td>
+<td>Transacciones cortas + colas para procesos pesados</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>Violación de fronteras de capas</td>
+<td>Medio</td>
+<td>Imports incorrectos en PR</td>
+<td>ESLint module boundaries + tags Nx estrictos</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>Observabilidad insuficiente</td>
+<td>Alto</td>
+<td>&quot;No sabemos qué pasó&quot; en incidentes</td>
+<td>Logs estructurados + métricas + trazas obligatorias</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>Extracción prematura a microservicio</td>
+<td>Alto</td>
+<td>Latencia y bugs distribuidos</td>
+<td>Reglas claras de Strangler; no antes de 6 meses</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>Plugins sin paridad front/back</td>
+<td>Medio</td>
+<td>403 inesperados o UX rota</td>
+<td>Contratos compartidos + guards</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="24-vision-final" class="section-title">24. Visión final</h2>
+<p>El sistema de asistencia inteligente para la Plataforma CAE v3.0 establece el nuevo estándar de ingeniería para IDEAUTO / Babooni. Al encapsular la lógica cognitiva mediante <strong>arquitectura hexagonal</strong> y <strong>DDD</strong>, la organización adquiere una plataforma elástica, agnóstica de proveedores de IA y protegida frente a la obsolescencia técnica.</p>
+<p>La introducción de este diseño mediante <strong>microfrontends</strong> y <strong>capa anticorrupción</strong> garantiza un despliegue antifrágil: aporta valor operativo inmediato (validación progresiva, auto-aprobación, reducción de carga Operaciones) mientras ejecuta de forma progresiva la sustitución y modernización del núcleo heredado — <strong>sin modificar la lógica interna del sistema actual</strong>.</p>
+<p>La arquitectura utiliza <strong>Azure AI Foundry</strong> como núcleo de razonamiento, <strong>Document Intelligence</strong> para captura documental y <strong>Knowledge Base CAE</strong> (RAG) para recomendaciones contextualizadas. La implementación se basa en <strong>libs Nx independientes</strong> (hexagonal + DDD):</p>
+<ul>
+<li><strong>Meses 1–2:</strong> App IA (<code>cae-assistant-mfe</code> React) integrada en CAE v2; calibración del Decision Engine.</li>
+<li><strong>Meses 2–5:</strong> MFE temporal entre CAE React y CAE Angular nueva (Strangler Fig).</li>
+<li><strong>Mes 6:</strong> plataforma Angular única, IA nativa, sin Module Federation — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8.</li>
+</ul>
+<p>La <strong>pirámide de testing</strong> (unitarios → integración → Storybook → E2E → carga/estrés) y el <strong>golden set con fitness</strong> garantizan calidad continua sin sacrificar velocidad de entrega.</p>
+<p>El <strong>Validation Engine</strong> determinista — complementado, no sustituido, por razonamiento generativo — refleja el conocimiento funcional del proceso CAE y reduce la intervención manual de Operaciones. El <strong>Feedback Engine</strong>, <strong>Fitness Engine</strong> y pipeline <strong>MLOps</strong> cierran el ciclo de mejora continua con decisiones de promoción o rollback basadas en <strong>fitness medible</strong>.</p>
+<blockquote class="callout"><p>Documento de referencia para equipos de Arquitectura, Desarrollo, IA, DevOps, Operaciones, QA y Dirección.</p></blockquote>
+<hr>
+<p><em>Diseño Técnico de Referencia — Sistema de Asistencia Inteligente para Plataforma CAE.</em></p>
+</article>
+        <footer class="doc-footer">
+          <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
+      themeVariables: {
+        primaryColor: '#e0f7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#0ab9e5',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length) {
+      await mermaid.run({ nodes });
+      document.querySelectorAll('.mermaid svg').forEach((svg) => {
+        svg.removeAttribute('height');
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+      });
+    }
+  </script>
+
+  <script>
+    const fab = document.getElementById('fabTop');
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+      fab.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = [...tocLinks]
+      .map((a) => document.getElementById(a.dataset.section))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((l) =>
+              l.classList.toggle('active', l.dataset.section === entry.target.id)
+            );
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+  </script>
+</body>
+</html>

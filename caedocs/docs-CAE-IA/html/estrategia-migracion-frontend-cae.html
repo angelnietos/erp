@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESTRATEGIA DE MODERNIZACIÓN FRONTEND — PLATAFORMA CAE — CAE IA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="switch-theme.css" />
+</head>
+<body class="accent-blue">
+  <div class="joycon joycon-left" aria-hidden="true"></div>
+  <div class="joycon joycon-right" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="40" height="24" rx="6" fill="currentColor" opacity=".15"/><rect x="8" y="16" width="32" height="16" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="24" r="3" fill="currentColor"/></svg>
+          </span>
+          <div>
+            <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
+            <h1 class="brand-title">ESTRATEGIA DE MODERNIZACIÓN FRONTEND — PLATAFORMA CAE</h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">Estrategia</span>
+          <span class="badge badge-neutral">v1.0</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Modernización incremental CAE — Strangler Fig React → Angular</p>
+      <nav class="doc-nav">
+        <a href="index.html" class="nav-pill">Inicio</a>
+        <a href="resumen-ejecutivo-cliente-v3.0.html" class="nav-pill">Resumen ejecutivo</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill">Diseño técnico</a>
+        <a href="arquitectura-cae-ia.html" class="nav-pill">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill active">Estrategia migración</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+          <p class="sidebar-label">Índice</p>
+          <ul class="toc"><li><a href="#migracion-incremental-react-angular-mediante-microfrontends-strangler-fig" class="toc-link" data-section="migracion-incremental-react-angular-mediante-microfrontends-strangler-fig">Migración incremental React → Angular mediante microfrontends (Strangler Fig)</a></li>
+<li><a href="#1-contexto-y-oportunidad-de-mejora" class="toc-link" data-section="1-contexto-y-oportunidad-de-mejora">1. Contexto y oportunidad de mejora</a></li>
+<li><a href="#2-propuesta-estrategica" class="toc-link" data-section="2-propuesta-estrategica">2. Propuesta estratégica</a></li>
+<li><a href="#3-patron-strangler-fig-microfrontends-como-puente-temporal" class="toc-link" data-section="3-patron-strangler-fig-microfrontends-como-puente-temporal">3. Patrón Strangler Fig — microfrontends como puente temporal</a></li>
+<li><a href="#4-angular-vs-react-criterios-de-seleccion" class="toc-link" data-section="4-angular-vs-react-criterios-de-seleccion">4. Angular vs React — criterios de selección</a></li>
+<li><a href="#5-ventajas-del-enfoque-incremental" class="toc-link" data-section="5-ventajas-del-enfoque-incremental">5. Ventajas del enfoque incremental</a></li>
+<li><a href="#6-costes-riesgos-e-inconvenientes" class="toc-link" data-section="6-costes-riesgos-e-inconvenientes">6. Costes, riesgos e inconvenientes</a></li>
+<li><a href="#7-criterios-de-aplicabilidad" class="toc-link" data-section="7-criterios-de-aplicabilidad">7. Criterios de aplicabilidad</a></li>
+<li><a href="#8-fases-de-migracion" class="toc-link" data-section="8-fases-de-migracion">8. Fases de migración</a></li>
+<li><a href="#9-relacion-con-el-proyecto-de-asistencia-ia" class="toc-link" data-section="9-relacion-con-el-proyecto-de-asistencia-ia">9. Relación con el proyecto de Asistencia IA</a></li>
+<li><a href="#10-gobernanza-metricas-y-criterios-de-exito" class="toc-link" data-section="10-gobernanza-metricas-y-criterios-de-exito">10. Gobernanza, métricas y criterios de éxito</a></li>
+<li><a href="#11-beneficios-y-encaje-estrategico" class="toc-link" data-section="11-beneficios-y-encaje-estrategico">11. Beneficios y encaje estratégico</a></li>
+<li><a href="#12-vision-final" class="toc-link" data-section="12-vision-final">12. Visión final</a></li></ul>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <article class="prose"><h1 id="estrategia-de-modernizacion-frontend-plataforma-cae" class="doc-main-title">ESTRATEGIA DE MODERNIZACIÓN FRONTEND — PLATAFORMA CAE</h1>
+<h2 id="migracion-incremental-react-angular-mediante-microfrontends-strangler-fig" class="section-title">Migración incremental React → Angular mediante microfrontends (Strangler Fig)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Versión</strong></td>
+<td>1.0</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>Documento de referencia</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>03/07/2026</td>
+</tr>
+<tr>
+<td><strong>Proyecto</strong></td>
+<td>Plataforma CAE v2.0 — Evolución frontend + Capa IA</td>
+</tr>
+<tr>
+<td><strong>Clasificación</strong></td>
+<td>Confidencial — IDEAUTO / Babooni</td>
+</tr>
+<tr>
+<td><strong>Documentos relacionados</strong></td>
+<td><a href="especificacion-funcional-v3.0.html"><code>ESPECIFICACION-FUNCIONAL-v3.0.md</code></a>, <a href="diseno-tecnico-v3.0.html"><code>DISENO-TECNICO-v3.0.md</code></a>, <a href="arquitectura-cae-ia.html"><code>ARQUITECTURA-CAE-IA.md</code></a></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="indice-de-contenidos" class="section-title">Índice de contenidos</h2>
+<ol>
+<li><a href="#1-contexto-y-oportunidad-de-mejora">Contexto y oportunidad de mejora</a></li>
+<li><a href="#2-propuesta-estrategica">Propuesta estratégica</a></li>
+<li><a href="#3-patron-strangler-fig-microfrontends-como-puente-temporal">Patrón Strangler Fig — microfrontends como puente temporal</a></li>
+<li><a href="#4-angular-vs-react-criterios-de-seleccion">Angular vs React — criterios de selección</a></li>
+<li><a href="#5-ventajas-del-enfoque-incremental">Ventajas del enfoque incremental</a></li>
+<li><a href="#6-costes-riesgos-e-inconvenientes">Costes, riesgos e inconvenientes</a></li>
+<li><a href="#7-criterios-de-aplicabilidad">Criterios de aplicabilidad</a></li>
+<li><a href="#8-fases-de-migracion">Fases de migración</a></li>
+<li><a href="#9-relacion-con-el-proyecto-de-asistencia-ia">Relación con el proyecto de Asistencia IA</a></li>
+<li><a href="#10-gobernanza-metricas-y-criterios-de-exito">Gobernanza, métricas y criterios de éxito</a></li>
+<li><a href="#11-beneficios-y-encaje-estrategico">Beneficios y encaje estratégico</a></li>
+<li><a href="#12-vision-final">Visión final</a></li>
+</ol>
+<hr>
+<h2 id="1-contexto-y-oportunidad-de-mejora" class="section-title">1. Contexto y oportunidad de mejora</h2>
+<h3 id="11-situacion-actual" class="subsection-title">1.1 Situación actual</h3>
+<p>La <strong>Plataforma CAE v2.0</strong> está construida en <strong>React</strong>. Con el crecimiento funcional del producto se han identificado <strong>oportunidades de mejora</strong> en mantenibilidad, consistencia de experiencia, estandarización entre equipos y capacidad de evolución del frontend:</p>
+<ul>
+<li><strong>Acoplamiento entre módulos</strong> — dificulta cambios localizados.</li>
+<li><strong>Heterogeneidad de patrones</strong> — distintas librerías y enfoques (routing, estado, formularios, validación).</li>
+<li><strong>Coste creciente de cambio</strong> — nuevas funcionalidades impactan zonas no relacionadas.</li>
+<li><strong>Cobertura de pruebas mejorable</strong> — el monolito frontend dificulta regresiones automatizadas.</li>
+</ul>
+<blockquote class="callout"><p>La oportunidad no reside en sustituir React de forma abrupta, sino en <strong>evolucionar la plataforma de forma incremental</strong>, aprovechando el proyecto de Asistencia IA como primer hito de modernización arquitectónica.</p></blockquote>
+<h3 id="12-enfoque-acordado-y-evolucion-propuesta" class="subsection-title">1.2 Enfoque acordado y evolución propuesta</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Enfoque</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CAE React (actual)</strong></td>
+<td>Se <strong>termina el desarrollo</strong> en React, sin interrumpir el roadmap existente</td>
+</tr>
+<tr>
+<td><strong>App IA (nueva)</strong></td>
+<td>Se desarrolla en paralelo e <strong>se integra en CAE React</strong> mediante microfrontend (Fase 1)</td>
+</tr>
+<tr>
+<td><strong>CAE Angular (nueva)</strong></td>
+<td>Se construye en paralelo como <strong>sustituto</strong> de la plataforma React actual</td>
+</tr>
+<tr>
+<td><strong>Microfrontends</strong></td>
+<td><strong>Solución temporal</strong> de transición: permiten convivencia React + Angular sin parar el negocio</td>
+</tr>
+<tr>
+<td><strong>Horizonte final</strong></td>
+<td><strong>Una sola aplicación Angular</strong>; los microfrontends <strong>dejan de ser necesarios</strong> al completar la migración</td>
+</tr>
+<tr>
+<td><strong>Plazo del programa</strong></td>
+<td><strong>6 meses</strong> — App IA completa en producción + CAE Angular completa + migración finalizada (React y MFE retirados)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="2-propuesta-estrategica" class="section-title">2. Propuesta estratégica</h2>
+<h3 id="21-idea-central" class="subsection-title">2.1 Idea central</h3>
+<p>El programa combina <strong>tres líneas de desarrollo en paralelo</strong>, sin detener la plataforma actual:</p>
+<ol>
+<li><strong>CAE React (actual)</strong> — El equipo continúa <strong>finalizando CAE v2</strong> tal como está planificado, en React.</li>
+<li><strong>App de Asistencia IA (nueva)</strong> — Se desarrolla como aplicación independiente (<code>cae-ia-backend</code> + <code>cae-assistant-mfe</code>) e <strong>se integra en CAE React</strong> mediante microfrontend en los slots de expediente y operaciones.</li>
+<li><strong>CAE Angular (nueva)</strong> — En paralelo se construye la <strong>aplicación que sustituirá</strong> a CAE React, módulo a módulo, con arquitectura moderna desde cero.</li>
+<li><strong>Transición (temporal)</strong> — Mientras conviven CAE React y CAE Angular, <strong>Module Federation</strong> permite navegar entre ambas y desplegar la IA embebida <strong>sin reescribir el host React</strong>.</li>
+<li><strong>Objetivo final</strong> — <strong>Todo en Angular</strong>: una sola aplicación, sin microfrontends. La IA pasa a ser módulos nativos de la plataforma Angular; CAE React se retira progresivamente.</li>
+</ol>
+<div class="mermaid">
+flowchart TB
+    subgraph HOY["Hoy — desarrollo en paralelo"]
+        R["CAE React actual
+terminar desarrollo"]
+        IA["App IA
+cae-assistant-mfe"]
+        ANG["CAE Angular nueva
+sustituto progresivo"]
+    end
+
+    subgraph TRANS["Transición — MFE temporal"]
+        R2["CAE React + slots IA"]
+        ANG2["CAE Angular creciendo"]
+        IA -->|Module Federation| R2
+        R2 <-->|routing compartido| ANG2
+    end
+
+    subgraph META["Objetivo — sin MFE"]
+        FINAL["CAE Angular única
+IA integrada nativa"]
+    end
+
+    HOY --> TRANS --> META
+
+    style R fill:#e3f2fd,stroke:#1565c0
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+    style ANG fill:#e8f5e9,stroke:#2e7d32
+    style FINAL fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+</div>
+<blockquote class="callout"><p><strong>Los microfrontends no son la arquitectura objetivo.</strong> Son el <strong>puente</strong> que permite mejorar la plataforma antigua (React) e incorporar IA <strong>sin interrumpir</strong> el desarrollo en curso, mientras la nueva plataforma Angular madura. Al completar la migración, la complejidad de Module Federation desaparece.</p></blockquote>
+<h3 id="22-principios-de-la-estrategia" class="subsection-title">2.2 Principios de la estrategia</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Principio</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>EM-01</td>
+<td><strong>No big bang</strong></td>
+<td>Nunca reescribir CAE completo de una vez</td>
+</tr>
+<tr>
+<td>EM-02</td>
+<td><strong>Angular destino</strong></td>
+<td>CAE Angular nueva es la plataforma objetivo; todo converge ahí</td>
+</tr>
+<tr>
+<td>EM-03</td>
+<td><strong>CAE React sin interrupción</strong></td>
+<td>El desarrollo actual de CAE v2 continúa hasta completarse o sustituirse módulo a módulo</td>
+</tr>
+<tr>
+<td>EM-04</td>
+<td><strong>MFE solo en transición</strong></td>
+<td>Module Federation se usa mientras conviven React y Angular; no forma parte del estado final</td>
+</tr>
+<tr>
+<td>EM-05</td>
+<td><strong>Libs first</strong></td>
+<td>Dominio y backend en <code>libs/isomorphic</code> y <code>libs/node</code>; UI en <code>libs/react/cae</code> (IA Fase 1) y <code>libs/angular/cae</code> (CAE nueva)</td>
+</tr>
+<tr>
+<td>EM-06</td>
+<td><strong>Medir para migrar</strong></td>
+<td>Sustituir módulo React por Angular cuando ROI, riesgo y dependencias lo avalen</td>
+</tr>
+<tr>
+<td>EM-07</td>
+<td><strong>Transparencia</strong></td>
+<td>Plazo del programa <strong>6 meses</strong> explicitado; MFE acotado en el tiempo</td>
+</tr>
+<tr>
+<td>EM-08</td>
+<td><strong>Equipos autónomos</strong></td>
+<td>CAE React, App IA y CAE Angular evolucionan con releases independientes</td>
+</tr>
+<tr>
+<td>EM-09</td>
+<td><strong>Contrato antes que código</strong></td>
+<td>Auth, rutas, eventos y design system acordados para la fase de convivencia</td>
+</tr>
+</tbody></table></div>
+<h3 id="23-tres-aplicaciones-en-paralelo" class="subsection-title">2.3 Tres aplicaciones en paralelo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Stack</th>
+<th>Equipo / foco</th>
+<th>Rol en el programa</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CAE v2 (actual)</strong></td>
+<td>React</td>
+<td>Equipo CAE existente</td>
+<td><strong>Terminar el desarrollo</strong> planificado; host operativo durante la transición</td>
+</tr>
+<tr>
+<td><strong>Asistencia IA</strong></td>
+<td>React MFE + NestJS (<code>cae-assistant-mfe</code>, <code>cae-ia-backend</code>)</td>
+<td>Equipo IA</td>
+<td><strong>Integrarse en CAE React</strong> vía slots MFE; entregar valor inmediato (validación, MLOps)</td>
+</tr>
+<tr>
+<td><strong>CAE nueva</strong></td>
+<td>Angular (<code>apps/cae-platform-angular</code> u homólogo)</td>
+<td>Equipo Angular</td>
+<td><strong>Sustituir progresivamente</strong> a CAE React; arquitectura greenfield</td>
+</tr>
+</tbody></table></div>
+<p><strong>Relación entre las tres:</strong></p>
+<pre class="code-block"><code class="language-">CAE React (actual)          App IA (nueva)              CAE Angular (nueva)
+     │                           │                            │
+     │◄── MFE: paneles IA ────────┤                            │
+     │                           │                            │
+     │◄──── MFE temporal ────────┼──── routing compartido ───►│
+     │     (mientras conviven)   │                            │
+     │                           │                            │
+     └──── retirada módulo ──────┴──── sustitución ──────────►│
+                                    a módulo                  │
+                                                              ▼
+                                                    CAE Angular única
+                                                    (IA nativa, sin MFE)</code></pre>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Horizonte</th>
+<th>CAE React</th>
+<th>App IA</th>
+<th>CAE Angular</th>
+<th>Microfrontends</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0 — Baseline</strong></td>
+<td>Mes 0 (S1–2)</td>
+<td>Desarrollo en curso</td>
+<td>Diseño / arranque</td>
+<td>Diseño / arranque</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>1 — IA integrada</strong></td>
+<td>Meses 1–2</td>
+<td>Operativa; host de la IA</td>
+<td><strong>MFE en producción</strong></td>
+<td>Arranque / primeros módulos</td>
+<td><strong>Sí</strong> — IA → React</td>
+</tr>
+<tr>
+<td><strong>2 — Convivencia</strong></td>
+<td>Meses 2–4</td>
+<td>Retirada gradual de módulos</td>
+<td>Funcionalidad estable</td>
+<td>Crece en paralelo</td>
+<td><strong>Sí</strong> — React ↔ Angular</td>
+</tr>
+<tr>
+<td><strong>3 — Sustitución</strong></td>
+<td>Meses 4–5</td>
+<td>Módulos retirados uno a uno</td>
+<td>UI migrada a Angular</td>
+<td>Asume rutas de negocio</td>
+<td><strong>Sí</strong>, reduciéndose</td>
+</tr>
+<tr>
+<td><strong>4 — Consolidación</strong></td>
+<td><strong>Mes 6</strong></td>
+<td><strong>Desmantelada</strong></td>
+<td>Módulos nativos en CAE Angular</td>
+<td><strong>100 % plataforma</strong></td>
+<td><strong>Eliminados</strong></td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Esta tabla resume el mismo esquema de fases 0–4 detallado en §8. <strong>Objetivo del programa: 6 meses</strong> para tener la App IA completa, CAE Angular completa y la migración finalizada. Durante la transición, el usuario puede navegar entre CAE React e CAE Angular como una sola experiencia. Al finalizar la migración, <strong>no hace falta Module Federation</strong>: todo vive en la misma aplicación Angular.</p></blockquote>
+<h3 id="24-integracion-tecnica-durante-la-transicion" class="subsection-title">2.4 Integración técnica durante la transición</h3>
+<p>Mientras conviven las aplicaciones, <strong>Module Federation</strong> conecta host y remotes. No es plug-and-play: requiere configuración explícita y contrato compartido (auth, rutas, design system). La mayoría de apps React modernas pueden integrarse; algunas necesitarán ajustes en el build (ver §3.1).</p>
+<p><strong>Ejemplo de routing durante la convivencia:</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ruta</th>
+<th>Resuelve</th>
+<th>Stack</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/expedientes</code>, <code>/operaciones</code></td>
+<td>CAE React + paneles IA (MFE)</td>
+<td>React</td>
+</tr>
+<tr>
+<td><code>/reportes</code>, <code>/administracion</code></td>
+<td>CAE Angular (módulo ya migrado)</td>
+<td>Angular</td>
+</tr>
+</tbody></table></div>
+<p>Al migrar <code>/expedientes</code> a Angular, <strong>solo cambia qué app resuelve la ruta</strong>; la URL no cambia. Cuando <strong>todas</strong> las rutas estén en CAE Angular, se <strong>elimina Module Federation</strong>.</p>
+<hr>
+<h2 id="3-patron-strangler-fig-microfrontends-como-puente-temporal" class="section-title">3. Patrón Strangler Fig — microfrontends como puente temporal</h2>
+<p>La estrategia sigue el patrón <strong>Strangler Fig</strong>: la <strong>CAE Angular nueva</strong> crece alrededor de la <strong>CAE React actual</strong> hasta sustituirla. Los <strong>microfrontends solo existen durante esa transición</strong>; no forman parte de la arquitectura final.</p>
+<div class="arch-diagram"><a href="assets/08-strangler-migracion.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/08-strangler-migracion.png" alt="Strangler Fig — migración React → Angular" loading="lazy" /></a></div>
+<div class="arch-diagram"><a href="assets/06-mfe-react-angular.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/06-mfe-react-angular.png" alt="Integración MFE React y Angular" loading="lazy" /></a></div>
+<h3 id="31-integracion-tecnica-module-federation-cross-framework" class="subsection-title">3.1 Integración técnica — Module Federation cross-framework</h3>
+<p><strong>Module Federation</strong> (Webpack 5 y plugins equivalentes en otras herramientas) permite exponer una aplicación React como microfrontend y consumirla desde Angular, o al revés. No obstante, <strong>no es cierto que cualquier aplicación React pueda integrarse sin cambios</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Escenario de build</th>
+<th>Integración MFE</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>React + Webpack 5</strong></td>
+<td>Más directa</td>
+<td>Module Federation nativo; configuración en host y remote</td>
+</tr>
+<tr>
+<td><strong>React + Vite</strong></td>
+<td>Posible</td>
+<td>Requiere plugins de federación compatibles; configuración distinta a Webpack</td>
+</tr>
+<tr>
+<td><strong>Create React App (CRA)</strong></td>
+<td>Posible con adaptación</td>
+<td>Suele requerir eject, CRACO o migración de configuración</td>
+</tr>
+<tr>
+<td><strong>Webpack 4 o anterior</strong></td>
+<td>Requiere actualización</td>
+<td>Adaptación del build antes de habilitar federación</td>
+</tr>
+<tr>
+<td><strong>Angular (Nx)</strong></td>
+<td>Soportado</td>
+<td><code>@nx/module-federation</code>; host o remote según fase</td>
+</tr>
+</tbody></table></div>
+<p><strong>Aspectos que deben resolverse en la integración</strong> (independientemente del framework):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tema</th>
+<th>Enfoque CAE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dependencias compartidas</strong></td>
+<td><code>react</code>/<code>react-dom</code> (y equivalentes Angular) como <em>shared singletons</em> para evitar cargar varias copias</td>
+</tr>
+<tr>
+<td><strong>Autenticación</strong></td>
+<td>JWT / Entra ID propagado desde el shell; sesión única</td>
+</tr>
+<tr>
+<td><strong>Estado global</strong></td>
+<td>Evitar stores duplicados; eventos o APIs para comunicación entre remotes</td>
+</tr>
+<tr>
+<td><strong>Design system</strong></td>
+<td>Tokens CSS / componentes compartidos para UX homogénea</td>
+</tr>
+<tr>
+<td><strong>Conflictos CSS</strong></td>
+<td>Namespaces, shadow DOM o convenciones de prefijo por MFE</td>
+</tr>
+<tr>
+<td><strong>Versionado</strong></td>
+<td>Semver por remote; contrato host ↔ remote documentado</td>
+</tr>
+</tbody></table></div>
+<h3 id="32-opciones-de-shell" class="subsection-title">3.2 Opciones de shell</h3>
+<p>Existen <strong>dos enfoques válidos</strong> para el shell que orquesta los microfrontends:</p>
+<h4>Opción A — React como shell (fase inicial CAE)</h4>
+<p>Adecuada cuando <strong>CAE v2 ya existe en React</strong> y se quiere evitar un shell nuevo al arrancar.</p>
+<pre class="code-block"><code class="language-">React Shell (CAE v2)
+├── Expedientes      → React (equipo A)
+├── Operaciones      → React + MFE IA
+├── Reportes         → Angular remote (equipo B)
+└── Administración   → Angular remote (equipo B)</code></pre>
+<h4>Opción B — Angular como shell (horizonte de consolidación)</h4>
+<p>Adecuada cuando <strong>Angular es el framework de futuro</strong> y se quiere que todo lo nuevo nazca nativo en el host.</p>
+<pre class="code-block"><code class="language-">Angular Shell
+├── Inicio           → Angular
+├── Usuarios         → Angular
+├── Facturación      → React remote (hasta migración)
+├── Informes         → React remote (hasta migración)
+└── Configuración    → Angular</code></pre>
+<p>El shell gestiona: <strong>login</strong>, <strong>layout</strong> (menú, cabecera), <strong>routing principal</strong>, <strong>comunicación entre MFE</strong> y <strong>librerías compartidas</strong>. Al migrar un módulo, se sustituye el remote sin tocar el shell.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase CAE</th>
+<th>Shell recomendado</th>
+<th>Motivo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Fase 1 — IA integrada</strong></td>
+<td>React (CAE v2 actual)</td>
+<td>Continuidad; CAE v2 ya es el host operativo</td>
+</tr>
+<tr>
+<td><strong>Fase 2–3 — Convivencia dual</strong></td>
+<td>React o shell mínimo compartido</td>
+<td>Según madurez del equipo Angular</td>
+</tr>
+<tr>
+<td><strong>Fase 4 — Consolidación</strong></td>
+<td>Angular unificado</td>
+<td>Objetivo de estandarización</td>
+</tr>
+</tbody></table></div>
+<h3 id="33-fases-de-evolucion-strangler-fig" class="subsection-title">3.3 Fases de evolución Strangler Fig</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph F0["Fase 0 — Baseline"]
+        R0["CAE v2 React actual"]
+    end
+
+    subgraph F1["Fase 1 — IA integrada"]
+        R1["Host React"]
+        MF["MFE React + Angular"]
+        R1 --> MF
+    end
+
+    subgraph F2["Fase 2 — Nuevos módulos"]
+        NG2["Módulos Angular nuevos"]
+    end
+
+    subgraph F3["Fase 3 — Sustitución"]
+        NG3["Reescritura progresiva"]
+    end
+
+    subgraph F4["Fase 4 — Consolidación"]
+        ANG["CAE Angular unificado"]
+    end
+
+    F0 --> F1 --> F2 --> F3 --> F4
+
+    style F0 fill:#ffebee,stroke:#c62828
+    style F1 fill:#fff9c4,stroke:#f9a825
+    style F2 fill:#e3f2fd,stroke:#1565c0
+    style F3 fill:#e8f5e9,stroke:#2e7d32
+    style F4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Elemento</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CAE React (actual)</strong></td>
+<td>Plataforma en operación; desarrollo se completa; host de la App IA en Fase 1</td>
+</tr>
+<tr>
+<td><strong>App IA (MFE React)</strong></td>
+<td>Remote embebido en slots CAE React; backend en <code>cae-ia-backend</code></td>
+</tr>
+<tr>
+<td><strong>CAE Angular (nueva)</strong></td>
+<td>Sustituto progresivo de CAE React; absorbe módulos y, al final, la IA</td>
+</tr>
+<tr>
+<td><strong>Module Federation</strong></td>
+<td><strong>Temporal</strong> — conecta las apps mientras conviven; <strong>se retira</strong> al consolidar Angular</td>
+</tr>
+<tr>
+<td><strong>Contrato de slot</strong></td>
+<td><code>expedienteId</code>, auth JWT, callbacks — válido solo en fase de integración MFE</td>
+</tr>
+<tr>
+<td><strong>Design system compartido</strong></td>
+<td>UX homogénea durante la convivencia React ↔ Angular</td>
+</tr>
+</tbody></table></div>
+<h3 id="34-arquitectura-durante-la-transicion-con-mfe" class="subsection-title">3.4 Arquitectura durante la transición (con MFE)</h3>
+<div class="mermaid">
+flowchart TB
+    subgraph REACT["CAE React actual — terminar desarrollo"]
+        ROUTER["Router / layout CAE v2"]
+        MOD_R["Módulos React existentes"]
+        SLOT_IA["Slot Asistencia IA"]
+        ROUTER --> MOD_R & SLOT_IA
+    end
+
+    subgraph IA["App IA — nueva"]
+        MFE_IA["cae-assistant-mfe React"]
+        BE_IA["cae-ia-backend"]
+        MFE_IA --> BE_IA
+    end
+
+    subgraph ANG["CAE Angular nueva — sustituto"]
+        MOD_A["Módulos Angular migrados"]
+    end
+
+    SLOT_IA -->|Module Federation| MFE_IA
+    ROUTER -.->|routing compartido| MOD_A
+    MOD_A --> BE_IA
+
+    style REACT fill:#e3f2fd,stroke:#1565c0
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+    style ANG fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+</div>
+<h3 id="35-arquitectura-objetivo-sin-mfe" class="subsection-title">3.5 Arquitectura objetivo (sin MFE)</h3>
+<p>Al completar la migración, <strong>una sola aplicación Angular</strong> contiene todos los módulos de negocio y la capa IA como features nativas (<code>libs/angular/cae/*</code>). No hay remotes ni Module Federation.</p>
+<div class="mermaid">
+flowchart LR
+    ANG["CAE Angular única"]
+    ANG --> MOD["Módulos negocio"]
+    ANG --> IA["Capa IA nativa"]
+    ANG --> BE["cae-ia-backend"]
+
+    style ANG fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+</div>
+<hr>
+<h2 id="4-angular-vs-react-criterios-de-seleccion" class="section-title">4. Angular vs React — criterios de selección</h2>
+<h3 id="41-por-que-angular-encaja-en-cae-proyecto-enterprise-grande" class="subsection-title">4.1 Por qué Angular encaja en CAE (proyecto enterprise grande)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ventaja Angular</th>
+<th>Aplicación en CAE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Arquitectura definida</strong></td>
+<td>Todos los equipos organizan proyectos de forma similar (módulos, servicios, componentes)</td>
+</tr>
+<tr>
+<td><strong>Baterías incluidas</strong></td>
+<td>Routing, DI, HTTP, formularios, validación — menos decisiones ad hoc</td>
+</tr>
+<tr>
+<td><strong>Estandarización</strong></td>
+<td>Decenas de desarrolladores pueden seguir las mismas convenciones</td>
+</tr>
+<tr>
+<td><strong>TypeScript first-class</strong></td>
+<td>Mantenimiento a largo plazo en ERP/administración</td>
+</tr>
+<tr>
+<td><strong>Testing integrado</strong></td>
+<td>Karma/Jest, TestBed, herramientas oficiales para E2E (Cypress/Playwright)</td>
+</tr>
+<tr>
+<td><strong>Precedente sector</strong></td>
+<td>Banca, administración pública, ERPs internos — perfil similar a CAE</td>
+</tr>
+</tbody></table></div>
+<p>Por estas razones, <strong>muchas organizaciones grandes</strong> siguen apostando por Angular en aplicaciones con vida útil de muchos años y equipos numerosos.</p>
+<h3 id="42-fortalezas-de-react" class="subsection-title">4.2 Fortalezas de React</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ventaja React</th>
+<th>Aplicación en CAE v2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Integración nativa</td>
+<td>Host actual de CAE v2; adopción inmediata en Fase 1</td>
+</tr>
+<tr>
+<td>Flexibilidad</td>
+<td>Permite evolución rápida con convenciones bien definidas</td>
+</tr>
+<tr>
+<td>Ecosistema</td>
+<td>Amplia disponibilidad de librerías y perfiles</td>
+</tr>
+<tr>
+<td>Continuidad</td>
+<td>Sin interrupción del servicio durante despliegue IA</td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p><strong>Conclusión:</strong> React es el <strong>stack acordado para la Fase 1</strong> (integración IA en CAE v2). Angular se propone como <strong>stack de evolución</strong> para módulos nuevos y modernización, cuando el beneficio en estandarización, mantenibilidad y productividad supere el coste de la convivencia temporal de ambos ecosistemas.</p></blockquote>
+<hr>
+<h2 id="5-ventajas-del-enfoque-incremental" class="section-title">5. Ventajas del enfoque incremental</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Ventaja</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Sin parada de negocio</strong></td>
+<td>CAE sigue operando durante toda la transición</td>
+</tr>
+<tr>
+<td><strong>Riesgo acotado</strong></td>
+<td>Cada módulo migrado es un entregable independiente</td>
+</tr>
+<tr>
+<td><strong>Valor temprano</strong></td>
+<td>IA y mejoras visibles antes de reescribir todo</td>
+</tr>
+<tr>
+<td><strong>Equipos en paralelo</strong></td>
+<td>Equipo A mantiene CAE v2 React; equipo B desarrolla Angular sin bloquearse mutuamente</td>
+</tr>
+<tr>
+<td><strong>Aprendizaje progresivo</strong></td>
+<td>Contratos y design system se afianzan durante la convivencia; MFE se simplifica al consolidar</td>
+</tr>
+<tr>
+<td><strong>MFE acotado en el tiempo</strong></td>
+<td>La complejidad de federación desaparece al llegar a CAE Angular única</td>
+</tr>
+<tr>
+<td><strong>Mejora estructurada</strong></td>
+<td>Plan de evolución de plataforma, no parches aislados</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-costes-riesgos-e-inconvenientes" class="section-title">6. Costes, riesgos e inconvenientes</h2>
+<p>Durante la transición (<strong>hasta 6 meses</strong>, objetivo de cierre en mes 6) coexistirán:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Inconveniente</th>
+<th>Mitigación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Dos frameworks</strong></td>
+<td>Gobernanza clara: reglas de qué va en cada stack</td>
+</tr>
+<tr>
+<td><strong>Dos pipelines CI/CD</strong></td>
+<td>Monorepo Nx unifica build; targets por app</td>
+</tr>
+<tr>
+<td><strong>Dos formas de trabajar</strong></td>
+<td>Guías de arquitectura, Storybook, formación Angular</td>
+</tr>
+<tr>
+<td><strong>Dos ecosistemas de dependencias</strong></td>
+<td>Renovación automatizada; política de versiones shared</td>
+</tr>
+<tr>
+<td><strong>Mayor peso en navegador</strong></td>
+<td>Lazy loading remotes; no cargar Angular + React en misma ruta si no es necesario</td>
+</tr>
+<tr>
+<td><strong>Complejidad MFE</strong></td>
+<td>Auth centralizada, contrato de eventos, design tokens, semver remotes</td>
+</tr>
+<tr>
+<td><strong>Período dual stack</strong></td>
+<td>Presupuesto y roadmap explícitos; <strong>máximo 6 meses</strong></td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>Los microfrontends implican complejidad adicional <strong>solo durante la transición</strong>. Evitan un <em>big bang</em> y permiten terminar CAE React e integrar IA sin parar el negocio. <strong>No son el diseño permanente</strong> de la plataforma.</p></blockquote>
+<hr>
+<h2 id="7-criterios-de-aplicabilidad" class="section-title">7. Criterios de aplicabilidad</h2>
+<h3 id="71-la-estrategia-es-adecuada-cuando" class="subsection-title">7.1 La estrategia es adecuada cuando…</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Condición</th>
+<th>CAE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>El producto tiene <strong>vida útil prolongada</strong></td>
+<td>CAE es core de negocio IDEAUTO</td>
+</tr>
+<tr>
+<td><strong>Varios equipos</strong> evolucionan la plataforma en paralelo</td>
+<td>Desarrollo continuo CAE + capa IA</td>
+</tr>
+<tr>
+<td>Existe <strong>arquitectura MFE</strong> definida (contratos, auth, design system)</td>
+<td>Documentada en diseño técnico v3.0</td>
+</tr>
+<tr>
+<td>Se busca <strong>mejora de plataforma</strong> junto con la capa IA</td>
+<td>Programa integrado IA + modernización</td>
+</tr>
+<tr>
+<td>Se requiere <strong>estandarización</strong> y mantenibilidad a largo plazo</td>
+<td>Angular como stack de evolución</td>
+</tr>
+</tbody></table></div>
+<h3 id="72-requiere-replanteamiento-cuando" class="subsection-title">7.2 Requiere replanteamiento cuando…</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Condición</th>
+<th>Notas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>No hay presupuesto para <strong>período dual stack</strong></td>
+<td>El programa está acotado a <strong>6 meses</strong>; requiere equipos en paralelo desde el mes 0</td>
+</tr>
+<tr>
+<td>Capacidad limitada para Angular</td>
+<td>Valorar formación o refuerzo de equipo</td>
+</tr>
+<tr>
+<td>Migración sin ROI demostrable</td>
+<td>Priorizar módulos con mayor impacto en negocio</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="8-fases-de-migracion" class="section-title">8. Fases de migración</h2>
+<p><strong>Horizonte del programa: 6 meses.</strong> Al cierre del mes 6 el objetivo es disponer de la <strong>App IA completa</strong> (backend + UI nativa en Angular), la <strong>plataforma CAE Angular completa</strong> (100 % de rutas y funcionalidades) y <strong>React + Module Federation retirados</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Horizonte</th>
+<th>CAE React (actual)</th>
+<th>App IA</th>
+<th>CAE Angular (nueva)</th>
+<th>MFE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0 — Baseline</strong></td>
+<td>Mes 0 (S1–2)</td>
+<td>Desarrollo en curso</td>
+<td>Diseño / arranque backend + MFE</td>
+<td>Diseño / arranque plataforma</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>1 — IA integrada</strong></td>
+<td>Meses 1–2</td>
+<td>Operativa; host de la IA</td>
+<td><strong>Producción</strong> — MFE embebido en CAE React</td>
+<td>Primeros módulos Angular</td>
+<td><strong>Sí</strong> (IA → React)</td>
+</tr>
+<tr>
+<td><strong>2 — Convivencia</strong></td>
+<td>Meses 2–4</td>
+<td>Sin features grandes nuevas; retirada gradual</td>
+<td>Funcionalidad estable</td>
+<td>Módulos de negocio en Angular</td>
+<td><strong>Sí</strong> (React ↔ Angular)</td>
+</tr>
+<tr>
+<td><strong>3 — Sustitución</strong></td>
+<td>Meses 4–5</td>
+<td>Módulos retirados uno a uno</td>
+<td>UI migrada a Angular</td>
+<td>Plataforma principal</td>
+<td><strong>Sí</strong>, reduciéndose</td>
+</tr>
+<tr>
+<td><strong>4 — Consolidación</strong></td>
+<td><strong>Mes 6</strong></td>
+<td><strong>Desmantelada</strong></td>
+<td>Módulos nativos en CAE Angular</td>
+<td><strong>100 % plataforma</strong></td>
+<td><strong>No</strong></td>
+</tr>
+</tbody></table></div>
+<h3 id="81-criterios-para-migrar-un-modulo-react-concreto" class="subsection-title">8.1 Criterios para migrar un módulo React concreto</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Criterio</th>
+<th>Peso</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Volumen de incidencias en el módulo</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Complejidad y acoplamiento</td>
+<td>Alto</td>
+</tr>
+<tr>
+<td>Frecuencia de cambios previstos</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>Dependencias con otros módulos React</td>
+<td>Medio (orden de migración)</td>
+</tr>
+<tr>
+<td>Disponibilidad de diseño/UX revisado</td>
+<td>Medio</td>
+</tr>
+<tr>
+<td>Equipo con capacidad Angular</td>
+<td>Bloqueante</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="9-relacion-con-el-proyecto-de-asistencia-ia" class="section-title">9. Relación con el proyecto de Asistencia IA</h2>
+<p>La <strong>App IA</strong> es una <strong>aplicación nueva</strong> (<code>cae-ia-backend</code> + <code>cae-assistant-mfe</code>), desarrollada en paralelo al CAE React actual. <strong>No sustituye</strong> a CAE v2: <strong>se integra en ella</strong> mediante microfrontend mientras la plataforma React sigue activa.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Enfoque</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Backend IA</strong></td>
+<td>Agnóstico de UI — <code>libs/node/cae</code>, <code>libs/isomorphic/cae</code>; reutilizable en CAE Angular</td>
+</tr>
+<tr>
+<td><strong>UI Fase 1</strong></td>
+<td>MFE React embebido en slots de CAE v2 (expediente, operaciones)</td>
+</tr>
+<tr>
+<td><strong>CAE React</strong></td>
+<td>Sigue su desarrollo; la IA se añade sin reescribir el host</td>
+</tr>
+<tr>
+<td><strong>CAE Angular</strong></td>
+<td>Cuando un módulo migre, la IA puede exponerse como feature nativa Angular (sin MFE)</td>
+</tr>
+<tr>
+<td><strong>Horizonte IA</strong></td>
+<td>Meses 1–2: MFE React en producción → meses 4–6: módulos <code>libs/angular/cae/feature-*</code> nativos en CAE Angular única</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart LR
+    IA["App IA nueva"] -->|MFE Fase 1| REACT["CAE React actual"]
+    IA --> BE["cae-ia-backend"]
+    ANG["CAE Angular nueva"] --> BE
+    REACT -.->|sustitución| ANG
+    IA -.->|integración nativa| ANG
+
+    style IA fill:#f3e5f5,stroke:#7b1fa2
+    style REACT fill:#e3f2fd,stroke:#1565c0
+    style ANG fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+</div>
+<hr>
+<h2 id="10-gobernanza-metricas-y-criterios-de-exito" class="section-title">10. Gobernanza, métricas y criterios de éxito</h2>
+<h3 id="101-comite-de-arquitectura-frontend" class="subsection-title">10.1 Comité de arquitectura frontend</h3>
+<ul>
+<li>Revisión quincenal: módulos candidatos a migración, estado dual stack, avance hacia el cierre en mes 6.</li>
+<li>Participantes: Arquitectura, Producto, IDEAUTO, Babooni.</li>
+</ul>
+<h3 id="102-metricas-de-seguimiento" class="subsection-title">10.2 Métricas de seguimiento</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Objetivo transición</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>% líneas UI en Angular vs React</td>
+<td>100 % Angular al mes 6; crecimiento mensual durante la transición</td>
+</tr>
+<tr>
+<td>Nº módulos React activos</td>
+<td>Cero al mes 6</td>
+</tr>
+<tr>
+<td>Incidencias frontend por módulo</td>
+<td>↓ post-migración Angular</td>
+</tr>
+<tr>
+<td>Tiempo medio entrega feature</td>
+<td>↓ en módulos Angular estandarizados</td>
+</tr>
+<tr>
+<td>Cobertura tests + Storybook</td>
+<td>↑ en <code>libs/angular/cae/ui</code></td>
+</tr>
+<tr>
+<td>Peso bundle remotes</td>
+<td>Monitorizado; alertas si supera umbral</td>
+</tr>
+<tr>
+<td>Satisfacción de usuario (encuesta)</td>
+<td>↑ respecto a línea base</td>
+</tr>
+</tbody></table></div>
+<h3 id="103-criterio-de-cierre-react-y-retirada-de-mfe" class="subsection-title">10.3 Criterio de cierre React y retirada de MFE</h3>
+<p>React y Module Federation se consideran <strong>retirados</strong> cuando:</p>
+<ol>
+<li><strong>CAE Angular</strong> cubre el 100 % de las rutas y funcionalidades de negocio.</li>
+<li>La <strong>App IA</strong> está integrada como módulos nativos Angular (no como remote).</li>
+<li>E2E completos pasan en la aplicación Angular única.</li>
+<li>UAT de paridad funcional aprobada.</li>
+<li>Período de hypercare post-switch sin incidencias P1.</li>
+</ol>
+<hr>
+<h2 id="11-beneficios-y-encaje-estrategico" class="section-title">11. Beneficios y encaje estratégico</h2>
+<h3 id="111-beneficios-para-la-plataforma-cae" class="subsection-title">11.1 Beneficios para la plataforma CAE</h3>
+<ol>
+<li><strong>Continuidad operativa</strong> — CAE sigue en producción durante toda la transición; mejoras por módulos.</li>
+<li><strong>Valor inmediato con IA</strong> — Validación progresiva, MLOps y asistencia al usuario desde la Fase 1.</li>
+<li><strong>Estandarización progresiva</strong> — Angular aporta arquitectura uniforme en módulos nuevos.</li>
+<li><strong>Inversión protegida</strong> — React permanece en Fase 1; la migración avanza cuando aporta valor medible.</li>
+<li><strong>Plan estructurado</strong> — Roadmap por fases con métricas, gobernanza y criterios de éxito.</li>
+</ol>
+<h3 id="112-preguntas-frecuentes" class="subsection-title">11.2 Preguntas frecuentes</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Pregunta</th>
+<th>Respuesta</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>¿Por qué dos stacks (React y Angular)?</td>
+<td>React integra la Fase 1 en CAE v2; Angular es el stack de evolución para módulos nuevos</td>
+</tr>
+<tr>
+<td>¿Implica parar la plataforma?</td>
+<td>No. Migración incremental mediante microfrontends</td>
+</tr>
+<tr>
+<td>¿Cuánto dura la convivencia dual?</td>
+<td><strong>Hasta 6 meses</strong> — objetivo: plataforma Angular única con IA nativa al cierre del programa</td>
+</tr>
+<tr>
+<td>¿Cuál es el plazo total del programa?</td>
+<td><strong>6 meses</strong> — App IA completa + CAE Angular completa + migración finalizada</td>
+</tr>
+<tr>
+<td>¿Se puede mantener solo React?</td>
+<td>En Fase 1, sí. Angular es el horizonte acordado de la plataforma; el <strong>ritmo</strong> de migración por módulo se ajusta según ROI, pero no es una opción a nivel de estrategia</td>
+</tr>
+<tr>
+<td>¿Por qué microfrontends si el objetivo es Angular?</td>
+<td>Son el <strong>puente temporal</strong> para integrar IA en CAE React y convivir con CAE Angular sin parar el desarrollo</td>
+</tr>
+<tr>
+<td>¿Se eliminan los MFE al final?</td>
+<td><strong>Sí.</strong> La arquitectura objetivo es <strong>una sola app Angular</strong>, sin Module Federation</td>
+</tr>
+<tr>
+<td>¿Qué pasa con CAE React mientras tanto?</td>
+<td>Opera como host durante meses 1–4; se retira progresivamente hasta <strong>desmantelamiento en mes 6</strong></td>
+</tr>
+<tr>
+<td>¿Cómo trabajan los equipos?</td>
+<td>Tres líneas: CAE React (terminar), App IA (integrar en React), CAE Angular (sustituto)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="12-vision-final" class="section-title">12. Visión final</h2>
+<p>La Plataforma CAE converge hacia <strong>una sola aplicación Angular</strong> que sustituye por completo a CAE React <strong>en un horizonte de 6 meses</strong>. La capa de Asistencia IA deja de ser un microfrontend y pasa a ser <strong>módulos nativos</strong> de esa plataforma.</p>
+<p>Durante la transición, los <strong>microfrontends</strong> permiten:</p>
+<ul>
+<li><strong>Terminar CAE React</strong> sin interrumpir el desarrollo en curso.</li>
+<li><strong>Integrar la App IA</strong> en la plataforma actual de forma inmediata.</li>
+<li><strong>Construir CAE Angular</strong> en paralelo, módulo a módulo.</li>
+</ul>
+<p>Al completar la migración, <strong>desaparece la complejidad de Module Federation</strong>: una app, un stack, un pipeline.</p>
+<blockquote class="callout"><p><strong>Resumen:</strong> <em>CAE React opera como host transitorio (meses 1–4); App IA en producción en mes 2; CAE Angular la sustituye progresivamente; MFE solo durante la transición; <strong>objetivo mes 6 = todo Angular, IA nativa, sin microfrontends</strong>.</em></p></blockquote>
+<hr>
+<p><em>Estrategia de Modernización Frontend — Plataforma CAE.</em></p>
+</article>
+        <footer class="doc-footer">
+          <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
+      themeVariables: {
+        primaryColor: '#e0f7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#0ab9e5',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length) {
+      await mermaid.run({ nodes });
+      document.querySelectorAll('.mermaid svg').forEach((svg) => {
+        svg.removeAttribute('height');
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+      });
+    }
+  </script>
+
+  <script>
+    const fab = document.getElementById('fabTop');
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+      fab.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = [...tocLinks]
+      .map((a) => document.getElementById(a.dataset.section))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((l) =>
+              l.classList.toggle('active', l.dataset.section === entry.target.id)
+            );
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+  </script>
+</body>
+</html>

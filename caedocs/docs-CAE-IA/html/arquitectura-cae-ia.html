@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE — CAE IA v3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="switch-theme.css" />
+</head>
+<body class="accent-blue">
+  <div class="joycon joycon-left" aria-hidden="true"></div>
+  <div class="joycon joycon-right" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <header class="top-bar">
+      <div class="top-bar-inner">
+        <div class="brand">
+          <span class="brand-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="40" height="24" rx="6" fill="currentColor" opacity=".15"/><rect x="8" y="16" width="32" height="16" rx="3" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="24" r="3" fill="currentColor"/></svg>
+          </span>
+          <div>
+            <p class="brand-kicker">Plataforma CAE · Desarrollo IA</p>
+            <h1 class="brand-title">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE</h1>
+          </div>
+        </div>
+        <div class="header-meta">
+          <span class="badge badge-blue">Arquitectura</span>
+          <span class="badge badge-neutral">v3.0</span>
+        </div>
+      </div>
+      <p class="header-subtitle">Diagrama maestro — Visión funcional + Técnica E2E + MLOps</p>
+      <nav class="doc-nav">
+        <a href="index.html" class="nav-pill">Inicio</a>
+        <a href="resumen-ejecutivo-cliente-v3.0.html" class="nav-pill">Resumen ejecutivo</a>
+        <a href="especificacion-funcional-v3.0.html" class="nav-pill">Especificación funcional</a>
+        <a href="diseno-tecnico-v3.0.html" class="nav-pill">Diseño técnico</a>
+        <a href="arquitectura-cae-ia.html" class="nav-pill active">Arquitectura</a>
+        <a href="estrategia-migracion-frontend-cae.html" class="nav-pill">Estrategia migración</a>
+      </nav>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-card">
+          <p class="sidebar-label">Índice</p>
+          <ul class="toc"><li><a href="#diagrama-maestro-de-arquitectura-vision-funcional-tecnica-e2e" class="toc-link" data-section="diagrama-maestro-de-arquitectura-vision-funcional-tecnica-e2e">Diagrama maestro de arquitectura — Visión funcional + Técnica E2E</a></li>
+<li><a href="#leyenda-de-fases" class="toc-link" data-section="leyenda-de-fases">Leyenda de fases</a></li>
+<li><a href="#0-paradigma-arquitectonico" class="toc-link" data-section="0-paradigma-arquitectonico">0. Paradigma arquitectónico</a></li>
+<li><a href="#1-vision-funcional-completa-10-fases" class="toc-link" data-section="1-vision-funcional-completa-10-fases">1. VISIÓN FUNCIONAL COMPLETA (10 fases)</a></li>
+<li><a href="#2-arquitectura-tecnica-flujo-completo-e2e" class="toc-link" data-section="2-arquitectura-tecnica-flujo-completo-e2e">2. ARQUITECTURA TÉCNICA — FLUJO COMPLETO E2E</a></li>
+<li><a href="#3-motor-validacion-progresiva-cae-detalle" class="toc-link" data-section="3-motor-validacion-progresiva-cae-detalle">3. MOTOR VALIDACIÓN PROGRESIVA CAE (detalle)</a></li>
+<li><a href="#4-bucle-mlops-fitness-y-feedback" class="toc-link" data-section="4-bucle-mlops-fitness-y-feedback">4. Bucle MLOps, Fitness y Feedback</a></li>
+<li><a href="#5-capa-de-observabilidad-transversal" class="toc-link" data-section="5-capa-de-observabilidad-transversal">5. Capa de observabilidad transversal</a></li>
+<li><a href="#6-mapa-fase-funcional-componente-tecnico" class="toc-link" data-section="6-mapa-fase-funcional-componente-tecnico">6. Mapa fase funcional ↔ componente técnico</a></li>
+<li><a href="#7-mapa-objetivo-monorepo-nx" class="toc-link" data-section="7-mapa-objetivo-monorepo-nx">7. Mapa objetivo monorepo Nx</a></li>
+<li><a href="#8-calidad-piramide-de-testing-y-frontend-reusable" class="toc-link" data-section="8-calidad-piramide-de-testing-y-frontend-reusable">8. Calidad: pirámide de testing y frontend reusable</a></li>
+<li><a href="#monorepo-nx-y-patrones-operativos" class="toc-link" data-section="monorepo-nx-y-patrones-operativos">Monorepo Nx y patrones operativos</a></li>
+<li><a href="#exportar-diagramas" class="toc-link" data-section="exportar-diagramas">Exportar diagramas</a></li></ul>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <article class="prose"><h1 id="sistema-de-asistencia-inteligente-para-plataforma-cae" class="doc-main-title">SISTEMA DE ASISTENCIA INTELIGENTE PARA PLATAFORMA CAE</h1>
+<h2 id="diagrama-maestro-de-arquitectura-vision-funcional-tecnica-e2e" class="section-title">Diagrama maestro de arquitectura — Visión funcional + Técnica E2E</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Versión diagrama</strong></td>
+<td>3.0</td>
+</tr>
+<tr>
+<td><strong>Estado</strong></td>
+<td>Versión de entrega</td>
+</tr>
+<tr>
+<td><strong>Fecha</strong></td>
+<td>03/07/2026</td>
+</tr>
+<tr>
+<td><strong>Clasificación</strong></td>
+<td>Confidencial — IDEAUTO / Babooni</td>
+</tr>
+</tbody></table></div>
+<div class="arch-diagram"><a href="assets/ARQUITECTURA-CAE-IA.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/ARQUITECTURA-CAE-IA.png" alt="Diagrama maestro de arquitectura CAE IA" loading="lazy" /></a></div>
+<hr>
+<h2 id="leyenda-de-fases" class="section-title">Leyenda de fases</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Color</th>
+<th>Fase</th>
+<th>Alcance</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>🔵 Azul claro</td>
+<td><strong>Ingesta</strong></td>
+<td>Gateway, auth, idempotencia</td>
+</tr>
+<tr>
+<td>🔵 Azul</td>
+<td><strong>Extracción</strong></td>
+<td>Blob RAW, OCR, clasificación, JSON</td>
+</tr>
+<tr>
+<td>🟡 Amarillo</td>
+<td><strong>Validación progresiva</strong></td>
+<td>Motor CAE, cruces, completitud — <strong>NÚCLEO</strong></td>
+</tr>
+<tr>
+<td>🟣 Púrpura</td>
+<td><strong>Razonamiento IA</strong></td>
+<td>Orchestrator, Foundry, RAG</td>
+</tr>
+<tr>
+<td>🔷 Azul oscuro</td>
+<td><strong>Decisión</strong></td>
+<td>OK / Review / Reject pre-envío</td>
+</tr>
+<tr>
+<td>🔴 Rojo</td>
+<td><strong>Humano</strong></td>
+<td>Operaciones, supervisor</td>
+</tr>
+<tr>
+<td>🟠 Naranja</td>
+<td><strong>MLOps + Fitness</strong></td>
+<td>Feedback, labeling, dataset, evaluación, fitness, promoción/rollback</td>
+</tr>
+<tr>
+<td>🟤 Beige</td>
+<td><strong>Observabilidad</strong></td>
+<td>Transversal — audit, tracing, KPIs</td>
+</tr>
+</tbody></table></div>
+<p><strong>Principios transversales:</strong> API First · Hexagonal · DDD · Libs first · Deploy elástico · Microfrontend CAE v2 · Smart/Dumb UI · Storybook · Pirámide testing · Human in the Loop · Observabilidad</p>
+<blockquote class="callout"><p><strong>Posicionamiento:</strong> esta arquitectura <strong>no es un pipeline OCR genérico</strong>. La <strong>Fase 5 — Validación Progresiva CAE</strong> (amarillo) es el <strong>núcleo funcional</strong> del sistema. La extracción documental (Fases 2–4, azul) alimenta al motor de validación; el <strong>objetivo estratégico</strong> es que la IA <strong>ejecute el trabajo de validación funcional</strong> que hoy realiza manualmente Operaciones IDEAUTO, reduciendo su carga operativa (detalle en <a href="especificacion-funcional-v3.0.html"><code>ESPECIFICACION-FUNCIONAL-v3.0.md</code></a> §1.5–§1.7, §17.4).</p></blockquote>
+<hr>
+<h2 id="0-paradigma-arquitectonico" class="section-title">0. Paradigma arquitectónico</h2>
+<p>La capa de asistencia inteligente se implementará con:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Paradigma</th>
+<th>Aplicación en el proyecto</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Arquitectura hexagonal</strong></td>
+<td>Puertos y adaptadores en cada lib; dominio aislado de frameworks cloud</td>
+</tr>
+<tr>
+<td><strong>DDD</strong></td>
+<td>Bounded contexts en <code>libs/isomorphic/cae/core</code></td>
+</tr>
+<tr>
+<td><strong>Monorepo Nx</strong></td>
+<td><code>libs/</code> reutilizables + <code>apps/</code> compositores</td>
+</tr>
+<tr>
+<td><strong>Deploy elástico</strong></td>
+<td>Monolito modular (<code>apps/cae-ia-backend</code>) → microservicios según demanda</td>
+</tr>
+<tr>
+<td><strong>UI React (Fase 1)</strong></td>
+<td>CAE v2 actual es React; MFE de Fase 1 en <code>apps/cae-assistant-mfe</code></td>
+</tr>
+<tr>
+<td><strong>UI Angular (evolución)</strong></td>
+<td>Stack propuesto para módulos nuevos; MFE <code>apps/cae-assistant-mfe-angular</code></td>
+</tr>
+<tr>
+<td><strong>Componentes tontos + Storybook</strong></td>
+<td><code>libs/*/cae/ui</code> + <code>apps/cae-ui-storybook</code></td>
+</tr>
+<tr>
+<td><strong>Pirámide de testing</strong></td>
+<td>Unit → integración → Storybook → E2E → carga/estrés + golden set</td>
+</tr>
+<tr>
+<td><strong>Strangler Fig (React→Angular)</strong></td>
+<td>MFE <strong>temporal</strong> (hasta mes 6); CAE Angular sustituye React — <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8</td>
+</tr>
+</tbody></table></div>
+<h3 id="01-situacion-actual-vs-objetivo" class="subsection-title">0.1 Situación actual vs objetivo</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>Plataforma CAE v2.0 (hoy)</th>
+<th>Capa IA CAE (objetivo)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Estructura</td>
+<td>Monolito / acoplado</td>
+<td><code>libs/</code> Nx independientes</td>
+</tr>
+<tr>
+<td>Backend</td>
+<td>Core CAE propietario</td>
+<td><code>libs/node/cae/*-backend</code> + ACL</td>
+</tr>
+<tr>
+<td>Frontend host</td>
+<td><strong>React</strong> (stack actual CAE v2)</td>
+<td>Sin sustituir shell de inmediato; MFE React (Fase 1)</td>
+</tr>
+<tr>
+<td>UI IA</td>
+<td>No existía (greenfield)</td>
+<td><strong>React Fase 1</strong> + <strong>Angular evolución</strong> en paralelo</td>
+</tr>
+<tr>
+<td>Despliegue</td>
+<td>Single app</td>
+<td>Monolito IA → microservicios opcional</td>
+</tr>
+</tbody></table></div>
+<div class="mermaid">
+flowchart TB
+    subgraph WORKSPACE["Monorepo Nx — CAE IA"]
+        subgraph APPS["apps/"]
+            A2["cae-ia-backend"]
+            A3["cae-assistant-mfe React Fase 1"]
+            A4["cae-assistant-mfe-angular evolución"]
+        end
+        subgraph LIBS["libs/"]
+            ISO["isomorphic/cae"]
+            NODE["node/cae/*-backend"]
+            REACT["react/cae/*"]
+            ANG["angular/cae/*"]
+        end
+    end
+
+    subgraph CAE20["Plataforma CAE v2.0 — React"]
+        SHELL["Shell host React"]
+    end
+
+    A2 --> NODE
+    A3 --> REACT
+    A4 --> ANG
+    NODE --> ISO
+    REACT & ANG --> A2
+    SHELL -->|Module Federation| A3
+    SHELL -.->|alternativa| A4
+    NODE -->|ACL| CAE20
+
+    style A3 fill:#e3f2fd,stroke:#1565c0,stroke-width:2px
+    style A4 fill:#f3e5f5,stroke:#7b1fa2,stroke-dasharray:5 5
+    style ISO fill:#fff9c4,stroke:#f9a825
+</div>
+<h3 id="02-las-tres-aplicaciones-del-programa" class="subsection-title">0.2 Las tres aplicaciones del programa</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>App</th>
+<th>Stack</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>CAE React (actual)</strong></td>
+<td>React</td>
+<td>Plataforma CAE v2.0 en producción; host transitorio (meses 1–4)</td>
+</tr>
+<tr>
+<td><strong>App IA</strong> (<code>cae-assistant-mfe</code> + <code>cae-ia-backend</code>)</td>
+<td>React MFE (meses 1–2) → Angular nativo (mes 6)</td>
+<td>Capa de asistencia inteligente; producción en mes 2, nativa en Angular al mes 6</td>
+</tr>
+<tr>
+<td><strong>CAE Angular</strong> (<code>apps/cae-platform-angular</code>)</td>
+<td>Angular</td>
+<td>Plataforma sustituta; <strong>100 % operativa al mes 6</strong></td>
+</tr>
+</tbody></table></div>
+<blockquote class="callout"><p>El MFE <code>apps/cae-assistant-mfe-angular</code> (§7.1) es la <strong>evolución de la App IA</strong> hacia Angular, no una cuarta aplicación: cuando un módulo migra a CAE Angular, la IA se expone allí como <em>feature</em> nativa (<code>libs/angular/cae/feature-*</code>). <strong>Horizonte del programa: 6 meses.</strong> Detalle en <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8.</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    subgraph MS["Microservicios CAE IA"]
+        GW["cae-gateway"]
+        ING["cae-ingestion"]
+        EXT["cae-extraction"]
+        VAL["cae-validation"]
+        REA["cae-reasoning"]
+        FB["cae-feedback"]
+        MLO["cae-mlops"]
+        INT["cae-integration"]
+    end
+
+    CAE["Plataforma CAE v2.0"] <-->|ACL| INT
+    GW --> ING & EXT & VAL & REA & FB & MLO
+    ING -->|eventos| EXT
+    EXT -->|eventos| VAL
+    VAL -->|eventos| REA
+    FB -->|eventos| MLO
+    MLO -.->|promoción| EXT & VAL & REA
+
+    style VAL fill:#fff9c4,stroke:#f9a825,stroke-width:2px
+</div>
+<hr>
+<h2 id="1-vision-funcional-completa-10-fases" class="section-title">1. VISIÓN FUNCIONAL COMPLETA (10 fases)</h2>
+<div class="mermaid">
+flowchart LR
+    subgraph P1["① FRONTEND — ASISTENCIA CONTINUA"]
+        direction TB
+        P1A["Cliente crea expediente"]
+        P1B["Sube documentos PDF / imagen"]
+        P1C["Feedback inmediato IA"]
+        P1D["% completitud + incidencias"]
+        P1A --> P1B --> P1C --> P1D
+    end
+
+    subgraph P2["②③④ INGESTA + EXTRACCIÓN"]
+        direction TB
+        P2A["Gateway + Auth + Idempotencia"]
+        P2B["Blob Storage RAW inmutable"]
+        P2C["Preprocesado + OCR"]
+        P2D["Document Intelligence"]
+        P2E["Fallback GPT-4o Vision"]
+        P2F["Clasificación documental"]
+        P2G["Extracción estructurada"]
+        P2H["JSON + confidence score"]
+        P2A --> P2B --> P2C --> P2D
+        P2C --> P2E
+        P2D --> P2F --> P2G --> P2H
+        P2E --> P2F
+    end
+
+    subgraph P3["⑤ VALIDACIÓN PROGRESIVA CAE — CORE"]
+        direction TB
+        P3A["Validation Engine + Reglas CAE"]
+        P3B["Cruce semántico entre docs"]
+        P3C["Titular · VIN · Matrícula · Fechas · Empresa"]
+        P3D["Control de completitud"]
+        P3E{"¿Incidencias?"}
+        P3F["🔴 Crítica — bloquea envío"]
+        P3G["🟠 Mayor — bloquea envío hasta corregir"]
+        P3H["🟡 Menor — mejora calidad"]
+        P3I["Feedback cliente tiempo real"]
+        P3A --> P3B --> P3C --> P3D --> P3E
+        P3E --> P3F & P3G & P3H --> P3I
+    end
+
+    subgraph P4["⑥ RAZONAMIENTO IA AVANZADO"]
+        direction TB
+        P4A["AI Orchestrator"]
+        P4B["Azure AI Foundry"]
+        P4C["RAG — Knowledge Base CAE"]
+        P4D["Normativa · checklists · casuísticas"]
+        P4E["Análisis global expediente"]
+        P4F["Resumen ejecutivo + Risk Score"]
+        P4A --> P4B --> P4C --> P4D
+        P4B --> P4E --> P4F
+    end
+
+    subgraph P5["⑦ VALIDACIÓN FINAL Y DECISIÓN"]
+        direction TB
+        P5A{"Decision Engine pre-envío"}
+        P5B["✅ OK — listo para envío"]
+        P5C["🔍 Review — cola humana + resumen IA"]
+        P5D["❌ Reject — detalle incidencias"]
+        P5A --> P5B & P5C & P5D
+    end
+
+    subgraph P6["⑧ REVISIÓN OPERACIONES"]
+        direction TB
+        P6A["Resumen IA incidencias priorizadas"]
+        P6B["Supervisor CAE"]
+        P6C["Asistente IA Operaciones"]
+        P6D["Validación humana final"]
+        P6A --> P6B --> P6C --> P6D
+    end
+
+    subgraph P7["⑨ FEEDBACK + MLOps + FITNESS"]
+        direction TB
+        P7A["Feedback Engine"]
+        P7B["Registro correcciones + etiquetas"]
+        P7C["Dataset versionado + Labeling"]
+        P7D["Evaluation Pipeline + Golden set"]
+        P7E["Fitness Engine F1-F6"]
+        P7F["Promoción / Rollback Registry"]
+        P7A --> P7B --> P7C --> P7D --> P7E --> P7F
+        P7F -.->|Mejora| P2
+    end
+
+    P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
+
+    subgraph P8["⑩ OBSERVABILIDAD + AUDITORÍA — TRANSVERSAL"]
+        direction LR
+        P8A["Audit Log completo"] --> P8B["Trazabilidad E2E"]
+        P8B --> P8C["Monitorización + alertas"]
+        P8C --> P8D["KPIs + Dashboards"]
+    end
+
+    P8 -.-> P1 & P2 & P3 & P4 & P5 & P6 & P7
+
+    style P1 fill:#e3f2fd,stroke:#1565c0
+    style P2 fill:#bbdefb,stroke:#0d47a1
+    style P3 fill:#fff9c4,stroke:#f9a825,stroke-width:3px
+    style P4 fill:#e1bee7,stroke:#6a1b9a
+    style P5 fill:#b3e5fc,stroke:#0277bd
+    style P6 fill:#ffcdd2,stroke:#c62828
+    style P7 fill:#ffe0b2,stroke:#e65100
+    style P8 fill:#d7ccc8,stroke:#4e342e
+</div>
+<div class="arch-diagram"><a href="assets/01-vision-funcional.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/01-vision-funcional.png" alt="Visión funcional — 10 fases" loading="lazy" /></a></div>
+<h3 id="detalle-por-fase-funcional" class="subsection-title">Detalle por fase funcional</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>Fase</th>
+<th>Entrada</th>
+<th>Salida</th>
+<th>Actor principal</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Frontend asistido</td>
+<td>Acción usuario</td>
+<td>Upload + feedback UI</td>
+<td>Cliente</td>
+</tr>
+<tr>
+<td>2-4</td>
+<td>Ingesta + Extracción</td>
+<td>Archivo binario</td>
+<td>JSON estructurado + confidence</td>
+<td>Sistema IA</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Validación progresiva</strong></td>
+<td>JSON expediente</td>
+<td>Incidencias + scoring + completitud</td>
+<td>Sistema IA</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Razonamiento IA</td>
+<td>Expediente + incidencias</td>
+<td>Resumen, explicaciones, risk score</td>
+<td>Azure AI Foundry</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Decisión final</td>
+<td>Validación completa</td>
+<td>OK / Review / Reject</td>
+<td>Decision Engine</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Revisión Operaciones</td>
+<td>Expediente en cola</td>
+<td>Aprobado / Devuelto / Rechazado</td>
+<td>Operaciones</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Feedback + MLOps + Fitness</td>
+<td>Correcciones humanas</td>
+<td>Dataset, fitness, promoción modelos</td>
+<td>Sistema</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Observabilidad</td>
+<td>Todos los eventos</td>
+<td>Logs, métricas, dashboards</td>
+<td>Transversal</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="2-arquitectura-tecnica-flujo-completo-e2e" class="section-title">2. ARQUITECTURA TÉCNICA — FLUJO COMPLETO E2E</h2>
+<div class="mermaid">
+flowchart TD
+    START(["📄 Documento CAE entrada"]) --> GW{"Gateway Validación + Auth JWT"}
+
+    GW -->|Inválido| REJ1["❌ Rechazo inmediato + UX Error"]
+    GW -->|Válido| BLOB["Blob Storage RAW inmutable"]
+
+    BLOB --> QSEL{"Selección cola"}
+    QSEL -->|Fast Path| REDIS["Redis Queue"]
+    QSEL -->|Reliable Path| SB["Service Bus + DLQ + Retry"]
+
+    REDIS --> ORCH["AI Orchestrator + Workflow Engine"]
+    SB --> ORCH
+
+    ORCH --> NORM["Normalización formato"]
+    NORM --> FT{"Tipo archivo"}
+
+    FT -->|HEIC/JPG/PNG| C1["Convertir → PNG"]
+    FT -->|PDF Imagen| C2["PDF → PNG páginas"]
+    FT -->|PDF Texto| C3["Detectar texto embebido"]
+
+    C1 --> PRE["Preprocesado imagen"]
+    C2 --> PRE
+    C3 --> TXTSUF{"¿Texto suficiente?"}
+    TXTSUF -->|Sí| PDFP["PDF Parser"]
+    TXTSUF -->|No| PRE
+
+    PRE --> OCR["OCR Document Intelligence"]
+    PDFP --> RAWTXT["Texto bruto"]
+    OCR --> RAWTXT
+
+    RAWTXT --> CONF{"Calidad OCR / Confidence"}
+    CONF -->|"Alta >= 0.85"| REL["Texto fiable"]
+    CONF -->|"Baja < 0.85"| VLM["Fallback GPT-4o Vision"]
+    VLM --> REL
+
+    REL --> CLASS{"Clasificador documental"}
+
+    CLASS -->|DNI/NIE| EX1["Extractor Identidad"]
+    CLASS -->|Factura VN| EX2["Extractor Factura"]
+    CLASS -->|Ficha Técnica| EX3["Extractor Ficha Técnica"]
+    CLASS -->|Permiso/IVTM| EX4["Extractor Permiso"]
+    CLASS -->|Convenio/Anexo| EX5["Extractor Convenio CAE"]
+    CLASS -->|Firma| EX6["Extractor Firma"]
+    CLASS -->|VO/VN| EX7["Extractor Vehículo"]
+    CLASS -->|Otros| EX8["Extractor Genérico"]
+
+    EX1 & EX2 & EX3 & EX4 & EX5 & EX6 & EX7 & EX8 --> JSON["JSON estructurado + confidence + provenance + bbox"]
+
+    JSON --> UPD["Actualizar expediente CAE"]
+
+    UPD --> MOTOR["⚙ MOTOR VALIDACIÓN PROGRESIVA CAE"]
+
+    subgraph MOTOR_DETAIL["Motor Validación Progresiva CAE"]
+        direction TB
+        M1["Reglas deterministas Bloques A–G"]
+        M2["Cruce semántico multi-documento"]
+        M3["Validación fechas · seguros · actividad"]
+        M4["Validación empresa-trabajador"]
+        M5["Validación vehículo-documentación"]
+        M6["Documentación obligatoria"]
+        M7["Global Scoring + Risk"]
+        M1 --> M2 --> M3 --> M4 --> M5 --> M6 --> M7
+    end
+
+    MOTOR --> MOTOR_DETAIL
+
+    MOTOR_DETAIL --> COMP{"¿Expediente completo?"}
+
+    COMP -->|No| LOOP["Informar incidencias → UI cliente"]
+    LOOP --> WAIT["Esperar nuevos documentos"]
+    WAIT --> UPD
+
+    COMP -->|Sí| FDR["Azure AI Foundry — Análisis global"]
+    FDR --> RAG["Knowledge Base CAE RAG"]
+    RAG --> DEC{"Decisión Final"}
+
+    DEC -->|OK| OK["✅ Listo para envío"]
+    DEC -->|Review| REV["🔍 Cola revisión humana + resumen IA"]
+    DEC -->|Reject| REJ2["❌ Rechazo automático con detalle"]
+
+    REV --> SUP["Supervisor CAE + Asistente IA"]
+    SUP --> HUM["Validación humana"]
+    HUM --> FB["Feedback Engine"]
+
+    OK --> FB
+    REJ2 --> FB
+
+    FB --> DS["Dataset + Labeling"]
+    DS --> EV["Evaluation Pipeline"]
+    EV --> FIT["Fitness Engine"]
+    FIT --> REG{"¿Supera umbrales?"}
+    REG -->|Sí| PROM["Promoción Registry"]
+    REG -->|No| REF["Refinamiento prompts / extractores / reglas"]
+    PROM --> IMP1["Extractores IA"]
+    REF --> IMP1
+    PROM --> IMP2["Reglas CAE"]
+    REF --> IMP2
+    PROM --> IMP3["Prompts Foundry"]
+    REF --> IMP3
+    FIT --> MET["Métricas fitness + dashboards MLOps"]
+
+    OK & REV & REJ2 --> AUDIT["Audit Log + Tracing OpenTelemetry"]
+    AUDIT --> PNG["Guardar PNG procesado"]
+    PNG --> OPT["Optimización AVIF / WebP"]
+    OPT --> CDN["Storage optimizado + CDN"]
+    CDN --> UI["Frontend Thumbnails + Auto-fill UI"]
+
+    style MOTOR fill:#fff59d,stroke:#f57f17,stroke-width:3px
+    style MOTOR_DETAIL fill:#fff9c4,stroke:#f9a825
+    style FDR fill:#e1bee7,stroke:#6a1b9a
+    style DEC fill:#b3e5fc,stroke:#0277bd
+    style SUP fill:#ffcdd2,stroke:#c62828
+    style FB fill:#ffe0b2,stroke:#e65100
+    style AUDIT fill:#d7ccc8,stroke:#4e342e
+</div>
+<div class="arch-diagram"><a href="assets/02-arquitectura-tecnica-e2e.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/02-arquitectura-tecnica-e2e.png" alt="Arquitectura técnica — flujo E2E" loading="lazy" /></a></div>
+<hr>
+<h2 id="3-motor-validacion-progresiva-cae-detalle" class="section-title">3. MOTOR VALIDACIÓN PROGRESIVA CAE (detalle)</h2>
+<div class="mermaid">
+flowchart TB
+    IN["Unified Expedition JSON"] --> BLK_A["Bloque A — Validaciones documentales"]
+    BLK_A --> BLK_B["Bloque B — Firmas"]
+    BLK_B --> BLK_C["Bloque C — Coherencia cruzada"]
+    BLK_C --> BLK_D["Bloque D — Reglas CAE"]
+    BLK_D --> BLK_E["Bloque E — Formulario"]
+    BLK_E --> BLK_F["Bloque F — Anexos"]
+    BLK_F --> BLK_G["Bloque G — Calidad documental"]
+
+    BLK_C --> CROSS["Cruce semántico"]
+    CROSS --> C1["Titular"]
+    CROSS --> C2["VIN"]
+    CROSS --> C3["Matrícula"]
+    CROSS --> C4["Marca / Modelo"]
+    CROSS --> C5["Fechas actuación"]
+    CROSS --> C6["Empresa / Concesionario"]
+
+    BLK_G --> COMP["Control completitud"]
+    COMP --> SCORE["Scoring Engine"]
+    SCORE --> S1["Completitud %"]
+    SCORE --> S2["Confianza media"]
+    SCORE --> S3["Risk Score"]
+    SCORE --> S4["First Time Right indicator"]
+
+    S1 & S2 & S3 & S4 --> INC{"Clasificar incidencias"}
+    INC --> I1["Crítica → bloquea envío"]
+    INC --> I2["Mayor → bloquea envío"]
+    INC --> I3["Menor → advertencia"]
+    INC --> I4["Informativa → sugerencia"]
+
+    I1 & I2 & I3 & I4 --> OUT["Estado expediente + UI feedback"]
+
+    style BLK_D fill:#fff9c4,stroke:#f9a825
+    style CROSS fill:#fff59d,stroke:#f57f17
+    style SCORE fill:#fff9c4,stroke:#f9a825
+</div>
+<hr>
+<h2 id="4-bucle-mlops-fitness-y-feedback" class="section-title">4. Bucle MLOps, Fitness y Feedback</h2>
+<div class="mermaid">
+flowchart LR
+    H1["Corrección Operaciones"] --> FE["Feedback Engine"]
+    H2["Corrección Cliente"] --> FE
+    H3["Falso positivo/negativo"] --> FE
+
+    FE --> LOG["Log estructurado + etiqueta sugerida"]
+    LOG --> LB["Labeling asistido"]
+    LB --> DS["Dataset versionado"]
+    DS --> EV["Evaluation Pipeline"]
+    EV --> GS["Golden set >= 200 casos"]
+    GS --> FIT["Fitness Engine"]
+    FIT --> C1["F1 Clasificacion 15%"]
+    FIT --> C2["F2 Extraccion 25%"]
+    FIT --> C3["F3 Validacion 25%"]
+    FIT --> C4["F4 FTR 15%"]
+    FIT --> C5["F5 Latencia 10%"]
+    FIT --> C6["F6 Coste 10%"]
+    C1 & C2 & C3 & C4 & C5 & C6 --> FG["Fitness Global 0-100"]
+    FG --> DEC{"Promovible?"}
+    DEC -->|Si| DEP["Promocion Registry"]
+    DEC -->|No| REF["Refinamiento"]
+    DEP --> R1["Extractores"]
+    DEP --> R2["Reglas CAE"]
+    DEP --> R3["Prompts Foundry"]
+    REF --> EV
+    DEP --> RB["Rollback < 15 min si regresion"]
+
+    style FE fill:#ffe0b2,stroke:#e65100
+    style FIT fill:#ffcc80,stroke:#ef6c00,stroke-width:2px
+</div>
+<div class="arch-diagram"><a href="assets/03-mlops-fitness.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/03-mlops-fitness.png" alt="Bucle MLOps, Fitness y Feedback" loading="lazy" /></a></div>
+<h3 id="modelo-de-fitness-resumen-tecnico" class="subsection-title">Modelo de fitness (resumen técnico)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Componente</th>
+<th>Peso</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>F₁ Clasificación</td>
+<td>15%</td>
+<td>F1-score clasificador documental</td>
+</tr>
+<tr>
+<td>F₂ Extracción</td>
+<td>25%</td>
+<td>Exactitud campos clave (golden set)</td>
+</tr>
+<tr>
+<td>F₃ Validación</td>
+<td>25%</td>
+<td>Recall + precisión incidencias</td>
+</tr>
+<tr>
+<td>F₄ FTR</td>
+<td>15%</td>
+<td>First Time Right producción</td>
+</tr>
+<tr>
+<td>F₅ Latencia</td>
+<td>10%</td>
+<td>P95 análisis documento</td>
+</tr>
+<tr>
+<td>F₆ Coste</td>
+<td>10%</td>
+<td>Coste medio por expediente</td>
+</tr>
+</tbody></table></div>
+<p><strong>Promoción:</strong> fitness candidato ≥ activo + 1; regresión F₂/F₃ ≤ 1 pt; recall críticas ≥ 98%.
+<strong>Rollback:</strong> si fitness producción cae &gt; 2% respecto versión activa.</p>
+<hr>
+<h2 id="5-capa-de-observabilidad-transversal" class="section-title">5. Capa de observabilidad transversal</h2>
+<div class="mermaid">
+flowchart LR
+    subgraph SOURCES["Fuentes de telemetría"]
+        S1["Gateway"]
+        S2["Orchestrator"]
+        S3["OCR / Vision"]
+        S4["Validation Engine"]
+        S5["Foundry / RAG"]
+        S6["Feedback"]
+    end
+
+    subgraph OBS["Observabilidad"]
+        OT["OpenTelemetry Collector"]
+        AL["Audit Log append-only"]
+        LA["Log Analytics"]
+        AI["Application Insights"]
+        DB["Dashboards KPI"]
+    end
+
+    S1 & S2 & S3 & S4 & S5 & S6 --> OT
+    OT --> AL & LA & AI --> DB
+
+    style OBS fill:#d7ccc8,stroke:#4e342e
+</div>
+<h3 id="metricas-monitorizadas" class="subsection-title">Métricas monitorizadas</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Categoría</th>
+<th>Métricas</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Latencia</td>
+<td>OCR, Vision fallback, reglas, Foundry, E2E documento, E2E expediente</td>
+</tr>
+<tr>
+<td>Coste</td>
+<td>Por documento, por expediente, por llamada Foundry</td>
+</tr>
+<tr>
+<td>Calidad</td>
+<td>Precisión clasificación, extracción, recall incidencias, <strong>fitness global</strong></td>
+</tr>
+<tr>
+<td>Negocio</td>
+<td>FTR, incidencias pre-envío, devoluciones, tiempo revisión</td>
+</tr>
+<tr>
+<td>Infra</td>
+<td>DLQ depth, error rate, disponibilidad</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="6-mapa-fase-funcional-componente-tecnico" class="section-title">6. Mapa fase funcional ↔ componente técnico</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase funcional</th>
+<th>Componentes técnicos</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>① Frontend</td>
+<td>UI CAE, WebSocket/SSE, panel incidencias, auto-fill</td>
+</tr>
+<tr>
+<td>② Gateway</td>
+<td>Edge Gateway, JWT Entra ID, idempotency Redis</td>
+</tr>
+<tr>
+<td>③ Blob RAW</td>
+<td>Azure Blob Storage, hash SHA-256, WORM</td>
+</tr>
+<tr>
+<td>④ Extracción</td>
+<td>Preprocessing, Document Intelligence, GPT-4o Vision, Classifier, Workers</td>
+</tr>
+<tr>
+<td>⑤ Validación progresiva</td>
+<td>Validation Engine, reglas A–G, cruces, scoring</td>
+</tr>
+<tr>
+<td>⑥ Razonamiento IA</td>
+<td>AI Orchestrator, Azure AI Foundry, AI Search RAG</td>
+</tr>
+<tr>
+<td>⑦ Decisión</td>
+<td>Decision Engine</td>
+</tr>
+<tr>
+<td>⑧ Operaciones</td>
+<td>Cola revisión, resumen IA, UI supervisor</td>
+</tr>
+<tr>
+<td>⑨ MLOps + Fitness</td>
+<td>Feedback Engine, Labeling, Dataset, Evaluation, Fitness Engine, Registry</td>
+</tr>
+<tr>
+<td>⑩ Observabilidad</td>
+<td>OpenTelemetry, Audit Log, dashboards</td>
+</tr>
+<tr>
+<td><strong>Implementación</strong></td>
+<td>Monorepo Nx: <code>libs/isomorphic/cae</code>, <code>libs/node/cae</code>, <code>libs/react/cae</code> (+ <code>libs/angular/cae</code> evolución), <code>apps/cae-ia-backend</code>, MFE React (Fase 1)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="7-mapa-objetivo-monorepo-nx" class="section-title">7. Mapa objetivo monorepo Nx</h2>
+<div class="arch-diagram"><a href="assets/04-hexagonal-microservicios.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/04-hexagonal-microservicios.png" alt="Arquitectura hexagonal y microservicios" loading="lazy" /></a></div>
+<div class="arch-diagram"><a href="assets/05-monorepo-nx-cae.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/05-monorepo-nx-cae.png" alt="Monorepo Nx — estructura objetivo" loading="lazy" /></a></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Ruta objetivo</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dominio DDD</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Agregados, reglas RF, eventos</td>
+</tr>
+<tr>
+<td>Contratos</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs</td>
+</tr>
+<tr>
+<td>Backend IA</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules hexagonales</td>
+</tr>
+<tr>
+<td>UI React (Fase 1)</td>
+<td><code>libs/react/cae/feature-*</code></td>
+<td>MFE integrado en host CAE v2 actual</td>
+</tr>
+<tr>
+<td>UI Angular (evolución)</td>
+<td><code>libs/angular/cae/feature-*</code></td>
+<td>Stack propuesto; modernización progresiva CAE</td>
+</tr>
+<tr>
+<td>Host backend</td>
+<td><code>apps/cae-ia-backend</code></td>
+<td>Monolito modular IA (Modo A)</td>
+</tr>
+<tr>
+<td>MFE React (Fase 1)</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote → shell CAE v2 (integración acordada)</td>
+</tr>
+<tr>
+<td>MFE Angular (evolución)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote alternativo; roadmap de modernización</td>
+</tr>
+</tbody></table></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Modo despliegue</th>
+<th>Composición</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A — Monolito modular</td>
+<td>Solo <code>cae-ia-backend</code></td>
+<td>MVP, integración CAE, baja carga</td>
+</tr>
+<tr>
+<td>B — Híbrido</td>
+<td>Monolito + 1–2 servicios</td>
+<td>Picos aislados (p. ej. MLOps)</td>
+</tr>
+<tr>
+<td>C — Microservicios</td>
+<td>Un <code>apps/cae-*-service</code> por lib backend</td>
+<td>Alta escala</td>
+</tr>
+</tbody></table></div>
+<h3 id="71-integracion-ui-react-fase-1-vs-angular-evolucion" class="subsection-title">7.1 Integración UI: React (Fase 1) vs Angular (evolución)</h3>
+<blockquote class="callout"><p>CAE v2 está construido en <strong>React</strong> (stack actual). La <strong>App IA</strong> se integra en CAE React vía MFE (meses 1–2). <strong>CAE Angular nueva</strong> sustituye progresivamente a React (<strong>objetivo mes 6</strong>). Los microfrontends son <strong>temporales</strong>; el objetivo es <strong>una sola app Angular</strong> — ver <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a> §8.</p></blockquote>
+<div class="mermaid">
+flowchart LR
+    subgraph HOST["CAE v2 Host React (actual)"]
+        SLOT["Slots UI"]
+    end
+
+    subgraph REACT_MFE["Fase 1 — React MFE"]
+        R["libs/react/cae"]
+        APP_R["cae-assistant-mfe"]
+        R --> APP_R
+    end
+
+    subgraph NG_MFE["Evolución — Angular MFE"]
+        A["libs/angular/cae"]
+        APP_A["cae-assistant-mfe-angular"]
+        A --> APP_A
+    end
+
+    SLOT -->|Module Federation| APP_R
+    SLOT -.->|POC / futuro| APP_A
+    APP_R & APP_A --> API["cae-ia-backend"]
+
+    style REACT_MFE fill:#e3f2fd,stroke:#1565c0
+    style NG_MFE fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+</div>
+<div class="arch-diagram"><a href="assets/06-mfe-react-angular.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/06-mfe-react-angular.png" alt="Integración MFE React y Angular" loading="lazy" /></a></div>
+<h3 id="72-escenario-evolutivo-strangler-fig" class="subsection-title">7.2 Escenario evolutivo — Strangler Fig</h3>
+<p>Patrón <strong>Strangler Fig</strong>: el host <strong>React</strong> se reduce módulo a módulo mientras <strong>Angular</strong> crece como remotes embebidos hasta sustituir el shell.</p>
+<div class="mermaid">
+flowchart LR
+    subgraph F0["Fase 0 — Baseline"]
+        R0["CAE v2 React actual"]
+    end
+
+    subgraph F1["Fase 1 — IA integrada"]
+        R1["Host React"]
+        MF["MFE React + Angular"]
+        R1 --> MF
+    end
+
+    subgraph F2["Fase 2 — Nuevos módulos"]
+        NG2["Módulos Angular nuevos"]
+    end
+
+    subgraph F3["Fase 3 — Sustitución"]
+        NG3["Reescritura progresiva"]
+    end
+
+    subgraph F4["Fase 4 — Consolidación"]
+        ANG["CAE Angular unificado"]
+    end
+
+    F0 --> F1 --> F2 --> F3 --> F4
+
+    style F0 fill:#ffebee,stroke:#c62828
+    style F1 fill:#fff9c4,stroke:#f9a825
+    style F2 fill:#e3f2fd,stroke:#1565c0
+    style F3 fill:#e8f5e9,stroke:#2e7d32
+    style F4 fill:#e8f5e9,stroke:#2e7d32,stroke-width:3px
+</div>
+<div class="arch-diagram"><a href="assets/08-strangler-migracion.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/08-strangler-migracion.png" alt="Strangler Fig — migración React → Angular" loading="lazy" /></a></div>
+<blockquote class="callout"><p>Documento completo: <a href="estrategia-migracion-frontend-cae.html"><code>ESTRATEGIA-MIGRACION-FRONTEND-CAE.md</code></a></p></blockquote>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Fase</th>
+<th>Horizonte</th>
+<th>CAE v2 React (actual)</th>
+<th>CAE Angular (evolución)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>0 — Baseline</strong></td>
+<td>Mes 0 (S1–2)</td>
+<td>100 % plataforma</td>
+<td>Análisis de módulos y arquitectura</td>
+</tr>
+<tr>
+<td><strong>1 — IA integrada</strong></td>
+<td>Meses 1–2</td>
+<td>Host estable; MFE React (Fase 1)</td>
+<td>Capa asistencia IA en arranque</td>
+</tr>
+<tr>
+<td><strong>2 — Nuevos módulos</strong></td>
+<td>Meses 2–4</td>
+<td>Retirada gradual</td>
+<td>Todo greenfield en Angular</td>
+</tr>
+<tr>
+<td><strong>3 — Sustitución</strong></td>
+<td>Meses 4–5</td>
+<td>Retirada módulo a módulo</td>
+<td>Reescrituras priorizadas por ROI</td>
+</tr>
+<tr>
+<td><strong>4 — Consolidación</strong></td>
+<td><strong>Mes 6</strong></td>
+<td><strong>Shell React desaparece</strong></td>
+<td><strong>CAE unificado en Angular + IA nativa</strong></td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="8-calidad-piramide-de-testing-y-frontend-reusable" class="section-title">8. Calidad: pirámide de testing y frontend reusable</h2>
+<h3 id="81-piramide-de-testing" class="subsection-title">8.1 Pirámide de testing</h3>
+<div class="arch-diagram"><a href="assets/07-testing-piramide.png" target="_blank" rel="noopener" title="Abrir diagrama en tamaño completo"><img src="assets/07-testing-piramide.png" alt="Pirámide de testing" loading="lazy" /></a></div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Qué valida</th>
+<th>Cuándo</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Unitarios</strong></td>
+<td>Dominio CAE, reglas RF, utils, componentes tontos</td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Integración</strong></td>
+<td>NestJS modules, adaptadores, colas, BD</td>
+<td>Cada PR</td>
+</tr>
+<tr>
+<td><strong>Contrato</strong></td>
+<td>OpenAPI, eventos, Module Federation remote</td>
+<td>PR + nightly</td>
+</tr>
+<tr>
+<td><strong>Storybook</strong></td>
+<td>Componentes <code>ui/</code> — estados, a11y, interacción</td>
+<td>PR (frontend)</td>
+</tr>
+<tr>
+<td><strong>E2E</strong></td>
+<td>Flujos expediente + MFE en CAE v2</td>
+<td>Nightly / STAGING</td>
+</tr>
+<tr>
+<td><strong>Carga / estrés / soak</strong></td>
+<td>SLO latencia y throughput bajo pico</td>
+<td>Pre-release / mensual</td>
+</tr>
+<tr>
+<td><strong>Golden set + fitness</strong></td>
+<td>Regresión IA</td>
+<td>Gate promoción</td>
+</tr>
+</tbody></table></div>
+<h3 id="82-frontend-listos-vs-tontos-storybook" class="subsection-title">8.2 Frontend: listos vs tontos + Storybook</h3>
+<div class="mermaid">
+flowchart LR
+    subgraph FEAT["feature-* LISTOS"]
+        AP["AssistantPanel"]
+        IS["IncidentsSidebar"]
+    end
+
+    subgraph UI["ui/ TONTOS"]
+        IC["IncidentCard"]
+        CG["CompletenessGauge"]
+    end
+
+    subgraph SB["Storybook"]
+        ST["*.stories"]
+    end
+
+    AP --> IC & CG
+    IS --> IC
+    IC & CG --> ST
+    FEAT --> API["cae-ia-backend"]
+
+    style UI fill:#e8f5e9,stroke:#2e7d32
+    style FEAT fill:#e3f2fd,stroke:#1565c0
+    style SB fill:#fff9c4,stroke:#f9a825
+</div>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Tipo</th>
+<th>Rol</th>
+<th>Storybook</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Tonto</strong> (<code>ui/</code>)</td>
+<td>Solo props + eventos; reusable</td>
+<td><strong>Obligatorio</strong></td>
+</tr>
+<tr>
+<td><strong>Listo</strong> (<code>feature-*</code>)</td>
+<td>Datos, SSE, composición</td>
+<td>Opcional (E2E)</td>
+</tr>
+</tbody></table></div>
+<hr>
+<h2 id="monorepo-nx-y-patrones-operativos" class="section-title">Monorepo Nx y patrones operativos</h2>
+<h3 id="matriz-de-librerias-y-responsabilidades" class="subsection-title">Matriz de librerías y responsabilidades</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Ruta objetivo</th>
+<th>Rol</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Dominio DDD</td>
+<td><code>libs/isomorphic/cae/core</code></td>
+<td>Agregados, reglas CAE, eventos; agnóstico de framework</td>
+</tr>
+<tr>
+<td>Contratos</td>
+<td><code>libs/isomorphic/cae/api</code></td>
+<td>OpenAPI, DTOs compartidos front/back</td>
+</tr>
+<tr>
+<td>Backend IA</td>
+<td><code>libs/node/cae/*-backend</code></td>
+<td>NestJS modules hexagonales por capacidad</td>
+</tr>
+<tr>
+<td>UI React (Fase 1)</td>
+<td><code>libs/react/cae/*</code></td>
+<td>MFE integrado en host CAE v2 actual</td>
+</tr>
+<tr>
+<td>UI Angular (evolución)</td>
+<td><code>libs/angular/cae/*</code></td>
+<td>Stack propuesto; modernización progresiva de CAE</td>
+</tr>
+<tr>
+<td>Host backend</td>
+<td><code>apps/cae-ia-backend</code></td>
+<td>Monolito modular IA (Modo A)</td>
+</tr>
+<tr>
+<td>MFE React (Fase 1)</td>
+<td><code>apps/cae-assistant-mfe</code></td>
+<td>Remote embebido en shell CAE v2</td>
+</tr>
+<tr>
+<td>MFE Angular (evolución)</td>
+<td><code>apps/cae-assistant-mfe-angular</code></td>
+<td>Remote alternativo; roadmap de modernización</td>
+</tr>
+</tbody></table></div>
+<h3 id="reglas-de-dependencias-estrictas-nx-eslint-module-boundaries" class="subsection-title">Reglas de dependencias estrictas (Nx + ESLint module boundaries)</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>Origen</th>
+<th>Permitido depender de</th>
+<th>Justificación</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>isomorphic/core</code></td>
+<td>Ninguno</td>
+<td>Dominio puro, sin dependencias externas</td>
+</tr>
+<tr>
+<td><code>isomorphic/api</code></td>
+<td><code>isomorphic/core</code></td>
+<td>Solo DTOs y contratos del dominio</td>
+</tr>
+<tr>
+<td><code>node/backend/&lt;dominio&gt;</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code>, <code>shared-infrastructure</code></td>
+<td>Sólo lógica de aplicación y adaptadores</td>
+</tr>
+<tr>
+<td><code>node/shared-infrastructure</code></td>
+<td><code>isomorphic/core</code>, <code>isomorphic/api</code></td>
+<td>Utilities, guards, Prisma, outbox; reutilizable</td>
+</tr>
+<tr>
+<td><code>browser/shared/ui-kit</code></td>
+<td>Ninguno</td>
+<td>UI pura, sin lógica de negocio ni servicios</td>
+</tr>
+<tr>
+<td><code>browser/data-access</code></td>
+<td><code>isomorphic/api</code>, <code>shared/ui-kit</code></td>
+<td>Servicios HTTP, stores, multitenancy; no depende de backend directo</td>
+</tr>
+<tr>
+<td><code>browser/feature/&lt;dominio&gt;</code></td>
+<td><code>data-access</code>, <code>shared/ui-kit</code></td>
+<td>Smart components, orquestan UI</td>
+</tr>
+<tr>
+<td><code>libs/plugins/*</code></td>
+<td><code>browser/feature</code>, <code>isomorphic/core</code>, <code>api</code></td>
+<td>Permite activar/desactivar módulos sin romper dominios</td>
+</tr>
+</tbody></table></div>
+<h3 id="baserepository-pattern-obligatorio" class="subsection-title">BaseRepository Pattern (obligatorio)</h3>
+<p>Patrón para garantizar consistencia y seguridad multi-tenant:</p>
+<ul>
+<li>Garantiza consistencia en operaciones CRUD.</li>
+<li>Aplica filtrado automático por <code>tenantId</code> (seguridad por defecto).</li>
+<li>Facilita la transición futura a multi-tenant.</li>
+<li>Mejora testabilidad (mocks del puerto o base repository).</li>
+</ul>
+<h3 id="unit-of-work-uow-y-transaccionalidad" class="subsection-title">Unit of Work (UoW) y transaccionalidad</h3>
+<p>Propósito: coordinar escritura de cambios cuando un proceso involucra múltiples agregados o repositorios. Garantiza atomicidad entre persistencia y eventos Outbox.</p>
+<p>Implementación: <code>PrismaUnitOfWork</code> en infrastructure con <code>$transaction</code>; el Service orquesta la transacción y pasa el contexto a repositorios.</p>
+<hr>
+<h2 id="exportar-diagramas" class="section-title">Exportar diagramas</h2>
+<ol>
+<li>Abrir <a href="https://mermaid.live">mermaid.live</a></li>
+<li>Pegar el bloque Mermaid deseado</li>
+<li>Exportar PNG o SVG</li>
+<li>Usar en presentaciones o anexar a los PDFs de especificación</li>
+</ol>
+<hr>
+<p><em>Diagrama maestro v3.0 — Sistema de Asistencia Inteligente CAE.</em></p>
+</article>
+        <footer class="doc-footer">
+          <p>Confidencial — IDEAUTO / Babooni · Generado 3/7/2026</p>
+        </footer>
+      </main>
+    </div>
+  </div>
+
+  <button class="fab-top" id="fabTop" aria-label="Volver arriba">↑</button>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'base',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true, padding: 12, nodeSpacing: 30, rankSpacing: 40 },
+      themeVariables: {
+        primaryColor: '#e0f7ff',
+        primaryTextColor: '#1a1a2e',
+        primaryBorderColor: '#0ab9e5',
+        lineColor: '#4a4a68',
+        secondaryColor: '#f5f5f7',
+        tertiaryColor: '#ffffff',
+        fontFamily: 'Nunito, sans-serif',
+      },
+    });
+
+    const nodes = document.querySelectorAll('.mermaid');
+    if (nodes.length) {
+      await mermaid.run({ nodes });
+      document.querySelectorAll('.mermaid svg').forEach((svg) => {
+        svg.removeAttribute('height');
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+        svg.style.height = 'auto';
+        const viewBox = svg.getAttribute('viewBox');
+        if (viewBox) {
+          svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        }
+      });
+    }
+  </script>
+
+  <script>
+    const fab = document.getElementById('fabTop');
+    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    window.addEventListener('scroll', () => {
+      fab.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    const tocLinks = document.querySelectorAll('.toc-link');
+    const sections = [...tocLinks]
+      .map((a) => document.getElementById(a.dataset.section))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            tocLinks.forEach((l) =>
+              l.classList.toggle('active', l.dataset.section === entry.target.id)
+            );
+          }
+        });
+      },
+      { rootMargin: '-15% 0px -65% 0px', threshold: 0 }
+    );
+    sections.forEach((s) => observer.observe(s));
+  </script>
+</body>
+</html>
