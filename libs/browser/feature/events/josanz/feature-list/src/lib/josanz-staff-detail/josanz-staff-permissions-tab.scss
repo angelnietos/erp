@@ -50,15 +50,15 @@
 
 .josanz-staff-perm-role-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+  gap: 0.75rem;
 }
 
 .josanz-staff-perm-role-option {
   display: flex;
-  align-items: flex-start;
-  gap: 0.65rem;
-  padding: 0.75rem 0.85rem;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
   border-radius: 12px;
   border: 1px solid var(--josanz-border);
   background: var(--josanz-surface);
@@ -67,27 +67,28 @@
     border-color 0.15s ease,
     background 0.15s ease,
     box-shadow 0.15s ease;
+  min-width: 0;
 }
 
 .josanz-staff-perm-role-option__avatar {
   flex-shrink: 0;
-  pointer-events: none;
 }
 
 .josanz-staff-perm-role-option:hover {
-  border-color: color-mix(in srgb, var(--josanz-brand, #111) 24%, var(--josanz-border));
+  border-color: color-mix(in srgb, var(--josanz-primary) 28%, var(--josanz-border));
+  background: color-mix(in srgb, var(--josanz-primary) 3%, var(--josanz-surface));
 }
 
 .josanz-staff-perm-role-option--selected {
-  border-color: color-mix(in srgb, var(--josanz-brand, #111) 40%, var(--josanz-border));
-  background: color-mix(in srgb, var(--josanz-brand, #111) 5%, var(--josanz-surface));
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--josanz-brand, #111) 12%, transparent);
+  border-color: color-mix(in srgb, var(--josanz-primary) 45%, var(--josanz-border));
+  background: color-mix(in srgb, var(--josanz-primary) 6%, var(--josanz-surface));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--josanz-primary) 12%, transparent);
 }
 
 .josanz-staff-perm-role-option__input {
   margin-top: 0.15rem;
   flex-shrink: 0;
-  accent-color: var(--josanz-brand, #0f1e2f);
+  accent-color: var(--josanz-primary, #0f1e2f);
 }
 
 .josanz-staff-perm-role-option__copy {
@@ -102,11 +103,15 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--josanz-text);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .josanz-staff-perm-role-option__copy small {
   font-size: 11px;
   color: var(--josanz-text-muted);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .josanz-staff-perm-role-option__type {
@@ -117,6 +122,11 @@
   text-transform: uppercase;
   color: var(--josanz-text-muted);
   padding-top: 0.1rem;
+  align-self: flex-start;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 8rem;
 }
 
 .josanz-staff-perm-groups {

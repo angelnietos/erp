@@ -355,6 +355,7 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
                   label: (getClientRevenue(client) | number: '1.0-0') + '€',
                 },
               ]"
+              class="client-card"
             >
               <div card-extra class="card-selection">
                 <input
@@ -383,182 +384,209 @@ import { CLIENTS_FEATURE_CONFIG } from '../clients-feature.config';
   `,
   styles: [
     `
-      .flex-1 {
-        flex: 1;
+      :host {
+        display: block;
       }
-
-      .client-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
+      
+      .clients-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+      
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+      }
+      
+      .client-card {
+        border-radius: 16px;
+        background: var(--surface);
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.08);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+      }
+      
+      .client-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.12);
+        border-color: var(--border);
+      }
+      
+      .client-card ::ng-deep .feature-card__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-weight: 800;
         font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        transition: all 0.2s ease;
+      }
+      
+      .client-card:hover ::ng-deep .feature-card__avatar {
+        transform: scale(1.08);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+      }
+      
+      .client-card ::ng-deep .feature-card__content {
+        padding: 1rem 1.25rem;
+      }
+      
+      .client-card ::ng-deep .feature-card__title {
+        font-size: 0.9375rem;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin: 0;
+        line-height: 1.3;
+      }
+      
+      .client-card ::ng-deep .feature-card__subtitle {
+        font-size: 0.8125rem;
         color: var(--text-muted);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        margin-top: 0.25rem;
+      }
+      
+      .client-card ::ng-deep .feature-card__badge {
+        font-size: 0.6875rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        background: var(--surface-muted);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      
+      .client-card ::ng-deep .feature-card__footer {
+        padding: 0.75rem 1.25rem;
+        border-top: 1px solid var(--border-soft);
+        background: color-mix(in srgb, var(--surface) 70%, transparent);
+        gap: 1.25rem;
+      }
+      
+      .client-card ::ng-deep .feature-card__footer-item {
+        font-size: 0.75rem;
         font-weight: 600;
+        color: var(--text-muted);
+        gap: 0.35rem;
       }
-
-      .client-rating .filled {
-        color: #fbbf24;
-        fill: currentColor;
+      
+      .client-card ::ng-deep .feature-card__actions {
+        gap: 0.5rem;
       }
-
-      .flex-1 {
-        flex: 1;
-      }
-
-      .pagination-footer {
-        margin-top: 3rem;
-        display: flex;
+      
+      .client-card ::ng-deep .feature-card__actions button {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
       }
-
-      /* Advanced Filters */
-      .advanced-filters {
-        margin: 1rem 0;
-        padding: 1.5rem;
-        background: var(--surface);
-        border-radius: 16px;
-        border: 1px solid var(--border-soft);
-        box-shadow: 0 8px 32px -14px rgba(8, 8, 8, 0.09);
-      }
-      .filters-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.25rem;
-        align-items: end;
-      }
-      .filter-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-      .filter-label {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-      .filter-select,
-      .filter-input {
-        padding: 0.75rem;
-        border: 1px solid var(--border-soft);
-        border-radius: 8px;
-        background: var(--background);
+      
+      .client-card ::ng-deep .feature-card__actions button:hover {
+        background: var(--surface-muted);
+        border-color: var(--border);
         color: var(--text);
-        font-size: 0.875rem;
       }
-      .filter-select:focus,
-      .filter-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(var(--primary-rgb), 0.1);
-      }
-
-      /* Bulk Actions */
-      .bulk-actions-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        background: var(--warning-light);
-        border: 1px solid var(--warning);
-        border-radius: 12px;
-        margin: 1rem 0;
-      }
-      .bulk-info {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 600;
-        color: var(--warning-dark);
-      }
-      .bulk-buttons {
-        display: flex;
-        gap: 0.75rem;
-        align-items: center;
-      }
-
-      /* Selection */
+      
       .selection-header {
         grid-column: 1 / -1;
         display: flex;
         justify-content: flex-end;
-        padding: 1rem;
-        border-bottom: 1px solid var(--border-soft);
+        padding: 0.5rem 0;
       }
+      
       .checkbox-label {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 0.875rem;
-        font-weight: 500;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--text-muted);
         cursor: pointer;
       }
+      
       .selection-checkbox {
         width: 16px;
         height: 16px;
         accent-color: var(--primary);
+        cursor: pointer;
       }
+      
       .card-selection {
-        /* La posición la aplica ui-feature-card [card-extra]. */
         position: static;
         display: flex;
         align-items: center;
         justify-content: center;
       }
-
-      /* Active state for filters button */
-      :host ::ng-deep .feature-filter-bar ui-button.active {
-        background: var(--primary-light);
-        color: var(--primary);
+      
+      .client-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        background: color-mix(in srgb, var(--surface) 80%, transparent);
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-soft);
+        white-space: nowrap;
       }
-
-      @media (max-width: 768px) {
-        .controls-section {
-          flex-direction: column;
-          align-items: stretch;
+      
+      .client-rating .filled {
+        color: #fbbf24;
+        fill: currentColor;
+      }
+      
+      /* Responsive */
+      @media (max-width: 640px) {
+        .feature-grid {
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+        
+        .client-card ::ng-deep .feature-card__content {
+          padding: 0.875rem 1rem;
+        }
+        
+        .client-card ::ng-deep .feature-card__footer {
+          padding: 0.625rem 1rem;
         }
       }
-
+      
+      @media (min-width: 1536px) {
+        .feature-grid {
+          grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+        }
+      }
+      
       /* BABOONI LUXE CLIENTS OVERRIDES */
-      :host-context(html[data-erp-tenant='babooni']) .advanced-filters {
-        background: color-mix(in srgb, var(--surface) 55%, transparent);
-        backdrop-filter: blur(14px);
-        border: 1px solid color-mix(in srgb, var(--border-soft) 40%, transparent);
-        border-radius: 20px;
-        padding: 2rem;
-        box-shadow: 0 10px 40px -15px rgba(0, 0, 0, 0.08);
-        margin: 1.5rem 0;
+      :host-context(html[data-erp-tenant='babooni']) .client-card {
+        background: color-mix(in srgb, var(--surface) 60%, transparent);
+        backdrop-filter: blur(12px);
+        border-color: color-mix(in srgb, var(--border-soft) 50%, transparent);
       }
-
-      :host-context(html[data-erp-tenant='babooni']) .bulk-actions-bar {
-        background: var(--surface);
-        border: 1px solid var(--brand);
-        border-radius: 16px;
-        padding: 1rem 2rem;
-        box-shadow: 0 12px 32px -8px rgba(var(--brand-rgb), 0.15);
-        margin: 1.5rem 0;
-      }
-
-      :host-context(html[data-erp-tenant='babooni']) .bulk-info {
-        color: var(--brand);
-        font-weight: 850;
-        font-size: 0.9rem;
-      }
-
-      :host-context(html[data-erp-tenant='babooni']) .selection-header {
-        background: color-mix(in srgb, var(--surface) 40%, transparent);
-        border-radius: 12px;
-        padding: 0.75rem 1.25rem;
-        border-bottom: none;
-        margin-bottom: 1rem;
-      }
-
-      :host-context(html[data-erp-tenant='babooni']) .client-rating {
-        background: color-mix(in srgb, var(--surface) 80%, transparent);
-        padding: 4px 10px;
-        border-radius: 99px;
-        border: 1px solid rgba(0,0,0,0.03);
+      
+      :host-context(html[data-erp-tenant='babooni']) .client-card:hover {
+        box-shadow: 0 16px 32px -12px rgba(var(--brand-rgb), 0.18);
       }
     `,
   ],

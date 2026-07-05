@@ -80,13 +80,22 @@ export function buildEventDetailSavePayload(input: DetailPayloadInput): UpdateJo
   };
 }
 
-export function mapTechnicianRoleToPill(status: string): 'staff-tecnico' | 'staff-practicas' | 'staff-freelance' {
+export function mapTechnicianRoleToPill(status: string): 'staff-tecnico' | 'staff-practicas' | 'staff-freelance' | 'superadmin' | 'admin' {
   const normalized = status.toUpperCase();
   if (normalized.includes('PRACT')) {
     return 'staff-practicas';
   }
   if (normalized.includes('FREE')) {
     return 'staff-freelance';
+  }
+  if (normalized === 'OFFICE_SUPERADMIN') {
+    return 'superadmin';
+  }
+  if (normalized === 'OFFICE_ADMIN' || normalized === 'OFFICE_RESPONSABLE') {
+    return 'admin';
+  }
+  if (normalized.startsWith('OFFICE_')) {
+    return 'staff-tecnico';
   }
   return 'staff-tecnico';
 }

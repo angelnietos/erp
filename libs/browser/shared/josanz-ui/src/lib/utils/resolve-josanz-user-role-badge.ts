@@ -1,8 +1,8 @@
 /** Insignia visual de rol elevado en shell Figma. */
 export type JosanzUserRoleBadge = 'superadmin' | 'admin';
 
-const SUPER_ADMIN_ROLE_NAMES = new Set(['superadmin']);
-const ADMIN_ROLE_NAMES = new Set(['administrador', 'admin babooni']);
+const SUPER_ADMIN_ROLE_NAMES = new Set(['superadmin', 'office_superadmin', 'SuperAdmin']);
+const ADMIN_ROLE_NAMES = new Set(['administrador', 'admin babooni', 'office_admin', 'Administrador']);
 
 function normalizeRoleName(role: string): string {
   return role.trim().toLowerCase().replace(/\s+/g, ' ');

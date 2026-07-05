@@ -92,6 +92,7 @@ export function normalizeEventOutlineKey(key: JosanzStatusPillKey): EventOutline
     case 'en-produccion':
     case 'en-ejecucion':
     case 'staff-tecnico':
+    case 'admin':
       return 'en-proceso';
     case 'cancelado':
       return 'cancelado';
@@ -110,6 +111,8 @@ export function normalizeEventOutlineKey(key: JosanzStatusPillKey): EventOutline
     case 'cliente-nuevo':
     case 'staff-practicas':
     case 'cliente-tipo-pink':
+    case 'staff-freelance':
+    case 'superadmin':
     default:
       return 'borrador';
   }
