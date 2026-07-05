@@ -244,7 +244,7 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .budget-detail__stack {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
         width: 100%;
       }
 
@@ -270,7 +270,7 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
         display: flex;
         justify-content: space-between;
         align-items: flex-end;
-        padding-bottom: 1rem;
+        padding-bottom: 0.75rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
       }
 
@@ -296,13 +296,13 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .stats-row {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
+        gap: 0.75rem;
       }
 
       .main-content {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 1.5rem;
+        gap: 1rem;
       }
 
       .line-items-cards {
@@ -313,11 +313,11 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .line-item-card {
         border: 1px solid var(--border-soft);
         border-radius: var(--radius-md, 8px);
-        padding: 0.85rem 1rem;
+        padding: 0.75rem 1rem;
         background: color-mix(in srgb, var(--surface) 92%, transparent);
       }
       .line-item-card__title {
-        margin: 0 0 0.65rem 0;
+        margin: 0 0 0.5rem 0;
         font-size: 0.85rem;
         font-weight: 700;
         color: var(--text-primary);
@@ -327,13 +327,13 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .line-item-card__grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.65rem 1rem;
+        gap: 0.5rem 0.75rem;
         margin: 0;
       }
       .line-item-card__grid > div {
         display: flex;
         flex-direction: column;
-        gap: 0.2rem;
+        gap: 0.15rem;
         min-width: 0;
       }
       .line-item-card__grid dt {
@@ -363,13 +363,13 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .sidebar-info {
         display: flex;
         flex-direction: column;
-        gap: 1.5rem;
+        gap: 1rem;
       }
 
       .info-list {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 0.75rem;
       }
       .info-item {
         display: flex;
@@ -400,21 +400,21 @@ import { Budget, BudgetItem } from '@josanz-erp/budget-api';
       .catalog-hint {
         font-size: 0.65rem;
         color: var(--text-muted);
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.6rem;
         line-height: 1.4;
       }
       .catalog-empty {
         font-size: 0.65rem;
         color: var(--text-muted);
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.6rem;
       }
       .service-mini-list {
         list-style: none;
-        margin: 0 0 0.75rem;
+        margin: 0 0 0.6rem;
         padding: 0;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.4rem;
         max-height: 200px;
         overflow-y: auto;
       }

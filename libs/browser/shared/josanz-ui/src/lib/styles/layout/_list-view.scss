@@ -13,26 +13,26 @@
 }
 
 .josanz-main-list__stack.josanz-list-view--cards-grid-comfortable {
-  gap: 1rem;
+  gap: 1.1rem;
 
   .josanz-list-grid {
-    gap: 1rem;
+    gap: 1.1rem;
   }
 }
 
 .josanz-main-list__stack.josanz-list-view--cards-grid-compact {
-  gap: 0.625rem;
+  gap: 0.8rem;
 
   .josanz-list-grid {
-    gap: 0.625rem;
+    gap: 0.8rem;
   }
 }
 
 .josanz-main-list__stack.josanz-list-view--cards-grid-dense {
-  gap: 0.5rem;
+  gap: 0.55rem;
 
   .josanz-list-grid {
-    gap: 0.5rem;
+    gap: 0.55rem;
   }
 }
 
@@ -43,7 +43,7 @@
   .josanz-catalog-board {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.9rem;
     width: 100%;
     min-width: 0;
   }
@@ -98,6 +98,17 @@
   grid-template-columns: repeat(var(--josanz-list-grid-cols, 3), minmax(0, 1fr));
 }
 
+.josanz-list-grid__cell {
+  min-width: 0;
+  align-self: stretch;
+}
+
+.josanz-list-view--cards-grid .josanz-list-grid__cell,
+.josanz-list-view--cards-grid-compact .josanz-list-grid__cell,
+.josanz-list-view--cards-grid-dense .josanz-list-grid__cell {
+  display: flex;
+}
+
 @media (max-width: 1023px) {
   .josanz-list-grid {
     grid-template-columns: repeat(min(var(--josanz-list-grid-cols, 3), 2), minmax(0, 1fr));
@@ -120,15 +131,4 @@
   .josanz-list-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-.josanz-list-grid__cell {
-  min-width: 0;
-  align-self: stretch;
-}
-
-.josanz-list-view--cards-grid .josanz-list-grid__cell,
-.josanz-list-view--cards-grid-compact .josanz-list-grid__cell,
-.josanz-list-view--cards-grid-dense .josanz-list-grid__cell {
-  display: flex;
 }

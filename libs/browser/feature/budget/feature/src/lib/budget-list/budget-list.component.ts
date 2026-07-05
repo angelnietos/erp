@@ -458,16 +458,16 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       .advanced-filters {
         background: var(--surface);
         border: 1px solid var(--border-soft);
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
         animation: slideDown 0.3s ease-out;
       }
 
       .filters-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        gap: 0.75rem;
         align-items: end;
       }
 
@@ -521,9 +521,9 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       .bulk-actions-bar {
         background: var(--warning-light);
         border: 1px solid var(--warning);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -540,7 +540,7 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
 
       .bulk-buttons {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
         align-items: center;
       }
 
@@ -557,9 +557,9 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
         grid-column: 1 / -1;
         background: var(--surface);
         border: 1px solid var(--border-soft);
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.75rem;
         display: flex;
         align-items: center;
       }
@@ -598,9 +598,45 @@ import { BUDGET_FEATURE_CONFIG } from '../budget-feature.config';
       }
 
       .pagination-footer {
-        margin-top: 3rem;
+        margin-top: 1.5rem;
         display: flex;
         justify-content: center;
+      }
+
+      /* Compact card overrides for budget list */
+      :host ::ng-deep .feature-card {
+        border-radius: 10px;
+      }
+      :host ::ng-deep .feature-card .card-header {
+        padding: 0.75rem;
+        gap: 0.5rem;
+      }
+      :host ::ng-deep .feature-card .card-body {
+        padding: 0 0.75rem 0.75rem;
+      }
+      :host ::ng-deep .feature-card .card-footer {
+        padding: 0.5rem 0.75rem;
+        min-height: auto;
+      }
+      :host ::ng-deep .feature-card .avatar-bg {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+        border-radius: 10px;
+      }
+      :host ::ng-deep .feature-card .avatar-status {
+        width: 12px;
+        height: 12px;
+        border-width: 2px;
+      }
+      :host ::ng-deep .feature-card .item-name {
+        font-size: 0.95rem;
+      }
+      :host ::ng-deep .feature-card .subtitle {
+        font-size: 0.8rem;
+      }
+      :host ::ng-deep .feature-card .footer-item {
+        font-size: 0.75rem;
       }
 
       /* BABOONI LUXE BUDGETS OVERRIDES */

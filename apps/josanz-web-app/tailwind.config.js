@@ -1,10 +1,10 @@
 const { createGlobPatternsForDependencies } = require('@nx/angular/tailwind');
-const { join } = require('path');
+const { join, resolve } = require('path');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   presets: [
-    require('@josanz-erp/josanz-ui/tailwind.config.js'),
+    resolve(__dirname, 'libs/browser/shared/josanz-ui/tailwind.config.js'),
   ],
   content: [
     join(__dirname, 'src/**/!(*.stories|*.spec).{ts,html}'),

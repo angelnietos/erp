@@ -50,7 +50,6 @@
     (typeSelected)="selectType($event)"
   />
   }
-
   @if (shell.activeTab() === 'Cliente') {
   <josanz-event-cliente-tab
     [form]="form"
@@ -60,27 +59,21 @@
     [statusOptions]="statusOptions()"
   />
   }
-
   @if (shell.activeTab() === 'Staff') {
   <josanz-event-staff-tab />
   }
-
   @if (shell.activeTab() === 'Presupuestos') {
   <josanz-event-presupuestos-tab [form]="form" [clientLabel]="budgetClientLabel()" />
   }
-
   @if (shell.activeTab() === 'Albaranes') {
   <josanz-event-documents-section title="Albaranes" uploadTarget="delivery" />
   }
-
   @if (shell.activeTab() === 'Facturas') {
   <josanz-event-documents-section title="Facturas" uploadTarget="invoice" />
   }
-
   @if (shell.activeTab() === 'Informes / reportes') {
   <josanz-event-documents-section title="Informes" uploadTarget="report" />
   }
-
   @if (shell.activeTab() === 'Emails') {
   <josanz-event-emails-tab />
   }
