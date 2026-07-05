@@ -93,14 +93,12 @@ export function leadingMarkAvatarStyle(railColor: string): Record<string, string
     backgroundColor: rail,
     color: josanzReadableOnSolid(rail),
     borderColor: 'transparent',
+    boxShadow: '0 2px 8px -2px rgba(0, 0, 0, 0.15), 0 1px 3px 0 rgba(0, 0, 0, 0.08)',
   };
 }
 
 /** @deprecated Usar `leadingMarkAvatarStyle` (solo color rail, sin gradiente). */
-export function leadingMarkGradientStyle(
-  railColor: string,
-  _pillColor?: string,
-): Record<string, string> {
+export function leadingMarkGradientStyle(railColor: string): Record<string, string> {
   return leadingMarkAvatarStyle(railColor);
 }
 
