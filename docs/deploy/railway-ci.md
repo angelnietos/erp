@@ -66,3 +66,37 @@ En GitHub → **Actions** → **Deploy — Railway** → **Run workflow**:
 - `RAILWAY_PROJECT_ID`
 - `RAILWAY_SERVICE_JOSANZ_UI_STORYBOOK`
 - `CHROMATIC_PROJECT_TOKEN` (solo si usas Chromatic en CI)
+
+## Variables de entorno para Keycloak en Railway
+
+### Servicio `keycloak`
+
+Variables que debes configurar en Railway → servicio **keycloak** → **Settings** → **Variables**:
+
+| Variable | Valor | Descripción |
+|----------|-------|-------------|
+| `KC_DB_URL` | `jdbc:postgresql://${{postgres.PRIVATE_HOST}}:${{postgres.PRIVATE_PORT}/keycloak` | Conexión a PostgreSQL (auto-generado por Railway) |
+| `KC_DB_USERNAME` | `${{postgres.PRIVATE_USER}` | Usuario de PostgreSQL (auto-generado) |
+| `KC_DB_PASSWORD` | `${{postgres.PRIVATE_PASSWORD}` | Password de PostgreSQL (auto-generado) |
+| `KEYCLOAK_ADMIN` | `admin` | Usuario admin de Keycloak |
+| `KEYCLOAK_ADMIN_PASSWORD` | `CAMBIAR_EN_PRODUCCION` | Password admin de Keycloak |
+| `KC_HOSTNAME` | `${{railway.public_url}}` o dominio público | URL pública para redirecciones OAuth |
+| `KC_PROXY` | `edge` | Necesario para funcionar tras proxy inverso |
+| `KC_HOSTNAME_STRICT` | `false` | Permite hostnames dinámicos |
+
+### Servicio `josanz-web-app`
+
+Variables que debes configurar en Railway → servicio **josanz-web-app** → **Settings** → **Variables**:
+
+| Variable | Valor | Descripción |
+|----------|-------|-------------|
+| `KEYCLOAK_URL` | `${{keycloak.RAILWAY_PUBLIC_DOMAIN}}` o `https://nombre.up.railway.app` | URL pública del servicio keycloak |
+| `KEYCLOAK_URL` | `http://${{keycloak.RAILWAY_PRIVATE_DOMAIN}}:8080` | URL privada para comunicación interna (Nginx proxy `/auth/` hacia keycloak) |
+| `KEYCLOAK_REALM` | `josanz-web-app-realm` | Realm configurado en keycloak |
+| `KEYCLOAK_CLIENT_ID` | `josanz-figma-spa` | Client ID público configurado |
+| `KEYCLOAK_ENABLED` | `true` | Habilita Keycloak auth |
+| `BACKEND_PROXY_URL` | `http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:3000` | (Opcional) API backend si tienes servicio backend conectado |
+
+### Configuración de Nginx para Keycloak
+
+El `frontend.conf.template` proxy `/api/` al backend. Para Keycloak, agrega un `location /auth/` en tu configuración de Nginx si el frontend necesita conectar directamente, o usa la URL pública en `KEYCLOAK_URL`.

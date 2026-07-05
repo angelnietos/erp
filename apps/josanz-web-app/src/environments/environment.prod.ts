@@ -8,7 +8,7 @@ export const environment = {
     url: '',
     realm: 'josanz-web-app-realm',
     clientId: 'josanz-figma-spa',
-    enabled: false,
+    enabled: true,
   },
   grafanaDashboardUrl: '' as string,
 };

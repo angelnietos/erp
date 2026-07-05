@@ -20,12 +20,15 @@ RUN pnpm exec nx run josanz-web-app:build:production
 
 FROM nginx:1.27-alpine
 ENV PORT=80
-# Si BACKEND_PROXY_URL está vacío, el front se sirve como SPA sin backend.
-# Cuando exista backend, configúralo en Railway. Ej: http://${{backend.RAILWAY_PRIVATE_DOMAIN}}:3000
 ENV BACKEND_PROXY_URL=
+ENV KEYCLOAK_URL=
+ENV KEYCLOAK_REALM=josanz-web-app-realm
+ENV KEYCLOAK_CLIENT_ID=josanz-figma-spa
+ENV KEYCLOAK_ENABLED=true
 ENV NGINX_RESOLVER=127.0.0.11
 COPY deploy/railway/nginx/spa.conf.template /etc/nginx/templates/spa.conf.template
 COPY deploy/railway/nginx/frontend.conf.template /etc/nginx/templates/frontend.conf.template
+COPY apps/josanz-web-app/public/env.js.template /etc/nginx/templates/env.js.template
 COPY --from=builder /app/dist/apps/josanz-web-app/browser /usr/share/nginx/html
 EXPOSE 80
-CMD ["sh", "-c", "if [ -n \"$BACKEND_PROXY_URL\" ]; then envsubst '$PORT $BACKEND_PROXY_URL $NGINX_RESOLVER' < /etc/nginx/templates/frontend.conf.template > /etc/nginx/conf.d/default.conf; else envsubst '$PORT' < /etc/nginx/templates/spa.conf.template > /etc/nginx/conf.d/default.conf; fi && nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "if [ -n \"$BACKEND_PROXY_URL\" ]; then envsubst '$PORT $BACKEND_PROXY_URL $NGINX_RESOLVER $KEYCLOAK_URL $KEYCLOAK_REALM $KEYCLOAK_CLIENT_ID $KEYCLOAK_ENABLED' < /etc/nginx/templates/frontend.conf.template > /etc/nginx/conf.d/default.conf; envsubst '$KEYCLOAK_URL $KEYCLOAK_REALM $KEYCLOAK_CLIENT_ID $KEYCLOAK_ENABLED' < /etc/nginx/templates/env.js.template > /usr/share/nginx/html/env.js; else envsubst '$PORT $KEYCLOAK_URL $KEYCLOAK_REALM $KEYCLOAK_CLIENT_ID $KEYCLOAK_ENABLED' < /etc/nginx/templates/spa.conf.template > /etc/nginx/conf.d/default.conf; envsubst '$KEYCLOAK_URL $KEYCLOAK_REALM $KEYCLOAK_CLIENT_ID $KEYCLOAK_ENABLED' < /etc/nginx/templates/env.js.template > /usr/share/nginx/html/env.js; fi && nginx -g 'daemon off;'"]

@@ -17,6 +17,11 @@ COPY docker/keycloak/themes /opt/keycloak/themes
 
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
+ENV KC_DB=postgres
+ENV KC_PROXY=edge
+ENV KC_HOSTNAME_STRICT=false
+ENV KC_HOSTNAME=
+ENV KC_DB_URL=
 
 EXPOSE 8080
 

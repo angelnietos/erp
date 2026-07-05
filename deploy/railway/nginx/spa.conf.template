@@ -13,4 +13,8 @@ server {
     location = /index.html {
         add_header Cache-Control "no-store";
     }
+
+    location = /env.js {
+        add_header Cache-Control "no-store";
+    }
 }

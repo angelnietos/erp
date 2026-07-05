@@ -36,12 +36,34 @@ import {
   TENANT_MODULES_REALTIME_API_ORIGIN,
   getStoredTenantId,
   setErpTenantSlug,
-  resolveTenantSlugFromId,
   JOSANZ_FIGMA_TENANT_SLUG,
 } from '@josanz-erp/identity-data-access';
 import { GlobalAuthStore, PluginStore } from '@josanz-erp/shared-data-access';
 import { JosanzThemeService } from '@josanz-erp/josanz-ui';
 import { ClientsFacade } from '@josanz-erp/clients-data-access';
+
+declare global {
+  interface Window {
+    __ENV__?: {
+      KEYCLOAK_URL?: string;
+      KEYCLOAK_REALM?: string;
+      KEYCLOAK_CLIENT_ID?: string;
+      KEYCLOAK_ENABLED?: string;
+    };
+  }
+}
+
+function getKeycloakConfig() {
+  const env = environment.keycloak;
+  const runtimeEnv = (typeof window !== 'undefined' && window.__ENV__) || {};
+
+  return {
+    enabled: runtimeEnv.KEYCLOAK_ENABLED !== undefined ? runtimeEnv.KEYCLOAK_ENABLED === 'true' : (env.enabled ?? false),
+    url: runtimeEnv.KEYCLOAK_URL || env.url || '',
+    realm: runtimeEnv.KEYCLOAK_REALM || env.realm || '',
+    clientId: runtimeEnv.KEYCLOAK_CLIENT_ID || env.clientId || '',
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -54,8 +76,7 @@ export const appConfig: ApplicationConfig = {
     },
     {
       provide: AUTH_KEYCLOAK_CONFIG,
-      useValue:
-        environment.keycloak ?? { enabled: false, url: '', realm: '', clientId: '' },
+      useFactory: () => getKeycloakConfig(),
     },
     provideEnterpriseAuth({
       mode: environment.auth?.mode ?? 'bff',
