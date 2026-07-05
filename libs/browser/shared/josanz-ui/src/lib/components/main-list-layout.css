@@ -10,20 +10,43 @@
 
 /* ─── Header section ─────────────────────────────────────── */
 .josanz-main-list__header {
-  padding-bottom: 4px;
+  padding-bottom: 6px;
 }
 
 /* Accent bar bajo el título */
 .josanz-main-list__title-accent {
-  margin-top: 6px;
-  opacity: 0.85;
+  margin-top: 10px;
+  opacity: 0.55;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--josanz-brand, var(--josanz-primary)) 0%,
+    transparent 100%
+  );
 }
 
-/* ─── Figma Catalog toolbar ─────────────────────────────── */
-.josanz-main-list__figma-toolbar {
+/* ─── Content stack (rows) ───────────────────────────────── */
+.josanz-main-list__stack {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding-top: 2px;
+}
+
+/* ─── Figma Catalog toolbar ──────────────────────────────── */
+.josanz-main-list__figma-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 18px;
+  background: color-mix(in srgb, var(--josanz-surface) 55%, transparent);
+  border: 1px solid var(--josanz-border-soft, var(--josanz-border));
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03);
+  margin-bottom: 4px;
 }
 
 .josanz-main-list__figma-toolbar-row {
@@ -47,52 +70,105 @@
   flex-wrap: wrap;
 }
 
-/* ─── Content stack (rows) ───────────────────────────────── */
-.josanz-main-list__stack {
-  /* Slight gap between header and rows area */
-  gap: 0;
+/* ─── Active filter chips ───────────────────────────────── */
+.josanz-catalog-active-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--josanz-surface) 45%, transparent);
+  border: 1px solid var(--josanz-border-soft);
+  border-radius: 14px;
+  margin-bottom: 2px;
+  animation: fadeSlideDown 0.2s ease;
 }
 
-/* ─── Bottom bar (pagination / view selector) ─────────────── */
-.josanz-main-list__actions {
-  max-width: 100%;
+.josanz-catalog-active-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--josanz-surface-muted);
+  border: 1px solid var(--josanz-border);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--josanz-text-muted);
+  line-height: 1.3;
 }
 
-@media (min-width: 768px) {
-  .josanz-main-list__actions {
-    min-width: min(100%, 20rem);
-  }
+.josanz-catalog-active-filters__label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--josanz-text-muted);
+  opacity: 0.7;
 }
 
-/* ─── Row hover polish – applied to adaptive list rows ───── */
-/*
- * These selectors target the rendered row wrappers inside
- * <josanz-adaptive-list-rows>. The component renders them as
- * .josanz-list-template-row-wrap elements.
- */
+.josanz-catalog-active-filters__value {
+  color: var(--josanz-text);
+  font-weight: 700;
+}
+
+.josanz-catalog-active-filters__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--josanz-border);
+  color: var(--josanz-text-muted);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.josanz-catalog-active-filters__remove:hover {
+  background: var(--josanz-danger, #ef4444);
+  color: #fff;
+}
+
+.josanz-catalog-active-filters__clear {
+  border: 0;
+  background: 0;
+  color: var(--josanz-primary, #6366f1);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.josanz-catalog-active-filters__clear:hover {
+  background: color-mix(in srgb, var(--josanz-primary) 10%, transparent);
+}
 
 /* ─── Summary pill row ──────────────────────────────────── */
 .josanz-catalog-summary {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
+  padding: 6px 0;
 }
 
 .josanz-catalog-summary__item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
+  padding: 5px 12px;
   border-radius: 999px;
   font-size: 12.5px;
   font-weight: 500;
   color: var(--josanz-text-muted, #6b7280);
   background: transparent;
-  border: 1px solid var(--josanz-border, #e5e7eb);
-  transition:
-    background 0.15s,
-    color 0.15s;
+  border: 1px solid var(--josanz-border-soft, #e5e7eb);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .josanz-catalog-summary__item strong {
@@ -104,6 +180,7 @@
   background: var(--josanz-interactive, #0f1e2f);
   color: #fff;
   border-color: transparent;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.22);
 }
 
 .josanz-catalog-summary__item--active strong {
@@ -125,10 +202,33 @@
   flex-shrink: 0;
 }
 
+/* ─── Bottom bar (pagination / view selector) ─────────────── */
+.josanz-main-list__actions {
+  max-width: 100%;
+  padding-top: 14px;
+}
+
+@media (min-width: 768px) {
+  .josanz-main-list__actions {
+    min-width: min(100%, 20rem);
+  }
+}
+
 .josanz-main-list__footer--view-open {
   align-items: stretch;
 }
 
 .josanz-main-list__footer--view-open .josanz-view-selector {
   flex: 1 1 100%;
+}
+
+@keyframes fadeSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

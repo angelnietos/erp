@@ -3,12 +3,20 @@
 // después de este archivo y pisar `display`/`flex-direction`; en ≥768px forzamos
 // la fila desktop con la misma especificidad + !important solo ahí.
 
+:host {
+  --josanz-list-template-gap: 0.875rem;
+  --josanz-list-template-title: 160px;
+  --josanz-list-template-col-lead: 180px;
+  --josanz-list-template-col-mid: 140px;
+  --josanz-list-template-status: 120px;
+}
+
 // Hueco entre columnas de datos: equilibrio ancho útil vs alineación con cabecera
-$josanz-list-template-gap: 1rem;
-$josanz-list-template-title: 180px;
-$josanz-list-template-col-lead: 200px;
-$josanz-list-template-col-mid: 150px;
-$josanz-list-template-status: 140px;
+$josanz-list-template-gap: 0.875rem;
+$josanz-list-template-title: 160px;
+$josanz-list-template-col-lead: 180px;
+$josanz-list-template-col-mid: 140px;
+$josanz-list-template-status: 120px;
 
 .josanz-list-template-row-wrap {
   display: flex;
@@ -98,8 +106,8 @@ $josanz-list-template-status: 140px;
   /* Cabecera: marcadores invisibles con la misma caja que avatar / bullet / pastilla en la fila */
   .josanz-list-thead__leading-spacer {
     flex-shrink: 0;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2rem;
+    height: 2rem;
   }
 
   .josanz-list-thead__field-bullet {

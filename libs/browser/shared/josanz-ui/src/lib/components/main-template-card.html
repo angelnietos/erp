@@ -26,10 +26,10 @@
     <!-- Title row: ID / título (sin pastilla — estado solo en columna derecha) -->
 <div
      class="josanz-list-template-row__title shrink-0 min-w-0">
-     <div class="flex min-w-0 items-center gap-2.5">
+     <div class="flex min-w-0 items-center gap-2">
        @if (leadingMark) {
        <span
-         class="josanz-list-card__leading flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-solid text-[11px] font-extrabold transition-all duration-200 hover:scale-105"
+         class="josanz-list-card__leading flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-solid text-[10px] font-extrabold transition-all duration-200"
          [ngStyle]="getLeadingMarkStyles()"
          aria-hidden="true"
        >
@@ -37,7 +37,7 @@
        </span>
        }
        <h3
-         class="josanz-list-card__title min-w-0 truncate text-[15px] font-extrabold leading-tight tracking-tight md:text-[16px]"
+         class="josanz-list-card__title min-w-0 truncate text-[14px] font-extrabold leading-snug tracking-tight md:text-[15px]"
        >
          {{ title }}
        </h3>

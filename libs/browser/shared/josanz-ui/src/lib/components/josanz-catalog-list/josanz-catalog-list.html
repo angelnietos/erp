@@ -142,7 +142,7 @@
   <josanz-list-template-header-row
     [titleLabel]="config.titleColumnLabel ?? config.idColumnLabel ?? 'ID'"
     [fieldLabels]="rowLabels"
-    [statusLabel]="config.statusColumnLabel"
+    [statusLabel]="config.statusColumnLabel ?? 'Tipo'"
     [withLeadingMark]="config.withLeadingMark ?? false"
     [sortable]="true"
     [sortColumn]="sortColumn"

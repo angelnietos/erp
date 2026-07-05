@@ -73,7 +73,7 @@ export interface JosanzCatalogListConfig {
   idColumnLabel?: string;
   titleColumnLabel?: string;
   rowLabels?: string[];
-  statusColumnLabel: 'Estado' | 'Tipo';
+  statusColumnLabel?: 'Estado' | 'Tipo' | 'Rol' | string;
   rows?: JosanzCatalogListRow[];
   secondaryRoute?: string;
   addRoute?: string;
@@ -475,7 +475,7 @@ export class JosanzCatalogListComponent implements OnChanges {
     return buildCatalogSortColumns(
       this.config.titleColumnLabel ?? this.config.idColumnLabel ?? 'ID',
       this.rowLabels,
-      this.config.statusColumnLabel,
+      this.config.statusColumnLabel ?? 'Tipo',
     );
   }
 

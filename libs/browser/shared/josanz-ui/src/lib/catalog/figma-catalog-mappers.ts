@@ -106,7 +106,8 @@ export function mapEventToCatalogRow(
   const customThemeColor = resolveCustomEventStatusColor(event.status, catalogTheme);
   return {
     id: event.id,
-    title: formatCatalogDisplayId(index),
+    title: event.name || formatCatalogDisplayId(index),
+    leadingMark: event.name ? event.name.split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('') : undefined,
     typology,
     venue,
     eventName: event.name,

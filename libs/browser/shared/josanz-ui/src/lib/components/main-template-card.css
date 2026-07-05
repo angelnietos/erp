@@ -3,60 +3,67 @@
   cursor: default;
   will-change: transform, box-shadow;
   transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.2s ease,
-    border-color 0.2s ease;
+    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
   border-radius: var(--josanz-radius-card, 12px);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 /* Shape modifier classes — replaces Tailwind hardcoded rounded classes */
 .josanz-list-card--rounded {
-  border-radius: var(--josanz-radius-card, 12px);
+  border-radius: var(--josanz-radius-card, 14px);
 }
 .josanz-list-card--square {
-  border-radius: 0;
+  border-radius: 2px;
 }
 .josanz-list-card--pill {
   border-radius: 40px;
 }
 
 /*
- * Hover: llévalo hacia arriba con una sombra difusa multicapa.
- * La primera capa replica el cardShadow del Figma token;
- * la segunda añade profundidad y la tercera el accent de color.
+ * Hover: elevación sutil con sombra difusa de 3 capas.
+ * La primera replica el shadow token; la segunda añade profundidad;
+ * la tercera añade un borde tenue con acento de marca.
  */
 .josanz-list-card:hover {
-  transform: translateY(-2px) scale(1.001);
+  transform: translateY(-2px);
   box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.06),
     0 12px 28px rgba(0, 0, 0, 0.07),
-    0 0 0 1.5px color-mix(in srgb, var(--josanz-primary) 15%, transparent);
+    0 0 0 1px color-mix(in srgb, var(--josanz-brand) 12%, transparent);
+  border-color: color-mix(in srgb, var(--josanz-brand) 18%, var(--josanz-border));
 }
 
 .josanz-list-card:active {
-  transform: translateY(0) scale(0.999);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   transition-duration: 0.08s;
 }
 
 /* Avatar/leading mark en listado Clientes */
 .josanz-list-card__leading {
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 0.8125rem;
-  letter-spacing: 0.02em;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.12);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease;
+  box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.18);
 }
 
 .josanz-list-card__leading:hover {
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.15);
+  transform: scale(1.12);
+  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.22);
 }
 
 /* Status rail — inherits card border-radius on top-left/bottom-left corners */
@@ -111,4 +118,28 @@
 .josanz-list-card__field {
   color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
   -webkit-text-fill-color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
+}
+
+/* Field grid spacing — two-column layout on desktop */
+.josanz-list-template-row__fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 0.25rem 1.25rem;
+}
+
+/* Pill — elevated look */
+.josanz-list-card__status-pill {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.josanz-list-card:hover .josanz-list-card__status-pill {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Divider between title row and fields */
+.josanz-list-template-row-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }

@@ -53,6 +53,7 @@ export class JosanzEventsFeatureListComponent implements OnInit {
     title: 'Eventos',
     stateKey: 'events',
     primaryBtnLabel: 'Añadir Evento',
+    titleColumnLabel: 'Evento',
     statusColumnLabel: 'Estado',
     addRoute: '/events/new',
     detailRoute: '/events',
