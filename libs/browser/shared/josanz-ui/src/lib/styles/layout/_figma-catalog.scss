@@ -331,9 +331,30 @@
     border-top-color: var(--josanz-border) !important;
   }
 
-  .josanz-grid-list-card__rail {
-    width: 6px;
-    border-radius: 12px 0 0 12px;
+.josanz-grid-list-card__rail {
+  width: 6px;
+  border-radius: 12px 0 0 12px;
+}
+
+/* Segmented filter tabs — more visible active state */
+.josanz-filter-tabs--segmented {
+  background: var(--josanz-surface-muted, #f7f7f7);
+  border: 1px solid var(--josanz-border, #e0e0e0);
+
+  .josanz-filter-tabs__segment {
+    height: 28px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .josanz-filter-tabs__segment--active {
+    background: var(--josanz-primary, #0f1e2f) !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    box-shadow: 
+      0 3px 12px rgba(15, 30, 47, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid #0a1526 !important;
   }
 }
 
