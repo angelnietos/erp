@@ -25,14 +25,16 @@
       <h3 class="josanz-event-section__title m-0">Contratos</h3>
       <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
     </div>
-    @for (file of contractFiles; track file) {
-    <josanz-document-item
-      [name]="file"
-      [showView]="true"
-      [showDownload]="true"
-      [showDelete]="true"
-    ></josanz-document-item>
-    }
+    <div class="josanz-doc-list">
+      @for (file of contractFiles; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="true"
+      ></josanz-document-item>
+      }
+    </div>
   </section>
   } @if (shell.activeTab() === 'Nóminas') {
   <section class="josanz-event-section">
@@ -40,14 +42,16 @@
       <h3 class="josanz-event-section__title m-0">Nóminas</h3>
       <josanz-secondary-button label="Subir +"></josanz-secondary-button>
     </div>
-    @for (file of payrollFiles; track file) {
-    <josanz-document-item
-      [name]="file"
-      [showView]="true"
-      [showDownload]="true"
-      [showDelete]="false"
-    ></josanz-document-item>
-    }
+    <div class="josanz-doc-list">
+      @for (file of payrollFiles; track file) {
+      <josanz-document-item
+        [name]="file"
+        [showView]="true"
+        [showDownload]="true"
+        [showDelete]="false"
+      ></josanz-document-item>
+      }
+    </div>
   </section>
   } @if (shell.activeTab() === 'Ausencias') {
   <section class="josanz-event-section">
@@ -55,18 +59,17 @@
       <h3 class="josanz-event-section__title m-0">Ausencias</h3>
       <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
     </div>
-    @for (item of absences; track item.id) {
-    <div class="josanz-event-budget-line">
-      <span>
+    <div class="josanz-absence-list">
+      @for (item of absences; track item.id) {
+      <div class="josanz-event-budget-line">
         <span class="josanz-event-budget-line__name">{{ item.type }}</span>
         <span class="josanz-event-budget-line__warehouse"> · {{ item.range }}</span>
-      </span>
-      <span></span>
-      <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(item.pillKey)">{{
-        item.type
-      }}</span>
+        <span class="josanz-event-budget-line__pill" [ngStyle]="pillStyle(item.pillKey)">{{
+          item.type
+        }}</span>
+      </div>
+      }
     </div>
-    }
   </section>
   }
 </josanz-figma-detail-shell>
