@@ -28,10 +28,10 @@
 }
 
 .josanz-filter-tabs__segment--active {
-  background: var(--josanz-segmented-active-bg, var(--josanz-surface, #ffffff));
-  color: var(--josanz-segmented-active-text, var(--josanz-interactive, var(--josanz-text)));
+  background: var(--josanz-segmented-active-bg, var(--josanz-primary, #0f1e2f));
+  color: var(--josanz-segmented-active-text, #ffffff);
   font-weight: 600;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
 }
 
 .josanz-filter-tabs__segment--idle {
@@ -53,12 +53,13 @@
 }
 
 :host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs button[class*="text-[var(--josanz-text)]"] {
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--josanz-primary, #0f1e2f) !important;
 }
 
 /* Underline bar — make it thicker to match Figma */
 :host-context(.josanz-main-list--figma-catalog) .josanz-filter-tabs span[class*="absolute bottom-0"] {
-  height: 2.5px;
-  background: var(--josanz-interactive, var(--josanz-primary));
+  height: 3px;
+  background: var(--josanz-primary, #0f1e2f);
   border-radius: 2px;
 }
