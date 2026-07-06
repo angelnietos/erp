@@ -114,30 +114,35 @@
     min-width: 0;
   }
 
-  .josanz-main-list__figma-actions {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    flex-shrink: 0;
+.josanz-main-list__figma-actions {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      flex-shrink: 0;
 
-    @media (max-width: 767px) {
-      flex-wrap: wrap;
-      width: 100%;
+      @media (max-width: 767px) {
+        flex-wrap: wrap;
+        width: 100%;
+      }
     }
-  }
 
-  .josanz-main-list__figma-actions .josanz-list-search {
-    flex: 0 1 14rem;
-    min-width: 9rem;
-    max-width: 14rem;
-  }
+    .josanz-main-list__figma-view-selector {
+      flex-shrink: 0;
+      position: relative;
+    }
 
-  .josanz-main-list__figma-actions josanz-button,
-  .josanz-main-list__figma-actions josanz-secondary-button {
-    flex-shrink: 0;
-  }
+   .josanz-main-list__figma-actions .josanz-list-search {
+     flex: 0 1 14rem;
+     min-width: 9rem;
+     max-width: 14rem;
+   }
+
+   .josanz-main-list__figma-actions josanz-button,
+   .josanz-main-list__figma-actions josanz-secondary-button {
+     flex-shrink: 0;
+   }
 
   .josanz-catalog-summary {
     display: flex;

@@ -72,49 +72,62 @@
 
     <div class="josanz-main-list__controls flex w-full min-w-0 flex-col gap-3">
       @if (figmaCatalogLayout) {
-      <!-- ── Figma Catalog: Filtros, Buscar, Excel, Añadir ── -->
-      <div class="josanz-main-list__figma-toolbar">
-        <div class="josanz-main-list__figma-toolbar-row">
-          <!-- Grupo izquierda: Filtros + Buscar -->
-          <div class="josanz-main-list__figma-left-actions">
-            <!-- Botón Filtros (Figma: con icono embudo, borde) -->
-            <button
-              #filtrosBtn
-              type="button"
-              class="josanz-figma-filter-btn"
-              [class.josanz-figma-filter-btn--active]="filtrosPanelOpen"
-              (click)="onFiltrosClick()"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-              </svg>
-              Filtros
-            </button>
-            <button
-              #sortBtn
-              type="button"
-              class="josanz-figma-filter-btn josanz-figma-sort-btn"
-              [class.josanz-figma-filter-btn--active]="sortPanelOpen || sortActive"
-              aria-haspopup="listbox"
-              [attr.aria-expanded]="sortPanelOpen"
-              (click)="onSortClick()"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M3 6h18M7 12h10M10 18h4"/>
-              </svg>
-              Ordenar
-            </button>
-            @if (showSearch) {
-            <josanz-list-search-field
-              [placeholder]="searchPlaceholder"
-              [value]="searchValue"
-              [ariaLabel]="searchAriaLabel"
-              [shape]="shape"
-              (valueChange)="onSearchChange($event)"
-            ></josanz-list-search-field>
-            }
-          </div>
-          <!-- Grupo derecha: Excel + Añadir -->
+<!-- ── Figma Catalog: Filtros, Buscar, Excel, Añadir ── -->
+       <div class="josanz-main-list__figma-toolbar">
+         <div class="josanz-main-list__figma-toolbar-row">
+           <!-- Grupo izquierda: Filtros + Buscar -->
+           <div class="josanz-main-list__figma-left-actions">
+             <!-- Botón Filtros (Figma: con icono embudo, borde) -->
+             <button
+               #filtrosBtn
+               type="button"
+               class="josanz-figma-filter-btn"
+               [class.josanz-figma-filter-btn--active]="filtrosPanelOpen"
+               (click)="onFiltrosClick()"
+             >
+               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+               </svg>
+               Filtros
+             </button>
+             <button
+               #sortBtn
+               type="button"
+               class="josanz-figma-filter-btn josanz-figma-sort-btn"
+               [class.josanz-figma-filter-btn--active]="sortPanelOpen || sortActive"
+               aria-haspopup="listbox"
+               [attr.aria-expanded]="sortPanelOpen"
+               (click)="onSortClick()"
+             >
+               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                 <path d="M3 6h18M7 12h10M10 18h4"/>
+               </svg>
+               Ordenar
+             </button>
+             @if (showSearch) {
+             <josanz-list-search-field
+               [placeholder]="searchPlaceholder"
+               [value]="searchValue"
+               [ariaLabel]="searchAriaLabel"
+               [shape]="shape"
+               (valueChange)="onSearchChange($event)"
+             ></josanz-list-search-field>
+             }
+           </div>
+           <!-- Grupo central: Selector de vista -->
+           @if (effectiveShowViewSelector) {
+           <div class="josanz-main-list__figma-view-selector">
+             <josanz-list-view-selector
+               [label]="viewSelectorLabel"
+               [selected]="themeService.listViewSelection()"
+               [gridColumns]="themeService.listGridColumns()"
+               [showStatusBoard]="showStatusBoardView"
+               (selectionChange)="onViewChange($event)"
+               (gridColumnsChange)="onGridColumnsChange($event)"
+             ></josanz-list-view-selector>
+           </div>
+           }
+           <!-- Grupo derecha: Excel + Añadir -->
           <div class="josanz-main-list__figma-actions">
             @if (showExcel) {
             <josanz-secondary-button
@@ -253,33 +266,21 @@
     <ng-content></ng-content>
   </div>
 
-  @if (paginationTotal > 0 || effectiveShowViewSelector) {
-  <div
-    class="josanz-main-list__footer flex w-full shrink-0 flex-col gap-4 border-t pt-6 md:flex-row md:items-end md:justify-between"
-    [class.josanz-main-list__footer--view-open]="effectiveShowViewSelector && themeService.listViewPanelOpen()"
-    [style.borderColor]="'var(--josanz-border)'"
-  >
-    @if (effectiveShowViewSelector) {
-    <josanz-list-view-selector
-      [label]="viewSelectorLabel"
-      [selected]="themeService.listViewSelection()"
-      [gridColumns]="themeService.listGridColumns()"
-      [showStatusBoard]="showStatusBoardView"
-      (selectionChange)="onViewChange($event)"
-      (gridColumnsChange)="onGridColumnsChange($event)"
-    ></josanz-list-view-selector>
-    } @if (paginationTotal > 0) {
-    <div class="flex justify-center md:ml-auto md:justify-end">
-      <josanz-pagination
-        [current]="effectivePaginationPage"
-        [total]="paginationTotal"
-        [variant]="effectivePaginationVariant"
-        [shape]="shape"
-        [customColor]="customColor"
-        (pageChange)="onPaginationPage($event)"
-      ></josanz-pagination>
-    </div>
-    }
-  </div>
-  }
-</div>
+@if (paginationTotal > 0) {
+   <div
+     class="josanz-main-list__footer flex w-full shrink-0 flex-col gap-4 border-t pt-6 md:flex-row md:items-end md:justify-between"
+     [style.borderColor]="'var(--josanz-border)'"
+   >
+     <div class="flex justify-center md:ml-auto md:justify-end">
+       <josanz-pagination
+         [current]="effectivePaginationPage"
+         [total]="paginationTotal"
+         [variant]="effectivePaginationVariant"
+         [shape]="shape"
+         [customColor]="customColor"
+         (pageChange)="onPaginationPage($event)"
+       ></josanz-pagination>
+     </div>
+   </div>
+   }
+ </div>
