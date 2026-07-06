@@ -6,7 +6,7 @@
 
 <article class="josanz-event-hero josanz-staff-hero">
   <div class="josanz-event-hero__media josanz-event-hero__media--avatar josanz-staff-hero__media">
-    <img [src]="avatarUrl" [alt]="displayName" />
+    <img [src]="avatarUrl" [alt]="displayName" loading="lazy" />
   </div>
   <div class="josanz-event-hero__body josanz-staff-hero__body">
     <div class="josanz-event-hero__title-row">
@@ -32,19 +32,28 @@
 </article>
 
 <section class="josanz-event-section josanz-staff-summary-form">
-  <div class="josanz-staff-summary-form__header" (click)="toggleFormPanel()" role="button" tabindex="0">
+  <div
+    class="josanz-staff-summary-form__header"
+    (click)="toggleFormPanel()"
+    (keydown.enter)="toggleFormPanel()"
+    (keydown.space)="toggleFormPanel()"
+    role="button"
+    tabindex="0"
+    [attr.aria-expanded]="formPanelOpen()"
+  >
     <h3 class="josanz-event-section__title m-0">Datos personales</h3>
-    <svg 
-      width="18" 
-      height="18" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      stroke-width="2" 
-      stroke-linecap="round" 
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
       stroke-linejoin="round"
       class="josanz-staff-form-chevron"
       [class.josanz-staff-form-chevron--open]="formPanelOpen()"
+      aria-hidden="true"
     >
       <path d="M6 9l6 6 6-6"/>
     </svg>
@@ -101,9 +110,10 @@
       formControlName="skills"
     ></josanz-chip-input>
 
-    <label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
+    <label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full" for="bio">
       <span class="josanz-staff-data-grid__label">Bio</span>
       <textarea
+        id="bio"
         rows="4"
         formControlName="bio"
         class="josanz-staff-summary-form__textarea"
@@ -116,19 +126,28 @@
 
 <!-- Perfil y Disponibilidad - desplegable -->
 <section class="josanz-event-section josanz-staff-profile-section">
-  <div class="josanz-staff-profile-header" (click)="toggleProfilePanel()" role="button" tabindex="0">
+  <div
+    class="josanz-staff-profile-header"
+    (click)="toggleProfilePanel()"
+    (keydown.enter)="toggleProfilePanel()"
+    (keydown.space)="toggleProfilePanel()"
+    role="button"
+    tabindex="0"
+    [attr.aria-expanded]="profilePanelOpen()"
+  >
     <h3 class="josanz-event-section__title m-0">Detalles</h3>
-    <svg 
-      width="18" 
-      height="18" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      stroke-width="2" 
-      stroke-linecap="round" 
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
       stroke-linejoin="round"
       class="josanz-staff-profile-chevron"
       [class.josanz-staff-profile-chevron--open]="profilePanelOpen()"
+      aria-hidden="true"
     >
       <path d="M6 9l6 6 6-6"/>
     </svg>

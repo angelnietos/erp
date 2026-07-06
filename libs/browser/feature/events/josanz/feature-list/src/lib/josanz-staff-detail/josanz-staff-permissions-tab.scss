@@ -17,7 +17,7 @@
   gap: 0.75rem 1.25rem;
 }
 
-/* Accordion header styles */
+/* Collapsible headers */
 ::ng-deep .josanz-staff-perm-header {
   display: flex;
   align-items: flex-start;
@@ -30,6 +30,14 @@
 
 ::ng-deep .josanz-staff-perm-header:hover {
   color: var(--josanz-primary, #0f1e2f);
+}
+
+::ng-deep .josanz-staff-perm-header__body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  flex: 1;
 }
 
 ::ng-deep .josanz-staff-perm-chevron {
@@ -60,10 +68,12 @@
   font-size: 14px;
 }
 
+/* Active permissions chips */
 ::ng-deep .josanz-staff-perm-roles {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
+  padding-bottom: 0.25rem;
 }
 
 ::ng-deep .josanz-staff-perm-role {
@@ -80,6 +90,116 @@
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
 }
 
+/* Permission groups */
+::ng-deep .josanz-staff-perm-groups {
+  display: grid;
+  gap: 0.85rem;
+}
+
+::ng-deep .josanz-staff-perm-group__title {
+  margin: 0 0 0.6rem;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--josanz-text-muted);
+}
+
+::ng-deep .josanz-staff-perm-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+::ng-deep .josanz-staff-perm-chips--draft {
+  margin-bottom: 0.25rem;
+}
+
+::ng-deep .josanz-staff-perm-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.32rem 0.8rem;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--josanz-brand, #111) 6%, var(--josanz-surface));
+  border: 1px solid color-mix(in srgb, var(--josanz-brand, #111) 14%, var(--josanz-border));
+  color: var(--josanz-text);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+::ng-deep .josanz-staff-perm-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.14);
+}
+
+::ng-deep .josanz-staff-perm-chip--extra {
+  background: color-mix(in srgb, #2563eb 10%, var(--josanz-surface));
+  border-color: color-mix(in srgb, #2563eb 28%, var(--josanz-border));
+  color: #1e40af;
+}
+
+::ng-deep .josanz-staff-perm-chip--wildcard {
+  background: color-mix(in srgb, var(--josanz-danger) 10%, var(--josanz-surface));
+  border-color: color-mix(in srgb, var(--josanz-danger) 30%, var(--josanz-border));
+  color: var(--josanz-danger);
+}
+
+::ng-deep .josanz-staff-perm-chip--denied {
+  background: color-mix(in srgb, var(--josanz-danger) 8%, var(--josanz-surface));
+  border-color: color-mix(in srgb, var(--josanz-danger) 22%, var(--josanz-border));
+  color: var(--josanz-danger);
+  text-decoration: line-through;
+}
+
+::ng-deep .josanz-staff-perm-chip__remove {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  opacity: 0.8;
+  transition: opacity 0.15s ease;
+}
+
+::ng-deep .josanz-staff-perm-chip__remove:hover {
+  opacity: 1;
+}
+
+/* Add permission row */
+::ng-deep .josanz-staff-perm-add-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+::ng-deep .josanz-staff-perm-add-row__select {
+  min-width: min(100%, 22rem);
+  flex: 1;
+}
+
+::ng-deep .josanz-staff-perm-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 0.25rem;
+}
+
+/* Denied section */
+::ng-deep .josanz-staff-perm-denied {
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--josanz-border);
+}
+
+/* User role badge inside permissions */
+::ng-deep .josanz-user-role-badge {
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.04);
+}
+
+/* Role option cards */
 ::ng-deep .josanz-staff-perm-role-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
@@ -163,110 +283,6 @@
   align-self: flex-start;
   background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 8%, var(--josanz-surface-muted));
   border: 1px solid color-mix(in srgb, var(--josanz-primary, #0f1e2f) 14%, var(--josanz-border));
-}
-
-::ng-deep .josanz-staff-perm-groups {
-  display: grid;
-  gap: 0.85rem;
-}
-
-::ng-deep .josanz-staff-perm-group__title {
-  margin: 0 0 0.6rem;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--josanz-text-muted);
-}
-
-::ng-deep .josanz-staff-perm-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-::ng-deep .josanz-staff-perm-chips--draft {
-  margin-bottom: 0.25rem;
-}
-
-::ng-deep .josanz-staff-perm-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.32rem 0.8rem;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  background: color-mix(in srgb, var(--josanz-brand, #111) 6%, var(--josanz-surface));
-  border: 1px solid color-mix(in srgb, var(--josanz-brand, #111) 14%, var(--josanz-border));
-  color: var(--josanz-text);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-::ng-deep .josanz-staff-perm-chip:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.14);
-}
-
-::ng-deep .josanz-staff-perm-chip--extra {
-  background: color-mix(in srgb, #2563eb 10%, var(--josanz-surface));
-  border-color: color-mix(in srgb, #2563eb 28%, var(--josanz-border));
-  color: #1e40af;
-}
-
-::ng-deep .josanz-staff-perm-chip--wildcard {
-  background: color-mix(in srgb, var(--josanz-danger) 10%, var(--josanz-surface));
-  border-color: color-mix(in srgb, var(--josanz-danger) 30%, var(--josanz-border));
-  color: var(--josanz-danger);
-}
-
-::ng-deep .josanz-staff-perm-chip--denied {
-  background: color-mix(in srgb, var(--josanz-danger) 8%, var(--josanz-surface));
-  border-color: color-mix(in srgb, var(--josanz-danger) 22%, var(--josanz-border));
-  color: var(--josanz-danger);
-  text-decoration: line-through;
-}
-
-::ng-deep .josanz-staff-perm-chip__remove {
-  border: none;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-  padding: 0;
-  opacity: 0.8;
-}
-
-::ng-deep .josanz-staff-perm-chip__remove:hover {
-  opacity: 1;
-}
-
-::ng-deep .josanz-staff-perm-add-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 0.75rem;
-}
-
-::ng-deep .josanz-staff-perm-add-row__select {
-  min-width: min(100%, 22rem);
-  flex: 1;
-}
-
-::ng-deep .josanz-staff-perm-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 0.25rem;
-}
-
-::ng-deep .josanz-staff-perm-denied {
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--josanz-border);
-}
-
-::ng-deep .josanz-user-role-badge {
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 768px) {

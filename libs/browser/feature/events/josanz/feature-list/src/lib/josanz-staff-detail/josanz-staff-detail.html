@@ -20,7 +20,7 @@
   </section>
   }
   } @if (shell.activeTab() === 'Contratos') {
-  <section class="josanz-event-section">
+  <section class="josanz-event-section josanz-staff-detail-list">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Contratos</h3>
       <josanz-secondary-button label="Añadir +" (btnClick)="openContractModal()"></josanz-secondary-button>
@@ -37,7 +37,7 @@
     </div>
   </section>
   } @if (shell.activeTab() === 'Nóminas') {
-  <section class="josanz-event-section">
+  <section class="josanz-event-section josanz-staff-detail-list">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Nóminas</h3>
       <josanz-secondary-button label="Subir +" (btnClick)="openPayrollModal()"></josanz-secondary-button>
@@ -54,7 +54,7 @@
     </div>
   </section>
   } @if (shell.activeTab() === 'Ausencias') {
-  <section class="josanz-event-section">
+  <section class="josanz-event-section josanz-staff-detail-list">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Ausencias</h3>
       <josanz-secondary-button label="Registrar +" (btnClick)="openAbsenceModal()"></josanz-secondary-button>
