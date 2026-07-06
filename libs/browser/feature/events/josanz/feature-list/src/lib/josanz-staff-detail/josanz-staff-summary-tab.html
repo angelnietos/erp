@@ -86,29 +86,33 @@
       formControlName="skills"
     ></josanz-chip-input>
 
-    <label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
-      <span class="josanz-staff-data-grid__label">Bio</span>
-      <textarea
-        rows="4"
-        formControlName="bio"
-        class="josanz-staff-summary-form__textarea"
-        placeholder="Descripción breve del perfil técnico"
-      ></textarea>
-    </label>
+<label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
+       <span class="josanz-staff-data-grid__label">Bio</span>
+       <textarea
+         rows="4"
+         formControlName="bio"
+         class="josanz-staff-summary-form__textarea"
+         placeholder="Descripción breve del perfil técnico"
+       ></textarea>
+     </label>
+   </div>
+ </section>
 
-    <div class="josanz-staff-summary-form__readonly josanz-staff-summary-form__full">
-      <span class="josanz-staff-data-grid__label">Perfil</span>
-      <span class="josanz-staff-data-grid__value">{{ skillsSummary }}</span>
-    </div>
-
-    <div class="josanz-staff-summary-form__readonly">
-      <span class="josanz-staff-data-grid__label">Disponibilidad</span>
-      <span class="josanz-staff-data-grid__value">
-        <span class="josanz-staff-availability">
-          <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
-          Disponible
-        </span>
-      </span>
-    </div>
-  </div>
-</section>
+ <!-- Perfil y Disponibilidad - mejorado -->
+ <section class="josanz-event-section josanz-staff-profile-section">
+   <div class="josanz-staff-profile-grid">
+     <div class="josanz-staff-profile-card">
+       <span class="josanz-staff-profile-card__label">Perfil</span>
+       <span class="josanz-staff-profile-card__value">{{ skillsSummary }}</span>
+     </div>
+     <div class="josanz-staff-profile-card">
+       <span class="josanz-staff-profile-card__label">Disponibilidad</span>
+       <span class="josanz-staff-profile-card__value">
+         <span class="josanz-staff-availability">
+           <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
+           Disponible
+         </span>
+       </span>
+     </div>
+   </div>
+ </section>

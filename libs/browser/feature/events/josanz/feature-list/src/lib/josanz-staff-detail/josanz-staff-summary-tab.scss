@@ -61,3 +61,55 @@
     gap: 1rem 0;
   }
 }
+
+/* Perfil y Disponibilidad cards */
+.josanz-staff-profile-section {
+  padding: 1rem 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.josanz-staff-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .josanz-staff-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.josanz-staff-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--josanz-border);
+  background: var(--josanz-surface);
+  transition: 
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.josanz-staff-profile-card:hover {
+  border-color: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 25%, var(--josanz-border));
+  background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 3%, var(--josanz-surface));
+  box-shadow: 0 4px 12px -6px rgba(0, 0, 0, 0.08);
+}
+
+.josanz-staff-profile-card__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--josanz-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.josanz-staff-profile-card__value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--josanz-text);
+}
