@@ -28,111 +28,115 @@
   [sortPanelOpen]="showSortPanel"
   [sortActive]="hasActiveSort"
 >
-  @if (showFiltrosPanel && filtersUseInlinePanel) {
-  <div
-    catalog-filters
-    class="josanz-catalog-filters-panel josanz-catalog-filters-panel--inline"
-    role="region"
-    aria-label="Filtros"
-  >
-    <ng-container *ngTemplateOutlet="catalogFiltersPanel; context: { compact: true }"></ng-container>
-  </div>
-  }
-
-  @if (activeFilterChips.length > 0 || hasActiveSort) {
-  <div
-    active-filter-chips
-    class="josanz-catalog-active-filters"
-    role="group"
-    aria-label="Filtros y orden activos"
-  >
-    @if (hasActiveSort && activeSortLabel) {
-      <span class="josanz-catalog-active-filters__chip">
-        <span class="josanz-catalog-active-filters__label">Orden:</span>
-        <span class="josanz-catalog-active-filters__value">{{ activeSortLabel }} {{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
-        <button
-          type="button"
-          class="josanz-catalog-active-filters__remove"
-          aria-label="Quitar ordenación"
-          (click)="clearSort()"
-        >
-          &times;
-        </button>
-      </span>
-    }
-    @for (filter of activeFilterChips; track filter.key) {
-      <span class="josanz-catalog-active-filters__chip">
-        <span class="josanz-catalog-active-filters__label">{{ filter.label }}:</span>
-        <span class="josanz-catalog-active-filters__value">{{ filter.value }}</span>
-        <button
-          type="button"
-          class="josanz-catalog-active-filters__remove"
-          [attr.aria-label]="'Quitar filtro ' + filter.label"
-          (click)="removeFilterChip(filter)"
-        >
-          &times;
-        </button>
-      </span>
-    }
-    <button
-      type="button"
-      class="josanz-catalog-active-filters__clear"
-      (click)="clearAllActiveChips()"
-    >
-      Borrar todos
-    </button>
-  </div>
-  }
-
-  @if (showExtraFilters) {
-  <div extra-filters class="josanz-catalog-extra-filters">
-    @if (features.statusSummary) {
+  <ng-template catalog-filters>
+    @if (showFiltrosPanel && filtersUseInlinePanel) {
     <div
-      class="josanz-catalog-summary"
-      role="group"
-      aria-label="Resumen por estado"
+      class="josanz-catalog-filters-panel josanz-catalog-filters-panel--inline"
+      role="region"
+      aria-label="Filtros"
     >
-      @for (stat of summaryStats; track stat.label) {
-      <span class="josanz-catalog-summary__item" [class.josanz-catalog-summary__item--active]="stat.label === 'Total'">
-        {{ stat.label }}
-        <strong>{{ stat.count }}</strong>
-      </span>
-      }
+      <ng-container *ngTemplateOutlet="catalogFiltersPanel; context: { compact: true }"></ng-container>
     </div>
     }
+  </ng-template>
 
-    @if (features.advancedFilters || features.statusFilters) {
-    <div class="josanz-catalog-filters-row">
-      @if (features.advancedFilters) {
-      <josanz-secondary-button
-        label="De X a X"
-        class="josanz-catalog-filter-chip"
-      ></josanz-secondary-button>
-      <josanz-secondary-button
-        label="Proveedores"
-        class="josanz-catalog-filter-chip"
-      ></josanz-secondary-button>
-      <josanz-secondary-button
-        label="Staff"
-        class="josanz-catalog-filter-chip"
-      ></josanz-secondary-button>
-      <span
-        class="josanz-catalog-filters-row__divider"
-        aria-hidden="true"
-      ></span>
+  <ng-template active-filter-chips>
+    @if (activeFilterChips.length > 0 || hasActiveSort) {
+    <div
+      class="josanz-catalog-active-filters"
+      role="group"
+      aria-label="Filtros y orden activos"
+    >
+      @if (hasActiveSort && activeSortLabel) {
+        <span class="josanz-catalog-active-filters__chip">
+          <span class="josanz-catalog-active-filters__label">Orden:</span>
+          <span class="josanz-catalog-active-filters__value">{{ activeSortLabel }} {{ sortDirection === 'asc' ? '↑' : '↓' }}</span>
+          <button
+            type="button"
+            class="josanz-catalog-active-filters__remove"
+            aria-label="Quitar ordenación"
+            (click)="clearSort()"
+          >
+            &times;
+          </button>
+        </span>
       }
-      @if (features.statusFilters) {
-      <josanz-filter-tabs
-        class="josanz-catalog-status-tabs"
-        [options]="statusFilterOptions"
-        [selected]="selectedStatusFilter"
-        (selectionChange)="onStatusFilter($event)"
-      ></josanz-filter-tabs>
+      @for (filter of activeFilterChips; track filter.key) {
+        <span class="josanz-catalog-active-filters__chip">
+          <span class="josanz-catalog-active-filters__label">{{ filter.label }}:</span>
+          <span class="josanz-catalog-active-filters__value">{{ filter.value }}</span>
+          <button
+            type="button"
+            class="josanz-catalog-active-filters__remove"
+            [attr.aria-label]="'Quitar filtro ' + filter.label"
+            (click)="removeFilterChip(filter)"
+          >
+            &times;
+          </button>
+        </span>
+      }
+      <button
+        type="button"
+        class="josanz-catalog-active-filters__clear"
+        (click)="clearAllActiveChips()"
+      >
+        Borrar todos
+      </button>
+    </div>
+    }
+  </ng-template>
+
+  <ng-template extra-filters>
+    @if (showExtraFilters) {
+    <div class="josanz-catalog-extra-filters">
+      @if (features.statusSummary) {
+      <div
+        class="josanz-catalog-summary"
+        role="group"
+        aria-label="Resumen por estado"
+      >
+        @for (stat of summaryStats; track stat.label) {
+        <span class="josanz-catalog-summary__item" [class.josanz-catalog-summary__item--active]="stat.label === 'Total'">
+          {{ stat.label }}
+          <strong>{{ stat.count }}</strong>
+        </span>
+        }
+      </div>
+      }
+
+      @if (features.advancedFilters || features.statusFilters) {
+      <div class="josanz-catalog-filters-row">
+        @if (features.advancedFilters) {
+        <josanz-secondary-button
+          label="De X a X"
+          class="josanz-catalog-filter-chip"
+        ></josanz-secondary-button>
+        <josanz-secondary-button
+          label="Proveedores"
+          class="josanz-catalog-filter-chip"
+        ></josanz-secondary-button>
+        <josanz-secondary-button
+          label="Staff"
+          class="josanz-catalog-filter-chip"
+        ></josanz-secondary-button>
+        <span
+          class="josanz-catalog-filters-row__divider"
+          aria-hidden="true"
+        ></span>
+        }
+        @if (features.statusFilters) {
+        <josanz-filter-tabs
+          class="josanz-catalog-status-tabs"
+          [options]="statusFilterOptions"
+          [selected]="selectedStatusFilter"
+          (selectionChange)="onStatusFilter($event)"
+        ></josanz-filter-tabs>
+        }
+      </div>
       }
     </div>
     }
-  </div>
-  }
+  </ng-template>
 
   @if (showColumnHeader) {
   <josanz-list-template-header-row
