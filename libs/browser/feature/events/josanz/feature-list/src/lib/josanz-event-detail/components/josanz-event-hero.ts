@@ -12,29 +12,34 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
   template: `
     <article class="josanz-event-hero" [formGroup]="form">
       <div class="josanz-event-hero__media josanz-event-hero__media--logo">
-        <img [src]="state.heroImage" alt="" />
+        <img [src]="state.heroImage" alt="" loading="lazy" />
       </div>
       <div class="josanz-event-hero__body">
-        <h2 class="josanz-event-hero__typology">Evento: {{ typologyLabel }}</h2>
+        <div class="josanz-event-hero__title-row">
+          <h2 class="josanz-event-hero__typology">Evento: {{ typologyLabel }}</h2>
+          @if (hasDescription || state.isComposerOpen('hero-details')) {
+          <span class="josanz-event-hero__badge">Editando</span>
+          }
+        </div>
 
         <div class="josanz-event-hero__meta-grid">
           <p>
-            <span class="josanz-event-hero__meta-label">Fecha:</span>
-            <span class="josanz-event-hero__meta-value">{{ meta.date }}</span>
+            <span class="josanz-event-hero__meta-label">Fecha</span>
+            <span class="josanz-event-hero__meta-value">{{ meta.date || '—' }}</span>
           </p>
           <p>
-            <span class="josanz-event-hero__meta-label">Operador:</span>
-            <span class="josanz-event-hero__meta-value">{{ meta.operator }}</span>
+            <span class="josanz-event-hero__meta-label">Operador</span>
+            <span class="josanz-event-hero__meta-value">{{ meta.operator || '—' }}</span>
           </p>
           <p>
-            <span class="josanz-event-hero__meta-label">Lugar:</span>
-            <span class="josanz-event-hero__meta-value">{{ meta.location }}</span>
+            <span class="josanz-event-hero__meta-label">Lugar</span>
+            <span class="josanz-event-hero__meta-value">{{ meta.location || '—' }}</span>
           </p>
         </div>
 
         @if (state.isComposerOpen('hero-details')) {
         <div class="josanz-event-hero__details">
-          <div class="josanz-event-create__type-row josanz-event-detail__type-row" role="group" aria-label="Tipo de evento">
+          <div class="josanz-event-detail__type-row" role="group" aria-label="Tipo de evento">
             @for (type of eventTypes; track type) {
             <button
               type="button"

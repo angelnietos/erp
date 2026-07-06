@@ -65,6 +65,7 @@ import { canUserDeleteEvent } from '../utils/event-delete-access';
   ],
   providers: [JosanzEventDetailState],
   templateUrl: './josanz-event-detail.html',
+  styleUrl: './josanz-event-detail.scss',
 })
 export class JosanzEventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);

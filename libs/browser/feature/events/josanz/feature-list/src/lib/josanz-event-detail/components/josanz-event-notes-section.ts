@@ -12,7 +12,12 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
       class="josanz-event-section"
       [class.josanz-event-section--figma-empty]="state.notesFor(kind).length === 0 && !state.isComposerOpen(composerId)"
     >
-      <h3 class="josanz-event-section__title">{{ title }}</h3>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">{{ title }}</h3>
+        @if (state.notesFor(kind).length > 0) {
+        <span class="josanz-event-documents-count">{{ state.notesFor(kind).length }} nota(s)</span>
+        }
+      </div>
 
       @for (note of state.notesFor(kind); track note.id) {
         @if (state.editingNoteId() === note.id) {
@@ -22,6 +27,7 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
             class="josanz-event-note-composer__input"
             [(ngModel)]="state.editingNoteText"
             (keydown.enter)="state.saveNote(kind, note.id)"
+            placeholder="Editar nota…"
           />
           <div class="josanz-event-note-composer__footer">
             <button type="button" class="josanz-event-note-composer__cancel" (click)="state.cancelEditNote()">
@@ -35,12 +41,12 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
           <span class="josanz-event-note-row__text">{{ note.text }}</span>
           <div class="josanz-event-note-row__actions">
             <button type="button" class="josanz-event-icon-btn" aria-label="Editar nota" (click)="state.startEditNote(note)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
               </svg>
             </button>
             <button type="button" class="josanz-event-icon-btn josanz-event-icon-btn--danger" aria-label="Eliminar nota" (click)="state.removeNote(kind, note.id)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                 <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
               </svg>
             </button>
@@ -65,16 +71,10 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
           <josanz-button label="Añadir +" size="sm" [showIcon]="false" (btnClick)="state.addNote(kind)"></josanz-button>
         </div>
       </div>
-      } @else if (state.notesFor(kind).length > 0) {
-      <div class="josanz-event-section__add">
-        <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer(composerId)">
-          Añadir +
-        </button>
-      </div>
       } @else {
       <div class="josanz-event-section__empty-action">
         <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer(composerId)">
-          Añadir +
+          + Añadir nota
         </button>
       </div>
       }

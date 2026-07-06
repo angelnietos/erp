@@ -13,33 +13,32 @@ import type { EventUploadTarget } from '../josanz-event-detail.types';
       [class.josanz-event-section--figma-empty]="files().length === 0"
       [class.josanz-event-section--inspiration]="uploadTarget === 'inspiration'"
     >
-      <h3 class="josanz-event-section__title">{{ title }}</h3>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">{{ title }}</h3>
+        @if (files().length > 0) {
+        <span class="josanz-event-documents-count">{{ files().length }} documento(s)</span>
+        }
+      </div>
 
       @for (file of files(); track file.id) {
-      <josanz-document-item
-        [name]="file.name"
-        [showView]="true"
-        [showDownload]="true"
-        [showDelete]="true"
-        (view)="state.openFile(file)"
-        (download)="state.downloadFile(file)"
-        (delete)="state.removeFile(uploadTarget, file.id)"
-      ></josanz-document-item>
+      <div class="josanz-event-document-item">
+        <josanz-document-item
+          [name]="file.name"
+          [showView]="true"
+          [showDownload]="true"
+          [showDelete]="true"
+          (view)="state.openFile(file)"
+          (download)="state.downloadFile(file)"
+          (delete)="state.removeFile(uploadTarget, file.id)"
+        ></josanz-document-item>
+      </div>
       }
 
-      @if (files().length > 0) {
       <div class="josanz-event-section__add">
         <button type="button" class="josanz-event-figma-add-btn" (click)="state.openUploadModal(uploadTarget)">
-          Añadir +
+          + Subir documento
         </button>
       </div>
-      } @else {
-      <div class="josanz-event-section__empty-action">
-        <button type="button" class="josanz-event-figma-add-btn" (click)="state.openUploadModal(uploadTarget)">
-          Añadir +
-        </button>
-      </div>
-      }
     </section>
   `,
 })

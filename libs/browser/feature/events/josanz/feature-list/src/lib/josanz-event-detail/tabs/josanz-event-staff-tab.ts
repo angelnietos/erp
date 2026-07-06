@@ -9,14 +9,24 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
   imports: [CommonModule, SelectComponent],
   template: `
     <section class="josanz-event-section">
-      <h3 class="josanz-event-section__title">Staff</h3>
+      <div class="josanz-event-section-header">
+        <h3 class="josanz-event-section__title m-0">Staff</h3>
+        @if (state.staffMembers().length > 0) {
+        <span class="josanz-event-staff-count">{{ state.staffMembers().length }} miembro(s)</span>
+        }
+      </div>
 
       <div class="josanz-event-staff-grid">
         @for (member of state.staffMembers(); track member.id) {
         <article class="josanz-event-staff-card">
           <div class="josanz-event-staff-card__info">
-            <strong>{{ member.name }}</strong>
-            <span class="josanz-event-staff-card__tag" [ngStyle]="state.pillStyle(member.pillKey)">{{ member.tag }}</span>
+            <div class="josanz-event-staff-card__avatar">
+              <span>{{ member.name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="josanz-event-staff-card__copy">
+              <strong>{{ member.name }}</strong>
+              <span class="josanz-event-staff-card__tag" [ngStyle]="state.pillStyle(member.pillKey)">{{ member.tag }}</span>
+            </div>
           </div>
           <div class="josanz-event-staff-card__actions">
             <button type="button" class="josanz-event-icon-btn" aria-label="Editar miembro" (click)="state.openStaffPicker(member.id)">
@@ -47,7 +57,7 @@ import { JosanzEventDetailState } from '../josanz-event-detail.state';
         } @else {
         <article class="josanz-event-staff-card josanz-event-staff-card--add">
           <button type="button" class="josanz-event-figma-add-btn" (click)="state.toggleComposer('staff-picker')">
-            Añadir +
+            + Añadir miembro
           </button>
         </article>
         }
