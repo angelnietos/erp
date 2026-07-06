@@ -20,80 +20,35 @@ Each domain becomes its own feature-list library, mirroring how `stock`, `budget
 ```
 libs/browser/feature/events/josanz/
   data-access/
-    project.json          # name: josanz-events-data-access, prefix: lib
-    tsconfig.lib.json
-    tsconfig.spec.json
-    tsconfig.json
-    jest.config.cts
-    eslint.config.mjs
-    src/
-      index.ts
-      lib/
-        josanz-event-api.service.ts      # entire current services folder
-        josanz-events.facade.ts          # entire facade
-        josanz-figma-create-configs.ts   # FIGMA_CREATE_* configs from create-configs.ts
-  figma-create-page/                    # (optional) shared create-page component
-    project.json
-    ...
-    src/
-      index.ts
-      lib/
-        josanz-figma-create-page.component.ts
-        josanz-figma-create-page.component.html
+  figma-create-page/
   feature-list/                         # existing monolith repo, will be evacuated
-    (removed after split)
-  feature-lists/
-    events/
-      project.json          # name: josanz-events-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          events-feature-list/
-          josanz-event-create/
-          josanz-event-detail/
-          lib.routes.ts     # internal relative routes for the feature-list own tests/demos
-    equipment/
-      project.json          # name: josanz-equipment-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          josanz-equipment-list/
-          josanz-equipment-detail/
-          lib.routes.ts
-    vehicles/
-      project.json          # name: josanz-vehicles-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          josanz-vehicles-list/
-          josanz-vehicles-detail/
-          lib.routes.ts
-    staff/
-      project.json          # name: josanz-staff-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          josanz-staff-list/
-          josanz-staff-detail/
-          lib.routes.ts
-    billing/
-      project.json          # name: josanz-billing-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          josanz-billing-list/
-          josanz-billing-detail/
-          lib.routes.ts
-    catalog/
-      project.json          # name: josanz-catalog-feature-list, prefix: lib
-      src/
-        index.ts
-        lib/
-          josanz-catalog/
-          lib.routes.ts
-  shell/               # keep existing location, only lib.routes.ts content changes
-    project.json
-    src/lib/lib.routes.ts
+  shell/
+libs/browser/feature/equipment/josanz/
+  feature-list/
+libs/browser/feature/vehicles/josanz/
+  feature-list/
+libs/browser/feature/staff/josanz/
+  feature-list/
+libs/browser/feature/billing/josanz/
+  feature-list/
+libs/browser/feature/catalog/josanz/
+  feature-list/
+```
+
+Where each `feature-list/` contains:
+
+```
+  project.json
+  tsconfig.json / tsconfig.lib.json / tsconfig.spec.json
+  jest.config.cts
+  eslint.config.mjs
+  src/
+    index.ts
+    test-setup.ts
+    lib/
+      <domain>-list/           # e.g. josanz-equipment-list/
+      <domain>-detail/         # e.g. josanz-equipment-detail/
+      lib.routes.ts            # internal relative lazy routes for tests/demos
 ```
 
 ## data-access lib contents (from current services/)
@@ -144,12 +99,12 @@ with:
 
 ```json
 "@josanz-erp/josanz-events-data-access": ["libs/browser/feature/events/josanz/data-access/src/index.ts"],
-"@josanz-erp/josanz-events-feature-list": ["libs/browser/feature/events/josanz/feature-lists/events/src/index.ts"],
-"@josanz-erp/josanz-equipment-feature-list": ["libs/browser/feature/events/josanz/feature-lists/equipment/src/index.ts"],
-"@josanz-erp/josanz-vehicles-feature-list": ["libs/browser/feature/events/josanz/feature-lists/vehicles/src/index.ts"],
-"@josanz-erp/josanz-staff-feature-list": ["libs/browser/feature/events/josanz/feature-lists/staff/src/index.ts"],
-"@josanz-erp/josanz-billing-feature-list": ["libs/browser/feature/events/josanz/feature-lists/billing/src/index.ts"],
-"@josanz-erp/josanz-catalog-feature-list": ["libs/browser/feature/events/josanz/feature-lists/catalog/src/index.ts"],
+"@josanz-erp/josanz-events-feature-list": ["libs/browser/feature/events/josanz/feature-list/src/index.ts"],
+"@josanz-erp/josanz-equipment-feature-list": ["libs/browser/feature/equipment/josanz/feature-list/src/index.ts"],
+"@josanz-erp/josanz-vehicles-feature-list": ["libs/browser/feature/vehicles/josanz/feature-list/src/index.ts"],
+"@josanz-erp/josanz-staff-feature-list": ["libs/browser/feature/staff/josanz/feature-list/src/index.ts"],
+"@josanz-erp/josanz-billing-feature-list": ["libs/browser/feature/billing/josanz/feature-list/src/index.ts"],
+"@josanz-erp/josanz-catalog-feature-list": ["libs/browser/feature/catalog/josanz/feature-list/src/index.ts"],
 "@josanz-erp/josanz-events-figma-create-page": ["libs/browser/feature/events/josanz/figma-create-page/src/index.ts"]
 ```
 
