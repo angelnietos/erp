@@ -1,11 +1,17 @@
 .josanz-user-avatar--superadmin {
   box-shadow:
-    0 0 0 2px color-mix(in srgb, #fbbf24 45%, transparent),
-    0 4px 14px color-mix(in srgb, #f59e0b 35%, transparent);
+    0 0 0 2px color-mix(in srgb, #a855f7 45%, transparent),
+    0 4px 14px color-mix(in srgb, #7c3aed 35%, transparent);
 }
 
 .josanz-user-avatar--admin {
   box-shadow:
-    0 0 0 2px color-mix(in srgb, #3b82f6 35%, transparent),
-    0 4px 14px color-mix(in srgb, #0f1e2f 25%, transparent);
+    0 0 0 2px color-mix(in srgb, #06b6d4 35%, transparent),
+    0 4px 14px color-mix(in srgb, #0d9488 25%, transparent);
+}
+
+.josanz-user-avatar--manager {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, #10b981 35%, transparent),
+    0 4px 14px color-mix(in srgb, #059669 25%, transparent);
 }

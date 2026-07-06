@@ -28,7 +28,8 @@
         fill="currentColor"
         aria-hidden="true"
       >
-        <path d="M12 2l3.1 5h5.6l-4.5 4.4 1.7 5.5-5-2.6-5 2.6 1.7-5.5-4.5-4.4h5.6L12 2z" />
+        <path d="M12 2l2.9 5.7 6.1.8-4.5 4.5.7 5.5-5-2.6-5 2.6.7-5.5-4.5-4.5 5.5.8L9.1 7.7 12 2z" />
+        <path d="M8.5 18h7" stroke="currentColor" stroke-width="1.2" fill="none" />
       </svg>
     }
     @case ('admin') {
@@ -39,9 +40,44 @@
         fill="currentColor"
         aria-hidden="true"
       >
-        <path d="M12 2l2.8 3.2V7c0 3.3-2.7 6.7-6 8l-.5.2V12" />
-        <path d="M12 2l-2.8 3.2V7c0 3.3 2.7 6.7 6 8l.5.2V12" />
-        <path d="M8 13.5l2 2 4-4" />
+        <path d="M12 2l2.7 3.2V7c0 3.3-2.7 6.7-5.5 8l-.5.2V12" />
+        <path d="M12 2l-2.7 3.2V7c0 3.3 2.7 6.7 5.5 8l.5.2V12" />
+        <path d="M9 13.5l2 2 3-3" stroke="currentColor" stroke-width="1.2" fill="none" />
+      </svg>
+    }
+    @case ('manager') {
+      <svg
+        [attr.width]="iconSize()"
+        [attr.height]="iconSize()"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 9l9 9 9-9" />
+        <path d="M5 11l7 7 7-7" />
+      </svg>
+    }
+    @case ('operator') {
+      <svg
+        [attr.width]="iconSize()"
+        [attr.height]="iconSize()"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M14.7 6.7a5 5 0 1 0-7.4 7.4" />
+        <path d="M12 2v2" />
+        <path d="M12 20v2" />
+        <path d="M2 12h2" />
+        <path d="M20 12h2" />
       </svg>
     }
     @default {

@@ -74,6 +74,20 @@ export class UserAvatarComponent {
         color: '#ffffff',
       };
     }
+    if (tier === 'manager') {
+      return {
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
+        borderColor: '#10b981',
+        color: '#ffffff',
+      };
+    }
+    if (tier === 'operator') {
+      return {
+        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
+        borderColor: '#8b5cf6',
+        color: '#ffffff',
+      };
+    }
 
     const t = this.themeService.currentTheme();
     if (this.customColor) {
@@ -90,11 +104,8 @@ export class UserAvatarComponent {
 
   iconTone(): string {
     const tier = this.effectiveRoleBadge();
-    if (tier === 'superadmin') {
-      return '#7c4a03';
-    }
-    if (tier === 'admin') {
-      return '#dbeafe';
+    if (tier === 'superadmin' || tier === 'admin' || tier === 'manager' || tier === 'operator') {
+      return '#ffffff';
     }
     return this.customColor ?? this.themeService.currentTheme().atmosphere.textMuted;
   }
