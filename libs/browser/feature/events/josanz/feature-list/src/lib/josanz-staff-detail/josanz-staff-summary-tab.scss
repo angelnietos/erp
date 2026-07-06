@@ -68,10 +68,33 @@
   margin-top: 0.5rem;
 }
 
+.josanz-staff-profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.josanz-staff-profile-header:hover {
+  color: var(--josanz-primary, #0f1e2f);
+}
+
+.josanz-staff-profile-chevron {
+  transition: transform 0.2s ease;
+}
+
+.josanz-staff-profile-chevron--open {
+  transform: rotate(180deg);
+}
+
 .josanz-staff-profile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
+  padding-top: 0.5rem;
 }
 
 @media (max-width: 768px) {

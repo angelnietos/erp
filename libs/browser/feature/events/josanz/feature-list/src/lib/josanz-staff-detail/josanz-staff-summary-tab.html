@@ -86,33 +86,52 @@
       formControlName="skills"
     ></josanz-chip-input>
 
-<label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
-       <span class="josanz-staff-data-grid__label">Bio</span>
-       <textarea
-         rows="4"
-         formControlName="bio"
-         class="josanz-staff-summary-form__textarea"
-         placeholder="Descripción breve del perfil técnico"
-       ></textarea>
-     </label>
-   </div>
- </section>
+    <label class="josanz-staff-summary-form__textarea-field josanz-staff-summary-form__full">
+      <span class="josanz-staff-data-grid__label">Bio</span>
+      <textarea
+        rows="4"
+        formControlName="bio"
+        class="josanz-staff-summary-form__textarea"
+        placeholder="Descripción breve del perfil técnico"
+      ></textarea>
+    </label>
+  </div>
+</section>
 
- <!-- Perfil y Disponibilidad - mejorado -->
- <section class="josanz-event-section josanz-staff-profile-section">
-   <div class="josanz-staff-profile-grid">
-     <div class="josanz-staff-profile-card">
-       <span class="josanz-staff-profile-card__label">Perfil</span>
-       <span class="josanz-staff-profile-card__value">{{ skillsSummary }}</span>
-     </div>
-     <div class="josanz-staff-profile-card">
-       <span class="josanz-staff-profile-card__label">Disponibilidad</span>
-       <span class="josanz-staff-profile-card__value">
-         <span class="josanz-staff-availability">
-           <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
-           Disponible
-         </span>
-       </span>
-     </div>
-   </div>
- </section>
+<!-- Perfil y Disponibilidad - desplegable -->
+<section class="josanz-event-section josanz-staff-profile-section">
+  <div class="josanz-staff-profile-header" (click)="toggleProfilePanel()" role="button" tabindex="0">
+    <h3 class="josanz-event-section__title m-0">Detalles</h3>
+    <svg 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      class="josanz-staff-profile-chevron"
+      [class.josanz-staff-profile-chevron--open]="profilePanelOpen()"
+    >
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+  @if (profilePanelOpen()) {
+  <div class="josanz-staff-profile-grid">
+    <div class="josanz-staff-profile-card">
+      <span class="josanz-staff-profile-card__label">Perfil</span>
+      <span class="josanz-staff-profile-card__value">{{ skillsSummary }}</span>
+    </div>
+    <div class="josanz-staff-profile-card">
+      <span class="josanz-staff-profile-card__label">Disponibilidad</span>
+      <span class="josanz-staff-profile-card__value">
+        <span class="josanz-staff-availability">
+          <span class="josanz-staff-availability__dot" aria-hidden="true"></span>
+          Disponible
+        </span>
+      </span>
+    </div>
+  </div>
+  }
+</section>

@@ -72,6 +72,7 @@ export class JosanzStaffSummaryTabComponent implements OnChanges {
   readonly saving = signal(false);
   readonly showToast = signal(false);
   readonly error = signal('');
+  readonly profilePanelOpen = signal(true);
 
   readonly statusOptions: JosanzSelectOption[] = [
     { label: 'Técnico', value: 'ACTIVE' },
@@ -177,6 +178,10 @@ export class JosanzStaffSummaryTabComponent implements OnChanges {
 
   dismissToast(): void {
     this.showToast.set(false);
+  }
+
+  toggleProfilePanel(): void {
+    this.profilePanelOpen.update(open => !open);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {
