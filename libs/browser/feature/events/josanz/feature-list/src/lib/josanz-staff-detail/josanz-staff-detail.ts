@@ -18,6 +18,8 @@ import {
 } from '../josanz-staff/josanz-staff.mapper';
 import { JosanzStaffPermissionsTabComponent } from './josanz-staff-permissions-tab';
 import { JosanzStaffSummaryTabComponent } from './josanz-staff-summary-tab';
+import { JosanzDocumentUploadModalComponent, JosanzDocumentUploadData } from './josanz-document-upload-modal';
+import { JosanzAbsenceRegisterModalComponent, JosanzAbsenceFormData } from './josanz-absence-register-modal';
 
 @Component({
   selector: 'josanz-staff-detail',
@@ -29,6 +31,8 @@ import { JosanzStaffSummaryTabComponent } from './josanz-staff-summary-tab';
     DocumentItemComponent,
     JosanzStaffPermissionsTabComponent,
     JosanzStaffSummaryTabComponent,
+    JosanzDocumentUploadModalComponent,
+    JosanzAbsenceRegisterModalComponent,
   ],
   templateUrl: './josanz-staff-detail.html',
   styleUrl: './josanz-staff-detail.scss',
@@ -43,6 +47,10 @@ export class JosanzStaffDetailComponent implements OnInit {
   readonly technician = signal<JosanzTechnicianListItem | null>(null);
   readonly displayIndex = signal(0);
   readonly loading = signal(true);
+
+  readonly showContractModal = signal(false);
+  readonly showPayrollModal = signal(false);
+  readonly showAbsenceModal = signal(false);
 
   readonly isOwnProfile = computed(() => {
     const tech = this.technician();
@@ -120,6 +128,33 @@ export class JosanzStaffDetailComponent implements OnInit {
 
   onStaffSaved(updated: JosanzTechnicianListItem): void {
     this.technician.set(updated);
+  }
+
+  openContractModal(): void {
+    this.showContractModal.set(true);
+  }
+
+  openPayrollModal(): void {
+    this.showPayrollModal.set(true);
+  }
+
+  openAbsenceModal(): void {
+    this.showAbsenceModal.set(true);
+  }
+
+  onContractUploaded(data: JosanzDocumentUploadData): void {
+    console.log('Contract uploaded:', data);
+    this.showContractModal.set(false);
+  }
+
+  onPayrollUploaded(data: JosanzDocumentUploadData): void {
+    console.log('Payroll uploaded:', data);
+    this.showPayrollModal.set(false);
+  }
+
+  onAbsenceRegistered(data: JosanzAbsenceFormData): void {
+    console.log('Absence registered:', data);
+    this.showAbsenceModal.set(false);
   }
 
   pillStyle(key: JosanzStatusPillKey): Record<string, string> {

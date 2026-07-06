@@ -23,7 +23,7 @@
   <section class="josanz-event-section">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Contratos</h3>
-      <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
+      <josanz-secondary-button label="Añadir +" (btnClick)="openContractModal()"></josanz-secondary-button>
     </div>
     <div class="josanz-doc-list">
       @for (file of contractFiles; track file) {
@@ -40,7 +40,7 @@
   <section class="josanz-event-section">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Nóminas</h3>
-      <josanz-secondary-button label="Subir +"></josanz-secondary-button>
+      <josanz-secondary-button label="Subir +" (btnClick)="openPayrollModal()"></josanz-secondary-button>
     </div>
     <div class="josanz-doc-list">
       @for (file of payrollFiles; track file) {
@@ -57,7 +57,7 @@
   <section class="josanz-event-section">
     <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Ausencias</h3>
-      <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
+      <josanz-secondary-button label="Registrar +" (btnClick)="openAbsenceModal()"></josanz-secondary-button>
     </div>
     <div class="josanz-absence-list">
       @for (item of absences; track item.id) {
@@ -73,3 +73,28 @@
   </section>
   }
 </josanz-figma-detail-shell>
+
+<!-- Modales -->
+<josanz-document-upload-modal
+  [open]="showContractModal()"
+  title="Añadir contrato"
+  description="Selecciona el archivo del contrato y añade una descripción opcional."
+  confirmLabel="Añadir contrato"
+  (openChange)="showContractModal.set($event)"
+  (saved)="onContractUploaded($event)"
+/>
+
+<josanz-document-upload-modal
+  [open]="showPayrollModal()"
+  title="Subir nómina"
+  description="Selecciona el archivo de la nómina del técnico."
+  confirmLabel="Subir nómina"
+  (openChange)="showPayrollModal.set($event)"
+  (saved)="onPayrollUploaded($event)"
+/>
+
+<josanz-absence-register-modal
+  [open]="showAbsenceModal()"
+  (openChange)="showAbsenceModal.set($event)"
+  (saved)="onAbsenceRegistered($event)"
+/>
