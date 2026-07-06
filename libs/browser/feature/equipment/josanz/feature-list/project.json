@@ -4,7 +4,7 @@
   "sourceRoot": "libs/browser/feature/equipment/josanz/feature-list/src",
   "prefix": "josanz",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:feature"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
