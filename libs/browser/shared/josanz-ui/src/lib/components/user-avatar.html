@@ -21,168 +21,171 @@
 <ng-template #avatarIcon>
   @switch (effectiveRoleBadge()) {
     @case ('superadmin') {
-      <!-- Rayman-inspired magical wizard character with floating elements -->
+      <!-- Rayman-inspired magical wizard with mystical hat and floating hands -->
       <svg
         [attr.width]="iconSize()"
         [attr.height]="iconSize()"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
       >
-        <!-- Head/face -->
-        <circle cx="12" cy="8" r="4" />
-        <!-- Eyes -->
-        <circle cx="10" cy="7" r="1" />
-        <circle cx="14" cy="7" r="1" />
-        <!-- Smile -->
-        <path d="M10 10 q2 2 4 0" />
-        <!-- Floating magical hands (Rayman style) -->
-        <path d="M4 12 c4 -4 8 -4 12 0" />
-        <path d="M4 16 c4 4 8 4 12 0" />
-        <!-- Magic sparkles -->
-        <path d="M2 8 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0" />
-        <path d="M22 16 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0" />
-        <!-- Floating orb/scepter -->
-        <circle cx="12" cy="18" r="2" />
+        <!-- Mystical pointed hat -->
+        <path d="M8 6 h8 v2 h-2 c0-1-1-2-2-2s-2 1-2 2h-2z" />
+        <path d="M11 5 l1 2" />
+        <!-- Face -->
+        <circle cx="12" cy="12" r="4" />
+        <!-- Magical glowing eyes -->
+        <circle cx="10" cy="11" r="1.2" fill="currentColor" />
+        <circle cx="14" cy="11" r="1.2" fill="currentColor" />
+        <!-- Spellcaster smile -->
+        <path d="M10 14 q2 1 4 0" />
+        <!-- Floating magical hands (Rayman style - no arms) -->
+        <path d="M4 10 c3-2 5 1 8 0" />
+        <path d="M12 10 c3-1 5 2 8 0" />
+        <path d="M3 14 c2-1 4 1 6 0" />
+        <path d="M15 14 c2-1 4 1 6 0" />
+        <!-- Power orb -->
+        <circle cx="12" cy="19" r="1.5" />
+        <path d="M10 19 h4" />
       </svg>
     }
     @case ('admin') {
-      <!-- Nintendo-inspired captain/admiral character -->
+      <!-- Nintendo-inspired heroic captain with tricorn hat -->
       <svg
         [attr.width]="iconSize()"
         [attr.height]="iconSize()"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
       >
-        <!-- Head/helmet -->
-        <path d="M4 8 a8 8 0 0 1 16 0" />
-        <!-- Face -->
-        <circle cx="12" cy="12" r="3" />
-        <!-- Eyes -->
+        <!-- Tricorn hat -->
+        <path d="M6 6 h12 l-2 2h-8z" />
+        <path d="M8 6 v2" />
+        <path d="M12 6 v2" />
+        <path d="M16 6 v2" />
+        <!-- Head -->
+        <circle cx="12" cy="12" r="4" />
+        <!-- Heroic eyes -->
         <circle cx="10" cy="11" r="1" />
         <circle cx="14" cy="11" r="1" />
         <!-- Determined expression -->
-        <path d="M8 14 h8" />
-        <!-- Naval uniform details -->
-        <path d="M12 8 v4" />
-        <path d="M8 12 h8" />
-        <!-- Epaulettes -->
-        <circle cx="8" cy="10" r="1.5" />
-        <circle cx="16" cy="10" r="1.5" />
+        <path d="M9 14 h6" />
+        <!-- Admiral coat -->
+        <path d="M8 16 h8" />
+        <path d="M6 18 h12" />
+        <!-- Medallion -->
+        <circle cx="12" cy="17" r="1" />
+        <!-- Anchor emblem -->
+        <path d="M12 8 v2 M11 9 h2" />
       </svg>
     }
     @case ('manager') {
-      <!-- Rockstar-inspired band manager/producer character -->
+      <!-- Rockstar-inspired with guitar and cool style -->
       <svg
         [attr.width]="iconSize()"
         [attr.height]="iconSize()"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
       >
-        <!-- Head with stylish hair -->
-        <path d="M8 6 c4 -3 8 0 8 0" />
-        <circle cx="12" cy="10" r="3" />
+        <!-- Stylish hair -->
+        <path d="M8 6 c2 -1 4 0 8 1" />
+        <path d="M7 7 h10" />
+        <!-- Head -->
+        <circle cx="12" cy="12" r="4" />
         <!-- Sunglasses (Rockstar style) -->
-        <rect x="9" y="9" width="6" height="2" rx="1" />
-        <!-- Confident smile -->
-        <path d="M10 13 q2 2 4 0" />
-        <!-- Stylish jacket/collar -->
-        <path d="M6 14 h12" />
+        <rect x="9" y="10" width="6" height="1.5" rx="0.5" />
+        <path d="M9 10 l2 2" />
+        <path d="M13 10 l-2 2" />
+        <!-- Cool confident smile -->
+        <path d="M10 15 q2 2 4 0" />
+        <!-- Leather jacket -->
         <path d="M8 16 h8" />
-        <!-- Gold chain -->
-        <circle cx="12" cy="14" r="1.5" />
-        <!-- Microphone (symbol of management) -->
-        <path d="M12 6 v4" />
-        <path d="M10 10 h4" />
+        <path d="M6 18 h12" />
+        <!-- Guitar neck -->
+        <path d="M10 16 v3" />
+        <path d="M14 16 v3" />
+        <path d="M10 19 h4" />
+        <!-- Sound waves -->
+        <path d="M7 20 c1 -1 3-1 4 0" />
+        <path d="M13 20 c1 -1 3-1 4 0" />
       </svg>
     }
     @case ('operator') {
-      <!-- Nintendo-inspired worker/technician character -->
+      <!-- Nintendo-inspired mechanic/technician with safety gear -->
       <svg
         [attr.width]="iconSize()"
         [attr.height]="iconSize()"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
         aria-hidden="true"
       >
-        <!-- Head with safety helmet -->
-        <path d="M6 8 h12" />
-        <path d="M8 6 h8" />
-        <path d="M10 4 v4" />
-        <path d="M14 4 v4" />
-        <!-- Face -->
-        <circle cx="12" cy="12" r="3" />
-        <!-- Eyes -->
+        <!-- Safety helmet -->
+        <path d="M8 6 h8 v2 h-8z" />
+        <path d="M10 4 h4" />
+        <path d="M12 4 v2" />
+        <!-- Head -->
+        <circle cx="12" cy="12" r="4" />
+        <!-- Focused eyes -->
         <circle cx="10" cy="11" r="1" />
         <circle cx="14" cy="11" r="1" />
-        <!-- Friendly expression -->
-        <path d="M10 14 q2 1 4 0" />
-        <!-- Work uniform -->
+        <!-- Concentrated expression -->
+        <path d="M9 14 h6" />
+        <!-- Work vest -->
         <path d="M8 16 h8" />
-        <path d="M10 18 h4" />
-        <!-- Tool belt -->
         <path d="M6 18 h12" />
-        <!-- Wrench tool -->
-        <path d="M9 20 l3 -3" />
-        <path d="M12 17 l3 3" />
+        <!-- Tool marks -->
+        <path d="M9 18 h2" />
+        <path d="M13 18 h2" />
+        <!-- Wrench -->
+        <rect x="8" y="20" width="2" height="1" />
+        <rect x="14" y="20" width="2" height="1" />
       </svg>
     }
     @default {
-      <!-- Enhanced default user with more personality -->
+      <!-- Playful character with friendly design -->
       <svg
         [attr.width]="iconSize()"
         [attr.height]="iconSize()"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        stroke-width="1.8"
+        stroke-width="1.5"
         stroke-linecap="round"
         stroke-linejoin="round"
-        [ngClass]="
-          size === 'sm'
-            ? 'transition-colors group-hover:opacity-80'
-            : 'transition-colors'
-        "
+        [ngClass]="size === 'sm' ? 'transition-all group-hover:opacity-90' : 'transition-all'"
         aria-hidden="true"
       >
-        <!-- Head with playful hair -->
-        <path d="M8 6 c2 -2 4 0 4 0" />
-        <circle cx="12" cy="10" r="4" />
-        <!-- Eyes -->
-        <circle cx="10" cy="9" r="1.5" />
-        <circle cx="14" cy="9" r="1.5" />
+        <!-- Hair -->
+        <path d="M8 6 c2 -2 6-2 8 0" />
+        <!-- Head -->
+        <circle cx="12" cy="11" r="4" />
+        <!-- Expressive eyes -->
+        <circle cx="10" cy="10" r="1.2" />
+        <circle cx="14" cy="10" r="1.2" />
         <!-- Warm smile -->
-        <path d="M10 12 q2 2 4 0" />
-        <!-- Body/shirt -->
+        <path d="M10 13 q2 2 4 0" />
+        <!-- Simple body -->
         <path d="M8 16 h8" />
-        <path d="M10 18 h4" />
         <!-- Arms -->
-        <path d="M6 16 h2" />
-        <path d="M16 16 h2" />
-        <!-- Legs -->
-        <path d="M10 22 v4" />
-        <path d="M14 22 v4" />
-        <!-- Feet -->
-        <path d="M8 26 h2" />
-        <path d="M14 26 h2" />
+        <path d="M6 16 v2" />
+        <path d="M18 16 v2" />
       </svg>
     }
   }
