@@ -18,6 +18,7 @@ export type JosanzMainTabsVariant = 'figma' | 'brand';
           type="button"
           (click)="select(option)"
           [class]="tabClasses(option)"
+          [class.josanz-main-tab--selected]="isActive(option)"
           [ngStyle]="tabShellStyle(option)"
         >
           @if (tabAlerts[option]) {
@@ -118,28 +119,28 @@ export class MainTabsComponent implements OnInit, OnChanges {
     };
   }
 
-  tabClasses(option: string) {
-    const figma = this.useFigmaTabs();
-    const base = figma
-      ? 'inline-flex items-center gap-1.5 h-[25px] px-[10px] text-[12px] font-semibold transition-[color,border-color] whitespace-nowrap border border-solid rounded-[6px]'
-      : 'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
+tabClasses(option: string) {
+     const figma = this.useFigmaTabs();
+     const base = figma
+       ? 'inline-flex items-center gap-1.5 h-[28px] px-[10px] text-[12px] font-semibold transition-[color,border-color,background] whitespace-nowrap border border-solid rounded-[6px]'
+       : 'px-5 py-2.5 text-[12px] font-bold transition-[box-shadow,filter,color,border-color] whitespace-nowrap border border-solid';
 
-    const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
-    const shapes = figma
-      ? { rounded: '', pill: '', square: '', inner: '' }
-      : {
-          rounded: 'rounded-[10px]',
-          pill: 'rounded-full',
-          square: 'rounded-none',
-          inner: 'rounded-[8px]',
-        };
+     const activeShape = this.shape || this.themeService.currentTheme().defaultShape;
+     const shapes = figma
+       ? { rounded: '', pill: '', square: '', inner: '' }
+       : {
+           rounded: 'rounded-[10px]',
+           pill: 'rounded-full',
+           square: 'rounded-none',
+           inner: 'rounded-[8px]',
+         };
 
-    return [
-      base,
-      shapes[activeShape as keyof typeof shapes] || shapes.rounded,
-      this.active === option ? '' : 'hover:bg-[var(--josanz-surface-muted)]',
-    ].join(' ');
-  }
+     return [
+       base,
+       shapes[activeShape as keyof typeof shapes] || shapes.rounded,
+       this.active === option ? '' : 'hover:bg-[color-mix(in_srgb,var(--josanz-surface-muted)_60%,var(--josanz-surface))]',
+     ].join(' ');
+   }
 
   ngOnInit(): void {
     this.syncFromInputs();
@@ -176,5 +177,9 @@ export class MainTabsComponent implements OnInit, OnChanges {
       this.tabAlertHints[option]?.trim() ||
       'Información pendiente en esta pestaña'
     );
+  }
+
+  isActive(option: string): boolean {
+    return this.active === option;
   }
 }
