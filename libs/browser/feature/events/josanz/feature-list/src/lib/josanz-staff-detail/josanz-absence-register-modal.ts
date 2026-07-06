@@ -17,84 +17,91 @@ export interface JosanzAbsenceFormData {
   template: `
     @if (open) {
       <div
-        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
         role="dialog"
         aria-modal="true"
         [attr.aria-labelledby]="'josanz-absence-title'"
         (click)="onBackdropClick($event)"
       >
         <section
-          class="w-full max-w-lg rounded-2xl border border-solid p-6 shadow-2xl"
+          class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-solid bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 shadow-2xl"
           [ngStyle]="panelStyles()"
           (click)="$event.stopPropagation()"
         >
-          <h2
-            id="josanz-absence-title"
-            class="m-0 mb-1 text-xl font-bold"
-            [style.color]="'var(--josanz-text)'"
-          >
-            Registrar ausencia
-          </h2>
-          <p class="m-0 mb-4 text-sm" [style.color]="'var(--josanz-text-muted)'">
-            Registra un nuevo periodo de ausencia para el técnico.
-          </p>
+          <!-- Header con acento -->
+          <div class="relative border-b border-solid border-slate-700/50 px-6 py-5">
+            <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500"></div>
+            <h2
+              id="josanz-absence-title"
+              class="m-0 text-xl font-bold tracking-tight text-white"
+            >
+              Registrar ausencia
+            </h2>
+            <p class="m-0 mt-1 text-sm font-medium text-slate-400">
+              Añade un nuevo periodo de ausencia para el técnico
+            </p>
+          </div>
 
-          <form (ngSubmit)="save()" class="flex flex-col gap-4">
+          <!-- Formulario -->
+          <form (ngSubmit)="save()" class="flex flex-col gap-5 px-6 py-5">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
                 Tipo de ausencia
               </label>
-              <select
-                [(ngModel)]="form().type"
-                name="type"
-                required
-                class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2"
-                [style.borderColor]="'var(--josanz-border)'"
-                [style.backgroundColor]="'var(--josanz-field-fill)'"
-                [style.color]="'var(--josanz-text)'"
-              >
-                <option value="Vacaciones">Vacaciones</option>
-                <option value="Permiso">Permiso</option>
-                <option value="Baja">Baja médica</option>
-                <option value="Otros">Otros</option>
-              </select>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
-                  Desde
+              <div class="grid grid-cols-2 gap-2">
+                @for (opt of absenceTypes; track opt.value) {
+                <label
+                  class="flex cursor-pointer items-center justify-center rounded-lg border border-solid px-4 py-3 text-center text-sm font-semibold transition-all"
+                  [class.border-blue-500]="form().type === opt.value"
+                  [class.bg-blue-500/20]="form().type === opt.value"
+                  [class.text-white]="form().type === opt.value"
+                  [class.border-slate-700]="form().type !== opt.value"
+                  [class.text-slate-300]="form().type !== opt.value"
+                  [class.hover:border-blue-400]="form().type !== opt.value"
+                >
+                  <input
+                    type="radio"
+                    [(ngModel)]="form().type"
+                    name="type"
+                    [value]="opt.value"
+                    class="sr-only"
+                  />
+                  {{ opt.label }}
                 </label>
-                <input
-                  type="date"
-                  [(ngModel)]="form().dateFrom"
-                  name="dateFrom"
-                  required
-                  class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium focus:outline-none"
-                  [style.borderColor]="'var(--josanz-border)'"
-                  [style.backgroundColor]="'var(--josanz-field-fill)'"
-                  [style.color]="'var(--josanz-text)'"
-                />
-              </div>
-              <div>
-                <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
-                  Hasta
-                </label>
-                <input
-                  type="date"
-                  [(ngModel)]="form().dateTo"
-                  name="dateTo"
-                  required
-                  class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium focus:outline-none"
-                  [style.borderColor]="'var(--josanz-border)'"
-                  [style.backgroundColor]="'var(--josanz-field-fill)'"
-                  [style.color]="'var(--josanz-text)'"
-                />
+                }
               </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
+                Periodo
+              </label>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <span class="mb-1 block text-xs text-slate-400">Desde</span>
+                  <input
+                    type="date"
+                    [(ngModel)]="form().dateFrom"
+                    name="dateFrom"
+                    required
+                    class="w-full rounded-lg border border-solid bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                  />
+                </div>
+                <div>
+                  <span class="mb-1 block text-xs text-slate-400">Hasta</span>
+                  <input
+                    type="date"
+                    [(ngModel)]="form().dateTo"
+                    name="dateTo"
+                    required
+                    class="w-full rounded-lg border border-solid bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-white focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
                 Motivo (opcional)
               </label>
               <textarea
@@ -102,36 +109,32 @@ export interface JosanzAbsenceFormData {
                 name="reason"
                 rows="3"
                 placeholder="Describe el motivo de la ausencia..."
-                class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium resize-none focus:outline-none"
-                [style.borderColor]="'var(--josanz-border)'"
-                [style.backgroundColor]="'var(--josanz-field-fill)'"
-                [style.color]="'var(--josanz-text)'"
+                class="w-full rounded-lg border border-solid bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-white placeholder-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
               ></textarea>
             </div>
 
             @if (error()) {
-              <p class="m-0 text-sm text-red-600">{{ error() }}</p>
+              <p class="m-0 text-sm font-medium text-red-400">{{ error() }}</p>
             }
           </form>
 
-          <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-solid pt-4" [style.borderColor]="'var(--josanz-border)'">
+          <!-- Acciones -->
+          <div class="flex justify-between gap-3 border-t border-solid border-slate-700/50 px-6 py-4">
             <button
               type="button"
-              class="rounded-lg border border-solid bg-transparent px-4 py-2 text-sm font-semibold transition-all hover:bg-[color-mix(in_srgb,var(--josanz-surface-muted)_60%,var(--josanz-surface))]"
-              [style.borderColor]="'var(--josanz-border)'"
-              [style.color]="'var(--josanz-text)'"
+              class="rounded-lg border border-slate-700 bg-slate-800/50 px-5 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-700/50 hover:text-white"
               (click)="cancel()"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              class="rounded-lg border-0 bg-[var(--josanz-primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+              class="rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50"
               [disabled]="saving()"
               (click)="save()"
             >
               @if (saving()) {
-                Guardando...
+                <span class="opacity-70">Guardando...</span>
               } @else {
                 Registrar ausencia
               }
@@ -144,6 +147,13 @@ export interface JosanzAbsenceFormData {
 })
 export class JosanzAbsenceRegisterModalComponent {
   private readonly themeService = inject(JosanzThemeService);
+
+  readonly absenceTypes = [
+    { value: 'Vacaciones', label: 'Vacaciones' },
+    { value: 'Permiso', label: 'Permiso' },
+    { value: 'Baja', label: 'Baja médica' },
+    { value: 'Otros', label: 'Otros' },
+  ];
 
   @Input() open = false;
   @Output() openChange = new EventEmitter<boolean>();
@@ -179,10 +189,10 @@ export class JosanzAbsenceRegisterModalComponent {
   }
 
   panelStyles(): Record<string, string> {
-    const atmosphere = this.themeService.currentTheme().atmosphere;
+    const { surface, border } = this.themeService.currentTheme().atmosphere;
     return {
-      backgroundColor: atmosphere.surface,
-      borderColor: atmosphere.border,
+      backgroundColor: surface,
+      borderColor: border,
     };
   }
 }

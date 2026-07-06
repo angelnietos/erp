@@ -16,48 +16,65 @@ export interface JosanzDocumentUploadData {
   template: `
     @if (open) {
       <div
-        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4 backdrop-blur-[2px]"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
         role="dialog"
         aria-modal="true"
         [attr.aria-labelledby]="'josanz-doc-upload-title'"
         (click)="onBackdropClick($event)"
       >
         <section
-          class="w-full max-w-lg rounded-2xl border border-solid p-6 shadow-2xl"
+          class="relative w-full max-w-lg overflow-hidden rounded-2xl border border-solid bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 shadow-2xl"
           [ngStyle]="panelStyles()"
           (click)="$event.stopPropagation()"
         >
-          <h2
-            id="josanz-doc-upload-title"
-            class="m-0 mb-1 text-xl font-bold"
-            [style.color]="'var(--josanz-text)'"
-          >
-            {{ title }}
-          </h2>
-          <p class="m-0 mb-4 text-sm" [style.color]="'var(--josanz-text-muted)'">
-            {{ description }}
-          </p>
+          <!-- Header con acento -->
+          <div class="relative border-b border-solid border-slate-700/50 px-6 py-5">
+            <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500"></div>
+            <h2
+              id="josanz-doc-upload-title"
+              class="m-0 text-xl font-bold tracking-tight text-white"
+            >
+              {{ title }}
+            </h2>
+            <p class="m-0 mt-1 text-sm font-medium text-slate-400">
+              {{ description }}
+            </p>
+          </div>
 
-          <form (ngSubmit)="save()" class="flex flex-col gap-4">
+          <!-- Formulario -->
+          <form (ngSubmit)="save()" class="flex flex-col gap-5 px-6 py-5">
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
                 Archivo
               </label>
-              <input
-                type="file"
-                (change)="onFileSelected($event)"
-                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                class="w-full rounded-lg border border-solid bg-transparent p-2 text-sm"
-                [style.borderColor]="'var(--josanz-border)'"
-                [style.backgroundColor]="'var(--josanz-field-fill)'"
-              />
-              @if (selectedFileName()) {
-                <p class="mt-1.5 text-xs" [style.color]="'var(--josanz-primary)'">{{ selectedFileName() }}</p>
-              }
+              <div
+                class="relative rounded-xl border-2 border-dashed border-slate-700 bg-slate-800/30 p-6 text-center transition-all hover:border-emerald-500/50"
+                [class.border-emerald-500]="!!selectedFileName()"
+              >
+                <input
+                  type="file"
+                  (change)="onFileSelected($event)"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  class="absolute inset-0 cursor-pointer opacity-0"
+                />
+                <div class="flex flex-col items-center gap-2">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="text-slate-500" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" y1="3" x2="12" y2="15" />
+                  </svg>
+                  @if (selectedFileName()) {
+                    <span class="text-sm font-medium text-emerald-400">{{ selectedFileName() }}</span>
+                  } @else {
+                    <span class="text-sm font-medium text-slate-400">Arrastra o haz click para seleccionar</span>
+                  }
+                  <span class="text-xs text-slate-500">.pdf, .doc, .docx, .jpg, .png</span>
+                </div>
+              </div>
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
                 Nombre del documento
               </label>
               <input
@@ -65,15 +82,12 @@ export interface JosanzDocumentUploadData {
                 [(ngModel)]="form().name"
                 name="name"
                 placeholder="Ej: Contrato indefinido 2026"
-                class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium focus:outline-none"
-                [style.borderColor]="'var(--josanz-border)'"
-                [style.backgroundColor]="'var(--josanz-field-fill)'"
-                [style.color]="'var(--josanz-text)'"
+                class="w-full rounded-lg border border-solid bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               />
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wide mb-1.5" [style.color]="'var(--josanz-text-muted)'">
+              <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-300">
                 Descripción (opcional)
               </label>
               <textarea
@@ -81,36 +95,32 @@ export interface JosanzDocumentUploadData {
                 name="description"
                 rows="2"
                 placeholder="Añade una descripción del documento..."
-                class="w-full rounded-lg border border-solid bg-transparent px-3 py-2 text-sm font-medium resize-none focus:outline-none"
-                [style.borderColor]="'var(--josanz-border)'"
-                [style.backgroundColor]="'var(--josanz-field-fill)'"
-                [style.color]="'var(--josanz-text)'"
+                class="w-full rounded-lg border border-solid bg-slate-800/50 px-3 py-2.5 text-sm font-medium text-white placeholder-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
               ></textarea>
             </div>
 
             @if (error()) {
-              <p class="m-0 text-sm text-red-600">{{ error() }}</p>
+              <p class="m-0 text-sm font-medium text-red-400">{{ error() }}</p>
             }
           </form>
 
-          <div class="mt-6 flex flex-wrap justify-end gap-3 border-t border-solid pt-4" [style.borderColor]="'var(--josanz-border)'">
+          <!-- Acciones -->
+          <div class="flex justify-between gap-3 border-t border-solid border-slate-700/50 px-6 py-4">
             <button
               type="button"
-              class="rounded-lg border border-solid bg-transparent px-4 py-2 text-sm font-semibold transition-all hover:bg-[color-mix(in_srgb,var(--josanz-surface-muted)_60%,var(--josanz-surface))]"
-              [style.borderColor]="'var(--josanz-border)'"
-              [style.color]="'var(--josanz-text)'"
+              class="rounded-lg border border-slate-700 bg-slate-800/50 px-5 py-2.5 text-sm font-semibold text-slate-300 transition-all hover:bg-slate-700/50 hover:text-white"
               (click)="cancel()"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              class="rounded-lg border-0 bg-[var(--josanz-primary)] px-4 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 disabled:opacity-50"
+              class="rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/25 transition-all hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50"
               [disabled]="saving() || !form().file"
               (click)="save()"
             >
               @if (saving()) {
-                Guardando...
+                <span class="opacity-70">Guardando...</span>
               } @else {
                 {{ confirmLabel }}
               }
@@ -171,10 +181,10 @@ export class JosanzDocumentUploadModalComponent {
   }
 
   panelStyles(): Record<string, string> {
-    const atmosphere = this.themeService.currentTheme().atmosphere;
+    const { surface, border } = this.themeService.currentTheme().atmosphere;
     return {
-      backgroundColor: atmosphere.surface,
-      borderColor: atmosphere.border,
+      backgroundColor: surface,
+      borderColor: border,
     };
   }
 }
