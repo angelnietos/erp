@@ -1,9 +1,4 @@
-.josanz-view-selector {
-   position: relative;
-   flex-shrink: 0;
- }
-
- .josanz-view-selector__trigger {
+.josanz-view-selector__trigger {
    display: inline-flex;
    align-items: center;
    gap: 0.5rem;
@@ -38,7 +33,7 @@
    width: 1.5rem;
    height: 1.5rem;
    border-radius: 6px;
-   background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 9%, #ffffff);
+   background: color-mix(in srgb, var(--josanz-primary, #0f1e2f) 9%, var(--josanz-surface, #ffffff));
    color: var(--josanz-primary, #0f1e2f);
    flex-shrink: 0;
  }
@@ -90,6 +85,23 @@
  .josanz-view-selector--open .josanz-view-selector__trigger-chevron {
    transform: rotate(180deg);
    color: var(--josanz-primary, #0f1e2f);
+ }
+
+ /* Active state styling (when panel is open) */
+ .josanz-view-selector--open .josanz-view-selector__trigger {
+   border-color: var(--josanz-primary, #0f1e2f);
+   background: var(--josanz-primary, #0f1e2f);
+   color: #ffffff;
+ }
+
+ .josanz-view-selector--open .josanz-view-selector__trigger-icon {
+   background: rgba(255, 255, 255, 0.2);
+   color: #ffffff;
+ }
+
+ .josanz-view-selector--open .josanz-view-selector__trigger-label,
+ .josanz-view-selector--open .josanz-view-selector__trigger-hint {
+   color: #ffffff;
  }
 
 .josanz-view-selector__panel {
