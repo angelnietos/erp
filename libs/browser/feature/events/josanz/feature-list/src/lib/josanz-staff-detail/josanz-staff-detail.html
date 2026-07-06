@@ -21,25 +21,10 @@
   }
   } @if (shell.activeTab() === 'Contratos') {
   <section class="josanz-event-section">
-    <div class="josanz-staff-section-header" (click)="contractsPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Contratos</h3>
       <josanz-secondary-button label="Añadir +"></josanz-secondary-button>
-      <svg 
-        width="18" 
-        height="18" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"
-        class="josanz-staff-section-chevron"
-        [class.josanz-staff-section-chevron--open]="contractsPanelOpen()"
-      >
-        <path d="M6 9l6 6 6-6"/>
-      </svg>
     </div>
-    @if (contractsPanelOpen()) {
     <div class="josanz-doc-list">
       @for (file of contractFiles; track file) {
       <josanz-document-item
@@ -50,29 +35,13 @@
       ></josanz-document-item>
       }
     </div>
-    }
   </section>
   } @if (shell.activeTab() === 'Nóminas') {
   <section class="josanz-event-section">
-    <div class="josanz-staff-section-header" (click)="payrollPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Nóminas</h3>
       <josanz-secondary-button label="Subir +"></josanz-secondary-button>
-      <svg 
-        width="18" 
-        height="18" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"
-        class="josanz-staff-section-chevron"
-        [class.josanz-staff-section-chevron--open]="payrollPanelOpen()"
-      >
-        <path d="M6 9l6 6 6-6"/>
-      </svg>
     </div>
-    @if (payrollPanelOpen()) {
     <div class="josanz-doc-list">
       @for (file of payrollFiles; track file) {
       <josanz-document-item
@@ -83,29 +52,13 @@
       ></josanz-document-item>
       }
     </div>
-    }
   </section>
   } @if (shell.activeTab() === 'Ausencias') {
   <section class="josanz-event-section">
-    <div class="josanz-staff-section-header" (click)="absencesPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <div class="josanz-event-section-header">
       <h3 class="josanz-event-section__title m-0">Ausencias</h3>
       <josanz-secondary-button label="Registrar +"></josanz-secondary-button>
-      <svg 
-        width="18" 
-        height="18" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        stroke-width="2" 
-        stroke-linecap="round" 
-        stroke-linejoin="round"
-        class="josanz-staff-section-chevron"
-        [class.josanz-staff-section-chevron--open]="absencesPanelOpen()"
-      >
-        <path d="M6 9l6 6 6-6"/>
-      </svg>
     </div>
-    @if (absencesPanelOpen()) {
     <div class="josanz-absence-list">
       @for (item of absences; track item.id) {
       <div class="josanz-event-budget-line">
@@ -117,7 +70,6 @@
       </div>
       }
     </div>
-    }
   </section>
   }
 </josanz-figma-detail-shell>

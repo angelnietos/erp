@@ -44,10 +44,6 @@ export class JosanzStaffDetailComponent implements OnInit {
   readonly displayIndex = signal(0);
   readonly loading = signal(true);
 
-  readonly contractsPanelOpen = signal(true);
-  readonly payrollPanelOpen = signal(true);
-  readonly absencesPanelOpen = signal(true);
-
   readonly isOwnProfile = computed(() => {
     const tech = this.technician();
     const sessionId = this.authStore.user()?.id;
