@@ -174,43 +174,64 @@
 }
 
 ::ng-deep .josanz-catalog-filters-presentation__btn {
-  padding: 6px 14px;
+  padding: 8px 18px;
   border-radius: 10px;
   border: 1px solid var(--josanz-border);
-  background: transparent;
+  background: var(--josanz-surface);
   color: var(--josanz-text-muted);
   font-size: 0.8125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 ::ng-deep .josanz-catalog-filters-presentation__btn:hover {
-  border-color: var(--josanz-primary);
-  color: var(--josanz-primary);
+  border-color: var(--josanz-text-muted);
+  color: var(--josanz-text);
+  background: var(--josanz-surface-muted);
 }
 
 ::ng-deep .josanz-catalog-filters-presentation__btn--active {
-  background: var(--josanz-primary);
-  color: #fff;
-  border-color: var(--josanz-primary);
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.22);
+  background: var(--josanz-interactive, var(--josanz-primary));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.25);
+}
+
+::ng-deep .josanz-catalog-filters-presentation__btn--active:hover {
+  background: var(--josanz-interactive, var(--josanz-primary));
+  color: #ffffff;
+  filter: brightness(1.08);
 }
 
 ::ng-deep .josanz-catalog-filters-panel__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 ::ng-deep .josanz-catalog-filters-panel__btn {
-  padding: 8px 18px;
+  padding: 10px 24px;
   border-radius: 12px;
   font-size: 0.875rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   border: 1px solid transparent;
+  white-space: nowrap;
+  min-height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
 }
 
 ::ng-deep .josanz-catalog-filters-panel__btn--ghost {
@@ -222,17 +243,19 @@
 ::ng-deep .josanz-catalog-filters-panel__btn--ghost:hover {
   border-color: var(--josanz-text-muted);
   color: var(--josanz-text);
+  background: color-mix(in srgb, var(--josanz-text-muted) 6%, var(--josanz-surface));
 }
 
 ::ng-deep .josanz-catalog-filters-panel__btn--primary {
-  background: var(--josanz-primary);
-  color: #fff;
-  border-color: var(--josanz-primary);
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.22);
+  background: var(--josanz-interactive, var(--josanz-primary));
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.25);
 }
 
 ::ng-deep .josanz-catalog-filters-panel__btn--primary:hover {
   filter: brightness(1.1);
+  box-shadow: 0 4px 12px -3px rgba(0, 0, 0, 0.3);
 }
 
 /* Sort panel */
