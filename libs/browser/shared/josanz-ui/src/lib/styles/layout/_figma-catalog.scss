@@ -666,15 +666,35 @@
     border-top-color: color-mix(in srgb, var(--josanz-border, #ebebeb) 70%, transparent);
   }
 
-  .josanz-catalog-filters-presentation__label {
-    font-size: 0.6875rem;
-  }
+.josanz-catalog-filters-presentation__label {
+     font-size: 0.75rem;
+     font-weight: 700;
+     letter-spacing: 0.01em;
+   }
 
-  .josanz-catalog-filters-presentation__btn {
-    height: 1.65rem;
-    padding: 0 0.55rem;
-    font-size: 0.6875rem;
-  }
+   .josanz-catalog-filters-presentation__btn {
+     height: 2rem;
+     padding: 0 0.875rem;
+     border-radius: 8px;
+     font-size: 0.7875rem;
+     font-weight: 600;
+     border: 1px solid var(--josanz-border, #e0e0e0);
+     background: #fff;
+     color: var(--josanz-text, #222222);
+     cursor: pointer;
+     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+     &:hover {
+       background: var(--josanz-surface-muted, #f7f7f7);
+       border-color: var(--josanz-text-muted, #aaaaaa);
+     }
+
+     &--active {
+       border-color: #0f1e2f;
+       background: #0f1e2f;
+       color: #fff;
+     }
+   }
 
   .josanz-catalog-filters-panel__actions {
     gap: 0.45rem;
@@ -838,11 +858,11 @@
 }
 
 .josanz-catalog-filters-presentation {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
+   display: inline-flex;
+   align-items: center;
+   gap: 0.5rem;
+   flex-wrap: wrap;
+ }
 
 .josanz-catalog-filters-presentation__label {
   font-size: 0.72rem;
@@ -852,22 +872,28 @@
 }
 
 .josanz-catalog-filters-presentation__btn {
-  height: 1.85rem;
-  padding: 0 0.65rem;
-  border: 1px solid var(--josanz-border, #e0e0e0);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--josanz-text, #222222);
-  font-size: 0.72rem;
-  font-weight: 700;
-  cursor: pointer;
+   height: 2rem;
+   padding: 0 0.875rem;
+   border-radius: 8px;
+   background: #fff;
+   color: var(--josanz-text, #222222);
+   font-size: 0.7875rem;
+   font-weight: 600;
+   border: 1px solid var(--josanz-border, #e0e0e0);
+   cursor: pointer;
+   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 
-  &--active {
-    border-color: #0f1e2f;
-    background: #0f1e2f;
-    color: #fff;
-  }
-}
+   &:hover {
+     background: var(--josanz-surface-muted, #f7f7f7);
+     border-color: var(--josanz-text-muted, #aaaaaa);
+   }
+
+   &--active {
+     border-color: #0f1e2f;
+     background: #0f1e2f;
+     color: #fff;
+   }
+ }
 
 .josanz-catalog-filters-panel__actions {
   display: inline-flex;
