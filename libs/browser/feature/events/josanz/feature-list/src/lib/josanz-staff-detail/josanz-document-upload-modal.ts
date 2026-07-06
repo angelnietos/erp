@@ -28,9 +28,9 @@ export interface JosanzDocumentUploadData {
 
         <div class="mt-6 flex flex-col gap-5">
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-2" style="color: var(--josanz-label-muted);">
+            <div class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-2" style="color: var(--josanz-label-muted);">
               Archivo
-            </label>
+            </div>
             <josanz-file-upload
               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
               [multiple]="false"
