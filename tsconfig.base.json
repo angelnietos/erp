@@ -312,9 +312,14 @@
       "@josanz-erp/josanz-delivery-notes-feature-list": [
         "libs/browser/feature/delivery/josanz/feature-list/src/index.ts"
       ],
-      "@josanz-erp/josanz-events-feature-list": [
-        "libs/browser/feature/events/josanz/feature-list/src/index.ts"
-      ],
+      "@josanz-erp/josanz-events-data-access": ["libs/browser/feature/events/josanz/data-access/src/index.ts"],
+      "@josanz-erp/josanz-events-feature-list": ["libs/browser/feature/events/josanz/feature-lists/events/src/index.ts"],
+      "@josanz-erp/josanz-equipment-feature-list": ["libs/browser/feature/events/josanz/feature-lists/equipment/src/index.ts"],
+      "@josanz-erp/josanz-vehicles-feature-list": ["libs/browser/feature/events/josanz/feature-lists/vehicles/src/index.ts"],
+      "@josanz-erp/josanz-staff-feature-list": ["libs/browser/feature/events/josanz/feature-lists/staff/src/index.ts"],
+      "@josanz-erp/josanz-billing-feature-list": ["libs/browser/feature/events/josanz/feature-lists/billing/src/index.ts"],
+      "@josanz-erp/josanz-catalog-feature-list": ["libs/browser/feature/events/josanz/feature-lists/catalog/src/index.ts"],
+      "@josanz-erp/josanz-events-figma-create-page": ["libs/browser/feature/events/josanz/figma-create-page/src/index.ts"],
       "@josanz-erp/document-generator-shell": [
         "libs/browser/shell/document-generator/src/index.ts"
       ],

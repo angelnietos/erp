@@ -1,0 +1,23 @@
+{
+  "name": "josanz-catalog-feature-list",
+  "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/browser/feature/events/josanz/feature-lists/catalog/src",
+  "prefix": "josanz",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": [
+        "{workspaceRoot}/coverage/{projectRoot}"
+      ],
+      "options": {
+        "jestConfig": "libs/browser/feature/events/josanz/feature-lists/catalog/jest.config.cts",
+        "tsConfig": "libs/browser/feature/events/josanz/feature-lists/catalog/tsconfig.spec.json"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}
