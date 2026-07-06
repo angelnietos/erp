@@ -325,15 +325,11 @@
     line-height: 1;
   }
 
-  .josanz-main-list__footer {
-    gap: 0.875rem;
-    padding-top: 1rem;
-    border-top-color: var(--josanz-border) !important;
-  }
-
-.josanz-grid-list-card__rail {
-  width: 6px;
-  border-radius: 12px 0 0 12px;
+.josanz-main-list__footer {
+  gap: 0.875rem;
+  padding-top: 1rem;
+  border-top-color: var(--josanz-border) !important;
+}
 }
 
 /* Segmented filter tabs — more visible active state */
@@ -937,5 +933,7 @@
     transform: scale(1);
   }
 }
+
+/* End of figma-catalog styles */
 
 

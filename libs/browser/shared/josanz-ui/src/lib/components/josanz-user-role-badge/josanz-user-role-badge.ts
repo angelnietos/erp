@@ -10,7 +10,7 @@ import {
   selector: 'josanz-user-role-badge',
   standalone: true,
   imports: [CommonModule],
-  template: `
+template: `
     @if (badge; as kind) {
       <span
         class="josanz-user-role-badge"
@@ -20,15 +20,14 @@ import {
       >
         <span class="josanz-user-role-badge__icon" aria-hidden="true">
           @if (kind === 'superadmin') {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L4.8 8.2l5-.7L12 3z" />
-              <path d="M8 18h8" />
-              <path d="M9.5 21h5" />
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.1 5h5.6l-4.5 4.4 1.7 5.5-4.5-3.3-4.5 3.3 1.7-5.5L.8 7h5.6L12 2z" />
             </svg>
           } @else {
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3l7 3v6c0 4.2-3 7.8-7 9-4-1.2-7-4.8-7-9V6l7-3z" />
-              <path d="m9 12 2 2 4-4" />
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l2.8 3.2V7c0 3.3-2.7 6.7-6 8l-.5.2V12" />
+              <path d="M12 2l-2.8 3.2V7c0 3.3 2.7 6.7 6 8l.5.2V12" />
+              <path d="M8 13.5l2 2 4-4" />
             </svg>
           }
         </span>

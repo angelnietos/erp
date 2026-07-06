@@ -62,16 +62,16 @@ export class UserAvatarComponent {
     const tier = this.effectiveRoleBadge();
     if (tier === 'superadmin') {
       return {
-        background: 'linear-gradient(145deg, #fde68a 0%, #fbbf24 48%, #f59e0b 100%)',
-        borderColor: '#f59e0b',
-        color: '#7c4a03',
+        background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6d28d9 100%)',
+        borderColor: '#8b5cf6',
+        color: '#ffffff',
       };
     }
     if (tier === 'admin') {
       return {
-        background: 'linear-gradient(145deg, #1e3a5f 0%, #0f1e2f 100%)',
-        borderColor: '#3b82f6',
-        color: '#dbeafe',
+        background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0d9488 100%)',
+        borderColor: '#0891b2',
+        color: '#ffffff',
       };
     }
 
