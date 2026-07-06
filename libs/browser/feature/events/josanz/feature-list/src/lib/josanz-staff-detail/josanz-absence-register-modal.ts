@@ -29,9 +29,9 @@ export interface JosanzAbsenceFormData {
 
         <div class="mt-6 flex flex-col gap-6">
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-2" style="color: var(--josanz-label-muted);">
+            <span class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-2" style="color: var(--josanz-label-muted);">
               Tipo de ausencia
-            </label>
+            </span>
             <josanz-radio-group
               [options]="absenceTypes"
               [(value)]="form().type"
@@ -41,9 +41,9 @@ export interface JosanzAbsenceFormData {
           </div>
 
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-3" style="color: var(--josanz-label-muted);">
+            <span class="block text-[11px] font-bold uppercase tracking-[0.1em] mb-3" style="color: var(--josanz-label-muted);">
               Periodo
-            </label>
+            </span>
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label for="absence-dateFrom" class="sr-only">Desde</label>
