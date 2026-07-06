@@ -62,30 +62,34 @@ export class UserAvatarComponent {
     const tier = this.effectiveRoleBadge();
     if (tier === 'superadmin') {
       return {
-        background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 50%, #6d28d9 100%)',
-        borderColor: '#8b5cf6',
+        background: 'linear-gradient(135deg, #1e0b38 0%, #3b1877 50%, #5b21b6 100%)',
+        borderColor: '#7c3aed',
         color: '#ffffff',
+        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1)',
       };
     }
     if (tier === 'admin') {
       return {
-        background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 50%, #0d9488 100%)',
-        borderColor: '#0891b2',
+        background: 'linear-gradient(135deg, #042f2e 0%, #0f766e 50%, #0d9488 100%)',
+        borderColor: '#14b8a6',
         color: '#ffffff',
+        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1)',
       };
     }
     if (tier === 'manager') {
       return {
-        background: 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)',
-        borderColor: '#10b981',
+        background: 'linear-gradient(135deg, #061121 0%, #1e3a8a 50%, #1d4ed8 100%)',
+        borderColor: '#3b82f6',
         color: '#ffffff',
+        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1)',
       };
     }
     if (tier === 'operator') {
       return {
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%)',
-        borderColor: '#8b5cf6',
+        background: 'linear-gradient(135deg, #1f2937 0%, #374151 50%, #4b5563 100%)',
+        borderColor: '#6b7280',
         color: '#ffffff',
+        boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.1)',
       };
     }
 

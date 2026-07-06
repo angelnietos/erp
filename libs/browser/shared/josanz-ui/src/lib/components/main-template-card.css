@@ -1,34 +1,35 @@
 .josanz-list-card {
-  cursor: default;
+  cursor: pointer;
   will-change: transform, box-shadow;
   transition:
-    transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-color 0.3s ease;
   border-radius: var(--josanz-radius-card, 12px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.04);
+  background-color: var(--josanz-surface-elevated, #ffffff);
 }
 
 .josanz-list-card--rounded {
-  border-radius: var(--josanz-radius-card, 14px);
+  border-radius: var(--josanz-radius-card, 16px);
 }
 .josanz-list-card--square {
-  border-radius: 2px;
+  border-radius: 4px;
 }
 .josanz-list-card--pill {
   border-radius: 40px;
 }
 
 .josanz-list-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  border-color: color-mix(in srgb, var(--josanz-brand) 18%, var(--josanz-border));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+  border-color: color-mix(in srgb, var(--josanz-brand) 30%, var(--josanz-border));
 }
 
 .josanz-list-card:active {
   transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition-duration: 0.08s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition-duration: 0.1s;
 }
 
 .josanz-list-card__leading {
@@ -93,13 +94,16 @@
 }
 
 .josanz-list-card__title {
-  color: var(--josanz-list-card-text, var(--josanz-text));
-  -webkit-text-fill-color: var(--josanz-list-card-text, var(--josanz-text));
+  color: var(--josanz-list-card-text, #1a202c);
+  -webkit-text-fill-color: var(--josanz-list-card-text, #1a202c);
+  font-weight: 700;
+  letter-spacing: -0.015em;
 }
 
 .josanz-list-card__field {
-  color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
-  -webkit-text-fill-color: var(--josanz-list-card-text-muted, var(--josanz-text-muted));
+  color: var(--josanz-list-card-text-muted, #4a5568);
+  -webkit-text-fill-color: var(--josanz-list-card-text-muted, #4a5568);
+  font-weight: 500;
 }
 
 .josanz-list-template-row__fields {
@@ -111,6 +115,7 @@
 .josanz-list-card__status-pill {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.2s ease, transform 0.15s ease;
+  white-space: nowrap;
 }
 
 .josanz-list-card:hover .josanz-list-card__status-pill {
