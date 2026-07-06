@@ -1,9 +1,9 @@
 module.exports = {
-  displayName: 'josanz-vehicles-feature-list',
-  preset: '../../../../../../../jest.preset.js',
+  displayName: 'josanz-events-feature-list',
+  preset: '../../../../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   coverageDirectory:
-    '../../../../../../../coverage/libs/browser/feature/events/josanz/feature-lists/vehicles',
+    '../../../../../../coverage/libs/browser/feature/events/josanz/feature-list',
   transform: {
     '^.+(?:[.](?:ts|mjs|js|html))$': [
       'jest-preset-angular',

@@ -1,7 +1,7 @@
 {
-  "name": "josanz-equipment-feature-list",
+  "name": "josanz-vehicles-feature-list",
   "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/browser/feature/events/josanz/feature-lists/equipment/src",
+  "sourceRoot": "libs/browser/feature/events/josanz/../vehicles/josanz/feature-list/src",
   "prefix": "josanz",
   "projectType": "library",
   "tags": [],
@@ -12,8 +12,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/browser/feature/events/josanz/feature-lists/equipment/jest.config.cts",
-        "tsConfig": "libs/browser/feature/events/josanz/feature-lists/equipment/tsconfig.spec.json"
+        "jestConfig": "libs/browser/feature/events/josanz/../vehicles/josanz/feature-list/jest.config.cts",
+        "tsConfig": "libs/browser/feature/events/josanz/../vehicles/josanz/feature-list/tsconfig.spec.json"
       }
     },
     "lint": {

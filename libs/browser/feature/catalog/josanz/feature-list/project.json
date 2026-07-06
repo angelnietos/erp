@@ -1,12 +1,10 @@
 {
-  "name": "josanz-events-feature-list",
+  "name": "josanz-catalog-feature-list",
   "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/browser/feature/events/josanz/feature-lists/events/src",
+  "sourceRoot": "libs/browser/feature/events/josanz/../catalog/josanz/feature-list/src",
   "prefix": "josanz",
   "projectType": "library",
-  "tags": [
-    "type:feature"
-  ],
+  "tags": [],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
@@ -14,8 +12,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/browser/feature/events/josanz/feature-lists/events/jest.config.cts",
-        "tsConfig": "libs/browser/feature/events/josanz/feature-lists/events/tsconfig.spec.json"
+        "jestConfig": "libs/browser/feature/events/josanz/../catalog/josanz/feature-list/jest.config.cts",
+        "tsConfig": "libs/browser/feature/events/josanz/../catalog/josanz/feature-list/tsconfig.spec.json"
       }
     },
     "lint": {

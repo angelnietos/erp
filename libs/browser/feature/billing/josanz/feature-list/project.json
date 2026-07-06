@@ -1,7 +1,7 @@
 {
-  "name": "josanz-vehicles-feature-list",
+  "name": "josanz-billing-feature-list",
   "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/browser/feature/events/josanz/feature-lists/vehicles/src",
+  "sourceRoot": "libs/browser/feature/events/josanz/../billing/josanz/feature-list/src",
   "prefix": "josanz",
   "projectType": "library",
   "tags": [],
@@ -12,8 +12,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/browser/feature/events/josanz/feature-lists/vehicles/jest.config.cts",
-        "tsConfig": "libs/browser/feature/events/josanz/feature-lists/vehicles/tsconfig.spec.json"
+        "jestConfig": "libs/browser/feature/events/josanz/../billing/josanz/feature-list/jest.config.cts",
+        "tsConfig": "libs/browser/feature/events/josanz/../billing/josanz/feature-list/tsconfig.spec.json"
       }
     },
     "lint": {

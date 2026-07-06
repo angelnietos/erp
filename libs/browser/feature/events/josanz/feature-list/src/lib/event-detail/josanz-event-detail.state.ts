@@ -4,7 +4,7 @@ import type { JosanzStatusPillKey } from '@josanz-erp/josanz-ui';
 import type { JosanzEventRecord } from '@josanz-erp/josanz-events-data-access';
 import type { JosanzEventUiType } from '../utils/josanz-event-form.utils';
 import { buildEventDetailSavePayload, mapTechnicianRoleToPill } from './josanz-event-detail.payload';
-import { technicianRoleLabel } from '@josanz-erp/josanz-staff-feature-list';
+import { technicianRoleLabel } from '@josanz-erp/josanz-events-data-access';
 import type {
   EventComposerId,
   EventUploadTarget,

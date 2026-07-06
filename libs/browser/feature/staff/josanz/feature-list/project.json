@@ -1,7 +1,7 @@
 {
   "name": "josanz-staff-feature-list",
   "$schema": "../../../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/browser/feature/events/josanz/feature-lists/staff/src",
+  "sourceRoot": "libs/browser/feature/events/josanz/../staff/josanz/feature-list/src",
   "prefix": "josanz",
   "projectType": "library",
   "tags": [],
@@ -12,8 +12,8 @@
         "{workspaceRoot}/coverage/{projectRoot}"
       ],
       "options": {
-        "jestConfig": "libs/browser/feature/events/josanz/feature-lists/staff/jest.config.cts",
-        "tsConfig": "libs/browser/feature/events/josanz/feature-lists/staff/tsconfig.spec.json"
+        "jestConfig": "libs/browser/feature/events/josanz/../staff/josanz/feature-list/jest.config.cts",
+        "tsConfig": "libs/browser/feature/events/josanz/../staff/josanz/feature-list/tsconfig.spec.json"
       }
     },
     "lint": {
