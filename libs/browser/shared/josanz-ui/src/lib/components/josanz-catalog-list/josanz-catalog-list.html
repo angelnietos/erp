@@ -85,19 +85,15 @@
   }
 
   @if (showExtraFilters) {
-  <div extra-filters class="flex w-full min-w-0 flex-col gap-3">
+  <div extra-filters class="josanz-catalog-extra-filters">
     @if (features.statusSummary) {
     <div
       class="josanz-catalog-summary"
       role="group"
       aria-label="Resumen por estado"
     >
-      <span
-        class="josanz-catalog-summary__item josanz-catalog-summary__item--active"
-        >Total</span
-      >
       @for (stat of summaryStats; track stat.label) {
-      <span class="josanz-catalog-summary__item">
+      <span class="josanz-catalog-summary__item" [class.josanz-catalog-summary__item--active]="stat.label === 'Total'">
         {{ stat.label }}
         <strong>{{ stat.count }}</strong>
       </span>
@@ -110,15 +106,15 @@
       @if (features.advancedFilters) {
       <josanz-secondary-button
         label="De X a X"
-        class="shrink-0"
+        class="josanz-catalog-filter-chip"
       ></josanz-secondary-button>
       <josanz-secondary-button
         label="Proveedores"
-        class="shrink-0"
+        class="josanz-catalog-filter-chip"
       ></josanz-secondary-button>
       <josanz-secondary-button
         label="Staff"
-        class="shrink-0"
+        class="josanz-catalog-filter-chip"
       ></josanz-secondary-button>
       <span
         class="josanz-catalog-filters-row__divider"
@@ -127,7 +123,7 @@
       }
       @if (features.statusFilters) {
       <josanz-filter-tabs
-        class="min-w-0 flex-1"
+        class="josanz-catalog-status-tabs"
         [options]="statusFilterOptions"
         [selected]="selectedStatusFilter"
         (selectionChange)="onStatusFilter($event)"
@@ -355,7 +351,7 @@
       <h2 id="kc-export-title" class="text-lg font-bold text-[#222222]">Exportar listado</h2>
       <button
         type="button"
-        class="text-gray-400 hover:text-gray-600 transition-colors"
+        class="josanz-figma-modal-close"
         aria-label="Cerrar"
         [disabled]="exportBusy"
         (click)="closeExportModal()"
@@ -367,35 +363,35 @@
       </button>
     </div>
 
-    <p class="text-sm text-[#555] mb-4">
+    <p class="josanz-figma-modal-body">
       Se exportarán <strong>{{ filteredRows.length }}</strong> filas con los filtros y búsqueda actuales.
       Ideal para Power BI u otras herramientas externas.
     </p>
 
-    <fieldset class="flex flex-col gap-2 mb-4 border-0 p-0">
-      <legend class="text-xs font-bold text-[#222222] mb-2">Formato</legend>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+    <fieldset class="josanz-figma-modal-fieldset">
+      <legend class="josanz-figma-modal-fieldset__legend">Formato</legend>
+      <label class="josanz-figma-modal-radio">
         <input type="radio" name="exportFormat" value="xlsx" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        Excel (.xlsx) — recomendado para Power BI
+        <span>Excel (.xlsx) — recomendado para Power BI</span>
       </label>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+      <label class="josanz-figma-modal-radio">
         <input type="radio" name="exportFormat" value="csv" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        CSV (.csv) — compatible con Excel y BI
+        <span>CSV (.csv) — compatible con Excel y BI</span>
       </label>
-      <label class="inline-flex items-center gap-2 text-sm text-[#222222] cursor-pointer">
+      <label class="josanz-figma-modal-radio">
         <input type="radio" name="exportFormat" value="sql" [(ngModel)]="exportFormat" [disabled]="exportBusy" />
-        SQL (.sql) — script con INSERT para bases externas
+        <span>SQL (.sql) — script con INSERT para bases externas</span>
       </label>
     </fieldset>
 
     @if (exportError) {
-    <p class="text-sm text-red-600 mb-3" role="alert">{{ exportError }}</p>
+    <p class="josanz-figma-modal-error" role="alert">{{ exportError }}</p>
     }
 
-    <div class="flex items-center justify-end gap-3 border-t pt-4">
+    <div class="josanz-figma-modal-footer">
       <button
         type="button"
-        class="h-10 px-6 rounded-lg border border-[#0F1E2F] text-[#0F1E2F] font-bold text-sm bg-white hover:bg-gray-50 transition-colors disabled:opacity-50"
+        class="josanz-figma-modal-btn josanz-figma-modal-btn--ghost"
         [disabled]="exportBusy"
         (click)="closeExportModal()"
       >
@@ -403,7 +399,7 @@
       </button>
       <button
         type="button"
-        class="h-10 px-6 rounded-lg bg-[#0F1E2F] text-white font-bold text-sm hover:bg-[#1a2d42] transition-colors disabled:opacity-50"
+        class="josanz-figma-modal-btn josanz-figma-modal-btn--primary"
         [disabled]="exportBusy"
         (click)="runExport()"
       >
@@ -413,4 +409,3 @@
   </div>
 </div>
 }
-

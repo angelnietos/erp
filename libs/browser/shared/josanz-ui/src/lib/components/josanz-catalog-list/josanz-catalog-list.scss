@@ -1,0 +1,513 @@
+/* ─── Catalog list improvements ────────────────────────────── */
+
+::ng-deep .josanz-catalog-filters-panel {
+  background: var(--josanz-surface);
+  border: 1px solid var(--josanz-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px -12px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+}
+
+::ng-deep .josanz-catalog-filters-panel--inline {
+  margin: 8px 0 12px;
+}
+
+::ng-deep .josanz-catalog-filters-panel--popover {
+  position: fixed;
+  z-index: 1050;
+  width: min(600px, calc(100vw - 24px));
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  animation: fadeSlideDown 0.2s ease;
+}
+
+::ng-deep .josanz-catalog-filters-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--josanz-border) 60%, transparent);
+}
+
+::ng-deep .josanz-catalog-filters-panel__title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--josanz-text);
+  margin: 0;
+}
+
+::ng-deep .josanz-catalog-filters-panel__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--josanz-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+::ng-deep .josanz-catalog-filters-panel__close:hover {
+  background: color-mix(in srgb, var(--josanz-danger) 10%, var(--josanz-surface));
+  color: var(--josanz-danger);
+  border-color: color-mix(in srgb, var(--josanz-danger) 25%, var(--josanz-border));
+}
+
+::ng-deep .josanz-catalog-filters-panel__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--josanz-border) 40%, transparent);
+}
+
+::ng-deep .josanz-catalog-filters-panel__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--josanz-primary) 8%, var(--josanz-surface));
+  border: 1px solid color-mix(in srgb, var(--josanz-primary) 18%, var(--josanz-border));
+  color: var(--josanz-text);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+::ng-deep .josanz-catalog-filters-panel__chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--josanz-border);
+  color: var(--josanz-text-muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+::ng-deep .josanz-catalog-filters-panel__chip-remove:hover {
+  background: var(--josanz-danger);
+  color: #fff;
+}
+
+::ng-deep .josanz-catalog-filters-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+::ng-deep .josanz-catalog-filters-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+::ng-deep .josanz-catalog-filters-panel__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--josanz-text-muted);
+}
+
+::ng-deep .josanz-catalog-filters-panel__select-wrap {
+  position: relative;
+}
+
+::ng-deep .josanz-catalog-filters-panel__select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--josanz-stroke-field);
+  border-radius: 12px;
+  background: var(--josanz-field-fill);
+  color: var(--josanz-text);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+::ng-deep .josanz-catalog-filters-panel__select:focus {
+  outline: none;
+  border-color: var(--josanz-primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--josanz-primary) 35%, transparent);
+}
+
+::ng-deep .josanz-catalog-filters-panel__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid color-mix(in srgb, var(--josanz-border) 60%, transparent);
+  flex-wrap: wrap;
+}
+
+::ng-deep .josanz-catalog-filters-presentation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+::ng-deep .josanz-catalog-filters-presentation__label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--josanz-text-muted);
+}
+
+::ng-deep .josanz-catalog-filters-presentation__btn {
+  padding: 6px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--josanz-border);
+  background: transparent;
+  color: var(--josanz-text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+::ng-deep .josanz-catalog-filters-presentation__btn:hover {
+  border-color: var(--josanz-primary);
+  color: var(--josanz-primary);
+}
+
+::ng-deep .josanz-catalog-filters-presentation__btn--active {
+  background: var(--josanz-primary);
+  color: #fff;
+  border-color: var(--josanz-primary);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.22);
+}
+
+::ng-deep .josanz-catalog-filters-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+::ng-deep .josanz-catalog-filters-panel__btn {
+  padding: 8px 18px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+::ng-deep .josanz-catalog-filters-panel__btn--ghost {
+  background: transparent;
+  border-color: var(--josanz-border);
+  color: var(--josanz-text-muted);
+}
+
+::ng-deep .josanz-catalog-filters-panel__btn--ghost:hover {
+  border-color: var(--josanz-text-muted);
+  color: var(--josanz-text);
+}
+
+::ng-deep .josanz-catalog-filters-panel__btn--primary {
+  background: var(--josanz-primary);
+  color: #fff;
+  border-color: var(--josanz-primary);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.22);
+}
+
+::ng-deep .josanz-catalog-filters-panel__btn--primary:hover {
+  filter: brightness(1.1);
+}
+
+/* Sort panel */
+::ng-deep .josanz-catalog-sort-panel {
+  min-width: min(280px, calc(100vw - 24px));
+}
+
+::ng-deep .josanz-catalog-sort-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid color-mix(in srgb, var(--josanz-border) 60%, transparent);
+}
+
+::ng-deep .josanz-catalog-sort-panel__title {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--josanz-text);
+  margin: 0;
+}
+
+::ng-deep .josanz-catalog-sort-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+}
+
+::ng-deep .josanz-catalog-sort-panel__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--josanz-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+
+::ng-deep .josanz-catalog-sort-panel__option:hover {
+  background: color-mix(in srgb, var(--josanz-primary) 5%, var(--josanz-surface));
+  border-color: color-mix(in srgb, var(--josanz-border) 80%, var(--josanz-brand) 10%);
+}
+
+::ng-deep .josanz-catalog-sort-panel__option--active {
+  background: color-mix(in srgb, var(--josanz-primary) 10%, var(--josanz-surface));
+  border-color: color-mix(in srgb, var(--josanz-primary) 25%, var(--josanz-border));
+  color: var(--josanz-primary);
+  font-weight: 700;
+}
+
+::ng-deep .josanz-catalog-sort-panel__arrow {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--josanz-primary);
+}
+
+/* Active filter chips */
+::ng-deep .josanz-catalog-active-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: color-mix(in srgb, var(--josanz-surface) 45%, transparent);
+  border: 1px solid var(--josanz-border-soft);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  animation: fadeSlideDown 0.2s ease;
+}
+
+::ng-deep .josanz-catalog-active-filters__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--josanz-primary) 6%, var(--josanz-surface-muted));
+  border: 1px solid var(--josanz-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--josanz-text);
+  line-height: 1.35;
+  transition: box-shadow 0.15s ease;
+}
+
+::ng-deep .josanz-catalog-active-filters__chip:hover {
+  box-shadow: 0 2px 8px -4px rgba(0, 0, 0, 0.12);
+}
+
+::ng-deep .josanz-catalog-active-filters__label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--josanz-text-muted);
+  opacity: 0.75;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+::ng-deep .josanz-catalog-active-filters__value {
+  color: var(--josanz-text);
+  font-weight: 700;
+}
+
+::ng-deep .josanz-catalog-active-filters__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--josanz-border);
+  color: var(--josanz-text-muted);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+::ng-deep .josanz-catalog-active-filters__remove:hover {
+  background: var(--josanz-danger);
+  color: #fff;
+}
+
+::ng-deep .josanz-catalog-active-filters__clear {
+  border: 0;
+  background: 0;
+  color: var(--josanz-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+  letter-spacing: 0.01em;
+}
+
+::ng-deep .josanz-catalog-active-filters__clear:hover {
+  background: color-mix(in srgb, var(--josanz-primary) 10%, transparent);
+}
+
+/* Summary pills */
+::ng-deep .josanz-catalog-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 6px 0;
+}
+
+::ng-deep .josanz-catalog-summary__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--josanz-text-muted);
+  background: transparent;
+  border: 1px solid var(--josanz-border-soft);
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+::ng-deep .josanz-catalog-summary__item strong {
+  font-weight: 800;
+  color: var(--josanz-text);
+}
+
+::ng-deep .josanz-catalog-summary__item--active {
+  background: var(--josanz-primary);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 2px 10px -3px rgba(0, 0, 0, 0.3);
+}
+
+::ng-deep .josanz-catalog-summary__item--active strong {
+  color: #fff;
+}
+
+/* Filter row */
+::ng-deep .josanz-catalog-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+::ng-deep .josanz-catalog-filters-row__divider {
+  width: 1px;
+  height: 20px;
+  background: var(--josanz-border);
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* Filter chips (De X a X, Proveedores, Staff) */
+::ng-deep .josanz-catalog-filter-chip {
+  border-radius: 10px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  padding: 6px 14px !important;
+  border: 1px solid var(--josanz-border) !important;
+  background: transparent !important;
+  color: var(--josanz-text-muted) !important;
+  transition: all 0.15s ease !important;
+}
+
+::ng-deep .josanz-catalog-filter-chip:hover {
+  border-color: var(--josanz-primary) !important;
+  color: var(--josanz-primary) !important;
+  background: color-mix(in srgb, var(--josanz-primary) 5%, var(--josanz-surface)) !important;
+}
+
+/* Status tabs in catalog */
+::ng-deep .josanz-catalog-status-tabs {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Board */
+::ng-deep .josanz-catalog-board {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Loading */
+::ng-deep .josanz-catalog-list__loading {
+  padding: 3rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  ::ng-deep .josanz-catalog-filters-panel__grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  ::ng-deep .josanz-catalog-filters-panel__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  ::ng-deep .josanz-catalog-filters-presentation {
+    justify-content: center;
+  }
+
+  ::ng-deep .josanz-catalog-filters-panel__actions {
+    flex-direction: column;
+  }
+
+  ::ng-deep .josanz-catalog-filters-panel__btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  ::ng-deep .josanz-catalog-sort-panel {
+    width: calc(100vw - 24px);
+  }
+}

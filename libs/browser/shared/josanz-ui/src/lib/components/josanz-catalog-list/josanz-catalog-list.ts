@@ -121,6 +121,7 @@ import { FormsModule } from '@angular/forms';
     BoardPeriodToolbarComponent,
   ],
   templateUrl: './josanz-catalog-list.html',
+  styleUrl: './josanz-catalog-list.scss',
 })
 export class JosanzCatalogListComponent implements OnChanges {
   private readonly router = inject(Router);
