@@ -175,17 +175,23 @@
 }
 
 .josanz-detail-figma__save josanz-button {
-  display: block;
-  min-width: 11.25rem;
-}
+   display: block;
+   min-width: 11.25rem;
+ }
 
-.josanz-detail-figma__save josanz-button ::ng-deep button {
-  min-height: 28px !important;
-  height: 28px !important;
-  border-radius: 4px !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-}
+ .josanz-detail-figma__save josanz-button ::ng-deep button {
+   min-height: 28px !important;
+   height: 28px !important;
+   border-radius: 8px !important;
+   font-size: 13px !important;
+   font-weight: 600 !important;
+   transition: all 0.15s ease !important;
+ }
+
+ .josanz-detail-figma__save josanz-button ::ng-deep button:not(:disabled):hover {
+   transform: translateY(-1px);
+   box-shadow: 0 4px 12px -4px rgba(15, 30, 47, 0.25) !important;
+ }
 
 /* ── Content body wrapper ────────────────────────────────── */
 .josanz-event-detail-body {
