@@ -56,6 +56,7 @@
   margin-left: auto;
 }
 
+/* Section styling */
 ::ng-deep .josanz-event-section {
   border-radius: 14px;
   border: 1px solid var(--josanz-border);
@@ -73,6 +74,31 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   font-size: 1rem;
+}
+
+/* Accordion header for sections */
+::ng-deep .josanz-staff-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.625rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+::ng-deep .josanz-staff-section-header:hover {
+  color: var(--josanz-primary, #0f1e2f);
+}
+
+::ng-deep .josanz-staff-section-chevron {
+  transition: transform 0.2s ease;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+::ng-deep .josanz-staff-section-chevron--open {
+  transform: rotate(180deg);
 }
 
 ::ng-deep .josanz-event-section-header {

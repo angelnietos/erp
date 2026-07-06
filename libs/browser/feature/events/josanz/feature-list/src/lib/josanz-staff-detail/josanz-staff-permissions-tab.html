@@ -22,33 +22,49 @@
   }
 </section>
 } @else if (user(); as u) {
+
+<!-- Permisos activos - desplegable -->
 <section class="josanz-event-section josanz-staff-perm-panel">
-  <div class="josanz-staff-perm-summary">
-    <div>
-      <h3 class="josanz-event-section__title m-0">Permisos activos</h3>
-      <p class="josanz-staff-perm-muted">
-        @if (hasWildcard()) {
-        Acceso total al tenant
-        } @else {
-        {{ effectivePermissionIds().length }} permisos efectivos
-        @if (hasPendingChanges()) {
-        <span class="josanz-staff-perm-muted"> · {{ pendingDraftCount() }} pendiente(s) de guardar</span>
-        }
-        }
-      </p>
-    </div>
-    @if (draftRoles().length) {
-    <div class="josanz-staff-perm-roles">
-      @for (role of draftRoles(); track role) {
-        @if (isElevatedRole(role)) {
-        <josanz-user-role-badge [roles]="[role]"></josanz-user-role-badge>
-        } @else {
-        <span class="josanz-staff-perm-role">{{ role }}</span>
-        }
+  <div class="josanz-staff-perm-header" (click)="permissionsPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <h3 class="josanz-event-section__title m-0">Permisos activos</h3>
+    <p class="josanz-staff-perm-muted m-0">
+      @if (hasWildcard()) {
+      Acceso total al tenant
+      } @else {
+      {{ effectivePermissionIds().length }} permisos efectivos
+      @if (hasPendingChanges()) {
+      <span class="josanz-staff-perm-muted"> · {{ pendingDraftCount() }} pendiente(s) de guardar</span>
       }
-    </div>
+      }
+    </p>
+    <svg 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      class="josanz-staff-perm-chevron"
+      [class.josanz-staff-perm-chevron--open]="permissionsPanelOpen()"
+    >
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+  
+  @if (permissionsPanelOpen()) {
+  @if (draftRoles().length) {
+  <div class="josanz-staff-perm-roles">
+    @for (role of draftRoles(); track role) {
+      @if (isElevatedRole(role)) {
+      <josanz-user-role-badge [roles]="[role]"></josanz-user-role-badge>
+      } @else {
+      <span class="josanz-staff-perm-role">{{ role }}</span>
+      }
     }
   </div>
+  }
 
   @if (hasWildcard()) {
   <div class="josanz-staff-perm-wildcard">
@@ -84,16 +100,33 @@
     </div>
   </div>
   }
+  }
 </section>
 
 @if (canManageUsers()) {
+<!-- Roles del usuario - desplegable -->
 <section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
-  <h3 class="josanz-event-section__title">Roles del usuario</h3>
-  <p class="josanz-staff-perm-muted">
-    Asigna uno o varios roles para activar permisos de golpe (p. ej. <strong>Administrador</strong> da acceso total).
-    Los cambios se reflejan en la vista previa de arriba antes de guardar.
-  </p>
-
+  <div class="josanz-staff-perm-header" (click)="rolesPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <h3 class="josanz-event-section__title m-0">Roles del usuario</h3>
+    <p class="josanz-staff-perm-muted m-0">Asigna uno o varios roles para activar permisos de golpe (p. ej. <strong>Administrador</strong> da acceso total).</p>
+    <svg 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      class="josanz-staff-perm-chevron"
+      [class.josanz-staff-perm-chevron--open]="rolesPanelOpen()"
+    >
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+  
+  @if (rolesPanelOpen()) {
+  <p class="josanz-staff-perm-muted josanz-staff-perm-helper">Los cambios se reflejan en la vista previa de arriba antes de guardar.</p>
   <div class="josanz-staff-perm-role-grid">
     @for (role of tenantRoles(); track role.id) {
     <label
@@ -119,13 +152,33 @@
     </label>
     }
   </div>
+  }
 </section>
 
+<!-- Añadir permisos extra - desplegable -->
 <section class="josanz-event-section josanz-staff-perm-panel josanz-staff-perm-panel--manage">
-  <h3 class="josanz-event-section__title">Añadir permisos extra</h3>
-  <p class="josanz-staff-perm-muted">
-    Los permisos extra se suman a los del rol. Al elegir uno en el desplegable se añade a la lista;
-    pulsa <strong>Guardar cambios</strong> para aplicar roles y permisos.
+  <div class="josanz-staff-perm-header" (click)="addPermissionsPanelOpen.update(v => !v)" role="button" tabindex="0">
+    <h3 class="josanz-event-section__title m-0">Añadir permisos extra</h3>
+    <p class="josanz-staff-perm-muted m-0">Los permisos extra se suman a los del rol.</p>
+    <svg 
+      width="18" 
+      height="18" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      stroke-width="2" 
+      stroke-linecap="round" 
+      stroke-linejoin="round"
+      class="josanz-staff-perm-chevron"
+      [class.josanz-staff-perm-chevron--open]="addPermissionsPanelOpen()"
+    >
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+  
+  @if (addPermissionsPanelOpen()) {
+  <p class="josanz-staff-perm-muted josanz-staff-perm-helper">
+    Los permisos extra se suman a los del rol. Pulsa <strong>Guardar cambios</strong> para aplicar roles y permisos.
   </p>
 
   @if (draftExtra().length) {
@@ -174,6 +227,7 @@
       (btnClick)="savePermissions()"
     ></josanz-button>
   </div>
+  }
 </section>
 }
 }

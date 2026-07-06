@@ -61,6 +61,10 @@ export class JosanzStaffPermissionsTabComponent implements OnInit {
   readonly draftExtra = signal<string[]>([]);
   readonly pickPermissionId = signal('');
 
+  readonly permissionsPanelOpen = signal(true);
+  readonly rolesPanelOpen = signal(true);
+  readonly addPermissionsPanelOpen = signal(true);
+
   readonly isOwnProfile = computed(
     () => (this.authStore.user()?.id ?? '') === this.userId,
   );

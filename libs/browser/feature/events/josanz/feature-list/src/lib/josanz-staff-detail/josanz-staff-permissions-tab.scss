@@ -17,6 +17,37 @@
   gap: 0.75rem 1.25rem;
 }
 
+/* Accordion header styles */
+::ng-deep .josanz-staff-perm-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+::ng-deep .josanz-staff-perm-header:hover {
+  color: var(--josanz-primary, #0f1e2f);
+}
+
+::ng-deep .josanz-staff-perm-chevron {
+  transition: transform 0.2s ease;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+::ng-deep .josanz-staff-perm-chevron--open {
+  transform: rotate(180deg);
+}
+
+::ng-deep .josanz-staff-perm-helper {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.875rem;
+  color: var(--josanz-text-muted);
+}
+
 ::ng-deep .josanz-staff-perm-muted {
   margin: 0.35rem 0 0;
   font-size: 13px;
@@ -53,6 +84,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(22rem, 1fr));
   gap: 0.8rem;
+  padding-top: 0.5rem;
 }
 
 ::ng-deep .josanz-staff-perm-role-option {
@@ -65,10 +97,10 @@
   background: var(--josanz-surface);
   cursor: pointer;
   transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   min-width: 0;
 }
 
