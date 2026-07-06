@@ -4,7 +4,7 @@
   "sourceRoot": "libs/browser/feature/events/josanz/figma-create-page/src",
   "prefix": "josanz",
   "projectType": "library",
-  "tags": [],
+  "tags": ["type:feature"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
@@ -21,3 +21,4 @@
     }
   }
 }
+

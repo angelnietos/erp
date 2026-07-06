@@ -4,9 +4,7 @@
   "sourceRoot": "libs/browser/feature/events/josanz/data-access/src",
   "prefix": "lib",
   "projectType": "library",
-  "tags": [
-    "type:data-access"
-  ],
+  "tags": ["type:data-access"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
