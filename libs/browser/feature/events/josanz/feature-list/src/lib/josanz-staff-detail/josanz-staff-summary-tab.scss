@@ -3,19 +3,35 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.josanz-staff-summary-form__header:hover {
+  color: var(--josanz-primary, #0f1e2f);
+}
+
+.josanz-staff-form-chevron {
+  transition: transform 0.2s ease;
+  margin-left: auto;
+}
+
+.josanz-staff-form-chevron--open {
+  transform: rotate(180deg);
 }
 
 .josanz-staff-summary-form__error {
-  margin: 0 0 1rem;
+  margin: 1rem 0 0;
   color: var(--josanz-danger);
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .josanz-staff-summary-form__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem 1.25rem;
+  padding-top: 0.5rem;
 }
 
 .josanz-staff-summary-form__full {
@@ -84,6 +100,7 @@
 
 .josanz-staff-profile-chevron {
   transition: transform 0.2s ease;
+  margin-left: auto;
 }
 
 .josanz-staff-profile-chevron--open {

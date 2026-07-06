@@ -72,6 +72,7 @@ export class JosanzStaffSummaryTabComponent implements OnChanges {
   readonly saving = signal(false);
   readonly showToast = signal(false);
   readonly error = signal('');
+  readonly formPanelOpen = signal(true);
   readonly profilePanelOpen = signal(true);
 
   readonly statusOptions: JosanzSelectOption[] = [
@@ -178,6 +179,10 @@ export class JosanzStaffSummaryTabComponent implements OnChanges {
 
   dismissToast(): void {
     this.showToast.set(false);
+  }
+
+  toggleFormPanel(): void {
+    this.formPanelOpen.update(open => !open);
   }
 
   toggleProfilePanel(): void {
