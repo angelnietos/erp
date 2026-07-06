@@ -1,4 +1,3 @@
-import type { JosanzCatalogListRow } from '@josanz-erp/josanz-ui';
 import type { JosanzTechnicianListItem } from './josanz-event-api.service';
 
 const SKILL_LABELS: Record<string, string> = {
@@ -107,30 +106,6 @@ export function technicianInitials(
     .filter((char): char is string => !!char)
     .map((c) => c.toUpperCase())
     .join('') || 'ST';
-}
-
-export function mapTechnicianToCatalogRow(
-  tech: JosanzTechnicianListItem,
-  index: number,
-): JosanzCatalogListRow {
-  const name = technicianDisplayName(tech.user);
-  const roleLabel = technicianRoleLabel(tech.status);
-
-  return {
-    id: tech.id,
-    title: formatStaffDisplayId(index),
-    leadingMark: technicianInitials(tech.user),
-    values: [
-      name,
-      technicianProfileLabel(tech),
-      '—',
-      technicianAvailabilityLabel(),
-    ],
-    typology: technicianTypologyTab(tech.status),
-    pillLabel: roleLabel,
-    pillVariant: mapTechnicianRoleToPill(tech.status),
-    railColor: technicianRoleColor(tech.status),
-  };
 }
 
 export function mapTechnicianRoleToPill(status: string): 'staff-tecnico' | 'staff-practicas' | 'staff-freelance' | 'superadmin' | 'admin' {
